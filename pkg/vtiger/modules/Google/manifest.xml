@@ -1,0 +1,17 @@
+<?xml version='1.0'?>
+<module>
+<exporttime>2013-03-29 10:08:29</exporttime>
+<name>Google</name>
+<label>Google</label>
+<parent></parent>
+<type>extension</type>
+<version>1.5</version>
+<dependencies>
+<vtiger_version>6.0.0rc</vtiger_version>
+<vtiger_max_version>6.*</vtiger_max_version>
+</dependencies>
+<tables>
+</tables>
+<crons>
+</crons>
+</module>

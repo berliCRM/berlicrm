@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<module>
+	<type>language</type>
+	<name>Romana</name>
+	<label>Romana</label>
+	<prefix>ro_ro</prefix>
+	<version>5.1.0</version>
+	<encoding>UTF-8</encoding>
+	<creationDate>2009-08-31 10:15:47</creationDate>
+	<author>Magister Software</author>
+	<license>MPL1.1</license>
+	<dependencies>
+		<vtiger_version>6.0.0rc</vtiger_version>
+		<vtiger_max_version>6.*</vtiger_max_version>
+	</dependencies>
+</module>
+

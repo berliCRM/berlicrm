@@ -1,0 +1,35 @@
+<?xml version='1.0'?>
+<module>
+<exporttime>2010-07-07 14:54:26</exporttime>
+<name>Mobile</name>
+<label>Mobile</label>
+<parent></parent>
+<type>extension</type>
+<version>2.0</version>
+<dependencies>
+<vtiger_version>5.4.0</vtiger_version>
+<vtiger_max_version>6.*</vtiger_max_version>
+</dependencies>
+<license>
+<inline><![CDATA[/*+**********************************************************************************
+ * The contents of this file are subject to the vtiger CRM Public License Version 1.0
+ * ("License"); You may not use this file except in compliance with the License
+ * The Original Code is:  vtiger CRM Open Source
+ * The Initial Developer of the Original Code is vtiger.
+ * Portions created by vtiger are Copyright (C) vtiger.
+ * All Rights Reserved.
+ ************************************************************************************/]]></inline></license>
+<tables>
+<table>
+<name>vtiger_mobile_alerts</name>
+<sql><![CDATA[CREATE TABLE `vtiger_mobile_alerts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `handler_path` varchar(500) DEFAULT NULL,
+  `handler_class` varchar(50) DEFAULT NULL,
+  `sequence` int(11) DEFAULT NULL,
+  `deleted` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+</table>
+</tables>
+</module>

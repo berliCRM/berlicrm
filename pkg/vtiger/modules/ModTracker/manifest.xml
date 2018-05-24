@@ -1,0 +1,74 @@
+<?xml version='1.0'?>
+<module>
+<exporttime>2013-07-02 12:26:16</exporttime>
+	<name>ModTracker</name>
+	<label>ModTracker</label>
+	<parent></parent>
+	<type>extension</type>
+	<version>1.2</version>
+	<dependencies>
+		<vtiger_version>6.0.0rc</vtiger_version>
+	</dependencies>
+	<tables>
+		<table>
+			<name>vtiger_modtracker_basic</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_modtracker_basic` (
+  `id` int(20) NOT NULL,
+  `crmid` int(20) default NULL,
+  `module` varchar(50) default NULL,
+  `whodid` int(20) default NULL,
+  `changedon` datetime default NULL,
+  `status` int(1) default '0',
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+</table>
+<table>
+<name>vtiger_modtracker_tabs</name>
+<sql><![CDATA[CREATE TABLE `vtiger_modtracker_tabs` (
+  `tabid` int(11) NOT NULL,
+  `visible` int(11) default '0',
+  PRIMARY KEY  (`tabid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+</table>
+<table>
+<name>vtiger_modtracker_detail</name>
+<sql><![CDATA[CREATE TABLE `vtiger_modtracker_detail` (
+  `id` int(11) default NULL,
+  `fieldname` varchar(100) default NULL,
+  `prevalue` text,
+  `postvalue` text
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>vtiger_modtracker_relations</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_modtracker_relations` (
+	id INT(19) PRIMARY KEY, 
+	targetmodule VARCHAR(100) NOT NULL,
+    targetid INT(19) NOT NULL, 
+	changedon DATETIME
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+	</tables>
+	<events>
+		<event>
+			<eventname>vtiger.entity.aftersave.final</eventname>
+<classname><![CDATA[ModTrackerHandler]]></classname>
+<filename><![CDATA[modules/ModTracker/ModTrackerHandler.php]]></filename>
+<condition><![CDATA[]]></condition>
+		</event>
+		<event>
+			<eventname>vtiger.entity.beforedelete</eventname>
+<classname><![CDATA[ModTrackerHandler]]></classname>
+<filename><![CDATA[modules/ModTracker/ModTrackerHandler.php]]></filename>
+<condition><![CDATA[]]></condition>
+		</event>
+		<event>
+			<eventname>vtiger.entity.afterrestore</eventname>
+<classname><![CDATA[ModTrackerHandler]]></classname>
+<filename><![CDATA[modules/ModTracker/ModTrackerHandler.php]]></filename>
+<condition><![CDATA[]]></condition>
+		</event>
+	</events>
+<crons>
+</crons>
+</module>

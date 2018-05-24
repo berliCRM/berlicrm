@@ -1,0 +1,9 @@
+<?xml version='1.0'?>
+<schema>
+	<tables>
+		<table>
+			<name>vtiger_mobile_alerts</name>
+			<sql></sql>
+		</table>
+	</tables>
+</schema>

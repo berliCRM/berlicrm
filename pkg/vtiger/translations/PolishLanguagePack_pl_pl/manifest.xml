@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<module>
+	<type>language</type>
+	<name>Język Polski</name>
+	<label>Język Polski</label>
+	<prefix>pl_pl</prefix>
+	<version>0.7</version>
+	<encoding>UTF-8</encoding>
+	<author>OpenSaaS Sp. z o.o. - http://opensaas.pl</author>
+	<license>Vtiger Public License</license>
+	<dependencies>
+		<vtiger_version>6.0.0rc</vtiger_version>
+		<vtiger_max_version>6.*</vtiger_max_version>
+	</dependencies>
+	<license>
+		<inline><![CDATA[
+		*************************************************************************************
+		* Terms & Conditions are placed on the: http://opensaas.pl                          *
+		*************************************************************************************
+		*  Language     : Polish                                                            *
+		*  Vtiger       : 6.x                                                               *
+		*  Author       : OpenSaaS Sp. z o.o., NetInteractive, Michał Zygmuntowicz          *
+		*  Help/Email   : bok@opensaas.pl                                                   *
+		*  Licence      : Vtiger Public License Version                                     *
+		*  Website      : www.opensaas.pl                                                   *
+		*************************************************************************************   
+		]]></inline>
+	</license>
+</module>

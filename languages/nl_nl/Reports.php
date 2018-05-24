@@ -1,0 +1,127 @@
+<?php
+/*+**********************************************************************************
+ * The contents of this file are subject to the vtiger CRM Public License Version 1.0
+ * ("License"); You may not use this file except in compliance with the License
+ * The Original Code is:  vtiger CRM Open Source
+ * The Initial Developer of the Original Code is vtiger.
+ * Portions created by vtiger are Copyright (C) vtiger.
+ * All Rights Reserved.
+ ************************************************************************************/
+$languageStrings = array(
+	'Reports'                      => 'Reports'                     , // TODO: Review
+	'SINGLE_Reports'               => 'Report'                      , // TODO: Review
+	'LBL_FOLDER_NOT_EMPTY'         => 'Map is niet leeg'            ,
+	'LBL_MOVE_REPORT'              => 'Verhuis rapport'             ,
+	'LBL_CUSTOMIZE'                => 'Bewerk'                      ,
+	'LBL_REPORT_EXPORT_EXCEL'      => 'Exporteer Excel'             ,
+	'LBL_REPORT_PRINT'             => 'Print'                       ,
+	'LBL_STEP_1'                   => 'Stap 1'                      ,
+	'LBL_STEP_2'                   => 'Stap 2'                      ,
+	'LBL_STEP_3'                   => 'Stap 3'                      ,
+	'LBL_REPORT_DETAILS'           => 'Rapport Details'             ,
+	'LBL_SELECT_COLUMNS'           => 'Selecteer kolom'             ,
+	'LBL_FILTERS'                  => 'Filters'                     ,
+	'LBL_FOLDERS'                  => 'Mappen'                      ,
+	'LBL_ADD_NEW_FOLDER'           => 'Nieuwe groep toevoegen'      ,
+	'LBL_FOLDER_NAME'              => 'Mapnaam'                     ,
+	'LBL_FOLDER_DESCRIPTION'       => 'Map Omschrijving'            ,
+	'LBL_WRITE_YOUR_DESCRIPTION_HERE' => 'Voer Omschrijving in'        ,
+	'LBL_DUPLICATES_EXIST'         => 'Duplicaat bestaat'           ,
+	'LBL_FOLDERS_LIST'             => 'Mappenlijst'                 ,
+	'LBL_DENIED_REPORTS'           => 'Geweigerde Rapportages'      ,
+	'LBL_NO_OF_RECORDS'            => 'Total Records : '           , // TODO: Review
+	'LBL_MORE_RECORDS_TXT'		   => 'Slechts 1000 records worden hieronder weergegeven. Gelieve exporteren naar alle records te zien',
+	'LBL_ADD_RECORD'               => 'Voeg Rapportage toe'         ,
+	'LBL_ADD_FOLDER'               => 'Voeg Map toe'                ,
+	'LBL_REPORT_DELETE_DENIED'     => 'Geen Toegang om de rapportage te verwijderen',
+	'LBL_FOLDER_CAN_NOT_BE_DELETED' => 'Deze map kan niet worden verwijderd',
+	'LBL_REPORTS_LIST'             => 'Rapportenlijst'              ,
+	'LBL_REPORT_NAME'              => 'Rapportnaam'                 ,
+	'LBL_REPORT_FOLDER'            => 'Rapport map'                 ,
+	'LBL_DESCRIPTION'              => 'Omschrijving'                ,
+	'PRIMARY_MODULE'               => 'Primaire Module'             ,
+	'LBL_SELECT_RELATED_MODULES'   => 'Selecteer Gerelateerde Modules',
+	'LBL_MAX'                      => 'MAX'                         ,
+	'LBL_NEXT'                     => 'Volgende'                    ,
+	'LBL_REPORTS'                  => 'Rapportagelijst'             ,
+	'LBL_GROUP_BY'                 => 'Groeperen op'                ,
+	'LBL_SORT_ORDER'               => 'Sorteervolgorde'             ,
+	'LBL_ASCENDING'                => 'Oplopend'                    ,
+	'LBL_DESCENDING'               => 'Aflopend'                    ,
+	'LBL_CALCULATIONS'             => 'Berekeningen'                ,
+	'LBL_COLUMNS'                  => 'Kolommen'                    ,
+	'LBL_SUM_VALUE'                => 'Opgeteld'                    ,
+	'LBL_AVERAGE'                  => 'Gemiddeld'                   ,
+	'LBL_LOWEST_VALUE'             => 'Laagste getal'               ,
+	'LBL_HIGHEST_VALUE'            => 'Highest Value'               ,
+	'LBL_GENERATE_REPORT'          => 'Genereer Rapportage'         ,
+	'LBL_SUM'                      => 'Totaal'                      ,
+	'LBL_AVG'                      => 'Gemiddeld'                   ,
+	'LBL_MIN'                      => 'MIN'                         ,
+	'LBL_FIELD_NAMES'              => 'Totalen'                     ,
+	'LBL_REPORT_CSV'               => 'Exporteer CSV'               ,
+	'LBL_VIEW_DETAILS'             => 'Toon Details'                ,
+	'LBL_GENERATE_NOW'             => 'Generate now'                , // TODO: Review
+	'Report Name'                  => 'Rapportnaam'                 ,
+	'Account and Contact Reports'  => 'Account en contact rapport'  ,
+	'Lead Reports'                 => 'Lead rapport'                ,
+	'Potential Reports'            => 'Verkoopkans rapport'         ,
+	'Activity Reports'             => 'Activiteit rapport'          ,
+	'HelpDesk Reports'             => 'Ticket rapport'              ,
+	'Product Reports'              => 'Product rapport'             ,
+	'Quote Reports'                => 'Offerte rapport'             ,
+	'PurchaseOrder Reports'        => 'Inkooporder rapport'         ,
+	'SalesOrder Reports'           => 'Verkooporder rapport'        ,
+	'Invoice Reports'              => 'Factuur rapport'             ,
+	'Campaign Reports'             => 'Campagne rapport'            ,
+	'Contacts by Accounts'         => 'Contacten bij accounts'      ,
+	'Contacts without Accounts'    => 'Contacten zonder accounts'   ,
+	'Contacts by Potentials'       => 'Contacten bij verkoopkansen' ,
+	'Contacts related to Accounts' => 'Contacten gerelateerd aan accounts',
+	'Contacts not related to Accounts' => 'Contacten niet gerelateerd aan accounts',
+	'Contacts related to Potentials' => 'Contacten gerelateerd aan verkoopkansen',
+	'Lead by Source'               => 'Lead per bron'               ,
+	'Lead Status Report'           => 'Lead status rapport'         ,
+	'Potential Pipeline'           => 'Verkoopkans Pipeline'        ,
+	'Closed Potentials'            => 'Gesloten verkoopkansen'      ,
+	'Potential that have Won'      => 'Gewonnen verkoopkansen'      ,
+	'Tickets by Products'          => 'Tickets per Product'         ,
+	'Tickets by Priority'          => 'Tickets per prioriteit'      ,
+	'Open Tickets'                 => 'Open tickets'                ,
+	'Tickets related to Products'  => 'Tickets gerelateerd aan Producten',
+	'Tickets that are Open'        => 'Tickets die open zijn'       ,
+	'Product Details'              => 'Product details'             ,
+	'Products by Contacts'         => 'Products per contact'        ,
+	'Product Detailed Report'      => 'Gedetailleerd Product rapport',
+	'Products related to Contacts' => 'Producten gerelateerd aan contacten',
+	'Open Quotes'                  => 'Open offertes'               ,
+	'Quotes Detailed Report'       => 'Gedetailleerd factuur rapport',
+	'Quotes that are Open'         => 'Offertes die open zijn'      ,
+	'PurchaseOrder by Contacts'    => 'Inkooporder van contacten'   ,
+	'PurchaseOrder Detailed Report' => 'Gedetailleerd inkooporder rapport',
+	'PurchaseOrder related to Contacts' => 'Inkooporder gerelateerd aan contacten',
+	'Invoice Detailed Report'      => 'Gedetailleerd factuur rapport',
+	'Last Month Activities'        => 'Activiteiten verleden maand' ,
+	'This Month Activities'        => 'Activiteiten van deze maand' ,
+	'Campaign Expectations and Actuals' => 'Campagne verwachting + actueel',
+	'SalesOrder Detailed Report'   => 'Gedetailleerd verkooporder rapport',
+	'Email Reports'                => 'E-mail Raportages'           ,
+	'Contacts Email Report'        => 'Contacten E-mail Rapportage' ,
+	'Accounts Email Report'        => 'Organisaties E-mail Rapportage',
+	'Leads Email Report'           => 'Leads E-mail Rapportage'     ,
+	'Vendors Email Report'         => 'Vendors E-mail Rapportage'   ,
+	'Emails sent to Contacts'      => 'E-mails verzonden naar Contacten',
+	'Emails sent to Organizations' => 'E-mails verzonden naar Organisaties',
+	'Emails sent to Leads'         => 'E-mails verzonden naar Leads',
+	'Emails sent to Vendors'       => 'E-mails verzonden naar Leveranciers',
+	'LBL_PRINT_REPORT'             => 'Print Report'                , // TODO: Review
+	'LBL_RECORDS'                  => 'Records'                     , // TODO: Review
+	'LBL_LIMIT_EXCEEDED'           => 'Only 1000 + records are displayed. Use CSV or Excel Export to see all the records', // TODO: Review
+	'LBL_TOP'                      => 'Top'                         , // TODO: Review
+	'LBL_ALL_REPORTS'              => 'All Reports'                 , // TODO: Review
+	'LBL_CALCULATION_CONVERSION_MESSAGE' => 'Calculation are based on the base currency of your CRM', // TODO: Review
+);
+$jsLanguageStrings = array(
+	'JS_DUPLICATE_RECORD'          => 'Duplicate Report'            , // TODO: Review
+	'JS_CALCULATION_LINE_ITEM_FIELDS_SELECTION_LIMITATION' => 'Limitation: Line Item fields(List Price, Discount & Quantity) can only be used when other calculation fields are not selected.', // TODO: Review
+);

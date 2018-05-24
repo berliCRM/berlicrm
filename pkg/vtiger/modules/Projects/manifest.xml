@@ -1,0 +1,29 @@
+<?xml version='1.0'?>
+<module>
+<exporttime>2010-06-03 11:12:47</exporttime>
+<name>Project</name>
+<label>Project</label>
+<parent>Support</parent>
+<version>3.3</version>
+<dependencies>
+<vtiger_version>6.0.0rc</vtiger_version>
+</dependencies>
+<modulebundle>true</modulebundle>
+<modulelist>
+<dependent_module>
+<name>ProjectMilestone</name>
+<install_sequence>1</install_sequence>
+<filepath>ProjectMilestone.zip</filepath>
+</dependent_module>
+<dependent_module>
+<name>ProjectTask</name>
+<install_sequence>2</install_sequence>
+<filepath>ProjectTask.zip</filepath>
+</dependent_module>
+<dependent_module>
+<name>Project</name>
+<install_sequence>3</install_sequence>
+<filepath>Project.zip</filepath>
+</dependent_module>
+</modulelist>
+</module>
