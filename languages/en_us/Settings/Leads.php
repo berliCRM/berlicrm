@@ -46,7 +46,7 @@ $jsLanguageStrings = array(
 	'JS_email' => 'Email',
 	'JS_integer' => 'Integer',
 	'JS_IS_ALREADY_BEEN_MAPPED' => 'has already been mapped',
-	'JS_MAPPING_DELETED_SUCCESSFULLY' => 'Mapping Deleted Successfully',
+	'JS_MAPPING_DELETED_SUCCESSFULLY' => 'Mapping deleted successfully',
 	'JS_multiSelectCombo' => 'Multi-Select Combo Box',
 	'JS_NONE' => 'None',
 	'JS_percent' => 'Percent',
@@ -59,4 +59,6 @@ $jsLanguageStrings = array(
 	'JS_time' => 'Time',
 	'JS_url' => 'Url',
 	'JS_WITH' => 'with',
+	'JS_MAPPING_SAVED_SUCCESSFULLY' => 'Mapping saved successfully',
+	'JS_INVALID_MAPPING' => 'invalid Mapping',
 );

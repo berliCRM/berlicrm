@@ -87,7 +87,7 @@ class Install_Index_view extends Vtiger_View_Controller {
 		$viewer = $this->getViewer($request);
 		$moduleName = $request->getModule();
 		$viewer->assign('FAILED_FILE_PERMISSIONS', Install_Utils_Model::getFailedPermissionsFiles());
-		$viewer->assign('PHP_INI_CURRENT_SETTINGS', Install_Utils_Model::getCurrentDirectiveValue());
+		// $viewer->assign('PHP_INI_CURRENT_SETTINGS', Install_Utils_Model::getCurrentDirectiveValue());
 		$viewer->assign('PHP_INI_RECOMMENDED_SETTINGS', Install_Utils_Model::getRecommendedDirectives());
 		$viewer->assign('SYSTEM_PREINSTALL_PARAMS', Install_Utils_Model::getSystemPreInstallParameters());
 		$viewer->view('Step3.tpl', $moduleName);
@@ -102,15 +102,16 @@ class Install_Index_view extends Vtiger_View_Controller {
 		$timeZone = new UserTimeZones();
 		$viewer->assign('TIMEZONES', $timeZone->userTimeZones());
 
-		$defaultParameters = Install_Utils_Model::getDefaultPreInstallParameters();		
-		$viewer->assign('DB_HOSTNAME', $defaultParameters['db_hostname']);
-		$viewer->assign('DB_USERNAME', $defaultParameters['db_username']);
-		$viewer->assign('DB_PASSWORD', $defaultParameters['db_password']);			
-		$viewer->assign('DB_NAME', $defaultParameters['db_name']);
-		$viewer->assign('ADMIN_NAME', $defaultParameters['admin_name']);	
-		$viewer->assign('ADMIN_LASTNAME', $defaultParameters['admin_lastname']);	
-		$viewer->assign('ADMIN_PASSWORD', $defaultParameters['admin_password']);	
-		$viewer->assign('ADMIN_EMAIL', $defaultParameters['admin_email']);		
+		// $defaultParameters = Install_Utils_Model::getDefaultPreInstallParameters();		
+		$viewer->assign('DB_HOSTNAME', $_SESSION['installer_info']['db_hostname']);
+		$viewer->assign('DB_USERNAME', $_SESSION['installer_info']['db_username']);
+		$viewer->assign('DB_PASSWORD', $_SESSION['installer_info']['db_password']);
+		$viewer->assign('DB_NAME', $_SESSION['installer_info']['db_name']);
+		$viewer->assign('ADMIN_NAME', $_SESSION['installer_info']['admin_name']);
+		$viewer->assign('ADMIN_LASTNAME', $_SESSION['installer_info']['admin_lastname']);
+		$viewer->assign('ADMIN_PASSWORD', $_SESSION['installer_info']['admin_password']);
+		$viewer->assign('ADMIN_EMAIL', $_SESSION['installer_info']['admin_email']);
+		$viewer->assign('CURRENCY', $_SESSION['installer_info']['currency_name']);
 						
 		$viewer->view('Step4.tpl', $moduleName);
 	}
@@ -163,11 +164,12 @@ class Install_Index_view extends Vtiger_View_Controller {
 	}
 	
 	public function Step6(Vtiger_Request $request) {
-		$moduleName = $request->getModule();
-		$viewer = $this->getViewer($request);
+		$this->Step7($request);
+		// $moduleName = $request->getModule();
+		// $viewer = $this->getViewer($request);
 		
-		$viewer->assign('AUTH_KEY', $_SESSION['config_file_info']['authentication_key']);
-		$viewer->view('Step6.tpl', $moduleName);
+		// $viewer->assign('AUTH_KEY', $_SESSION['config_file_info']['authentication_key']);
+		// $viewer->view('Step6.tpl', $moduleName);
 	}
         
 	public function Step7(Vtiger_Request $request) {
@@ -179,7 +181,7 @@ class Install_Index_view extends Vtiger_View_Controller {
                 $isInstalled = $webuiInstance->isInstalled();
                 if(!$isInstalled){
                     if($_SESSION['config_file_info']['authentication_key'] != $request->get('auth_key')) {
-                            die(vtranslate('ERR_NOT_AUTHORIZED_TO_PERFORM_THE_OPERATION', $moduleName));
+                            // die(vtranslate('ERR_NOT_AUTHORIZED_TO_PERFORM_THE_OPERATION', $moduleName));
                     }
 
                     // Create configuration file
@@ -194,11 +196,16 @@ class Install_Index_view extends Vtiger_View_Controller {
 
                     // Initialize and set up tables
                     Install_InitSchema_Model::initialize();
+					//set tag
+					$adb->pquery("UPDATE vtiger_version SET tag_version = ? WHERE id = ?;", array($_SESSION['installer_info']['svn_tag'], 1));
+					//create admin user + files
+					Install_InitSchema_Model::createUser();
 
                     // Install all the available modules
                     Install_Utils_Model::installModules();
 
-                    Install_InitSchema_Model::upgrade();
+                    // Install_InitSchema_Model::upgrade();
+					Install_InitSchema_Model::setCRMNOWmodifications();
 
                     $viewer = $this->getViewer($request);
                     $viewer->assign('PASSWORD', $_SESSION['config_file_info']['password']);

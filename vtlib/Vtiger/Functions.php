@@ -180,10 +180,10 @@ class Vtiger_Functions {
 
 	static function getEntityModuleInfo($mixed) {
 		$name = NULL;
-		if (is_numeric($mixed)) $name = self::getModuleName ($mixed);
+		if (is_numeric($mixed)) $name = self::getModuleName($mixed);
 		else $name = $mixed;
 
-		if ($name && !isset(self::$moduleEntityCache[$name])) {
+		if (empty(self::$moduleEntityCache)) {
 			global $adb;
 			$result = $adb->pquery('SELECT fieldname,modulename,tablename,entityidfield,entityidcolumn from vtiger_entityname', array());
 			while ($row = $adb->fetch_array($result)) {
@@ -614,7 +614,7 @@ class Vtiger_Functions {
 
 		//metadata check
 		$shortTagSupported = ini_get('short_open_tag') ? true : false;
-		if ($saveimage == 'true') {
+		if ($saveimage == 'true' && in_array($filetype, array('jpeg', 'jpg', 'pjpeg'))) {
 			$exifdata = exif_read_data($file_details['tmp_name']);
 			if ($exifdata && !self::validateImageMetadata($exifdata, $shortTagSupported)) {
 				$saveimage = 'false';
@@ -622,12 +622,13 @@ class Vtiger_Functions {
 		}
 
 		// Check for php code injection
-		if ($saveimage == 'true') {
-			$imageContents = file_get_contents($file_details['tmp_name']);
-			if (stripos($imageContents, $shortTagSupported ? "<?" : "<?php") !== false) { // suspicious dynamic content.
-				$saveimage = 'false';
-			}
-		}
+		//crm-now removed because "<?" can be part of image
+		// if ($saveimage == 'true') {
+			// $imageContents = file_get_contents($file_details['tmp_name']);
+			// if (stripos($imageContents, $shortTagSupported ? "<?" : "<?php") !== false) { // suspicious dynamic content.
+				// $saveimage = 'false';
+			// }
+		// }
 		return $saveimage;
 	}
 
@@ -649,13 +650,19 @@ class Vtiger_Functions {
 	}
 
 	static function getMergedDescriptionCustomVars($fields, $description) {
+		global $current_user;
+		date_default_timezone_set($current_user->time_zone);
+		$user_lang_arr = explode("_",$current_user->language);
+		$user_lang_arr[1] = strtoupper ($user_lang_arr[1]);
+		$user_lang = implode("_", $user_lang_arr);
+		setlocale(LC_TIME, $user_lang, $user_lang.'UTF-8');
 		foreach ($fields['custom'] as $columnname) {
 			$token_data = '$custom-' . $columnname . '$';
 			$token_value = '';
 			switch ($columnname) {
-				case 'currentdate': $token_value = date("F j, Y");
+				case 'currentdate': $token_value = strftime("%d. %B %Y");
 					break;
-				case 'currenttime': $token_value = date("G:i:s T");
+				case 'currenttime': $token_value = strftime("%T (%Z)");
 					break;
 			}
 			$description = str_replace($token_data, $token_value, $description);

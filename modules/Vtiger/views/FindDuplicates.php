@@ -60,13 +60,16 @@ class Vtiger_FindDuplicates_View extends Vtiger_List_View {
 		$module = $request->getModule();
 		$moduleModel = Vtiger_Module_Model::getInstance($module);
 
-		$massActionLink = array(
-			'linktype' => 'LISTVIEWBASIC',
-			'linklabel' => 'LBL_DELETE',
-			'linkurl' => 'Javascript:Vtiger_FindDuplicates_Js.massDeleteRecords("index.php?module='.$module.'&action=MassDelete");',
-			'linkicon' => ''
-		);
-		$massActionLinks[] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
+		$massActionLinks = array();
+		if ($moduleModel->isPermitted('Delete')) {
+			$massActionLink = array(
+				'linktype' => 'LISTVIEWBASIC',
+				'linklabel' => 'LBL_DELETE',
+				'linkurl' => 'Javascript:Vtiger_FindDuplicates_Js.massDeleteRecords("index.php?module='.$module.'&action=MassDelete");',
+				'linkicon' => ''
+			);
+			$massActionLinks[] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
+		}
 		$viewer->assign('LISTVIEW_LINKS', $massActionLinks);
 		$viewer->assign('MODULE_MODEL', $moduleModel);
 
@@ -108,6 +111,13 @@ class Vtiger_FindDuplicates_View extends Vtiger_List_View {
 		//for calculating the page range
 		for($i=0; $i<$rowCount; $i++) $dummyListEntries[] = $i;
 		$pagingModel->calculatePageRange($dummyListEntries);
+		
+		if($this->rows > $pageLimit){
+			$pagingModel->set('nextPageExists', true);
+		}
+		else{
+			$pagingModel->set('nextPageExists', false);
+		}
 
 		$viewer->assign('IGNORE_EMPTY', $ignoreEmpty);
 		$viewer->assign('LISTVIEW_ENTRIES_COUNT', $rowCount);
@@ -116,6 +126,7 @@ class Vtiger_FindDuplicates_View extends Vtiger_List_View {
 		$viewer->assign('PAGING_MODEL', $pagingModel);
 		$viewer->assign('PAGE_NUMBER',$pageNumber);
 		$viewer->assign('MODULE', $module);
+		$viewer->assign('IS_MODULE_EDITABLE', $moduleModel->isPermitted('EditView'));
 		$viewer->assign('DUPLICATE_SEARCH_FIELDS', $duplicateSearchFields);
 
 		$customViewModel = CustomView_Record_Model::getAllFilterByModule($module);

@@ -14,14 +14,12 @@ class Settings_Vtiger_OutgoingServer_Model extends Settings_Vtiger_Systems_Model
 
 
     public function getSubject() {
-        return 'Test mail about the mail server configuration.';
+        return getTranslatedString('LBL_CONFIRM_SUBJECT','Vtiger');
     }
     
     public function getBody() {
         $currentUser = Users_Record_Model::getCurrentUserModel();
-        return 'Dear '.$currentUser->get('user_name').', <br><br><b> This is a test mail sent to confirm if a mail is 
-                actually being sent through the smtp server that you have configured. </b><br>Feel free to delete this mail.
-                <br><br>Thanks  and  Regards,<br> Team vTiger <br><br>';
+        return getTranslatedString('LBL_CONFIRM_BODY','Vtiger');
     }
     
     public function loadDefaultValues() {

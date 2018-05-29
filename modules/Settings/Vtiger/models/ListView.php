@@ -107,7 +107,9 @@ class Settings_Vtiger_ListView_Model extends Vtiger_Base_Model {
             
             if($nextPageNumRows <= 0) {
                 $pagingModel->set('nextPageExists', false);
-            }
+            } else {
+				$pagingModel->set('nextPageExists', true);
+			}
         }
 		return $listViewRecordModels;
 	}
@@ -150,14 +152,9 @@ class Settings_Vtiger_ListView_Model extends Vtiger_Base_Model {
 
 		$listQuery = $this->getBasicListQuery();
 
-        $position = stripos($listQuery, ' from ');
-		if ($position) {
-			$split = spliti(' from ', $listQuery);
-			$splitCount = count($split);
-			$listQuery = 'SELECT count(*) AS count ';
-			for ($i=1; $i<$splitCount; $i++) {
-				$listQuery = $listQuery. ' FROM ' .$split[$i];
-			}
+        $pos = stripos($listQuery, ' from ');
+        if ($pos !== false) {
+			$listQuery = 'SELECT count(*) AS count' . substr($listQuery,$pos); 
 		}
 
 		$listResult = $db->pquery($listQuery, array());

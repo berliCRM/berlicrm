@@ -10,6 +10,8 @@
 
 class RecycleBin_Module_Model extends Vtiger_Module_Model {
 	
+    // path to logfile of permanently deleted records (for german data protection laws), set to false to disable
+    public $deletionLogFile = "logs/deletions.csv";
 
 	/**
 	 * Function to get the url for list view of the module
@@ -117,7 +119,7 @@ class RecycleBin_Module_Model extends Vtiger_Module_Model {
 	}
 	
 	/**
-	 * Function to delete the reccords perminently in vitger CRM database
+	 * Function to delete the records permanently in CRM
 	 */
 	public function emptyRecycleBin(){
 		$db = PearDatabase::getInstance(); 
@@ -130,6 +132,7 @@ class RecycleBin_Module_Model extends Vtiger_Module_Model {
 			}
 		}
 		$this->deleteFiles($recordIds);
+        $this->logDeletions($recordIds);
 		$db->query('DELETE FROM vtiger_crmentity WHERE deleted = 1');
 		$db->query('DELETE FROM vtiger_relatedlists_rb');
 		
@@ -137,11 +140,11 @@ class RecycleBin_Module_Model extends Vtiger_Module_Model {
 	}
 	
 	/**
-	 * Function to deleted the records perminently in CRM
-	 * @param type $reocrdIds
+	 * Function to delete the records permanently in CRM
+	 * @param <Array> $recordIds
 	 */
 	public function deleteRecords($recordIds){
-	        $db = PearDatabase::getInstance(); 
+	    $db = PearDatabase::getInstance(); 
 		//Delete the records in vtiger crmentity and relatedlists.
 		$query = 'DELETE FROM vtiger_crmentity WHERE deleted = ? and crmid in('.generateQuestionMarks($recordIds).')';
 		$db->pquery($query, array(1, $recordIds));
@@ -151,11 +154,12 @@ class RecycleBin_Module_Model extends Vtiger_Module_Model {
 
 		// Delete entries of attachments from vtiger_attachments and vtiger_seattachmentsrel
 		$this->deleteFiles($recordIds);
+        $this->logDeletions($recordIds);
 		// TODO - Remove records from module tables and other related stores.
 	}
 
 	/**Function to delete files from CRM.
-	 *@param type $recordIds
+	 *@param <Array> $recordIds
 	 */
 
 	public function deleteFiles($recordIds){
@@ -205,9 +209,30 @@ class RecycleBin_Module_Model extends Vtiger_Module_Model {
 		}
 	}
         
-          public function getDeletedRecordsTotalCount() {  
-                $db = PearDatabase::getInstance();  
-                $totalCount = $db->pquery('select count(*) as count from vtiger_crmentity where deleted=1',array());  
-                return $db->query_result($totalCount, 0, 'count');  
+    public function getDeletedRecordsTotalCount() {  
+        $db = PearDatabase::getInstance();  
+        $totalCount = $db->pquery('select count(*) as count from vtiger_crmentity where deleted=1',array());  
+        return $db->query_result($totalCount, 0, 'count');  
+    }
+    
+    /*
+     * Function to log time, user and IDs of permanently deleted records
+     * @param <Array> $recordIds
+     */
+    private function logDeletions($recordIds) {
+        if ($this->deletionLogFile !== false) {
+            global $current_user;
+            if (!file_exists($this->deletionLogFile)) {
+                // create file and write csv header
+                file_put_contents($this->deletionLogFile,"crmid;deletiondate;deletedbyuserid");
+            }
+            $handle = fopen($this->deletionLogFile,"a");
+            foreach ($recordIds as $recordId) {
+                fwrite($handle,"\n$recordId;");
+                fwrite($handle,date("c;")); // datetime in ISO 8601
+                fwrite($handle,$current_user->id);
+            }
+            fclose($handle);
         }
+    }
 }

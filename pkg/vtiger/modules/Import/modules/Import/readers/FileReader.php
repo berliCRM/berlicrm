@@ -97,7 +97,7 @@ class Import_FileReader_Reader {
 		$fieldMapping = $this->request->get('field_mapping');
         $moduleFields = $this->moduleModel->getFields();
         $columnsListQuery = 'id INT PRIMARY KEY AUTO_INCREMENT, status INT DEFAULT 0, recordid INT';
-		$fieldTypes = $this->getModuleFieldDBColumnType();
+		// $fieldTypes = $this->getModuleFieldDBColumnType();
 		foreach($fieldMapping as $fieldName => $index) {
             $fieldObject = $moduleFields[$fieldName];
             $columnsListQuery .= $this->getDBColumnType($fieldObject, $fieldTypes);
@@ -125,11 +125,11 @@ class Import_FileReader_Reader {
         $fieldName = $fieldObject->getName();
         $dataType = $fieldObject->getFieldDataType();
 		$skipDataType = array('reference','owner', 'currencyList', 'date', 'datetime');
-        if(in_array($dataType, $skipDataType)){
-            $columnsListQuery .= ','.$fieldName.' varchar(250)';
-        } else {
-            $columnsListQuery .= ','.$fieldName.' '.$fieldTypes[$fieldObject->get('column')];
-        }
+        // if(in_array($dataType, $skipDataType)){
+            $columnsListQuery .= ','.$fieldName.' text';
+        // } else {
+            // $columnsListQuery .= ','.$fieldName.' '.$fieldTypes[$fieldObject->get('column')];
+        // }
         
         return $columnsListQuery;
     }

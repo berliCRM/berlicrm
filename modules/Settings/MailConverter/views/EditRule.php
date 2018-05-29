@@ -44,6 +44,7 @@ class Settings_MailConverter_EditRule_View extends Settings_Vtiger_IndexAjax_Vie
 		
 		$viewer->assign('DEFAULT_OPTIONS', Settings_MailConverter_RuleRecord_Model::getDefaultConditions());
 		$viewer->assign('DEFAULT_ACTIONS', Settings_MailConverter_RuleRecord_Model::getDefaultActions());
+		$viewer->assign('ATTACHMENT_FOLDERS', Settings_MailConverter_RuleRecord_Model::getAttachmentFolders());
 
 		$viewer->assign('MODULE_NAME', $moduleName);
 		$viewer->assign('QUALIFIED_MODULE', $qualifiedModuleName);

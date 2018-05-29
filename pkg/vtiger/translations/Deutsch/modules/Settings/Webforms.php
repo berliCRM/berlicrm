@@ -1,49 +1,52 @@
 <?php
-/*+**********************************************************************************
+/*+***********************************************************************************
  * The contents of this file are subject to the vtiger CRM Public License Version 1.0
  * ("License"); You may not use this file except in compliance with the License
  * The Original Code is:  vtiger CRM Open Source
  * The Initial Developer of the Original Code is vtiger.
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
- ************************************************************************************/
+ * Reviewed by crm-now GmbH
+ *************************************************************************************/
 $languageStrings = array(
-	'SINGLE_Settings:Webforms'     => 'Webform'                     , 
-	'WebForm Name'                 => 'Webform Name'                , 
-	'Public Id'                    => 'Public Id'                   , 
-	'Enabled'                      => 'Status'                      , 
-	'Module'                       => 'Module'                      , 
-	'Return Url'                   => 'Return Url'                  , 
-	'Post Url'                     => 'Post Url'                    , 
-    'Captcha Enabled'              => 'Captcha aktiviert'           ,
-	'SINGLE_Webforms'              => 'Webform'                     , 
-	'LBL_SHOW_FORM'                => 'Show Form'                   , 
-	'LBL_DUPLICATES_EXIST'         => 'Webform Name already exists' , 
-	'LBL_WEBFORM_INFORMATION'      => 'Webform Information'         , 
-	'LBL_FIELD_INFORMATION'        => 'Field Information'           , 
-	'LBL_FIELD_NAME'               => 'Field Name'                  , 
-	'LBL_OVERRIDE_VALUE'           => 'Override Value'              , 
-	'LBL_MANDATORY'                => 'Mandatory'                   , 
-	'LBL_WEBFORM_REFERENCE_FIELD'  => 'Webforms reference Field'    , 
-	'LBL_SELECT_FIELDS_OF_TARGET_MODULE' => 'Select Fields for Target Module...', 
-	'LBL_ALLOWS_YOU_TO_MANAGE_WEBFORMS' => 'Allows you to manage webforms', 
-	'LBL_ADD_FIELDS'               => 'Add Fields'                  , 
-	'LBL_EMBED_THE_FOLLOWING_FORM_IN_YOUR_WEBSITE' => 'Embed the following form in your website', 
-	'LBL_SELECT_VALUE'             => 'Select Value'                , 
-	'LBL_LABEL'                    => 'label'                       , 
-	'LBL_SAVE_FIELDS_ORDER'            => 'Sparen Felder bestellen', 
-	'LBL_HIDDEN' => 'Versteckt',
-	'LBL_ENABLE_TARGET_MODULES_FOR_WEBFORM' => 'Aktivieren Ziel Module für Web-Formular',
-	'LBL_ASSIGN_USERS' => 'Benutzerzuweisung',
-    'LBL_ASSIGN_ROUND_ROBIN' => 'Weisen Sie Benutzer In Round Robin',
-    'LBL_ROUNDROBIN_USERS_LIST' => 'Round Robin Benutzerliste',
+    'Captcha Enabled' => 'Captcha zugelassen',
+	'Enabled' => 'zugelassen',
+	'LBL_ADD_FIELDS' => 'Felder hinzufügen',
+	'LBL_ALLOWS_YOU_TO_MANAGE_WEBFORMS' => 'gestattet Webforms zu managen',
+    'LBL_ASSIGN_ROUND_ROBIN' => 'Nutzer durch Roundrobin-Verfahren zuweisen',
+	'LBL_ASSIGN_USERS' => 'Nutzerzuordnung',
+	'LBL_DUPLICATES_EXIST' => 'den Webform-Namen gibt es bereit',
+	'LBL_EMBED_THE_FOLLOWING_FORM_IN_YOUR_WEBSITE' => 'die folgende Form in Ihre Webseite einbinden',
+	'LBL_ENABLE_TARGET_MODULES_FOR_WEBFORM' => 'Zielmodule für Webform zulassen',
+	'LBL_FIELD_INFORMATION' => 'Feldinformation',
+	'LBL_FIELD_NAME' => 'Feldname',
+	'LBL_HIDDEN' => 'verborgen',
+	'LBL_LABEL' => 'Label',
+	'LBL_MANDATORY' => 'Pflichtangabe',
+	'LBL_OVERRIDE_VALUE' => 'Wert überschreiben',
+    'LBL_ROUNDROBIN_USERS_LIST' => 'Round Robin Nutzerliste',
+	'LBL_SAVE_FIELDS_ORDER' => 'speichere Feldreihenfolge', 
+	'LBL_SELECT_FIELDS_OF_TARGET_MODULE' => 'Felder für Zielmodul auswählen...',
+	'LBL_SELECT_VALUE' => 'Wert auswählen',
+	'LBL_SHOW_FORM' => 'Form anzeigen',
+	'LBL_WEBFORM_INFORMATION' => 'Webform Information',
+	'LBL_WEBFORM_REFERENCE_FIELD' => 'Webforms Referenzfelder',
+	'Module' => 'Modul',
+	'Post Url' => 'Post Url',
+	'Public Id' => 'öffentliche Id',
+	'Return Url' => 'Return Url',
+	'SINGLE_Settings:Webforms' => 'Webform',
+	'SINGLE_Webforms' => 'Webform',
+	'WebForm Name' => 'Webform-Name',
 );
 $jsLanguageStrings = array(
-	'JS_WEBFORM_DELETED_SUCCESSFULLY' => 'Webform deleted successfully', 
-	'JS_LOADING_TARGET_MODULE_FIELDS' => 'Loadding Target Module Fields', 
-	'JS_SELECT_VALUE'              => 'Select Vlaue'                , 
-	'JS_MANDATORY_FIELDS_WITHOUT_OVERRIDE_VALUE_CANT_BE_HIDDEN' => 'Pflichtfelder, ohne Override-Werte kann nicht ausgeblendet werden',
-	'JS_REFERENCE_FIELDS_CANT_BE_MANDATORY_WITHOUT_OVERRIDE_VALUE' => 'Referenzfelder kann nicht obligatorisch sein, ohne Override-Wert',
-	'JS_TYPE_TO_SEARCH' => 'Geben Sie zur Suche',
-	"JS_WEBFORM_WITH_THIS_NAME_ALREADY_EXISTS" => 'Webform mit diesem Namen ist bereits vorhanden',
+	'JS_LABEL' => 'Label',
+	'JS_LOADING_TARGET_MODULE_FIELDS' => 'Lade Felder des Zielmoduls',
+	'JS_MANDATORY_FIELDS_WITHOUT_OVERRIDE_VALUE_CANT_BE_HIDDEN' => 'Pflichtfelder ohne Standardeintrag können nicht verborgen werden.',
+	'JS_REFERENCE_FIELDS_CANT_BE_MANDATORY_WITHOUT_OVERRIDE_VALUE' => 'Referenzfelder können ohne Standardeintrag nicht zum Pflichfeld gemacht werden.',
+	'JS_SELECT_AN_OPTION' => 'eine Option auswählen',
+	'JS_TYPE_TO_SEARCH' => 'zur Suche eintippen',
+	'JS_WEBFORM_DELETED_SUCCESSFULLY' => 'Webform erfolgreich gelöscht',
+	'JS_WEBFORM_WITH_THIS_NAME_ALREADY_EXISTS' => 'eine Webform mit diesem Namen gibt es bereits',
 );
+?>

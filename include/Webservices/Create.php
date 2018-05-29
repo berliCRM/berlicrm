@@ -33,7 +33,7 @@ function vtws_create($elementType, $element, $user) {
 
     $handler = new $handlerClass($webserviceObject, $user, $adb, $log);
     $meta = $handler->getMeta();
-    if ($meta->hasWriteAccess() !== true) {
+    if ($meta->hasCreateAccess() !== true) {
         throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, "Permission to write is denied");
     }
 

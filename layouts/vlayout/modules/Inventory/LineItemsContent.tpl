@@ -12,6 +12,7 @@
 {strip}
 	{assign var="deleted" value="deleted"|cat:$row_no}
     {assign var="hdnProductId" value="hdnProductId"|cat:$row_no}
+	{assign var="hdnProductcode" value="hdnProductcode"|cat:$row_no}
     {assign var="productName" value="productName"|cat:$row_no}
     {assign var="comment" value="comment"|cat:$row_no}
     {assign var="productDescription" value="productDescription"|cat:$row_no}
@@ -40,8 +41,9 @@
     {assign var="FINAL" value=$RELATED_PRODUCTS.1.final_details}
 	
 	{assign var="productDeleted" value="productDeleted"|cat:$row_no}
-        {assign var="productId" value=$data[$hdnProductId]}
-        {assign var="listPriceValues" value=Products_Record_Model::getListPriceValues($productId)}
+    {assign var="productId" value=$data[$hdnProductId]}
+    {assign var="listPriceValues" value=Products_Record_Model::getListPriceValues($productId)}
+	{assign var="hdnLineitemId" value="hdnLineitemId"|cat:$row_no}
 	<td>
 		<i class="icon-trash deleteRow cursorPointer" title="{vtranslate('LBL_DELETE',$MODULE)}"></i>
 		&nbsp;<a><img src="{vimage_path('drag.png')}" border="0" title="{vtranslate('LBL_DRAG',$MODULE)}"/></a>
@@ -52,9 +54,13 @@
 		<input type="hidden" name="hidtax_row_no{$row_no}" id="hidtax_row_no{$row_no}" value="{$tax_row_no}"/>
 		<!-- Product Re-Ordering Feature Code Addition ends -->
 		<div>
+			<div>
+			<input type="text" id="{$hdnProductcode}" name="{$hdnProductcode}" class="lineItemProductCode" readonly value="{$data.$hdnProductcode}"></input>
+			</div>
 			<input type="text" id="{$productName}" name="{$productName}" value="{$data.$productName}" class="productName {if $row_no neq 0} autoComplete {/if}" placeholder="{vtranslate('LBL_TYPE_SEARCH',$MODULE)}" data-validation-engine="validate[required]" {if !empty($data.$productName)} disabled="disabled" {/if}/>
 			<input type="hidden" id="{$hdnProductId}" name="{$hdnProductId}" value="{$data.$hdnProductId}" class="selectedModuleId"/>
 			<input type="hidden" id="lineItemType{$row_no}" name="lineItemType{$row_no}" value="{$entityType}" class="lineItemType"/>
+			<input type="hidden" id="{$hdnLineitemId}" name="{$hdnLineitemId}" value="{$data.$hdnLineitemId}"/>
 			{if $row_no eq 0}
 				<img class="lineItemPopup cursorPointer alignMiddle" data-popup="ServicesPopup" title="{vtranslate('Services',$MODULE)}" data-module-name="Services" data-field-name="serviceid" src="{vimage_path('Services.png')}"/>
 				<img class="lineItemPopup cursorPointer alignMiddle" data-popup="ProductsPopup" title="{vtranslate('Products',$MODULE)}" data-module-name="Products" data-field-name="productid" src="{vimage_path('Products.png')}"/>
@@ -86,10 +92,11 @@
 				{if empty($data.$productName)}
 					{vtranslate('LBL_THIS_LINE_ITEM_IS_DELETED_FROM_THE_SYSTEM_PLEASE_REMOVE_THIS_LINE_ITEM',$MODULE)}
 				{else}
-					{vtranslate('LBL_THIS',$MODULE)} {$entityType} {vtranslate('LBL_IS_DELETED_FROM_THE_SYSTEM_PLEASE_REMOVE_OR_REPLACE_THIS_ITEM',$MODULE)}
+					{vtranslate('LBL_THIS',$MODULE)} {vtranslate($entityType,$MODULE)} {vtranslate('LBL_IS_DELETED_FROM_THE_SYSTEM_PLEASE_REMOVE_OR_REPLACE_THIS_ITEM',$MODULE)}
 				{/if}
 			</div>
 		{else}
+			<div><br><textarea id="{$productDescription}" name="{$productDescription}" class="lineItemDescriptionBox">{$data.$productDescription}</textarea>
 			<div><br><textarea id="{$comment}" name="{$comment}" class="lineItemCommentBox">{$data.$comment}</textarea>
 		{/if}
 	</td>

@@ -47,6 +47,8 @@ class Vtiger_MailScannerRule {
 	var $actions  = false;
     // TODO we are restricting one action for one rule right now
 	var $useaction= false;
+	//folder where attachments will be saved
+	var $folderid = false;
 
 	/** DEBUG functionality **/
 	var $debug     = false;
@@ -94,6 +96,7 @@ class Vtiger_MailScannerRule {
             $this->sequence = $adb->query_result($result, 0, 'sequence');
             $this->matchusing = $adb->query_result($result, 0, 'matchusing');
             $this->assigned_to = $adb->query_result($result, 0, 'assigned_to');
+			$this->folderid = $adb->query_result($result, 0, 'folderid');
             $this->isvalid = true;
             $this->initializeActions();
             // At present we support only one action for a rule
@@ -379,14 +382,14 @@ class Vtiger_MailScannerRule {
     function update() {
         global $adb;
         if ($this->ruleid) {
-            $adb->pquery("UPDATE vtiger_mailscanner_rules SET scannerid=?,fromaddress=?,toaddress=?,subjectop=?,subject=?,bodyop=?,body=?,matchusing=?,assigned_to=?,cc=?,bcc=?
+            $adb->pquery("UPDATE vtiger_mailscanner_rules SET scannerid=?,fromaddress=?,toaddress=?,subjectop=?,subject=?,bodyop=?,body=?,matchusing=?,assigned_to=?,cc=?,bcc=?,folderid=?
                     WHERE ruleid=?", Array($this->scannerid, $this->fromaddress, $this->toaddress, $this->subjectop, $this->subject,
-            $this->bodyop, $this->body, $this->matchusing, $this->assigned_to, $this->cc, $this->bcc, $this->ruleid));
+            $this->bodyop, $this->body, $this->matchusing, $this->assigned_to, $this->cc, $this->bcc, $this->folderid, $this->ruleid));
         } else {
             $this->sequence = $this->__nextsequence();
-            $adb->pquery("INSERT INTO vtiger_mailscanner_rules(scannerid,fromaddress,toaddress,subjectop,subject,bodyop,body,matchusing,sequence,assigned_to,cc,bcc)
-                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", Array($this->scannerid, $this->fromaddress, $this->toaddress, $this->subjectop, $this->subject,
-            $this->bodyop, $this->body, $this->matchusing, $this->sequence, $this->assigned_to, $this->cc, $this->bcc));
+            $adb->pquery("INSERT INTO vtiger_mailscanner_rules(scannerid,fromaddress,toaddress,subjectop,subject,bodyop,body,matchusing,sequence,assigned_to,cc,bcc,folderid)
+                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)", Array($this->scannerid, $this->fromaddress, $this->toaddress, $this->subjectop, $this->subject,
+            $this->bodyop, $this->body, $this->matchusing, $this->sequence, $this->assigned_to, $this->cc, $this->bcc, $this->folderid));
             $this->ruleid = $adb->database->Insert_ID();
         }
     }

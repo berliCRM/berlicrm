@@ -165,19 +165,43 @@ class Settings_Picklist_Module_Model extends Vtiger_Module_Model {
 		array_push($params, $pickListFieldName);
         $db->pquery($query, $params);
 
-        $query='SELECT tablename,columnname FROM vtiger_field WHERE fieldname=? AND presence in (0,2)';
+        $query='SELECT tablename,columnname,uitype FROM vtiger_field WHERE fieldname=? AND presence in (0,2)';
         $result = $db->pquery($query, array($pickListFieldName));
         $num_row = $db->num_rows($result);
+		
+		$moduleInstance = CRMEntity::getInstance($moduleName);
 
         for($i=0; $i<$num_row; $i++) {
             $row = $db->query_result_rowdata($result, $i);
             $tableName = $row['tablename'];
             $columnName = $row['columnname'];
+			$uitype = $row['uitype'];
 
-            $query = 'UPDATE '.$tableName.' SET '.$columnName.'=? WHERE '.$columnName.' IN ('.  generateQuestionMarks($pickListValues).')';
-			$params = array($replaceValue);
-			array_push($params, $pickListValues);
-            $db->pquery($query, $params);
+            //multipicklist needs special treatment
+			if ($uitype == 33) {
+				$indexColumn = $moduleInstance->tab_name_index[$tableName];
+				$query = "SELECT $indexColumn, $columnName FROM $tableName;";
+				$multiRes = $db->pquery($query, array());
+				while ($row = $db->fetch_row($multiRes)) {
+					$multiId = $row[$indexColumn];
+					$tmpVal = explode(' |##| ', $row[$columnName]);
+					$tmpVal2 = array_diff($tmpVal, $pickListValues);
+					//skip if no value was replaced
+					if ($tmpVal == $tmpVal2) continue;
+					if (!in_array($replaceValue, $tmpVal2)) {
+						$tmpVal2[] = $replaceValue;
+					}
+					$tmpVal2 = implode(' |##| ', array_filter($tmpVal2));
+					
+					$query = "UPDATE $tableName SET $columnName = ? WHERE $indexColumn = ?;";
+					$db->pquery($query, array($tmpVal2, $multiId));
+				}
+			} else {
+				$query = 'UPDATE '.$tableName.' SET '.$columnName.'=? WHERE '.$columnName.' IN ('.  generateQuestionMarks($pickListValues).')';
+				$params = array($replaceValue);
+				array_push($params, $pickListValues);
+				$db->pquery($query, $params);
+			}
         }
 		
 		$query = 'UPDATE vtiger_field SET defaultvalue=? WHERE defaultvalue IN ('. generateQuestionMarks($pickListValues) .') AND columnname=?';

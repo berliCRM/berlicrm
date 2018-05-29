@@ -134,7 +134,7 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 						if(!empty($value) && (!$emailOptOutValue)) {
 							$to[] =	$value;
 							$toMailInfo[$id][] = $value;
-							$toMailNamesList[$id][] = array('label' => $recordModel->getName(), 'value' => $value);
+							$toMailNamesList[$id][] = array('label' => $this->string_sanitize($recordModel->getName()), 'value' => $value);
 						}
 					}
 				}
@@ -378,4 +378,11 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
     public function previewPrint($request) {
         $this->emailPreview($request);
     }
+	
+	//crm-now: added for removing quotes (single/double) in email receiver name
+	public function string_sanitize($s) {
+		$result = str_replace('"', "", $s);
+		$result = str_replace("'", "", $result);
+		return $result;
+	}
 }

@@ -70,7 +70,7 @@ class Documents extends CRMEntity {
 	//Added these variables which are used as default order by and sortorder in ListView
 	var $default_order_by = 'title';
 	var $default_sort_order = 'ASC';
-	function Documents() {
+	function __construct() {
 		$this->log = LoggerManager::getLogger('notes');
 		$this->log->debug("Entering Documents() method ...");
 		$this->db = PearDatabase::getInstance();
@@ -507,14 +507,13 @@ class Documents extends CRMEntity {
 
 	function getQueryByModuleField($module, $fieldname, $srcrecord, $query) {
 		if($module == "MailManager") {
-			$tempQuery = split('WHERE', $query);
-			if(!empty($tempQuery[1])) {
-				$where = " vtiger_notes.filelocationtype = 'I' AND vtiger_notes.filename != '' AND vtiger_notes.filestatus != 0 AND ";
-				$query = $tempQuery[0].' WHERE '.$where.$tempQuery[1];
-			} else{
-				$query = $tempQuery[0].' WHERE '.$tempQuery;
-			}
-			return $query;
+            $position = stripos($query, 'where');
+            if($position) {
+                $query .= " AND vtiger_notes.filelocationtype = 'I' AND vtiger_notes.filename != '' AND vtiger_notes.filestatus != 0";
+            } else {
+                $query .= " WHERE vtiger_notes.filelocationtype = 'I' AND vtiger_notes.filename != '' AND vtiger_notes.filestatus != 0";
+            }
+            return $query;
 		}
 	}
 
@@ -524,7 +523,7 @@ class Documents extends CRMEntity {
 	 */
 	static function isLinkPermitted($linkData) {
 		$moduleName = "Documents";
-		if(vtlib_isModuleActive($moduleName) && isPermitted($moduleName, 'EditView') == 'yes') {
+		if(vtlib_isModuleActive($moduleName) && isPermitted($moduleName, 'CreateView') == 'yes') {
 			return true;
 		}
 		return false;

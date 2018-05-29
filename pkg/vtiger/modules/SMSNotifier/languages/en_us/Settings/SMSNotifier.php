@@ -13,12 +13,18 @@ $languageStrings = array(
 	'LBL_ADD_CONFIGURATION' => 'New Configuration',
 	'LBL_EDIT_CONFIGURATION' => 'Edit Configuration',
 	'LBL_SELECT_ONE' => 'Select One',
+	'LBL_SERVER_CONFIG' => 'Server Configuration', 
 	
 	//Fields
 	'providertype' => 'Provider',
 	'isactive' => 'Active',
 	'username' => 'User Name',
 	'password' => 'Password',
+	'countryprefix' => 'Country Prefix',
+	
+	//List View
+	'Provider' => 'Provider',
+	'User Name' => 'User Name',
 );
 
 $jsLanguageStrings = array(

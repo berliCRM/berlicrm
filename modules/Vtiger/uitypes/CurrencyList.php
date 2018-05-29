@@ -16,7 +16,7 @@ class Vtiger_CurrencyList_UIType extends Vtiger_Base_UIType {
 		return 'uitypes/CurrencyList.tpl';
 	}
 
-	public function getDisplayValue($value) {
+	public function getDisplayValue($value, $record = false, $recordInstance = false) {
 		$db = PearDatabase::getInstance();
 		$result = $db->pquery('SELECT currency_name FROM vtiger_currency_info WHERE currency_status = ? AND id = ?',
 					array('Active', $value));

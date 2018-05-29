@@ -18,40 +18,45 @@ class Install_InitSchema_Model {
 	public static function initialize() {
 		global $adb;
 		$adb = PearDatabase::getInstance();
-		$adb->createTables("schema/DatabaseSchema.xml");
+		
+		$adb->database->multiQuery = true;
+		$schema = file_get_contents('schema/DatabaseSchema.sql');
+		$adb->pquery($schema);
+		$adb->database->multiQuery = false;
+		// $adb->createTables("schema/DatabaseSchema.xml");
 
-		$defaultDataPopulator = new DefaultDataPopulator();
-		$defaultDataPopulator->create_tables();
+		// $defaultDataPopulator = new DefaultDataPopulator();
+		// $defaultDataPopulator->create_tables();
 
-		self::createDefaultUsersAccess();
+		// self::createDefaultUsersAccess();
 
-		// create and populate combo tables
-		$combo = new PopulateComboValues();
-		$combo->create_tables();
-		$combo->create_nonpicklist_tables();
+		// // create and populate combo tables
+		// $combo = new PopulateComboValues();
+		// $combo->create_tables();
+		// $combo->create_nonpicklist_tables();
 
-		create_tab_data_file();
-		create_parenttab_data_file();
+		// create_tab_data_file();
+		// create_parenttab_data_file();
 
-		// default report population
-		vimport('~~modules/Reports/PopulateReports.php');
+		// // default report population
+		// vimport('~~modules/Reports/PopulateReports.php');
 
-		// default customview population
-		vimport('~~modules/CustomView/PopulateCustomView.php');
+		// // default customview population
+		// vimport('~~modules/CustomView/PopulateCustomView.php');
 
-		// ensure required sequences are created (adodb creates them as needed, but if
-		// creation occurs within a transaction we get problems
-		$adb->getUniqueID("vtiger_crmentity");
-		$adb->getUniqueID("vtiger_seactivityrel");
-		$adb->getUniqueID("vtiger_freetags");
+		// // ensure required sequences are created (adodb creates them as needed, but if
+		// // creation occurs within a transaction we get problems
+		// $adb->getUniqueID("vtiger_crmentity");
+		// $adb->getUniqueID("vtiger_seactivityrel");
+		// $adb->getUniqueID("vtiger_freetags");
 
-		$currencyName = $_SESSION['config_file_info']['currency_name'];
-		$currencyCode = $_SESSION['config_file_info']['currency_code'];
-		$currencySymbol = $_SESSION['config_file_info']['currency_symbol'];
-		$adb->pquery("INSERT INTO vtiger_currency_info VALUES (?,?,?,?,?,?,?,?)", array($adb->getUniqueID("vtiger_currency_info"),
-					$currencyName,$currencyCode,$currencySymbol,1,'Active','-11','0'));
+		// $currencyName = $_SESSION['config_file_info']['currency_name'];
+		// $currencyCode = $_SESSION['config_file_info']['currency_code'];
+		// $currencySymbol = $_SESSION['config_file_info']['currency_symbol'];
+		// $adb->pquery("INSERT INTO vtiger_currency_info VALUES (?,?,?,?,?,?,?,?)", array($adb->getUniqueID("vtiger_currency_info"),
+					// $currencyName,$currencyCode,$currencySymbol,1,'Active','-11','0'));
 
-		Install_InitSchema_Model::installDefaultEventsAndWorkflows();
+		// Install_InitSchema_Model::installDefaultEventsAndWorkflows();
 	}
 
 	/**
@@ -78,6 +83,9 @@ class Install_InitSchema_Model {
 				$oldVersion = $newVersion;
 			}
 		}
+		
+		//crm-now: modifications during install
+		self::setCRMNOWmodifications();
 	}
 
 	/**
@@ -764,6 +772,38 @@ class Install_InitSchema_Model {
 		 // Invalidate any cached information
     	VTCacheUtils::clearRoleSubordinates();
 
+		//Inserting into vtiger_groups table
+		$groupId1 = $adb->getUniqueID("vtiger_users");
+		$groupId2 = $adb->getUniqueID("vtiger_users");
+		$groupId3 = $adb->getUniqueID("vtiger_users");
+
+		$adb->pquery("INSERT INTO vtiger_groups VALUES ('".$groupId1."','Team Selling','Group Related to Sales')", array());
+		$adb->pquery("INSERT INTO vtiger_group2role VALUES ('".$groupId1."','H".$roleId4."')", array());
+		$adb->pquery("INSERT INTO vtiger_group2rs VALUES ('".$groupId1."','H".$roleId5."')", array());
+
+		$adb->pquery("INSERT INTO vtiger_groups VALUES ('".$groupId2."','Marketing Group','Group Related to Marketing Activities')", array());
+		$adb->pquery("INSERT INTO vtiger_group2role VALUES ('".$groupId2."','H".$roleId2."')", array());
+		$adb->pquery("INSERT INTO vtiger_group2rs VALUES ('".$groupId2."','H".$roleId3."')", array());
+
+		$adb->pquery("INSERT INTO vtiger_groups VALUES ('".$groupId3."','Support Group','Group Related to providing Support to Customers')", array());
+		$adb->pquery("INSERT INTO vtiger_group2role VALUES ('".$groupId3."','H".$roleId3."')", array());
+		$adb->pquery("INSERT INTO vtiger_group2rs VALUES ('".$groupId3."','H".$roleId3."')", array());
+
+		// Setting user group relation for admin user
+	 	$adb->pquery("INSERT INTO vtiger_users2group VALUES (?,?)", array($groupId2, $adminUserId), array());
+
+		//INSERT INTO vtiger_profile2field
+		insertProfile2field($profileId1);
+        insertProfile2field($profileId2);
+        insertProfile2field($profileId3);
+        insertProfile2field($profileId4);
+
+		insert_def_org_field();
+	}
+	
+	public static function createUser() {
+		$adb = PearDatabase::getInstance();
+		
 		$adminPassword = $_SESSION['config_file_info']['password'];
 		$userDateFormat = $_SESSION['config_file_info']['dateformat'];
 		$userTimeZone = $_SESSION['config_file_info']['timezone'];
@@ -775,7 +815,7 @@ class Install_InitSchema_Model {
     	$user = CRMEntity::getInstance('Users');
 		//Fix for http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7974
         $user->column_fields["first_name"] = $userFirstName; 
- 	$user->column_fields["last_name"] = $userLastName; 
+		$user->column_fields["last_name"] = $userLastName; 
         //Ends
         $user->column_fields["user_name"] = 'admin';
         $user->column_fields["status"] = 'Active';
@@ -799,50 +839,19 @@ class Install_InitSchema_Model {
 		$user->column_fields["activity_view"] = 'This Week';
 		$user->column_fields["lead_view"] = 'Today';
 
-		$adminEmail = $_SESSION['config_file_info']['admin_email'];
-		if($adminEmail == '') $adminEmail ="admin@vtigeruser.com";
+		$adminEmail = (!empty($_SESSION['config_file_info']['admin_email'])) ? $_SESSION['config_file_info']['admin_email'] : 'admin@berlicrm.de';
 		$user->column_fields["email1"] = $adminEmail;
-		$roleQuery = "SELECT roleid FROM vtiger_role WHERE rolename='CEO'";
-		$adb->checkConnection();
-		$adb->database->SetFetchMode(ADODB_FETCH_ASSOC);
-		$roleResult = $adb->pquery($roleQuery, array());
-		$roleId = $adb->query_result($roleResult,0,"roleid");
-		$user->column_fields["roleid"] = $roleId;
+		$user->column_fields["roleid"] = 'H2';
 
         $user->save("Users");
-        $adminUserId = $user->id;
-
-		//Inserting into vtiger_groups table
-		$groupId1 = $adb->getUniqueID("vtiger_users");
-		$groupId2 = $adb->getUniqueID("vtiger_users");
-		$groupId3 = $adb->getUniqueID("vtiger_users");
-
-		$adb->pquery("INSERT INTO vtiger_groups VALUES ('".$groupId1."','Team Selling','Group Related to Sales')", array());
-		$adb->pquery("INSERT INTO vtiger_group2role VALUES ('".$groupId1."','H".$roleId4."')", array());
-		$adb->pquery("INSERT INTO vtiger_group2rs VALUES ('".$groupId1."','H".$roleId5."')", array());
-
-		$adb->pquery("INSERT INTO vtiger_groups VALUES ('".$groupId2."','Marketing Group','Group Related to Marketing Activities')", array());
-		$adb->pquery("INSERT INTO vtiger_group2role VALUES ('".$groupId2."','H".$roleId2."')", array());
-		$adb->pquery("INSERT INTO vtiger_group2rs VALUES ('".$groupId2."','H".$roleId3."')", array());
-
-		$adb->pquery("INSERT INTO vtiger_groups VALUES ('".$groupId3."','Support Group','Group Related to providing Support to Customers')", array());
-		$adb->pquery("INSERT INTO vtiger_group2role VALUES ('".$groupId3."','H".$roleId3."')", array());
-		$adb->pquery("INSERT INTO vtiger_group2rs VALUES ('".$groupId3."','H".$roleId3."')", array());
-
-		// Setting user group relation for admin user
-	 	$adb->pquery("INSERT INTO vtiger_users2group VALUES (?,?)", array($groupId2, $adminUserId), array());
-
+        $adminUserId = 1;
+		
+		//due to late user entry the groups already exist, so cheat admin to id 1
+		$adb->pquery("UPDATE vtiger_users SET id = ? WHERE id = ?;", array($adminUserId, $user->id));
+		
 		//Creating the flat files for admin user
 		createUserPrivilegesfile($adminUserId);
 		createUserSharingPrivilegesfile($adminUserId);
-
-		//INSERT INTO vtiger_profile2field
-		insertProfile2field($profileId1);
-        insertProfile2field($profileId2);
-        insertProfile2field($profileId3);
-        insertProfile2field($profileId4);
-
-		insert_def_org_field();
 	}
 
 	/**
@@ -875,11 +884,11 @@ class Install_InitSchema_Model {
 	 */
 	public static function registerCronTasks() {
 		vimport('~~vtlib/Vtiger/Cron.php');
-		Vtiger_Cron::register( 'Workflow', 'cron/modules/com_vtiger_workflow/com_vtiger_workflow.service', 900, 'com_vtiger_workflow', 1, 1, 'Recommended frequency for Workflow is 15 mins');
-		Vtiger_Cron::register( 'RecurringInvoice', 'cron/modules/SalesOrder/RecurringInvoice.service', 43200, 'SalesOrder', 1, 2, 'Recommended frequency for RecurringInvoice is 12 hours');
-		Vtiger_Cron::register( 'SendReminder', 'cron/SendReminder.service', 900, 'Calendar', 1, 3, 'Recommended frequency for SendReminder is 15 mins');
-		Vtiger_Cron::register( 'ScheduleReports', 'cron/modules/Reports/ScheduleReports.service', 900, 'Reports', 1, 4, 'Recommended frequency for ScheduleReports is 15 mins');
-		Vtiger_Cron::register( 'MailScanner', 'cron/MailScanner.service', 900, 'Settings', 1, 5, 'Recommended frequency for MailScanner is 15 mins');
+		Vtiger_Cron::register( 'Workflow', 'cron/modules/com_vtiger_workflow/com_vtiger_workflow.service', 900, 'com_vtiger_workflow', 1, 1, 'LBL_WORKFLOW_DES');
+		Vtiger_Cron::register( 'RecurringInvoice', 'cron/modules/SalesOrder/RecurringInvoice.service', 86400, 'SalesOrder', 1, 2, 'LBL_REC_INVOICE_DES');
+		Vtiger_Cron::register( 'SendReminder', 'cron/SendReminder.service', 900, 'Calendar', 1, 3, 'LBL_SENDREMINDER_DES');
+		Vtiger_Cron::register( 'ScheduleReports', 'cron/modules/Reports/ScheduleReports.service', 900, 'Reports', 1, 4, 'LBL_REPORT_DES');
+		Vtiger_Cron::register( 'MailScanner', 'cron/MailScanner.service', 900, 'Settings', 1, 5, 'LBL_MAILSCANNER_DES');
 	}
 
 	/**
@@ -971,7 +980,7 @@ class Install_InitSchema_Model {
 		$vtWorkFlow = new VTWorkflowManager($adb);
 		$invWorkFlow = $vtWorkFlow->newWorkFlow("Invoice");
 		$invWorkFlow->test = '[{"fieldname":"subject","operation":"does not contain","value":"`!`"}]';
-		$invWorkFlow->description = "UpdateInventoryProducts On Every Save";
+		$invWorkFlow->description = "LBL_INVENTORY_UPDATE";
 		$invWorkFlow->defaultworkflow = 1;
 		$vtWorkFlow->save($invWorkFlow);
 
@@ -985,7 +994,7 @@ class Install_InitSchema_Model {
 		$vtaWorkFlow = new VTWorkflowManager($adb);
 		$accWorkFlow = $vtaWorkFlow->newWorkFlow("Accounts");
 		$accWorkFlow->test = '[{"fieldname":"notify_owner","operation":"is","value":"true:boolean"}]';
-		$accWorkFlow->description = "Send Email to user when Notifyowner is True";
+		$accWorkFlow->description = "LBL_SEND_OWNER_EMAIL";
 		$accWorkFlow->executionCondition=2;
 		$accWorkFlow->defaultworkflow = 1;
 		$vtaWorkFlow->save($accWorkFlow);
@@ -997,10 +1006,10 @@ class Install_InitSchema_Model {
 		$task->methodName = "NotifyOwner";
 		$task->recepient = "\$(assigned_user_id : (Users) email1)";
 		$task->subject = "Regarding Account Creation";
-		$task->content = "An Account has been assigned to you on vtigerCRM<br>Details of account are :<br><br>".
-				"AccountId:".'<b>$account_no</b><br>'."AccountName:".'<b>$accountname</b><br>'."Rating:".'<b>$rating</b><br>'.
-				"Industry:".'<b>$industry</b><br>'."AccountType:".'<b>$accounttype</b><br>'.
-				"Description:".'<b>$description</b><br><br><br>'."Thank You<br>Admin";
+		$task->content = "An Account has been assigned to you on the CRM<br>Details of account are:<br><br>".
+				"Account Id: ".'<b>$account_no</b><br>'."Account Name: ".'<b>$accountname</b><br>'."Rating: ".'<b>$rating</b><br>'.
+				"Industry: ".'<b>$industry</b><br>'."Account Type: ".'<b>$accounttype</b><br>'.
+				"Description:".'<b>$description</b><br><br><br>'."Thank You";
 		$task->summary="An account has been created ";
 		$tm->saveTask($task);
 		$adb->pquery("update com_vtiger_workflows set defaultworkflow=? where workflow_id=?",array(1,$id1));
@@ -1012,7 +1021,7 @@ class Install_InitSchema_Model {
 		$conWorkFlow->summary="A contact has been created ";
 		$conWorkFlow->executionCondition=2;
 		$conWorkFlow->test = '[{"fieldname":"notify_owner","operation":"is","value":"true:boolean"}]';
-		$conWorkFlow->description = "Send Email to user when Notifyowner is True";
+		$conWorkFlow->description = "LBL_SEND_OWNER_EMAIL";
 		$conWorkFlow->defaultworkflow = 1;
 		$vtcWorkFlow->save($conWorkFlow);
 		$id1=$conWorkFlow->id;
@@ -1022,12 +1031,12 @@ class Install_InitSchema_Model {
 		$task->methodName = "NotifyOwner";
 		$task->recepient = "\$(assigned_user_id : (Users) email1)";
 		$task->subject = "Regarding Contact Creation";
-		$task->content = "An Contact has been assigned to you on vtigerCRM<br>Details of Contact are :<br><br>".
+		$task->content = "A Contact has been assigned to you on the CRM<br>Details of Contact are :<br><br>".
 				"Contact Id:".'<b>$contact_no</b><br>'."LastName:".'<b>$lastname</b><br>'."FirstName:".'<b>$firstname</b><br>'.
 				"Lead Source:".'<b>$leadsource</b><br>'.
 				"Department:".'<b>$department</b><br>'.
 				"Description:".'<b>$description</b><br><br><br>'."Thank You<br>Admin";
-		$task->summary="An contact has been created ";
+		$task->summary="A contact has been created ";
 		$tm->saveTask($task);
 		$adb->pquery("update com_vtiger_workflows set defaultworkflow=? where workflow_id=?",array(1,$id1));
 
@@ -1037,7 +1046,7 @@ class Install_InitSchema_Model {
 		$vtcWorkFlow = new VTWorkflowManager($adb);
 		$conpuWorkFlow = $vtcWorkFlow->newWorkFlow("Contacts");
 		$conpuWorkFlow->test = '[{"fieldname":"portal","operation":"is","value":"true:boolean"}]';
-		$conpuWorkFlow->description = "Send Email to user when Portal User is True";
+		$conpuWorkFlow->description = "LBL_SEND_PORTAL_EMAIL";
 		$conpuWorkFlow->executionCondition=2;
 		$conpuWorkFlow->defaultworkflow = 1;
 		$vtcWorkFlow->save($conpuWorkFlow);
@@ -1053,7 +1062,7 @@ class Install_InitSchema_Model {
 
 		$vtcWorkFlow = new VTWorkflowManager($adb);
 		$potentialWorkFlow = $vtcWorkFlow->newWorkFlow("Potentials");
-		$potentialWorkFlow->description = "Send Email to users on Potential creation";
+		$potentialWorkFlow->description = "LBL_SEND_POTENTIAL_EMAIL";
 		$potentialWorkFlow->executionCondition=1;
 		$potentialWorkFlow->defaultworkflow = 1;
 		$vtcWorkFlow->save($potentialWorkFlow);
@@ -1065,14 +1074,14 @@ class Install_InitSchema_Model {
 		$task->active=true;
 		$task->recepient = "\$(assigned_user_id : (Users) email1)";
 		$task->subject = "Regarding Potential Assignment";
-		$task->content = "An Potential has been assigned to you on vtigerCRM<br>Details of Potential are :<br><br>".
+		$task->content = "An Potential has been assigned to you on the CRM<br>Details of Potential are :<br><br>".
 				"Potential No:".'<b>$potential_no</b><br>'."Potential Name:".'<b>$potentialname</b><br>'.
 				"Amount:".'<b>$amount</b><br>'.
 				"Expected Close Date:".'<b>$closingdate</b><br>'.
 				"Type:".'<b>$opportunity_type</b><br><br><br>'.
 				"Description :".'$description<br>'."<br>Thank You<br>Admin";
 
-		$task->summary="An Potential has been created ";
+		$task->summary="A Potential has been created ";
 		$tm->saveTask($task);
 
 		$workflowManager = new VTWorkflowManager($adb);
@@ -1081,7 +1090,7 @@ class Install_InitSchema_Model {
 		// Contact workflow on creation/modification
 		$contactWorkFlow = $workflowManager->newWorkFlow("Contacts");
 		$contactWorkFlow->test = '';
-		$contactWorkFlow->description = "Workflow for Contact Creation or Modification";
+		$contactWorkFlow->description = "LBL_CONT_CRE_OR_MOD";
 		$contactWorkFlow->executionCondition = VTWorkflowManager::$ON_EVERY_SAVE;
 		$contactWorkFlow->defaultworkflow = 1;
 		$workflowManager->save($contactWorkFlow);
@@ -1092,21 +1101,20 @@ class Install_InitSchema_Model {
 		$task->active=true;
 		$task->recepient = "\$(assigned_user_id : (Users) email1)";
 		$task->subject = "Regarding Contact Assignment";
-		$task->content = "An Contact has been assigned to you on vtigerCRM<br>Details of Contact are :<br><br>".
+		$task->content = "A Contact has been assigned to you on the CRM<br>The Details of the Contact are:<br><br>".
 				"Contact Id:".'<b>$contact_no</b><br>'."LastName:".'<b>$lastname</b><br>'."FirstName:".'<b>$firstname</b><br>'.
 				"Lead Source:".'<b>$leadsource</b><br>'.
 				"Department:".'<b>$department</b><br>'.
-				"Description:".'<b>$description</b><br><br><br>'."And <b>CustomerPortal Login Details</b> is sent to the " .
-				"EmailID :-".'$email<br>'."<br>Thank You<br>Admin";
+				"<br>Thank You<br>";
 
-		$task->summary="An contact has been created ";
+		$task->summary="A contact has been created ";
 		$tm->saveTask($task);
 		$adb->pquery("update com_vtiger_workflows set defaultworkflow=? where workflow_id=?",array(1,$id1));
                 
 		// Trouble Tickets workflow on creation from Customer Portal
 		$helpDeskWorkflow = $workflowManager->newWorkFlow("HelpDesk");
 		$helpDeskWorkflow->test = '[{"fieldname":"from_portal","operation":"is","value":"true:boolean"}]';
-		$helpDeskWorkflow->description = "Workflow for Ticket Created from Portal";
+		$helpDeskWorkflow->description = "LBL_PORTAL_TICKET_CR_EMAIL";
 		$helpDeskWorkflow->executionCondition = VTWorkflowManager::$ON_FIRST_SAVE;
 		$helpDeskWorkflow->defaultworkflow = 1;
 		$workflowManager->save($helpDeskWorkflow);
@@ -1120,7 +1128,7 @@ class Install_InitSchema_Model {
 		// Trouble Tickets workflow on ticket update from Customer Portal
 		$helpDeskWorkflow = $workflowManager->newWorkFlow("HelpDesk");
 		$helpDeskWorkflow->test = '[{"fieldname":"from_portal","operation":"is","value":"true:boolean"}]';
-		$helpDeskWorkflow->description = "Workflow for Ticket Updated from Portal";
+		$helpDeskWorkflow->description = "LBL_PORTAL_TICKET_UP_EMAIL";
 		$helpDeskWorkflow->executionCondition = VTWorkflowManager::$ON_MODIFY;
 		$helpDeskWorkflow->defaultworkflow = 1;
 		$workflowManager->save($helpDeskWorkflow);
@@ -1154,7 +1162,7 @@ class Install_InitSchema_Model {
 		// Events workflow when Send Notification is checked
 		$eventsWorkflow = $workflowManager->newWorkFlow("Events");
 		$eventsWorkflow->test = '[{"fieldname":"sendnotification","operation":"is","value":"true:boolean"}]';
-		$eventsWorkflow->description = "Workflow for Events when Send Notification is True";
+		$eventsWorkflow->description = "LBL_EVENT_NOTIFY_EMAIL";
 		$eventsWorkflow->executionCondition = VTWorkflowManager::$ON_EVERY_SAVE;
 		$eventsWorkflow->defaultworkflow = 1;
 		$workflowManager->save($eventsWorkflow);
@@ -1181,7 +1189,7 @@ class Install_InitSchema_Model {
 		// Calendar workflow when Send Notification is checked
 		$calendarWorkflow = $workflowManager->newWorkFlow("Calendar");
 		$calendarWorkflow->test = '[{"fieldname":"sendnotification","operation":"is","value":"true:boolean"}]';
-		$calendarWorkflow->description = "Workflow for Calendar Todos when Send Notification is True";
+		$calendarWorkflow->description = "LBL_TASK_NOTIFY_EMAIL";
 		$calendarWorkflow->executionCondition = VTWorkflowManager::$ON_EVERY_SAVE;
 		$calendarWorkflow->defaultworkflow = 1;
 		$workflowManager->save($calendarWorkflow);
@@ -1228,12 +1236,22 @@ class Install_InitSchema_Model {
 			'index.php?module=Documents&action=EditView&return_module=$MODULE$&return_action=DetailView&return_id=$RECORD$&parent_id=$RECORD$',
 			'themes/images/bookMark.gif'
 		);
+		$leadInstance->addLink(
+			'DETAILVIEWBASIC', 'Export vCard',
+			'index.php?module=Leads&action=getvCard&src_module=Leads&src_record=$RECORD$',
+			''
+		);
 
 		$contactInstance = Vtiger_Module::getInstance('Contacts');
 		$contactInstance->addLink(
 			'DETAILVIEWBASIC', 'LBL_ADD_NOTE',
 			'index.php?module=Documents&action=EditView&return_module=$MODULE$&return_action=DetailView&return_id=$RECORD$&parent_id=$RECORD$',
 			'themes/images/bookMark.gif'
+		);
+		$contactInstance->addLink(
+			'DETAILVIEWBASIC', 'Export vCard',
+			'index.php?module=Contacts&action=getvCard&src_module=Contacts&src_record=$RECORD$',
+			''
 		);
 	}
 
@@ -1290,4 +1308,100 @@ class Install_InitSchema_Model {
 											"$1.0 => $123,456,789.50 <br/>".
 											"1.0$ => 123,456,789.50$ <br/>");
 	}
+	
+	//crm-now: modifications to DB during install
+	public static function setCRMNOWmodifications() {
+		vimport('~~include/Webservices/Utils.php');
+		$adb = PearDatabase::getInstance();
+		//crm-now: space for tag version to be filled by make_ps during installation und upgrades
+		// $adb->query("ALTER TABLE vtiger_version ADD column `tag_version` varchar(30) default 0");
+		// $adb->pquery("UPDATE `vtiger_version` SET `tag_version` = ?", array($_REQUEST['svn_tag']));
+		
+		//crm-now: new settings menu for PDF templates
+		$ID = $adb->getUniqueID('vtiger_settings_field');
+		$params = array($ID, '3', 'LBL_PDF_TEMPLATES', '', 'LBL_PDF_TEMPLATE_DESCRIPTION', 'index.php?parent=Settings&module=Vtiger&view=listpdftexttemplates', '3', '0', '0');
+		$adb->pquery("INSERT INTO `vtiger_settings_field` (`fieldid` ,`blockid` ,`name` ,`iconpath` ,`description` ,`linkto` ,`sequence` ,`active`, `pinned`)
+		VALUES (".generateQuestionMarks($params).")", $params);
+		// $adb->query("UPDATE `vtiger_settings_field_seq` SET `id` = '".$ID."' ");
+		// $adb->query("CREATE TABLE IF NOT EXISTS `crmnow_multistarttext` (
+		  // `starttextid` int(11) NOT NULL AUTO_INCREMENT,
+		  // `starttexttitle` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+		  // `multistext` text COLLATE utf8_unicode_ci NOT NULL,
+		  // `texttypes` varchar(2) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+		  // PRIMARY KEY (`starttextid`)
+		// ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1");
+		// $adb->query("CREATE TABLE IF NOT EXISTS `crmnow_multiendtext` (
+		  // `endtextid` int(11) NOT NULL AUTO_INCREMENT,
+		  // `endtexttitle` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+		  // `multietext` text COLLATE utf8_unicode_ci NOT NULL,
+		  // `texttype` varchar(2) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+		  // PRIMARY KEY (`endtextid`)
+		// ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1");
+		//crm-now: add index for performance increase
+		// $adb->query("ALTER TABLE `vtiger_role2picklist` ADD INDEX(`picklistvalueid`)");
+		
+		//added for German salutation
+		// $adb->query("UPDATE `vtiger_salutationtype` SET `salutationtype` = 'Sehr geehrter Herr' WHERE `vtiger_salutationtype`.`salutationid` =2");
+		// $adb->query("UPDATE `vtiger_salutationtype` SET `salutationtype` = 'Sehr geehrte Frau' WHERE `vtiger_salutationtype`.`salutationid` =3");
+		// $adb->query("UPDATE `vtiger_salutationtype` SET `salutationtype` = 'Sehr geehrter Herr Dr.' WHERE `vtiger_salutationtype`.`salutationid` =4");
+		// $adb->query("UPDATE `vtiger_salutationtype` SET `salutationtype` = 'Sehr geehrte Frau Dr.' WHERE `vtiger_salutationtype`.`salutationid` =5");
+		// $adb->query("UPDATE `vtiger_salutationtype` SET `salutationtype` = 'Sehr geehrter Herr Prof.' WHERE `vtiger_salutationtype`.`salutationid` =6");
+		
+		// delete all custom filters, except all
+		// $adb->query("DELETE FROM `vtiger_customview` WHERE `vtiger_customview`.`viewname` != 'ALL' ");
+
+		//Manufacturer -> new entries
+		// $adb->query("UPDATE `vtiger_manufacturer` SET `manufacturer` = 'Muster AG' WHERE `vtiger_manufacturer`.`manufacturerid` =2 ");
+		// $adb->query("UPDATE `vtiger_manufacturer` SET `manufacturer` = 'Sample Inc.' WHERE `vtiger_manufacturer`.`manufacturerid` =3 ");
+		// $adb->query("UPDATE `vtiger_manufacturer` SET `manufacturer` = 'Beispiel GmbH' WHERE `vtiger_manufacturer`.`manufacturerid` =4 ");
+		
+		//Bank Information for Company Details Menue and PDF Output
+		// $adb->query(" ALTER TABLE vtiger_organizationdetails ADD `management` varchar( 100 ) ");
+		// //IRS name(Finanzamt)
+		// $adb->query(" ALTER TABLE vtiger_organizationdetails ADD `irsname` varchar( 100 ) ");
+		// $adb->query(" ALTER TABLE vtiger_organizationdetails ADD `tax_id` varchar( 100 ) ");
+		// //bank information
+		// $adb->query(" ALTER TABLE vtiger_organizationdetails ADD `bankname` varchar( 100 ) ");
+		// $adb->query(" ALTER TABLE vtiger_organizationdetails ADD `bankstreet` varchar( 100 ) ");
+		// $adb->query(" ALTER TABLE vtiger_organizationdetails ADD `bankcity` varchar( 100 ) ");
+		// $adb->query(" ALTER TABLE vtiger_organizationdetails ADD `bankzip` varchar( 10 ) ");
+		// $adb->query(" ALTER TABLE vtiger_organizationdetails ADD `bankcountry` varchar( 100 ) ");
+		// $adb->query(" ALTER TABLE vtiger_organizationdetails ADD `bankaccount` varchar( 50 ) ");
+		// $adb->query(" ALTER TABLE vtiger_organizationdetails ADD `bankrouting` varchar( 50 ) ");
+		// $adb->query(" ALTER TABLE vtiger_organizationdetails ADD `bankswift` varchar( 50 ) ");
+		// $adb->query(" ALTER TABLE vtiger_organizationdetails ADD `bankiban` varchar( 50 ) ");
+		
+        // dynamic blocks
+        // $adb->query("CREATE TABLE IF NOT EXISTS `berli_dynamic_blocks` (
+            // `moduleid` int(19) NOT NULL,
+            // `picklistid` int(19) NOT NULL,
+            // `picklistvalueid` int(19) NOT NULL,
+            // `blockid` int(19) NOT NULL,
+            // `initialstatus` int(1) NOT NULL,
+            // `blocked` int(1) NOT NULL,
+            // PRIMARY KEY (`moduleid`,`picklistid`,`picklistvalueid`,`blockid`),
+            // KEY `picklistid` (`picklistid`)
+            // ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci");
+        // $adb->query("ALTER TABLE `berli_dynamic_blocks`
+            // ADD CONSTRAINT `berli_dynamic_blocks_ibfk_1` FOREIGN KEY (`picklistid`) REFERENCES `vtiger_picklist` (`picklistid`) ON DELETE CASCADE");
+		
+		// add web service: retrievedocattachment
+		// $operationId = vtws_addWebserviceOperation('retrievedocattachment','include/Webservices/RetrieveDocAttachment.php','berli_retrievedocattachment','Get','0');
+		// vtws_addWebserviceOperationParam($operationId,'id','string','1');
+		// vtws_addWebserviceOperationParam($operationId,'returnfile','string','2');#
+		
+		//crm-now: add all modules to tracking (this was done in migration script)
+		if(file_exists('modules/ModTracker/ModTrackerUtils.php')) {
+			require_once 'modules/ModTracker/ModTrackerUtils.php';
+			$modules = $adb->pquery('SELECT * FROM vtiger_tab WHERE isentitytype = ?;', array(1));
+			$rows = $adb->num_rows($modules);
+			for($i=0; $i<$rows; $i++) {
+				$tabid=$adb->query_result($modules, $i, 'tabid');
+				ModTrackerUtils::modTrac_changeModuleVisibility($tabid, 'module_enable');
+			}
+		}
+		
+		return;
+	}
+
 }

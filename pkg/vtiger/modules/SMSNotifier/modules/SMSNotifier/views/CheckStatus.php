@@ -8,7 +8,7 @@
  * All Rights Reserved.
  *************************************************************************************/
 
-class SMSNotifier_CheckStatus_View extends Vtiger_IndexAjax_View {
+class SMSNotifier_CheckStatus_View extends Vtiger_Detail_View {
 
 	function checkPermission(Vtiger_Request $request) {
 		$moduleName = $request->getModule();
@@ -25,7 +25,14 @@ class SMSNotifier_CheckStatus_View extends Vtiger_IndexAjax_View {
 		$notifierRecordModel = Vtiger_Record_Model::getInstanceById($request->get('record'), $moduleName);
 		$notifierRecordModel->checkStatus();
 
+		$viewer->assign('MODULE_NAME', $moduleName);
 		$viewer->assign('RECORD', $notifierRecordModel);
 		$viewer->view('StatusWidget.tpl', $moduleName);
+		//$request->set('mode', 'showDetailViewByMode');
+		//$request->set('requestMode', 'full');
+		//$request->set('tab_label', 'SMS Notifier Details');
+		$request->set('view', 'DetailView');
+		$request->set('record', $request->get('record'));
+		return parent::process($request);
 	}
 }

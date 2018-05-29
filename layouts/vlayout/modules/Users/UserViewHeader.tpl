@@ -17,13 +17,13 @@
             <div class="row-fluid">
                 <div class="span8">
                     <span class="row-fluid marginLeftZero">
-						<span class="logo span2">
 							{foreach key=ITER item=IMAGE_INFO from=$RECORD->getImageDetails()}
 								{if !empty($IMAGE_INFO.path) && !empty($IMAGE_INFO.orgname)}
-									<img src="{$IMAGE_INFO.path}_{$IMAGE_INFO.orgname}" alt="{$IMAGE_INFO.orgname}" title="{$IMAGE_INFO.orgname}" data-image-id="{$IMAGE_INFO.id}">
+								<span class="logo span2">
+									<img src="{$IMAGE_INFO.path}" alt="{$IMAGE_INFO.orgname}" title="{$IMAGE_INFO.orgname}" data-image-id="{$IMAGE_INFO.id}">
+								</span>
 								{/if}
 							{/foreach}
-						</span>
 						<span class="span9">
 							<span id="userHeading" class="row-fluid">
 								<h3>{$RECORD->getName()}</h3>
@@ -50,7 +50,7 @@
 							
 							{if $DETAILVIEW_LINKS['DETAILVIEW']|@count gt 0}
 								<span class="btn-group">
-									<button class="btn dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">
+									<button class="btn dropdown-toggle" data-toggle="dropdown">
 										<strong>{vtranslate('LBL_MORE', $MODULE_NAME)}</strong>&nbsp;&nbsp;<i class="caret"></i>
 									</button>
 									<ul class="dropdown-menu pull-right">

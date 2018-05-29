@@ -60,7 +60,7 @@ function isReferenceUIType($uitype) {
 }
 
 function IsDateField($reportColDetails) {
-	list($tablename, $colname, $module_field, $fieldname, $typeOfData) = split(":", $reportColDetails);
+	list($tablename, $colname, $module_field, $fieldname, $typeOfData) = explode(":", $reportColDetails);
 	if ($typeOfData == "D") {
 		return true;
 	} else {
@@ -114,7 +114,10 @@ function getReportFieldValue ($report, $picklistArray, $dbField, $valueArray, $f
 			$currencyField = new CurrencyField($value);
 			$fieldvalue = $currencyField->getDisplayValue();
 		}
-
+	//crm-now: assuming this is one of those calculated fields of vtiger_inventoryproductrel table
+	} elseif (empty($fieldInfo) && empty($dbField->orgtable) && is_numeric($value)) {
+		$currencyField = new CurrencyField($value);
+		$fieldvalue = $currencyField->getDisplayValue();
 	} elseif ($dbField->name == "PurchaseOrder_Currency" || $dbField->name == "SalesOrder_Currency"
 				|| $dbField->name == "Invoice_Currency" || $dbField->name == "Quotes_Currency" || $dbField->name == "PriceBooks_Currency") {
 		if($value!='') {

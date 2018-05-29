@@ -18,9 +18,12 @@ Class Vtiger_Edit_View extends Vtiger_Index_View {
 		$moduleName = $request->getModule();
 		$record = $request->get('record');
 
-		$recordPermission = Users_Privileges_Model::isPermitted($moduleName, 'EditView', $record);
+		$actionName = 'CreateView';
+		if ($record && !$request->get('isDuplicate')) {
+			$actionName = 'EditView';
+		}
 
-		if(!$recordPermission) {
+		if(!Users_Privileges_Model::isPermitted($moduleName, $actionName, $record)) {
 			throw new AppException(vtranslate('LBL_PERMISSION_DENIED'));
 		}
 	}
@@ -31,7 +34,15 @@ Class Vtiger_Edit_View extends Vtiger_Index_View {
 		$record = $request->get('record');
         if(!empty($record) && $request->get('isDuplicate') == true) {
             $recordModel = $this->record?$this->record:Vtiger_Record_Model::getInstanceById($record, $moduleName);
-			$viewer->assign('MODE', '');
+
+            // crm-now: copy records with related entities
+            if ($request->get("copyRelated") == true) {
+                $viewer->assign('MODE', 'copyRelated');
+                $viewer->assign('COPY_SOURCE', $record);
+            }
+            else {
+                $viewer->assign('MODE', 'copy');
+            }
 
 			//While Duplicating record, If the related record is deleted then we are removing related record info in record model
 			$mandatoryFieldModels = $recordModel->getModule()->getMandatoryFieldModels();
@@ -88,6 +99,7 @@ Class Vtiger_Edit_View extends Vtiger_Index_View {
 		$viewer->assign('PICKIST_DEPENDENCY_DATASOURCE',Zend_Json::encode($picklistDependencyDatasource));
 		$viewer->assign('RECORD_STRUCTURE_MODEL', $recordStructureInstance);
 		$viewer->assign('RECORD_STRUCTURE', $recordStructureInstance->getStructure());
+        $viewer->assign('BLOCK_LIST',$moduleModel->getBlocks());
 		$viewer->assign('MODULE', $moduleName);
 		$viewer->assign('CURRENTDATE', date('Y-n-j'));
 		$viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());

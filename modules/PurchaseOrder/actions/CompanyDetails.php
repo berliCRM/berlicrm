@@ -23,11 +23,11 @@ class PurchaseOrder_CompanyDetails_Action extends Vtiger_Action_Controller {
 	function process(Vtiger_Request $request) {
 		$companyModel = Vtiger_CompanyDetails_Model::getInstanceById();
         $companyDetails = array(
-            'street' => $companyModel->get('organizationname') .' '.$companyModel->get('address'),
-            'city' => $companyModel->get('city'),
-            'state' => $companyModel->get('state'),
+            'street' => decode_html($companyModel->get('organizationname')) .' '.decode_html($companyModel->get('address')),
+            'city' => decode_html($companyModel->get('city')),
+            'state' => decode_html($companyModel->get('state')),
             'code' => $companyModel->get('code'),
-            'country' =>  $companyModel->get('country'),
+            'country' =>  decode_html($companyModel->get('country')),
             );
 		$response = new Vtiger_Response();
 		$response->setResult($companyDetails);

@@ -6,24 +6,26 @@
  * The Initial Developer of the Original Code is vtiger.
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
+ * Modified by crm-now GmbH, www.crm-now.com
  ************************************************************************************/
 class Mobile_WS_Utils {
-	/*
+
 	static function initAppGlobals() {
 		global $current_language, $app_strings, $app_list_strings, $app_currency_strings;
-		$current_language = 'en_us';
-		
 		$app_currency_strings = return_app_currency_strings_language($current_language);
 		$app_strings = return_application_language($current_language);
 		$app_list_strings = return_app_list_strings_language($current_language);
 	}
-	
+
 	static function initModuleGlobals($module) {
 		global $mod_strings, $current_language;
-		if(isset($current_language)) {
-			$mod_strings = return_module_language($current_language, $module);
+		if ($module == 'Events') {
+			$module = 'Calendar';
 		}
-	}*/
+		if(isset($current_language)) {
+			@include(return_module_language($current_language, 'Mobile'));
+		}
+	}
 	
 	static function getVtigerVersion() {
 		global $vtiger_current_version;
@@ -131,7 +133,7 @@ class Mobile_WS_Utils {
 		$resolveUITypes = array(10, 101, 116, 117, 26, 357, 50, 51, 52, 53, 57, 58, 59, 66, 68, 73, 75, 76, 77, 78, 80, 81);
 		
 		$result = $adb->pquery(
-			"SELECT DISTINCT fieldname FROM vtiger_field WHERE uitype IN(". 
+			"SELECT fieldname FROM vtiger_field WHERE uitype IN(". 
 			generateQuestionMarks($resolveUITypes) .") AND tabid=?", array($resolveUITypes, getTabid($module)) 
 		);
 		$fieldnames = array();
@@ -149,30 +151,50 @@ class Mobile_WS_Utils {
 	
 	static function gatherModuleFieldGroupInfo($module) {
 		global $adb;
-		
-		if($module == 'Events') $module = 'Calendar';
-		
+		$current_language = Mobile_WS_Controller::sessionGet('language') ;
+		$current_module_strings = return_module_language($current_language, $module);
+		self::initModuleGlobals($module);
 		// Cache hit?
 		if(isset(self::$gatherModuleFieldGroupInfoCache[$module])) {
 			return self::$gatherModuleFieldGroupInfoCache[$module];
 		}
-		
-		$result = $adb->pquery(
-			"SELECT fieldname, fieldlabel, blocklabel, uitype FROM vtiger_field INNER JOIN
-			vtiger_blocks ON vtiger_blocks.tabid=vtiger_field.tabid AND vtiger_blocks.blockid=vtiger_field.block 
-			WHERE vtiger_field.tabid=? AND vtiger_field.presence != 1 ORDER BY vtiger_blocks.sequence, vtiger_field.sequence", array(getTabid($module))
-		);
+		if ($module != 'Calendar') {
+			$result = $adb->pquery(
+				"SELECT fieldname, fieldlabel, blocklabel, uitype, typeofdata FROM vtiger_field INNER JOIN
+				vtiger_blocks ON vtiger_blocks.tabid=vtiger_field.tabid AND vtiger_blocks.blockid=vtiger_field.block 
+				WHERE vtiger_field.tabid=? AND vtiger_field.presence != 1 AND vtiger_field.tablename !='vtiger_ticketcomments'  ORDER BY vtiger_blocks.sequence, vtiger_field.sequence", array(getTabid($module))
+			);
+		}
+		else {
+			$result = $adb->pquery(
+				"SELECT fieldname, fieldlabel, blocklabel, uitype, typeofdata FROM vtiger_field INNER JOIN
+				vtiger_blocks ON vtiger_blocks.tabid=vtiger_field.tabid AND vtiger_blocks.blockid=vtiger_field.block 
+				WHERE vtiger_field.tabid=? AND vtiger_field.presence != 1 and fieldname != 'eventstatus' and fieldname !=  'activitytype' ORDER BY vtiger_blocks.sequence, vtiger_field.sequence", array(getTabid($module))
+			);
+		}
 
 		$fieldgroups = array();
 		while($resultrow = $adb->fetch_array($result)) {
-			$blocklabel = getTranslatedString($resultrow['blocklabel'], $module);
+			if (array_key_exists ($resultrow['blocklabel'], $current_module_strings)) {
+				$blocklabel = $current_module_strings[$resultrow['blocklabel']];
+			}
+			else {
+				$blocklabel = getTranslatedString($resultrow['blocklabel']);
+			}
+			if (array_key_exists ($resultrow['fieldlabel'], $current_module_strings)) {
+				$fieldlabel = $current_module_strings[$resultrow['fieldlabel']];
+			}
+			else {
+				$fieldlabel = getTranslatedString($resultrow['fieldlabel']);
+			}
 			if(!isset($fieldgroups[$blocklabel])) {
 				$fieldgroups[$blocklabel] = array();
 			}
 			$fieldgroups[$blocklabel][$resultrow['fieldname']] = 
 				array(
-					'label' => getTranslatedString($resultrow['fieldlabel'], $module),
-					'uitype'=> self::fixUIType($module, $resultrow['fieldname'], $resultrow['uitype'])
+					'label' => $fieldlabel,
+					'uitype'=> self::fixUIType($module, $resultrow['fieldname'], $resultrow['uitype']),
+					'typeofdata'=>self::getMandatory ($resultrow['typeofdata'])
 				);
 		}
 		
@@ -201,6 +223,73 @@ class Mobile_WS_Utils {
 		}
 		return $options;
 	}
+
+	static function getassignedtoValues($userObj,$assigned_user_id='') {
+		//get users info
+		$recordprefix= self::getEntityModuleWSId('Users') ;
+		if ($assigned_user_id=='') {
+			$assigned_user_id_ws = $recordprefix.'x'.$userObj->id;
+			$assigned_user_id = $userObj->id;
+		}
+		else {
+			$assigned_user_id_ws = $assigned_user_id;
+			$assigned_user_id = $userObj->id;
+		}
+	    if ($userObj->is_admin==false) {
+			$resultuser =get_user_array(FALSE, "Active", $assigned_user_id_ws,'private');
+		}
+		else { 
+			$resultuser =get_user_array(FALSE, "Active", $assigned_user_id_ws);
+		}
+
+		//add prefix to key
+		$data = array_flip($resultuser);
+		foreach($data as $key => &$val) { 
+			$val = $recordprefix.'x'.$val; 
+		}
+		$resultuser = array_flip($data);
+		
+		$users_combo = get_user_array(FALSE, "Active", $assigned_user_id_ws);
+		foreach ($users_combo  as $userid=>$username) {
+			if ($userid	== $assigned_user_id) {
+				$user_array[$recordprefix.'x'.$userid] = array($username=>'selected');
+			}
+			else {
+				$user_array[$recordprefix.'x'.$userid] = array($username=>'');
+			}
+		}
+		//handle groups
+		$resultgroups= array();
+		
+		if ($userObj->is_admin==false) {
+			$resultgroups=vtws_getUserAccessibleGroups ($module, $userObj);
+		}
+		else {
+			$resultgroups=vtws_getUserAccessibleGroups ($module, $userObj);
+		}
+		//add prefix to key for groups
+		$groups_combo = array();
+		if (count($resultgroups) > 0) {
+			$newgrouporder = array ();
+			foreach($resultgroups as $key => &$val) { 
+				$newid = $recordprefix.'x'.$val['id'];
+				$newgrouporder[$newid] = $val['name'];
+			}
+			//$groups_combo = get_select_options_array($newgrouporder, $assigned_user_id);
+		}
+		foreach ($newgrouporder  as $groupid=>$groupname) {
+			if ($groupid	== $assigned_user_id) {
+				$group_array[$groupid] = array($groupname=>'selected');
+			}
+			else {
+				$group_array[$groupid] = array($groupname=>'');
+			}
+		}
+		$fieldvalue = array();
+		$fieldvalue[]=$user_array;
+		$fieldvalue[] =$group_array;
+		return $fieldvalue;
+	}
 	
 	static function visibilityValues() {
 		$options = array();
@@ -225,8 +314,18 @@ class Mobile_WS_Utils {
 		return $uitype;
 	}
 	
-	static function fixDescribeFieldInfo($module, &$describeInfo) {
-		
+	static function fixDescribeFieldInfo($module, &$describeInfo,$current_user) {
+		//assigned to field settings
+		foreach($describeInfo['fields'] as $index => $fieldInfo) {
+			if ($fieldInfo['name'] == 'assigned_user_id') {
+				$picklistValues = self::getassignedtoValues($current_user);
+				$fieldInfo['type']['name'] = 'picklist';
+				$fieldInfo['type']['picklistValues'] = $picklistValues;
+				//$fieldInfo['type']['defaultValue'] = $picklistValues[0];
+				$describeInfo['fields'][$index] = $fieldInfo;
+			}
+		}
+	
 		if ($module == 'Leads' || $module == 'Contacts') {
 			foreach($describeInfo['fields'] as $index => $fieldInfo) {
 				if ($fieldInfo['name'] == 'salutationtype') {
@@ -324,5 +423,107 @@ class Mobile_WS_Utils {
 				)";
 		}
 		return $querySuffix;
+	}
+	static function getMandatory($typeofdata) {
+		$type_array = explode( '~', $typeofdata );
+		return $type_array[1];
+	}
+	
+	/**     Function to get all the comments for a troubleticket
+	  *     @param int $ticketid -- troubleticket id
+	  *     return all the comments as a sequencial string which are related to this ticket
+	**/
+	static function getTicketComments($ticket) {
+        global $adb;
+        $commentlist = '';
+        $sql = "select * from vtiger_ticketcomments where ticketid=?";
+		$recordid = vtws_getIdComponents($ticket['id']);
+		$recordid = $recordid[1];
+        $result = $adb->pquery($sql, array($recordid));
+		$recordprefix= self::getEntityModuleWSId('Users') ;
+        for($i=0;$i<$adb->num_rows($result);$i++) {
+                $comment = $adb->query_result($result,$i,'comments');
+                if($comment != '') {
+                        $commentlist[$i]['commentcontent'] = $comment;
+                        $commentlist[$i]['assigned_user_id'] = $recordprefix.'x'.$adb->query_result($result,$i,'ownerid');
+                        $commentlist[$i]['createdtime'] = $adb->query_result($result,$i,'createdtime');
+                }
+        }
+        return $commentlist;
+	}
+	/**     Function to create a comment for a troubleticket
+	  *     @param int $ticketid -- troubleticket id, comments array
+	  *     returns the comment as a array
+	**/
+	static function createTicketComment($comment_arr) {
+        global $adb;
+		$current_time = $adb->formatDate(date('YmdHis'), true);
+		$ownertype = 'user';
+		$sql = "insert into vtiger_ticketcomments values(?,?,?,?,?,?)";	
+	    $params = array('', $comment_arr['related_to'], from_html($comment_arr['commentcontent']), $comment_arr['creator'], $ownertype, $current_time);
+		$result = $adb->pquery($sql, $params);
+		return true;
+	}
+	
+	//     Function to find the related modulename by given fieldname
+
+	static function getEntityName($fieldname, $module='') {
+      global $adb;
+		// Exception for Assets Module
+		if($module == 'Assets'){
+			switch($fieldname){
+				case 'account' : $fieldname = 'account_id'; break;
+				case 'product' : $fieldname = 'product_id'; break;
+			}
+		}
+		$sql = "SELECT `modulename` FROM `vtiger_entityname` WHERE `entityidcolumn` = ? LIMIT 1";
+		$result = $adb->pquery($sql, array($fieldname));
+		return $adb->query_result($result,0,'modulename');;
+	}
+
+	/**
+	 * Function to get the where condition for a module based on the field table entries
+	 * @param  string $listquery  -- ListView query for the module
+	 * @param  string $module     -- module name
+	 * @param  string $search_val -- entered search string value
+	 * @return string $where      -- where condition for the module based on field table entries
+	 */
+	static function getUnifiedWhere($listquery,$module,$search_val){
+		global $adb, $current_user;
+		require('user_privileges/user_privileges_'.$current_user->id.'.php');
+
+		$search_val = $adb->sql_escape_string($search_val);
+		if($is_admin == true || $profileGlobalPermission[1] == 0 || $profileGlobalPermission[2] ==0){
+			$query = "SELECT columnname, tablename FROM vtiger_field WHERE tabid = ? and vtiger_field.presence in (0,2)";
+			$qparams = array(getTabid($module));
+		}else{
+			$profileList = getCurrentUserProfileList();
+			$query = "SELECT columnname, tablename FROM vtiger_field INNER JOIN vtiger_profile2field ON vtiger_profile2field.fieldid = vtiger_field.fieldid INNER JOIN vtiger_def_org_field ON vtiger_def_org_field.fieldid = vtiger_field.fieldid WHERE vtiger_field.tabid = ? AND vtiger_profile2field.visible = 0 AND vtiger_profile2field.profileid IN (". generateQuestionMarks($profileList) . ") AND vtiger_def_org_field.visible = 0 and vtiger_field.presence in (0,2) GROUP BY vtiger_field.fieldid";
+			$qparams = array(getTabid($module), $profileList);
+		}
+		$result = $adb->pquery($query, $qparams);
+		$noofrows = $adb->num_rows($result);
+
+		$where = '';
+		for($i=0;$i<$noofrows;$i++){
+			$columnname = $adb->query_result($result,$i,'columnname');
+			$tablename = $adb->query_result($result,$i,'tablename');
+
+			// Search / Lookup customization
+			if($module == 'Contacts' && $columnname == 'accountid') {
+				$columnname = "accountname";
+				$tablename = "vtiger_account";
+			}
+			// END
+
+			//Before form the where condition, check whether the table for the field has been added in the listview query
+			if(strstr($listquery,$tablename)){
+				if($where != ''){
+					$where .= " OR ";
+				}
+				$where .= $tablename.".".$columnname." LIKE '". formatForSqlLike($search_val) ."'";
+			}
+		}
+		return $where;
 	}
 }

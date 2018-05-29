@@ -36,6 +36,7 @@ class Settings_MailConverter_List_View extends Settings_Vtiger_Index_View {
 		    $viewer->assign('SCANNER_MODEL', Settings_MailConverter_Record_Model::getInstanceById($scannerId));
 		    $viewer->assign('RULE_MODELS_LIST', Settings_MailConverter_RuleRecord_Model::getAll($scannerId));
 		    $viewer->assign('FOLDERS_SCANNED', Settings_MailConverter_Module_Model::getScannedFolders($scannerId));
+			$viewer->assign('ATTACHMENT_FOLDERS', Settings_MailConverter_RuleRecord_Model::getAttachmentFolders());
 		}
 		$viewer->view("RulesList.tpl", $qualifiedModuleName);
     }

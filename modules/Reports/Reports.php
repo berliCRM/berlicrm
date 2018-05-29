@@ -111,7 +111,7 @@ class Reports extends CRMEntity{
 	 *  It sets primodule,secmodule,reporttype,reportname,reportdescription,folderid for the given vtiger_reportid
 	 */
 
-	function Reports($reportid="")
+	function __construct($reportid="")
 	{
 		global $adb,$current_user,$theme,$mod_strings;
 		$this->initListOfModules();
@@ -433,22 +433,24 @@ class Reports extends CRMEntity{
 			do
 			{
 				$report_details = Array();
-				$report_details ['customizable'] = $report["customizable"];
-				$report_details ['reportid'] = $report["reportid"];
-				$report_details ['primarymodule'] = $report["primarymodule"];
-				$report_details ['secondarymodules'] = $report["secondarymodules"];
-				$report_details ['state'] = $report["state"];
-				$report_details ['description'] = $report["description"];
-				$report_details ['reportname'] = $report["reportname"];
-				$report_details ['sharingtype'] = $report["sharingtype"];
+				$report_details['customizable'] = $report["customizable"];
+				$report_details['reportid'] = $report["reportid"];
+				$report_details['primarymodule'] = $report["primarymodule"];
+				$report_details['secondarymodules'] = $report["secondarymodules"];
+				$report_details['state'] = $report["state"];
+				$report_details['description'] = $report["description"];
+				$report_details['reportname'] = $report["reportname"];
+				$report_details['sharingtype'] = $report["sharingtype"];
                 $report_details['folderid']=$report["folderid"];
 				if($is_admin==true)
-					$report_details ['editable'] = 'true';
+					$report_details['editable'] = 'true';
 				else
 					$report_details['editable'] = 'false';
 
-				if(isPermitted($report["primarymodule"],'index') == "yes")
-					$returndata[] = $report_details;
+				if(isPermitted($report["primarymodule"],'index') != "yes") {
+                    $report_details["reportname"] = sprintf(getTranslatedString('LBL_REPORT_MODULE_UNAVAILABLE',"Reports"),getTranslatedString($report["primarymodule"]));
+                }
+				$returndata[] = $report_details;
 			}while($report = $adb->fetch_array($result));
 		}
 		$log->info("Reports :: ListView->Successfully returned vtiger_report details HTML");
@@ -522,22 +524,24 @@ class Reports extends CRMEntity{
 			do
 			{
 				$report_details = Array();
-				$report_details ['customizable'] = $report["customizable"];
-				$report_details ['reportid'] = $report["reportid"];
-				$report_details ['primarymodule'] = $report["primarymodule"];
-				$report_details ['secondarymodules'] = $report["secondarymodules"];
-				$report_details ['state'] = $report["state"];
-				$report_details ['description'] = $report["description"];
-				$report_details ['reportname'] = $report["reportname"];
-                $report_details ['reporttype'] = $report["reporttype"];
-				$report_details ['sharingtype'] = $report["sharingtype"];
+				$report_details['customizable'] = $report["customizable"];
+				$report_details['reportid'] = $report["reportid"];
+				$report_details['primarymodule'] = $report["primarymodule"];
+				$report_details['secondarymodules'] = $report["secondarymodules"];
+				$report_details['state'] = $report["state"];
+				$report_details['description'] = $report["description"];
+				$report_details['reportname'] = $report["reportname"];
+                $report_details['reporttype'] = $report["reporttype"];
+				$report_details['sharingtype'] = $report["sharingtype"];
 				if($is_admin==true || in_array($report["owner"],$subordinate_users) || $report["owner"]==$current_user->id)
 					$report_details ['editable'] = 'true';
 				else
 					$report_details['editable'] = 'false';
 
-				if(isPermitted($report["primarymodule"],'index') == "yes")
-					$returndata [$report["folderid"]][] = $report_details;
+				if(isPermitted($report["primarymodule"],'index') != "yes") {
+                    $report_details["reportname"] = sprintf(getTranslatedString('LBL_REPORT_MODULE_UNAVAILABLE',"Reports"),getTranslatedString($report["primarymodule"]));
+                }
+				$returndata[$report["folderid"]][] = $report_details;
 			}while($report = $adb->fetch_array($result));
 		}
 
@@ -792,6 +796,7 @@ class Reports extends CRMEntity{
 							'listprice'=>getTranslatedString('List Price',$module),
 							'discount_amount'=>getTranslatedString('Discount',$module),
 							'quantity'=>getTranslatedString('Quantity',$module),
+							'realprice'=>getTranslatedString('LBL_REALPRICE',$module),
 							'comment'=>getTranslatedString('Comments',$module),
 			);
 			$fields_datatype = array('productid'=>'V',
@@ -799,6 +804,7 @@ class Reports extends CRMEntity{
 							'listprice'=>'I',
 							'discount_amount'=>'I',
 							'quantity'=>'I',
+							'realprice'=>'I',
 							'comment'=>'V',
 			);
 			foreach($fields as $fieldcolname=>$label){
@@ -1324,7 +1330,7 @@ function getEscapedColumns($selectedfields)
 		$result = $adb->pquery($ssql, array($reportid));
 		$permitted_fields = Array();
 
-		$selected_mod = split(":",$this->secmodule);
+		$selected_mod = explode(":",$this->secmodule);
 		array_push($selected_mod,$this->primodule);
 
 		$inventoryModules = getInventoryModules();
@@ -1341,9 +1347,9 @@ function getEscapedColumns($selectedfields)
 				}
 			}
 			if($selmod_field_disabled==false){
-				list($tablename,$colname,$module_field,$fieldname,$single) = split(":",$fieldcolname);
+				list($tablename,$colname,$module_field,$fieldname,$single) = explode(":",$fieldcolname);
 				require('user_privileges/user_privileges_'.$current_user->id.'.php');
-				list($module,$field) = split("_",$module_field);
+				list($module,$field) = explode("_",$module_field);
 				if(sizeof($permitted_fields) == 0 && $is_admin == false && $profileGlobalPermission[1] == 1 && $profileGlobalPermission[2] == 1)
 				{
 					$permitted_fields = $this->getaccesfield($module);

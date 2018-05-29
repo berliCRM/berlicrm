@@ -46,9 +46,43 @@
 		{foreach key=BLOCK_LABEL item=BLOCK_FIELDS from=$RECORD_STRUCTURE name="EditViewBlockLevelLoop"}
 			{if $BLOCK_FIELDS|@count lte 0}{continue}{/if}
 			<table class="table table-bordered blockContainer showInlineTable">
+			{if ($BLOCK_LABEL eq 'LBL_LETTER') }
+			<tr>
+				<th colspan="2" class="blockHeader" colspan="4">{vtranslate($BLOCK_LABEL, $MODULE)}</th>
+				<th colspan="2" class="chznDropDown">
+					<div class="row-fluid">
+						<span class="inventoryLineItemHeader">{vtranslate('LBL_LETTER', $MODULE)}</span>&nbsp;&nbsp;
+						<select class="chzn-select" id="letter_id" name="letter_id" style="width: 500px;" onchange="document.getElementById('{$MODULE}_editView_fieldName_description').value=this.options[this.selectedIndex].value;">
+							{foreach item=letter_details key=count from=$LETTERINFO}
+								<option value="{$letter_details.2}"  class="textShadowNone">
+									{$letter_details.1}
+								</option>
+							{/foreach}
+						</select>
+					</div>
+				</th>
+			</tr>
+			{else if ($BLOCK_LABEL eq 'LBL_CONCLUSION') }
+			<tr>
+				<th colspan="2" class="blockHeader" colspan="4">{vtranslate($BLOCK_LABEL, $MODULE)}</th>
+				<th colspan="2" class="chznDropDown">
+					<div class="row-fluid">
+						<span class="inventoryLineItemHeader">{vtranslate('LBL_CONCLUSION', $MODULE)}</span>&nbsp;&nbsp;
+						<select class="chzn-select" id="conclusion_id" name="conclusion_id" style="width: 500px;" onchange="document.getElementById('{$MODULE}_editView_fieldName_terms_conditions').value=this.options[this.selectedIndex].value;">
+							{foreach item=conclusion_details key=count from=$CONCLUSIONINFO}
+								<option value="{$conclusion_details.2}"  class="textShadowNone">
+									{$conclusion_details.1}
+								</option>
+							{/foreach}
+						</select>
+					</div>
+				</th>
+			</tr>
+			{else}
 			<tr>
 				<th class="blockHeader" colspan="4">{vtranslate($BLOCK_LABEL, $MODULE)}</th>
 			</tr>
+			{/if}
 			{if ($BLOCK_LABEL eq 'LBL_ADDRESS_INFORMATION') and ($MODULE neq 'PurchaseOrder') }
 				<tr>
 				<td class="fieldLabel {$WIDTHTYPE}" name="copyHeader1">

@@ -39,13 +39,13 @@ class vt_DateTime
 	 * @param array  $timearr - collection of string
 	 * @param string $check   - check string
 	 */
-	function vt_DateTime(&$timearr,$check)
+	function __construct(&$timearr,$check)
 	{
-		if (! isset( $timearr) || count($timearr) == 0 )
+		if (! isset($timearr) || count($timearr) == 0 )
 		{
 			$this->setDateTime(null);
 		}
-		else if ( isset( $timearr['ts']))
+		elseif (isset($timearr['ts']))
 		{
 			$this->setDateTime($time['ts']);
 		}

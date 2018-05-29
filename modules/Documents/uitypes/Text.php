@@ -15,7 +15,7 @@ class Documents_Text_UIType extends Vtiger_Text_UIType {
 	 * @param <Object> $value
 	 * @return <Object>
 	 */
-	public function getDisplayValue($value) {
+	public function getDisplayValue($value, $record = false, $recordInstance = false) {
 		return $value;
 	}
     

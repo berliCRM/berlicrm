@@ -13,7 +13,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Vtiger</title>
+		<title>CRM</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 		<link REL="SHORTCUT ICON" HREF="layouts/vlayout/skins/images/favicon.ico">
@@ -401,7 +401,7 @@
 							{/if}
 
 							<div class="span4">
-								<label class="control-label"><strong>{vtranslate('Preferences', $MODULE)}</strong> <span class="muted">{vtranslate('LBL_ALL_FIELDS_BELOW_ARE_REQUIRED', $MODULE)}</label>
+								<label class="control-label"><strong>{vtranslate('LBL_PREFERENCES', $MODULE)}</strong> <span class="muted">{vtranslate('LBL_ALL_FIELDS_BELOW_ARE_REQUIRED', $MODULE)}</label>
 
 								{if $IS_FIRST_USER}
 								<div class="controls" id="currency_name_controls">

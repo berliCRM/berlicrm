@@ -23,11 +23,17 @@ class Vtiger_Multipicklist_UIType extends Vtiger_Base_UIType {
 	 * @param <Object> $value
 	 * @return <Object>
 	 */
-	public function getDisplayValue($value) {
-        if(is_array($value)){
+	public function getDisplayValue($value, $record = false, $recordInstance = false) {
+		if(is_array($value)){
             $value = implode(' |##| ', $value);
         }
-		return str_ireplace(' |##| ', ', ', $value);
+		$value_arr = explode("|##|", $value);
+
+		foreach ($value_arr as $key => $content) {
+			$value_arr[$key] = Vtiger_Language_Handler::getTranslatedString(trim($content), $this->get('field')->getModuleName());;
+		}
+		$value = implode(', ', $value_arr);
+		return $value;
 	}
     
     public function getDBInsertValue($value) {

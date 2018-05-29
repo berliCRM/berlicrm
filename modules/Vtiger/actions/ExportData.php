@@ -253,8 +253,8 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 				} else {
 					$value = '';
 				}
-			} elseif($uitype == 72 || $uitype == 71) {
-                $value = CurrencyField::convertToUserFormat($value, null, true, true);
+			} elseif($uitype == 72 || $uitype == 71 || $type == 'double' || $type == 'percentage') {
+                $value = CurrencyField::convertToUserFormat($value, null, true);
 			} elseif($uitype == 7 && $fieldInfo->get('typeofdata') == 'N~O' || $uitype == 9){
 				$value = decimalFormat($value);
 			} else if($type == 'date' || $type == 'datetime'){

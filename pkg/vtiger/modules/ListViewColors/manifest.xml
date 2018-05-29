@@ -1,0 +1,24 @@
+<?xml version='1.0'?>
+<module>
+	<exporttime>2016-04-16 11:26:51</exporttime>
+	<name>ListViewColors</name>
+	<label>ListViewColors</label>
+	<parent></parent>
+	<type>extension</type>
+	<version>1.1</version>
+	<dependencies>
+		<vtiger_version>6.4.0</vtiger_version>
+		<vtiger_max_version>6.*</vtiger_max_version>
+	</dependencies>
+	<tables>
+		<table>
+			<name>berli_listview_colors</name>
+			<sql><![CDATA[CREATE TABLE IF NOT EXISTS `berli_listview_colors` (
+				  `listfieldid` int(19) DEFAULT NULL,
+				  `listcolor` varchar(7) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT '#FFFFFF',
+				  `fieldcontent` varchar(255) NOT NULL
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8  COLLATE=utf8_unicode_ci;]]>
+			</sql>
+		</table>
+	</tables>
+</module>

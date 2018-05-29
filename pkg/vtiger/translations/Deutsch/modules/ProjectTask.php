@@ -6,39 +6,50 @@
  * The Initial Developer of the Original Code is vtiger.
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
+ * Reviewed by crm-now GmbH
  ************************************************************************************/
 $languageStrings = array(
 	'SINGLE_ProjectTask'	=>	"Projektaufgabe",
-	'LBL_ADD_RECORD'	=>	"In Projektaufgabe",
-	'LBL_RECORDS_LIST'	=>	"Projekt Task-Liste",
-	'LBL_PROJECT_TASK_INFORMATION'	=>	"Projektaufgabe Einzelheiten",
-	'LBL_PROJECTS_LIST'	=>	"Projekte Liste",
+	'LBL_ADD_RECORD'	=>	"Projektaufgabe hinzufügen",
+	'LBL_RECORDS_LIST'	=>	"Projektaufgabenliste",
+	'LBL_PROJECT_TASK_INFORMATION'	=>	"Projektaufgabe Informationen",
+	'LBL_PROJECTS_LIST'	=>	"Projektliste",
 	'LBL_TASKS_LIST'	=>	"Aufgabenliste",
-	'LBL_MILESTONES_LIST'	=>	"Meilensteine ​​Liste",
-	'Project Task Name'	=>	"Projekt Task-Name",
-	'Project Task No'	=>	"Projektaufgabe Nein",
-	'Project Task Number'	=>	"Projektaufgabe Anzahl",
+	'LBL_MILESTONES_LIST'	=>	"Meilensteinliste",
+	'Project Task Name'	=>	"Projektaufgabenname",
+	'Project Task No'	=>	"Projektaufgabennr.",
+	'Project Task Number'	=>	"Projektaufgabennr",
 	'Status'	=>	"Status",
-	'Priority'	=>	"Priority",
+	'Priority'	=>	"Priorität",
 	'Progress'	=>	"Fortschritt",
 	'Type'	=>	"Typ",
 	'Worked Hours'	=>	"Arbeitsstunden",
 	'Start Date'	=>	"Startdatum",
-	'End Date'	=>	"End Date",
-	'Related To'	=>	"Bezug zu",
-	'administrative' => 'Administrativ',
-    'operative' => 'Operativ',
-    'other' => 'Andere',
-    'low' => 'Niedrig',
-    'normal' => 'Normal',
-    'high' => 'Hoch',
-	'Created Time'	=>	"Erstellt Zeit",
-	'Modified Time'	=>	"Geändert Zeit",
+	'End Date'	=>	"Enddatum",
+	'Related To'	=>	"bezogen auf",
+	'administrative' => 'administrativ',
+    'operative' => 'operativ',
+    'other' => 'andere',
+    'low' => 'gering',
+    'normal' => 'normal',
+    'high' => 'hoch',
+	'Created Time'	=>	"erstellt",
+	'Modified Time'	=>	"geändert",
 	'description'	=>	"Beschreibung",
-	'Assigned To'	=>	"Zuständig",
-	'Open'	=>	"Öffnen",
-	'In Progress'	=>	"in uitvoering",
-	'Completed'	=>	"Fertiggestellt",
-	'Deferred'	=>	"Latente",
-	'Canceled'	=>	"Gestrichen",
+	'Assigned To'	=>	"zuständig",
+	'Open'	=>	"offen",
+	'In Progress'	=>	"in Bearbeitung",
+	'Completed'	=>	"fertiggestellt",
+	'Deferred'	=>	"verschoben",
+	'Canceled'	=>	"abgebrochen",
+	
+	//crm-now: missing entries in en_us file
+	'Related to' => 'bezogen auf',
+
 );
+
+$jsLanguageStrings = array(
+	'of' => 'von',
+	'to' => 'bis',
+);
+?>

@@ -792,6 +792,10 @@ if (typeof(MailManager) == 'undefined') {
 			if (frmparams.indexOf('_mlinkto') == -1)
 				return;
 
+			var tmp1 = frmparams.split("&");
+			var tmp2 = tmp1[0].split("=");
+			var linkto= tmp2[1];
+
 			var message = app.vtranslate('JSLBL_Associating')+' ...';
 			var progressIndicatorElement = jQuery.progressIndicator({
 				'message' : message,
@@ -805,11 +809,13 @@ if (typeof(MailManager) == 'undefined') {
 						'mode' : 'hide'
 					})
 					//var response = MailManager.removeHidElement(transport.responseText);
-					//var responseJSON = JSON.parse(response);
-					var resultJSON = responseJSON['result'];
-					if (resultJSON['ui']) {
-						jQuery('#_mailrecord_relationshipdiv_').html(resultJSON['ui']);
-					}
+	
+					document.getElementById("_mailopen_fromcrmid").innerHTML = linkto;
+			
+					//var resultJSON = responseJSON['result'];
+					//if (resultJSON['ui']) {
+					//	jQuery('#_mailrecord_relationshipdiv_').html(resultJSON['ui']);
+					//}
 
 					MailManager.triggerUI5Resize();
 				}
@@ -820,6 +826,10 @@ if (typeof(MailManager) == 'undefined') {
 		mail_associate_create_wizard: function(form){
 			if (form._mlinktotype.value == '') {
 				MailManager.mail_associate_create_cancel();
+				return;
+			}
+			if (form._mlinktotype.value == 'add_to_contact') {
+				MailManager.mail_associate_to_others_actions(form);
 				return;
 			}
 			var thisInstance = this;
@@ -840,9 +850,89 @@ if (typeof(MailManager) == 'undefined') {
 				);
 		},
 
+		/* This will be used to attach an email to another contact */
+		mail_associate_to_others_actions : function(form) {
+			//add to other contact
+			var progressIndicatorElement = jQuery.progressIndicator({
+				'position' : 'html',
+				'blockInfo' : {
+					'enabled' : true
+				}
+			});
+			var megs = form._msgno.value;
+			var megs = form._folder.value;
+			var params = 'index.php?module=MailManager&view=showContactSearchOverlay&_msgno='+form._msgno.value+'&_folder='+form._folder.value;
+			AppConnector.request(params).then(
+				function(result) {
+					progressIndicatorElement.progressIndicator({'mode':'hide'});
+					app.showModalWindow(result, function(data) {
+						if(typeof callBackFunction == 'function') {
+							callBackFunction(data);
+						}
+					});
+					jQuery("#searchlastname").keyup(function (event) {
+						//remove previously selected
+						jQuery("#selectedcontact").attr('selectedIndex', '-1').children("option:selected").removeAttr("selected");
+						//no search
+						if(jQuery(this).val() === "") {
+							jQuery(".contactdrop option").show();
+							jQuery(".contactdrop option").removeAttr('disabled');
+						} else {
+							//search
+							var filter = jQuery(this).val();
+							jQuery(".contactdrop option:contains('" + filter + "')").show();
+							//the following applies to IE because hide() does not work
+							jQuery(".contactdrop option:contains('" + filter + "')").removeAttr('disabled');
+							jQuery(".contactdrop option:contains('" + filter + "')").attr('background-color','Green');
+							//the following applies to IE because hide() does not work
+							jQuery(".contactdrop option:not(:contains('" + filter + "'))").attr('disabled','disabled');
+							jQuery(".contactdrop option:not(:contains('" + filter + "'))").hide();
+						}
+						//test whether there are still trees in list
+						var optionsArr = jQuery("select.contactdrop").map(function() {
+								 return jQuery("select.contactdrop").find('option:not(:disabled)').length;
+							 }).toArray();
+						if (optionsArr == 0) {
+								var s= document.getElementById('selectedcontact');
+								s.options[s.options.length]= new Option('Suche erfolglos ...', '0');
+						}
+						else {
+							jQuery(".contactdrop option[value='0']").remove();
+						}
+					});
+					jQuery("#savetocontact").click(function() {
+						var strContact = jQuery("#selectedcontact option:selected").attr("value")
+						//var strContact = piclist.options[piclist.selectedIndex].value;
+						var messageID  = jQuery('#_msgnumber').attr("value");
+						var messageFolder  = jQuery("#_foldername").attr("value");
+						// No record is selected for linking?
+						if ((typeof strContact === "undefined") || (strContact =='')) {
+							Vtiger_Helper_Js.showPnotify(app.vtranslate('JSLBL_NO_SELECTION'));
+						}
+						else {
+							var frmparams ='_mlinkto='+strContact+'&_folder='+messageFolder+'&_msgno='+messageID+'&_mlinktotype=Emails';
+							AppConnector.request(MailManager._baseurl() + "_operation=relation&_operationarg=link&" + frmparams).then(function(response) {
+								progressIndicatorElement.progressIndicator({
+									'mode' : 'hide'
+								})
+							});
+							MailManager.mail_associate_create_cancel();
+                            var param = {text:app.vtranslate('JSLBL_EMAIL_SAVED')};
+                            Vtiger_Helper_Js.showMessage(param);
+						}
+					});
+				}
+			);
+			return;
+		},
+
 		/* This will be used to perform actions on mails with an Linked record*/
 		mail_associate_actions : function(form) {
 			var selected = false;
+			if (jQuery('#_mlinktotype option:selected').attr('id')=='linktoother') {
+				MailManager.mail_associate_to_others_actions(form);
+				return;
+			}
 
 			if(form._mlinkto.length != undefined) {
 				for(i=0; i<form._mlinkto.length; i++) {
@@ -901,7 +991,7 @@ if (typeof(MailManager) == 'undefined') {
 						'mode' : 'hide'
 					})
 					//var response = MailManager.removeHidElement(transport.responseText);
-					responseJSON = JSON.parse(response);
+					//var responseJSON = JSON.parse(response);
 					var resultJSON = responseJSON['result'];
 					if (resultJSON['ui']) {
 						MailManager.mail_associate_create_cancel();
@@ -1106,6 +1196,8 @@ if (typeof(MailManager) == 'undefined') {
 			var subject = jQuery('#_mailopen_subject').html();
 			var body = jQuery('#_mailopen_body').html();
 			var date = jQuery('#_mailopen_date').html();
+			
+			var crmid = jQuery('#_mailopen_fromcrmid').html();
 
 			var replySubject = (subject.toUpperCase().indexOf('RE:') == 0) ? subject : 'Re: ' + subject;
 			var replyBody = MailManager.sprintf('<p></p><p style="margin:0;padding:0;">%s, %s, %s:</p><blockquote style="border:0;margin:0;border-left:1px solid gray;padding:0 0 0 2px;">%s</blockquote><br />', 'On ' + date, from, 'wrote', body);
@@ -1125,7 +1217,13 @@ if (typeof(MailManager) == 'undefined') {
 				}
 			}
 
-			var params = {step: "step1", module: "MailManager", view: "MassActionAjax", mode: "showComposeEmailForm", selected_ids:"[]", excluded_ids: "[]", to:'["'+from+'"]'}
+			if (crmid !="") {
+				var params = {step: "step1", module: "Contacts", view: "MassActionAjax", mode: "showComposeEmailForm", selected_ids:'["'+ crmid +'"]', relatedLoad : true};
+			} else 
+			{
+				var params = {step: "step1", module: "MailManager", view: "MassActionAjax", mode: "showComposeEmailForm", selected_ids:'[]', excluded_ids: "[]", to:'["'+from+'"]'};
+			}
+		
 			Vtiger_Index_Js.showComposeEmailPopup(params, function(win){
 				if (typeof win != 'undefined') {
 					setTimeout(function() {fillComposeEmailForm(win);}, 2000);

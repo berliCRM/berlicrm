@@ -1,33 +1,45 @@
 <?php
-/*+**********************************************************************************
+/*+***********************************************************************************
  * The contents of this file are subject to the vtiger CRM Public License Version 1.0
  * ("License"); You may not use this file except in compliance with the License
  * The Original Code is:  vtiger CRM Open Source
  * The Initial Developer of the Original Code is vtiger.
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
- ************************************************************************************/
+ * Reviewed by crm-now GmbH
+ *************************************************************************************/
 $languageStrings = array(
-	'LBL_ADD_RECORD'               => 'Add Picklist Dependency'     , 
-	'LBL_PICKLIST_DEPENDENCY'      => 'Picklist Dependency'         , 
-	'LBL_SELECT_MODULE'            => 'Module'                      , 
-	'LBL_SOURCE_FIELD'             => 'Source Field'                , 
-	'LBL_TARGET_FIELD'             => 'Target Field'                , 
-	'LBL_SELECT_FIELD'             => 'Select field'                , 
-	'LBL_CONFIGURE_DEPENDENCY_INFO' => 'Click on the respective cell to change the mapping for picklist values of target field', 
-	'LBL_CONFIGURE_DEPENDENCY_HELP_1' => 'Only mapped picklist values of the Source field will be shown below (except for first time)', 
-	'LBL_CONFIGURE_DEPENDENCY_HELP_2' => 'If you want to see or change the mapping for the other picklist values of Source field, <br/>
-										then you can select the values by clicking on <b>\'Select Source values\'</b> button on the right side', 
-	'LBL_CONFIGURE_DEPENDENCY_HELP_3' => 'Selected values of the Target field values, are highlighted as', 
-	'LBL_SELECT_SOURCE_VALUES'     => 'Select Source Values'        , 
-	'LBL_SELECT_SOURCE_PICKLIST_VALUES' => 'Select Source Picklist Values', 
-	'LBL_ERR_CYCLIC_DEPENDENCY'    => 'This dependency setup is not allowed as it ends up in some cyclic dependency', 
+	'LBL_ADD_RECORD' => 'neue Auswahllistenverkettung',
+	'LBL_CONFIGURE_DEPENDENCY_HELP_1' => 'Es werden nur die Auswahllisteneinträge gezeigt, welche verkettet worden sind (außer beim ersten Mal).',
+	'LBL_CONFIGURE_DEPENDENCY_HELP_2' => "Wenn Sie alle Auswahllisteneinträge sehen oder die Anzeige der verketteten Einträge ändern wollen, <br/>klicken Sie auf den <b>'Quellwert auswählen'</b> Button.",
+	'LBL_CONFIGURE_DEPENDENCY_HELP_3' => 'Die als Zielfelder ausgewählten Werte sind markiert als',
+	'LBL_CONFIGURE_DEPENDENCY_INFO' => 'Klicken Sie in der unten stehenden Tabelle eine Zelle um die Verkettung zu ändern.',
+	'LBL_ERR_CYCLIC_DEPENDENCY' => 'Diese Verkettung ist nicht zulässig, da es eine zyklische Verkettung ergeben würde, die nicht dargestellt werden kann',
+	'LBL_PICKLIST_DEPENDENCY' => 'verkettete Auswahllisten',
+	'LBL_SELECT_FIELD' => 'Feld auswählen',
+	'LBL_SELECT_MODULE' => 'Modul',
+	'LBL_SELECT_SOURCE_PICKLIST_VALUES' => 'Wählen Sie Quellwerte aus der Auswahlliste',
+	'LBL_SELECT_SOURCE_VALUES' => 'Quellwert auswählen',
+	'LBL_SOURCE_FIELD' => 'Quellfeld',
+	'LBL_TARGET_FIELD' => 'Zielfeld',
+    
+         //Patch provided by http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7884
+        'PickListDependency' => 'verkettete Auswahllisten', 
+        //Field names 
+        'Module' => 'Modul', 
+        'Source Field' => 'Quellfeld', 
+        'Target Field' => 'Zielfeld', 
+	//entries not in en_us
+	'Selected Values' => 'ausgewählte Werte',
+
 );
+
 $jsLanguageStrings = array(
-	'JS_LBL_ARE_YOU_SURE_YOU_WANT_TO_DELETE' => 'Are you sure you want to delete this picklist dependency?', 
-	'JS_DEPENDENCY_DELETED_SUEESSFULLY' => 'Dependency deleted successfully', 
-	'JS_PICKLIST_DEPENDENCY_SAVED' => 'Picklist Dependency Saved'   , 
-	'JS_DEPENDENCY_ATLEAST_ONE_VALUE' => 'You need to select atleast one value for', 
-	'JS_SOURCE_AND_TARGET_FIELDS_SHOULD_NOT_BE_SAME' => 'Source field and Target field should not be same', 
-	'JS_SELECT_SOME_VALUE'         => 'Select some value'           , 
+        'JS_DEPENDENCY_ATLEAST_ONE_VALUE' => 'Sie müssen wenigsten einen Eintrag auswählen für',
+	'JS_DEPENDENCY_DELETED_SUEESSFULLY' => 'Verkettung erfolgreich gelöscht',
+	'JS_LBL_ARE_YOU_SURE_YOU_WANT_TO_DELETE' => 'Sind Sie sicher, dass Sie diese Verkettung löschen wollen?',
+	'JS_PICKLIST_DEPENDENCY_SAVED' => 'Auswahllistenverkettung gespeichert',
+	'JS_SELECT_SOME_VALUE' => 'einen Wert auswählen',
+	'JS_SOURCE_AND_TARGET_FIELDS_SHOULD_NOT_BE_SAME' => 'Quell- und Zielfeld dürfen nicht identisch sein',
 );
+?>

@@ -144,7 +144,7 @@ class Contacts extends CRMEntity {
 		'Emails' => array('table_name' => 'vtiger_seactivityrel', 'table_index' => 'crmid', 'rel_index' => 'activityid'),
 	);
 
-	function Contacts() {
+	function __construct() {
 		$this->log = LoggerManager::getLogger('contact');
 		$this->db = PearDatabase::getInstance();
 		$this->column_fields = getColumnFields('Contacts');
@@ -789,13 +789,15 @@ class Contacts extends CRMEntity {
 							'vtiger_users.first_name', 'last_name' => 'vtiger_users.last_name'), 'Users');
 		$query = "select case when (vtiger_users.user_name not like '') then $userNameSql else vtiger_groups.groupname end as user_name," .
 				" vtiger_activity.activityid, vtiger_activity.subject, vtiger_activity.activitytype, vtiger_crmentity.modifiedtime," .
+                " vtiger_emaildetails.from_email, vtiger_emaildetails.to_email, ".
 				" vtiger_crmentity.crmid, vtiger_crmentity.smownerid, vtiger_activity.date_start, vtiger_activity.time_start, vtiger_seactivityrel.crmid as parent_id " .
 				" from vtiger_activity, vtiger_seactivityrel, vtiger_contactdetails, vtiger_users, vtiger_crmentity" .
 				" left join vtiger_groups on vtiger_groups.groupid=vtiger_crmentity.smownerid" .
+                " left join vtiger_emaildetails ON vtiger_crmentity.crmid = emailid".
 				" where vtiger_seactivityrel.activityid = vtiger_activity.activityid" .
 				" and vtiger_contactdetails.contactid = vtiger_seactivityrel.crmid and vtiger_users.id=vtiger_crmentity.smownerid" .
 				" and vtiger_crmentity.crmid = vtiger_activity.activityid  and vtiger_contactdetails.contactid = ".$id." and" .
-						" vtiger_activity.activitytype='Emails' and vtiger_crmentity.deleted = 0";
+				" vtiger_activity.activitytype='Emails' and vtiger_crmentity.deleted = 0 ";
 
 		$return_value = GetRelatedList($this_module, $related_module, $other, $query, $button, $returnset);
 

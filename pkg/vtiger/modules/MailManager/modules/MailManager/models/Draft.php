@@ -69,7 +69,7 @@ class MailManager_Draft_Model {
 					if(!empty($fieldvalue)) {
 						$value = implode(',',Zend_Json::decode($fieldvalue));
 						if(strlen($value) > 45) {
-							$value = substr($value, 0, 45)."....";
+							$value = mb_substr($value, 0, 45)."....";
 						}
 						$draftMails[$i][$fieldname] = $value;
 					}

@@ -29,6 +29,7 @@ $languageStrings = array(
 	'LBL_GO_TO_PREVIEW' => 'Go to Preview',
 	'LBL_INFO' => 'Info',
 	'LBL_MAX_UPLOAD_SIZE' => 'Maximum upload size is',
+    'LBL_NO_SIGNATURE' => 'No signature',
 	'LBL_OWNER' => 'Owner',
 	'LBL_PRINT' => 'Print',
 	'LBL_SAVE_AS_DRAFT' => 'Save as Draft',

@@ -1,13 +1,13 @@
-<?xml version='1.0'?>
+<?xml version='3.0'?>
 <module>
-<exporttime>2010-07-07 14:54:26</exporttime>
+<exporttime>2015-07-07 14:54:26</exporttime>
 <name>Mobile</name>
 <label>Mobile</label>
 <parent></parent>
 <type>extension</type>
 <version>2.0</version>
 <dependencies>
-<vtiger_version>5.4.0</vtiger_version>
+<vtiger_version>6.0.0</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>
 </dependencies>
 <license>

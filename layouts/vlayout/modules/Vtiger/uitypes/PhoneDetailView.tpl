@@ -14,7 +14,16 @@
 {assign var=MODULE value='PBXManager'}
 {assign var=MODULEMODEL value=Vtiger_Module_Model::getInstance($MODULE)}
 {assign var=FIELD_VALUE value=$FIELD_MODEL->get('fieldvalue')}
-{if $MODULEMODEL and $MODULEMODEL->isActive() and $FIELD_VALUE}
+
+{assign var=SOFTPHONE value=berliSoftphones_Record_Model::getSoftphonePrefix()}
+{if $SOFTPHONE and $FIELD_VALUE}
+        {assign var=PHONE_FIELD_VALUE value=$FIELD_VALUE}
+        {assign var=PHONE_NUMBER value=$PHONE_FIELD_VALUE|regex_replace:"/[-()\s]/":""}
+	
+		<a class="phoneField" data-value="{$PHONE_NUMBER}" record="{$RECORD->getId()}" href="{$SOFTPHONE}{$FIELD_MODEL->get('fieldvalue')}">{$FIELD_MODEL->get('fieldvalue')}</a>
+
+		
+{else if $MODULEMODEL and $MODULEMODEL->isActive() and $FIELD_VALUE}
     {assign var=PERMISSION value=PBXManager_Server_Model::checkPermissionForOutgoingCall()}
     {if $PERMISSION}
         {assign var=PHONE_FIELD_VALUE value=$FIELD_VALUE}

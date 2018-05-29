@@ -1,0 +1,168 @@
+<!--
+/*********************************************************************************
+** The contents of this file are subject to the vtiger CRM Public License Version 1.0
+ * ("License"); You may not use this file except in compliance with the License
+ * The Original Code is:  vtiger CRM Open Source
+ * The Initial Developer of the Original Code is vtiger.
+ * Portions created by vtiger are Copyright (C) vtiger.
+ * All Rights Reserved.
+*
+ ********************************************************************************/
+-->
+
+<aside class="right-side">
+	<section class="content-header" style="box-shadow:none;">
+		<div class="row-pad">
+			<div class="col-sm-6 search-form" style = "float:right;">
+				<form name="Submit" method="POST" action="index.php">
+					<input type=hidden name="fun" value="search">
+					<input type=hidden name="module" value="Faq">
+					<input type=hidden name="action" value="index">
+					<input type="text" name="search_text" value=" <?php require_once('include/utils/utils.php'); echo portal_purify($search_text);?>">&nbsp;in&nbsp;
+					<?php echo getSearchCombo(); ?>
+					<input class= "crmbutton small btn btn-primary" type="submit" name="search" onclick="form.fun.value='search'" value="<?php echo getTranslatedString('LBL_SEARCH'); ?>">
+				</form>
+			</div>
+		</div>
+		<div class="row-pad">
+			<div class="col-sm-4 search-form">
+				<span class='lvtHeaderText'>
+   					<?PHP echo getTranslatedString('LBL_KNOWLEDGE_BASE');?>
+   				</span>
+   			</div>
+		</div>
+	</section>
+	
+	<div style = "clear:both;"></div>
+	
+	<div class = "row-pad">
+	
+		<div class="col-md-3">
+		<?php 
+			if(!empty($faq_array)){ 
+		?>
+			<div class = "widget-box">
+			<div class="widget-header">
+	                 <h5 class="widget-title">
+	                   Filters
+			         </h5>
+	          </div>
+		
+			<ul id="navigation">
+			<?php 
+				if((count($category_array))>0 && $category_array !=null){ 
+			?>
+				<li>
+					<?php 
+						echo getTranslatedString('LNK_CATEGORY'); 
+					?>
+					<ul>
+						<?php
+							for($i=0,$j=1;$i<count($category_array);$i++,$j++){
+							$noof_faqs = getNoofFaqsPerCategory($category_array[$i]);
+								if(is_string($_REQUEST['category_index'])){
+									$category_index = (int)$_REQUEST['category_index'];
+								}
+						?>
+						<li>
+							<a class="hdr" href="index.php?module=Faq&action=index&fun=faqs&category_index=<?php echo $i; ?>">
+								<?php 	
+								if($category_index === $i)
+									echo '<b>'.text_length($category_array[$i]).'</b>'; 
+								else
+									echo text_length($category_array[$i]);
+							?>
+						</a> 
+						<span class="hdr">
+							<?php
+						 		if($category_index === $i) 
+									echo '<b>'.'('.$noof_faqs.')'.'</b>'; 
+								else
+									echo '('.$noof_faqs.')';
+							?>
+						</span>
+					</li>
+					<?php } ?>
+				</ul>
+			</li>
+			<?php } ?>
+			<?php if($product_array != null) { ?>
+			<li>
+				<?php 
+					echo getTranslatedString('LNK_PRODUCTS'); 
+				?>
+				<ul>
+					<?php
+						for($i=0,$j=1;$i<count($product_array);$i++,$j++) {
+							$noof_faqs = getNoofFaqsPerProduct($product_array[$i]['productid']);
+					?>
+					<li>
+						<a class="hdr" href="index.php?module=Faq&action=index&fun=faqs&productid=<?php echo $product_array[$i]['productid']; ?>">
+							<?php
+						 		if($_REQUEST['productid'] == $product_array[$i]['productid']) 
+									echo '<b>'.$product_array[$i]['productname'].'</b>'; 
+								else
+									echo $product_array[$i]['productname'];
+							?>
+						</a> 
+						<span class="hdr">
+							<?php 	
+								if($_REQUEST['productid'] == $product_array[$i]['productid']) 
+									echo '<b>'.'('.$noof_faqs.')'.'</b>'; 
+								else 
+									echo '('.$noof_faqs.')';
+							?>
+						</span>
+						
+					</li>
+					<?php } ?>
+				</ul>
+			</li>
+			<?php	} ?>
+		</ul>
+		</div>
+		<?php } else { ?>
+			<div class="alert">
+				<b>
+				<?php
+					echo getTranslatedString('LBL_KNOWLEDGE_BASE').' '.getTranslatedString('LBL_NOT_AVAILABLE');
+				?>
+				</b>
+			</div>
+		<?php 
+			} 
+		?>
+		
+	</div>
+	<div class="col-md-9">
+				
+
+<script language="JavaScript" src="js/cookies.js"></script>
+<script>
+function toggleView(view) {
+	if(document.getElementById(view) != null){
+		if (document.getElementById(view).style.display=="block") {
+			document.getElementById(view).style.display="none"
+			document.getElementById(view+"img").src="images/plus.gif"
+			set_cookie("kb_"+view,"none")
+		} else {
+			document.getElementById(view).style.display="block"
+			document.getElementById(view+"img").src="images/minus.gif"
+			set_cookie("kb_"+view,"block")
+		}
+	}
+}
+
+var view=new Array("category","products_array")
+for (i=0;i<view.length;i++) {
+	if(document.getElementById(view) != null){
+		if (get_cookie("kb_"+view[i])==null || get_cookie("kb_"+view[i])=="" || get_cookie("kb_"+view[i])=="block") {
+			document.getElementById(view[i]).style.display="block"
+			document.getElementById(view[i]+"img").src="images/minus.gif"
+		} else {
+			document.getElementById(view[i]).style.display="none"
+			document.getElementById(view[i]+"img").src="images/plus.gif"
+		}
+	}
+}
+</script>

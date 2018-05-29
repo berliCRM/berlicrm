@@ -52,7 +52,9 @@ class Reports_SaveAjax_View extends Vtiger_IndexAjax_View {
             $data = $reportData['data'];
 		}
 		$calculation = $reportModel->generateCalculationData();
-
+		//crm-now: added for hidden contact id list in report
+		$viewer->assign('IDLIST', $reportData['id_list']);
+		
 		$viewer->assign('PRIMARY_MODULE', $reportModel->getPrimaryModule());
 		$viewer->assign('CALCULATION_FIELDS', $calculation);
         $viewer->assign('DATA', $data);

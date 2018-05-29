@@ -19,11 +19,11 @@
 			<a {if stripos($ACTION_LINK->getUrl(), 'javascript:')===0} onclick='{$ACTION_LINK->getUrl()|substr:strlen("javascript:")}' 
 										   {else} onclick='window.location.href="{$ACTION_LINK->getUrl()}"' {/if}><i title="{vtranslate($ACTION_LINK->get('linklabel'), $MODULE)}" class="{$ACTION_LINK->get('linkicon')} alignMiddle cursorPointer"></i></a>&nbsp;&nbsp;
 				{/foreach}
-				</div>	
-			    </div>
-			</div>
-			<div>
-			    <fieldset>
+        </div>	
+        </div>
+    </div>
+		<div>
+			<fieldset>
 				<legend class="mailConverterRuleLegend"><div style="margin-left: 20px;">{vtranslate('LBL_CONDITIONS', $QUALIFIED_MODULE)}</div></legend>
 				<div class="span12 row-fluid">
 				    <div class="span2 rightAligned"><strong>{vtranslate('LBL_FROM',$QUALIFIED_MODULE)}</strong></div>
@@ -49,6 +49,10 @@
 				    <div class="span2 rightAligned"><strong>{vtranslate('LBL_MATCH',$QUALIFIED_MODULE)}</strong></div>
 				    <div class="span10"><small>{if $RULE_MODEL->get('matchusing') eq 'AND'}{vtranslate('LBL_ALL_CONDITIONS',$QUALIFIED_MODULE)}{else}{vtranslate('LBL_ANY_CONDITIONS',$QUALIFIED_MODULE)}{/if}</small></div>
 				</div>
+				<div class="span12 row-fluid">
+				    <div class="span2 rightAligned"><strong>{vtranslate('LBL_ATTACHMENTS',$QUALIFIED_MODULE)}</strong></div>
+				    <div class="span10"><small>{$ATTACHMENT_FOLDERS[$RULE_MODEL->get('folderid')]}</small></div>
+				</div>
 				{assign var=ASSIGNED_TO_RULES_ARRAY value=array('CREATE_HelpDesk_FROM', 'CREATE_Leads_SUBJECT', 'CREATE_Contacts_SUBJECT', 'CREATE_Accounts_SUBJECT')}
 				{if in_array($RULE_MODEL->get('action'), $ASSIGNED_TO_RULES_ARRAY)}
 				    <div class="span12 row-fluid">
@@ -56,15 +60,15 @@
 					<div class="span10"><small>{$RULE_MODEL->get('assigned_to')}</small></div>
 				    </div>
 				{/if}
-			    </fieldset>
-			    <fieldset style="margin-top: 10px;">
+			</fieldset>
+			<fieldset style="margin-top: 10px;">
 				<legend class="mailConverterRuleLegend"><div style="margin-left: 20px;">{vtranslate('action', $QUALIFIED_MODULE)}</div></legend>
 				<div class="span12 row-fluid">
 				    <div class="span2 rightAligned"><strong>{vtranslate('LBL_ACTION',$QUALIFIED_MODULE)}</strong></div>
 				    <div class="span10"><small>{vtranslate($RULE_MODEL->get('action'),$QUALIFIED_MODULE)}</small></div>
 				</div>
-			    </fieldset>
-			</div>
-		    </div>
-		    <div class="clearfix"></div>				
+			</fieldset>
+        </div>
+    </div>
+<div class="clearfix"></div>				
 {/strip}							

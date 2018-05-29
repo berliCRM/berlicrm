@@ -163,6 +163,13 @@ class Inventory_Record_Model extends Vtiger_Record_Model {
 	public function getExportPDFUrl() {
 		return "index.php?module=".$this->getModuleName()."&action=ExportPDF&record=".$this->getId();
 	}
+	/**
+	 * Function to get URL for Export the record as PDF
+	 * @return <type>
+	 */
+	public function getExportPDFUrlDeliveryNote() {
+		return "index.php?module=".$this->getModuleName()."&action=ExportPDF&printsn=printsn&record=".$this->getId();
+	}
 
 	/**
 	  * Function to get the send email pdf url
@@ -189,29 +196,65 @@ class Inventory_Record_Model extends Vtiger_Record_Model {
 	}
 
     /**
-     * Function to get the pdf file name . This will conver the invoice in to pdf and saves the file
+     * Function to get the pdf file name . This will convert quote, orders and invoices in to pdf and saves the file
      * @return <String>
      *
      */
     public function getPDFFileName() {
         $moduleName = $this->getModuleName();
+
 		if ($moduleName == 'Quotes') {
-			vimport("~~/modules/$moduleName/QuotePDFController.php");
-			$controllerClassName = "Vtiger_QuotePDFController";
+			vimport("~~/modules/$moduleName/pdfcreator.php");
+			//$controllerClassName = "Vtiger_QuotePDFController";
 		} else {
-			vimport("~~/modules/$moduleName/$moduleName" . "PDFController.php");
-			$controllerClassName = "Vtiger_" . $moduleName . "PDFController";
+			vimport("~~/modules/$moduleName/pdfcreator.php");
+			//$controllerClassName = "Vtiger_" . $moduleName . "PDFController";
 		}
 
 		$recordId = $this->getId();
-		$controller = new $controllerClassName($moduleName);
-        $controller->loadRecord($recordId);
+		createpdffile (vtlib_purify($recordId),'send');
+		$record_no = getModuleSequenceNumber($moduleName,$recordId);
+		// $controller = new $controllerClassName($moduleName);
+        // $controller->loadRecord($recordId);
 
-        $sequenceNo = getModuleSequenceNumber($moduleName,$recordId);
-		$translatedName = vtranslate($moduleName, $moduleName);
-        $filePath = "storage/$translatedName"."_".$sequenceNo.".pdf";
+        // $sequenceNo = getModuleSequenceNumber($moduleName,$recordId);
+		$translatedName = vtranslate('SINGLE_'.$moduleName, $moduleName);
+        // $filePath = "storage/$translatedName"."_".$sequenceNo.".pdf";
         //added file name to make it work in IE, also forces the download giving the user the option to save
-        $controller->Output($filePath,'F');
+        // $controller->Output($filePath,'F');
+		$filePath = 'storage/'.$translatedName.'_'.$record_no.'.pdf';
         return $filePath;
     }
+	
+	//crm-now: added for letter and conclusion text
+	public static function getAssociatedLetterText() {
+		global $log;
+		$log->debug("Entering getAssociatedStartText method ...");
+		global $adb;
+		$Letter_Details = Array();
+		$Letter_Details[0] = array (0,vtranslate('LBL_SELECT_OPTION'),'');
+		$query="SELECT * FROM berli_multistarttext where texttypes=? ORDER BY starttextid"; 
+		$params = array('qu');
+		$result = $adb->pquery($query, $params);
+		$num_rows=$adb->num_rows($result);
+		for($i=0;$i<$num_rows;$i++) 	{
+			$Letter_Details[$i+1] = array($adb->query_result($result,$i,'starttextid'),$adb->query_result($result,$i,'starttexttitle'),$adb->query_result($result,$i,'multistext'));
+		}
+		return $Letter_Details;
+	}
+	public static function getAssociatedConclusionText() {
+		global $log;
+		$log->debug("Entering getAssociatedConclusionText method ...");
+		global $adb;
+		$Conclusion_Details = Array();
+		$Conclusion_Details[0] = array (0,vtranslate('LBL_SELECT_OPTION'),'');
+		$query="SELECT * FROM berli_multiendtext where texttype= ? ORDER BY endtextid"; 
+		$params = array('qu');
+		$result = $adb->pquery($query, $params);
+		$num_rows=$adb->num_rows($result);
+		for($i=0;$i<$num_rows;$i++)	{
+			$Conclusion_Details[$i+1] = array($adb->query_result($result,$i,'endtextid'),$adb->query_result($result,$i,'endtexttitle'),$adb->query_result($result,$i,'multietext'));
+		}
+		return $Conclusion_Details;
+	}
 }

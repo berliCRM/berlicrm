@@ -59,6 +59,7 @@ class Vtiger_DetailView_Model extends Vtiger_Base_Model {
 		$linkTypes = array('DETAILVIEWBASIC','DETAILVIEW','DETAILVIEWTAB');
 		$moduleModel = $this->getModule();
 		$recordModel = $this->getRecord();
+		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 
 		$moduleName = $moduleModel->getName();
 		$recordId = $recordModel->getId();
@@ -85,16 +86,21 @@ class Vtiger_DetailView_Model extends Vtiger_Base_Model {
 		unset($linkModelListDetails['DETAILVIEWBASIC']);
 
 		if(Users_Privileges_Model::isPermitted($moduleName, 'Delete', $recordId)) {
+			if ($currentUserModel->get('language') == 'de_de') {
+				$str_delete = sprintf("%s %s", vtranslate('SINGLE_'. $moduleName, $moduleName), strtolower(getTranslatedString('LBL_DELETE', $moduleName)));
+			} else {
+				$str_delete = sprintf("%s %s", getTranslatedString('LBL_DELETE', $moduleName), vtranslate('SINGLE_'. $moduleName, $moduleName));
+			}
 			$deletelinkModel = array(
 					'linktype' => 'DETAILVIEW',
-					'linklabel' => sprintf("%s %s", getTranslatedString('LBL_DELETE', $moduleName), vtranslate('SINGLE_'. $moduleName, $moduleName)),
+					'linklabel' => $str_delete,
 					'linkurl' => 'javascript:Vtiger_Detail_Js.deleteRecord("'.$recordModel->getDeleteUrl().'")',
 					'linkicon' => ''
 			);
 			$linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($deletelinkModel);
 		}
 
-		if(Users_Privileges_Model::isPermitted($moduleName, 'EditView', $recordId)) {
+		if(Users_Privileges_Model::isPermitted($moduleName, 'CreateView', $recordId)) {
 			$duplicateLinkModel = array(
 						'linktype' => 'DETAILVIEWBASIC',
 						'linklabel' => 'LBL_DUPLICATE',
@@ -133,7 +139,6 @@ class Vtiger_DetailView_Model extends Vtiger_Base_Model {
 			$linkModelList['DETAILVIEWWIDGET'][] = $widgetLinkModel;
 		}
 
-		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		if($currentUserModel->isAdminUser()) {
 			$settingsLinks = $moduleModel->getSettingLinks();
 			foreach($settingsLinks as $settingsLink) {
@@ -178,7 +183,9 @@ class Vtiger_DetailView_Model extends Vtiger_Base_Model {
 					'linktype' => 'DETAILVIEWTAB',
 					'linklabel' => 'ModComments',
 					'linkurl' => $recordModel->getDetailViewUrl().'&mode=showAllComments',
-					'linkicon' => ''
+					'linkicon' => '',
+					'relatedModuleName' => $modCommentsModel->get('name'),
+					'recordcount' => ModComments_Record_Model::getAllCommentRecordsCount($recordModel->get('id'))
 			);
 		}
 
@@ -193,16 +200,28 @@ class Vtiger_DetailView_Model extends Vtiger_Base_Model {
 
 
 		$relationModels = $parentModuleModel->getRelations();
+		
+		$parentRecordModel = Vtiger_Record_Model::getInstanceById($recordModel->get('id') ,$parentModuleModel->get('name'));
 
 		foreach($relationModels as $relation) {
 			//TODO : Way to get limited information than getting all the information
+			//crm-now: added the display of record count
+			$relationListView = Vtiger_RelationListView_Model::getInstance($parentRecordModel, $relation->valueMap['modulename'], $relation->valueMap['label']);
 			$link = array(
 					'linktype' => 'DETAILVIEWRELATED',
 					'linklabel' => $relation->get('label'),
 					'linkurl' => $relation->getListUrl($recordModel),
 					'linkicon' => '',
-					'relatedModuleName' => $relation->get('relatedModuleName') 
+					'relatedModuleName' => $relation->get('relatedModuleName'),
+					'recordcount' => $relationListView->getRelatedEntriesCount()
+
 			);
+
+            // crm-now: default sort order "newest first" for related emails and activities
+            if ($relation->get('relatedModuleName') == "Emails" || $relation->get('relatedModuleName') == "Calendar") {
+                $link['linkurl'] .= "&orderby=date_start&sortorder=DESC";
+            }
+
 			$relatedLinks[] = $link;
 		}
 

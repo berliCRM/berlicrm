@@ -44,7 +44,7 @@
                         <span class="span6">
                             <span class="pull-right">
                                 <div class=" pull-right cancelLinkContainer">
-                                    <a class="cancelLink" href="index.php?module=ExtensionStore&parent=Settings&view=ExtensionImport&mode=step1">{vtranslate('LBL_CANCEL', $QUALIFIED_MODULE)}</a>
+                                    <a class="cancelLink" href="index.php?module=ModuleManager&parent=Settings&view=List">{vtranslate('LBL_CANCEL', $QUALIFIED_MODULE)}</a>
                                 </div>
                                 <button class="btn btn-success" disabled="disabled" type="submit" name="importFromZip"><strong>{vtranslate('LBL_IMPORT', $MODULE)}</strong></button>
                             </span>

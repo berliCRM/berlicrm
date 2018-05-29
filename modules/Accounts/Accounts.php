@@ -102,7 +102,7 @@ class Accounts extends CRMEntity {
 		'Project' => array('table_name' => 'vtiger_project', 'table_index' => 'projectid', 'rel_index' => 'linktoaccountscontacts'),
 	);
 
-	function Accounts() {
+	function __construct() {
 		$this->log =LoggerManager::getLogger('account');
 		$this->db = PearDatabase::getInstance();
 		$this->column_fields = getColumnFields('Accounts');
@@ -485,9 +485,11 @@ class Accounts extends CRMEntity {
 
 		$query = "SELECT case when (vtiger_users.user_name not like '') then $userNameSql else vtiger_groups.groupname end as user_name,
 			vtiger_activity.activityid, vtiger_activity.subject, vtiger_activity.activitytype, vtiger_crmentity.modifiedtime,
-			vtiger_crmentity.crmid, vtiger_crmentity.smownerid, vtiger_activity.date_start,vtiger_activity.time_start, vtiger_seactivityrel.crmid as parent_id
+			vtiger_crmentity.crmid, vtiger_crmentity.smownerid, vtiger_activity.date_start,vtiger_activity.time_start, vtiger_seactivityrel.crmid as parent_id,
+            vtiger_emaildetails.from_email, vtiger_emaildetails.to_email
 			FROM vtiger_activity, vtiger_seactivityrel, vtiger_account, vtiger_users, vtiger_crmentity
 			LEFT JOIN vtiger_groups ON vtiger_groups.groupid=vtiger_crmentity.smownerid
+            left join vtiger_emaildetails ON vtiger_crmentity.crmid = emailid
 			WHERE vtiger_seactivityrel.activityid = vtiger_activity.activityid
 				AND vtiger_seactivityrel.crmid IN (".$entityIds.")
 				AND vtiger_users.id=vtiger_crmentity.smownerid

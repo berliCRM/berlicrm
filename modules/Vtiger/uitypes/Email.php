@@ -18,7 +18,7 @@ class Vtiger_Email_UIType extends Vtiger_Base_UIType {
 		return 'uitypes/Email.tpl';
 	}
 
-	public function getDisplayValue($value, $recordId) {
+	public function getDisplayValue($value, $recordId = false, $recordInstance = false) {
 		$currentUser = Users_Record_Model::getCurrentUserModel();
 		$internalMailer = $currentUser->get('internal_mailer');
 		if($value){

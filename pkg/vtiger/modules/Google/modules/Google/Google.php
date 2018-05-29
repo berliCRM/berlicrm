@@ -28,20 +28,30 @@ class Google {
         if ($eventType == 'module.postinstall') {
             $adb->pquery('UPDATE vtiger_tab SET customized=0 WHERE name=?', array($moduleName));
             $this->addMapWidget($forModules);
-            $this->addWidgetforSync($syncModules);
+			//initiate settings table
+			$this->createSettingsTableContents();
+			//add settings menu
+			$this->createSettingsMenueEntry();
+			
         } else if ($eventType == 'module.disabled') {
             $this->removeMapWidget($forModules);
             $this->removeWidgetforSync($syncModules);
         } else if ($eventType == 'module.enabled') {
             $this->addMapWidget($forModules);
-            $this->addWidgetforSync($syncModules);
         } else if ($eventType == 'module.preuninstall') {
             $this->removeMapWidget($forModules);
             $this->removeWidgetforSync($syncModules);
+			//remove settings menue
+			$this->removeSettingsLinks();
+			
         } else if ($eventType == 'module.preupdate') {
             // TODO Handle actions before this module is updated.
         } else if ($eventType == 'module.postupdate') {
-            
+			//initiate settings table
+			$this->createSettingsTableContents();
+			//add settings menu
+			$this->createSettingsMenueEntry();
+          
         }
     }
 
@@ -130,6 +140,46 @@ class Google {
             }
         }
     }
+	
+    /**
+     * add Google settings menu
+     */
+	function createSettingsMenueEntry(){
+		$db = PearDatabase::getInstance();
+		$fieldid = $db->getUniqueID('vtiger_settings_field');
+		$blockid = getSettingsBlockId('LBL_OTHER_SETTINGS');
+		$seq_res = $db->pquery("SELECT max(sequence) AS max_seq FROM vtiger_settings_field WHERE blockid = ?", array($blockid));
+		if ($db->num_rows($seq_res) > 0) {
+			$cur_seq = $db->query_result($seq_res, 0, 'max_seq');
+			if ($cur_seq != null)	$seq = $cur_seq + 1;
+		}
+
+		$result=$db->pquery('SELECT 1 FROM vtiger_settings_field WHERE name=?',array('Google'));
+		if(!$db->num_rows($result)){
+			$db->pquery('INSERT INTO vtiger_settings_field(fieldid, blockid, name, iconpath, description, linkto, sequence)
+				VALUES (?,?,?,?,?,?,?)', array($fieldid, $blockid, 'Google' , '', 'LBL_GOOGLE_DESCRIPTION', 'index.php?parent=Settings&module=Google&view=Index', $seq));
+		}			
+	}
+     /**
+     * To delete Settings link
+    */
+    function removeSettingsLinks(){
+		global $log;
+		$db = PearDatabase::getInstance();
+        $db->pquery('DELETE FROM vtiger_settings_field WHERE name=?', array('Google'));
+        $log->fatal('Settings Field Removed');
+        
+    }
+   /**
+     * add Google settings menu
+     */
+	function createSettingsTableContents(){
+		$db = PearDatabase::getInstance();
+		$result=$db->pquery('SELECT 1 FROM berli_google_settings WHERE id=?',array('1'));
+		if(!$db->num_rows($result)){
+			$db->pquery("INSERT INTO `berli_google_settings` (`id`, `google_username`, `google_password`, `google_api_id`, `type`) VALUES (1, '', '', '', 'mapapikey'),(2, '', '', '', 'geodataapikey');");
+		}
+	}
 
 }
 

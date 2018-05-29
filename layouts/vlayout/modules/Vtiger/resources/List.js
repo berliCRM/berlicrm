@@ -10,7 +10,7 @@
 jQuery.Class("Vtiger_List_Js",{
 
 	listInstance : false,
-
+    FindDuplicatesinstance : false,
 	getRelatedModulesContainer : false,
 
 	massEditPreSave : 'Vtiger.MassEdit.PreSave',
@@ -140,6 +140,132 @@ jQuery.Class("Vtiger_List_Js",{
 		} else {
 			listInstance.noRecordSelectedAlert();
 		}
+	},
+
+	triggerRemoveDuplicates : function(MergeRecordUrl){
+		var thisInstance = this;
+		var listInstance = Vtiger_List_Js.getInstance();
+
+		var FindDuplicatesClassName = "Vtiger_FindDuplicates_Js";
+
+		thisInstance.FindDuplicatesinstance = new window[FindDuplicatesClassName]();
+
+		var selectedIds = listInstance.readSelectedIds();
+		if(selectedIds == 'all'){
+			alert(app.vtranslate('JS_NO_SUPPORT_OF_ALL_RECORDS'));
+			return false;
+		}
+
+		if(typeof selectedIds == 'object' && ((selectedIds.length < 2  ) || (selectedIds.length > 3  ))) {
+			alert(app.vtranslate('JS_PLEASE_SELECT_CORRECT_RECORDNO'));
+			return false;
+		}
+
+		var popupInstance = Vtiger_Popup_Js.getInstance();
+
+		var url = MergeRecordUrl+'&records=' + selectedIds;
+		thisInstance.FindDuplicatesinstance.popupWindowInstance = popupInstance.show(url, '', 'duplPopup', '', function(params) {
+			thisInstance.FindDuplicatesinstance.mergeRecordPopupCallbackForListView();
+		}, 'location=1,width=1200,height=900,resizable=1,scrollbars=1');
+        thisInstance.FindDuplicatesinstance.popupWindowInstance.focus(); // get window to front if it was open already
+	},
+	
+	//crm-now: added for PDF massprint
+	triggerMassPrintPDF : function(){
+		var listInstance = Vtiger_List_Js.getInstance();
+		var selectedIds = listInstance.readSelectedIds();
+		if(selectedIds == 'all'){
+			alert(app.vtranslate('JS_NO_SUPPORT_OF_ALL_RECORDS'));
+			return false;
+		}
+		var validationResult = listInstance.checkListRecordSelected();
+		if(validationResult != true){
+			var pdffiles = new Array();
+			var res = [];
+			   var arrayResp = [];
+
+			var progressIndicatorElement = jQuery.progressIndicator();
+			jQuery.each(selectedIds, function(index, item) {
+				var params = {
+					"module" : app.getModuleName(),
+					"action" : "MassExportPDF",
+					"savemode" : "file",
+					"selectedId" : item
+				}
+				res.push(AppConnector.request(params).then(
+					function(data) {
+						if(data.success) {
+							pdffiles.push(data.result.filename);
+							arrayResp.push(data);
+						}
+						else {
+							progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+							var  params = {
+								text : app.vtranslate(data.error.message)+' ID: '+item,
+								title : app.vtranslate('JS_LBL_PERMISSION')
+							}
+							Vtiger_Helper_Js.showPnotify(params);
+						}				},
+					function(error,err){
+						progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+						var params = {
+							title: error,
+							text: err.message,
+							type: 'error'
+						};
+						Vtiger_Helper_Js.showPnotify(params);
+					}
+
+				)
+				);
+			});
+			$.when.apply($, res) .then(function() {
+				// get file names when all Ajax are done
+				var filenames = new Array();
+				jQuery.each(arrayResp, function(index, item) {
+						filenames.push(item.result.filename);
+				});
+ 				//create one PDF for all
+				var params = {
+					"module" : app.getModuleName(),
+					"action" : "MassExportPDF",
+					"savemode" : "masspdf",
+					"pdffiles" : filenames
+				}
+				AppConnector.request(params).then(
+					function(data) {
+						progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+						if(data.success) {
+							var link = document.createElement('a');
+							link.href = 'index.php?module=Documents&action=DownloadFile&record='+data.result.record+'&fileid='+data.result.fileid;
+							link.download = data.result.filename;
+							link.dispatchEvent(new MouseEvent('click'));					
+						}
+						else {
+							progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+							var  params = {
+								text : app.vtranslate(data.error.message),
+								title : app.vtranslate('JS_LBL_PERMISSION')
+							}
+							Vtiger_Helper_Js.showPnotify(params);
+						}				
+					},
+					function(error,err){
+						progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+						var params = {
+							title: error,
+							text: err.message,
+							type: 'error'
+						};
+						Vtiger_Helper_Js.showPnotify(params);
+					}
+				);
+			});			
+			
+		}
+		else {
+			listInstance.noRecordSelectedAlert();
+		}		
 	},
 
 	transferOwnershipSave : function (form){
@@ -475,9 +601,9 @@ jQuery.Class("Vtiger_List_Js",{
 			var value = jQuery(e.currentTarget).val();
 			var button = jQuery('#findDuplicate').find('button[type="submit"]');
 			if(value != null) {
-				button.attr('disabled', false);
+				button.prop('disabled', false);
 			} else {
-				button.attr('disabled', true);
+				button.prop('disabled', true);
 			}
 		})
 	}
@@ -609,22 +735,22 @@ jQuery.Class("Vtiger_List_Js",{
 					if(selectedIds != ''){
 						if(selectedIds == 'all'){
 							jQuery('.listViewEntriesCheckBox').each( function(index,element) {
-								jQuery(this).attr('checked', true).closest('tr').addClass('highlightBackgroundColor');
+								jQuery(this).prop('checked', true).closest('tr').addClass('highlightBackgroundColor');
 							});
 							jQuery('#deSelectAllMsgDiv').show();
 							var excludedIds = thisInstance.readExcludedIds();
 							if(excludedIds != ''){
-								jQuery('#listViewEntriesMainCheckBox').attr('checked',false);
+								jQuery('#listViewEntriesMainCheckBox').prop('checked',false);
 								jQuery('.listViewEntriesCheckBox').each( function(index,element) {
 									if(jQuery.inArray(jQuery(element).val(),excludedIds) != -1){
-										jQuery(element).attr('checked', false).closest('tr').removeClass('highlightBackgroundColor');
+										jQuery(element).prop('checked', false).closest('tr').removeClass('highlightBackgroundColor');
 									}
 								});
 							}
 						} else {
 							jQuery('.listViewEntriesCheckBox').each( function(index,element) {
 								if(jQuery.inArray(jQuery(element).val(),selectedIds) != -1){
-									jQuery(this).attr('checked', true).closest('tr').addClass('highlightBackgroundColor');
+									jQuery(this).prop('checked', true).closest('tr').addClass('highlightBackgroundColor');
 								}
 							});
 						}
@@ -820,9 +946,9 @@ jQuery.Class("Vtiger_List_Js",{
 			}
 		});
 		if(state == true){
-			jQuery('#listViewEntriesMainCheckBox').attr('checked',true);
+			jQuery('#listViewEntriesMainCheckBox').prop('checked',true);
 		} else {
-			jQuery('#listViewEntriesMainCheckBox').attr('checked', false);
+			jQuery('#listViewEntriesMainCheckBox').prop('checked', false);
 		}
 	},
 
@@ -960,7 +1086,7 @@ jQuery.Class("Vtiger_List_Js",{
 			var form = jQuery(e.currentTarget);
 			var invalidFields = form.data('jqv').InvalidFields;
 			if(invalidFields.length == 0){
-				form.find('[name="saveButton"]').attr('disabled',"disabled");
+				form.find('[name="saveButton"]').prop('disabled',true);
 			}
 			var invalidFields = form.data('jqv').InvalidFields;
 			if(invalidFields.length > 0){
@@ -1173,13 +1299,13 @@ jQuery.Class("Vtiger_List_Js",{
 		if(previousPageExist != ""){
 			previousPageButton.removeAttr('disabled');
 		} else if(previousPageExist == "") {
-			previousPageButton.attr("disabled","disabled");
+			previousPageButton.prop("disabled",true);
 		}
 
 		if((nextPageExist != "") && (pages >1)){
 			nextPageButton.removeAttr('disabled');
 		} else if((nextPageExist == "") || (pages == 1)) {
-			nextPageButton.attr("disabled","disabled");
+			nextPageButton.prop("disabled",true);
 		}
 		if(listViewEntriesCount != 0){
 			var pageNumberText = pageStartRange+" "+app.vtranslate('to')+" "+pageEndRange;
@@ -1250,7 +1376,7 @@ jQuery.Class("Vtiger_List_Js",{
 				});
 
 				jQuery('.listViewEntriesCheckBox').each( function(index,element) {
-					jQuery(this).attr('checked', true).closest('tr').addClass('highlightBackgroundColor');
+					jQuery(this).prop('checked', true).closest('tr').addClass('highlightBackgroundColor');
 					if(selectedIds == 'all'){
 						if((jQuery.inArray(jQuery(element).val(), excludedIds))!= -1){
 							excludedIds.splice(jQuery.inArray(jQuery(element).val(),excludedIds),1);
@@ -1262,7 +1388,7 @@ jQuery.Class("Vtiger_List_Js",{
 			}else{
 				jQuery("#selectAllMsgDiv").hide();
 				jQuery('.listViewEntriesCheckBox').each( function(index,element) {
-					jQuery(this).attr('checked', false).closest('tr').removeClass('highlightBackgroundColor');
+					jQuery(this).prop('checked', false).closest('tr').removeClass('highlightBackgroundColor');
 				if(selectedIds == 'all'){
 					excludedIds.push(jQuery(element).val());
 					selectedIds = 'all';
@@ -1318,9 +1444,9 @@ jQuery.Class("Vtiger_List_Js",{
 		listViewPageDiv.delegate('#selectAllMsg','click',function(){
 			jQuery('#selectAllMsgDiv').hide();
 			jQuery("#deSelectAllMsgDiv").show();
-			jQuery('#listViewEntriesMainCheckBox').attr('checked',true);
+			jQuery('#listViewEntriesMainCheckBox').prop('checked',true);
 			jQuery('.listViewEntriesCheckBox').each( function(index,element) {
-				jQuery(this).attr('checked', true).closest('tr').addClass('highlightBackgroundColor');
+				jQuery(this).prop('checked', true).closest('tr').addClass('highlightBackgroundColor');
 			});
 			thisInstance.writeSelectedIds('all');
 		});
@@ -1334,9 +1460,9 @@ jQuery.Class("Vtiger_List_Js",{
 		var thisInstance = this;
 		listViewPageDiv.delegate('#deSelectAllMsg','click',function(){
 			jQuery('#deSelectAllMsgDiv').hide();
-			jQuery('#listViewEntriesMainCheckBox').attr('checked',false);
+			jQuery('#listViewEntriesMainCheckBox').prop('checked',false);
 			jQuery('.listViewEntriesCheckBox').each( function(index,element) {
-				jQuery(this).attr('checked', false).closest('tr').removeClass('highlightBackgroundColor');
+				jQuery(this).prop('checked', false).closest('tr').removeClass('highlightBackgroundColor');
 			});
 			var excludedIds = new Array();
 			var selectedIds = new Array();
@@ -1479,14 +1605,14 @@ jQuery.Class("Vtiger_List_Js",{
 	},
 
 	/*
-	 * Function to register the hover event for customview filter options
+	 * Function to register the mouseenter/mouseleave (deprecated hover) event for customview filter options
 	 */
 	registerCustomFilterOptionsHoverEvent : function(){
 		var thisInstance = this;
 		var listViewTopMenuDiv = this.getListViewTopMenuContainer();
-		var filterBlock = this.getFilterBlock()
+		var filterBlock = this.getFilterBlock();
 		if(filterBlock != false){
-			filterBlock.on('hover','li.select2-result-selectable',function(event){
+			filterBlock.on('mouseenter mouseleave','li.select2-result-selectable',function(event){
 				var liElement = jQuery(event.currentTarget);
 				var liFilterImages = liElement.find('.filterActionImgs');
 				if (liElement.hasClass('group-result')){
@@ -1720,7 +1846,7 @@ jQuery.Class("Vtiger_List_Js",{
 				return;
 			}
 			commentContent.validationEngine('hide');
-			jQuery(form).find('[name=saveButton]').attr('disabled','disabled');
+			jQuery(form).find('[name=saveButton]').prop('disabled',true);
 			thisInstance.massActionSave(form).then(function(data){
 				Vtiger_List_Js.clearList();
 			});
@@ -1885,8 +2011,12 @@ jQuery.Class("Vtiger_List_Js",{
 	},
 
     getListSearchParams : function(){
+
         var listViewPageDiv = this.getListViewContainer();
         var listViewTable = listViewPageDiv.find('.listViewEntriesTable');
+		
+		
+		
         var searchParams = new Array();
         listViewTable.find('.listSearchContributor').each(function(index,domElement){
             var searchInfo = new Array();
@@ -1903,6 +2033,7 @@ jQuery.Class("Vtiger_List_Js",{
                     searchValue = searchValue.join(',');
                 }
             }
+
             searchValue = searchValue.trim();
             if(searchValue.length <=0 ) {
                 //continue
@@ -1932,7 +2063,35 @@ jQuery.Class("Vtiger_List_Js",{
             searchInfo.push(searchOperator);
             searchInfo.push(searchValue);
             searchParams.push(searchInfo);
+
         });
+		//crm-now: use preserved search parameter in case field is not present in view
+		var preserved_search = jQuery("#url_search_parameters");
+		if (preserved_search.val() != null) {
+			preserved_search = JSON.parse(preserved_search.val());
+			jQuery.each(preserved_search, function(index,innerArray) {
+				jQuery.each(innerArray, function(index2,innerArray2) {
+
+					var inputname= innerArray2[0];
+					var inputobj = jQuery(":input[name='" + inputname + "']");
+					var inputval = inputobj.val();
+					var bAddIt = true;
+
+					if (inputobj.length > 0 && !inputval) bAddIt = false;
+					else {
+						jQuery.each(searchParams, function(index3,innerArray3) {
+							if (innerArray2[0] == innerArray3[0]) {
+								bAddIt = false;
+								return;
+							}
+						});
+					}
+					if (bAddIt) {
+						searchParams.push(innerArray2);
+					}
+				});
+			});
+		}
         return new Array(searchParams);
     },
 

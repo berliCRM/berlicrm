@@ -87,7 +87,7 @@ class Potentials extends CRMEntity {
 	var $def_basicsearch_col = 'potentialname';
 
 	//var $groupTable = Array('vtiger_potentialgrouprelation','potentialid');
-	function Potentials() {
+	function __construct() {
 		$this->log = LoggerManager::getLogger('potential');
 		$this->db = PearDatabase::getInstance();
 		$this->column_fields = getColumnFields('Potentials');

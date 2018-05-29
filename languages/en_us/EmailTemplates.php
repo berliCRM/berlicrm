@@ -9,19 +9,25 @@
  *************************************************************************************/
 $languageStrings = array(
 	'LBL_ADD_RECORD' => 'Add Email Template',
-	'LBL_DESCRIPTION' => 'Description',
-	'LBL_EMAIL_TEMPLATE_DESCRIPTION'=>'Manage templates for E-Mail module',
-	'LBL_EMAIL_TEMPLATE' => 'Email Template',
+	'SINGLE_EmailTemplates' => 'Email Template',
 	'LBL_EMAIL_TEMPLATES'=> 'Email Templates',
+	'LBL_EMAIL_TEMPLATE' => 'Email Template',
+	
+	'LBL_TEMPLATE_NAME' => 'Template name',
+	'LBL_DESCRIPTION' => 'Description',
+	'LBL_SUBJECT' => 'Subject',
 	'LBL_GENERAL_FIELDS' => 'General Fields',
 	'LBL_SELECT_FIELD_TYPE' => 'Select Field Type',
-	'LBL_SUBJECT' => 'Subject',
-	'LBL_TEMPLATE_NAME' => 'Template name',
-	'SINGLE_EmailTemplates' => 'Email Template',
-    
-         //Patch provided by http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7884
-        'Template Name' => 'Template Name', 
-        'Templatename' => 'Templatename', 
-        'Message' => 'Message', 
-        'Email Template - Properties of ' => 'Email Template - Properties of ', 
+	'EmailTemplates' => 'Email Templates',
+	'Email Templates' => 'Email Templates',
+	
+	'LBL_EMAIL_TEMPLATE_DESCRIPTION'=>'Manage templates for E-Mail module',
+	
+    'Template Name' => 'Template name', 
+    'Templatename' => 'Template name', 
+    'Message' => 'Message', 
+    'Email Template - Properties of ' => 'Email Template - Properties of ', 
+	
+	'Template ID' => 'Template ID',
+	
 );

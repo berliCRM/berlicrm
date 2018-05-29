@@ -63,7 +63,7 @@ $languageStrings = array(
 	'LBL_GENERATE_REPORT' => 'Generate Report',
 	'LBL_GROUP_BY' => 'Group By',
 	'LBL_HIGHEST_VALUE' => 'Highest Value',
-	'LBL_LIMIT_EXCEEDED' => 'Only 1000 + records are displayed. Use CSV or Excel Export to see all the records',
+	'LBL_LIMIT_EXCEEDED' => 'Only a limited number of records is displayed. Use CSV or Excel Export to see all the records',
 	'LBL_LOWEST_VALUE' => 'Lowest Value',
 	'LBL_MAX' => 'MAX',
 	'LBL_MIN' => 'MIN',
@@ -137,6 +137,7 @@ $languageStrings = array(
 	'Tickets related to Products'=>'Tickets related to Products',
 	'Tickets that are Open'=>'Open Tickets',
 	'Vendors Email Report'=>'Vendors Email Report',
+    'LBL_REPORT_MODULE_UNAVAILABLE'=>'Locked (module %s not available)',
 
 	//charts labels
 	'LBL_SELECT_CHART_TYPE' => 'Select chart type',
@@ -164,6 +165,74 @@ $languageStrings = array(
 	'LBL_CHARTS' => 'Charts',
     //Schedule Reports - Mail Content
     'LBL_AUTO_GENERATED_REPORT_EMAIL' => 'This is an auto-generated email sent on behalf of a scheduled report.',
+	
+	//crm-now: added for better layout
+   'LBL_MORE_RECORDS_TXT1'=>'Only',
+   'LBL_MORE_RECORDS_TXT2'=>'records are shown below. Please export to see all Records',
+	
+	//crm-now: added for special exports
+	'LBL_SPECIAL_EXPORTS' => 'Special Exports',
+	'LBL_EXPORT_TO_MC' => 'Export to Mailchimp',
+	'LBL_EXPORT_TO_CAMP' => 'Export to Campaign',
+	//crm-now: added for Campaign link
+	'LBL_ADD_TO_CAMPAIGN'=>'add report result to a campaign',
+	'LBL_RELOAD_REPORT'=>'reload report',
+	'LBL_CAMPAIGNS'=>'Campaigns',
+	'LBL_SELECT_CAMP_CONTACT'=>'Add Contacts to Campaign',
+	'LBL_SELECT_CAMP_LEAD'=>'Add Leads to Campaign',
+	'LBL_CAMPAIGN_LIST'=>'Campaign List',
+	'LBL_SEARCH_CAMPAIGN'=>'Campaign Search',
+	'LBL_COMENT1_CONTACT'=>'This is the list of your existing campaigns in alphabetic order. Please select a campaign to which you would like to add the contacts from this report and push the button. This can not be undone.',
+	'LBL_COMENT1_LEAD'=>'This is the list of your existing campaigns in alphabetic order. Please select a campaign to which you would like to add the leads from this report and push the button. This can not be undone.',
+	'LBL_SUCCESS_CONTACT'=>'All contacts from this report have been added to the selected campaign.',
+	'LBL_SUCCESS_LEAD'=>'All leads from this report have been added to the selected campaign.',
+	'LBL_SUCCESS_CONTACT_LESS'=>'The selected campaign contained already contacts from this report. Only',
+	'LBL_SUCCESS_CONTACT_LESS1'=>'contacts have been added.',
+	'LBL_SUCCESS_LEAD_LESS'=>'The selected campaign contained already leads from this report. Only',
+	'LBL_SUCCESS_LEAD_LESS1'=>'leads have been added.',
+	'LBL_NO_CONTACTS'=>'The report does not contain information to add.',
+	
+	//crm-now: added for MailChimp link
+	'LBL_ADD_TO_MAILCHIMP_CONTACT'=>'add report result to a MailChimp list',
+	'LBL_MAILCHIMP_LIST'=>'MailChimp List',
+	'LBL_MC_LISTS'=>'MailChimp Lists',
+	'LBL_MC_COMENT1_CONTACT'=>'This is the list of your existing MailChimp lists in alphabetic order. Please select a list to which you would like to add the contacts from this report and push the button. This can not be undone.',
+	'LBL_SELECT_MC_CONTACT'=>'Add Contacts to MailChimp List',
+	'LBL_MC_SUCCESS_CONTACT'=>'All contacts from this report have been added to the selected MailChimp list.',
+	'LBL_ADD_TO_MAILCHIMP_LEAD'=>'add leads to MailChimp list',
+	'LBL_MC_COMENT1_LEAD'=>'This is the list of your existing MailChimp lists in alphabetic order. Please select a list to which you would like to add the leads from this report and push the button. This can not be undone.',
+	'LBL_SELECT_MC_LEAD'=>'Add Leads to MailChimp List',
+	'LBL_MC_SUCCESS_LEAD'=>'All leads from this report have been added to the selected MailChimp list.',
+	'LBL_MC_SUCCESS_CONTACT_LESS'=>'The selected MailChimp list contained already contacts from this report. Only',
+	'LBL_MC_SUCCESS_CONTACT_LESS1'=>'contacts have been added.',
+	'LBL_MC_SUCCESS_LEAD_LESS'=>'The selected MailChimp list contained already leads from this report. Only',
+	'LBL_MC_SUCCESS_LEAD_LESS1'=>'leads have been added.',
+	//crm-now: added for CleverReach
+	'LBL_EXPORT_TO_CR' => 'Export to CleverReach',
+	'LBL_EXPORT_TO_HS' => 'Export to HubSpot',
+	'LBL_ADD_TO_CLEVERREACH_CONTACT'=>'add report result to a CleverReach list',
+	'LBL_CLEVERREACH_LIST'=>'CleverReach List',
+	'LBL_CR_LISTS'=>'CleverReach Lists',
+	'LBL_HS_LISTS'=>'HubSpot Lists',
+	'LBL_CR_COMENT1_CONTACT'=>'This is the list of your existing CleverReach lists in alphabetic order. Please select a list to which you would like to add the contacts from this report and push the button. This can not be undone.',
+	'LBL_HS_COMENT1_CONTACT'=>'This is the list of your existing HubSpot lists in alphabetic order. Please select a list to which you would like to add the contacts from this report and push the button. This can not be undone.',
+	'LBL_SELECT_CR_CONTACT'=>'Add Contacts to CleverReach List',
+	'LBL_SELECT_HS_CONTACT'=>'Add Contacts to HubSpot List',
+	'LBL_CR_SUCCESS_CONTACT'=>'All contacts from this report have been added to the selected CleverReach list.',
+	'LBL_HS_SUCCESS_CONTACT'=>'All contacts from this report have been added to the selected HubSpot list.',
+	'LBL_ADD_TO_CLEVERREACH_LEAD'=>'add leads to CleverReach list',
+	'LBL_CR_COMENT1_LEAD'=>'This is the list of your existing CleverReach lists in alphabetic order. Please select a list to which you would like to add the leads from this report and push the button. This can not be undone.',
+	'LBL_SELECT_CR_LEAD'=>'Add Leads to CleverReach List',
+	'LBL_CR_SUCCESS_LEAD'=>'All leads from this report have been added to the selected CleverReach list.',
+	'LBL_CR_SUCCESS_CONTACT_LESS'=>'The selected CleverReach list contained already contacts from this report. Only',
+	'LBL_CR_SUCCESS_CONTACT_LESS1'=>'contacts have been added.',
+	'LBL_CR_SUCCESS_LEAD_LESS'=>'The selected CleverReach list contained already leads from this report. Only',
+	'LBL_CR_SUCCESS_LEAD_LESS1'=>'leads have been added.',
+
+	'LBL_NO_MC_LIST'=>'No MailChimp list found. Please create one first.',
+	'LBL_NO_CR_LIST'=>'No CleverReach list found. Please create one first.',
+	'LBL_NO_HS_LIST'=>'No HubSpot list found. Please create one first.',
+	'LBL_NO_CP_LIST'=>'No Campaign  found. Please create one first.',
 
 );
 
@@ -171,4 +240,13 @@ $jsLanguageStrings = array(
 	'JS_DUPLICATE_RECORD' => 'Duplicate Report',
 	'JS_CALCULATION_LINE_ITEM_FIELDS_SELECTION_LIMITATION' => 'Limitation: Line Item fields(List Price, Discount & Quantity) can only be used when other calculation fields are not selected.',
 	'JS_NO_CHART_DATA_AVAILABLE' => 'Data not available, please check the selected fields',
+	//crm-now: added for Mailchimp/Campaign link
+	'JS_NOT_ACTIVE'=>'The MailChimp module is not installed or not active.',
+	'JS_CAMP_NOT_ACTIVE'=>'The Campaign module is not installed or not active.',
+	'JS_ALERT'=>'Important hint',
+	'JS_ERROR'=>'Error',
+	'JS_NO_TRANSFER'=>'Unable to transfer the reports data. Please contact crm-now.',
+	//crm-now: added for CleverReach
+	'JS_CR_NOT_ACTIVE'=>'The CleverReach module is not installed or not active.',
+	'JS_HS_NOT_ACTIVE'=>'The HubSpot module is not installed or not active.',
 );

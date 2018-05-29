@@ -65,7 +65,7 @@ class Potentials_GroupedBySalesStage_Dashboard extends Vtiger_IndexAjax_View {
 		
 		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
 		$data = $moduleModel->getPotentialsCountBySalesStage($owner, $dates);
-        $listViewUrl = $moduleModel->getListViewUrl();
+        $listViewUrl = $moduleModel->getListViewUrlWithAllFilter();
         for($i = 0;$i<count($data);$i++){
             $data[$i][] = $listViewUrl.$this->getSearchParams($data[$i][0],$owner,$dates);
         }

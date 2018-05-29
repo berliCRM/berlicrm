@@ -9,31 +9,38 @@
  * ******************************************************************************* */
 if (!defined('VTIGER_UPGRADE'))
     die('Invalid entry point');
-chdir(dirname(__FILE__) . '/../../../');
-include_once 'modules/com_vtiger_workflow/VTTaskManager.inc';
-include_once 'include/utils/utils.php';
 
 if(defined('VTIGER_UPGRADE')) {
         //Collating all module package updates here
 	updateVtlibModule('Import', 'packages/vtiger/mandatory/Import.zip');
-        updateVtlibModule('PBXManager', 'packages/vtiger/mandatory/PBXManager.zip');
+	echo "Import updated<br>";
+    updateVtlibModule('PBXManager', 'packages/vtiger/mandatory/PBXManager.zip');
+	echo "PBXManager updated<br>";
 	updateVtlibModule('MailManager', 'packages/vtiger/mandatory/MailManager.zip');
+	echo "MailManager updated<br>";
 	updateVtlibModule('Mobile', 'packages/vtiger/mandatory/Mobile.zip');
-        updateVtlibModule('ModTracker', 'packages/vtiger/mandatory/ModTracker.zip');
-        updateVtlibModule('ServiceContracts', 'packages/vtiger/mandatory/ServiceContracts.zip');
-        updateVtlibModule('Services', 'packages/vtiger/mandatory/Services.zip');
+ 	echo "Mobile updated<br>";
+       updateVtlibModule('ModTracker', 'packages/vtiger/mandatory/ModTracker.zip');
+ 	echo "ModTracker updated<br>";
+       updateVtlibModule('ServiceContracts', 'packages/vtiger/mandatory/ServiceContracts.zip');
+  	echo "ServiceContracts updated<br>";
+     // updateVtlibModule('Services', 'packages/vtiger/mandatory/Services.zip');
 	updateVtlibModule('WSAPP', 'packages/vtiger/mandatory/WSAPP.zip');
-        updateVtlibModule('Arabic_ar_ae', 'packages/vtiger/optional/Arabic_ar_ae.zip');
-        updateVtlibModule('Assets', 'packages/vtiger/optional/Assets.zip');
+ 	echo "WSAPP updated<br>";
+       updateVtlibModule('Assets', 'packages/vtiger/optional/Assets.zip');
+	echo "Assets updated<br>";
         updateVtlibModule('EmailTemplates', 'packages/vtiger/optional/EmailTemplates.zip');
-        updateVtlibModule('Google', 'packages/vtiger/optional/Google.zip');
-        updateVtlibModule('ModComments', 'packages/vtiger/optional/ModComments.zip');
-        updateVtlibModule('Projects', 'packages/vtiger/optional/Projects.zip');
+ 	echo "EmailTemplates updated<br>";
+       updateVtlibModule('ModComments', 'packages/vtiger/optional/ModComments.zip');
+  	echo "ModComments updated<br>";
+      updateVtlibModule('Projects', 'packages/vtiger/optional/Projects.zip');
+	echo "Projects updated<br>";
 	updateVtlibModule('RecycleBin', 'packages/vtiger/optional/RecycleBin.zip');
+	echo "RecycleBin updated<br>";
 	updateVtlibModule('SMSNotifier', "packages/vtiger/optional/SMSNotifier.zip");
-        updateVtlibModule("Sweden_sv_se","packages/vtiger/optional/Sweden_sv_se.zip");
+	echo "SMSNotifier updated<br>";
 	updateVtlibModule("Webforms","packages/vtiger/optional/Webforms.zip");
-        installVtlibModule('ExtensionStore', 'packages/vtiger/marketplace/ExtensionStore.zip');
+	echo "Webforms updated<br>";
 }
 if(defined('INSTALLATION_MODE')) {
 		// Set of task to be taken care while specifically in installation mode.
@@ -250,7 +257,7 @@ for($i=0; $i<$numOfRows; $i++) {
                     $newConditions = array_merge($oldCondtions, $newConditions);
 
                     $workflowModel->test = Zend_Json::encode($newConditions);
-                    $workflowModel->description = 'Ticket Creation From Portal : Send Email to Record Owner and Contact';
+                    $workflowModel->description = 'LBL_PORTAL_TICKET_CR_EMAIL';
                     $wfs->save($workflowModel);
 
                     $emailTask->id = '';
@@ -371,7 +378,7 @@ for($i=0; $i<$numOfRows; $i++) {
 
                             unset($newWorkflowModel->id);
                             $newWorkflowModel->test = Zend_Json::encode($newWorkflowConditions);
-                            $newWorkflowModel->description = 'Send Email to Organization on Ticket Update';
+                            $newWorkflowModel->description = 'LBL_TICKET_UPDATE_EMAIL';
                             $wfs->save($newWorkflowModel);
 
                             $emailTask->id = '';
@@ -409,7 +416,7 @@ for($i=0; $i<$numOfRows; $i++) {
                             unset($newWorkflowModel->id);
                             $newWorkflowModel->executionCondition = 1;
                             $newWorkflowModel->test = Zend_Json::encode(array_merge($newAccountCondition, $portalCondition));
-                            $newWorkflowModel->description = 'Ticket Creation From CRM : Send Email to Organization';
+                            $newWorkflowModel->description = 'LBL_TICKET_CREATE_ORG_EMAIL';
                             $wfs->save($newWorkflowModel);
 
                             $emailTask->id = '';
@@ -429,7 +436,7 @@ for($i=0; $i<$numOfRows; $i++) {
                             $newConditions = array_merge($newContactCondition, $newConditions);
 
                             $workflowModel->test = Zend_Json::encode($newConditions);
-                            $workflowModel->description = 'Send Email to Contact on Ticket Update';
+                            $workflowModel->description = 'LBL_TICKET_CREATE_CON_EMAIL';
                             $wfs->save($workflowModel);
 
                             $emailTask->id = $properties['id'];
@@ -455,7 +462,7 @@ for($i=0; $i<$numOfRows; $i++) {
                             unset($newWorkflowModel->id);
                             $newWorkflowModel->executionCondition = 1;
                             $newWorkflowModel->test = Zend_Json::encode(array_merge($newContactCondition, $portalCondition));
-                            $newWorkflowModel->description = 'Ticket Creation From CRM : Send Email to Contact';
+                            $newWorkflowModel->description = 'LBL_TICKET_CREATE_CON_EMAIL';
                             $wfs->save($newWorkflowModel);
 
                             $emailTask->id = '';
@@ -558,7 +565,7 @@ for($i=0; $i<$numOfRows; $i++) {
 
                             unset($newWorkflowModel->id);
                             $newWorkflowModel->test = Zend_Json::encode($newConditions);
-                            $newWorkflowModel->description = 'Send Email to Record Owner on Ticket Update';
+                            $newWorkflowModel->description = 'LBL_TICKET_UPDATE_OWNER_EMAIL';
                             $wfs->save($newWorkflowModel);
 
                             $emailTask->id = '';
@@ -595,7 +602,7 @@ for($i=0; $i<$numOfRows; $i++) {
                             unset($newWorkflowModel->id);
                             $newWorkflowModel->executionCondition = 1;
                             $newWorkflowModel->test = Zend_Json::encode($portalCondition);
-                            $newWorkflowModel->description = 'Ticket Creation From CRM : Send Email to Record Owner';
+                            $newWorkflowModel->description = 'LBL_TICKET_UPDATE_OWNER_EMAIL';
                             $wfs->save($newWorkflowModel);
 
                             $emailTask->id = '';
@@ -709,18 +716,19 @@ $numOfRowas = $adb->num_rows($result);
 for ($i = 0; $i < $numOfRows; $i++) {
         $tm = new VTTaskManager($adb);
         $task = $tm->retrieveTask($adb->query_result($result, $i, 'task_id'));
+		if (is_object($task) ) {
+			$emailTask = new VTEmailTask();
+			$properties = get_object_vars($task);
+			foreach ($properties as $propertyName => $propertyValue) {
+					$propertyValue = str_replace('$date_start  $time_start ( $(general : (__VtigerMeta__) usertimezone) ) ', '$date_start', $propertyValue);
+					$propertyValue = str_replace('$due_date  $time_end ( $(general : (__VtigerMeta__) usertimezone) )', '$due_date', $propertyValue);
+					$propertyValue = str_replace('$due_date ( $(general : (__VtigerMeta__) usertimezone) )', '$due_date', $propertyValue);
+					$propertyValue = str_replace('$(contact_id : (Contacts) lastname) $(contact_id : (Contacts) firstname)', '$contact_id', $propertyValue);
+					$emailTask->$propertyName = $propertyValue;
+			}
 
-        $emailTask = new VTEmailTask();
-        $properties = get_object_vars($task);
-        foreach ($properties as $propertyName => $propertyValue) {
-                $propertyValue = str_replace('$date_start  $time_start ( $(general : (__VtigerMeta__) usertimezone) ) ', '$date_start', $propertyValue);
-                $propertyValue = str_replace('$due_date  $time_end ( $(general : (__VtigerMeta__) usertimezone) )', '$due_date', $propertyValue);
-                $propertyValue = str_replace('$due_date ( $(general : (__VtigerMeta__) usertimezone) )', '$due_date', $propertyValue);
-                $propertyValue = str_replace('$(contact_id : (Contacts) lastname) $(contact_id : (Contacts) firstname)', '$contact_id', $propertyValue);
-                $emailTask->$propertyName = $propertyValue;
-        }
-
-        $tm->saveTask($emailTask);
+			$tm->saveTask($emailTask);
+		}
 }
 echo '<br>Successfully Done<br>';
 
@@ -986,6 +994,7 @@ if(!$adb->num_rows($result)) {
         Migration_Index_View::ExecuteQuery('INSERT INTO vtiger_currencies (currencyid, currency_name, currency_code, currency_symbol) VALUES(?, ?, ?, ?)',
         array($adb->getUniqueID('vtiger_currencies'), 'Libya, Dinar', 'LYD', 'LYD'));
 }
+echo 'Dinar value is updated';
 
 //Start: Customer - Feature #17656 Allow users to add/remove date format with the date fields in workflow send mail task.
 $fieldResult = $adb->pquery('SELECT fieldname, name, typeofdata FROM vtiger_field
@@ -1015,14 +1024,16 @@ $dateTimeFields = array();
 foreach ($dateTimeFieldsList as $moduleName => $fieldNamesList) {
         $dateTimeFields = array_merge($dateTimeFields, $fieldNamesList);
 }
+echo 'dateTimeFields value are updated';
 
 $taskIdsList = array();
-$result = $adb->pquery('SELECT task_id, module_name FROM com_vtiger_workflowtasks
+$result = $adb->pquery('SELECT com_vtiger_workflowtasks.task_id, module_name FROM com_vtiger_workflowtasks
                         INNER JOIN com_vtiger_workflows ON com_vtiger_workflows.workflow_id = com_vtiger_workflowtasks.workflow_id
                         WHERE task LIKE ?', array('%VTEmailTask%'));
 while ($rowData = $adb->fetch_array($result)) {
         $taskIdsList[$rowData['task_id']] = $rowData['module_name'];
 }
+echo 'taskIdsList value are updated';
 
 $dateFormat = '($_DATE_FORMAT_)';
 $timeZone = '($(general : (__VtigerMeta__) usertimezone))';
@@ -1068,7 +1079,7 @@ foreach ($taskIdsList as $taskId => $taskModuleName) {
 
 global $root_directory;
 
-// To update vtiger_modcomments table for permormance issue
+// To update vtiger_modcomments table for performance issue
 $datatypeQuery = "ALTER TABLE vtiger_modcomments MODIFY COLUMN related_to int(19)";
 $dtresult = Migration_Index_View::ExecuteQuery($datatypeQuery, array());
 if($dtresult){

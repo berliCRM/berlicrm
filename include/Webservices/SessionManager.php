@@ -11,36 +11,34 @@
 	require_once("libraries/HTTP_Session2/HTTP/Session2.php");
 	// Later may we can move this to config file.
 	
-	global $maxWebServiceSessionLifeSpan, $maxWebServiceSessionIdleTime;
 	
-	$maxWebServiceSessionLifeSpan = 86400; //Max life span of a session is a day.
-	$maxWebServiceSessionIdleTime = 1800; //Max life span session should be kept alive after the last transaction.
+	
 	
 	// Till Here.
 	
 	class SessionManager{
-		private $maxLife ;  
-		private $idleLife ;
+		// private $maxLife ;  
+		// private $idleLife ;
 		//Note: the url lookup part of http_session will have String null or this be used as id instead of ignoring it.
 		//private $sessionName = "sessionName";
 		private $sessionVar = "__SessionExists";
 		private $error ;
+		public $maxWebServiceSessionLifeSpan = 86400; //Max life span of a session is a day.
+		public $maxWebServiceSessionIdleTime = 1800; //Max life span session should be kept alive after the last transaction.
 		
-		function SessionManager(){
+		function __construct(){
 			
-			global $maxWebServiceSessionLifeSpan, $maxWebServiceSessionIdleTime;
-			
-			$now = time();
-			$this->maxLife = $now + $maxWebServiceSessionLifeSpan;
-			$this->idleLife = $now + $maxWebServiceSessionIdleTime;
+			// $now = time();
+			// $this->maxLife = $now + $this->maxWebServiceSessionLifeSpan;
+			// $this->idleLife = $now + $this->maxWebServiceSessionIdleTime;
 			
 			HTTP_Session2::useCookies(false); //disable cookie usage. may this could be moved out constructor?
 			// only first invocation of following method, which is setExpire 
 			//have an effect and any further invocation will be have no effect.
-			HTTP_Session2::setExpire($this->maxLife);
+			// HTTP_Session2::setExpire($this->maxLife);
 			// this method replaces the new with old time if second params is true 
 			//otherwise it subtracts the time from previous time
-			HTTP_Session2::setIdle($this->idleLife, true);
+			// HTTP_Session2::setIdle($this->idleLife, true);
 		}
 		
 		function isValid(){
@@ -99,6 +97,13 @@
 			if(!$this->isValid()){
 				$newSID = null;
 			}
+			//set expire and idle values after check for expired and timed out sessions
+			//this is possible due to checks returning false aka is not expired/timed out for non-existing timestamps
+			if (!$adoptSession) {
+				HTTP_Session2::setExpire($this->maxWebServiceSessionLifeSpan);
+				HTTP_Session2::setIdle($this->maxWebServiceSessionIdleTime);
+			}
+			HTTP_Session2::updateIdle();
 			$sid = $newSID;
 			return $sid;
 			

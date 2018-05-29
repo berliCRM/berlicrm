@@ -140,14 +140,7 @@ class EmailTemplate {
 				$values = array();
 				foreach ($it as $row) {
 					foreach ($fieldList as $field) {
-						     $moduleModel = Vtiger_Module_Model::getInstance($module); 
- 	                         $fieldModel = Vtiger_Field_Model::getInstance($field, $moduleModel); 
- 		                     $value = $row->get($fieldColumnMapping[$field]); 
- 		                        if($fieldModel->isReferenceField()) { 
- 		                            $values[$field] = $value; 
- 		                        } else { 
- 		                            $values[$field] = $fieldModel->getDisplayValue($value, $recordId); 
- 		                        } 
+                        $values[$field] = $row->get($fieldColumnMapping[$field]); 
 					}
 				}
 				$moduleFields = $meta->getModuleFields();

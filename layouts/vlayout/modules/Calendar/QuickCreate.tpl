@@ -10,24 +10,24 @@
 ********************************************************************************/
 -->*}
 {strip}
-    {foreach key=index item=jsModel from=$SCRIPTS}
+{foreach key=index item=jsModel from=$SCRIPTS}
 	<script type="{$jsModel->getType()}" src="{$jsModel->getSrc()}"></script>
-    {/foreach}
-		
-    <div class="modelContainer">
-        <div class="modal-header contentsBackground">
-            <button class="close" aria-hidden="true" data-dismiss="modal" type="button" title="{vtranslate('LBL_CLOSE')}">&times;</button>
-            <h3>{vtranslate('LBL_QUICK_CREATE', $MODULE)} {vtranslate('LBL_EVENT_OR_TASK', $MODULE)}</h3>
-	</div>
-        <form class="form-horizontal recordEditView" id="quickCreate" name="QuickCreate" method="post" action="index.php">
+{/foreach}
+
+<div class="modelContainer">
+    <div class="modal-header contentsBackground">
+        <button class="close" aria-hidden="true" data-dismiss="modal" type="button" title="{vtranslate('LBL_CLOSE')}">&times;</button>
+        <h3>{vtranslate('LBL_QUICK_CREATE', $MODULE)} {vtranslate('LBL_EVENT_OR_TASK', $MODULE)}</h3>
+    </div>
+    <form class="form-horizontal recordEditView" id="quickCreate" name="QuickCreate" method="post" action="index.php">
 	{if !empty($PICKIST_DEPENDENCY_DATASOURCE)}
-		<input type="hidden" name="picklistDependency" value='{Vtiger_Util_Helper::toSafeHTML($PICKIST_DEPENDENCY_DATASOURCE)}' />
+		<input type="hidden" name="picklistDependency" value='{Vtiger_Util_Helper::toSafeHTML($PICKIST_DEPENDENCY_DATASOURCE)}'>
 	{/if}
 	<input type="hidden" name="module" value="{$MODULE}">
 	<input type="hidden" name="action" value="SaveAjax">
-	<input type="hidden" name="defaultCallDuration" value="{$USER_MODEL->get('callduration')}" />
-	<input type="hidden" name="defaultOtherEventDuration" value="{$USER_MODEL->get('othereventduration')}" />
-	 <input type="hidden" name="userChangedEndDateTime" value="0" />
+	<input type="hidden" name="defaultCallDuration" value="{$USER_MODEL->get('callduration')}">
+	<input type="hidden" name="defaultOtherEventDuration" value="{$USER_MODEL->get('othereventduration')}">
+	<input type="hidden" name="userChangedEndDateTime" value="0">
 
 	<!-- Random number is used to make specific tab is opened -->
 	{assign var="RAND_NUMBER" value=rand()}
@@ -107,7 +107,7 @@
 					{/if}
 						<a class="cancelLink cancelLinkContainer pull-right" type="reset" data-dismiss="modal">{vtranslate('LBL_CANCEL', $MODULE)}</a>
 						<button class="btn btn-success" type="submit"><strong>{vtranslate('LBL_SAVE', $MODULE)}</strong></button>
-						<button class="btn" id="goToFullForm" type="button" data-edit-view-url="{$EDIT_VIEW_URL}"><strong>{vtranslate('LBL_GO_TO_FULL_FORM', $MODULE)}</strong></button>
+						<button class="btn goToFullForm" type="button" data-edit-view-url="{$EDIT_VIEW_URL}"><strong>{vtranslate('LBL_GO_TO_FULL_FORM', $MODULE)}</strong></button>
 				</div>
 			</div>
 			{/foreach}

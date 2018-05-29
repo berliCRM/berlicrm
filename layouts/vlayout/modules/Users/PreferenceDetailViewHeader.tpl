@@ -17,13 +17,13 @@
             <div class="row-fluid">
                 <div class="span8">
                     <span class="row-fluid marginLeftZero">
-						<span class="logo span1">
 							{foreach key=ITER item=IMAGE_INFO from=$RECORD->getImageDetails()}
-								{if !empty($IMAGE_INFO.path) && !empty($IMAGE_INFO.orgname)}
-									<img src="{$IMAGE_INFO.path}_{$IMAGE_INFO.orgname}" alt="{$IMAGE_INFO.orgname}" title="{$IMAGE_INFO.orgname}" data-image-id="{$IMAGE_INFO.id}">
+							<span class="logo span1">
+								{if !empty($IMAGE_INFO.path) && !empty({$IMAGE_INFO.orgname})}
+									<img src="{$IMAGE_INFO.path}"  height="80">
 								{/if}
+							</span>
 							{/foreach}
-						</span>
 						<span class="span9">
 							<span id="myPrefHeading" class="row-fluid">
 								<h3>{vtranslate('LBL_MY_PREFERENCES', $MODULE_NAME)} </h3>
@@ -49,6 +49,20 @@
                                     </button>
                                 </div>
                             {/foreach}
+							{if $DETAILVIEW_LINKS['DETAILVIEW']|@count gt 0}
+								<span class="btn-group">
+									<button class="btn dropdown-toggle" data-toggle="dropdown">
+										<strong>{vtranslate('LBL_MORE', $MODULE_NAME)}</strong>&nbsp;&nbsp;<i class="caret"></i>
+									</button>
+									<ul class="dropdown-menu pull-right">
+										{foreach item=DETAIL_VIEW_LINK from=$DETAILVIEW_LINKS['DETAILVIEW']}
+											<li id="{$MODULE_NAME}_detailView_moreAction_{Vtiger_Util_Helper::replaceSpaceWithUnderScores($DETAIL_VIEW_LINK->getLabel())}">
+												<a href={$DETAIL_VIEW_LINK->getUrl()} >{vtranslate($DETAIL_VIEW_LINK->getLabel(), $MODULE_NAME)}</a>
+											</li>
+										{/foreach}
+									</ul>
+								</span>
+							{/if}
                         </div>
                     </div>
                 </div>

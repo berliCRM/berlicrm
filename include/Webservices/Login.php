@@ -25,10 +25,13 @@
 		
 		$accessCrypt = md5($token.$accessKey);
 		if(strcmp($accessCrypt,$pwd)!==0){
+			crmnow_login_protection($username, 5);
 			throw new WebServiceException(WebServiceErrorCode::$INVALIDUSERPWD,"Invalid username or password");
 		}
-		$user = $user->retrieveCurrentUserInfoFromFile($userId);
+		$user = $user->retrieve_entity_info($userId, 'Users');
 		if($user->status != 'Inactive'){
+			global $adb;
+			$adb->pquery("DELETE FROM berli_failed_logins WHERE user_name = ?;", array($username));
 			return $user;
 		}
 		throw new WebServiceException(WebServiceErrorCode::$AUTHREQUIRED,'Given user is inactive');

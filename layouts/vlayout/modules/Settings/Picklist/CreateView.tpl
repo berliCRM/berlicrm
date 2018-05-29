@@ -13,7 +13,7 @@
 <div class='modelContainer modal basicCreateView'>
 	<div class="modal-header">
 		<button data-dismiss="modal" class="close" title="{vtranslate('LBL_CLOSE')}">x</button>
-		<h3>{vtranslate('LBL_ADD_ITEM_TO', $QUALIFIED_MODULE)}&nbsp;{vtranslate($SELECTED_PICKLIST_FIELDMODEL->get('label'),$SOURCE_MODULE)}</h3>
+		<h3>{vtranslate('LBL_ADD_ITEM_TO', $QUALIFIED_MODULE)}&nbsp;{vtranslate($SELECTED_PICKLIST_FIELDMODEL->get('label'),$SELECTED_MODULE_NAME)}</h3>
 	</div>
 	<form name="addItemForm" class="form-horizontal" method="post" action="index.php">
 		<input type="hidden" name="module" value="{$MODULE}" />
@@ -26,7 +26,7 @@
 		<div class="modal-body tabbable">
 			<div class="control-group">
 				<div class="control-label"><span class="redColor">*</span>{vtranslate('LBL_ITEM_VALUE',$QUALIFIED_MODULE)}</div>
-				<div class="controls"><input type="text" data-prompt-position="topLeft:70" data-validation-engine="validate[required, funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-validator={Zend_Json::encode([['name'=>'FieldLabel']])} name="newValue"></div>
+				<div class="controls"><input type="text" data-prompt-position="topLeft:70" data-validation-engine="validate[required, funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-validator='{Zend_Json::encode([['name'=>'FieldLabel']])}' name="newValue"></div>
 			</div>
 			{if $SELECTED_PICKLIST_FIELDMODEL->isRoleBased()}
 				<div class="control-group">	

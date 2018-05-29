@@ -67,14 +67,14 @@ class Settings_Webforms_Field_Model extends Vtiger_Field_Model {
 	 * Function to get Picklist values
 	 * @return <Array> Picklist values
 	 */
-	public function getPicklistValues() {
+	public function getPicklistValues($a = false, $b = false) {
 		if ($this->getName() === 'targetmodule') {
 			return Settings_Webforms_Module_Model::getsupportedModulesList();
 		}
 		return array();
 	}
 	
-	public function getDisplayValue($value) {
+	public function getDisplayValue($value, $record = false, $recordInstance = false) {
 		if ($this->getName() === 'enabled') {
 			$moduleName = 'Settings:Webforms';
 			if ($value) {
@@ -85,7 +85,7 @@ class Settings_Webforms_Field_Model extends Vtiger_Field_Model {
 		return parent::getDisplayValue($value);
 	}
     
-	public function getPermissions() {
+	public function getPermissions($accessmode = false) {
 		return true;
 	}
     

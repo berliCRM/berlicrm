@@ -174,7 +174,7 @@
                                                             {if $FIELD_MODEL->isDefaultValueOptionDisabled()} readonly="readonly" {/if} value="" />&nbsp;
                                                         {vtranslate('LBL_DEFAULT_VALUE', $QUALIFIED_MODULE)}
                                                     </label>
-                                                    <div class="padding1per defaultValueUi {if !$FIELD_MODEL->hasDefaultValue()} zeroOpacity {/if}" style="padding : 0px 10px 0px 25px;">
+                                                    <div class="padding1per defaultValueUi {if !$FIELD_MODEL->hasDefaultValue()} zeroOpacity {/if}" style="padding : 0px 10px 0px 25px;{if !$FIELD_MODEL->hasDefaultValue()} display:none {/if}">
                                                         {if $FIELD_MODEL->isDefaultValueOptionDisabled() neq "true"}
                                                             {if $FIELD_MODEL->getFieldDataType() eq "picklist"}
                                                                 {assign var=PICKLIST_VALUES value=$FIELD_MODEL->getPicklistValues()}
@@ -234,7 +234,19 @@
                                                         {/if}
                                                     {/if}
                                                 </div>
-                                            </span></div>
+                                            </span>
+											<span>
+												<input type="hidden" name="helptext" value="" />
+												<label class="checkbox" style="padding-left: 25px; padding-top: 5px;">
+													<input type="checkbox" {if $FIELD_MODEL->hasHelpinfo()} checked {/if}
+														name="helptext" value="" />&nbsp;
+													{vtranslate('LBL_HELPTEXT_VALUE', $QUALIFIED_MODULE)}
+												</label>
+												<div class="padding1per defaultValueUi {if !$FIELD_MODEL->hasHelpinfo()} zeroOpacity {/if}" style="padding : 0px 10px 0px 25px;{if !$FIELD_MODEL->hasHelpinfo()} display:none {/if}">
+													<textarea class="input-medium" {if !$FIELD_MODEL->hasHelpinfo()} disabled="" {/if}  name="helptextValue" value="{$FIELD_MODEL->get('helpinfo')}">{$FIELD_MODEL->get('helpinfo')}</textarea>
+												</div>
+											</span>
+											</div>
                                         <div class="modal-footer" style="padding: 0px;">
                                             <span class="pull-right">
                                                 <div class="pull-right"><a href="javascript:void(0)" style="margin: 5px;color:#AA3434;margin-top:10px;" class='cancel'>{vtranslate('LBL_CANCEL', $QUALIFIED_MODULE)}</a></div>
@@ -339,7 +351,7 @@
                             {if $FIELD_MODEL->isDefaultValueOptionDisabled()} readonly="readonly" {/if} value="" />&nbsp;
                         {vtranslate('LBL_DEFAULT_VALUE', $QUALIFIED_MODULE)}
                     </label>
-                    <div class="padding1per defaultValueUi {if !$FIELD_MODEL->hasDefaultValue()} zeroOpacity {/if}" style="padding : 0px 10px 0px 25px;">
+                    <div class="padding1per defaultValueUi {if !$FIELD_MODEL->hasDefaultValue()} zeroOpacity {/if}" style="padding : 0px 10px 0px 25px;{if !$FIELD_MODEL->hasDefaultValue()} display:none {/if}">
                         {if $FIELD_MODEL->isDefaultValueOptionDisabled() neq "true"}
                             {if $FIELD_MODEL->getFieldDataType() eq "picklist"}
                                 {assign var=PICKLIST_VALUES value=$FIELD_MODEL->getPicklistValues()}
@@ -395,6 +407,17 @@
                     {/if}
                 </div>
             </span>
+			<span>
+				<input type="hidden" name="helptext" value="" />
+				<label class="checkbox" style="padding-left: 25px; padding-top: 5px;">
+					<input type="checkbox" {if $FIELD_MODEL->hasHelpinfo()} checked {/if}
+						name="helptext" value="" />&nbsp;
+					{vtranslate('LBL_HELPTEXT_VALUE', $QUALIFIED_MODULE)}
+				</label>
+				<div class="padding1per defaultValueUi {if !$FIELD_MODEL->hasHelpinfo()} zeroOpacity {/if}" style="padding : 0px 10px 0px 25px;{if !$FIELD_MODEL->hasHelpinfo()} display:none {/if}">
+					<textarea class="input-medium" {if !$FIELD_MODEL->hasHelpinfo()} disabled="" {/if}  name="helptextValue" value="{$FIELD_MODEL->get('helpinfo')}">{$FIELD_MODEL->get('helpinfo')}</textarea>
+				</div>
+			</span>
         </div>
         <div class="modal-footer" style="padding: 0px;">
             <span class="pull-right">
@@ -649,8 +672,11 @@
                 </span>
                 <div class="controls">
                     <label class="checkbox span3" style="margin-left: 0px;">
-                        <input type="checkbox" class="checkbox" name="isRoleBasedPickList" value="1" >&nbsp;{vtranslate('LBL_ROLE_BASED_PICKLIST',$QUALIFIED_MODULE)}
+                        <input type="checkbox" class="checkbox" name="isRoleBasedPickList" value="1" checked>&nbsp;{vtranslate('LBL_ROLE_BASED_PICKLIST',$QUALIFIED_MODULE)}
                     </label>
+                    <div class="alert alert-info" style="clear:both">
+                        {vtranslate('LBL_PICKLIST_ROLE_HELP',$QUALIFIED_MODULE)}
+                    </div>
                 </div>
             </div>
         </div>

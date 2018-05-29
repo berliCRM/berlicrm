@@ -55,14 +55,10 @@
 		</div>
 		<div style="float:left">
 			<div style="float:left">
-				<select class="chzn-select  input-mini" name="remmin">
-				{for $MINUTES = 1 to 59}
-					<option value="{$MINUTES}" {if $MINUTES eq $MINUTE}selected{/if}>{$MINUTES}</option>
-				{/for}
-				</select>
+				<input type=hidden name=remmin value=0 />
 			</div>
 			<div style="float:left;margin-top:5px">
-				&nbsp;{vtranslate('LBL_MINUTES', $MODULE)}&nbsp;&nbsp;
+				&nbsp;&nbsp;&nbsp;
 			</div>
 			<div class="clearfix"></div>
 		</div>

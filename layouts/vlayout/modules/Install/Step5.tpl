@@ -14,6 +14,7 @@
 	<input type=hidden name="view" value="Index" />
 	<input type=hidden name="mode" value="Step6" />
 	<input type=hidden name="auth_key" value="{$AUTH_KEY}" />
+	<input type="hidden" id="svn_tag"  name="svn_tag" value="{$SVNTAG}" />
 
 	<div class="row-fluid main-container">
 		<div class="inner-container">

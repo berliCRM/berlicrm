@@ -197,8 +197,7 @@
 /******************************************************************************************/
 
 body{
-    background-color: #eee;
-    background: url(images/wall1.jpg) no-repeat center center fixed; 
+    background-color: #ffff;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;

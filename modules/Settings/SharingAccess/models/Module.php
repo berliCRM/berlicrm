@@ -109,7 +109,7 @@ class Settings_SharingAccess_Module_Model extends Vtiger_Module_Model {
 	 * Static Function to get the instance of Vtiger Module Model for all the modules
 	 * @return <Array> - List of Vtiger Module Model or sub class instances
 	 */
-	public static function getAll($editable=false) {
+	public static function getAll($editable=false, $b=false) {
 		$db = PearDatabase::getInstance();
 
 		$moduleModels = array();

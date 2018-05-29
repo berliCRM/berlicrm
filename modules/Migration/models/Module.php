@@ -26,6 +26,21 @@ class Migration_Module_Model extends Vtiger_Module_Model {
 	}
 	
 	public function getAllowedMigrationVersions(){
+	if(!defined('INSTALLATION_MODE')) {
+		$versions = array(
+			array('530'   => '5.3.0'),
+			array('540rc'   => '5.4.0rc'),
+			array('540'   => '5.4.0'),
+			array('600RC' => '6.0.0 RC'),
+                        array('600' => '6.0.0'),
+                        array('610' => '6.1.0'),
+                        array('620' => '6.2.0'),
+                        array('630' => '6.3.0'),
+                        array('640' => '6.4.0'),
+                        array('650' => '6.5.0')
+		);
+	}
+	else {
 		$versions = array(
 			array('540'   => '5.4.0'),
 			array('600RC' => '6.0.0 RC'),
@@ -36,6 +51,7 @@ class Migration_Module_Model extends Vtiger_Module_Model {
                         array('640' => '6.4.0'),
                         array('650' => '6.5.0')
 		);
+	}
 		return $versions;
 	}
 	

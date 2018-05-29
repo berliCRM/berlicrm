@@ -121,6 +121,13 @@ Class Inventory_Edit_View extends Vtiger_Edit_View {
 		}
 		$currencies = Inventory_Module_Model::getAllCurrencies();
 		$picklistDependencyDatasource = Vtiger_DependencyPicklist::getPicklistDependencyDatasource($moduleName);
+		
+		//crm-now: added letter and conclusion
+		$LetterInfo = Inventory_Record_Model::getAssociatedLetterText();
+		$ConclusionInfo = Inventory_Record_Model::getAssociatedConclusionText();
+		$viewer->assign('LETTERINFO', $LetterInfo);
+		$viewer->assign('CONCLUSIONINFO', $ConclusionInfo);
+		
 
 		$viewer->assign('PICKIST_DEPENDENCY_DATASOURCE',Zend_Json::encode($picklistDependencyDatasource));
         $viewer->assign('RECORD',$recordModel);

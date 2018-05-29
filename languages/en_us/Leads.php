@@ -50,6 +50,10 @@ $languageStrings = array(
 	'SINGLE_Leads' => 'Lead',
 	'Warm'=>'Warm',
 	'Website' => 'Website',
+	'No Of Employees' => 'No of Employees',	
+	// Google map view
+    'LBL_MISSING_MAP_KEY' => 'No key was provided for the map view. Please contact the CRM Administrator.',
+    'LBL_MISSING_MAP_KEY_ADMIN' => 'Click here to enter a key in the Google settings menu.',
 );
 
 $jsLanguageStrings = array(

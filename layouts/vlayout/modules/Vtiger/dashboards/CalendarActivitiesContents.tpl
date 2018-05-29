@@ -25,6 +25,9 @@
 				{assign var=PARENT_ID value=$ACTIVITY->get('parent_id')}
 				{assign var=CONTACT_ID value=$ACTIVITY->get('contact_id')}
 				<a href="{$ACTIVITY->getDetailViewUrl()}">{$ACTIVITY->get('subject')}</a>{if $PARENT_ID} {vtranslate('LBL_FOR')} {$ACTIVITY->getDisplayValue('parent_id')}{else if $CONTACT_ID} {vtranslate('LBL_FOR')} {$ACTIVITY->getDisplayValue('contact_id')}{/if}
+				{if $ACTIVITY->get('description') && {$ACTIVITY->get('description')|trim} neq '' }
+						<a style="margin-left: 2px;" href="#" class="pull-right" rel="popover" title="{vtranslate('Description', $MODULE)}" data-placement="bottom" data-trigger="hover" data-content="{$ACTIVITY->get('description')}"><i class="icon-info-sign"></i></a>
+				{/if}
 			</div>
 				{assign var=START_DATE value=$ACTIVITY->get('date_start')}
 				{assign var=START_TIME value=$ACTIVITY->get('time_start')}
@@ -61,4 +64,11 @@
     <br />
     <br />
 {/if}
+<script type="text/javascript" src="libraries/bootstrap/js/less.min.js"></script>
+	<!-- crm-now added for tool tip (display of activity description contents -->
+<script>
+	jQuery().ready(function(){
+		jQuery('[rel=popover]').popover();
+	});
+</script>
 </div>

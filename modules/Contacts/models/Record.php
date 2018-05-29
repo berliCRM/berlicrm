@@ -75,15 +75,20 @@ class Contacts_Record_Model extends Vtiger_Record_Model {
 			$imageId = $db->query_result($result, 0, 'attachmentsid');
 			$imagePath = $db->query_result($result, 0, 'path');
 			$imageName = $db->query_result($result, 0, 'name');
-
+			
 			//decode_html - added to handle UTF-8 characters in file names
 			$imageOriginalName = decode_html($imageName);
 
 			if(!empty($imageName)){
+				//crm-now: added because of restricted access to /storage
+				$imgpath = $imagePath.$imageId."_".$imageName;
+				$type = pathinfo($imgpath, PATHINFO_EXTENSION);
+				$data = file_get_contents($imgpath);
+				$str = "data:image/".$type.";base64,".base64_encode($data);
 				$imageDetails[] = array(
 						'id' => $imageId,
 						'orgname' => $imageOriginalName,
-						'path' => $imagePath.$imageId,
+						'path' => $str,
 						'name' => $imageName
 				);
 			}
@@ -91,3 +96,4 @@ class Contacts_Record_Model extends Vtiger_Record_Model {
 		return $imageDetails;
 	}
 }
+

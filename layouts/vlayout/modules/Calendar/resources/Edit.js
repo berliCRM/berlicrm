@@ -241,8 +241,14 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 			}
 			var endTimeString = endDateInstance.toString(defaultTimeFormat);
 
-			endDateElement.val(endDateString);
-			endTimeElement.val(endTimeString);
+            if (endDateElement.val() != endDateString) {
+                endDateElement.css("color","#fff").val(endDateString).animate({color:"#333"},700).animate({color:"#808080"},200);
+                endDateElement.DatePickerSetDate(endDateString,true);
+            }
+			
+			if (endTimeElement.val() != endTimeString) {
+                endTimeElement.css("color","#fff").val(endTimeString).animate({color:"#333"},700).animate({color:"#808080"},200);
+            }
 		});
         
         container.find('[name="date_start"]').on('change',function(e) {
@@ -335,7 +341,9 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 				jQuery('#recurringType').append(jQuery('<option value="--None--">None</option>')).val('--None--');
 			}
             if(thisInstance.isEvents()) {
-                jQuery('<input type="hidden" name="contactidlist" /> ').appendTo(form).val(thisInstance.getRelatedContactElement().val().split(',').join(';'));
+				if (thisInstance.getRelatedContactElement().length != 0) {
+					jQuery('<input type="hidden" name="contactidlist" /> ').appendTo(form).val(thisInstance.getRelatedContactElement().val().split(',').join(';'));
+				}
                 form.find('[name="contact_id"]').attr('name','');
 				var inviteeIdsList = jQuery('#selectedUsers').val();
 				if(inviteeIdsList != null) {

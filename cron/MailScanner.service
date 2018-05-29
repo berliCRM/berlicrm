@@ -9,16 +9,46 @@
  *
  ********************************************************************************/
 
-require_once('include/utils/utils.php');
-require_once('include/logging.php');
-require_once('include/database/PearDatabase.php');
+ /** Verify the script call is from cron/cli. */
+if(!empty($_REQUEST['REMOTE_ADDR'])) {
+	die("Access denied.");
+}
 
-require_once('modules/Settings/MailConverter/handlers/MailScannerInfo.php');
-require_once('modules/Settings/MailConverter/handlers/MailBox.php');
-require_once('modules/Settings/MailConverter/handlers/MailScanner.php');
+require_once 'vtlib/Vtiger/Cron.php';
+require_once 'config.inc.php';
+require_once 'includes/runtime/BaseModel.php';
+require_once 'includes/runtime/Globals.php';
+require_once 'includes/runtime/LanguageHandler.php';
+require_once 'includes/Loader.php';
+require_once('modules/Users/Users.php');
+global $current_user;
+if(!$current_user) {
+	$current_user = Users::getActiveAdminUser();
+}  
 
-//Added as sometimes the php.ini file used for command line php and
-//for Apache php is different.
+/**
+ * Check if instance of this service is already running?
+ */
+$svcname = "MailScanner";
+$servicePIDFile = "logs/{$svcname}-service.pid";
+
+if(file_exists($servicePIDFile)) {
+	die("Service $svcname already running! Check $servicePIDFile");
+} else {
+	$servicePIDFp = fopen($servicePIDFile, 'a');
+}
+
+/**
+ * Turn-off PHP error reporting.
+ */
+try { error_reporting(0); } catch (Exception $e) { }
+
+require_once 'include/logging.php';
+require_once 'modules/Settings/MailConverter/handlers/MailScannerInfo.php';
+require_once 'modules/Settings/MailConverter/handlers/MailBox.php';
+require_once 'modules/Settings/MailConverter/handlers/MailScanner.php';
+require_once 'languages/en_us/Vtiger.php';
+
 if(!function_exists('imap_open')) {
 	echo $installationStrings['LBL_NO'].' '.$installationStrings['LBL_IMAP_SUPPORT'];
 } elseif(!function_exists('openssl_encrypt')) {
@@ -36,14 +66,15 @@ function service_MailScanner_performScanNow($scannerinfo, $debug) {
 		/** Start the scanning. */
 		$scanner = new Vtiger_MailScanner($scannerinfo);
 		$scanner->debug = $debug;
-		$status = $scanner->performScanNow();
-		
-                if($status && is_bool($status))
-                    echo "\nScanning " . $scannerinfo->server . " completed\n";
-                else
-                    echo "\nScanning Failed. Error ".$status."\n";
-		
-	} else {
+		$status = $scanner->performScanNow();		
+        if($status === true) {
+            echo "\nScanning " . $scannerinfo->server . " completed\n";
+        }
+        else {
+            echo "\nScanning Failed. Error ".$status."\n";
+        }
+	} 
+    else {
 		echo "Failed! [{$scannerinfo->scannername}] is not enabled for scanning!";
 	}
 }
@@ -57,29 +88,20 @@ function service_MailScanner_performScanNow($scannerinfo, $debug) {
 /** Turn-off this if not required. */
 $debug = true;
 
-/** Pick up the mail scanner for scanning. */
-if(isset($_REQUEST['scannername'])) {
-	
-	// Target scannername specified?	
-	$scannername = vtlib_purify($_REQUEST['scannername']);
-	$scannerinfo = new Vtiger_MailScannerInfo($scannername);
-	
-	service_MailScanner_performScanNow($scannerinfo, $debug);
-	
+// Scan all the configured mailscanners
+$scannerinfos = Vtiger_MailScannerInfo::listAll();
+
+if(empty($scannerinfos)) {    
+    echo "No mailbox configured for scanning!";
 } else {
-	
-	// Scan all the configured mailscanners?
-	
-	$scannerinfos = Vtiger_MailScannerInfo::listAll();
-	if(empty($scannerinfos)) {
-		
-		echo "No mailbox configured for scanning!";
-		
-	} else {
-		foreach($scannerinfos as $scannerinfo) {
-			service_MailScanner_performScanNow($scannerinfo, $debug);
-		}
-	}	
+    foreach($scannerinfos as $scannerinfo) {
+        service_MailScanner_performScanNow($scannerinfo, $debug);
+    }
 }
 
+/** Close and remove the PID file. */
+if($servicePIDFp) {
+	fclose($servicePIDFp);
+	unlink($servicePIDFile);
+}
 ?>

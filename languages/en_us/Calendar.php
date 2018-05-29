@@ -8,7 +8,7 @@
  * All Rights Reserved.
  * *********************************************************************************** */
 $languageStrings = array(
-	'Activity Type' => 'Event Type', /* Event field */
+	'Activity Type' => 'Event Type',
 	'Call' => 'Call',
 	'Completed' => 'Completed',
 	'Daily' => 'Day(s)',
@@ -94,7 +94,43 @@ $languageStrings = array(
     
         //Event Status picklist values 
         'Held' => 'Held', 
-        'Not Held' => 'Not Held', 
+        'Not Held' => 'Not Held',
+		
+	//crm-now: missing translation
+	'Recurrence'=>'Recurrence',
+	'Selected Users'=>'Selected Users',
+	// for event invitation
+	'LBL_CREATED'=>'created',
+	'LBL_UPDATED'=>'modified',
+	'Due Date'=>'Due Date',
+	'Start date and time'=>'Start Date & Time',
+	'End date and time'=>'End Date & Time',
+	//this is for task
+	'End date'=>'End date',
+	'LBL_SET_DATE'=>'Set date..',
+
+	//added to send invitation mail Subject.
+	'INVITATION'=>' Invitation ',
+	'LBL_NAME'=>'Subject:',
+	'LBL_ACTIVITY_NOTIFICATION'=>'This is a notification that an activity is assigned to you that has been',
+	'LBL_ACTIVITY_INVITATION'=>'You have been invited for an activity that has been ',
+	'LBL_DETAILS_STRING'=>'The details are',
+	'LBL_REGARDS_STRING'=>'Please consider this event in your schedule',
+	'LBL_CONTACT_NAME'=>'Contact Name',
+	'LBL_USERSALUTATION'=>'Dear',
+	'LBL_USERREGARDS1'=>'This messsage has been created by the CRM user "',
+	'LBL_USERREGARDS2'=>'".',
+	'LBL_SUBJECT'=>'Subject',
+	'end_date_time'=>'End Date & Time',
+	'st_date_time'=>'Start Date & Time',
+	'Priority'=>'Priority',
+	'Related To'=>'Related to',
+	'LBL_CONTACT_LIST'=>'Contact List',
+	'LBL_APP_DESCRIPTION' => 'Description',
+	//missing
+	'Time Start'=>'Time Start',
+	'End Time'=>'End Time',
+		
 );
 
 $jsLanguageStrings = array(
@@ -132,7 +168,6 @@ $jsLanguageStrings = array(
 	'LBL_MARCH' => 'March',
 	'LBL_MAR' => 'Mar',
 	'LBL_MAY' => 'May',
-	'LBL_MAY' => 'May',
 	'LBL_MONDAY' => 'Monday',
 	'LBL_MON' => 'Mon',
 	'LBL_MONTH' => 'Month',
@@ -155,4 +190,5 @@ $jsLanguageStrings = array(
 	'LBL_WED' => 'Wed',
 	'LBL_WEEK' => 'Week',
 	'Mobile Call' => 'Mobile Call',
+    'Call' => 'Call',
 );

@@ -295,7 +295,7 @@
                         <input type="radio" name="adjustmentType" option value="-" {if $FINAL.adjustment lt 0}checked{/if}>{vtranslate('LBL_DEDUCT',$MODULE)}
                     </div>
                     <div class="radio pull-right">
-                        <input type="radio" name="adjustmentType" option value="+" {if $FINAL.adjustment gte 0}checked{/if}>{vtranslate('LBL_ADD',$MODULE)}&nbsp;&nbsp;
+                        <input type="radio" name="adjustmentType" option value="+" {if $FINAL.adjustment gte 0}checked{/if}>{vtranslate('LBL_ADD_ADJUSTMENT',$MODULE)}&nbsp;&nbsp;
                     </div>
                 </div>
             </td>

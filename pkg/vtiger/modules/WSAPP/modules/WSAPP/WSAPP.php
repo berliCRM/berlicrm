@@ -115,7 +115,7 @@ class WSAPP {
         $handlerDetails[] = $appTypehandler;
 
         $appTypehandler = array();
-        $appTypehandler['type'] = "vtigerCRM";
+        $appTypehandler['type'] = "crmnowAPP";
         $appTypehandler['handlerclass'] = "vtigerCRMHandler";
         $appTypehandler['handlerpath'] = "modules/WSAPP/Handlers/vtigerCRMHandler.php";
         $handlerDetails[] = $appTypehandler;
@@ -126,9 +126,9 @@ class WSAPP {
     
     function registerVtigerCRMApp(){
        $db = PearDatabase::getInstance();
-        $appName = "vtigerCRM";
+        $appName = "crmnowAPP";
         $type  ="user";
-        $uid = uniqid();
+        $uid = md5 (uniqid('crmnow', true));
         $db->pquery("INSERT INTO vtiger_wsapp (name, appkey,type) VALUES(?,?,?)", array($appName, $uid,$type));
     }
 

@@ -54,11 +54,11 @@
 						{assign var=MINUTES value="true"}
 						{assign var=FIELD_VALUE value=($VALUES[0]*60)+$VALUES[1]}
 					{/if}
-					<input type="text" class="span2" value="{$FIELD_VALUE}" data-validation-engine="validate[required,funcCall[Vtiger_WholeNumberGreaterThanZero_Validator_Js.invokeValidation]]" id="frequencyValue"/>&nbsp;
+					<input type="text" class="span2" readonly = "readonly" value="{$FIELD_VALUE}" data-validation-engine="validate[required,funcCall[Vtiger_WholeNumberGreaterThanZero_Validator_Js.invokeValidation]]" id="frequencyValue"/>&nbsp;
 					<select class="chzn-select span5" id="time_format">
 						<optgroup>
-							<option value="mins" {if $MINUTES eq 'true'} selected="" {/if}>{vtranslate(LBL_MINUTES,$QUALIFIED_MODULE)}</option>
-							<option value="hours" {if $MINUTES eq 'false'}selected="" {/if}>{vtranslate(LBL_HOURS,$QUALIFIED_MODULE)}</option>
+							<option value="mins" {if $MINUTES eq 'true'} selected="" {/if} disabled="disabled">{vtranslate(LBL_MINUTES,$QUALIFIED_MODULE)}</option>
+							<option value="hours" {if $MINUTES eq 'false'}selected="" {/if} disabled="disabled">{vtranslate(LBL_HOURS,$QUALIFIED_MODULE)}</option>
 						</optgroup>
 					</select>
 				</div>	

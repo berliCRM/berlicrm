@@ -119,9 +119,9 @@ class DefaultDataPopulator extends CRMEntity {
 		$this->db->query("insert into vtiger_blocks values (" . $quotesaddressblock . ",20,'LBL_ADDRESS_INFORMATION',3,0,0,0,0,0,1,0)");
 		$this->db->query("insert into vtiger_blocks values (" . $this->db->getUniqueID('vtiger_blocks') . ",20,'LBL_RELATED_PRODUCTS',4,0,0,0,0,0,1,0)");
 		$quotetermsblock = $this->db->getUniqueID('vtiger_blocks');
-		$this->db->query("insert into vtiger_blocks values (" . $quotetermsblock . ",20,'LBL_TERMS_INFORMATION',5,0,0,0,0,0,1,0)");
+		$this->db->query("insert into vtiger_blocks values (" . $quotetermsblock . ",20,'LBL_CONCLUSION',5,0,0,0,0,0,1,0)");
 		$quotedescription = $this->db->getUniqueID('vtiger_blocks');
-		$this->db->query("insert into vtiger_blocks values (" . $quotedescription . ",20,'LBL_DESCRIPTION_INFORMATION',6,0,0,0,0,0,1,0)");
+		$this->db->query("insert into vtiger_blocks values (" . $quotedescription . ",20,'LBL_LETTER',6,0,0,0,0,0,1,0)");
 		$pobasicblock = $this->db->getUniqueID('vtiger_blocks');
 		$this->db->query("insert into vtiger_blocks values (" . $pobasicblock . ",21,'LBL_PO_INFORMATION',1,0,0,0,0,0,1,0)");
 		$this->db->query("insert into vtiger_blocks values (" . $this->db->getUniqueID('vtiger_blocks') . ",21,'LBL_CUSTOM_INFORMATION',2,0,0,0,0,0,1,0)");
@@ -129,9 +129,9 @@ class DefaultDataPopulator extends CRMEntity {
 		$this->db->query("insert into vtiger_blocks values (" . $poaddressblock . ",21,'LBL_ADDRESS_INFORMATION',3,0,0,0,0,0,1,0)");
 		$this->db->query("insert into vtiger_blocks values (" . $this->db->getUniqueID('vtiger_blocks') . ",21,'LBL_RELATED_PRODUCTS',4,0,0,0,0,0,1,0)");
 		$potermsblock = $this->db->getUniqueID('vtiger_blocks');
-		$this->db->query("insert into vtiger_blocks values (" . $potermsblock . ",21,'LBL_TERMS_INFORMATION',5,0,0,0,0,0,1,0)");
+		$this->db->query("insert into vtiger_blocks values (" . $potermsblock . ",21,'LBL_CONCLUSION',5,0,0,0,0,0,1,0)");
 		$podescription = $this->db->getUniqueID('vtiger_blocks');
-		$this->db->query("insert into vtiger_blocks values (" . $podescription . ",21,'LBL_DESCRIPTION_INFORMATION',6,0,0,0,0,0,1,0)");
+		$this->db->query("insert into vtiger_blocks values (" . $podescription . ",21,'LBL_LETTER',6,0,0,0,0,0,1,0)");
 		$sobasicblock = $this->db->getUniqueID('vtiger_blocks');
 		$this->db->query("insert into vtiger_blocks values (" . $sobasicblock . ",22,'LBL_SO_INFORMATION',1,0,0,0,0,0,1,0)");
 		$this->db->query("insert into vtiger_blocks values (" . $this->db->getUniqueID('vtiger_blocks') . ",22,'LBL_CUSTOM_INFORMATION',3,0,0,0,0,0,1,0)");
@@ -139,9 +139,9 @@ class DefaultDataPopulator extends CRMEntity {
 		$this->db->query("insert into vtiger_blocks values (" . $soaddressblock . ",22,'LBL_ADDRESS_INFORMATION',4,0,0,0,0,0,1,0)");
 		$this->db->query("insert into vtiger_blocks values (" . $this->db->getUniqueID('vtiger_blocks') . ",22,'LBL_RELATED_PRODUCTS',5,0,0,0,0,0,1,0)");
 		$sotermsblock = $this->db->getUniqueID('vtiger_blocks');
-		$this->db->query("insert into vtiger_blocks values (" . $sotermsblock . ",22,'LBL_TERMS_INFORMATION',6,0,0,0,0,0,1,0)");
+		$this->db->query("insert into vtiger_blocks values (" . $sotermsblock . ",22,'LBL_CONCLUSION',6,0,0,0,0,0,1,0)");
 		$sodescription = $this->db->getUniqueID('vtiger_blocks');
-		$this->db->query("insert into vtiger_blocks values (" . $sodescription . ",22,'LBL_DESCRIPTION_INFORMATION',7,0,0,0,0,0,1,0)");
+		$this->db->query("insert into vtiger_blocks values (" . $sodescription . ",22,'LBL_LETTER',7,0,0,0,0,0,1,0)");
 		$invoicebasicblock = $this->db->getUniqueID('vtiger_blocks');
 		$this->db->query("insert into vtiger_blocks values (" . $invoicebasicblock . ",23,'LBL_INVOICE_INFORMATION',1,0,0,0,0,0,1,0)");
 		$this->db->query("insert into vtiger_blocks values (" . $this->db->getUniqueID('vtiger_blocks') . ",23,'LBL_CUSTOM_INFORMATION',2,0,0,0,0,0,1,0)");
@@ -149,9 +149,9 @@ class DefaultDataPopulator extends CRMEntity {
 		$this->db->query("insert into vtiger_blocks values (" . $invoiceaddressblock . ",23,'LBL_ADDRESS_INFORMATION',3,0,0,0,0,0,1,0)");
 		$this->db->query("insert into vtiger_blocks values (" . $this->db->getUniqueID('vtiger_blocks') . ",23,'LBL_RELATED_PRODUCTS',4,0,0,0,0,0,1,0)");
 		$invoicetermsblock = $this->db->getUniqueID('vtiger_blocks');
-		$this->db->query("insert into vtiger_blocks values (" . $invoicetermsblock . ",23,'LBL_TERMS_INFORMATION',5,0,0,0,0,0,1,0)");
+		$this->db->query("insert into vtiger_blocks values (" . $invoicetermsblock . ",23,'LBL_CONCLUSION',5,0,0,0,0,0,1,0)");
 		$invoicedescription = $this->db->getUniqueID('vtiger_blocks');
-		$this->db->query("insert into vtiger_blocks values (" . $invoicedescription . ",23,'LBL_DESCRIPTION_INFORMATION',6,0,0,0,0,0,1,0)");
+		$this->db->query("insert into vtiger_blocks values (" . $invoicedescription . ",23,'LBL_LETTER',6,0,0,0,0,0,1,0)");
 		$imageblockid = $this->db->getUniqueID('vtiger_blocks');
 		$this->db->query("insert into vtiger_blocks values (" . $imageblockid . ",4,'LBL_IMAGE_INFORMATION',6,0,0,0,0,0,1,0)");
 		$campaignbasicblockid = $this->db->getUniqueID('vtiger_blocks');
@@ -1259,7 +1259,7 @@ class DefaultDataPopulator extends CRMEntity {
 
 The current stock of {PRODUCTNAME} in our warehouse is {CURRENTSTOCK}. Kindly procure required number of units as the stock level is below reorder level {REORDERLEVELVALUE}.
 
-Please treat this information as Urgent as the invoice is already sent  to the customer.
+Please treat this information as urgent as the invoice is already sent to the customer.
 
 Severity: Critical
 
@@ -1285,7 +1285,7 @@ Thanks,
 
 SalesOrder is generated for {SOQUANTITY} units of {PRODUCTNAME}. The current stock of {PRODUCTNAME} in our warehouse is {CURRENTSTOCK}.
 
-Please treat this information  with priority as the sales order is already generated.
+Please treat this information with priority as the sales order is already generated.
 
 Severity: Major
 
@@ -1297,571 +1297,288 @@ Thanks,
 
 //insert into inventory terms and conditions table
 
-		$inv_tandc_text = '
- - Unless otherwise agreed in writing by the supplier all invoices are payable within thirty (30) days of the date of invoice, in the currency of the invoice, drawn on a bank based in India or by such other method as is agreed in advance by the Supplier.
-
- - All prices are not inclusive of VAT which shall be payable in addition by the Customer at the applicable rate.';
+		$inv_tandc_text = '';
 
 		$this->db->query("insert into vtiger_inventory_tandc(id,type,tandc) values (" . $this->db->getUniqueID("vtiger_inventory_tandc") . ", 'Inventory', '" . $inv_tandc_text . "')");
 
 //insert into email template vtiger_table
 
-		$body = 'Hello!   <br />
-	<br />
-	On behalf of the vtiger team,  I am pleased to announce the release of vtiger crm4.2 . This is a feature packed release including the mass email template handling, custom view feature, vtiger_reports feature and a host of other utilities. vtiger runs on all platforms.    <br />
-        <br />
-	Notable Features of vtiger are :   <br />
-	<br />
-	-Email Client Integration    <br />
-	-Trouble Ticket Integration   <br />
-	-Invoice Management Integration   <br />
-	-Reports Integration   <br />
-	-Portal Integration   <br />
-	-Enhanced Word Plugin Support   <br />
-	-Custom View Integration   <br />
-	<br />
-	Known Issues:   <br />
-	-ABCD   <br />
-	-EFGH   <br />
-	-IJKL   <br />
-	-MNOP   <br />
-	-QRST';
-
-		$this->db->query("insert into vtiger_emailtemplates(foldername,templatename,subject,description,body,deleted,templateid) values ('Public','Announcement for Release','Announcement for Release','Announcement of a release','" . $body . "',0," . $this->db->getUniqueID('vtiger_emailtemplates') . ")");
-
-
-
-		$body = 'name <br />
-street, <br />
-city, <br />
-state, <br />
- zip) <br />
-  <br />
- Dear <br />
- <br />
- Please check the following invoices that are yet to be paid by you: <br />
- <br />
- No. Date      Amount <br />
- 1   1/1/01    $4000 <br />
- 2   2/2//01   $5000 <br />
- 3   3/3/01    $10000 <br />
- 4   7/4/01    $23560 <br />
- <br />
- Kindly let us know if there are any issues that you feel are pending to be discussed. <br />
- We will be more than happy to give you a call. <br />
- We would like to continue our business with you.';
-
-
-		$this->db->query("insert into vtiger_emailtemplates(foldername,templatename,subject,description,body,deleted,templateid) values ('Public','Pending Invoices','Invoices Pending','Payment Due','" . $body . "',0," . $this->db->getUniqueID('vtiger_emailtemplates') . ")");
-
-
-
-
-
-		$body = ' Dear <br />
- <br />
-Your proposal on the project XYZW has been reviewed by us <br />
-and is acceptable in its entirety. <br />
- <br />
-We are eagerly looking forward to this project <br />
-and are pleased about having the opportunity to work <br />
-together. We look forward to a long standing relationship <br />
-with your esteemed firm. <br />
-<br />
-I would like to take this opportunity to invite you <br />
-to a game of golf on Wednesday morning 9am at the <br />
-Cuff Links Ground. We will be waiting for you in the <br />
-Executive Lounge. <br />
-<br />
-Looking forward to seeing you there.';
-
-
-		$this->db->query("insert into vtiger_emailtemplates(foldername,templatename,subject,description,body,deleted,templateid) values ('Public','Acceptance Proposal','Acceptance Proposal','Acceptance of Proposal','" . $body . "',0," . $this->db->getUniqueID('vtiger_emailtemplates') . ")");
-
-
-		$body = ' The undersigned hereby acknowledges receipt and delivery of the goods. <br />
-The undersigned will release the payment subject to the goods being discovered not satisfactory. <br />
-<br />
-Signed under seal this <date>';
-
-
-		$this->db->query("insert into vtiger_emailtemplates(foldername,templatename,subject,description,body,deleted,templateid) values ('Public','Goods received acknowledgement','Goods received acknowledgement','Acknowledged Receipt of Goods','" . $body . "',0," . $this->db->getUniqueID('vtiger_emailtemplates') . ")");
-
-
-		$body = ' Dear <br />
-         We are in receipt of your order as contained in the <br />
-   purchase order form.We consider this to be final and binding on both sides. <br />
-If there be any exceptions noted, we shall consider them <br />
-only if the objection is received within ten days of receipt of <br />
-this notice. <br />
- <br />
-Thank you for your patronage.';
-
-
-
-
-		$this->db->query("insert into vtiger_emailtemplates(foldername,templatename,subject,description,body,deleted,templateid) values ('Public','Accept Order','Accept Order','Acknowledgement/Acceptance of Order','" . $body . "',0," . $this->db->getUniqueID('vtiger_emailtemplates') . ")");
-
-
-
-
-		$body = 'Dear <br />
- <br />
-We are relocating our office to <br />
-11111,XYZDEF Cross, <br />
-UVWWX Circle <br />
-The telephone number for this new location is (101) 1212-1328. <br />
-<br />
-Our Manufacturing Division will continue operations <br />
-at 3250 Lovedale Square Avenue, in Frankfurt. <br />
-<br />
-We hope to keep in touch with you all. <br />
-Please update your addressbooks.';
-
-
-		$this->db->query("insert into vtiger_emailtemplates(foldername,templatename,subject,description,body,deleted,templateid) values ('Public','Address Change','Change of Address','Address Change','" . $body . "',0," . $this->db->getUniqueID('vtiger_emailtemplates') . ")");
-
-
-
-		$body = 'Dear <br />
-<br />
-Thank you for extending us the opportunity to meet with <br />
-you and members of your staff. <br />
-<br />
-I know that John Doe serviced your account <br />
-for many years and made many friends at your firm. He has personally <br />
-discussed with me the deep relationship that he had with your firm. <br />
-While his presence will be missed, I can promise that we will <br />
-continue to provide the fine service that was accorded by <br />
-John to your firm. <br />
-<br />
-I was genuinely touched to receive such fine hospitality. <br />
-<br />
-Thank you once again.';
-
-
-
-		$this->db->query("insert into vtiger_emailtemplates(foldername,templatename,subject,description,body,deleted,templateid) values ('Public','Follow Up','Follow Up','Follow Up of meeting','" . $body . "',0," . $this->db->getUniqueID('vtiger_emailtemplates') . ")");
-
-
-
-		$body = 'Congratulations! <br />
-<br />
-The numbers are in and I am proud to inform you that our <br />
-total sales for the previous quarter <br />
-amounts to $100,000,00.00!. This is the first time <br />
-we have exceeded the target by almost 30%. <br />
-We have also beat the previous quarter record by a <br />
-whopping 75%! <br />
-<br />
-Let us meet at Smoking Joe for a drink in the evening! <br />
-
-C you all there guys!';
-
-
-
-		$this->db->query("insert into vtiger_emailtemplates(foldername,templatename,subject,description,body,deleted,templateid) values ('Public','Target Crossed!','Target Crossed!','Fantastic Sales Spree!','" . $body . "',0," . $this->db->getUniqueID('vtiger_emailtemplates') . ")");
-
-		$body = 'Dear <br />
-<br />
-Thank you for your confidence in our ability to serve you. <br />
-We are glad to be given the chance to serve you.I look <br />
-forward to establishing a long term partnership with you. <br />
-Consider me as a friend. <br />
-Should any need arise,please do give us a call.';
-
-
-
-		$this->db->query("insert into vtiger_emailtemplates(foldername,templatename,subject,description,body,deleted,templateid) values ('Public','Thanks Note','Thanks Note','Note of thanks','" . $body . "',0," . $this->db->getUniqueID('vtiger_emailtemplates') . ")");
-
-//Added for HTML Eemail templates..
+//Added for HTML email templates..
 //for Customer Portal Login details
-		$body = '<table width="700" cellspacing="0" cellpadding="0" border="0" align="center" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: normal; text-decoration: none; background-color: rgb(122, 122, 254);">
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td> </td>
-        </tr>
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td> </td>
-        </tr>
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td> </td>
-        </tr>
-        <tr>
-            <td width="50"> </td>
-            <td>
-            <table width="100%" cellspacing="0" cellpadding="0" border="0">
-                    <tr>
-                        <td>
-                        <table width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: rgb(27, 77, 140); font-family: Arial,Helvetica,sans-serif; font-size: 14px; color: rgb(255, 255, 255); font-weight: normal; line-height: 25px;">
-                                <tr>
-                                    <td align="center" rowspan="4">$logo$</td>
-                                    <td align="center"> </td>
-                                </tr>
-                                <tr>
-                                    <td align="left" style="background-color: rgb(27, 77, 140); font-family: Arial,Helvetica,sans-serif; font-size: 24px; color: rgb(255, 255, 255); font-weight: bolder; line-height: 35px;">vtiger CRM<br /> </td>
-                                </tr>
-                                <tr>
-                                    <td align="right" style="padding-right: 100px;">The honest Open Source CRM </td>
-                                </tr>
-                                <tr>
-                                    <td> </td>
-                                </tr>
-                        </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                        <table width="100%" cellspacing="0" cellpadding="0" border="0" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: normal; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">
-                                <tr>
-                                    <td valign="top">
-                                    <table width="100%" cellspacing="0" cellpadding="5" border="0">
-                                            <tr>
-                                                <td align="right" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bolder; text-decoration: none; color: rgb(66, 66, 253);"> </td>
-                                            </tr>
-                                            <tr>
-                                                <td> </td>
-                                            </tr>
-                                            <tr>
-                                                <td style="font-family: Arial,Helvetica,sans-serif; font-size: 14px; color: rgb(22, 72, 134); font-weight: bolder; line-height: 15px;">Dear $contact_name$, </td>
-                                            </tr>
-                                            <tr>
-                                                <td style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: normal; text-align: justify; line-height: 20px;"> Thank you very much for subscribing to the vtiger CRM - annual support service.<br />Here is your self service portal login details:</td>
-                                            </tr>
-                                            <tr>
-                                                <td align="center">
-                                                <table width="75%" cellspacing="0" cellpadding="10" border="0" style="border: 2px solid rgb(180, 180, 179); background-color: rgb(226, 226, 225); font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: normal;">
-                                                        <tr>
-                                                            <td><br />User ID     : <font color="#990000"><strong> $login_name$</strong></font> </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Password: <font color="#990000"><strong> $password$</strong></font> </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td align="center"> <strong>  $URL$<br /> </strong> </td>
-                                                        </tr>
-                                                </table>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: normal; text-align: justify; line-height: 20px;"><strong>NOTE:</strong> We suggest you to change your password after logging in first time. <br /><br /> <strong><u>Help Documentation</u></strong><br />  <br /> After logging in to vtiger Self-service Portal first time, you can access the vtiger CRM documents from the <strong>Documents</strong> tab. Following documents are available for your reference:<br />
-                                                <ul>
-                                                    <li>Installation Manual (Windows &amp; Linux OS)<br /> </li>
-                                                    <li>User &amp; Administrator Manual<br /> </li>
-                                                    <li>vtiger Customer Portal - User Manual<br /> </li>
-                                                    <li>vtiger Outlook Plugin - User Manual<br /> </li>
-                                                    <li>vtiger Office Plug-in - User Manual<br /> </li>
-                                                    <li>vtiger Thunderbird Extension - User Manual<br /> </li>
-                                                    <li>vtiger Web Forms - User Manual<br /> </li>
-                                                    <li>vtiger Firefox Tool bar - User Manual<br /> </li>
-                                                </ul>
-                                                <br />  <br /> <strong><u>Knowledge Base</u></strong><br /> <br /> Periodically we update frequently asked question based on our customer experiences. You can access the latest articles from the <strong>FAQ</strong> tab.<br /> <br /> <strong><u>vtiger CRM - Details</u></strong><br /> <br /> Kindly let us know your current vtiger CRM version and system specification so that we can provide you necessary guidelines to enhance your vtiger CRM system performance. Based on your system specification we alert you about the latest security &amp; upgrade patches.<br />  <br />			 Thank you once again and wish you a wonderful experience with vtiger CRM.<br /> </td>
-                                            </tr>
-                                            <tr>
-                                                <td align="right"><strong style="padding: 2px; font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: bold;"><br /><br />Best Regards</strong></td>
-                                            </tr>
-                                            <tr>
-                                                <td align="right" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: normal; line-height: 20px;">$support_team$ </td>
-                                            </tr>
-                                            <tr>
-                                                <td align="right"><a style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bolder; text-decoration: none; color: rgb(66, 66, 253);" href="http://www.vtiger.com">www.vtiger.com</a></td>
-                                            </tr>
-                                            <tr>
-                                                <td> </td>
-                                            </tr>
-                                    </table>
-                                    </td>
-                                    <td width="1%" valign="top"> </td>
-                                </tr>
-                        </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                        <table width="100%" cellspacing="0" cellpadding="5" border="0" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(255, 255, 255); font-weight: normal; line-height: 15px; background-color: rgb(51, 51, 51);">
-                                <tr>
-                                    <td align="center">Shree Narayana Complex, No 11 Sarathy Nagar, Vijaya Nagar , Velachery, Chennai - 600 042 India </td>
-                                </tr>
-                                <tr>
-                                    <td align="center">Telephone No: +91 - 44 - 4202 - 1990     Toll Free No: +1 877 788 4437</td>
-                                </tr>
-                                <tr>
-                                    <td align="center">Email Id: <a style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bolder; text-decoration: none; color: rgb(255, 255, 255);" href="mailto:support@vtiger.com">support@vtiger.com</a></td>
-                                </tr>
-                        </table>
-                        </td>
-                    </tr>
-            </table>
-            </td>
-            <td width="50"> </td>
-        </tr>
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td> </td>
-        </tr>
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td> </td>
-        </tr>
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td> </td>
-        </tr>
-</table>';
+		$body = '<table align="center" border="0" cellpadding="0" cellspacing="0" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: normal; text-decoration: none; background-color: rgb(153, 161, 155);" width="700">
+	<tbody>
+		<tr>
+			<td>
+				&nbsp;</td>
+			<td>
+				&nbsp;</td>
+			<td>
+				&nbsp;</td>
+		</tr>
+		<tr>
+			<td>
+				&nbsp;</td>
+			<td>
+				&nbsp;</td>
+			<td>
+				&nbsp;</td>
+		</tr>
+		<tr>
+			<td>
+				&nbsp;</td>
+			<td>
+				&nbsp;</td>
+			<td>
+				&nbsp;</td>
+		</tr>
+		<tr>
+			<td width="50">
+				&nbsp;</td>
+			<td>
+				<table border="0" cellpadding="0" cellspacing="0" width="100%">
+					<tbody>
+						<tr>
+							<td>
+								<table border="0" cellpadding="0" cellspacing="0" style="background-color: rgb(0, 56, 154); font-family: Arial,Helvetica,sans-serif; font-size: 14px; color: rgb(255, 255, 255); font-weight: normal; line-height: 25px;" width="100%">
+									<tbody>
+										<tr>
+											<td align="center" rowspan="4">
+												&nbsp;</td>
+											<td align="center">
+												&nbsp;</td>
+										</tr>
+										<tr>
+											<td align="left" style="background-color: rgb(0, 56, 154); font-family: Arial,Helvetica,sans-serif; font-size: 24px; color: rgb(255, 255, 255); font-weight: bolder; line-height: 35px;">
+												crm-now</td>
+										</tr>
+										<tr>
+											<td align="right" style="padding-right: 100px;">
+												Zugang zum Kundenportal</td>
+										</tr>
+										<tr>
+											<td>
+												&nbsp;</td>
+										</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<table border="0" cellpadding="0" cellspacing="0" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: normal; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);" width="100%">
+									<tbody>
+										<tr>
+											<td valign="top">
+												<table border="0" cellpadding="5" cellspacing="0" width="100%">
+													<tbody>
+														<tr>
+															<td align="right" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bolder; text-decoration: none; color: rgb(66, 66, 253);">
+																&nbsp;</td>
+														</tr>
+														<tr>
+															<td>
+																&nbsp;</td>
+														</tr>
+														<tr>
+															<td style="font-family: Arial,Helvetica,sans-serif; font-size: 14px; color: rgb(22, 72, 134); font-weight: bolder; line-height: 15px;">
+																$contacts-salutation$ $contacts-lastname$,</td>
+														</tr>
+														<tr>
+															<td style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: normal; text-align: justify; line-height: 20px;">
+																Mit dieser E-Mail senden wir Ihnen Ihre Zugangsdaten zu unserem Kundenportal. &Uuml;ber das Portal k&ouml;nnen Sie unseren Support jederzeit erreichen.<br />
+																<br />
+																Hier sind Ihre Login Details:</td>
+														</tr>
+														<tr>
+															<td align="center">
+																<table border="0" cellpadding="10" cellspacing="0" style="border: 2px solid rgb(180, 180, 179); background-color: rgb(226, 226, 225); font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: normal;" width="75%">
+																	<tbody>
+																		<tr>
+																			<td>
+																				<br />
+																				Nutzername: <font color="#990000"><strong> $login_name$</strong></font></td>
+																		</tr>
+																		<tr>
+																			<td>
+																				Passwort: <font color="#990000"><strong> $password$</strong></font></td>
+																		</tr>
+																		<tr>
+																			<td align="center">
+																				<strong>$URL$<br />
+																				</strong></td>
+																		</tr>
+																		<tr>
+																			<td align="center">
+																				<strong>$URL_ENG$<br />
+																				</strong></td>
+																		</tr>
+																	</tbody>
+																</table>
+															</td>
+														</tr>
+														<tr>
+															<td style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: normal; text-align: justify; line-height: 20px;">
+																<strong>Hinweis:</strong> Wir empfehlen Ihnen beim ersten Login das Passwort zu &auml;ndern.<br />
+																<br />
+																<strong><u>Ben&ouml;tigen Sie Unterst&uuml;tzung?</u></strong><br />
+																<br />
+																Wenn Sie zur Nutzung des Kundenportals Fragen haben, wenden Sie sich bitte an unseren Vertrieb.</td>
+														</tr>
+														<tr>
+															<td align="left">
+																<br />
+																<br />
+																<strong style="padding: 2px; font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: bold;">Mit freundlichen Gr&uuml;&szlig;en,</strong></td>
+														</tr>
+														<tr>
+															<td align="left" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: normal; line-height: 20px;">
+																Support Team</td>
+														</tr>
+														<tr>
+															<td align="left">
+																<a href="http://www.crm-now.de" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bolder; text-decoration: none; color: rgb(66, 66, 253);">www.crm-now.de</a></td>
+														</tr>
+														<tr>
+															<td>
+																&nbsp;</td>
+														</tr>
+													</tbody>
+												</table>
+											</td>
+											<td valign="top" width="1%">
+												&nbsp;</td>
+										</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<table border="0" cellpadding="5" cellspacing="0" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(255, 255, 255); font-weight: normal; line-height: 15px; background-color: rgb(0, 56, 154);" width="100%">
+									<tbody>
+										<tr>
+											<td align="center">
+												crm-now GmbH, Stromstrasse5, 10555 Berlin, Deutschland</td>
+										</tr>
+										<tr>
+											<td align="center">
+												Tel.: +49 (0)30 3900 1800 Fax: +49 (0)30 451 9036</td>
+										</tr>
+										<tr>
+											<td align="center">
+												E-Mail: <a href="mailto:support@crm-now.de" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bolder; text-decoration: none; color: rgb(255, 255, 255);">support@crm-now.de</a></td>
+										</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</td>
+			<td width="50">
+				&nbsp;</td>
+		</tr>
+		<tr>
+			<td>
+				&nbsp;</td>
+			<td>
+				&nbsp;</td>
+			<td>
+				&nbsp;</td>
+		</tr>
+		<tr>
+			<td>
+				&nbsp;</td>
+			<td>
+				&nbsp;</td>
+			<td>
+				&nbsp;</td>
+		</tr>
+		<tr>
+			<td>
+				&nbsp;</td>
+			<td>
+				&nbsp;</td>
+			<td>
+				&nbsp;</td>
+		</tr>
+	</tbody>
+</table>
+';
 
-		$this->db->query("insert into vtiger_emailtemplates(foldername,templatename,subject,description,body,deleted,templateid) values ('Public','Customer Login Details','Customer Portal Login Details','Send Portal login details to customer','" . $body . "',0," . $this->db->getUniqueID('vtiger_emailtemplates') . ")");
+		$this->db->query("insert into vtiger_emailtemplates(foldername,templatename,subject,description,body,deleted,templateid) values ('Public','Kundenportal Login Details','Kundenportal Login Daten','sende Logindaten zur Person','" . $body . "',0," . $this->db->getUniqueID('vtiger_emailtemplates') . ")");
 
+		$body = '<table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td style="background-color:rgb(0,56,154);" width="4%"> </td>
+			<td style="background-color:rgb(0,56,154);" width="92%"> </td>
+			<td style="background-color:rgb(0,56,154);" width="4%"> </td>
+		</tr><tr><td style="background-color:rgb(0,56,154);" width="4%"> </td>
+			<td width="92%">
+			<div align="center"><br /><font face="Arial" size="3"><b>Customer Portal Access Information</b></font></div>
+			</td>
+			<td style="background-color:rgb(0,56,154);" width="4%"> </td>
+		</tr><tr><td style="background-color:rgb(0,56,154);" width="4%"> </td>
+			<td width="92%">
+			<p><font face="Arial" size="2">$contacts-salutation$ $contacts-lastname$ :</font></p>
+
+			<p><font face="Arial" size="2">This email contains the information you need to access the CRM Customer Portal. By using this portal, you can open and track trouble tickets and check our FAQs.</font></p>
+			</td>
+			<td style="background-color:rgb(0,56,154);" width="4%"> </td>
+		</tr><tr><td style="background-color:rgb(0,56,154);" width="4%"> </td>
+			<td width="92%">
+			<p> </p>
+
+			<p><font face="Arial" size="2">Here are your portal login details:</font></p>
+
+			<p><font face="Arial" size="2">Email ID: $login_name$</font></p>
+
+			<p><font face="Arial" size="2">Password: $password$</font></p>
+
+			<p><font face="Arial" size="2">$URL_ENG$ </font></p>
+
+			<p><font face="Arial" size="2">NOTE: We suggest that you change your password after logging in the first time. </font></p>
+			</td>
+			<td style="background-color:rgb(0,56,154);" width="4%"> </td>
+		</tr><tr><td style="background-color:rgb(0,56,154);" width="4%"> </td>
+			<td width="92%"> </td>
+			<td style="background-color:rgb(0,56,154);" width="4%"> </td>
+		</tr><tr><td style="background-color:rgb(0,56,154);" width="4%"> </td>
+			<td width="92%">
+			<p><font face="Arial" size="2">Help needed? If you have any questions please contact <a href="mailto:support@crm-now.com">support@crm-now.com</a></font></p>
+
+			<p><font face="Arial" size="2">Best Regards</font></p>
+
+			<p><font face="Arial" size="2">The Support Team </font></p>
+
+			<p> </p>
+			</td>
+			<td style="background-color:rgb(0,56,154);" width="4%"> </td>
+		</tr><tr><td style="background-color:rgb(0,56,154);" width="4%"> </td>
+			<td style="background-color:rgb(0,56,154);" width="92%">
+			<p align="center"><font color="#ffffff" face="Arial" size="2"><b>crm-now GmbH<br />
+			Stromstrasse 5<br />
+			10555 Berlin<br />
+			Germany</b></font></p>
+
+			<p align="center"><b><font color="#ffffff" face="Arial" size="2"><span><font size="2">0049 30 39001800 </font></span><br /><a href="mailto:support@crm-now.com"><font color="#ffffff">support@crm-now.com</font></a></font></b></p>
+
+			<p align="center"><font color="#ffffff" face="Arial" size="2">www.crm-now.com</font></p>
+			</td>
+			<td style="background-color:rgb(0,56,154);" width="4%"> </td>
+		</tr></tbody></table>
+';
+
+		$this->db->query("insert into vtiger_emailtemplates(foldername,templatename,subject,description,body,deleted,templateid) values ('Public','Customer Login Details','Customer Portal Login Details','send Portal login data to contact','" . $body . "',0," . $this->db->getUniqueID('vtiger_emailtemplates') . ")");
 
 //for Support end notification before a week
-		$body = '<table width="700" cellspacing="0" cellpadding="0" border="0" align="center" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: normal; text-decoration: none; background-color: rgb(122, 122, 254);">
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td> </td>
-        </tr>
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td> </td>
-        </tr>
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td> </td>
-        </tr>
-        <tr>
-            <td width="50"> </td>
-            <td>
-            <table width="100%" cellspacing="0" cellpadding="0" border="0">
-                    <tr>
-                        <td>
-                        <table width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: rgb(27, 77, 140); font-family: Arial,Helvetica,sans-serif; font-size: 14px; color: rgb(255, 255, 255); font-weight: normal; line-height: 25px;">
-                                <tr>
-                                    <td align="center" rowspan="4">$logo$</td>
-                                    <td align="center"> </td>
-                                </tr>
-                                <tr>
-                                    <td align="left" style="background-color: rgb(27, 77, 140); font-family: Arial,Helvetica,sans-serif; font-size: 24px; color: rgb(255, 255, 255); font-weight: bolder; line-height: 35px;">vtiger CRM </td>
-                                </tr>
-                                <tr>
-                                    <td align="right" style="padding-right: 100px;">The honest Open Source CRM </td>
-                                </tr>
-                                <tr>
-                                    <td> </td>
-                                </tr>
-                        </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                        <table width="100%" cellspacing="0" cellpadding="0" border="0" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: normal; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">
-                                <tr>
-                                    <td valign="top">
-                                    <table width="100%" cellspacing="0" cellpadding="5" border="0">
-                                            <tr>
-                                                <td align="right" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bolder; text-decoration: none; color: rgb(66, 66, 253);"> </td>
-                                            </tr>
-                                            <tr>
-                                                <td> </td>
-                                            </tr>
-                                            <tr>
-                                                <td style="font-family: Arial,Helvetica,sans-serif; font-size: 14px; color: rgb(22, 72, 134); font-weight: bolder; line-height: 15px;">Dear $contacts-lastname$, </td>
-                                            </tr>
-                                            <tr>
-                                                <td style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: normal; text-align: justify; line-height: 20px;">This is just a notification mail regarding your support end.<br /><span style="font-weight: bold;">Priority:</span> Urgent<br />Your Support is going to expire on next week<br />Please contact support@vtiger.com.<br /><br /><br /></td>
-                                            </tr>
-                                            <tr>
-                                                <td align="center"><br /></td>
-                                            </tr>
-                                            <tr>
-                                                <td align="right"><strong style="padding: 2px; font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: bold;"><br /><br />Sincerly</strong></td>
-                                            </tr>
-                                            <tr>
-                                                <td align="right" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: normal; line-height: 20px;">Support Team </td>
-                                            </tr>
-                                            <tr>
-                                                <td align="right"><a style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bolder; text-decoration: none; color: rgb(66, 66, 253);" href="http://www.vtiger.com">www.vtiger.com</a></td>
-                                            </tr>
-                                            <tr>
-                                                <td> </td>
-                                            </tr>
-                                    </table>
-                                    </td>
-                                    <td width="1%" valign="top"> </td>
-                                </tr>
-                        </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                        <table width="100%" cellspacing="0" cellpadding="5" border="0" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(255, 255, 255); font-weight: normal; line-height: 15px; background-color: rgb(51, 51, 51);">
-                                <tr>
-                                    <td align="center">Shree Narayana Complex, No 11 Sarathy Nagar, Vijaya Nagar , Velachery, Chennai - 600 042 India </td>
-                                </tr>
-                                <tr>
-                                    <td align="center">Telephone No: +91 - 44 - 4202 - 1990     Toll Free No: +1 877 788 4437</td>
-                                </tr>
-                                <tr>
-                                    <td align="center">Email Id: <a style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bolder; text-decoration: none; color: rgb(255, 255, 255);" href="mailto:info@vtiger.com">info@vtiger.com</a></td>
-                                </tr>
-                        </table>
-                        </td>
-                    </tr>
-            </table>
-            </td>
-            <td width="50"> </td>
-        </tr>
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td> </td>
-        </tr>
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td> </td>
-        </tr>
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td> </td>
-        </tr>
-</table>';
-		$this->db->query("insert into vtiger_emailtemplates(foldername,templatename,subject,description,body,deleted,templateid) values ('Public','Support end notification before a week','VtigerCRM Support Notification','Send Notification mail to customer before a week of support end date','" . $body . "',0," . $this->db->getUniqueID('vtiger_emailtemplates') . ")");
-
 
 //for Support end notification before a month
-		$body = '<table width="700" cellspacing="0" cellpadding="0" border="0" align="center" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: normal; text-decoration: none; background-color: rgb(122, 122, 254);">
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td> </td>
-        </tr>
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td> </td>
-        </tr>
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td> </td>
-        </tr>
-        <tr>
-            <td width="50"> </td>
-            <td>
-            <table width="100%" cellspacing="0" cellpadding="0" border="0">
-                    <tr>
-                        <td>
-                        <table width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: rgb(27, 77, 140); font-family: Arial,Helvetica,sans-serif; font-size: 14px; color: rgb(255, 255, 255); font-weight: normal; line-height: 25px;">
-                                <tr>
-                                    <td align="center" rowspan="4">$logo$</td>
-                                    <td align="center"> </td>
-                                </tr>
-                                <tr>
-                                    <td align="left" style="background-color: rgb(27, 77, 140); font-family: Arial,Helvetica,sans-serif; font-size: 24px; color: rgb(255, 255, 255); font-weight: bolder; line-height: 35px;">vtiger CRM </td>
-                                </tr>
-                                <tr>
-                                    <td align="right" style="padding-right: 100px;">The honest Open Source CRM </td>
-                                </tr>
-                                <tr>
-                                    <td> </td>
-                                </tr>
-                        </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                        <table width="100%" cellspacing="0" cellpadding="0" border="0" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: normal; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">
-                                <tr>
-                                    <td valign="top">
-                                    <table width="100%" cellspacing="0" cellpadding="5" border="0">
-                                            <tr>
-                                                <td align="right" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bolder; text-decoration: none; color: rgb(66, 66, 253);"> </td>
-                                            </tr>
-                                            <tr>
-                                                <td> </td>
-                                            </tr>
-                                            <tr>
-                                                <td style="font-family: Arial,Helvetica,sans-serif; font-size: 14px; color: rgb(22, 72, 134); font-weight: bolder; line-height: 15px;">Dear $contacts-lastname$, </td>
-                                            </tr>
-                                            <tr>
-                                                <td style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: normal; text-align: justify; line-height: 20px;">This is just a notification mail regarding your support end.<br /><span style="font-weight: bold;">Priority:</span> Normal<br />Your Support is going to expire on next month.<br />Please contact support@vtiger.com<br /><br /><br /></td>
-                                            </tr>
-                                            <tr>
-                                                <td align="center"><br /></td>
-                                            </tr>
-                                            <tr>
-                                                <td align="right"><strong style="padding: 2px; font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: bold;"><br /><br />Sincerly</strong></td>
-                                            </tr>
-                                            <tr>
-                                                <td align="right" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: normal; line-height: 20px;">Support Team </td>
-                                            </tr>
-                                            <tr>
-                                                <td align="right"><a href="http://www.vtiger.com" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bolder; text-decoration: none; color: rgb(66, 66, 253);">www.vtiger.com</a></td>
-                                            </tr>
-                                            <tr>
-                                                <td> </td>
-                                            </tr>
-                                    </table>
-                                    </td>
-                                    <td width="1%" valign="top"> </td>
-                                </tr>
-                        </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                        <table width="100%" cellspacing="0" cellpadding="5" border="0" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(255, 255, 255); font-weight: normal; line-height: 15px; background-color: rgb(51, 51, 51);">
-                                <tr>
-                                    <td align="center">Shree Narayana Complex, No 11 Sarathy Nagar, Vijaya Nagar , Velachery, Chennai - 600 042 India </td>
-                                </tr>
-                                <tr>
-                                    <td align="center">Telephone No: +91 - 44 - 4202 - 1990     Toll Free No: +1 877 788 4437</td>
-                                </tr>
-                                <tr>
-                                    <td align="center">Email Id: <a href="mailto:info@vtiger.com" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bolder; text-decoration: none; color: rgb(255, 255, 255);">info@vtiger.com</a></td>
-                                </tr>
-                        </table>
-                        </td>
-                    </tr>
-            </table>
-            </td>
-            <td width="50"> </td>
-        </tr>
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td> </td>
-        </tr>
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td> </td>
-        </tr>
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td> </td>
-        </tr>
-</table>';
-		$this->db->query("insert into vtiger_emailtemplates(foldername,templatename,subject,description,body,deleted,templateid) values ('Public','Support end notification before a month','VtigerCRM Support Notification','Send Notification mail to customer before a month of support end date','" . $body . "',0," . $this->db->getUniqueID('vtiger_emailtemplates') . ")");
 
 
 		//Insert into vtiger_organizationdetails vtiger_table
 		$organizationId = $this->db->getUniqueID('vtiger_organizationdetails');
-		$this->db->query("insert into vtiger_organizationdetails(organization_id,organizationname,address,city,state,country,code,phone,fax,website,logoname,vatid)
-								values ($organizationId,'vtiger','95, 12th Main Road, 3rd Block, Rajajinagar','Bangalore',
-										'Karnataka','India','560010','+91 9243602352','+91 9243602352','www.vtiger.com','vtiger-crm-logo.png','1234-5678-9012')");
-
+	    $this->db->query("insert into vtiger_organizationdetails(organization_id,organizationname,address,city,state,country,code,phone,fax,website,logoname,vatid) 
+								values ($organizationId,'crm-now','Stromstr. 5','Berlin',
+										'Berlin','Deutschland','10555','+49 (0)30 39001800','+49 (0)30 4519037','www.crm-now.de','crm-now-logo.jpg','1234-5678-9012')");
 
 		$this->db->query("insert into vtiger_actionmapping values(0,'Save',0)");
 		$this->db->query("insert into vtiger_actionmapping values(1,'EditView',0)");
@@ -1870,6 +1587,7 @@ Should any need arise,please do give us a call.';
 		$this->db->query("insert into vtiger_actionmapping values(4,'DetailView',0)");
 		$this->db->query("insert into vtiger_actionmapping values(5,'Import',0)");
 		$this->db->query("insert into vtiger_actionmapping values(6,'Export',0)");
+		$this->db->query("insert into vtiger_actionmapping values(7,'CreateView',0)");
 		//$this->db->query("insert into vtiger_actionmapping values(7,'AddBusinessCard',0)");
 		$this->db->query("insert into vtiger_actionmapping values(8,'Merge',0)");
 		$this->db->query("insert into vtiger_actionmapping values(1,'VendorEditView',1)");
@@ -1944,9 +1662,9 @@ Should any need arise,please do give us a call.';
 		$vatid = $this->db->getUniqueID("vtiger_inventorytaxinfo");
 		$salesid = $this->db->getUniqueID("vtiger_inventorytaxinfo");
 		$serviceid = $this->db->getUniqueID("vtiger_inventorytaxinfo");
-		$this->db->query("insert into vtiger_inventorytaxinfo values($vatid,'tax" . $vatid . "','VAT','4.50','0')");
-		$this->db->query("insert into vtiger_inventorytaxinfo values($salesid,'tax" . $salesid . "','Sales','10.00','0')");
-		$this->db->query("insert into vtiger_inventorytaxinfo values($serviceid,'tax" . $serviceid . "','Service','12.50','0')");
+		$this->db->query("insert into vtiger_inventorytaxinfo values($vatid,'tax" . $vatid . "','VAT','19.00','0')");
+		$this->db->query("insert into vtiger_inventorytaxinfo values($salesid,'tax" . $salesid . "','Sales','0.00','0')");
+		$this->db->query("insert into vtiger_inventorytaxinfo values($serviceid,'tax" . $serviceid . "','Service','0.00','0')");
 		//After added these taxes we should add these taxes as columns in vtiger_inventoryproductrel table
 		$this->db->query("alter table vtiger_inventoryproductrel add column tax$vatid decimal(7,3) default NULL");
 		$this->db->query("alter table vtiger_inventoryproductrel add column tax$salesid decimal(7,3) default NULL");
@@ -1958,9 +1676,9 @@ Should any need arise,please do give us a call.';
 		$shvatid = $this->db->getUniqueID("vtiger_shippingtaxinfo");
 		$shsalesid = $this->db->getUniqueID("vtiger_shippingtaxinfo");
 		$shserviceid = $this->db->getUniqueID("vtiger_shippingtaxinfo");
-		$this->db->query("insert into vtiger_shippingtaxinfo values($shvatid,'shtax" . $shvatid . "','VAT','4.50','0')");
-		$this->db->query("insert into vtiger_shippingtaxinfo values($shsalesid,'shtax" . $shsalesid . "','Sales','10.00','0')");
-		$this->db->query("insert into vtiger_shippingtaxinfo values($shserviceid,'shtax" . $shserviceid . "','Service','12.50','0')");
+		$this->db->query("insert into vtiger_shippingtaxinfo values($shvatid,'shtax" . $shvatid . "','VAT','19.00','0')");
+		$this->db->query("insert into vtiger_shippingtaxinfo values($shsalesid,'shtax" . $shsalesid . "','Sales','0.00','0')");
+		$this->db->query("insert into vtiger_shippingtaxinfo values($shserviceid,'shtax" . $shserviceid . "','Service','0.00','0')");
 		//After added these taxes we should add these taxes as columns in vtiger_inventoryshippingrel table
 		$this->db->query("alter table vtiger_inventoryshippingrel add column shtax$shvatid decimal(7,3) default NULL");
 		$this->db->query("alter table vtiger_inventoryshippingrel add column shtax$shsalesid decimal(7,3) default NULL");
@@ -2168,11 +1886,7 @@ Should any need arise,please do give us a call.';
 				"prelogin" => 0,
 				"type" => "POST",
 				'params' => array(
-					'leadId' => 'String',
-					'assignedTo' => 'String',
-					'accountName' => 'String',
-					'avoidPotential' => 'Boolean',
-					'potential' => 'Encoded'
+					'element' => 'Encoded'
 				)
 			),
 			"revise" => array(
@@ -2188,7 +1902,7 @@ Should any need arise,please do give us a call.';
 			),
 			"changePassword" => array(
 				"include" => array(
-					"include/Webservices/ChangePassword.php"
+					"include/Webservices/Custom/ChangePassword.php"
 				),
 				"handler" => "vtws_changePassword",
 				"params" => array(
@@ -2573,7 +2287,7 @@ Should any need arise,please do give us a call.';
 		$fieldMap = array(
 			array('company', 'accountname', null, 'potentialname', 0),
 			array('industry', 'industry', null, null, 1),
-			array('phone', 'phone', 'phone', null), 1,
+			array('phone', 'phone', 'phone', null, 1),
 			array('fax', 'fax', 'fax', null, 1),
 			array('rating', 'rating', null, null, 1),
 			array('email', 'email1', 'email', null, 0),

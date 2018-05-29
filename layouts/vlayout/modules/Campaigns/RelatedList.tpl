@@ -130,7 +130,11 @@
                         </th>
                     {/foreach}
                     <th nowrap colspan="2">
-                        <a href="javascript:void(0);" class="noSorting">{vtranslate('Status', $RELATED_MODULE->get('name'))}</a>
+                    {* crm-now: Table sortable by status column, either using the untranslated(!) status string, or its sortorderid. Uncomment one of the following assigns: *}
+                    {* ASSIGN var=STATUSCOLUMNFIELD value="campaignrelstatus" *}
+                    {ASSIGN var=STATUSCOLUMNFIELD value="vtiger_campaignrelstatus.sortorderid"}
+                        <a href="javascript:void(0);" class="relatedListHeaderValues" data-nextsortorderval="{if $COLUMN_NAME eq $STATUSCOLUMNFIELD}{$NEXT_SORT_ORDER}{else}ASC{/if}" data-fieldname="{$STATUSCOLUMNFIELD}">{vtranslate("Status", $RELATED_MODULE->get('name'))}
+                                    &nbsp;&nbsp;{if $COLUMN_NAME eq $STATUSCOLUMNFIELD}<img class="{$SORT_IMAGE}">{/if}
                     </th>
                 </tr>
             </thead>
@@ -154,7 +158,7 @@
                     {/foreach}
                     <td nowrap class="{$WIDTHTYPE}">
                         <span class="currentStatus btn-group">
-                            <span class="statusValue dropdown-toggle" data-toggle="dropdown">{vtranslate($RELATED_RECORD->get('status'),$MODULE)}</span>
+                            <span class="statusValue dropdown-toggle" data-toggle="dropdown">{vtranslate($RELATED_RECORD->get('status'),$MODULE)}</span>{* ** status column value ** *}
                             <i title="{vtranslate('LBL_EDIT', $MODULE)}" class="icon-arrow-down alignMiddle editRelatedStatus"></i>
                             <ul class="dropdown-menu pull-right" style="margin-right: -28px">
                                 {foreach key=STATUS_ID item=STATUS from=$STATUS_VALUES}

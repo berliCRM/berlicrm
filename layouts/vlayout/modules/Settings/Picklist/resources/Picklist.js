@@ -617,6 +617,67 @@ var Settings_Picklist_Js = {
 		});
 	},
 
+    registerSaveDynamicBlocksEvent: function() {
+		jQuery('#saveDynamicBlocks').on('click',function(e) {
+            var inputelements = jQuery(":input[name^='dyn']");
+            var querystring ='';
+            jQuery.each(inputelements,function(i,element) {
+                querystring += jQuery(element).attr("name") + "=";
+                if (jQuery(element).prop("checked")) querystring += 1; else querystring += 0;
+                querystring += "&";
+            });
+            var params = {
+				module : app.getModuleName(),
+				parent : app.getParentModuleName(),
+				action : 'SaveAjax',
+				mode : 'dynamicBlocks',
+                picklistId : jQuery(':input[name="picklistid"]').val(),
+                moduleId : jQuery(':input[name="moduleid"]').val(),
+                query: querystring
+			}
+            AppConnector.request(params).then(function(data) {
+                Settings_Vtiger_Index_Js.showMessage({text:app.vtranslate('JS_DYNBLOCKS_UPDATED_SUCCESSFULLY'),type : 'success'});
+            });
+		});
+    },
+
+    registerAssignValueToBlockTabClickEvent : function() {
+		jQuery('#assignedToBlockTab').on('click',function(e) {
+            jQuery(".pltables").hide();
+            var params = {
+				module : app.getModuleName(),
+				parent : app.getParentModuleName(),
+				source_module : jQuery("#pickListModules").val(),
+				view : 'IndexAjax',
+				mode : 'getPickListValueForBlocks',
+                pickListFieldId : jQuery('#modulePickList').val()
+			}
+			var progressIndicatorElement = jQuery.progressIndicator({
+				'position' : 'html',
+				'blockInfo' : {
+					'enabled' : true
+				}
+			});
+			AppConnector.request(params).then(function(data){
+				jQuery('#AssignedToBlockLayout').html(data);
+				progressIndicatorElement.progressIndicator({'mode':'hide'});
+                var plselect = jQuery("#picklistentry");
+                plselect.on("change",function(e) {
+                    var plvalue = plselect.val();
+                    if (plvalue == "_showall") {
+                        jQuery(".pltables").show();
+                    }
+                    else {                    
+                        jQuery(".pltables").fadeOut(150);
+                        jQuery("#picklisttable"+plvalue).delay(180).fadeIn();
+                    }
+                });
+                plselect.trigger('change');
+                Settings_Picklist_Js.registerSaveDynamicBlocksEvent();
+            });
+		});
+	},
+
 	registerItemActions : function() {
 		Settings_Picklist_Js.registerAddItemEvent();
 		Settings_Picklist_Js.registerRenameItemEvent();
@@ -625,6 +686,7 @@ var Settings_Picklist_Js = {
 		Settings_Picklist_Js.registerAssingValueToRuleEvent();
 		Settings_Picklist_Js.registerChangeRoleEvent();
 		Settings_Picklist_Js.registerAssingValueToRoleTabClickEvent();
+		Settings_Picklist_Js.registerAssignValueToBlockTabClickEvent();
 		Settings_Picklist_Js.registerPickListValuesSortableEvent();
 		Settings_Picklist_Js.registerSaveSequenceClickEvent();
 	},

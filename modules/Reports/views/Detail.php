@@ -9,7 +9,8 @@
  *************************************************************************************/
 
 class Reports_Detail_View extends Vtiger_Index_View {
-
+	//crm-now: added for hidden record id list in report
+	protected $id_list;
 	protected $reportData;
 	protected $calculationFields;
     protected $count;
@@ -27,9 +28,9 @@ class Reports_Detail_View extends Vtiger_Index_View {
 		}
 	}
 
-	const REPORT_LIMIT = 1000;
+	const REPORT_LIMIT = 10000;
 
-	function preProcess(Vtiger_Request $request) {
+	function preProcess(Vtiger_Request $request, $display=false) {
 		parent::preProcess($request);
 
 		$viewer = $this->getViewer($request);
@@ -47,10 +48,11 @@ class Reports_Detail_View extends Vtiger_Index_View {
 
         $reportData = $reportModel->getReportData($pagingModel);
 		$this->reportData = $reportData['data'];
+		$this->id_list = $reportData['id_list'];
 		$this->calculationFields = $reportModel->getReportCalulationData();
 
         $count = $reportData['count'];
-        if($count < 1000){
+        if($count < self::REPORT_LIMIT){
             $this->count = $count;
         }else{
             $query = $reportModel->getReportSQL(false, 'PDF');
@@ -133,6 +135,7 @@ class Reports_Detail_View extends Vtiger_Index_View {
 		$viewer->assign('REPORT_MODEL', $reportModel);
 		$viewer->assign('RECORD_ID', $recordId);
 		$viewer->assign('COUNT',$this->count);
+		$viewer->assign('DISPLAYLIMIT',self::REPORT_LIMIT);
 		$viewer->assign('MODULE', $moduleName);
 		$viewer->view('ReportHeader.tpl', $moduleName);
 	}
@@ -155,6 +158,8 @@ class Reports_Detail_View extends Vtiger_Index_View {
 
 		$data = $this->reportData;
 		$calculation = $this->calculationFields;
+		//crm-now: added for hidden record id list in report
+		$id_list = $this->id_list;
 
 		if(empty($data)){
 			$reportModel = Reports_Record_Model::getInstanceById($record);
@@ -168,13 +173,15 @@ class Reports_Detail_View extends Vtiger_Index_View {
 			$reportData = $reportModel->getReportData($pagingModel);
             $data = $reportData['data'];
 			$calculation = $reportModel->getReportCalulationData();
-
+			//crm-now: added for hidden record id list in report
+			$this->id_list = $reportData['id_list'];
             $advFilterSql = $reportModel->getAdvancedFilterSQL();
             $query = $reportModel->getReportSQL($advFilterSql, 'PDF');
             $countQuery = $reportModel->generateCountQuery($query);
             $this->count = $reportModel->getReportsCount($countQuery);
 		}
-
+		//crm-now: added for hidden record id list in report
+		$viewer->assign('IDLIST', $this->id_list);
 		$viewer->assign('CALCULATION_FIELDS',$calculation);
 		$viewer->assign('DATA', $data);
 		$viewer->assign('RECORD_ID', $record);

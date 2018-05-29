@@ -38,7 +38,10 @@ class Products_RelationAjax_Action extends Vtiger_RelationAjax_Action {
 					$recordModel->updateListPrice($sourceRecordId, $parentRecordModel->get('unit_price'));
 				}
 			}
-		}		
+		}
+        $response = new Vtiger_Response();
+        $response->setResult(true);
+        $response->emit();
 	}
 	
 	/**
@@ -58,7 +61,10 @@ class Products_RelationAjax_Action extends Vtiger_RelationAjax_Action {
 			$price = CurrencyField::convertToDBFormat($relInfo['price'], null, true);
 			$relationModel->addListPrice($sourceRecordId, $relInfo['id'], $price);
 		}
-	}
+        $response = new Vtiger_Response();
+        $response->setResult(true);
+        $response->emit();
+    }
 	
 }
 ?>

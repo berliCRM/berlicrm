@@ -350,6 +350,8 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 
                 $label = trim($label);
                 $adb->pquery('UPDATE vtiger_crmentity SET label=? WHERE crmid=?', array($label, $recordId));
+				//crm-now: added for global search
+                $adb->pquery('INSERT IGNORE INTO berli_globalsearch_data  SET searchlabel=? WHERE gscrmid=?', array($label, $recordId));
             }
 
 			$this->importedRecordInfo[$rowId] = $entityInfo;
@@ -369,7 +371,8 @@ class Import_Data_Action extends Vtiger_Action_Controller {
  		$defaultFieldValues = $this->getDefaultFieldValues($moduleMeta);
 		foreach ($fieldData as $fieldName => $fieldValue) {
 			$fieldInstance = $moduleFields[$fieldName];
-			if ($fieldInstance->getFieldDataType() == 'owner') {
+			$type = $fieldInstance->getFieldDataType();
+			if ($type == 'owner') {
 				$ownerId = getUserId_Ol(trim($fieldValue));
 				if (empty($ownerId)) {
 					$ownerId = getGrpId($fieldValue);
@@ -383,7 +386,7 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 				}
 				$fieldData[$fieldName] = $ownerId;
 
-			} elseif ($fieldInstance->getFieldDataType() == 'multipicklist') {
+			} elseif ($type == 'multipicklist') {
 				$trimmedValue = trim($fieldValue);
 
 				if (!$trimmedValue && isset($defaultFieldValues[$fieldName])) {
@@ -398,7 +401,7 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 
 				$implodeValue = implode(' |##| ',$explodedValue);
 				$fieldData[$fieldName] = $implodeValue;
-			} elseif ($fieldInstance->getFieldDataType() == 'reference') {
+			} elseif ($type == 'reference') {
 				$entityId = false;
 				if (!empty($fieldValue)) {
 					if(strpos($fieldValue, '::::') > 0) {
@@ -411,7 +414,7 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 					if (count($fieldValueDetails) > 1) {
 						$referenceModuleName = trim($fieldValueDetails[0]);
 						$entityLabel = trim($fieldValueDetails[1]);
-						$entityId = getEntityId($referenceModuleName, $entityLabel);
+						$entityId = getEntityId($referenceModuleName, decode_html($entityLabel));
 					} else {
 						$referencedModules = $fieldInstance->getReferenceList();
 						$entityLabel = $fieldValue;
@@ -426,7 +429,7 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 							}elseif ($referenceModule == 'Currency') {
 								$referenceEntityId = getCurrencyId($entityLabel);
 							} else {
-								$referenceEntityId = getEntityId($referenceModule, $entityLabel);
+								$referenceEntityId = getEntityId($referenceModule, decode_html($entityLabel));
 							}
 							if ($referenceEntityId != 0) {
 								$entityId = $referenceEntityId;
@@ -435,15 +438,15 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 						}
 					}
 					if ((empty($entityId) || $entityId == 0) && !empty($referenceModuleName)) {
-						if(isPermitted($referenceModuleName, 'EditView') == 'yes') {
-                                                    try {
-							$wsEntityIdInfo = $this->createEntityRecord($referenceModuleName, $entityLabel);
-							$wsEntityId = $wsEntityIdInfo['id'];
-							$entityIdComponents = vtws_getIdComponents($wsEntityId);
-							$entityId = $entityIdComponents[1];
-                                                    } catch (Exception $e) {
-                                                        $entityId = false;
-                                                    }
+						if(isPermitted($referenceModuleName, 'CreateView') == 'yes') {
+							try {
+								$wsEntityIdInfo = $this->createEntityRecord($referenceModuleName, $entityLabel);
+								$wsEntityId = $wsEntityIdInfo['id'];
+								$entityIdComponents = vtws_getIdComponents($wsEntityId);
+								$entityId = $entityIdComponents[1];
+							} catch (Exception $e) {
+								$entityId = false;
+							}
 						}
 					}
 					$fieldData[$fieldName] = $entityId;
@@ -462,7 +465,7 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 					}
 				}
 
-			} elseif ($fieldInstance->getFieldDataType() == 'picklist') {
+			} elseif ($type == 'picklist') {
 				$fieldValue = trim($fieldValue);
 				global $default_charset;
 				if (empty($fieldValue) && isset($defaultFieldValues[$fieldName])) {
@@ -493,11 +496,11 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 					$fieldData[$fieldName] = $picklistDetails[$picklistValueInLowerCase];
 				}
 				Vtiger_Cache::$cacheEnable = $olderCacheEnable;
-			} else if($fieldInstance->getFieldDataType() == 'currency'){
+			} else if($type == 'currency' || $type == 'double'){
                 // While exporting we are exporting as user format, we should import as db format while importing
                 $fieldData[$fieldName] = CurrencyField::convertToDBFormat($fieldValue, $current_user,false);
             }else {
-				if ($fieldInstance->getFieldDataType() == 'datetime' && !empty($fieldValue)) {
+				if ($type == 'datetime' && !empty($fieldValue)) {
 					if($fieldValue == null || $fieldValue == '0000-00-00 00:00:00') {
 						$fieldValue = '';
 					}
@@ -510,7 +513,7 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 					}
 					$fieldData[$fieldName] = $fieldValue;
 				}
-				if ($fieldInstance->getFieldDataType() == 'date' && !empty($fieldValue)) {
+				if ($type == 'date' && !empty($fieldValue)) {
 					if($fieldValue == null || $fieldValue == '0000-00-00') {
 						$fieldValue = '';
 					}
@@ -574,32 +577,32 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 
 		$fieldData = DataTransform::sanitizeData($fieldData, $moduleMeta);
 		$entityIdInfo = vtws_create($moduleName, $fieldData, $this->user);
-                $adb = PearDatabase::getInstance();
-                $entityIdComponents = vtws_getIdComponents($entityIdInfo['id']);
-                $recordId = $entityIdComponents[1];
-                $entityfields = getEntityFieldNames($moduleName);
-                switch($moduleName) {
-                    case 'HelpDesk': $entityfields['fieldname'] = array('ticket_title');break;
-					case 'Documents':$entityfields['fieldname'] = array('notes_title');break;
-                   case 'Documents': $entityfields['fieldname'] = array('notes_title');break;
-                }
-                $label = '';
-                if(is_array($entityfields['fieldname'])){
-                    foreach($entityfields['fieldname'] as $field){
-                        $label .= $fieldData[$field]." ";
-                    }
-                }else {
-                    $label = $fieldData[$entityfields['fieldname']];
-                }
+		$adb = PearDatabase::getInstance();
+		$entityIdComponents = vtws_getIdComponents($entityIdInfo['id']);
+		$recordId = $entityIdComponents[1];
+		$entityfields = getEntityFieldNames($moduleName);
+		switch($moduleName) {
+			case 'HelpDesk': $entityfields['fieldname'] = array('ticket_title');break;
+			case 'Documents':$entityfields['fieldname'] = array('notes_title');break;
+			case 'Documents': $entityfields['fieldname'] = array('notes_title');break;
+		}
+		$label = '';
+		if(is_array($entityfields['fieldname'])){
+			foreach($entityfields['fieldname'] as $field){
+				$label .= $fieldData[$field]." ";
+			}
+		}else {
+			$label = $fieldData[$entityfields['fieldname']];
+		}
 
-                $label = trim($label);
-                $adb->pquery('UPDATE vtiger_crmentity SET label=? WHERE crmid=?', array($label, $recordId));
+		$label = trim($label);
+		$adb->pquery('UPDATE vtiger_crmentity SET label=? WHERE crmid=?', array($label, $recordId));
 
-                $recordModel = Vtiger_Record_Model::getCleanInstance($moduleName);
-                $focus = $recordModel->getEntity();
-                $focus->id = $recordId;
-                $focus->column_fields = $fieldData;
-                $this->entityData[] = VTEntityData::fromCRMEntity($focus);
+		$recordModel = Vtiger_Record_Model::getCleanInstance($moduleName);
+		$focus = $recordModel->getEntity();
+		$focus->id = $recordId;
+		$focus->column_fields = $fieldData;
+		$this->entityData[] = VTEntityData::fromCRMEntity($focus);
 		$focus->updateMissingSeqNumber($moduleName);
 		return $entityIdInfo;
 	}
@@ -657,18 +660,16 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 
 			$importStatusCount = $importDataController->getImportStatusCount();
 
-			$emailSubject = 'vtiger CRM - Scheduled Import Report for '.$importDataController->module;
+			$emailSubject = getTranslatedString('LBL_POST_IMPORT_MAIL_SUBJECT','Import').getTranslatedString($importDataController->module);
             $viewer = new Vtiger_Viewer();
 			$viewer->assign('FOR_MODULE', $importDataController->module);
             $viewer->assign('INVENTORY_MODULES', getInventoryModules());
 			$viewer->assign('IMPORT_RESULT', $importStatusCount);
+			$viewer->assign('MODULE', 'Import');
 			$importResult = $viewer->view('Import_Result_Details.tpl','Import',true);
 			$importResult = str_replace('align="center"', '', $importResult);
-			$emailData = 'vtiger CRM has just completed your import process. <br/><br/>' .
-							$importResult . '<br/><br/>'.
-							'We recommend you to login to the CRM and check few records to confirm that the import has been successful.';
-
-			$userName = getFullNameFromArray('Users', $importDataController->user->column_fields);
+			$emailData = getTranslatedString('LBL_POST_IMPORT_MAIL_INTRO','Import').'<br/><br/>'.$importResult;
+			$userName = decode_html(getFullNameFromArray('Users', $importDataController->user->column_fields));
 			$userEmail = $importDataController->user->email1;
 			$vtigerMailer->to = array( array($userEmail, $userName));
 			$vtigerMailer->Subject = $emailSubject;

@@ -10,7 +10,7 @@
 
 class Users_Detail_View extends Users_PreferenceDetail_View {
 
-	public function preProcess(Vtiger_Request $request) {
+	public function preProcess(Vtiger_Request $request, $display=false) {
 		parent::preProcess($request, false);
 		$this->preProcessSettings($request);
 	}

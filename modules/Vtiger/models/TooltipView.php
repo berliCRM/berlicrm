@@ -60,15 +60,15 @@ class Vtiger_TooltipView_Model extends Vtiger_DetailRecordStructure_Model {
 		
 		// Retrieves only required fields of the record with permission check.
 		try {
-			$data = array_shift(vtws_query($q, Users_Record_Model::getCurrentUserModel()));
+            $vtwsres = vtws_query($q, Users_Record_Model::getCurrentUserModel());
+			$data = array_shift($vtwsres);
 
 			if ($data) {
 				// De-transform the webservice ID to CRM ID.
 				foreach ($data as $key => $value) {
 					if (in_array($key, $referenceFields)) {
-						$value = array_pop(explode('x', $value));
+						$data[$key] = substr($value,strrpos($value,"x")+1);
 					}
-					$data[$key] = $value;
 				}
 			}
 			

@@ -292,6 +292,10 @@ function vtws_updateConvertLeadStatus($entityIds, $leadId, $user) {
             $tableList = $meta->getEntityTableIndexList();
             $tableIndex = $tableList[$tablename];
             $adb->pquery("UPDATE $tablename SET isconvertedfromlead = ? WHERE $tableIndex = ?",array(1,$id));
+            //crm-now: copy forward the created time and creator of the lead to the converted objects
+            //from a user perspective, it isn't a new entity, it is a converted entity
+            $adb->pquery("UPDATE vtiger_crmentity newmod,(select createdtime, smcreatorid from vtiger_crmentity WHERE crmid=?) leadmod set newmod.createdtime=leadmod.createdtime,
+                          newmod.smcreatorid=leadmod.smcreatorid where newmod.crmid=?",array($leadIdComponents[1],$id));
         }
     }
 

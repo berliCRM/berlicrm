@@ -10,6 +10,31 @@
 
 class Campaigns_Record_Model extends Vtiger_Record_Model {
 
+    public function save() {
+        parent::save();
+
+        // Copy related contacts, leads and accounts from record $_REQUEST["copy_source"] to new record $newid, resetting their status
+        $newid = (int) $this->getId();
+        if ($_REQUEST["mode"]=="copyRelated" && $newid > 0) {
+                $db = PearDatabase::getInstance();
+
+                // contacts
+                $q = "INSERT INTO vtiger_campaigncontrel (campaignid, contactid, campaignrelstatusid)
+                        SELECT ?, contactid, 1 FROM vtiger_campaigncontrel WHERE campaignid = ?";
+                $db->pquery($q,array($newid, $_REQUEST["copy_source"]));
+
+                // leads
+                $q = "INSERT INTO vtiger_campaignleadrel (campaignid, leadid, campaignrelstatusid)
+                        SELECT ?, leadid, 1 FROM vtiger_campaignleadrel WHERE campaignid = ?";
+                $db->pquery($q,array($newid, $_REQUEST["copy_source"]));
+
+                // accounts
+                $q = "INSERT INTO vtiger_campaignaccountrel (campaignid, accountid, campaignrelstatusid)
+                        SELECT ?, accountid, 1 FROM vtiger_campaignaccountrel WHERE campaignid = ?";
+                $db->pquery($q,array($newid, $_REQUEST["copy_source"]));
+            }
+    }
+
 	/**
 	 * Function to get selected ids list of related module for send email
 	 * @param <String> $relatedModuleName

@@ -330,6 +330,10 @@ class Calendar_Module_Model extends Vtiger_Module_Model {
         for($i=0; $i<$rows; $i++){
 			$activityTypes = $db->query_result_rowdata($result, $i);
 			$moduleInstance = Vtiger_Module::getInstance($activityTypes['module']);
+            // skip disabled or missing modules
+            if (empty($moduleInstance) || $moduleInstance->presence == 1) {
+                continue;
+            }
 			$fieldInstance = Vtiger_Field::getInstance($activityTypes['fieldname'], $moduleInstance);
 			if($fieldInstance) {
 				$fieldLabel = $fieldInstance->label;
@@ -383,7 +387,7 @@ class Calendar_Module_Model extends Vtiger_Module_Model {
 	 * @param type $currentUserId
 	 * @param type $sharedIds
 	 */
-	public function getSharedType($currentUserId){
+	public static function getSharedType($currentUserId){
 		$db = PearDatabase::getInstance();
 
 		$query = "SELECT calendarsharedtype FROM vtiger_users WHERE id=?";

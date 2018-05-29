@@ -14,7 +14,13 @@
 <div  class="summaryWidgetContainer">
 	<div class="widget_header row-fluid">
 		<span class="span8"><h4 class="textOverflowEllipsis">{vtranslate('LBL_ACTIVITIES',$MODULE_NAME)}</h4></span>
-		<span class="span4"><button class="btn pull-right addButton createActivity" data-url="sourceModule={$RECORD->getModuleName()}&sourceRecord={$RECORD->getId()}&relationOperation=true" type="button"><strong>{vtranslate('LBL_ADD',$MODULE_NAME)}</strong></button></span>
+		<span class="span4">
+			{if isPermitted('Calendar', 'CreateView') eq 'yes'}
+				<button class="btn pull-right addButton createActivity" data-url="sourceModule={$RECORD->getModuleName()}&sourceRecord={$RECORD->getId()}&relationOperation=true" type="button">
+					<strong>{vtranslate('LBL_ADD',$MODULE_NAME)}</strong>
+				</button>
+			{/if}
+			</span>
 	</div>
 	<div class="widget_contents">
 		{if count($ACTIVITIES) neq '0'}
@@ -33,16 +39,18 @@
 							{assign var=MODULE_NAME value=$RECORD->getModuleName()}
 							<input type="hidden" class="activityModule" value="{$RECORD->getModuleName()}"/>
 							<input type="hidden" class="activityType" value="{$RECORD->get('activitytype')}"/>
-							<div class="pull-right">
-								<strong><span class="value">{vtranslate($RECORD->get('status'),$MODULE_NAME)}</span></strong>&nbsp&nbsp;
-								<span class="editStatus cursorPointer"><i class="icon-pencil" title="{vtranslate('LBL_EDIT',$MODULE_NAME)}"></i></span>
-								<span class="edit hide">
-								{assign var=FIELD_MODEL value=$RECORD->getModule()->getField('taskstatus')}
-								{assign var=FIELD_VALUE value=$FIELD_MODEL->set('fieldvalue', $RECORD->get('status'))}
-								{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE_NAME) FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME OCCUPY_COMPLETE_WIDTH='true'}
-								<input type="hidden" class="fieldname" value='{$FIELD_MODEL->get('name')}' data-prev-value='{$FIELD_MODEL->get('fieldvalue')}' />
-								</span>
-							</div>
+							{if $EDITVIEW_PERMITTED == 'yes'}
+								<div class="pull-right">
+									<strong><span class="value">{vtranslate($RECORD->get('status'),$MODULE_NAME)}</span></strong>&nbsp&nbsp;
+									<span class="editStatus cursorPointer"><i class="icon-pencil" title="{vtranslate('LBL_EDIT',$MODULE_NAME)}"></i></span>
+									<span class="edit hide">
+									{assign var=FIELD_MODEL value=$RECORD->getModule()->getField('taskstatus')}
+									{assign var=FIELD_VALUE value=$FIELD_MODEL->set('fieldvalue', $RECORD->get('status'))}
+									{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE_NAME) FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME OCCUPY_COMPLETE_WIDTH='true' STYLE='width:145px'}
+									<input type="hidden" class="fieldname" value='{$FIELD_MODEL->get('name')}' data-prev-value='{$FIELD_MODEL->get('fieldvalue')}' />
+									</span>
+								</div>
+							{/if}
 						</div>
 						{else}
 							{assign var=MODULE_NAME value="Events"}
@@ -55,7 +63,7 @@
 									<span class="edit hide">
 										{assign var=FIELD_MODEL value=$RECORD->getModule()->getField('eventstatus')}
 										{assign var=FIELD_VALUE value=$FIELD_MODEL->set('fieldvalue', $RECORD->get('eventstatus'))}
-										{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE_NAME) FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME OCCUPY_COMPLETE_WIDTH='true'}
+										{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE_NAME) FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME OCCUPY_COMPLETE_WIDTH='true' STYLE='width:145px'}
 										 {if $FIELD_MODEL->getFieldDataType() eq 'multipicklist'}
 											<input type="hidden" class="fieldname" value='{$FIELD_MODEL->get('name')}[]' data-prev-value='{$FIELD_MODEL->getDisplayValue($FIELD_MODEL->get('fieldvalue'))}' />
 										 {else}
@@ -70,6 +78,9 @@
 					<div class="summaryViewEntries">
 						{vtranslate($RECORD->get('activitytype'),$MODULE_NAME)}&nbsp;-&nbsp; 
 						{if $DETAILVIEW_PERMITTED == 'yes'}<a href="{$RECORD->getDetailViewUrl()}" >{$RECORD->get('subject')}</a>{else}{$RECORD->get('subject')}{/if}&nbsp;
+							{if $RECORD->get('description') && {$RECORD->get('description')|trim} neq '' }
+								<a style="margin-right: 2px;" href="#" class="pull-left" rel="popover" title="{vtranslate('Description', $MODULE)}" data-placement="bottom" data-trigger="hover" data-content="{$RECORD->get('description')}"><i class="icon-info-sign"></i></a>
+                            {/if}
 						{if $EDITVIEW_PERMITTED == 'yes'}<a href="{$RECORD->getEditViewUrl()}" class="fieldValue"><i class="icon-pencil summaryViewEdit" title="{vtranslate('LBL_EDIT',$MODULE_NAME)}"></i></a>{/if}
 					</div>
 				</div>
@@ -89,4 +100,11 @@
 		{/if}
 	</div>
 </div>
+<script type="text/javascript" src="libraries/bootstrap/js/less.min.js"></script>
+	<!-- crm-now added for tool tip (display of activity description contents -->
+<script>
+	jQuery().ready(function(){
+		jQuery('[rel=popover]').popover();
+	});
+</script>
 {/strip}

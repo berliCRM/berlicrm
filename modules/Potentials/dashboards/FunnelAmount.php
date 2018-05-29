@@ -39,9 +39,9 @@ class Potentials_FunnelAmount_Dashboard extends Vtiger_IndexAjax_View {
 		
 		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
 		$data = $moduleModel->getPotentialTotalAmountBySalesStage();
-        $listViewUrl = $moduleModel->getListViewUrl();
+        $listViewUrl = $moduleModel->getListViewUrlWithAllFilter();
         for($i = 0;$i<count($data);$i++){
-            $data[$i]["links"] = $listViewUrl.$this->getSearchParams($data[$i][1]);
+            $data[$i]["links"] = $listViewUrl.$this->getSearchParams($data[$i][2]);
         }
         
 		$widget = Vtiger_Widget_Model::getInstance($linkId, $currentUser->getId());

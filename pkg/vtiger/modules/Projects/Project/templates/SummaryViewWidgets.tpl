@@ -73,7 +73,7 @@
 									{assign var=PICKLIST_VALUES value=$FIELD_MODEL->getPicklistValues()}
 									{assign var="SPECIAL_VALIDATOR" value=$FIELD_MODEL->getValidator()}
 									<select class="chzn-select" name="{$FIELD_MODEL->get('name')}" data-validation-engine="validate[{if $FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-fieldinfo='{$FIELD_INFO|escape}' {if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if} >
-										<option>{vtranslate('LBL_SELECT_STATUS',$MODULE_NAME)}</option>
+										<option value=''>{vtranslate('LBL_SELECT_STATUS',$MODULE_NAME)}</option>
 										{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$PICKLIST_VALUES}
 											<option value="{$PICKLIST_NAME}" {if $FIELD_MODEL->get('fieldvalue') eq $PICKLIST_NAME} selected {/if}>{$PICKLIST_VALUE}</option>
 										{/foreach}
@@ -138,7 +138,7 @@
 									{assign var=PICKLIST_VALUES value=$FIELD_MODEL->getPicklistValues()}
 									{assign var="SPECIAL_VALIDATOR" value=$FIELD_MODEL->getValidator()}
 									<select style="width: 160px;" class="chzn-select" name="{$FIELD_MODEL->get('name')}" data-validation-engine="validate[{if $FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-fieldinfo='{$FIELD_INFO|escape}' {if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if} >
-										<option>{vtranslate('LBL_SELECT_STATUS',$MODULE_NAME)}</option>
+										<option value=''>{vtranslate('LBL_SELECT_STATUS',$MODULE_NAME)}</option>
 										{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$PICKLIST_VALUES}
 											<option value="{$PICKLIST_NAME}" {if $FIELD_MODEL->get('fieldvalue') eq $PICKLIST_NAME} selected {/if}>{$PICKLIST_VALUE}</option>
 										{/foreach}
@@ -177,7 +177,7 @@
 									{assign var=PICKLIST_VALUES value=$FIELD_MODEL->getPicklistValues()}
 									{assign var="SPECIAL_VALIDATOR" value=$FIELD_MODEL->getValidator()}
 									<select style="width: 160px;" class="chzn-select" name="{$FIELD_MODEL->get('name')}" data-validation-engine="validate[{if $FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-fieldinfo='{$FIELD_INFO|escape}' {if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if} >
-										<option>{vtranslate('LBL_SELECT_PROGRESS',$MODULE_NAME)}</option>
+										<option value=''>{vtranslate('LBL_SELECT_PROGRESS',$MODULE_NAME)}</option>
 										{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$PICKLIST_VALUES}
 											<option value="{$PICKLIST_NAME}" {if $FIELD_MODEL->get('fieldvalue') eq $PICKLIST_NAME} selected {/if}>{$PICKLIST_VALUE}</option>
 										{/foreach}

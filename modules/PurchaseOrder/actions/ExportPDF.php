@@ -7,8 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  *************************************************************************************/
+vimport('~~/modules/PurchaseOrder/pdfcreator.php');
+global $adb,$app_strings,$focus,$current_user;
+createpdffile (vtlib_purify($_REQUEST['record']),'print');
 
-vimport('~~/modules/PurchaseOrder/PurchaseOrderPDFController.php');
-
-class PurchaseOrder_ExportPDF_Action extends Inventory_ExportPDF_Action {
-}

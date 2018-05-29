@@ -17,7 +17,7 @@ $tab_seq_array=array('1'=>0,'2'=>0,'3'=>0,'4'=>0,'6'=>0,'7'=>0,'8'=>0,'9'=>0,'10
 
 $tab_ownedby_array=array('1'=>1,'2'=>0,'3'=>1,'4'=>0,'6'=>0,'7'=>0,'8'=>0,'9'=>0,'10'=>1,'13'=>0,'14'=>1,'15'=>1,'16'=>0,'18'=>1,'19'=>1,'20'=>0,'21'=>0,'22'=>0,'23'=>0,'24'=>1,'25'=>1,'26'=>0,'27'=>1,'28'=>1,'29'=>1,);
 
-$action_id_array=array('Save'=>0,'SavePriceBook'=>0,'SaveVendor'=>0,'DetailViewAjax'=>1,'EditView'=>1,'PriceBookEditView'=>1,'QuickCreate'=>1,'VendorEditView'=>1,'Delete'=>2,'DeletePriceBook'=>2,'DeleteVendor'=>2,'index'=>3,'Popup'=>3,'DetailView'=>4,'PriceBookDetailView'=>4,'TagCloud'=>4,'VendorDetailView'=>4,'Import'=>5,'Export'=>6,'Merge'=>8,'ConvertLead'=>9,'DuplicatesHandling'=>10);
+$action_id_array=array('Save'=>0,'SavePriceBook'=>0,'SaveVendor'=>0,'DetailViewAjax'=>1,'EditView'=>1,'PriceBookEditView'=>1,'QuickCreate'=>1,'VendorEditView'=>1,'Delete'=>2,'DeletePriceBook'=>2,'DeleteVendor'=>2,'index'=>3,'Popup'=>3,'DetailView'=>4,'PriceBookDetailView'=>4,'TagCloud'=>4,'VendorDetailView'=>4,'Import'=>5,'Export'=>6,'Merge'=>8,'ConvertLead'=>9,'DuplicatesHandling'=>10,'CreateView'=>7);
 
 $action_name_array=array(0=>'Save',1=>'EditView',2=>'Delete',3=>'index',4=>'DetailView',5=>'Import',6=>'Export',8=>'Merge',9=>'ConvertLead',10=>'DuplicatesHandling');
 ?>

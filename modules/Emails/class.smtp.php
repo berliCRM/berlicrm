@@ -386,7 +386,7 @@ class SMTP {
       $in_headers = true;
     }
 
-    $max_line_length = 998; // used below; set here for ease in change
+    $max_line_length = 990; // used below; set here for ease in change
 
     while(list(,$line) = @each($lines)) {
       $lines_out = null;

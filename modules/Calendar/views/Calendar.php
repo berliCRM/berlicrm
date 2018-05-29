@@ -12,7 +12,12 @@ class Calendar_Calendar_View extends Vtiger_Index_View {
 
 	public function preProcess(Vtiger_Request $request, $display = true) {
 		$viewer = $this->getViewer($request);
-		$viewer->assign('MODULE_NAME', $request->getModule());
+		$moduleName = $request->getModule();
+		$viewer->assign('MODULE_NAME', $moduleName);
+		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
+		$viewer->assign('IS_RECORD_CREATABLE', $moduleModel->isPermitted('CreateView'));
+		$viewer->assign('IS_MODULE_EDITABLE', $moduleModel->isPermitted('EditView'));
+		$viewer->assign('IS_MODULE_DELETABLE', $moduleModel->isPermitted('Delete'));
 
 		parent::preProcess($request, false);
 		if($display) {

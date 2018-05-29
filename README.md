@@ -1,64 +1,49 @@
-Vtiger CRM
+berliCRM
 ==========
 
-Vtiger is a PHP based web application that enables businesses to increase sales wins, marketing ROI, and support satisfaction by providing tools for employees and management work more effectively, capture more data, and derive new actionable insights from across the customer lifecycle.
+berliCRM is a proven and universally applicable open source CRM system for small and medium-sized companies.
+With berliCRM, your marketing, sales and support teams can build and successfully nurture customer relationships.
+
+
+Demo
+------------
+Here you can find a demo.
+https://berlicrm.co.crm-now.de
+Login with: Guest / Guest
+No administration privileges are provided in this demo.
+
+Requirements
+------------
+Hardware requirements:
+At the minimum you should provide 24GB HDD and 2GiB RAM with a 4 core CPU. 
+However, the actual demand depends on your data volume. For better performance it is recommended to provide 100GB HDD and 4GiB RAM with a 8 core CPU. 
+
+Software requirements and installation instructions: 
+http://blog.crm-now.de/doc/berliCRM/installation/Installation_berlicrm.html
+ 
+Provided that your server meets all setup requirements an installation is quick and easily done by a browsers GUI.
+
+
+Documentation
+------------
+User's and administration manuals: http://blog.crm-now.de/doc/berliCRM/help/v1.0/index.html
+
+Security
+------------
+If you discover any security related issues, please contact the berliCRM team.
+
+Credits
+------------
+https://www.vtiger.com and all worldwide contributors
+
+
+License
+------------
+vtiger Public License. Please see License File for more information.
+
 
 Get involved
 ------------
-
-Development on vtiger is done at http://code.vtiger.com
-
-To register for an account, please contact info @ vtiger.com, you will need this to file issues and/or fix the code
-Once you have an account, you can [browse the code](http://code.vtiger.com/vtiger/vtigercrm/tree/master),
-[see if your issue is already reported](http://code.vtiger.com/vtiger/vtigercrm/issues) and if you have a new problem
-to report you can [create an issue](http://code.vtiger.com/vtiger/vtigercrm/issues/new?issue)
-
-If you then want to fix the issue (or another issue) you can create your own fork of vtiger to work on using the
-fork button on the vtiger project, this will create a new git repository for you at
-    
-    http://code.vtiger.com/yourname/vtigercrm.git
-
-on your computer you will need a git client installed and you need to tell git who you are:
-
-    git config --global user.name "YOUR NAME"
-    git config --global user.email "YOUR EMAIL ADDRESS"
-
-now clone your fork of vtiger
-
-    git clone http://code.vtiger.com/yourname/vtigercrm.git
-
-this will pull down from the server your copy of the vtiger code and all the history.
-
-You will make a new branch for your changes, you can give it a descriptive name, once the branch is created
-you will switch to that branch using the checkout command
-
-    git branch fix_projects_on_calendar
-    git checkout fix_projects_on_calendar
-
-Now you can make your changes and commit all changed files with
-
-    git commit -a
-
-Do reference the issue number in your commit message, e.g. "fix #2 display projects on the calendar" the number will
-allow the system to link the commit to the issue.
-
-Now you can push your branch to the server, this creates the branch on the server end and populates it
-
-    git push --set-upstream origin fix_projects_on_calendar
-
-look at the branch on code.vtiger.com and create a merge request from your branch
-to the upstream master, this will be reviewed to see if it fixes the 
-issue and if all is good will be merged into the upstream code.
-You can then switch back to your master branch with
-
-    git checkout master
-
-And you can create additional feature branches from there to fix different things.
-
-If there have been other changes to the central vtiger code that you want in your work area then you can add the central
-repository as an upstream remote (only need to do this bit once), then you can fetch changes and merge them
-
-    git remote add upstream http://code.vtiger.com/vtiger/vtigercrm.git
-    git fetch upstream
-    git merge upstream/master
+Development on berliCRM is done at https://www.berlicrm.de 
+Please look up this site for further information
 

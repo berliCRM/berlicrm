@@ -30,7 +30,7 @@ class Reports_ExportReport_View extends Vtiger_View_Controller {
 		}
 	}
 
-	function preProcess(Vtiger_Request $request) {
+	function preProcess(Vtiger_Request $request, $display=false) {
 		return false;
 	}
 

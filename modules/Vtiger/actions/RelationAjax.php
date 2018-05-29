@@ -56,6 +56,9 @@ class Vtiger_RelationAjax_Action extends Vtiger_Action_Controller {
 		foreach($relatedRecordIdList as $relatedRecordId) {
 			$relationModel->addRelation($sourceRecordId,$relatedRecordId);
 		}
+        $response = new Vtiger_Response();
+        $response->setResult(true);
+        $response->emit();
 	}
 
 	/**

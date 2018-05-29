@@ -143,34 +143,36 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
 		}
 		$relatedModel = $relationModel->getRelationModuleModel();
 
-		if($relatedModel->get('label') == 'Calendar'){
+		if ($relatedModel->isPermitted('CreateView')) {
+			if($relatedModel->get('label') == 'Calendar'){
 
-			$addLinkList[] = array(
-					'linktype' => 'LISTVIEWBASIC',
-					'linklabel' => vtranslate('LBL_ADD_EVENT'),
-					'linkurl' => $this->getCreateEventRecordUrl(),
-					'linkicon' => '',
-			);
-			$addLinkList[] = array(
-					'linktype' => 'LISTVIEWBASIC',
-					'linklabel' => vtranslate('LBL_ADD_TASK'),
-					'linkurl' => $this->getCreateTaskRecordUrl(),
-					'linkicon' => '',
-			);
-		}else{
-			$addLinkList = array(
-				array(
-					'linktype' => 'LISTVIEWBASIC',
-					// NOTE: $relatedModel->get('label') assuming it to be a module name - we need singular label for Add action.
-					'linklabel' => vtranslate('LBL_ADD')." ".vtranslate('SINGLE_' . $relatedModel->getName(), $relatedModel->getName()),
-					'linkurl' => $this->getCreateViewUrl(),
-					'linkicon' => '',
-				)
-			);
-		}
+				$addLinkList[] = array(
+						'linktype' => 'LISTVIEWBASIC',
+						'linklabel' => vtranslate('LBL_ADD_EVENT'),
+						'linkurl' => $this->getCreateEventRecordUrl(),
+						'linkicon' => '',
+				);
+				$addLinkList[] = array(
+						'linktype' => 'LISTVIEWBASIC',
+						'linklabel' => vtranslate('LBL_ADD_TASK'),
+						'linkurl' => $this->getCreateTaskRecordUrl(),
+						'linkicon' => '',
+				);
+			}else{
+				$addLinkList = array(
+					array(
+						'linktype' => 'LISTVIEWBASIC',
+						// NOTE: $relatedModel->get('label') assuming it to be a module name - we need singular label for Add action.
+						'linklabel' => vtranslate('LBL_ADD')." ".vtranslate('SINGLE_' . $relatedModel->getName(), $relatedModel->getName()),
+						'linkurl' => $this->getCreateViewUrl(),
+						'linkicon' => '',
+					)
+				);
+			}
 
-		foreach($addLinkList as $addLink) {
-			$addLinkModel[] = Vtiger_Link_Model::getInstanceFromValues($addLink);
+			foreach($addLinkList as $addLink) {
+				$addLinkModel[] = Vtiger_Link_Model::getInstanceFromValues($addLink);
+			}
 		}
 		return $addLinkModel;
 	}
@@ -225,14 +227,14 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
             $orderByFieldModuleModel = $relationModule->getFieldByColumn($orderBy);
             if($orderByFieldModuleModel && $orderByFieldModuleModel->isReferenceField()) {
                 //If reference field then we need to perform a join with crmentity with the related to field
-                $queryComponents = $split = spliti(' where ', $query);
-                $selectAndFromClause = $queryComponents[0];
-                $whereCondition = $queryComponents[1];
+                $pos = stripos($query,' where ');
+                $selectAndFromClause = substr($query,0,$pos);
+                $whereCondition = substr($query,$pos);
                 $qualifiedOrderBy = 'vtiger_crmentity'.$orderByFieldModuleModel->get('column');
                 $selectAndFromClause .= ' LEFT JOIN vtiger_crmentity AS '.$qualifiedOrderBy.' ON '.
                                         $orderByFieldModuleModel->get('table').'.'.$orderByFieldModuleModel->get('column').' = '.
                                         $qualifiedOrderBy.'.crmid ';
-                $query = $selectAndFromClause.' WHERE '.$whereCondition;
+                $query = $selectAndFromClause.$whereCondition;
                 $query .= ' ORDER BY '.$qualifiedOrderBy.'.label '.$sortOrder;
             } elseif($orderByFieldModuleModel && $orderByFieldModuleModel->isOwnerField()) {
 				 $query .= ' ORDER BY COALESCE(CONCAT(vtiger_users.first_name,vtiger_users.last_name),vtiger_groups.groupname) '.$sortOrder;
@@ -383,13 +385,12 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
 		
 		$query = $queryGenerator->getQuery();
 		
-		$queryComponents = spliti(' FROM ', $query);
-		$query = $queryComponents[0].' ,vtiger_crmentity.crmid FROM '.$queryComponents[1];
-		
-		$whereSplitQueryComponents = spliti(' WHERE ', $query);
-		$joinQuery = ' INNER JOIN '.$parentModuleBaseTable.' ON '.$parentModuleBaseTable.'.'.$parentModuleDirectRelatedField." = ".$relatedModuleBaseTable.'.'.$relatedModuleEntityIdField;
-		
-		$query = "$whereSplitQueryComponents[0] $joinQuery WHERE $parentModuleBaseTable.$parentModuleEntityIdField = $parentRecordId AND $whereSplitQueryComponents[1]";
+        $pos = stripos($query,' from ');
+        $query = substr($query,0,$pos).', vtiger_crmentity.crmid'.substr($query,$pos);
+
+		$pos = stripos($query,' where ');
+		$joinQuery = 'INNER JOIN '.$parentModuleBaseTable.' ON '.$parentModuleBaseTable.'.'.$parentModuleDirectRelatedField." = ".$relatedModuleBaseTable.'.'.$relatedModuleEntityIdField;
+		$query = substr($query,0,$pos)." $joinQuery WHERE $parentModuleBaseTable.$parentModuleEntityIdField = $parentRecordId AND ".substr($query,$pos+7);
 		
 		return $query;
 	}
@@ -428,26 +429,21 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
 	}
 	
 	/**
-	 * Function to get Total number of record in this relation
+	 * Function to get Total number of record in this relation (by string-transforming RelationQuery)
 	 * @return <Integer>
 	 */
 	public function getRelatedEntriesCount() {
 		$db = PearDatabase::getInstance();
 		$relationQuery = $this->getRelationQuery();
-		$relationQuery = ereg_replace("[ \t\n\r]+", " ", $relationQuery);
-		$position = stripos($relationQuery,' from ');
-		if ($position) {
-			$split = spliti(' FROM ', $relationQuery);
-			$splitCount = count($split);
-			$relationQuery = 'SELECT COUNT(DISTINCT vtiger_crmentity.crmid) AS count'; 
-			for ($i=1; $i<$splitCount; $i++) {
-				$relationQuery = $relationQuery. ' FROM ' .$split[$i];
-			}
+		$relationQuery = preg_replace("/[ \t\n\r]+/", " ", $relationQuery);
+        $pos = stripos($relationQuery,' FROM '); // replace "SELECT col1,col2,..." by "SELECT COUNT.."
+		if ($pos !== false) {
+			$relationQuery = 'SELECT COUNT(DISTINCT vtiger_crmentity.crmid) AS count' . substr($relationQuery,$pos); 
 		}
-        if(strpos($relationQuery,' GROUP BY ') !== false){
-            $parts = explode(' GROUP BY ',$relationQuery);
-            $relationQuery = $parts[0];
-        }
+        $pos = stripos($relationQuery,' GROUP BY '); // remove any GROUPing
+        if ($pos !== false) {
+            $relationQuery = substr($relationQuery,0,$pos);
+        }   
 		$result = $db->pquery($relationQuery, array());
 		return $db->query_result($result, 0, 'count');
 	}
@@ -475,13 +471,13 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
 		}
 
 		$pos = stripos($relationQuery, 'where');
-		if ($pos) {
-			$split = spliti('where', $relationQuery);
-			$updatedQuery = $split[0] . ' WHERE ' . $split[1] . ' AND ' . $condition;
-		} else {
-			$updatedQuery = $relationQuery . ' WHERE ' . $condition;
-		}
-		return $updatedQuery;
+        if($pos) {
+                $relationQuery .= ' AND ' . $condition;
+            } else {
+                $relationQuery .= ' WHERE ' . $condition;
+            }
+
+		return $relationQuery;
 	}
     
     public function getCurrencySymbol($recordId, $fieldModel) {

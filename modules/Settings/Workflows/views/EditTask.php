@@ -157,6 +157,7 @@ class Settings_Workflows_EditTask_View extends Settings_Vtiger_Index_View {
             $itemsBlock = "LBL_ITEM_DETAILS";
             unset($structure[$itemsBlock]);
         }
+		$allFieldoptions = '<option value="$id">'.vtranslate($moduleModel->getName(), $moduleModel->getName()).' ID</option>';
 		foreach($structure as $fields) {
 			foreach($fields as $field) {
 				$allFieldoptions .= '<option value="$'.$field->get('workflow_columnname').'">'.

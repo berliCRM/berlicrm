@@ -1133,12 +1133,15 @@ function send_mail_for_password($mailid)
 	$user_name = $adb->query_result($res,0,'user_name');
 	$password = $adb->query_result($res,0,'user_password');
 	$isactive = $adb->query_result($res,0,'isactive');
+	$portalId = $adb->query_result($res,0,'id');
 
 	// We no longer have the original password!
-	if (!empty($adb->query_result($res, 0, 'cryptmode'))) {
-		$password = '*****';
-		// TODO - we need to send link to reset the password
-		// For now CRM user can do the same.
+	$cmode = $adb->query_result($res, 0, 'cryptmode');
+	if (!empty($cmode)) {
+		$password = makeRandomPassword();
+		$enc_password = Vtiger_Functions::generateEncryptedPassword($password);
+		$updateUserPWquery = "UPDATE vtiger_portalinfo SET user_password = ? WHERE id = ?";
+		$adb->pquery($updateUserPWquery,array($enc_password,$portalId));
 	}
 
 	$fromquery = "select vtiger_users.user_name, vtiger_users.email1 from vtiger_users inner join vtiger_crmentity on vtiger_users.id = vtiger_crmentity.smownerid inner join vtiger_contactdetails on vtiger_contactdetails.contactid=vtiger_crmentity.crmid where vtiger_contactdetails.email =?";

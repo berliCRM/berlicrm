@@ -154,7 +154,7 @@ class Calendar_Detail_View extends Vtiger_Detail_View {
 	 * Function shows basic detail for the record
 	 * @param <type> $request
 	 */
-	function showModuleBasicView($request) {
+	function showModuleBasicView(Vtiger_Request $request) {
 		return $this->showModuleDetailView($request);
 	}
 

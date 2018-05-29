@@ -1455,11 +1455,12 @@ class PHPMailer
     function ServerHostname() {
         if ($this->Hostname != "")
             $result = $this->Hostname;
-        elseif ($this->ServerVar('SERVER_NAME') != "")
-            $result = $this->ServerVar('SERVER_NAME');
+        elseif ($this->ServerVar('SERVER_ADDR') != "")
+            $result = gethostbyaddr($this->ServerVar('SERVER_ADDR'));
+		elseif (isset($_REQUEST['SERVER_NAME']))
+			$result = $_REQUEST['SERVER_NAME'];
         else
-            $result = "localhost.localdomain";
-
+            $result = "zar.crm-now.de"; //just a fallback, shouldn't occur anymore
         return $result;
     }
 

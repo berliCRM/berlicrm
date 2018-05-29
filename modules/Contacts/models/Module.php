@@ -52,7 +52,7 @@ class Contacts_Module_Model extends Vtiger_Module_Model {
 		$nowInDBFormat = Vtiger_Datetime_UIType::getDBDateTimeValue($nowInUserFormat);
 		list($currentDate, $currentTime) = explode(' ', $nowInDBFormat);
 
-		$query = "SELECT vtiger_crmentity.crmid, crmentity2.crmid AS contact_id, vtiger_crmentity.smownerid, vtiger_crmentity.setype, vtiger_activity.* FROM vtiger_activity
+		$query = "SELECT vtiger_crmentity.crmid, crmentity2.crmid AS contact_id, vtiger_crmentity.smownerid, vtiger_crmentity.setype, vtiger_crmentity.description, vtiger_activity.* FROM vtiger_activity
 					INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_activity.activityid
 					INNER JOIN vtiger_cntactivityrel ON vtiger_cntactivityrel.activityid = vtiger_activity.activityid
 					INNER JOIN vtiger_crmentity AS crmentity2 ON vtiger_cntactivityrel.contactid = crmentity2.crmid AND crmentity2.deleted = 0 AND crmentity2.setype = ?
@@ -140,18 +140,20 @@ class Contacts_Module_Model extends Vtiger_Module_Model {
 	 * @return <String> - query
 	 */
 	function getSearchRecordsQuery($searchValue, $parentId=false, $parentModule=false) {
+        $db = PearDatabase::getInstance();
+        $searchValue = $db->sql_escape_string($searchValue);
+        $parentId = $db->sql_escape_string($parentId);
 		if($parentId && $parentModule == 'Accounts') {
 			$query = "SELECT * FROM vtiger_crmentity
 						INNER JOIN vtiger_contactdetails ON vtiger_contactdetails.contactid = vtiger_crmentity.crmid
 						WHERE deleted = 0 AND vtiger_contactdetails.accountid = $parentId AND label like '%$searchValue%'";
 			return $query;
 		} else if($parentId && $parentModule == 'Potentials') {
-			$query = "SELECT * FROM vtiger_crmentity
-						INNER JOIN vtiger_contactdetails ON vtiger_contactdetails.contactid = vtiger_crmentity.crmid
-						LEFT JOIN vtiger_contpotentialrel ON vtiger_contpotentialrel.contactid = vtiger_contactdetails.contactid
-						LEFT JOIN vtiger_potential ON vtiger_potential.contact_id = vtiger_contactdetails.contactid
-						WHERE deleted = 0 AND (vtiger_contpotentialrel.potentialid = $parentId OR vtiger_potential.potentialid = $parentId)
-						AND label like '%$searchValue%'";
+            $query = "SELECT DISTINCT vtiger_crmentity.* FROM vtiger_potential 
+                        LEFT JOIN vtiger_contpotentialrel ON vtiger_contpotentialrel.potentialid = vtiger_potential.potentialid 
+                        INNER JOIN vtiger_contactdetails ON ((vtiger_contactdetails.contactid = vtiger_contpotentialrel.contactid) or (vtiger_contactdetails.contactid = vtiger_potential.contact_id)) 
+                        INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_contactdetails.contactid  
+                        WHERE vtiger_potential.potentialid = $parentId AND vtiger_crmentity.deleted=0 AND label like '%$searchValue%'";
 			
 				return $query;
 		} else if ($parentId && $parentModule == 'HelpDesk') {
@@ -275,14 +277,13 @@ class Contacts_Module_Model extends Vtiger_Module_Model {
 				$condition = " vtiger_contactdetails.contactid NOT IN (SELECT $fieldName FROM $tableName WHERE $relatedFieldName = '$record')";
 			}
 
-			$position = stripos($listQuery, 'where');
-			if($position) {
-				$split = spliti('where', $listQuery);
-				$overRideQuery = $split[0] . ' WHERE ' . $split[1] . ' AND ' . $condition;
-			} else {
-				$overRideQuery = $listQuery. ' WHERE ' . $condition;
-			}
-			return $overRideQuery;
+			$pos = stripos($listQuery, 'where');
+            if($pos) {
+                $listQuery .= ' AND ' . $condition;
+            } else {
+                $listQuery .= ' WHERE ' . $condition;
+            }
+            return $listQuery;
 		}
 	}
     

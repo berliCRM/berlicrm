@@ -11,6 +11,7 @@
 -->*}
 <input type="hidden" id="module" value="Install" />
 <input type="hidden" id="view" value="Index" />
+<input type="hidden" id="svn_tag"  name="svn_tag" value="{$SVNTAG}" />
 <div class="container-fluid page-container">
 	<div class="row-fluid">
 		<div class="span6">

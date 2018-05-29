@@ -27,3 +27,9 @@ $languageStrings = array(
 	'In Service'                   => 'unterstützt'                , 
 	'Out-of-service'               => 'wird nicht mehr unterstützt', 
 );
+
+$jsLanguageStrings = array(
+	'of' => 'von',
+	'to' => 'bis',
+);
+?>

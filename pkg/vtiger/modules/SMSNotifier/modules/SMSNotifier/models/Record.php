@@ -17,12 +17,11 @@ class SMSNotifier_Record_Model extends Vtiger_Record_Model {
 
 	public function checkStatus() {
 		$statusDetails = SMSNotifier::getSMSStatusInfo($this->get('id'));
-
-		$statusColor = $this->getColorForStatus($statusDetails[0]['status']);
-
-		$data = array_merge($statusDetails[0], array('statuscolor' => $statusColor));
-		$this->setData($data);
-
+		foreach ($statusDetails as $statkey => $status_array) {
+			$status_array['statuscolor'] = $this->getColorForStatus($status_array['status']);
+			$messagedetails [$statkey] = $status_array;
+			$this->set('messagedetails', $messagedetails);
+		}
 		return $this;
 	}
 

@@ -35,7 +35,7 @@ class Events_Module_Model extends Calendar_Module_Model {
             $invities = implode(';',$selectUsers);
             $mail_contents = $recordModel->getInviteUserMailData();
             $activityMode = ($recordModel->getModuleName()=='Calendar') ? 'Task' : 'Events';
-            sendInvitation($invities,$activityMode,$recordModel->get('subject'),$mail_contents);
+            sendInvitation($invities,$activityMode,$recordModel->get('subject'),$mail_contents,$recordModel->get('id'));
         }
     }
 

@@ -14,7 +14,7 @@
         {assign var=IMAGE_DETAILS value=$RECORD->getImageDetails()}
 		{foreach key=ITER item=IMAGE_INFO from=$IMAGE_DETAILS}
 			{if !empty($IMAGE_INFO.path)}
-				<img src="{$IMAGE_INFO.path}_{$IMAGE_INFO.orgname}" alt="{$IMAGE_INFO.orgname}" title="{$IMAGE_INFO.orgname}" width="65" height="80" align="left"><br>
+				<img src="{$IMAGE_INFO.path}" alt="{$IMAGE_INFO.orgname}" title="{$IMAGE_INFO.orgname}" width="65" height="80" align="left"><br>
 			{else}
 				<img src="{vimage_path('summary_Contact.png')}" class="summaryImg"/>
 			{/if}

@@ -52,5 +52,8 @@ include_once 'config.security.php';
         echo '<tr><td width="80%"><span>Configuration file Updated</span></td><td style="color:green">Success</td></tr>';
     }
 }
+
+//crm-now: change typeofdata of createdtime and modifiedtime to reflect their real types
+$adb->pquery("UPDATE vtiger_field SET typeofdata = ? WHERE columnname IN (?,?);", array("DT~O", "createdtime", "modifiedtime"));
 }
 ?>

@@ -222,6 +222,7 @@ class Vtiger_LanguageExport extends Vtiger_Package {
 				$languageinfo[$prefix] = $label;
 			}
 		}
+		asort($languageinfo);
 		return $languageinfo;
 	}
 }

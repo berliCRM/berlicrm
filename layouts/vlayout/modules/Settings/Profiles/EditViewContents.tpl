@@ -30,7 +30,7 @@
     <div class="summaryWidgetContainer">
         <label class="checkbox">
             <input type="hidden" name="viewall" value="0" />
-            <input type="checkbox" name="viewall" {if $RECORD_MODEL->hasGlobalReadPermission()}checked="true"{/if} />
+            <input type="checkbox" name="viewall" {if $RECORD_MODEL->hasGlobalReadPermission()}checked="true"{/if} />&nbsp;
             {vtranslate('LBL_VIEW_ALL',$QUALIFIED_MODULE)}
             <span style="margin-left:25px">
                 <i class="icon-info-sign"></i>
@@ -39,7 +39,7 @@
         </label>
         <label class="checkbox">
             <input type="hidden" name="editall" value="0" />
-            <input type="checkbox" name="editall" {if $RECORD_MODEL->hasGlobalWritePermission()}checked="true"{/if} />
+            <input type="checkbox" name="editall" {if $RECORD_MODEL->hasGlobalWritePermission()}checked="true"{/if} />&nbsp;
             {vtranslate('LBL_EDIT_ALL',$QUALIFIED_MODULE)}
             <span style="margin-left:30px">
                 <i class="icon-info-sign"></i>
@@ -59,6 +59,10 @@
 					{'LBL_VIEW_PRVILIGE'|vtranslate:$QUALIFIED_MODULE}
 				</th>
 				<th width="14%" style="border-left: 1px solid #DDD !important;">
+					<input {if empty($RECORD_ID) && empty($IS_DUPLICATE_RECORD)} class="alignTop" checked="true"{/if} type="checkbox" id="mainAction7CheckBox" />&nbsp;
+					{'LBL_CREATE_PRVILIGE'|vtranslate:$QUALIFIED_MODULE}
+				</th>
+				<th width="14%" style="border-left: 1px solid #DDD !important;">
 					<input {if !$RECORD_ID} class="alignTop"  checked="true" {/if} type="checkbox" id="mainAction1CheckBox" />&nbsp;
 					{'LBL_EDIT_PRVILIGE'|vtranslate:$QUALIFIED_MODULE}
 				</th>
@@ -66,7 +70,7 @@
 					<input checked="true" class="alignTop" type="checkbox" id="mainAction2CheckBox" />&nbsp;
 					{'LBL_DELETE_PRVILIGE'|vtranslate:$QUALIFIED_MODULE}
 				</th>
-				<th width="28%" style="border-left: 1px solid #DDD !important;" nowrap="nowrap">{'LBL_FIELD_AND_TOOL_PRVILIGES'|vtranslate:$QUALIFIED_MODULE}</th>
+				<th width="14%" style="border-left: 1px solid #DDD !important;" nowrap="nowrap">{'LBL_FIELD_AND_TOOL_PRVILIGES'|vtranslate:$QUALIFIED_MODULE}</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -79,7 +83,7 @@
 					<td>
 						<input class="modulesCheckBox alignTop" type="checkbox" name="permissions[{$TABID}][is_permitted]" data-value="{$TABID}" data-module-state="" {if $RECORD_MODEL->hasModulePermission($PROFILE_MODULE)}checked="true"{else} data-module-unchecked="true" {/if}> {$PROFILE_MODULE->get('label')|vtranslate:$PROFILE_MODULE->getName()}
 					</td>
-					{assign var="BASIC_ACTION_ORDER" value=array(2,0,1)}
+					{assign var="BASIC_ACTION_ORDER" value=array(2,3,0,1)}
 					{foreach from=$BASIC_ACTION_ORDER item=ORDERID}
 						<td style="border-left: 1px solid #DDD !important;">
 							{assign var="ACTION_MODEL" value=$ALL_BASIC_ACTIONS[$ORDERID]}

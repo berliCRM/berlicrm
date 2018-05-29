@@ -170,6 +170,16 @@ Vtiger_Detail_Js("Accounts_Detail_Js",{
                         else
                             relatedController.addRelatedRecord(element);
 		})
-	}
+	},
+    
+    registerEvents : function() {
+		this._super();
+		var detailContentsHolder = this.getContentHolder();
+		var thisInstance = this;
 
+		detailContentsHolder.on('click','.moreRecentContacts', function(){
+            var recentContactsTab = thisInstance.getTabByLabel("Contacts");
+			recentContactsTab.trigger('click');
+		});
+	}
 });

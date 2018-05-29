@@ -40,7 +40,7 @@ class Vtiger_PackageImport extends Vtiger_PackageExport {
 	/**
 	 * Constructor
 	 */
-	function Vtiger_PackageImport() {
+	function __construct() {
 		parent::__construct();
 	}
 
@@ -233,9 +233,11 @@ class Vtiger_PackageImport extends Vtiger_PackageExport {
 		}
 
                 // Verify module language file.
-		if(!empty($language_modulename) && $language_modulename == $modulename) {
-			$languagefile_found = true;
-		}
+		// if(!empty($language_modulename) && $language_modulename == $modulename) {
+			// $languagefile_found = true;
+		// }
+		//crm-now: we do not check for language files, since we have them in the file tree
+		$languagefile_found = true; 
 
 		if(!empty($this->_modulexml) &&
 			!empty($this->_modulexml->dependencies) &&
@@ -535,7 +537,7 @@ class Vtiger_PackageImport extends Vtiger_PackageExport {
         }
 		$schemafile = fopen($fileToOpen, 'w');
 		if($schemafile) {
-			fwrite($schemafile, "<?xml version='1.0'?>\n");
+			fwrite($schemafile, "<?xml version='1.0' encoding='UTF-8'?>\n");
 			fwrite($schemafile, "<schema>\n");
 			fwrite($schemafile, "\t<tables>\n");
 		}

@@ -762,6 +762,8 @@ class Services extends CRMEntity {
 				ON vtiger_pricebookproductrel.pricebookid = vtiger_pricebook.pricebookid
 			INNER JOIN vtiger_pricebookcf
 				ON vtiger_pricebookcf.pricebookid = vtiger_pricebook.pricebookid
+			INNER JOIN vtiger_service
+				ON vtiger_service.serviceid = vtiger_pricebookproductrel.productid
 			WHERE vtiger_crmentity.deleted = 0
 			AND vtiger_pricebookproductrel.productid = ".$id;
 		$log->debug("Exiting get_product_pricebooks method ...");

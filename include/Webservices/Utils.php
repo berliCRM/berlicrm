@@ -75,6 +75,20 @@ function vtws_getVtigerVersion(){
 	return $version;
 }
 
+/**
+ * crm-now: get tag version version from the database.
+ */
+function vtws_getTagVersion(){
+	global $adb;
+	$query = 'select * from vtiger_version';
+	$result = $adb->pquery($query, array());
+	$tag_version = '';
+	while($row = $adb->fetch_array($result)) {
+		$tag_version = $row['tag_version'];
+	}
+	return $tag_version;
+}
+
 function vtws_getUserAccessibleGroups($moduleId, $user){
 	global $adb;
 	require('user_privileges/user_privileges_'.$user->id.'.php');
@@ -765,6 +779,33 @@ function vtws_saveLeadRelatedCampaigns($leadId, $relatedId, $seType) {
 }
 
 /**
+ * Function used to save the lead related DSGVO with Contact
+ * @param $leadid - leadid
+ * @param $relatedid - related entity id (contactid)
+ * @param $setype - related module(Accounts/Contacts)
+ * @return Boolean true on success, false otherwise.
+ */
+function vtws_saveLeadRelatedDSGVO($leadId, $relatedId, $seType) {
+	global $adb;
+
+	$result = $adb->pquery("select * from vtiger_gdpr where leadid=?", array($leadId));
+	if($result === false){
+		return false;
+	}
+	$rowCount = $adb->num_rows($result);
+	for($i = 0; $i < $rowCount; ++$i) {
+		if ($seType == 'Contacts') {
+			$resultNew = $adb->pquery("update vtiger_gdpr set contactid =?  where leadid=?",
+				array($relatedId, $leadId));
+		}
+		if($resultNew === false){
+			return false;
+		}
+	}
+	return true;
+}
+
+/**
  * Function used to transfer all the lead related records to given Entity(Contact/Account) record
  * @param $leadid - leadid
  * @param $relatedid - related entity id (contactid/accountid)
@@ -793,6 +834,11 @@ function vtws_transferLeadRelatedRecords($leadId, $relatedId, $seType) {
 			"Failed to move Records to the ".$seType);
 	}
 	$status = vtws_saveLeadRelatedCampaigns($leadId, $relatedId, $seType);
+	if($status === false){
+		throw new WebServiceException(WebServiceErrorCode::$LEAD_RELATED_UPDATE_FAILED,
+			"Failed to move Records to the ".$seType);
+	}
+	$status = vtws_saveLeadRelatedDSGVO($leadId, $relatedId, $seType);
 	if($status === false){
 		throw new WebServiceException(WebServiceErrorCode::$LEAD_RELATED_UPDATE_FAILED,
 			"Failed to move Records to the ".$seType);

@@ -23,7 +23,12 @@ class RecycleBin {
  		if($eventType == 'module.postinstall') {			
 			// Mark the module as Standard module
 			$adb->pquery('UPDATE vtiger_tab SET customized=0 WHERE name=?', array($moduleName));
-			
+
+            // enable ModTracker
+            $recycleBinModule  = Vtiger_Module::getInstance('RecycleBin');
+            require_once('modules/ModTracker/ModTracker.php'); 
+            ModTracker::enableTrackingForModule($recycleBinModule->id);
+
 		} else if($eventType == 'module.disabled') {
 		// TODO Handle actions when this module is disabled.
 		} else if($eventType == 'module.enabled') {

@@ -77,43 +77,35 @@ class VtigerLineItemOperation  extends VtigerActorOperation {
 	 * @throws WebServiceException - Database error
 	 */
 	public function getAllLineItemForParent($parentId){
-		if(is_array($parentId)){
-			$result = null;
-			$query = "SELECT * FROM {$this->entityTableName} WHERE id IN (". generateQuestionMarks($parentId) .")";
-			$transactionSuccessful = vtws_runQueryAsTransaction($query,array($parentId),$result);
-			if(!$transactionSuccessful){
-				throw new WebServiceException(WebServiceErrorCode::$DATABASEQUERYERROR,
-					"Database error while performing required operation");
-			}
-			$lineItemList = array();
-			if($result){
-				$rowCount = $this->pearDB->num_rows($result);
-				for ($i = 0 ; $i < $rowCount ; ++$i) {
-					$element = $this->pearDB->query_result_rowdata($result,$i);
-					$element['parent_id'] = $parentId;
-					$lineItemList[$element['id']][] = DataTransform::filterAndSanitize($element,$this->meta);
-				}
-			}
-			return $lineItemList;
-		}else{
-			$result = null;
-			$query = "select * from {$this->entityTableName} where id=?";
-			$transactionSuccessful = vtws_runQueryAsTransaction($query,array($parentId),$result);
-			if(!$transactionSuccessful){
-				throw new WebServiceException(WebServiceErrorCode::$DATABASEQUERYERROR,
-					"Database error while performing required operation");
-			}
-			$lineItemList = array();
-			if($result){
-				$rowCount = $this->pearDB->num_rows($result);
-				for ($i = 0 ; $i < $rowCount ; ++$i) {
-					$element = $this->pearDB->query_result_rowdata($result,$i);
-					$element['parent_id'] = $parentId;
-					$lineItemList[] = DataTransform::filterAndSanitize($element,$this->meta);
-				}
-			}
-			return $lineItemList;
+		$transform = false;
+		if(!is_array($parentId)) {
+			$parentId = array($parentId);
+			$transform = true;
 		}
+		$result = null;
+		$query = "SELECT * FROM {$this->entityTableName}
+				  WHERE id IN (". generateQuestionMarks($parentId) .")";
+		$transactionSuccessful = vtws_runQueryAsTransaction($query,$parentId,$result);
+		if(!$transactionSuccessful){
+			throw new WebServiceException(WebServiceErrorCode::$DATABASEQUERYERROR,
+				"Database error while performing required operation");
+		}
+		$lineItemList = array();
+		if($result){
+			$rowCount = $this->pearDB->num_rows($result);
+			for ($i = 0 ; $i < $rowCount ; ++$i) {
+				$element = $this->pearDB->query_result_rowdata($result,$i);
+				$element['parent_id'] = $element['id'];
+				unset($element['id']);
+				$payload = DataTransform::filterAndSanitize($element,$this->meta);
+				if ($transform) {
+					$lineItemList[] = $payload;
+				} else {
+					$lineItemList[$element['id']][] = $payload;
+				}
+			}
+		}
+		return $lineItemList;
 	}
 
 	public function _create($elementType, $element){
@@ -280,7 +272,7 @@ class VtigerLineItemOperation  extends VtigerActorOperation {
 		$parentId = $parentId[1];
 
 		$parent = $this->getParentById($element['parent_id']);
-		if(empty($element['listprice'])){
+		if(empty($element['listprice']) && $element['listprice'] != 0){
 			$productId = vtws_getIdComponents($element['productid']);
 			$productId = $productId[1];
 			$element['listprice'] = $this->getProductPrice($productId);
@@ -292,6 +284,7 @@ class VtigerLineItemOperation  extends VtigerActorOperation {
 		$updatedLineItemList['parent_id'] = $element['parent_id'];
 		$this->setCache($parentId, $updatedLineItemList);
 		$this->updateInventoryStock($element,$parent);
+		$this->updateParent($element, $parent);
 		return $createdLineItem;
 	}
 
@@ -315,7 +308,7 @@ class VtigerLineItemOperation  extends VtigerActorOperation {
 		if($location === false){
 			throw new WebserviceException('UNKOWN_CHILD','given line  item is not child of parent');
 		}
-		if(empty($element['listprice'])){
+		if(empty($element['listprice']) && $element['listprice'] != 0){
 			$productId = vtws_getIdComponents($element['productid']);
 			$productId = $productId[1];
 			$element['listprice'] = $this->getProductPrice($productId);
@@ -324,6 +317,7 @@ class VtigerLineItemOperation  extends VtigerActorOperation {
 		deleteInventoryProductDetails($parentObject);
 		$this->resetInventoryStock($element, $parent);
 		$updatedLineItemList = array();
+		$elementType = 'LineItem';
 		foreach ($lineItemList as $lineItem) {
 			$id = vtws_getIdComponents($lineItem['id']);
 			$this->newId = $id[1];

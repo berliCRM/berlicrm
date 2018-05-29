@@ -100,6 +100,27 @@ $languageStrings = array(
         'Summary' => 'Summary', 
         'Module' => 'Module', 
         'Execution Condition' => 'Execution Condition',
+	//added for workflows
+	'LBL_INVENTORY_UPDATE'=>'Update Products Inventory on every save',
+	'LBL_SEND_OWNER_EMAIL'=>'Send email to user when notify owner is true',
+	'LBL_SEND_PORTAL_EMAIL'=>'Send email to user when portal user is activated',
+	'LBL_SEND_POTENTIAL_EMAIL'=>'Send email to users on Potential creation',
+	'LBL_CONT_CRE_OR_MOD'=>'Workflow for Contact creation or modification',
+	'LBL_PORTAL_TICKET_CR_EMAIL'=>'Ticket creation from Customer Portal: Send email to record owner and contact',
+	'LBL_EVENT_NOTIFY_EMAIL'=>'Workflow for Events when Send Notification is activated',
+	'LBL_TASK_NOTIFY_EMAIL'=>'Workflow for Tasks when Send Notification is activated',
+	'LBL_CALC_FORECAST'=>'Calculate or update forecast amount',
+	'LBL_COMMENT_PORTAL_EMAIL'=>'Comment added coming from Portal: Send email to record owner',
+	'LBL_COMMENT_CRM_EMAIL'=>'Comment added coming from CRM: Send email to contact, if Contact is not Customer Portal user',
+	'LBL_COMMENT_CRM_PORTAL_EMAIL'=>'Comment added coming from CRM: Send email to contact, if Contact is Customer Portal user',
+	'LBL_COMMENT_ORG_EMAIL'=>'Comment added coming from CRM: Send email to organization',
+	'LBL_PO_INVENTORY_UPDATE'=>'Update Products Inventory on every save',
+	'LBL_TICKET_UPDATE_EMAIL'=>'Send email to Organization on Ticket update',
+	'LBL_TICKET_CREATE_ORG_EMAIL'=>'Ticket creation from CRM: Send email to Organization',
+	'LBL_TICKET_CREATE_CON_EMAIL'=>'Ticket creation from CRM: Send email to Contact',
+	'LBL_TICKET_UPDATE_OWNER_EMAIL'=>'Ticket update from CRM: Send email to record owner',
+	'LBL_TICKET_CREATE_OWNER_EMAIL'=>'Ticket creation from CRM: Send email to record owner',
+	
 );
 
 $jsLanguageStrings = array(

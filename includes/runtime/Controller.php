@@ -121,6 +121,7 @@ abstract class Vtiger_View_Controller extends Vtiger_Action_Controller {
 			$viewer = new Vtiger_Viewer();
 			$viewer->assign('APPTITLE', getTranslatedString('APPTITLE'));
 			$viewer->assign('VTIGER_VERSION', $vtiger_current_version);
+			$viewer->assign('SVN_TAG', $_SESSION['svn_tag']);
 			$viewer->assign('MODULE_NAME', $request->getModule());
 			$this->viewer = $viewer;
 		}
@@ -128,7 +129,15 @@ abstract class Vtiger_View_Controller extends Vtiger_Action_Controller {
 	}
 
 	function getPageTitle(Vtiger_Request $request) {
-		return vtranslate($request->getModule(), $request->get('module'));
+		if ($request->get('module')=='Vtiger' and $request->get('parent')=='Settings') {
+			return vtranslate('LBL_CRM_SETTINGS', $request->get('module'));
+		}
+		elseif ($request->get('view') == 'Login') {
+			return vtranslate('LBL_TO_CRM', $request->get('module'));
+		}
+		else {
+			return vtranslate($request->getModule(), $request->get('module'));
+		}
 	}
 
 	function preProcess(Vtiger_Request $request, $display=true) {
@@ -286,6 +295,9 @@ abstract class Vtiger_View_Controller extends Vtiger_Action_Controller {
 	 */
 	function getJSLanguageStrings(Vtiger_Request $request) {
 		$moduleName = $request->getModule(false);
+		if ($moduleName === 'Settings:Users') {
+			$moduleName = 'Users';
+		} 
 		return Vtiger_Language_Handler::export($moduleName, 'jsLanguageStrings');
 	}
 }

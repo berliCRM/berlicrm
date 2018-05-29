@@ -13,7 +13,7 @@ class Settings_Vtiger_ListAjax_View extends Settings_Vtiger_List_View {
 		parent::__construct();
 	}
 
-	function preProcess(Vtiger_Request $request) {
+	function preProcess(Vtiger_Request $request, $display=false) {
 		return true;
 	}
 

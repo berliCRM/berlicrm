@@ -57,6 +57,8 @@ class DateTimeField {
 	 * @return String
 	 */
 	public function getDBInsertDateTimeValue($user = null) {
+		//fix empty time value issue that leads to unconverted days
+		if (strpos($this->datetime, ' ') === false) $this->datetime .= " 00:00:00";
 		return $this->getDBInsertDateValue($user) . ' ' .
 				$this->getDBInsertTimeValue($user);
 	}

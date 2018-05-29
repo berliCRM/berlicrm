@@ -9,7 +9,7 @@
  *************************************************************************************/
 
 class Inventory_Detail_View extends Vtiger_Detail_View {
-	function preProcess(Vtiger_Request $request) {
+	function preProcess(Vtiger_Request $request, $display = true) {
 		$viewer = $this->getViewer($request);
 		$viewer->assign('NO_SUMMARY', true);
 		parent::preProcess($request);
@@ -33,7 +33,7 @@ class Inventory_Detail_View extends Vtiger_Detail_View {
 		return $this->showModuleDetailView($request);
 	}
 
-	function showModuleBasicView($request) {
+	function showModuleBasicView(Vtiger_Request $request) {
 		return $this->showModuleDetailView($request);
 	}
 	/**

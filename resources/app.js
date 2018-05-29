@@ -95,7 +95,7 @@ var app = {
 		var chosenElement = selectElement.chosen();
 		var chosenSelectConainer = jQuery('.chzn-container');
 		//Fix for z-index issue in IE 7
-		if (jQuery.browser.msie && jQuery.browser.version === "7.0") {
+		if (navigator.appVersion.indexOf("MSIE 7.") != -1) {
 			var zidx = 1000;
 			chosenSelectConainer.each(function(){
 				$(this).css('z-index', zidx);
@@ -460,7 +460,7 @@ var app = {
 		if(element.length == 0){
 			return;
 		}
-		element.autosize();
+		autosize(element);
 	},
 
 	registerEventForDatePickerFields : function(parentElement,registerForAddon,customParams){
@@ -508,6 +508,7 @@ var app = {
 			locale: $.fn.datepicker.dates[lang[0]],
 			starts: convertedFirstDay,
 			eventName : 'focus',
+            today: app.vtranslate('JS_TODAY'),
 			onChange: function(formated){
                 var element = jQuery(this).data('datepicker').el;
                 element = jQuery(element);
@@ -571,7 +572,7 @@ var app = {
 	 */
 	registerEventForTimeFields : function(container, registerForAddon, params) {
 
-		if(typeof cotainer == 'undefined') {
+		if(typeof container == 'undefined') {
 			container = jQuery('body');
 		}
 		if(typeof registerForAddon == 'undefined'){
@@ -620,7 +621,7 @@ var app = {
 	 */
 	destroyTimeFields : function(container) {
 
-		if(typeof cotainer == 'undefined') {
+		if(typeof container == 'undefined') {
 			container = jQuery('body');
 		}
 
@@ -945,10 +946,10 @@ jQuery(document).ready(function(){
 		return  value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
 	}
 
-    // in IE resize option for textarea is not there, so we have to use .resizable() api
-    if(jQuery.browser.msie || (/Trident/).test(navigator.userAgent)) {
-        jQuery('textarea').resizable();
-    }
+    // in IE resize option for textarea is not there, so we have to use .resizable() api - removed, BUGGY!
+    // if(/Trident/.test(navigator.userAgent)) {
+        // jQuery('textarea').resizable();
+    // }
     
 	// Instantiate Page Controller
 	var pageController = app.getPageController();

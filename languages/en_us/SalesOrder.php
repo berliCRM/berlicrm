@@ -49,6 +49,34 @@ $languageStrings = array(
         'Net 30 days' => 'Net 30 days', 
         'Net 45 days' => 'Net 45 days', 
         'Net 60 days' => 'Net 60 days', 
+
+	'Cancel' => 'Cancel',
+ 	'LBL_BALANCE' => 'Total',
+	
+	//crm-now added for PDF saving as document
+	'LBL_PDFSUBJECT'=>'safed PDF from a sales order with the subject',
+	'LBL_PDF_FOLDERNAME'=>'safed PDFs from Sales Orders',
+	'LBL_PDF_FOLDERDES_DETAIL'=>'PDF outputs which has been saved at a Sales Order detail view.',
+
+    // product search popup
+    'Part Number' => 'Part Number',
+    'Product Active' => 'Product Active',
+    'Product Category' => 'Product Category',
+    'Product Image' => 'Product Image',
+    'Product No' => 'Product No',
+    'Product Sheet' => 'Product Sheet',
+    'Manufacturer' => 'Manufacturer',
+    'Mfr PartNo' => 'Mfr PartNo',
+    'Vendor PartNo' => 'Vendor PartNo',
+    'Serial No' => 'Serial No',
+    'Unit Price' => 'Unit Price',
+    'GL Account' => 'GL Account',
+    'Qty In Demand' => 'Qty In Demand',
+    'Qty In Stock' => 'Qty In Stock',
+    'Qty/Unit' => 'Qty/Unit',
+    'Reorder Level' => 'Reorder Level',
+    'Handler' => 'Handler',
+
 );
 
 $jsLanguageStrings = array(

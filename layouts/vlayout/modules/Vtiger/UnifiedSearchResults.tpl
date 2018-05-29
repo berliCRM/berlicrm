@@ -16,7 +16,7 @@
     {assign var=modulesCount value=count($searchRecords)}
     {assign var="totalCount" value=$totalCount+$modulesCount}
 {/foreach}
-<div class="globalSearchResults" style="max-width: 280px;">
+<div class="globalSearchResults">
 	<div class="row-fluid">
 		<div class="header highlightedHeader padding1per">
 			<div class="row-fluid">
@@ -55,7 +55,7 @@
 				{assign var=DETAILVIEW_URL value=$recordObject->getDetailViewUrl()}
 				<li id="{$ID}">
 					<a target="_blank" id="{$ID}_link" class="cursorPointer" {if stripos($DETAILVIEW_URL, 'javascript:')===0} 
-							onclick='{$DETAILVIEW_URL|substr:strlen("javascript:")}' {else} onclick='window.location.href="{$DETAILVIEW_URL}"' {/if}>{$recordObject->getName()}
+							onclick='{$DETAILVIEW_URL|substr:strlen("javascript:")}' {else} onclick='window.open("{$DETAILVIEW_URL}")' {/if}>{$recordObject->getName()}
 						<span id="{$ID}_time" class="pull-right" title="{Vtiger_Util_Helper::formatDateTimeIntoDayString($recordObject->get('createdtime'))}">{Vtiger_Util_Helper::formatDateDiffInStrings($recordObject->get('createdtime'))}</span>
 					</a>
 				</li>

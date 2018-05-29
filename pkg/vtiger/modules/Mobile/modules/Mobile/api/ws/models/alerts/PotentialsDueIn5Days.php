@@ -24,7 +24,7 @@ class Mobile_WS_AlertModel_PotentialsDueIn5Days extends Mobile_WS_AlertModel {
 					"vtiger_potential.sales_stage not like 'Closed%' AND 
 					DATEDIFF(vtiger_potential.closingdate, CURDATE()) <= 5"
 				);
-		return preg_replace("/^SELECT count\(\*\) as count(.*)/i", "SELECT crmid $1", Vtiger_Functions::mkCountQuery($sql));
+		return preg_replace("/^SELECT count\(\*\) as count(.*)/i", "SELECT crmid $1", mkCountQuery($sql));
 	}
 	
 	function queryParameters() {

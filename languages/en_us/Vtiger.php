@@ -22,7 +22,7 @@ $languageStrings = array(
 	'Annual Revenue' => 'Annual Revenue',
 	'Apparel' => 'Apparel',  //Duplicated key-value pairs
 	'Approved' => 'Approved',
-	'APPTITLE' => 'vtiger CRM',
+	'APPTITLE' => 'CRM',
 	'Assets' => 'Assets',
 	'Assigned To' => 'Assigned To',
 	'Banking' => 'Banking', //Duplicated key-value pairs
@@ -194,6 +194,8 @@ $languageStrings = array(
 	'LBL_CREATE_NEW_FILTER' => 'Create New Filter',
 	'LBL_CREATE_VIEW' => 'Creating new view',
 	'LBL_CREATING_NEW' => 'Creating New',
+	'LBL_CREATING_FROM_COPY' => 'Creating Duplicate:',
+	'LBL_CREATING_FROM_COPY_WITH_CONTENT' => 'Creating Complete Duplicate:',
 	'LBL_CRM_SETTINGS' => 'CRM Settings',
 	'LBL_CURRENCY' => 'Currency',
 	'LBL_CURRENT_FQ' => 'Current FQ',
@@ -276,7 +278,7 @@ $languageStrings = array(
 	'LBL_GUIDER' => 'Guider',
 	'LBL_HANDLER_NOT_FOUND' => 'Handler not found',
 	'LBL_HELP' => 'Help',
-	'LBL_HIDE_COMPLETED_EVENTS' => 'Hide Completed Calendar Events',
+	'LBL_HIDE_COMPLETED_EVENTS' => 'Hide completed calendar events',
 	'LBL_HOME' => 'Home',
 	'LBL_HOUR' => 'hour',
 	'LBL_HOURS' => 'hours',
@@ -284,7 +286,7 @@ $languageStrings = array(
 	'LBL_IMPORT' => 'Import',
 	'LBL_IN' => 'in',
 	'LBL_INDIVIDUAL' => 'Individual',
-	'LBL_INVENTORY' => 'INVENTORY',
+	'LBL_INVENTORY' => 'Inventory',
 	'LBL_IS_EMPTY' => 'is empty',
 	'LBL_IS_NOT_EMPTY' => 'is not empty',
 	'LBL_ITEMS_TOTAL' => 'Items Total',
@@ -303,8 +305,8 @@ $languageStrings = array(
 	'LBL_LAST_SAVED_ON' => 'Last saved on',
 	'LBL_LAST_VIEWED_RECORDS' => 'Last Viewed Records',
 	'LBL_LAST_WEEK' => 'Previous Week',
-	'LBL_LESS_THAN' => 'less than', 
-	'LBL_LESS_THAN_OR_EQUAL' => 'less or equal', //Duplicated key-value pairs
+	'LBL_LESS_THAN' => 'fewer than', 
+	'LBL_LESS_THAN_OR_EQUAL' => 'fewer or equal', //Duplicated key-value pairs
 	'LBL_LISTVIEW_PAGE_JUMP' => 'Page Jump',
 	'LBL_LIST_IN_METRICS' => 'List in Metrics',
 	'LBL_LIST_PRICE' => 'List Price',
@@ -318,7 +320,7 @@ $languageStrings = array(
 	'LBL_MARK_AS_HELD' => 'Mark As Held',
 	'LBL_MASS_EDITING' => 'Mass Editing',
 	'LBL_MATCHED_THIS_CRITERIA' => 'matched this criteria',
-	'LBL_MAX_NUMBER_FILTER_COLUMNS' => 'Max 12',
+	'LBL_MAX_NUMBER_FILTER_COLUMNS' => 'Max. 12',
 	'LBL_MAX_QTY_SELECT' => 'Maximum value is',
 	'LBL_MAX_UPLOAD_SIZE' => 'Maximum upload size is',
 	'LBL_May' => 'May',
@@ -430,7 +432,7 @@ $languageStrings = array(
 	'LBL_SECONDS' => 'seconds',
 	'LBL_SELECT' => 'Select',
 	'LBL_SELECT_ALL' => 'Select all',
-	'LBL_SELECT_EMAIL_IDS' => 'Select Email Addresses',
+	'LBL_SELECT_EMAIL_IDS' => 'Select email addresses',
 	'LBL_SELECT_EMAIL_TEMPLATE' => 'Select Email Template',
 	'LBL_SELECT_FIELD' => 'Select Field',
 	'LBL_SELECT_MODULE' => 'Select Module',
@@ -649,7 +651,143 @@ $languageStrings = array(
        'LBL_CURRENT_DATE' => 'Current Date',
        'LBL_CURRENT_TIME' => 'Current Time',
     
-        'LBL_LEFT_PANEL_SHOW_HIDE' => 'Left panel show/hide'
+        'LBL_LEFT_PANEL_SHOW_HIDE' => 'Left panel show/hide',
+ 	
+	//added for outgoing mail server
+	'LBL_CONFIRM_SUBJECT'=>'email server setup confirmation',
+	'LBL_CONFIRM_BODY'=>'This is an automatic message from your CRM System. <br>It confirms the connectivity between your mail server and the CRM.<br>',
+	
+	//crm-now added missing labels
+ 	'SMSNotifier' => 'SMS Notifier',
+	//crm-now added crmtogo
+ 	'crmtogo' => 'CRM To Go',
+
+	//added for inventory menues
+	'LBL_LETTER'=>'Cover Letter',
+	'LBL_CONCLUSION'=>'Conclusion',
+	
+	//password settings
+	'LBL_PASSWORDHEADER' => 'PASSWORD REQUIREMENTS',
+	'LBL_PASSOWRDRULES' => 'REQUIRED:<br>- Min. 10 characters<br><br>PASSWORD CONTAINS AT LEAST THREE OF THE FOLLOWING FOUR CHARACTER GROUPS:<br>- Min. 1 uppercase character<br>- Min. 1 lowercase character<br>- Min. 1 Number<br>- Min. 1 special character , ! ? , ; - @ #<br><br>In accordance to the GDPR regulations you should use different passwords for different access needs.',
+	
+	//settings menu
+	'LBL_USER_DESCRIPTION' => 'Manage users who can access the CRM',
+	'LBL_LIST_WORKFLOWS_DESCRIPTION' => 'Create and edit workflows',
+	'VTLIB_LBL_MODULE_MANAGER_DESCRIPTION' => 'Manage module behaviour inside the CRM',
+	'VTLIB_LBL_MODULE_MANAGER' => 'Module Manager',
+	'LBL_PICKLIST_DESCRIPTION' => 'Customize Picklist values in each module',
+	'LBL_PICKLIST_EDITOR' => 'Picklist Editor',
+	'LBL_LIST_WORKFLOWS' => 'Workflows',
+	
+	//missed translations
+	'CustomerPortal'=>'Customer Portal',
+	'group' => 'group',
+	'individual' => 'individual',
+
+	//List View Colors
+	'ListViewColors' => 'List View Colors',
+	
+	//translation for boolean in list view
+	'yes' => 'yes',
+	'no' => 'no',
+	
+	//global search menu
+	'Search' => 'Globale Suche',
+
+	//Added for special crm-now Notification
+	'Dear_Admin_tasks_not_been_completed' => 'This is an automatic Message from your CRM System. Please note that there are certain tasks in the system which have not been completed even after 24 hours of their start date.<br>',
+	'Task_Not_completed' => 'task not completed',
+	'Task_sign'=>'Thank You<br>',
+	'Dear_Team' => 'Dear Team,<br>',
+	'Dear_Team_Time_to_Party' => '<br>Congratulations! <br>We closed a deal worth more than 10000!<br> Time to hit the dance floor!<br>',
+	'Potential_Name' => 'Potential Name:',
+	'Potential_Id' => 'Potential Id:',
+	'Pending_Ticket_notification' => 'Pending Ticket notification',
+	'Kind_Attention' => 'This is an automatic CRM message to bring to your attention that ticket number ',
+	'Thank_You_HelpDesk' => ' is yet to be closed<br> Thank You<br> ',
+	'Too_many_pending_tickets' => 'Too many pending tickets',
+	'Dear_Admin_too_many_tickets_pending' => 'Dear CRM Administrator,<br><br>this is an automatic CRM message to bring to your attention that there are more than 10 tickets pending. Please take the necessary action required for addressing this issue.<br><br>Thank you',
+	'Support_starting' => 'Support starting',
+	'Hello_Support' => 'Hello! Support Starts for',
+	'Congratulations' => 'Congratulations! Your support starts from today',
+	'Support_Ending_Subject' => 'Reg: Support Ending',
+	'Support_Ending_Content' => 'This is an automatic message to bring to your attention that the support for the product <b>',
+	'kindly_renew' => '</b> ends shortly. Please contact our sales team.<br><br>Thank You<br>',
+	//crm-now: Mail Converter settings menu
+	'LBL_MAX_LIMIT_EXCEEDED' => 'The maximum number of mailboxes is reached.',
+	//crm-now: Delivery Note
+	'LBL_EXPORT_DELIVERYNOTE_PDF' => 'Export Delivery Note as PDF',
+	//crm-now: better grammar
+	'LBL_DAYS_N' => 'days',
+	
+	//crm-now: missing label used in CustomView
+	'COMBO_ALL' => 'Alle',
+
+    //No Tax exist 
+    'JS_LBL_NO_TAXES'=>'no taxes assigned',
+	
+	// softphones
+	'LBL_SOFTPHONES' => 'Softphones',
+	'berliSoftphones' => 'Softphones',
+	
+	'Reports' => 'Reports',
+	'RecycleBin' => 'Recycle Bin',
+	'Pdfsettings' => 'PDF Settings',
+	'EmailTemplates' => 'Email Templates',
+	'PBXManager' => 'PBX Manager',
+
+	// Clever Reach
+	'LBL_CLEVERREACH' => 'Clever Reach',
+	'berliCleverReach' => 'Clever Reach',
+	
+	//Hubspot
+	'LBL_HUBSPOT' => 'HubSpot',
+	'berliHubSpot' => 'HubSpot',
+	
+	//language grammar fix
+	'LBL_HISTORY_TO' => 'to',
+	
+	//better grammar in inventory
+	'LBL_ADD_ADJUSTMENT' => 'add',
+	
+	//ADDED FOR COMMENTS
+	'Comments'=>'Comments',
+	
+	//ADDED FOR DUPLICATE SEARCH
+	'LBL_DUPLICATES'=>'Duplicates in',
+    
+    'LBL_MASSOP_APPEND_TEXT'=>'Append text (don\'t replace)',
+    'LBL_MASSOP_APPEND_MULTIPICKLIST'=>'Add selection (don\'t replace)',
+
+	'LBL_REMOVE_DUPLICATES'=>'Remove Duplicates',
+	
+    //Copy CustomView
+    'LBL_SAVE_AS_COPY'=>'Save as New View',
+    'LBL_COPY_APPENDIX'=>'(copy)',
+    
+     //Dynamic Blocks
+    'LBL_FIELD_HIDDEN_NOTICE' => 'A field has been hidden in dependency of a picklist value.',
+    'LBL_FIELDS_HIDDEN_NOTICE' => '%d fields have been hidden in dependency of a picklist value.',
+    'LBL_BLOCK_HIDDEN_NOTICE' => 'A block has been hidden in dependency of a picklist value.',
+    'LBL_BLOCKS_HIDDEN_NOTICE' => '%d blocks have been hidden in dependency of a picklist value.',
+    'LBL_SHOW_HIDDEN_ONCE' => 'Display once.',
+	
+	//berlimap
+    'berlimap' => 'Map',
+
+	// GDPR module
+	'gdpr' => 'GDPR',
+ 	//PDF GDPR information
+	'LBL_DSGVO_NAME' => 'DSGVO Information',
+	'LBL_CONTACT_RELATED_DATA' => 'stored personal data',
+	'LBL_GDPR_INQUIRY' => 'We hereby give you the information about the personal data stored by us.',
+	'LBL_GDPR_INQUIRY_OTHER_MODULE' => 'this information are usd for',
+ 	'LBL_GDPR_DATA_USAGE1' => 'Your personal data will be used exclusively in our company and will not be given to others. Your data will be stored exclusively in a Member State of the European Union or in another state party to the Agreement on the European Economic Area. Your data will be erased if it is no longer necessary for the purposes for which it was collected or otherwise processed.',
+ 	'LBL_GDPR_DATA_USAGE2' => 'Taking into account the state of the art, the implementation costs and the nature, scope, circumstances and purposes of the data processing as well as the different likelihood and severity of the risk to the rights and freedoms of natural persons, appropriate technical and organizational measures have been taken to mitigate the risk to your personal data.',
+ 	'LBL_GDPR_DATA_USAGE3' => 'You can request the correction, deletion and blocking of individual personal data at any time. In addition, you can use your right of objection at any time without stating any reasons and partially or completely revoke the storage of your personal data. You can submit the withdrawal either by post, by e-mail or by fax. You will not incur any costs.',
+	
+	//Reports
+	'LBL_REALPRICE'=>'Actual Price',
 );
 
 $jsLanguageStrings = array(
@@ -659,7 +797,7 @@ $jsLanguageStrings = array(
 	'JS_ACCEPT_ONLY_NUMBER' => 'Accepts only numbers',
 	'JS_ACCEPT_POSITIVE_NUMBER' => 'Accepts only positive numbers',
 	'JS_ALLOWED_TO_SELECT_MAX_OF_THREE_RECORDS' => 'You are allowed to select a maximum of three records',
-	'JS_ARE_YOU_SURE_TO_DELETE_WIDGET' => 'Are you sure to delete widget',
+	'JS_ARE_YOU_SURE_TO_DELETE_WIDGET' => 'Are you sure that the widget should get deleted?',
 	'JS_CAN_NOT_REMOVE_DEFAULT_WIDGET' => 'Cannot remove Default Widget',
 	'JS_CHECK_FILE_INTEGRITY' => 'Check File Integrity',
 	'JS_CONTAINS_ILLEGAL_CHARACTERS' => 'contains illegal characters',
@@ -668,21 +806,21 @@ $jsLanguageStrings = array(
 	'JS_DUPLIACATE_ENTRIES_FOUND_FOR_THE_VALUE' => 'Duplicate entries found for the value',
 	'JS_DUPLICATE_ENTRIES_FOUND_FOR_THE_VALUE' => 'Duplicate entries found for the value',
 	'JS_DUPLICATE_RECORD' => 'Duplicate Record',
-	'JS_DUPLICTAE_CREATION_CONFIRMATION' => 'Organization Name already Exists.Do you want to create a duplicate record?',
+	'JS_DUPLICTAE_CREATION_CONFIRMATION' => 'The organization name already exists. Do you want to create a duplicate record?',
 	'JS_EMAIL_SERVER_CONFIGURATION' => 'Please configure your outgoing server settings from the settings page',
 	'JS_END_DATE_TIME' => 'End Date & Time',
 	'JS_ERROR' => 'Error',
 	'JS_FAILED_TO_SAVE' => 'Failed to save changes on server',
 	'JS_FIELD_MAPPED_MORE_THAN_ONCE' => 'Field mapped more than once',
-	'JS_IMPORT_FILE_CAN_NOT_BE_EMPTY' => 'Import File cannot be Empty',
+	'JS_IMPORT_FILE_CAN_NOT_BE_EMPTY' => 'Import File cannot be empty',
 	'JS_INFORMATION' => 'Information',
 	'JS_INVALID_PAGE_NUMBER' => 'Invalid Page Number',
 	'JS_IS_DISABLED' => 'is disabled',
 	'JS_IS_ENABLED' => 'is enabled',
 	'JS_ITEMS' => 'items',
-	'JS_ITEMS_DELETED_SUCCESSFULLY' => 'Items Deleted Successfully',
-	'JS_ITEM_ADDED_SUCCESSFULLY' => 'Item added Successfully',
-	'JS_ITEM_RENAMED_SUCCESSFULLY' => 'Item Renamed Successfully',
+	'JS_ITEMS_DELETED_SUCCESSFULLY' => 'Items deleted successfully',
+	'JS_ITEM_ADDED_SUCCESSFULLY' => 'Item added successfully',
+	'JS_ITEM_RENAMED_SUCCESSFULLY' => 'Item renamed successfully',
 	'JS_LBL_ARE_YOU_SURE_YOU_WANT_TO_DELETE' => 'Are you sure that you want to delete?',
 	'JS_LBL_CANCEL' => 'Cancel',
 	'JS_LBL_COMMENT_VALUE_CANT_BE_EMPTY' => 'Comment value cannot be empty',
@@ -691,41 +829,41 @@ $jsLanguageStrings = array(
 	'JS_MAP_MANDATORY_FIELDS' => 'Please map mandatory fields',
 	'JS_MAP_NAME_ALREADY_EXISTS' => 'Map Name already exists',
 	'JS_MAP_NAME_CAN_NOT_BE_EMPTY' => 'Map Name cannot be empty',
-	'JS_MASS_EDIT_LIMIT' => 'Mass Edit operation can be done on 500 or less records at a time',
-	'JS_MAX_FILE_UPLOAD_EXCEEDS' => 'max file Upload exceeds',
+	'JS_MASS_EDIT_LIMIT' => 'Mass Edit operation can be done on 500 or fewer records at a time',
+	'JS_MAX_FILE_UPLOAD_EXCEEDS' => 'max. file Upload exceeds',
 	'JS_MAX_TAG_LENGTH_EXCEEDS' => 'Tag length exceeds max size',
 	'JS_MESSAGE' => 'Message', //Duplicated key-value pairs
 	'JS_MINUTES' => 'mins',
 	'JS_MODULE_DISABLED' => 'Module Disabled',
 	'JS_MODULE_ENABLED' => 'Module Enabled',
-	'JS_MORE_THAN_ONE_ITEM_SELECTED' => 'More than one Item selected',
+	'JS_MORE_THAN_ONE_ITEM_SELECTED' => 'More than one item selected',
 	'JS_NO_CREATE_OR_NOT_QUICK_CREATE_ENABLED' => 'No create permissions or not enabled for quick create',
 	'JS_NO_ITEM_SELECTED' => 'No item Selected',
-	'JS_NO_RECORDS_RELATED_TO_THIS_FILTER' => 'No Records Related to this Filter',
+	'JS_NO_RECORDS_RELATED_TO_THIS_FILTER' => 'No records related to this filter',
 	'JS_NO_RESULTS_FOUND' => 'No Results Found',
-	'JS_NO_VIEW_PERMISSION_AFTER_SAVE' => 'You will not have permissions to view this record after save. Would you like to continue?',
-	'JS_NUMBER_SHOULD_BE_LESS_THAN_32' => 'Number should be less than 32',
+	'JS_NO_VIEW_PERMISSION_AFTER_SAVE' => 'You will not have the permissions to view this record after save. Would you like to continue?',
+	'JS_NUMBER_SHOULD_BE_LESS_THAN_32' => 'Number should be fewer than 32',
 	'JS_PAGE_NOT_EXIST' => 'Page not exist',
 	'JS_PBX_CALL_FROM' => 'Call From',
 	'JS_PBX_FILL_ALL_FIELDS'=>'Please fill all the fields',
 	'JS_PBX_INCOMING_CALL' => 'Incoming Call',
 	'JS_PBX_OUTGOING_FAILURE'=>'Call Failed',
 	'JS_PBX_OUTGOING_SUCCESS'=>'Pick up the extension receiver to dial the number',
-	'JS_PERCENTAGE_VALUE_SHOULD_BE_LESS_THAN_100' => 'Percentage value should be less than 100',
+	'JS_PERCENTAGE_VALUE_SHOULD_BE_LESS_THAN_100' => 'Percentage value should be fewer than 100',
 	'JS_PHONE_NUMBER_LENGTH_EXCEEDED' => 'phone number length exceeded limit',
 	'JS_PLEASE_ENABLE_BASE_CURRENCY_FOR_PRODUCT' => 'Please enable base currency for product',
 	'JS_PLEASE_ENTER_A_TAG' => 'Please enter a tag',
 	'JS_PLEASE_ENTER_DECIMAL_VALUE' => 'Please enter decimal value',
 	'JS_PLEASE_ENTER_INTEGER_VALUE' => 'Please enter integer value',
-	'JS_PLEASE_ENTER_PRIMARY_EMAIL_VALUE_TO_ENABLE_PORTAL_USER' => 'Please enter Primary email address to enable portal user',
+	'JS_PLEASE_ENTER_PRIMARY_EMAIL_VALUE_TO_ENABLE_PORTAL_USER' => 'Please enter primary email address to enable portal user',
 	'JS_PLEASE_ENTER_SOME_TEXT_FOR_COMMENT' => 'Please enter some text for comment',
 	'JS_PLEASE_ENTER_SOME_VALUE' => 'Please enter some value to search',
-	'JS_PLEASE_ENTER_VALID_DATE' => 'Please Enter Valid Date',
+	'JS_PLEASE_ENTER_VALID_DATE' => 'Please enter a valid date.',
 	'JS_PLEASE_ENTER_VALID_EMAIL_ADDRESS' => 'Please enter a valid email address',
 	'JS_PLEASE_ENTER_VALID_TIME' => 'Please Enter Valid Time',
-	'JS_PLEASE_SELECT_AN_ACCOUNT_TO_COPY_ADDRESS' => 'Please select an Organization to copy address',
-	'JS_PLEASE_SELECT_AN_CONTACT_TO_COPY_ADDRESS' => 'Please select a Contact to copy address',
-	'JS_PLEASE_SELECT_ATLEAST_ONE_MANDATORY_FIELD' => 'Please select at least one Mandatory Field',
+	'JS_PLEASE_SELECT_AN_ACCOUNT_TO_COPY_ADDRESS' => 'Please select an organization to copy address',
+	'JS_PLEASE_SELECT_AN_CONTACT_TO_COPY_ADDRESS' => 'Please select a contact to copy address',
+	'JS_PLEASE_SELECT_ATLEAST_ONE_MANDATORY_FIELD' => 'Please select at least one mandatory field',
 	'JS_PLEASE_SELECT_ATLEAST_ONE_OPTION' => 'Please select at least one option',
 	'JS_PLEASE_SELECT_BASE_CURRENCY_FOR_PRODUCT' => 'Please select base currency for product',
 	'JS_PLEASE_SELECT_ONE_FIELD_FOR_MERGE' => 'Select at least one field for merge criteria',
@@ -740,28 +878,28 @@ $jsLanguageStrings = array(
 	'JS_REQUIRED_FIELD' => '* This field is required',
 	'JS_SELECTED_ACCOUNT_DOES_NOT_HAVE_AN_ADDRESS' => 'Selected Organization does not contain address to copy',
 	'JS_SELECTED_CONTACT_DOES_NOT_HAVE_AN_ADDRESS' => 'Selected Contact does not contain address to copy',
-	'JS_SELECT_ATLEAST_TWO_RECORD_FOR_MERGING' => 'Select atleast two records for merging',
+	'JS_SELECT_ATLEAST_TWO_RECORD_FOR_MERGING' => 'Select at least two records for merging',
 	'JS_SELECT_FILE_EXTENSION' => 'Please select a file with the following extension:',
 	'JS_SELECT_MODULE' => 'Please Select Module', //Duplicated key-value pairs
 	'JS_SELECT_RECORDS_TO_MERGE_FROM_SAME_GROUP' => 'You have to select the records in the same groups for merging',
-	'JS_SHORTCUT_ALREADY_ADDED' => 'This shortcut is already added',
+	'JS_SHORTCUT_ALREADY_ADDED' => 'This short-cut is already added',
 	'JS_SHOULD_BE_GREATER_THAN_CURRENT_DATE' => 'should be greater than Current Date',
 	'JS_SHOULD_BE_GREATER_THAN_OR_EQUAL_TO' => 'should be greater than or equal to',
-	'JS_SHOULD_BE_LESS_THAN_CURRENT_DATE' => 'should be less than Current Date', //Duplicated key-value pairs
-	'JS_SHOULD_BE_LESS_THAN_OR_EQUAL_TO' => 'should be less than or equal to',
+	'JS_SHOULD_BE_LESS_THAN_CURRENT_DATE' => 'should be fewer than Current Date', //Duplicated key-value pairs
+	'JS_SHOULD_BE_LESS_THAN_OR_EQUAL_TO' => 'should be fewer than or equal to',
 	'JS_SMS_SERVER_CONFIGURATION' => 'Please configure your SMS notifier from the SMS notifier settings page',
 	'JS_START_DATE_TIME' => 'Start Date & Time',
-	'JS_SUCCESSFULLY_PINNED' => 'Shortcut added successfully',
-	'JS_SUCCESSFULLY_UNPINNED' => 'Shortcut removed successfully',
+	'JS_SUCCESSFULLY_PINNED' => 'Short-cut added successfully',
+	'JS_SUCCESSFULLY_UNPINNED' => 'Short-cut removed successfully',
 	'JS_TAG_NAME_ALREADY_EXIST' => 'Tag name already exist',
 	'JS_THIS_DOCUMENT_HAS_ALREADY_BEEN_SELECTED' => 'This Document has already been attached',
 	'JS_THIS_FILE_HAS_ALREADY_BEEN_SELECTED' => 'This File has already been selected',
 	'JS_TOTAL_RECORDS' => 'Total records',
 	'JS_UPLOADED_FILE_SIZE_EXCEEDS' => 'Uploaded file size exceeds',
-	'JS_UPLOADED_FILE_SIZE_SHOULD_BE_LESS_THAN' => 'Upload file size should be less than',
+	'JS_UPLOADED_FILE_SIZE_SHOULD_BE_LESS_THAN' => 'Upload file size should be fewer than',
 	'JS_USER_EXISTS' => 'User Already Exists',
 	'JS_VALUE_SHOULD_BE_GREATER_THAN_ZERO' => 'value should be greater than zero',
-	'JS_VALUE_SHOULD_NOT_BE_LESS_THAN' => 'Frequency of any cron job configured should not be less than',
+	'JS_VALUE_SHOULD_NOT_BE_LESS_THAN' => 'Frequency of any cron job configured should not be fewer than',
 	'JS_YOU_ARE_IN_PAGE_NUMBER' => 'You are in page number',
 	'JS_YOU_CAN_SELECT_ONLY' => 'You can select only',
 	'JS_DECIMAL_SEPARATOR_AND_GROUPING_SEPARATOR_CANT_BE_SAME' => 'Decimal separator and Grouping separator cant be same',
@@ -769,7 +907,7 @@ $jsLanguageStrings = array(
 	'LBL_DELETE_USER_CONFIRMATION' => 'When a User is deleted, the user will be marked as "Inactive" and no new records can be assigned to the User, and the user will not be able to login. Are you sure you want to delete?',
 	'LBL_RESTORE_CONFIRMATION' => 'Records previously assigned to this user will not be restored. Are you sure you want to restore this user?',
     'LBL_DELETE_USER_PERMANENT_CONFIRMATION' => 'Once deleted this user cannot be restored back. Are you sure you want to delete this user permanently?',
-    'LBL_IMAGE_DELETED_SUCCESSFULLY' => 'Image Deleted Successfully',
+    'LBL_IMAGE_DELETED_SUCCESSFULLY' => 'Image deleted successfully',
 	'LBL_IMAGE_NOT_DELETED' => 'Image Not Deleted',
 	'LBL_MASS_DELETE_CONFIRMATION' => 'Are you sure you want to delete the selected Records?',
 	'LBL_NO' => 'No',
@@ -788,14 +926,56 @@ $jsLanguageStrings = array(
     
         //Inventory module Translations
         'JS_PLEASE_ENABLE_PRODUCT_OR_SERVICE_MODULE'=>'Please Enable Product or Service Module',
-        'LBL_SYNC_BUTTON' => 'Syncronize',
-        'LBL_SYNCRONIZING' => 'Syncronizing',
+        'LBL_SYNC_BUTTON' => 'Synchronize',
+        'LBL_SYNCRONIZING' => 'Synchronizing',
     
         'JS_RECORDS_TRANSFERRED_SUCCESSFULLY' => 'Records ownership transferred successfully.',
     
     //Edit view mode Translations
         'JS_CHANGES_WILL_BE_LOST' => 'Your Changes Will Be Lost!',
-    
+
     //Mass edit failure
     'JS_MASS_EDIT_NOT_SUCCESSFULL' => 'Mass edit of some record is not successfull',
+
+	//labels not available in vtiger en_us file
+    'JS_VIEWNAME_ALERT' => 'The view name can have up to 40 characters.',
+    'JS_NO_DELETE_PERMISSION' => 'you do not have a permission to delete',
+    'JS_CONFIRM_MARK_AS_HELD' => 'Do you want to mark this as held?',
+    'JS_TODO_MARKED_AS_COMPLETED' => 'The task is marked as completed.',
+    'JS_EVENT_MARKED_AS_HELD' => 'The event is marked as held.',
+    'JS_FUTURE_EVENT_CANNOT_BE_MARKED_AS_HELD' => 'Events in the future can not be marked as held.',
+    'JS_PERMISSION_DENIED' => 'You do not have a permission for this operation.',
+    'JS_EXCEEDS_MAX_UPLOAD_SIZE' => 'The max. upload size has been exceeded.',
+	'JS_FUTURE_EVENT_CANNOT_BE_HELD' => 'Events in the future can not be marked as held.',
+	//User Login History menu
+	'LoginHistory' => 'CRM Users Login History',
+	'LBL_LOGIN_HISTORY_DETAILS' => 'Login History',
+	'LBL_LOGIN_HISTORY_DESCRIPTION' => 'Login History Details',
+	'LBL_USER_NAME'=> 'User Name',
+	'LBL_USER_IP_ADDRESS'=> 'User IP Address', 
+	'LBL_LOGIN_TIME' => 'logged in',
+	'LBL_LOGGED_OUT_TIME' => 'logged out', 
+	//others
+	'Mobile Call' => 'mobile call ',
+	'Key Metrics' => 'Key Metrics',
+	'LBL_STATUS' => 'Status',
+ 	'SMSNotifier' => 'SMS Messages',
+	//password
+	'JS_PASSWORD_CHANGE'=>'Password Change',
+	'JS_PASSWORD_OK'=>'The password has been changed.',
+	'JS_INCORRECTPW' => 'Your password does not match the rules!',
+	
+	'LBL_SUCCESS' => 'exercised successfully',
+
+	//crm-now: added for duplicate removal in List View
+	'JS_PLEASE_SELECT_CORRECT_RECORDNO' => 'Please select 2 or 3 data sets.',
+	'JS_RECORDS_DUPLICATE_REMOVED' => 'duplicate removed',
+
+    'JS_TODAY' => 'today',
+	
+	//crm-now: added for PDF document storage
+    'JS_PDF_DOC_SAVED' => 'The PDF has been saved as document',
+	
+    'JS_RECORD_LOCKED_BY_USER' => 'This record is currently being edited by user {user} and is temporarily locked for further editing.',
+	
 );

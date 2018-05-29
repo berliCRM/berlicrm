@@ -7,37 +7,37 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-include_once 'libraries/HTTP_Session2/HTTP/Session2.php';
+include_once 'libraries/HTTP_Session/Session.php';
 
 class Mobile_API_Session {
-
+	
 	function __construct() {
 	}
-
+	
 	static function destroy($sessionid = false) {
 		HTTP_Session_Destroy($sessionid);
 	}
-
+	
 	static function init($sessionid = false) {
 		if(empty($sessionid)) {
-			HTTP_Session2::start(null, null);
-			$sessionid = HTTP_Session2::id();
+			HTTP_Session::start(null, null);
+			$sessionid = HTTP_Session::id();
 		} else {
-			HTTP_Session2::start(null, $sessionid);
+			HTTP_Session::start(null, $sessionid);
 		}
-
-		if(HTTP_Session2::isIdle() || HTTP_Session2::isExpired()) {
+		
+		if(HTTP_Session::isIdle() || HTTP_Session::isExpired()) {
 			return false;
 		}
 		return $sessionid;
 	}
-
+	
 	static function get($key, $defvalue = '') {
-		return HTTP_Session2::get($key, $defvalue);
+		return HTTP_Session::get($key, $defvalue);
 	}
-
+	
 	static function set($key, $value) {
-		HTTP_Session2::set($key, $value);
+		HTTP_Session::set($key, $value);
 	}
-
+	
 }

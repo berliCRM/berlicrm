@@ -62,12 +62,11 @@ class Accounts_Module_Model extends Vtiger_Module_Model {
 
 			$position = stripos($listQuery, 'where');
 			if($position) {
-				$split = spliti('where', $listQuery);
-				$overRideQuery = $split[0] . ' WHERE ' . $split[1] . ' AND ' . $condition;
+				$listQuery .= ' AND ' . $condition;
 			} else {
-				$overRideQuery = $listQuery. ' WHERE ' . $condition;
+				$listQuery .= ' WHERE ' . $condition;
 			}
-			return $overRideQuery;
+			return $listQuery;
 		}
 	}
 

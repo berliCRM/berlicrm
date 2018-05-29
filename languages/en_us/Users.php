@@ -6,6 +6,7 @@
  * The Initial Developer of the Original Code is vtiger.
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
+ * Reviewed by crm-now GmbH
  *************************************************************************************/
 $languageStrings = array(
 	'Admin' => 'Admin',
@@ -40,6 +41,9 @@ $languageStrings = array(
 	'LBL_CHOOSE_TIMEZONE'	=> 'Choose Timezone',
 	'LBL_COMPANY_SIZE'		=> 'Company Size',
 	'LBL_CONFIRM_PASSWORD' => 'Confirm Password',
+	'LBL_CHANGE_ACCESS_KEY' => 'Change Access Key',
+	'LBL_ACCESS_KEY_UPDATED_SUCCESSFULLY' => 'Access key updated successfully',
+	'LBL_FAILED_TO_UPDATE_ACCESS_KEY' => 'Failed to update access key',
 	'LBL_CONNECT_WITH_US' => 'Connect with US',
 	'LBL_CURRENCY_CONFIGURATION' =>  'Currency and Number Field Configuration',
 	'LBL_DATE_FORMAT'		=> 'Date Format',
@@ -50,7 +54,7 @@ $languageStrings = array(
 	'LBL_DELETE_USER' => 'User to be Deleted',
 	'LBL_DEPARTMENT'		=> 'Department',
 	'LBL_EMAIL_SEND' => 'We have sent you email to reset your password.',
-	'LBL_GET_MORE' => 'Get more out of Vtiger',
+	'LBL_GET_MORE' => 'Get more out from CRM',
 	'LBL_GET_STARTED'	=> 'Get Started',
 	'LBL_HIDDEN' => 'Hidden',
 	'LBL_HIDE' => 'Hide',
@@ -75,7 +79,7 @@ $languageStrings = array(
 	'LBL_SHOWN' => 'Shown',
 	'LBL_SHOW' => 'Show',
 	'LBL_TAG_CLOUD_DISPLAY' => 'Tag Cloud Display',
-	'LBL_TO_CRM' => 'Login to Vtiger CRM',
+	'LBL_TO_CRM' => 'CRM Login',
 	'LBL_TRANSFER_GROUP' => 'Transfer Ownership to: ',
 	'LBL_TRANSFER_OWNERSHIP' => 'Transfer Owner',
 	'LBL_TRANSFER_RECORDS_TO_USER' => 'Transfer records to user',
@@ -111,7 +115,7 @@ $languageStrings = array(
 	'User Image' => 'Upload Photograph',
 	'User Name' => 'User Name',
 	'Webservice Access Key' => 'Access Key',
-	'Yahoo id' => 'Yahoo id',
+	'Yahoo id' => 'additional Email',
     
          //Patch provided by http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7884
         'Day starts at' => 'Day starts at', 
@@ -145,6 +149,54 @@ $languageStrings = array(
         '45 Minutes' => '45 Minutes', 
         '1 Hour' => '1 Hour', 
         '1 Day' => '1 Day', 
+
+	//labels not available in vtiger's en_us file
+	'Users' => 'Users',
+	'yes' => 'yes',
+	'no' => 'no',
+	'Starting Day of the week' => 'Starting Day of the week',
+	'Time Zone' => 'Time Zone',
+	'Default Activity View' => 'Default Activity View',
+	'Private' => 'private',
+	'Default Event Status' => 'Default Event Status',
+	'Default Activity Type' => 'Default Activity Type',
+	'Mobile Call' => 'Mobile Call',
+	'Mobile Phone' => 'Mobile Phone',
+	'SMSNotifier' => 'SMS Notifier',
+	'Quick Create' => 'Quick Create',
+	'Email Templates' => 'Email Templates',
+	'Project Task' => 'Project Task',
+	'Held' => 'Held',
+	'End Date' => 'End Date',
+	'of' => 'of',
+	'Webforms' => 'Web Forms',
+	'EmailTemplates' => 'Email Templates',
+	'Dashboard' => 'Dashboard',
+	'Summary' => 'Summary',
+	'Module' => 'Module',
+	'Execution Condition' => 'Execution Condition',
+	'Created By' => 'created by',
+	'SUBJECT' => 'Subject',
+	'TO' => 'To',
+	'BODY' => 'Body',
+	'BCC' => 'BCC',
+	'CC' => 'CC',
+	'FROM' => 'From',
+	'DATE' => 'Date',
+	'planned' => 'planned',
+	'LBL_EDIT' => 'edit',
+	'LBL_SELECT_OPTION' => 'select option',
+	'Call' => 'Call',
+	'Row Height' => 'Row Height',
+	'Default Record View' => 'Default Record View',
+	'Left Panel Hide' => 'Left Panel Hide',
+	'CRM Phone Extension' => 'CRM Phone Extension',
+	'wide' => 'wide',
+	'medium' => 'medium',
+	'narrow' => 'narrow',
+	'Documents' => 'Documents',
+	'Country' => 'Country',
+	'LBL_HOURS' => 'hours',
 
 	//Time zones-Dont change any value
     'Kwajalein'  =>  '(UTC-12:00) International Date Line West',
@@ -248,6 +300,42 @@ $languageStrings = array(
     
     // currency separator in user preferance
       'LBL_Space' => 'Space',
+	  
+	//special crm-now labels
+	//Login protection
+	'ERR_GENERAL'=>'<br>Wrong Password or wrong User Name!',
+	'ERR_TRY'=>'<br>Try',
+	'ERR_TO'=>'of',
+	'ERR_ACCOUNT_LOCKED'=>'<br>The user has been blocked, please contact crm-now.',
+	'ERR_ACCOUNT_LOCKED_USER'=>'<br>The user has been blocked, please contact your CRM systems administrator.',
+
+	//crm-now: added for CRM setup page
+	'LBL_SEL_LANGUAGE'=>'Click To Select Language',
+	'LBL_PURPOSE'=>'What would you like to use the CRM for?',
+	'LBL_PURPOSE_COMM'=>'Select the features you want to enable',
+	'LBL_SEL_ALL'=>'Select All',
+	'LBL_VIEW_MODULES'=>'View Modules',
+	'Contact Management'=>'Contact Management',
+	'Marketing'=>'Marketing',
+	'Sales Automation'=>'Sales Automation',
+	'Support'=>'Support',
+	'Invoicing and Inventory'=>'Invoicing & Inventory',
+	'Project Management'=>'Project Management',
+	'LBL_TOOLS_DESCR'=>'Unify and store your contacts along with detailed notes, documents, emails, calendar events, and more. Additionally, configure what information each CRM user can see and update, and automate business activities such as email responses and contact information updates.',
+	'LBL_SALES_DESCR'=>'Capture Leads from your website, or import lists of them, then develop a process for qualifying and turning them into potential sales opportunities. Additionally, track and segment your sales funnel for individual users or a team.',
+	'LBL_MARKETING_DESCR'=>'Send individual, targeted, or bulk emails to your contacts, leads, and customers, and see how they engage with each communication, with tools to analyse and improve campaign performance.',
+	'LBL_SUPPORT_DESCR'=>'Create and track customer requests/tasks via tickets, and even allow your customers to create and monitor their own tickets and details through a professional customer portal.',
+	'LBL_INVENTORY_DESCR'=>'Build a database of your products and services, maintain inventories, standard prices and prices books, and use these to create quotes, invoices, and sales orders.',
+	'LBL_PROJECT_DESCR'=>'Build and manage customer-associated projects, with detailed tasks that can be assigned to CRM users and placed on their calendars.',
+	'LBL_PURPOSE'=>'What would you like to use the CRM for?',
+	'LBL_INSTALL_DEFAULT'=>'This feature will be installed by default',
+	'LBL_MODULE_FEATURE'=>'These Modules will be enabled for this feature	',
+	'LBL_NOTE'=>'Note',
+	'LBL_HINT'=>'You can enable or disable any of your module choices later by the module manager menu.',
+	'LBL_NEXT'=>'Next',
+	//user's setup
+	'LBL_PREFERENCES'=>'Preferences',
+
 );
 
 $jsLanguageStrings = array(
@@ -261,4 +349,6 @@ $jsLanguageStrings = array(
 	'JS_PASSWORD_CHANGE_FAILED_2'=>' failed.  The new password must be set.',
 	'JS_PASSWORD_INCORRECT_OLD'=>'Incorrect old password specified. Re-enter password information.',
 	'JS_REENTER_PASSWORDS'=>'Please re-enter passwords.  The \"new password\" and \"confirm password\" values do not match.',
+	'JS_NEW_ACCESS_KEY_REQUESTED' => 'New Access key requested', 
+ 	'JS_CHANGE_ACCESS_KEY_CONFIRMATION' => 'You have requested for a new Access key.&lt;br&gt;&lt;br&gt;With the new Access key provision, you have to replace the old access key with the new one in all installed extensions.&lt;br&gt;&lt;br&gt;Do you want to continue?',
 );

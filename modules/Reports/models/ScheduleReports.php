@@ -210,8 +210,8 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 			$vtigerMailer->AddAttachment($path, decode_html($attachmentName));
 		}
 		//Added cc to account owner
-		$accountOwnerId = Users::getActiveAdminId();
-		$vtigerMailer->AddCC(getUserEmail($accountOwnerId), getUserFullName($accountOwnerId));
+		// $accountOwnerId = Users::getActiveAdminId();
+		// $vtigerMailer->AddCC(getUserEmail($accountOwnerId), getUserFullName($accountOwnerId));
 		$status = $vtigerMailer->Send(true);
 
 		foreach ($attachments as $attachmentName => $path) {

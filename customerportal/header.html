@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<title>Your Portal</title>
+		
+		<link href="css/styles.css" rel="stylesheet" type="text/css">
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		
+		<link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+        <link href="css/ionicons.min.css" rel="stylesheet" type="text/css" />
+        <link href="css/morris/morris.css" rel="stylesheet" type="text/css" />
+        <link href="css/jvectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
+        <link href="css/datepicker/datepicker3.css" rel="stylesheet" type="text/css" />
+        <link href="css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
+        <link href="css/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css" rel="stylesheet" type="text/css" />
+        <link href="css/AdminLTE.css" rel="stylesheet" type="text/css" />
+		<link href="css/custom.css" rel="stylesheet" type="text/css" />
+		<link href="css/treeview.css" rel="stylesheet" type="text/css" />
+		
+
+		<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+          <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+		<?php
+			// Prototype library clashes with AutoComplete library in use so avoid on those pages
+			if($_REQUEST['fun'] != 'newticket') {
+				//echo '<script language="javascript" type="text/javascript" src="js/prototype.js"></script>';
+			}
+		?>
+	</head>
+	<body class="skin-blue">
+		
+		<header class="header">
+	    	<a href="index.php?fun=home" class="logo">
+	    		<!--  <img src="images/loginVtigerCRM.gif" width="169" height="49"  class="logo"> -->
+	    		Your Portal
+	    	</a>
+	    	<nav class="navbar navbar-static-top" role="navigation">
+                <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </a>
+	    		<div class="navbar-right">
+ 	        		<ul class="nav navbar-nav">
+ 	        			<li class="dropdown user user-menu">
+                        	<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            	<i class="glyphicon glyphicon-user"></i>
+                            	<span><?php echo $_SESSION['customer_name']; ?><i class="caret"></i></span>
+                        	</a>
+                        	<ul class="dropdown-menu">
+                        		<li class="user-footer">
+	                        		<div class="pull-left">
+	                        			<a href="MySettings.php?last_login=<?php echo $_SESSION['last_login']; ?>&support_start_date=<?php echo $_SESSION['support_start_date']; ?>&support_end_date=<?php echo $_SESSION['support_end_date']; ?>" class="btn btn-default btn-flat">
+	                        				<!--  <span onclick="fnMySettings();" class="MySettingsHdr"> -->
+	                        					<?php echo getTranslatedString('LBL_MY_SETTINGS');?>
+	                        				<!--  </span> -->
+	                        			</a>
+	                        		</div>
+	                        		<div class="pull-right">
+										<a href="index.php?logout=true" class="btn btn-default btn-flat">
+											<?php echo getTranslatedString('LBL_LOG_OUT');?>
+										</a>                                	
+	                                </div>
+	                        	</li>
+                        	</ul>
+	   					</li> 		
+	    			</ul>
+				</div>
+			</nav>
+	  	</header>
+	  	
+	  	<div class="wrapper row-offcanvas row-offcanvas-left">
+        	<aside class="left-side sidebar-offcanvas">
+            	<section class="sidebar">
+                    <ul class="sidebar-menu">
+		             	<?php
+		             		$showmodule = array();
+							if(isset($_SESSION['__permitted_modules'])) {
+								$showmodule = $_SESSION['__permitted_modules'];
+							} else {
+								$params = array();
+								$showmodule = $client->call('get_modules',$params,$Server_path,$Server_path);
+								$_SESSION['__permitted_modules'] = $showmodule;
+							}
+							for($i=0;$i<count($showmodule);$i++ ) {
+								if(file_exists($showmodule[$i]) && $showmodule[$i] != 'ProjectTask' && $showmodule[$i] != 'ProjectMilestone') 
+									echo "<li  id='$showmodule[$i]' onclick='fnLoadValues(\"$showmodule[$i]\")'><a href='index.php?module=".$showmodule[$i]."&action=index&onlymine=true'><span>".getTranslatedString($showmodule[$i])."</span></a></li>";
+							}
+						?>
+					</ul>
+				</section>
+			</aside>

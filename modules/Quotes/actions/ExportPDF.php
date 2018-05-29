@@ -7,8 +7,4 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  *************************************************************************************/
-
-vimport('~~/modules/Quotes/QuotePDFController.php');
-
-class Quotes_ExportPDF_Action extends Inventory_ExportPDF_Action {
-}
+vimport('~~/modules/Quotes/CreatePDF.php');

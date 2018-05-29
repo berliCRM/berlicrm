@@ -57,6 +57,10 @@
                     allLinks.push(links);
 					count.push(salesStageCount);
 				}
+				//crm-now: translate stages
+				for(var i=0; i<stages.length ;i++) {
+					stages[i] =app.vtranslate( stages[i] );
+				}
 				return {
 					'data' : count,
 					'ticks' : users,

@@ -10,15 +10,26 @@
  ********************************************************************************/
 -->*}
 {strip}
-<table class="summary-table" style="width:100%;">
+<table class="summary-table" style="width:100%;table-layout:fixed;">
 	<tbody>
 	{foreach item=FIELD_MODEL key=FIELD_NAME from=$SUMMARY_RECORD_STRUCTURE['SUMMARY_FIELDS']}
-		{if $FIELD_MODEL->get('name') neq 'modifiedtime' && $FIELD_MODEL->get('name') neq 'createdtime'}
+		{if $FIELD_MODEL->get('name') neq 'modifiedtime' && $FIELD_MODEL->get('name') neq 'createdtime' && !$BLOCKED_BLOCKS[$FIELD_MODEL->block->id]}
 			<tr class="summaryViewEntries">
-				<td class="fieldLabel" style="width:35%"><label class="muted">{vtranslate($FIELD_MODEL->get('label'),$MODULE_NAME)}</label></td>
+				<td class="fieldLabel" style="width:35%">
+					<label class="muted">
+						{if $FIELD_MODEL->get('name') eq "firstname"}
+							{vtranslate("Salutation", $MODULE_NAME)}&nbsp;{vtranslate($FIELD_MODEL->get('label'), $MODULE_NAME)}
+						{else}
+							{vtranslate($FIELD_MODEL->get('label'),$MODULE_NAME)}
+						{/if}
+                        {if $FIELD_MODEL->get('helpinfo') != ""}
+                        <i class="icon-info-sign pull-right" style="margin:3px" rel="popover" data-placement="top" data-trigger="hover" data-content="{vtranslate($FIELD_MODEL->get('helpinfo'), $MODULE_NAME)|replace:'"':'&quot;'}" data-original-title="{vtranslate('LBL_HELP', $MODULE)}"></i>
+                        {/if}
+					</label>
+				</td>
 				<td class="fieldValue" style="width:65%">
                     <div class="row-fluid">
-                        <span class="value" {if $FIELD_MODEL->get('uitype') eq '19' or $FIELD_MODEL->get('uitype') eq '20' or $FIELD_MODEL->get('uitype') eq '21'}style="word-wrap: break-word;white-space:pre-wrap;"{/if}>
+                        <span class="value" {if $FIELD_MODEL->get('uitype') eq '19' or $FIELD_MODEL->get('uitype') eq '20' or $FIELD_MODEL->get('uitype') eq '21'}style="word-wrap: break-word; overflow-wrap: break-word;"{/if}>
                             {include file=$FIELD_MODEL->getUITypeModel()->getDetailViewTemplateName()|@vtemplate_path FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME RECORD=$RECORD}
                         </span>
                         {if $FIELD_MODEL->isEditable() eq 'true' && ($FIELD_MODEL->getFieldDataType()!=Vtiger_Field_Model::REFERENCE_TYPE) && $IS_AJAX_ENABLED && $FIELD_MODEL->isAjaxEditable() eq 'true' && $FIELD_MODEL->get('uitype') neq 69}
@@ -37,10 +48,19 @@
                     </div>
 				</td>
 			</tr>
+        {elseif $BLOCKED_BLOCKS[$FIELD_MODEL->block->id]}
+            {ASSIGN var=blockedfields value=$blockedfields+1}
 		{/if}
 	{/foreach}
 	</tbody>
 </table>
+{if $USER_MODEL->isAdminUser()}
+    {if $blockedfields == 1}
+        <div class="alert alert-warning" role="alert" style="font-size:80%;padding:3px 12px">{vtranslate('LBL_FIELD_HIDDEN_NOTICE')} <a href='{$smarty.server.REQUEST_URI}&overridedynblocks=1'>{vtranslate('LBL_SHOW_HIDDEN_ONCE')}</a></div>
+    {elseif $blockedfields > 1}
+        <div class="alert alert-warning" role="alert" style="font-size:80%;padding:3px 12px">{vtranslate('LBL_FIELDS_HIDDEN_NOTICE')|sprintf:$blockedfields} <a href='{$smarty.server.REQUEST_URI}&overridedynblocks=1'>{vtranslate('LBL_SHOW_HIDDEN_ONCE')}</a></div>
+    {/if}
+{/if}
 <hr>
 <div class="row-fluid">
 	<div class="span4 toggleViewByMode">

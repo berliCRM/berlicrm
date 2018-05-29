@@ -197,8 +197,17 @@ class ListViewController {
 			foreach ($listViewFields as $fieldName) {
 				$field = $moduleFields[$fieldName];
 				$uitype = $field->getUIType();
-				$rawValue = $this->db->query_result($result, $i, $field->getColumnName());
-
+                
+                // crm-now: fetch by alias for columns with prefixed tablename for combined customview
+                if (strpos($fieldName,".")>0) {  
+                    $colname = strtolower(str_replace(".","",$fieldName));
+                }
+                else {
+                    $colname = $field->getColumnName();
+                }
+                
+				$rawValue = $this->db->query_result($result, $i, $colname);
+        
 				if(in_array($uitype,array(15,33,16))){
 					$value = html_entity_decode($rawValue,ENT_QUOTES,$default_charset);
 				} else {
@@ -364,14 +373,15 @@ class ListViewController {
 				} elseif($field->getUIType() == 98) {
 					$value = '<a href="index.php?module=Roles&parent=Settings&view=Edit&record='.$value.'">'.textlength_check(getRoleName($value)).'</a>';
 				} elseif($field->getFieldDataType() == 'multipicklist') {
-					$value = ($value != "") ? str_replace(' |##| ',', ',$value) : "";
 					if(!$is_admin && $value != '') {
-						$valueArray = ($rawValue != "") ? explode(' |##| ',$rawValue) : array();
+						$valueArray = ($value != "") ? explode(' |##| ',$value) : array();
 						$notaccess = '<font color="red">'.getTranslatedString('LBL_NOT_ACCESSIBLE',
 								$module)."</font>";
 						$tmp = '';
 						$tmpArray = array();
 						foreach($valueArray as $index => $val) {
+							//crm-now: added for special char like ä, ö, ü
+							$val=html_entity_decode($val, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 							if(!$listview_max_textlength ||
 									!(strlen(preg_replace("/(<\/?)(\w+)([^>]*>)/i","",$tmp)) >
 											$listview_max_textlength)) {
@@ -380,7 +390,7 @@ class ListViewController {
 									$tmpArray[] = $notaccess;
 									$tmp .= ', '.$notaccess;
 								} else {
-									$tmpArray[] = $val;
+									$tmpArray[] = getTranslatedString($val,$module);
 									$tmp .= ', '.$val;
 								}
 							} else {
@@ -390,11 +400,29 @@ class ListViewController {
 						}
 						$value = implode(', ', $tmpArray);
 						$value = textlength_check($value);
+					} 
+					else {
+						if (!empty($value)) {
+							$value_arr = explode("|##|", $value);
+
+							foreach ($value_arr as $key => $content) {
+								$value_arr[$key] = Vtiger_Language_Handler::getTranslatedString(trim($content), $module);;
+							}
+							$value = implode(', ', $value_arr);
+						}
+						else {
+							$value = '';
+						}
 					}
 				} elseif ($field->getFieldDataType() == 'skype') {
 					$value = ($value != "") ? "<a href='skype:$value?call'>".textlength_check($value)."</a>" : "";
 				} elseif ($field->getUIType() == 11) {
-                    if($outgoingCallPermission && !empty($value)) {
+					$SoftphonePrefix = berliSoftphones_Record_Model:: getSoftphonePrefix();
+					if($SoftphonePrefix && !empty($value)) {
+						$value = '<a class="phoneField" data-value="'.$phoneNumber.'" record="'.$recordId.'" href="'.$SoftphonePrefix.($value).'">'.textlength_check($value).'</a>';
+					}
+ 					
+                    else if($outgoingCallPermission && !empty($value)) {
                         $phoneNumber = preg_replace('/[-()\s+]/', '',$value);
                         $value = '<a class="phoneField" data-value="'.$phoneNumber.'" record="'.$recordId.'" onclick="Vtiger_PBXManager_Js.registerPBXOutboundCall(\''.$phoneNumber.'\', '.$recordId.')">'.textlength_check($value).'</a>';
                     }else {
@@ -436,8 +464,6 @@ class ListViewController {
 						$json = new Zend_Json();
 						$value = vt_suppressHTMLTags(implode(',',$json->decode($temp_val)));
 					}
-				} elseif ( in_array($uitype,array(7,9,90)) ) {
-					$value = "<span align='right'>".textlength_check($value)."</div>";
 				} else {
 					$value = textlength_check($value);
 				}
@@ -447,10 +473,28 @@ class ListViewController {
 //					"'{$fieldName}' vtmodule='$module' style='display:none;'></span>";
 //				// END
 				$row[$fieldName] = $value;
+				if (in_array($uitype, Settings_ListViewColors_IndexAjax_View::getSupportedUITypes())) {
+					$row ['fieldcolor'] = self::getListViewColor($fieldName,$rawValue);
+				}
 			}
 			$data[$recordId] = $row;
 		}
 		return $data;
 	}
+	public function getListViewColor($fieldName,$fieldValue) {
+		$db = PearDatabase::getInstance();
+		$listcolor = '#FFFFFF';
+		$moduleFields = $this->queryGenerator->getModuleFields();
+		$field = $moduleFields[$fieldName];
+		$FieldId = $field->getFieldId();
+		$query = 'SELECT listcolor FROM berli_listview_colors WHERE listfieldid = ? AND fieldcontent =?';
+		$result = $db->pquery($query,array($FieldId, decode_html($fieldValue)));
+		$rowlistcolor = $db->query_result($result,0,'listcolor');
+		if (!empty ($rowlistcolor)) {
+			$listcolor = $rowlistcolor;
+		}
+		return ($listcolor);
+	}
+	
 }
 ?>

@@ -22,7 +22,7 @@ class Settings_Picklist_Index_View extends Settings_Vtiger_Index_View {
         $moduleModel = Settings_Picklist_Module_Model::getInstance($sourceModule);
         $viewer = $this->getViewer($request);
         $qualifiedName = $request->getModule(FALSE);
-        
+        $viewer->assign('BLOCKS',$moduleModel->getBlocks());
         $viewer->assign('PICKLIST_MODULES',$pickListSupportedModules);
         
         //TODO: see if you needs to optimize this , since its will gets all the fields and filter picklist fields

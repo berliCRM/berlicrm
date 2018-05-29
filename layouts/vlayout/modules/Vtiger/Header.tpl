@@ -17,25 +17,22 @@
 			{vtranslate($PAGETITLE, $MODULE_NAME)}
 		</title>
 		<link REL="SHORTCUT ICON" HREF="layouts/vlayout/skins/images/favicon.ico">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<link rel="stylesheet" href="libraries/jquery/chosen/chosen.css" type="text/css" media="screen" />
-		<link rel="stylesheet" href="libraries/jquery/jquery-ui/css/custom-theme/jquery-ui-1.8.16.custom.css" type="text/css" media="screen" />
-
-		<link rel="stylesheet" href="libraries/jquery/select2/select2.css" type="text/css" media="screen" />
-		<link rel="stylesheet" href="libraries/bootstrap/css/bootstrap.css" type="text/css" media="screen" />
-                <link rel="stylesheet" href="libraries/bootstrap/css/jqueryBxslider.css" type="text/css" media="screen" />
-		<link rel="stylesheet" href="resources/styles.css" type="text/css" media="screen" />
-		<link rel="stylesheet" href="libraries/jquery/posabsolute-jQuery-Validation-Engine/css/validationEngine.jquery.css" />
-
-		<link rel="stylesheet" href="libraries/jquery/select2/select2.css" />
-
-		<link rel="stylesheet" href="libraries/guidersjs/guiders-1.2.6.css"/>
-		<link rel="stylesheet" href="libraries/jquery/pnotify/jquery.pnotify.default.css"/>
-		<link rel="stylesheet" href="libraries/jquery/pnotify/use for pines style icons/jquery.pnotify.default.icons.css"/>
-		<link rel="stylesheet" media="screen" type="text/css" href="libraries/jquery/datepicker/css/datepicker.css" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" href="libraries/jquery/chosen/chosen.css" media="screen">
+		<link rel="stylesheet" href="libraries/jquery/jquery-ui/css/custom-theme/jquery-ui-1.8.16.custom.css" media="screen">
+		<link rel="stylesheet" href="libraries/jquery/select2/select2.css" media="screen">
+		<link rel="stylesheet" href="libraries/bootstrap/css/bootstrap.css" media="screen">
+        <link rel="stylesheet" href="libraries/bootstrap/css/jqueryBxslider.css" media="screen">
+		<link rel="stylesheet" href="resources/styles.css" type="text/css" media="screen">
+		<link rel="stylesheet" href="libraries/jquery/posabsolute-jQuery-Validation-Engine/css/validationEngine.jquery.css">
+		<link rel="stylesheet" href="libraries/jquery/select2/select2.css">
+		<link rel="stylesheet" href="libraries/guidersjs/guiders-1.2.6.css">
+		<link rel="stylesheet" href="libraries/jquery/pnotify/jquery.pnotify.default.css">
+		<link rel="stylesheet" href="libraries/jquery/pnotify/use%20for%20pines%20style%20icons/jquery.pnotify.default.icons.css">
+		<link rel="stylesheet" href="libraries/jquery/datepicker/css/datepicker.css" media="screen">
 		{foreach key=index item=cssModel from=$STYLES}
-                    <link rel="{$cssModel->getRel()}" href="{vresource_url($cssModel->getHref())}" type="{$cssModel->getType()}" media="{$cssModel->getMedia()}" />
+            <link rel="{$cssModel->getRel()}" href="{vresource_url($cssModel->getHref())}" type="{$cssModel->getType()}" media="{$cssModel->getMedia()}">
 		{/foreach}
 
 		{* For making pages - print friendly *}
@@ -59,9 +56,9 @@
 	<body data-skinpath="{$SKIN_PATH}" data-language="{$LANGUAGE}">
 		<div id="js_strings" class="hide noprint">{Zend_Json::encode($LANGUAGE_STRINGS)}</div>
 		{assign var=CURRENT_USER_MODEL value=Users_Record_Model::getCurrentUserModel()}
-		<input type="hidden" id="start_day" value="{$CURRENT_USER_MODEL->get('dayoftheweek')}" />
-		<input type="hidden" id="row_type" value="{$CURRENT_USER_MODEL->get('rowheight')}" />
-		<input type="hidden" id="current_user_id" value="{$CURRENT_USER_MODEL->get('id')}" />
+		<input type="hidden" id="start_day" value="{$CURRENT_USER_MODEL->get('dayoftheweek')}">
+		<input type="hidden" id="row_type" value="{$CURRENT_USER_MODEL->get('rowheight')}">
+		<input type="hidden" id="current_user_id" value="{$CURRENT_USER_MODEL->get('id')}">
 		<div id="page">
 			<!-- container which holds data temporarly for pjax calls -->
 			<div id="pjaxContainer" class="hide noprint"></div>

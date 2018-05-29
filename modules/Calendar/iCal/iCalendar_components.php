@@ -8,11 +8,7 @@ class iCalendar_component {
     var $valid_properties = NULL;
     var $valid_components = NULL;
 
-    function iCalendar_component() {
-        $this->construct();
-    }
-
-    function construct() {
+    function __construct() {
         // Initialize the components array
         if(empty($this->components)) {
             $this->components = array();
@@ -214,7 +210,7 @@ class iCalendar_component {
     			}
     			$this->add_property($key,$component);
     		} else if(!empty($components['function'])){
-    			$this->$components['function']($activity);
+    			$this->{$components['function']}($activity);
     		}
     	}
         return true;
@@ -334,7 +330,7 @@ class iCalendar_component {
 class iCalendar extends iCalendar_component {
     var $name = 'VCALENDAR';
 
-    function construct() {
+    function __construct() {
         $this->valid_properties = array(
             'CALSCALE'    => RFC2445_OPTIONAL | RFC2445_ONCE,
             'METHOD'      => RFC2445_OPTIONAL | RFC2445_ONCE,
@@ -348,7 +344,7 @@ class iCalendar extends iCalendar_component {
             // TODO: add support for the other component types
             //, 'VJOURNAL', 'VFREEBUSY', 'VALARM'
         );
-        parent::construct();
+        parent::__construct();
     }
 
 }
@@ -374,7 +370,7 @@ class iCalendar_event extends iCalendar_component {
     	'priority'=>'taskpriority'
     );
 
-    function construct() {
+    function __construct() {
 
         $this->valid_components = array('VALARM');
 
@@ -419,7 +415,7 @@ class iCalendar_event extends iCalendar_component {
             RFC2445_XNAME    => RFC2445_OPTIONAL
         );
 
-        parent::construct();
+        parent::__construct();
     }
 
     function invariant_holds() {
@@ -511,9 +507,9 @@ class iCalendar_todo extends iCalendar_component {
     	'priority'=>'taskpriority'
     );
 
-    function construct() {
+    function __construct() {
 
-        $this->valid_components = array();
+        $this->valid_components = array('VALARM');
         $this->valid_properties = array(
             'CLASS'       => RFC2445_OPTIONAL | RFC2445_ONCE,
             'COMPLETED'   => RFC2445_OPTIONAL | RFC2445_ONCE,
@@ -550,7 +546,7 @@ class iCalendar_todo extends iCalendar_component {
             'XPROP'       => RFC2445_OPTIONAL
         );
 
-        parent::construct();
+        parent::__construct();
         // TODO:
         // either 'due' or 'duration' may appear in  a 'eventprop', but 'due'
         // and 'duration' MUST NOT occur in the same 'eventprop'
@@ -595,7 +591,7 @@ class iCalendar_alarm extends iCalendar_component {
     	'TRIGGER'	=>	array('component'=>'reminder_time', 'function'=>'iCalendar_event_trigger'),
     );
 
-    function construct() {
+    function __construct() {
 
         $this->valid_components = array();
         $this->valid_properties = array(
@@ -606,7 +602,7 @@ class iCalendar_alarm extends iCalendar_component {
              RFC2445_XNAME    => RFC2445_OPTIONAL
         );
 
-        parent::construct();
+        parent::__construct();
     }
 
    function iCalendar_event_trigger($activity){
@@ -628,7 +624,7 @@ class iCalendar_timezone extends iCalendar_component {
     var $name       = 'VTIMEZONE';
     var $properties;
 
-    function construct() {
+    function __construct() {
         $this->valid_components = array();
         $this->valid_properties = array(
             'TZID'        => RFC2445_REQUIRED | RFC2445_ONCE,
@@ -642,7 +638,7 @@ class iCalendar_timezone extends iCalendar_component {
             'X-PROP'      => RFC2445_OPTIONAL
         );
 
-        parent::construct();
+        parent::__construct();
     }
 
 }

@@ -6,6 +6,7 @@
  * The Initial Developer of the Original Code is vtiger.
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
+ * Modified by crm-now GmbH, www.crm-now.com
  ************************************************************************************/
 header('Content-Type: text/html;charset=utf-8');
 
@@ -18,8 +19,8 @@ require_once 'config.php';
 if (file_exists('config_override.php')) {
     include_once 'config_override.php';
 }
-
-
+//Relations sets the GetRelatedList function to local
+require_once dirname(__FILE__) . '/api/Relation.php';
 require_once 'includes/main/WebUI.php';
 include_once dirname(__FILE__) . '/api/Request.php';
 include_once dirname(__FILE__) . '/api/Response.php';
@@ -31,21 +32,32 @@ include_once dirname(__FILE__) . '/Mobile.php';
 include_once dirname(__FILE__) . '/ui/Viewer.php';
 include_once dirname(__FILE__) . '/ui/models/Module.php'; // Required for auto de-serializatio of session data
 
-class Mobile_Index_Controller {
 
+class Mobile_Index_Controller {
+	
 	static $opControllers = array(
 		'logout'                  => array('file' => '/ui/Logout.php', 'class' => 'Mobile_UI_Logout'),
 		'login'                   => array('file' => '/ui/Login.php', 'class' => 'Mobile_UI_Login'),
 		'loginAndFetchModules'    => array('file' => '/ui/LoginAndFetchModules.php', 'class' => 'Mobile_UI_LoginAndFetchModules'),
 		'listModuleRecords'       => array('file' => '/ui/ListModuleRecords.php', 'class' => 'Mobile_UI_ListModuleRecords'),
 		'fetchRecordWithGrouping' => array('file' => '/ui/FetchRecordWithGrouping.php', 'class' => 'Mobile_UI_FetchRecordWithGrouping'),
-
-		'searchConfig'            => array('file' => '/ui/SearchConfig.php', 'class' => 'Mobile_UI_SearchConfig' )
+	    'edit'                    => array('file' => '/ui/edit.php', 'class' => 'Mobile_UI_FetchRecordWithGrouping' ),
+        'searchConfig'            => array('file' => '/ui/SearchConfig.php', 'class' => 'Mobile_UI_SearchConfig' ),
+		'create'                  => array('file' => '/ui/edit.php', 'class' => 'Mobile_UI_FetchRecordWithGrouping' ), 
+		'createActivity'          => array('file' => '/ui/createActivity.php', 'class' => 'Mobile_UI_DecideActivityType' ), 
+		'globalsearch'            => array('file' => '/ui/globalsearch.php', 'class' => 'Mobile_UI_ListModuleRecords' ),
+		'getScrollcontent'        => array('file' => '/ui/getScrollContent.php', 'class' => 'Mobile_UI_GetScrollRecords' ),
+	    'deleteConfirmation'  	  => array('file' => '/ui/deleteConfirmation.php', 'class' => 'Mobile_UI_Delete' ),
+	    'deleteRecords'  		  => array('file' => '/ui/ListModuleRecords.php', 'class' => 'Mobile_UI_ListModuleRecords' ),
+	    'getAutocomplete'  		  => array('file' => '/ui/getAutocomplete.php', 'class' => 'Mobile_UI_GetAutocomplete' ), 
+		'saveRecord'              => array('file' => '/ui/SaveRecord.php', 'class' => 'Mobile_UI_ProcessRecordCreation'),
+		'getrelatedlists'         => array('file' => '/ui/getRelationList.php', 'class' => 'Mobile_UI_GetRelatedLists'),
+		'addComment'			  => array('file' => '/ui/addComment.php', 'class' => 'Mobile_UI_AddComment'),
 	);
 
 	static function process(Mobile_API_Request $request) {
 		$operation = $request->getOperation();
-		$sessionid = HTTP_Session2::detectId(); //$request->getSession();
+		$sessionid = HTTP_Session::detectId(); //$request->getSession();
 
 		if (empty($operation)) $operation = 'login';
 
@@ -116,3 +128,4 @@ if (get_magic_quotes_gpc()) {
 if(!defined('MOBILE_INDEX_CONTROLLER_AVOID_TRIGGER')) {
 	Mobile_Index_Controller::process(new Mobile_API_Request($_REQUEST));
 }
+?>

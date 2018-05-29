@@ -129,14 +129,16 @@ jQuery.Class("Vtiger_Popup_Js",{
 
 	},
 
-	show : function(urlOrParams, cb, windowName, eventName, onLoadCb){
+	show : function(urlOrParams, cb, windowName, eventName, onLoadCb, windowSpecs){
 		if(typeof urlOrParams == 'undefined'){
 			urlOrParams = {};
 		}
 		if (typeof urlOrParams == 'object' && (typeof urlOrParams['view'] == "undefined")) {
 			urlOrParams['view'] = 'Popup';
 		}
-
+        if (typeof windowSpecs == 'undefined'){
+            windowSpecs = 'location=1,width=1200,height=900,resizable=1,scrollbars=1';
+        }
 		// Target eventName to be trigger post data selection.
 		if(typeof eventName == 'undefined') {
 			eventName = 'postSelection'+ Math.floor(Math.random() * 10000);
@@ -152,7 +154,7 @@ jQuery.Class("Vtiger_Popup_Js",{
 
 		var urlString = (typeof urlOrParams == 'string')? urlOrParams : jQuery.param(urlOrParams);
 		var url = 'index.php?'+urlString;
-		var popupWinRef =  window.open(url, windowName ,'width=900,height=650,resizable=0,scrollbars=1');
+		var popupWinRef =  window.open(url, windowName , windowSpecs);
 		if (typeof this.destroy == 'function') {
 			// To remove form elements that have created earlier
 			this.destroy();

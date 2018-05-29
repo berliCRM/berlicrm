@@ -24,7 +24,7 @@ class Install_ConfigFileUtils_Model {
 	private $currencyName;
 	private $adminEmail;
 
-	function Install_ConfigFileUtils_Model($configFileParameters) {
+	function __construct($configFileParameters) {
 		if (isset($configFileParameters['root_directory']))
 			$this->rootDirectory = $configFileParameters['root_directory'];
 

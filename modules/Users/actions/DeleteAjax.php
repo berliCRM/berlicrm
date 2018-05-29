@@ -24,14 +24,19 @@ class Users_DeleteAjax_Action extends Vtiger_Delete_Action {
 
             $userModel = Users_Record_Model::getCurrentUserModel();
 
-            vtws_deleteUser($userId, $transformUserId, $userModel);
-
-            if($request->get('permanent') == '1')
-                Users_Record_Model::deleteUserPermanently($ownerId, $newOwnerId);
+            try {
+				$message = vtranslate('LBL_USER_DELETED_SUCCESSFULLY', $moduleName);
+				vtws_deleteUser($userId, $transformUserId, $userModel);
+				if($request->get('permanent') == '1') {
+					Users_Record_Model::deleteUserPermanently($ownerId, $newOwnerId);
+				}
+			} catch (WebServiceException $we) {
+				$message = $we->getMessage();
+			}
         }
 		
 		$response = new Vtiger_Response();
-		$response->setResult(array('message'=>vtranslate('LBL_USER_DELETED_SUCCESSFULLY', $moduleName)));
+		$response->setResult(array('message'=>$message));
 		$response->emit();
 	}
 }

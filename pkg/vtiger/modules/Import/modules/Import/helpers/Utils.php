@@ -32,23 +32,25 @@ class Import_Utils_Helper {
 	static $supportedDelimiters = array(','=>'comma', ';'=>'semicolon');
 	static $supportedFileExtensions = array('csv','vcf');
 
-	public function getSupportedFileExtensions() {
+	public static function getSupportedFileExtensions() {
 		return self::$supportedFileExtensions;
 	}
 
-	public function getSupportedFileEncoding() {
+	public static function getSupportedFileEncoding() {
 		return self::$supportedFileEncoding;
 	}
 
-	public function getSupportedDelimiters() {
+	public static function getSupportedDelimiters() {
 		return self::$supportedDelimiters;
 	}
 
-	public static function getAutoMergeTypes() {
-		return array(
-			self::$AUTO_MERGE_IGNORE => 'Skip',
-			self::$AUTO_MERGE_OVERWRITE => 'Overwrite',
-			self::$AUTO_MERGE_MERGEFIELDS => 'Merge');
+	public static function getAutoMergeTypes($moduleName) {
+		$mergeTypes = array(self::$AUTO_MERGE_IGNORE => 'Skip');
+		if (Users_Privileges_Model::isPermitted($moduleName, 'EditView')) {
+			$mergeTypes[self::$AUTO_MERGE_OVERWRITE]		= 'Overwrite';
+			$mergeTypes[self::$AUTO_MERGE_MERGEFIELDS]	= 'Merge';
+		}
+		return $mergeTypes;
 	}
 
 	public static function getMaxUploadSize() {

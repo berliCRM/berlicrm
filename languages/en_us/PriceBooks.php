@@ -18,4 +18,13 @@ $languageStrings = array(
 	'PriceBook No' => 'Price Book Number',
 	'PriceBooks' => 'Price Books',
 	'SINGLE_PriceBooks' => 'Price Book',
+	//crm-now: added labels for translation
+	'LBL_ADD_RECORD' => 'add Record',
+	'yes' => 'yes',
+	'no' => 'no',
+	'Unit Price' => 'Unit Price',
+);
+$jsLanguageStrings = array(
+	'of' => 'of',
+	'to' => 'to',
 );

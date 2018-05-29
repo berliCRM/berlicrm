@@ -223,7 +223,7 @@ class CustomView_Record_Model extends Vtiger_Base_Model {
 		$cvId = $this->getId();
 		$moduleModel = $this->getModule();
 		$moduleName = $moduleModel->get('name');
-		$viewName = $this->get('viewname');
+		$viewName = html_entity_decode($this->get('viewname'));
 		$setDefault = intval($this->get('setdefault'));
 		$setMetrics = intval($this->get('setmetrics'));
 		$status = $this->get('status');
@@ -335,13 +335,20 @@ class CustomView_Record_Model extends Vtiger_Base_Model {
 					$fieldName = $columnInfo[2];
 					$fieldModel = $moduleModel->getField($fieldName);
                     //Required if Events module fields are selected for the condition
-                     if(!$fieldModel) {
+                    if(!$fieldModel) {
                         $modulename = $moduleModel->get('name');
                         if($modulename == 'Calendar') {
                             $eventModuleModel = Vtiger_Module_model::getInstance('Events');
                             $fieldModel  = $eventModuleModel->getField($fieldName);
                         }
                     }
+                    // crm-now: try to find secondary module of customview by parsing columnCondition["columnname"]
+                    if(!$fieldModel) {
+                        list($secModuleName) = explode("_",$columnInfo[3]);
+                        $secModuleModel = Vtiger_Module_model::getInstance($secModuleName);
+                        $fieldModel  = $secModuleModel->getField($fieldName);
+                    }
+
 					$fieldType = $fieldModel->getFieldDataType();
 
 					if($fieldType == 'currency') {

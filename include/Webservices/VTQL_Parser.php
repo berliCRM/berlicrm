@@ -177,6 +177,7 @@ function buildSelectStmt($sqlDump){
 	if(in_array('*', $sqlDump['column_list'])){
 		$i=0;
 		foreach($fieldcol as $field=>$col){
+			if ($sqlDump['moduleName'] != 'LineItem' && $columnTable[$col] == 'vtiger_inventoryproductrel') continue;
 			if($i===0){
 				$this->query = $this->query.$columnTable[$col].'.'.$col;
 				$i++;
@@ -219,7 +220,7 @@ function buildSelectStmt($sqlDump){
 				$whereField = $sqlDump['where_condition']['column_names'][$i];
 				$whereOperator = $sqlDump['where_condition']['column_operators'][$i];
 				$whereValue = $sqlDump['where_condition']['column_values'][$i];
-				if(in_array($whereField,array_keys($referenceFields))){
+				if(in_array($whereField,array_keys($referenceFields)) && $whereValue != "''"){
 					if(is_array($whereValue)){
 						foreach($whereValue as $index=>$value){
 							if(strpos($value,'x')===false){
@@ -251,8 +252,23 @@ function buildSelectStmt($sqlDump){
 				}elseif(strcasecmp($whereOperator, 'in') === 0){
 					$whereValue = "($whereValue)";
 				}
-				$this->query = $this->query.$columnTable[$fieldcol[$whereField]].'.'.
+				if ($whereValue != "''") {
+					$this->query = $this->query.$columnTable[$fieldcol[$whereField]].'.'.
 									$fieldcol[$whereField]." ".$whereOperator." ".$whereValue;
+				} else {
+					if ($whereOperator == '!=') {
+						$neg = 'NOT';
+						$glue = 'AND';
+					} else {
+						$neg = '';
+						$glue = 'OR';
+					}
+					$this->query = $this->query."(".$columnTable[$fieldcol[$whereField]].'.'.
+									$fieldcol[$whereField]." ".$whereOperator." ".$whereValue;
+					$this->query .= " $glue ".$columnTable[$fieldcol[$whereField]].'.'.
+									$fieldcol[$whereField]." IS $neg NULL)";
+				}
+				
 				if($i <sizeof($sqlDump['where_condition']['column_values'])-1){
 					$this->query = $this->query.' ';
 					$this->query = $this->query.$sqlDump['where_condition']['operators'][$i].' ';
@@ -1360,6 +1376,7 @@ if($firstTable!=$table){
 	if(!isset($tabNameIndex[$table]) && $table == "vtiger_crmentity"){
 		$this->out['defaultJoinConditions'] = $this->out['defaultJoinConditions']." LEFT JOIN $table ON $firstTable.$firstIndex=$table.crmid";
 	}else{
+		if ($module != 'LineItem' && $table == 'vtiger_inventoryproductrel') continue;
 		$this->out['defaultJoinConditions'] = $this->out['defaultJoinConditions']." LEFT JOIN $table ON $firstTable.$firstIndex=$table.{$tabNameIndex[$table]}";
 	}
 }else{

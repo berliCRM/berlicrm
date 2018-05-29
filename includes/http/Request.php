@@ -207,9 +207,12 @@ class Vtiger_Request {
 	protected function validateReferer() {
         $user=  vglobal('current_user');
 		// Referer check if present - to over come 
+		// crm-now: make sure it always works from crm-now Web pages (Link to Demo)
+		$site_CRMNOW_ALT_URL_1 = 'crm-now.de';
+		$site_CRMNOW_ALT_URL_2 = 'illuminetic.com';
 		if (isset($_SERVER['HTTP_REFERER']) && $user) {//Check for user post authentication.
 			global $site_URL;
-			if ((stripos($_SERVER['HTTP_REFERER'], $site_URL) !== 0) && ($this->get('module') != 'Install')) {
+				if ((((stripos($_SERVER['HTTP_REFERER'], $site_URL) != 0) AND (stripos($_SERVER['HTTP_REFERER'], $site_CRMNOW_ALT_URL_1) != 0) AND (stripos($_SERVER['HTTP_REFERER'], $site_CRMNOW_ALT_URL_2) != 0) )) && ($this->get('module') != 'Install')) {
 				throw new Exception('Illegal request');
 			}
 		}

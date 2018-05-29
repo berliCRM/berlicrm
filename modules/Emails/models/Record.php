@@ -115,13 +115,17 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 
 			foreach($emails as $email) {
 				$mailer->Body = '';
-				if ($parentModule) {
-					$mailer->Body = $this->getTrackImageDetails($id, $this->isEmailTrackEnabled());
-				}
+				// if ($parentModule) {
+					// $mailer->Body = $this->getTrackImageDetails($id, $this->isEmailTrackEnabled());
+				// }
 				$mailer->Body .= $description;
-				$mailer->Signature = str_replace(array('\r\n', '\n'),'<br>',$currentUserModel->get('signature'));
-				if($mailer->Signature != '') {
-					$mailer->Body.= '<br><br>'.decode_html($mailer->Signature);
+
+                // add signature unless nosignature-checkbox is checked
+                if ($_REQUEST["nosignature"]!="on") {
+                    $mailer->Signature = str_replace(array('\r\n', '\n'),'<br>',$currentUserModel->get('signature'));
+                    if($mailer->Signature != '') {
+                        $mailer->Body.= '<br><br>'.decode_html($mailer->Signature);
+                    }
 				}
 				$mailer->Subject = $subject;
 				$mailer->AddAddress($email);
@@ -475,5 +479,18 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 			}
 		}
 		return $relatedModule;
+	}
+	/**
+	 * Function returns the attachment count for an email
+	 * @return <string> number of attachments
+	 */
+	function getAttachmentCount($parentid) {
+		$db = PearDatabase::getInstance();
+		$attachmentRes = $db->pquery("SELECT COUNT(*) as count FROM vtiger_attachments
+						INNER JOIN vtiger_crmentity on vtiger_crmentity.crmid = vtiger_attachments.attachmentsid
+						INNER JOIN vtiger_seattachmentsrel ON vtiger_attachments.attachmentsid = vtiger_seattachmentsrel.attachmentsid
+						WHERE vtiger_seattachmentsrel.crmid = ? AND vtiger_crmentity.deleted = 0", array($parentid));
+		$numOfRows = $db->query_result($attachmentRes, 0, "count");
+		return ($numOfRows);
 	}
 }

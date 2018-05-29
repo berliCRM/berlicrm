@@ -22,5 +22,7 @@ Vtiger_Edit_Js("Settings_Vtiger_Edit_Js",{},{
 	 */
 	registerEvents : function() {
 		this.registerFormForValidation();
+        // crm-now: show initially invisible container to prevent flickering during init (for dynamic blocks)
+        jQuery(".editViewContainer").css("visibility","visible");
 	}
 })

@@ -25,7 +25,7 @@ class Calendar_Import_View extends Vtiger_Import_View {
 		$this->exposeMethod('undoImport');
 	}
 
-	public function preprocess(Vtiger_Request $request) {
+	public function preprocess(Vtiger_Request $request, $display=false) {
 		$mode = $request->getMode();
 		if (!empty ($mode)) {
 			parent::preProcess($request);

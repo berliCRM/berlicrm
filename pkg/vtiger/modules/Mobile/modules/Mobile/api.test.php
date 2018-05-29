@@ -23,7 +23,7 @@ $mobileAPITestController->doLoginAndFetchModules('admin','admin');
 //$mobileAPITestController->doAlertDetailsWithMessage(5);
 //$mobileAPITestController->doListModuleRecords('Calendar');
 //$mobileAPITestController->doFetchRecord('9x0', true);
-//$mobileAPITestController->doDescribe('Documents');
+$mobileAPITestController->doDescribe('Documents');
 //$mobileAPITestController->doSave('Leads', '2x0', array('lastname'=>'Testing', 'company'=>'Company'));
 //$mobileAPITestController->doSync('HelpDesk');//, 0, 1277646523, 'public');//, 0, 1277234885);// 1271240542);
 //$mobileAPITestController->doScanImage();
@@ -33,13 +33,9 @@ $mobileAPITestController->doLoginAndFetchModules('admin','admin');
 //$mobileAPITestController->doRelatedRecordsWithGrouping('3x2', 'Contacts', 1);
 //$mobileAPITestController->doDeleteRecords(array('1x198', '18x198'));
 
-//$mobileAPITestController->doHistory('Home');
-
-$mobileAPITestController->doFetchRecord('16x196', false);
-
 class Mobile_API_TestController {
 	
-	private $URL;
+	private $URL = 'http://localhost/vtiger/develop/5.1.0/tagged/modules/Mobile/api.php';
 	private $userid;
 	private $session;
 	private $listing;
@@ -260,17 +256,6 @@ class Mobile_API_TestController {
 				$key => $value
 			);
 			
-		$responseJSON = $this->doPost($parameters, true);
-	}
-	
-	function doHistory($module, $record='') {
-		$parameters = array(
-			'_session' => $this->session,
-			'_operation' => 'history',
-			'module' => empty($record) ? $module : '',
-			'record' => $record,
-			'mode'   => 'All' , // Private (not supported yet)
-		);
 		$responseJSON = $this->doPost($parameters, true);
 	}
 	

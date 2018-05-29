@@ -30,6 +30,7 @@ class Settings_Workflows_Module_Model extends Settings_Vtiger_Module_Model {
 		'Record Id' => '(general : (__VtigerMeta__) recordId)',
 		'LBL_HELPDESK_SUPPORT_NAME' => '(general : (__VtigerMeta__) supportName)',
 		'LBL_HELPDESK_SUPPORT_EMAILID' => '(general : (__VtigerMeta__) supportEmailid)',
+		'Email Token' => '(general : (__VtigerMeta__) mailtoken)'
 	);
 
 	static $triggerTypes = array(
@@ -107,7 +108,7 @@ class Settings_Workflows_Module_Model extends Settings_Vtiger_Module_Model {
      * Function to get the count of active workflows
      * @return <Integer> count of active workflows
      */
-    public function getActiveWorkflowCount(){
+    public static function getActiveWorkflowCount(){
         $db = PearDatabase::getInstance();
 
 		$query = 'SELECT count(*) AS count FROM com_vtiger_workflows 

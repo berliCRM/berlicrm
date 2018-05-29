@@ -1,0 +1,43 @@
+
+<?PHP  $only_mine = (isset($_REQUEST['only_mine'])) ? " checked " : ""; ?>
+<?php $show= ''; if($_REQUEST['showstatus'] != '') $show = $_REQUEST['showstatus']; ?>
+
+<form name="index" method="post" action="index.php" id = "ticket_form">
+  <input type="hidden" name="module">
+  <input type="hidden" name="action">
+  <input type="hidden" name="fun">
+	
+	<script>
+function verify_data(form,fldval)
+{
+	com = trim(form.fldval.value);
+	if(com != '')
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+function showTickets(form)
+{
+	var showstatus = form.ticket_status_combo.value;
+	var obj = form.only_mine_combo;
+	var onlymine = true;
+	if (obj != null) {
+		var list_type = form.only_mine_combo.value; 
+		if (list_type == 'all') {
+		    onlymine = false;
+		}
+	}
+	window.location.href = "index.php?module=HelpDesk&action=index&showstatus="+showstatus+"&onlymine="+onlymine;
+
+}
+
+</script>
+
+
+
+
+

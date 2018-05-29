@@ -15,7 +15,7 @@
 
 require_once 'include/logging.php';
 include_once 'libraries/adodb/adodb.inc.php';
-require_once 'libraries/adodb/adodb-xmlschema.inc.php';
+require_once 'libraries/adodb/adodb-xmlschema03.inc.php';
 
 $log = LoggerManager::getLogger('VT');
 $logsqltm = LoggerManager::getLogger('SQLTIME');
@@ -24,7 +24,7 @@ $logsqltm = LoggerManager::getLogger('SQLTIME');
 // See function convertPS2Sql in PearDatabase below
 class PreparedQMark2SqlValue {
 	// Constructor
-	function PreparedQMark2SqlValue($vals){
+	function __construct($vals){
         $this->ctr = 0;
         $this->vals = $vals;
     }
@@ -296,7 +296,7 @@ class PearDatabase{
 	$this->executeSetNamesUTF8SQL();
 
 	$sql_start_time = microtime(true);
-	$result = & $this->database->Execute($sql);
+	$result = $this->database->Execute($sql);
 	$this->logSqlTiming($sql_start_time, microtime(true), $sql);
 
 	$this->lastmysqlrow = -1;
@@ -822,7 +822,7 @@ class PearDatabase{
 	/**
 	 * Constructor
 	 */
-    function PearDatabase($dbtype='',$host='',$dbname='',$username='',$passwd='') {
+    function __construct($dbtype='',$host='',$dbname='',$username='',$passwd='') {
 		global $currentModule;
 		$this->log = LoggerManager::getLogger('PearDatabase_'. $currentModule);
 		$this->resetSettings($dbtype,$host,$dbname,$username,$passwd);

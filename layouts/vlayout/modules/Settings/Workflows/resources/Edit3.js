@@ -66,7 +66,7 @@ Settings_Workflows_Edit_Js("Settings_Workflows_Edit3_Js",{},{
 			AppConnector.request(params).then(function(data) {
 				var callBackFunction = function(data) {
 					app.showScrollBar(jQuery('#addTaskContainer').find('#scrollContainer'),{
-						height : '450px'
+						height : '700px'
 					});
                     thisInstance.registerVTCreateTodoTaskEvents();
 					var taskType = jQuery('#taskType').val();

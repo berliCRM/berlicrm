@@ -24,6 +24,8 @@ if(isset($_REQUEST['service']))
 	elseif($_REQUEST['service'] == "thunderbird")
 	{
 		include("soap/thunderbirdplugin.php");
+	} elseif ($_REQUEST['service'] == "outlook") {
+		include("soap/vtigerolservice.php");
 	}
 	else
 	{

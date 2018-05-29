@@ -27,7 +27,7 @@
 					<td><b>{vtranslate('LBL_BASE_CURRENCY',$MODULE)}</b></td>
 				</tr>
 				{foreach item=price key=count from=$PRICE_DETAILS}
-					<tr data-currency-id={$price.curname}>
+					<tr data-currency-id='{$price.curname}'>
 						{if $price.check_value eq 1 || $price.is_basecurrency eq 1}
 							{assign var=check_value value="checked"}
 							{assign var=disable_value value=""}

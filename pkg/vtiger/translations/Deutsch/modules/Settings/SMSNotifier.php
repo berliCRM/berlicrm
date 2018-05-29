@@ -1,25 +1,33 @@
 <?php
-/*+**********************************************************************************
+/*+***********************************************************************************
  * The contents of this file are subject to the vtiger CRM Public License Version 1.0
  * ("License"); You may not use this file except in compliance with the License
  * The Original Code is:  vtiger CRM Open Source
  * The Initial Developer of the Original Code is vtiger.
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
- ************************************************************************************/
+ *************************************************************************************/
 $languageStrings = array(
-	'LBL_ADD_RECORD'               => 'New Configuration'           , 
-	'SMSNotifier'                  => 'SMS Provider Configuration'  , 
-	'LBL_ADD_CONFIGURATION'        => 'New Configuration'           , 
-	'LBL_EDIT_CONFIGURATION'       => 'Edit Configuration'          , 
-	'LBL_SELECT_ONE'               => 'Select One'                  , 
-	'providertype'                 => 'Provider'                    , 
-	'isactive'                     => 'Active'                      , 
-	'username'                     => 'User Name'                   , 
-	'password'                     => 'Password'                    , 
+	'LBL_ADD_RECORD' => 'Neue Konfiguration',
+	'SMSNotifier' => 'SMS Provider Konfiguration',
+	'LBL_ADD_CONFIGURATION' => 'Neue Konfiguration',
+	'LBL_EDIT_CONFIGURATION' => 'Konfiguration bearbeiten',
+	'LBL_SELECT_ONE' => 'einen auswählen',
+	
+	//Fields
+	'providertype' => 'Lieferant',
+	'isactive' => 'aktiv',
+	'username' => 'Nutzername',
+	'password' => 'Passwort',
+	
+	//List View
+	'Provider' => 'Lieferant',
+	'User Name' => 'Nutzername',
+	
 );
+
 $jsLanguageStrings = array(
-	'LBL_DELETE_CONFIRMATION'      => 'Are you sure, you want to delete this SMSNotifier Configuration', 
-	'JS_RECORD_DELETED_SUCCESSFULLY' => 'SMS Provider Deleted Successfully', 
-	'JS_CONFIGURATION_SAVED'       => 'SMS Provider Configurations saved', 
-);
+	'LBL_DELETE_CONFIRMATION' => 'Sind Sie sicher?',
+	'JS_RECORD_DELETED_SUCCESSFULLY' => 'SMS Lieferant erfolgreich gelöscht',
+	'JS_CONFIGURATION_SAVED' => 'SMS Provider Konfigurations gespeichert',
+);	

@@ -131,15 +131,10 @@ class Vtiger_FindDuplicate_Model extends Vtiger_Base_Model {
 			$ignoreEmpty = $this->get('ignoreEmpty');
 			$query = $focus->getQueryForDuplicates($module, $tableColumns, '', $ignoreEmpty);
 
-			$position = stripos($query, 'from');
-			if ($position) {
-				$split = spliti('from ', $query);
-				$splitCount = count($split);
-				$query = 'SELECT count(*) AS count ';
-				for ($i=1; $i<$splitCount; $i++) {
-					$query = $query. ' FROM ' .$split[$i];
-				}
-			}
+			$pos = stripos($query, ' from ');
+            if ($pos !== false) {
+                $query = 'SELECT count(*) AS count' . substr($query,$pos); 
+            }
 			$result = $db->pquery($query, array());
 			$rows = $db->query_result($result, 0, 'count');
 

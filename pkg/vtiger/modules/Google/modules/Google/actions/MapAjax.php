@@ -26,7 +26,8 @@ class Google_MapAjax_Action extends Vtiger_BasicAjax_Action {
      */
     function getLocation(Vtiger_Request $request) {
         $address = Google_Map_Helper::getLocation($request);
-        return empty($address) ? "" : array("address" => join(",", $address));
+		$mapapikey= Settings_Google_Module_Model::getGoogleApikey();
+        return empty($address) ? array("mapapikey"=> $mapapikey) : array("address" => join(",", $address),"mapapikey"=> $mapapikey);
     }
     
     public function validateRequest(Vtiger_Request $request) { 

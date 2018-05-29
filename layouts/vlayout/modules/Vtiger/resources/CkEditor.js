@@ -55,7 +55,7 @@ jQuery.Class("Vtiger_CkEditor_Js",{},{
 		this.setElement(element);
 		var instance = this.getCkEditorInstanceFromName();
 		var elementName = this.getElementId();
-		var config = {}
+		var config = {"language":jQuery("body").data("language")}
         
 		if(typeof customConfig != 'undefined'){
 			var config = jQuery.extend(config,customConfig);

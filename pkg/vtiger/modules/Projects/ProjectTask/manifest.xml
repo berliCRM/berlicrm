@@ -23,6 +23,7 @@
   `enddate` date default NULL,
   `projectid` varchar(100) default NULL,
   `projecttasknumber` int(11) default NULL,
+  `projecttaskstatus` varchar(100) default NULL,
   PRIMARY KEY  (`projecttaskid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
 </table>
@@ -112,6 +113,33 @@
 <picklistvalue>low</picklistvalue>
 <picklistvalue>normal</picklistvalue>
 <picklistvalue>high</picklistvalue>
+</picklistvalues>
+</field>
+<field>
+<fieldname>projecttaskstatus</fieldname>
+<uitype>15</uitype>
+<columnname>projecttaskstatus</columnname>
+<tablename>vtiger_projecttask</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Status</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<selected>0</selected>
+<sequence>3</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence></quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<picklistvalues>
+<picklistvalue>Open</picklistvalue>
+<picklistvalue>In Progress</picklistvalue>
+<picklistvalue>Completed</picklistvalue>
+<picklistvalue>Deferred</picklistvalue>
+<picklistvalue>Cancelled</picklistvalue>
 </picklistvalues>
 </field>
 <field>

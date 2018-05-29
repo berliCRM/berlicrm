@@ -13,8 +13,26 @@
 
 <span id="map_record" class="hide">{$RECORD}</span>
 <span id="map_module" class="hide">{$SOURCE_MODULE}</span>
-<div id="map_canvas">
-    <span id="map_address" class="hide"></span>
-    <img id="map_link" class="pull-right icon-share cursorPointer"></img>
-</div>
 
+{if $MAPAPIKEY neq ''}
+	<div id="map_canvas" style="text-align:center">
+		<span id="map_address" class="hide"></span>
+		<img id="map_link" class="pull-right icon-share cursorPointer hide" style="margin-right:4px"></img>
+	</div>
+{else}
+	<div class="recordNamesList">
+		<div class="row-fluid">
+			<div>
+				<ul class="nav nav-list">
+					<li>
+						{if $USER_MODEL->get('is_admin') eq 'on'}
+							<a href="{$SETMENUEURL}" data-id="5">{vtranslate('LBL_MISSING_MAP_KEY_ADMIN',$SOURCE_MODULE)}</a>
+						{else}
+							{vtranslate('LBL_MISSING_MAP_KEY',$SOURCE_MODULE)}</a>
+						{/if}
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+{/if}

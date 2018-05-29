@@ -151,14 +151,11 @@ class Products_ListView_Model extends Vtiger_ListView_Model {
 	}
 
 	public function addSubProductsQuery($listQuery){
-		$splitQuery = split('WHERE', $listQuery);
-		$query = " LEFT JOIN vtiger_seproductsrel ON vtiger_seproductsrel.crmid = vtiger_products.productid AND vtiger_seproductsrel.setype='Products'";
-		$splitQuery[0] .= $query;
-		$productId = $this->get('productId');
-		$query1 = " AND vtiger_seproductsrel.productid = $productId";
-		$splitQuery[1] .= $query1;
-		$listQuery = $splitQuery[0]. ' WHERE ' . $splitQuery[1];
-		return $listQuery;
+        $productId = $this->get('productId');
+        $pos = stripos($listQuery,'WHERE');
+        $query = substr($listQuery,0,$pos)." LEFT JOIN vtiger_seproductsrel ON vtiger_seproductsrel.crmid = vtiger_products.productid AND vtiger_seproductsrel.setype='Products' ";
+        $query .= substr($listQuery,$pos)." AND vtiger_seproductsrel.productid = $productId";
+		return $query;
 	}
 
 	public function getSubProducts($subProductId){
@@ -223,14 +220,9 @@ class Products_ListView_Model extends Vtiger_ListView_Model {
 			}
 		}
 		$position = stripos($listQuery, ' from ');
-		if ($position) {
-			$split = spliti(' from ', $listQuery);
-			$splitCount = count($split);
-			$listQuery = 'SELECT count(*) AS count ';
-			for ($i=1; $i<$splitCount; $i++) {
-				$listQuery = $listQuery. ' FROM ' .$split[$i];
-			}
-		}
+        if ($position !== false) {
+            $listQuery = 'SELECT count(*) AS count' . substr($listQuery,$position);
+        }
 
 		if($this->getModule()->get('name') == 'Calendar'){
 			$listQuery .= ' AND activitytype <> "Emails"';

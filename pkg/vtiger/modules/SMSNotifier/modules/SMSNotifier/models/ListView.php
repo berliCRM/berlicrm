@@ -18,12 +18,24 @@ class SMSNotifier_ListView_Model extends Vtiger_ListView_Model {
 	public function getListViewLinks($linkParams) {
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$moduleModel = $this->getModule();
-		$moduleName = $moduleModel->getName();
 
 		$linkTypes = array('LISTVIEWBASIC', 'LISTVIEW', 'LISTVIEWSETTING');
 		$links = Vtiger_Link_Model::getAllByType($moduleModel->getId(), $linkTypes, $linkParams);
 
+		$basicLinks = $this->getBasicLinks();
+
+		foreach($basicLinks as $basicLink) {
+			$links['LISTVIEWBASIC'][] = Vtiger_Link_Model::getInstanceFromValues($basicLink);
+		}
+
+		$advancedLinks = $this->getAdvancedLinks();
+
+		foreach($advancedLinks as $advancedLink) {
+			$links['LISTVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($advancedLink);
+		}
+
 		if($currentUserModel->isAdminUser()) {
+
 			$settingsLinks = $this->getSettingLinks();
 			foreach($settingsLinks as $settingsLink) {
 				$links['LISTVIEWSETTING'][] = Vtiger_Link_Model::getInstanceFromValues($settingsLink);

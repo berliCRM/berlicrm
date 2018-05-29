@@ -298,7 +298,15 @@ class Vtiger_MailRecord {
 	    // so an attached text file (type 0) is not mistaken as the message.
     	if ($params['filename'] || $params['name']) {
         	// filename may be given as 'Filename' or 'Name' or both
-	        $filename = ($params['filename'])? $params['filename'] : $params['name'];
+			/****
+			* crm-now: Create a custom filename for email inline images which have the same name
+			*/
+			if($filename=="image.png"){
+				$filename = uniqid() . ".png";
+			}
+			else{
+				$filename = ($params['filename']) ? $params['filename'] : $params['name'];
+			}
 			// filename may be encoded, so see imap_mime_header_decode()
 			if(!$this->_attachments) $this->_attachments = Array();
 			$this->_attachments[$filename] = $data;  // TODO: this is a problem if two files have same name

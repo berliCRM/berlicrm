@@ -11,7 +11,7 @@
 -->*}
 {strip}
     {include file="EditViewBlocks.tpl"|@vtemplate_path:'Vtiger'}
-    <input type="hidden" name="userChangedEndDateTime" value="{$USER_CHANGED_END_DATE_TIME}" />
+    <input type="hidden" name="userChangedEndDateTime" value="{$smarty.get.userChangedEndDateTime}">
     <table class="table table-bordered blockContainer showInlineTable">
         <tr>
             <th class="blockHeader" colspan="4">{vtranslate('LBL_INVITE_USER_BLOCK', $MODULE)}</th>
@@ -33,8 +33,8 @@
                         </option>
                     {/foreach}
                     <select>
-                        </td>
-                        </tr>
-                        </table>
-                        <br>
-                    {/strip}
+            </td>
+        </tr>
+    </table>
+    <br>
+{/strip}

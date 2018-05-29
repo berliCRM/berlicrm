@@ -104,8 +104,9 @@ function getAssociatedProducts($module,$focus,$seid='')
 	{
 		$query="SELECT
 					case when vtiger_products.productid != '' then vtiger_products.productname else vtiger_service.servicename end as productname,
- 		            case when vtiger_products.productid != '' then vtiger_products.product_no else vtiger_service.service_no end as productcode,
+ 		            case when vtiger_products.productid != '' then vtiger_products.productcode else vtiger_service.service_no end as productcode,
 					case when vtiger_products.productid != '' then vtiger_products.unit_price else vtiger_service.unit_price end as unit_price,
+					case when vtiger_products.productid != '' then vtiger_products.usageunit else vtiger_service.service_usageunit end as usageunit,
  		            case when vtiger_products.productid != '' then vtiger_products.qtyinstock else 'NA' end as qtyinstock,
  		            case when vtiger_products.productid != '' then 'Products' else 'Services' end as entitytype,
  		                        vtiger_inventoryproductrel.listprice,
@@ -186,8 +187,11 @@ function getAssociatedProducts($module,$focus,$seid='')
 		$qtyinstock=$adb->query_result($result,$i-1,'qtyinstock');
 		$qty=$adb->query_result($result,$i-1,'quantity');
 		$unitprice=$adb->query_result($result,$i-1,'unit_price');
+		$usageunit=$adb->query_result($result,$i-1,'usageunit');
 		$listprice=$adb->query_result($result,$i-1,'listprice');
 		$entitytype=$adb->query_result($result,$i-1,'entitytype');
+		//crm-now: get existing lineitemid
+		$hdnLineitemId = $adb->query_result($result,$i-1,'lineitem_id');
 
 		if(($deleted) || (!isset($deleted))){
 			$product_Detail[$i]['productDeleted'.$i] = true;
@@ -248,6 +252,9 @@ function getAssociatedProducts($module,$focus,$seid='')
 		}else {
             $product_Detail[$i]['comment'.$i]= $comment;
 		}
+		if ((!isset($_REQUEST['isDuplicate']) || empty($_REQUEST['isDuplicate']) || $_REQUEST['isDuplicate'] == 'false') && (!isset($_REQUEST['convertmode']) || empty($_REQUEST['convertmode']))) {
+			$product_Detail[$i]['hdnLineitemId'.$i] = $hdnLineitemId;
+		}
 
 		if($module != 'PurchaseOrder' && $focus->object_name != 'Order') {
 			$product_Detail[$i]['qtyInStock'.$i]=decimalFormat($qtyinstock);
@@ -256,6 +263,7 @@ function getAssociatedProducts($module,$focus,$seid='')
 		$product_Detail[$i]['qty'.$i]=decimalFormat($qty);
 		$product_Detail[$i]['listPrice'.$i]=$listprice;
 		$product_Detail[$i]['unitPrice'.$i]=number_format($unitprice, $no_of_decimal_places,'.','');
+		$product_Detail[$i]['usageunit'.$i]= from_html($usageunit);
 		$product_Detail[$i]['productTotal'.$i]=$productTotal;
 		$product_Detail[$i]['subproduct_ids'.$i]=$subprodid_str;
 		$product_Detail[$i]['subprod_names'.$i]=$subprodname_str;

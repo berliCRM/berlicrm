@@ -7,8 +7,11 @@
  * All Rights Reserved.
  *************************************************************************************/
 Vtiger_Edit_Js("Contacts_Edit_Js",{},{
+    
+    //false: copy account address to related contact automatically, true: ask user's confirmation
+    confirmAccountAddressCopying: true,	
 	
-	//Will have the mapping of address fields based on the modules
+    //Will have the mapping of address fields based on the modules
 	addressFieldsMapping : {'Accounts' :
 									{'mailingstreet' : 'bill_street',  
 									'otherstreet' : 'ship_street', 
@@ -53,13 +56,28 @@ Vtiger_Edit_Js("Contacts_Edit_Js",{},{
 	 */
 	referenceSelectionEventHandler :  function(data, container) {
 		var thisInstance = this;
-		var message = app.vtranslate('OVERWRITE_EXISTING_MSG1')+app.vtranslate('SINGLE_'+data['source_module'])+' ('+data['selectedName']+') '+app.vtranslate('OVERWRITE_EXISTING_MSG2');
-		Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(
-			function(e) {
-				thisInstance.copyAddressDetails(data, container);
-			},
-			function(error, err){
+        
+        if (thisInstance.confirmAccountAddressCopying) {  
+            var message = app.vtranslate('OVERWRITE_EXISTING_MSG1')+app.vtranslate('SINGLE_'+data['source_module'])+' ('+data['selectedName']+') '+app.vtranslate('OVERWRITE_EXISTING_MSG2');
+            Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(
+                function(e) {
+                    thisInstance.copyAddressDetails(data, container);
+                },
+                function(error, err){
 			});
+            return;
+        }
+            
+        var params = {
+            title : app.vtranslate('LBL_ACCOUNT_ADDRESS_COPIED_TITLE'),
+            text : app.vtranslate('LBL_ACCOUNT_ADDRESS_COPIED_TEXT'),
+            hide: true,
+            delay: 5000,
+            closer_hover: true,
+            type: 'notice'
+        }
+        Vtiger_Helper_Js.showPnotify(params);
+		thisInstance.copyAddressDetails(data, container);
 	},
 	
 	/**

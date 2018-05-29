@@ -15,7 +15,7 @@ class Documents_ListAjax_View extends Documents_List_View {
 		$this->exposeMethod('getPageCount');
 	}
 
-	function preProcess(Vtiger_Request $request) {
+	function preProcess(Vtiger_Request $request, $display=false) {
 		return true;
 	}
 

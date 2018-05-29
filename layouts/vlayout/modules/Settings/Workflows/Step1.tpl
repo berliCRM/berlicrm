@@ -49,7 +49,7 @@
                         {vtranslate('LBL_DESCRIPTION', $QUALIFIED_MODULE)}<span class="redColor">*</span>
                     </div>
                     <div class="controls">
-                        <input type="text" name="summary" class="span5" data-validation-engine='validate[required]' value="{$WORKFLOW_MODEL->get('summary')}" id="summary" />
+                        <input type="text" name="summary" class="span5" data-validation-engine='validate[required]' value="{vtranslate($WORKFLOW_MODEL->get('summary'), $QUALIFIED_MODULE)|escape}" id="summary" />
                     </div>
                 </div>
 

@@ -35,7 +35,7 @@ class Inventory_ListView_Model extends Vtiger_ListView_Model {
 
 		$basicLinks = array();
 
-		$createPermission = Users_Privileges_Model::isPermitted($moduleModel->getName(), 'EditView');
+		$createPermission = Users_Privileges_Model::isPermitted($moduleModel->getName(), 'CreateView');
 		if($createPermission) {
 			$basicLinks[] = array(
 					'linktype' => 'LISTVIEWBASIC',
@@ -72,4 +72,27 @@ class Inventory_ListView_Model extends Vtiger_ListView_Model {
 		}
 		return $links;
 	}
+	
+	
+	public function getListViewMassActions($linkParams) {
+		$massActionLinks = parent::getListViewMassActions($linkParams);
+
+		$currentUserModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
+
+		//crm-now: added action for mass PDF print for invoices
+		$moduleModel = $this->getModule();
+		if($currentUserModel->hasModuleActionPermission($moduleModel->getId(), 'DetailView') AND  $moduleModel->getName() == 'Invoice') {
+			$massActionLink = array(
+				'linktype' => 'LISTVIEWMASSACTION',
+				'linklabel' => 'LBL_MASS_PRINT_PDF',
+				//'linkurl' => 'javascript:Vtiger_List_Js.triggerMassPrintPDF("index.php?module='.$moduleModel->getName().'&action=MassExportPDF")',
+				'linkurl' => 'javascript:Vtiger_List_Js.triggerMassPrintPDF()',
+				'linkicon' => ''
+			);
+			$massActionLinks['LISTVIEWMASSACTION'][] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
+		}
+
+		return $massActionLinks;
+	}
+	
 }

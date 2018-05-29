@@ -95,4 +95,52 @@ class Accounts_DetailView_Model extends Vtiger_DetailView_Model {
 
 		return $linkModelList;
 	}
+
+	/**
+	 * Function to get the detail view widgets
+	 * @return <Array> - List of widgets , where each widget is an Vtiger_Link_Model
+	 */
+	public function getWidgets() {
+		$userPrivilegesModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
+		$widgetLinks = parent::getWidgets();
+		$widgets = array();
+		
+		//this class gets extended by Leads and Accounts which leads to unwanted widgets in their views
+		if ($this->getModule()->getName() == 'Accounts') {
+			$productsInstance = Vtiger_Module_Model::getInstance('Products');
+			if($userPrivilegesModel->hasModuleActionPermission($productsInstance->getId(), 'DetailView')) {
+				$createPermission = $userPrivilegesModel->hasModuleActionPermission($productsInstance->getId(), 'CreateView');
+				$widgets[] = array(
+						'linktype' => 'DETAILVIEWWIDGET',
+						'linklabel' => 'LBL_RELATED_PRODUCTS',
+						'linkName'	=> $productsInstance->getName(),
+						'linkurl' => 'module='.$this->getModuleName().'&view=Detail&record='.$this->getRecord()->getId().
+								'&relatedModule=Products&mode=showRelatedRecords&page=1&limit=5',
+						'action'	=>	($createPermission == true) ? array('Add') : array(),
+						'actionURL' =>	$productsInstance->getQuickCreateUrl()
+				);
+			}
+
+			$contactsInstance = Vtiger_Module_Model::getInstance('Contacts');
+			if($userPrivilegesModel->hasModuleActionPermission($contactsInstance->getId(), 'DetailView')) {
+				$createPermission = $userPrivilegesModel->hasModuleActionPermission($contactsInstance->getId(), 'CreateView');
+				$widgets[] = array(
+						'linktype' => 'DETAILVIEWWIDGET',
+						'linklabel' => 'Contacts',
+						'linkName'	=> $contactsInstance->getName(),
+						'linkurl' => 'module='.$this->getModuleName().'&view=Detail&record='.$this->getRecord()->getId().
+								'&relatedModule=Contacts&mode=showRelatedRecords&page=1&limit=10',
+						'action'	=>	($createPermission == true) ? array('Add') : array(),
+						'actionURL' =>	$contactsInstance->getQuickCreateUrl()
+				);
+			}
+
+			foreach ($widgets as $widgetDetails) {
+				$widgetLinks[] = Vtiger_Link_Model::getInstanceFromValues($widgetDetails);
+			}
+		}
+
+		return array_reverse($widgetLinks);
+	}
+
 }

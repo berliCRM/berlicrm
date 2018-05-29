@@ -97,7 +97,7 @@ class PurchaseOrder extends CRMEntity {
 	 *  This function creates an instance of LoggerManager class using getLogger method
 	 *  creates an instance for PearDatabase class and get values for column_fields array of Order class.
 	 */
-	function PurchaseOrder() {
+	function __construct() {
 		$this->log =LoggerManager::getLogger('PurchaseOrder');
 		$this->db = PearDatabase::getInstance();
 		$this->column_fields = getColumnFields('PurchaseOrder');
@@ -124,13 +124,13 @@ class PurchaseOrder extends CRMEntity {
 				$requestQuantitiesList[$productId] =  $_REQUEST['qty'.$i];
 			}
 
-			if($this->mode == '' && $this->column_fields['postatus'] === 'Received Shipment') {																			//Updating Product stock quantity during create mode
+			if($this->mode == '' && $this->column_fields['postatus'] === 'Received Shipment') {				//Updating Product stock quantity during create mode
 				foreach ($requestProductIdsList as $productId) {
 					addToProductStock($productId, $requestQuantitiesList[$productId]);
 				}
 			} else if ($this->column_fields['postatus'] === 'Received Shipment' && $this->mode != '') {		//Updating Product stock quantity during edit mode
 				$recordId = $this->id;
-				$result = $adb->pquery("SELECT productid, quantity FROM vtiger_inventoryproductrel WHERE id = ?", array($recordId));
+				$result = $adb->pquery("SELECT productid, SUM(quantity) as quantity FROM vtiger_inventoryproductrel WHERE id = ? GROUP BY productid", array($recordId));
 				$numOfRows = $adb->num_rows($result);
 				for ($i=0; $i<$numOfRows; $i++) {
 					$productId = $adb->query_result($result, $i, 'productid');

@@ -92,31 +92,31 @@ class Home_Module_Model extends Vtiger_Module_Model {
 		//comment information again,so avoiding from modtracker
                //updateActivityQuery api is used to update a query to fetch a only activity
 		
-                else if($type == 'updates' || $type == 'all' )
-                {
-                     $db = PearDatabase::getInstance();
-                     $queryforActivity= $this->getActivityQuery($type);
-                     $result = $db->pquery('SELECT vtiger_modtracker_basic.*
+        else if($type == 'updates' || $type == 'all' ) {
+            $db = PearDatabase::getInstance();
+            $queryforActivity= $this->getActivityQuery($type);
+            $result = $db->pquery('SELECT vtiger_modtracker_basic.*
 								FROM vtiger_modtracker_basic
 								INNER JOIN vtiger_crmentity ON vtiger_modtracker_basic.crmid = vtiger_crmentity.crmid
 								AND deleted = 0 ' .  $queryforActivity .'
 								ORDER BY vtiger_modtracker_basic.id DESC LIMIT ?, ?',array($pagingModel->getStartIndex(), $pagingModel->getPageLimit()));
 
-                     $history = array();
-		     for($i=0; $i<$db->num_rows($result); $i++) {
-			$row = $db->query_result_rowdata($result, $i);
-			$moduleName = $row['module'];
-			$recordId = $row['crmid'];
-			if(Users_Privileges_Model::isPermitted($moduleName, 'DetailView', $recordId)){
-				$modTrackerRecorModel = new ModTracker_Record_Model();
-				$modTrackerRecorModel->setData($row)->setParent($recordId, $moduleName);
-				$time = $modTrackerRecorModel->get('changedon');
-				$history[$time] = $modTrackerRecorModel;
-			      }
+            $history = array();
+		    for($i=0; $i<$db->num_rows($result); $i++) {
+				$row = $db->query_result_rowdata($result, $i);
+				$moduleName = $row['module'];
+				$recordId = $row['crmid'];
+				if(Users_Privileges_Model::isPermitted($moduleName, 'DetailView', $recordId)){
+					$modTrackerRecorModel = new ModTracker_Record_Model();
+					$modTrackerRecorModel->setData($row)->setParent($recordId, $moduleName);
+					$time = $modTrackerRecorModel->get('changedon');
+					//crm-now: added to have an unique time for each entry
+					$time = $time . "-" . $i;
+					$history[$time] = $modTrackerRecorModel;
+			    }
 		    }  
-                    
-                    return $history;
-                }
+			return $history;
+        }
 		return false;
 	}
 
@@ -140,7 +140,7 @@ class Home_Module_Model extends Vtiger_Module_Model {
 		$nowInDBFormat = Vtiger_Datetime_UIType::getDBDateTimeValue($nowInUserFormat);
 		list($currentDate, $currentTime) = explode(' ', $nowInDBFormat);
 
-		$query = "SELECT vtiger_crmentity.crmid, vtiger_crmentity.smownerid, vtiger_crmentity.setype, vtiger_activity.* FROM vtiger_activity
+		$query = "SELECT vtiger_crmentity.crmid, vtiger_crmentity.smownerid, vtiger_crmentity.setype, vtiger_crmentity.description, vtiger_activity.* FROM vtiger_activity
 					INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_activity.activityid
 					LEFT JOIN vtiger_groups ON vtiger_groups.groupid = vtiger_crmentity.smownerid";
 

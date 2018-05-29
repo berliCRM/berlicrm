@@ -44,3 +44,6 @@ $languageStrings = array(
 	'Total Revenue' => 'Revenue by Salesperson',
 	'Value Proposition'=>'Value Proposition',
 );
+
+$jsLanguageStrings = array(
+);

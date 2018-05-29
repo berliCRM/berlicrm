@@ -1,0 +1,49 @@
+<?xml version='1.0'?>
+<schema>
+	<tables>
+		<table>
+			<name>vtiger_berlicleverreach</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_berlicleverreach` (
+  `cleverreachid` int(11) NOT NULL,
+  `cleverreachname` varchar(50) DEFAULT NULL,
+  `bcr_campaign_no` varchar(100) DEFAULT NULL,
+  `bcr_campaign_type` varchar(200) DEFAULT NULL,
+  `bcr_campaign_status` varchar(200) DEFAULT NULL,
+  `lastsynchronization` datetime DEFAULT NULL,
+  PRIMARY KEY (`cleverreachid`),
+  CONSTRAINT `fk_1_vtiger_cleverreach` FOREIGN KEY (`cleverreachid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>vtiger_berlicleverreachcf</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_berlicleverreachcf` (
+  `cleverreachid` int(11) NOT NULL,
+  PRIMARY KEY (`cleverreachid`),
+  CONSTRAINT `fk_1_vtiger_cleverreachcf` FOREIGN KEY (`cleverreachid`) REFERENCES `vtiger_berlicleverreach` (`cleverreachid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>vtiger_berlicleverreach_settings</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_berlicleverreach_settings` (
+  `id` int(11) NOT NULL,
+  `customerid` varchar(16) NOT NULL,
+  `customername` varchar(128) NOT NULL,
+  `accesstoken` varchar(400) NOT NULL,
+  `newsubscribertype` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>vtiger_berlicleverreach_synced_entities</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_berlicleverreach_synced_entities` (
+  `crmid` int(11) NOT NULL,
+  `crgroupid` int(11) NOT NULL,
+  `recordid` int(11) NOT NULL,
+  KEY `recordidx` (`recordid`),
+  KEY `crmid` (`crmid`),
+  CONSTRAINT `vtiger_berlicleverreach_synced_entities_ibfk_1` FOREIGN KEY (`recordid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE,
+  CONSTRAINT `vtiger_berlicleverreach_synced_entities_ibfk_2` FOREIGN KEY (`crmid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+		</table>
+	</tables>
+</schema>

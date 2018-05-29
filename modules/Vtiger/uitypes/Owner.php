@@ -23,7 +23,7 @@ class Vtiger_Owner_UIType extends Vtiger_Base_UIType {
 	 * @param <Object> $value
 	 * @return <Object>
 	 */
-	public function getDisplayValue($value) {
+	public function getDisplayValue($value,$record=false,$recordInstance=false) {
 		if (self::getOwnerType($value) === 'User') {
 			$userModel = Users_Record_Model::getCleanInstance('Users');
 			$userModel->set('id', $value);

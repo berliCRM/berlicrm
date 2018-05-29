@@ -13,7 +13,7 @@
     <html lang="en">
 
         <head>
-            <title>Vtiger CRM Setup</title>
+            <title>CRM Setup</title>
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
             <link REL="SHORTCUT ICON" HREF="layouts/vlayout/skins/images/favicon.ico">
@@ -269,7 +269,7 @@
                 <div class="row-fluid">
                     <div class="span6">
                         <div class="logo">
-                            <img src="test/logo/vtiger-crm-logo.png" alt="Vtiger Logo"/>
+                            <img src="test/logo/crmnow_logo_header.png" alt="CRM Logo"/>
                         </div>
                     </div>
                     <div class="span6"></div>
@@ -278,11 +278,17 @@
                     <div class="span12 inner-container">
                         <div class="row-fluid">
                             <div class="span8">
-                                <h3 style="display: inline-block;float:left;"> What would you like to use Vtiger CRM for? </h3> 
-								<p style="display: inline-block;float:left;margin-top:4px;">&nbsp;&nbsp;(Select features you want to enable)</p>
+                                <h3 style="display: inline-block;float:left;">{vtranslate('LBL_SEL_LANGUAGE', 'Users')}</h3>
+								<p style="display: inline-block;float:left;margin-top:4px;">&nbsp;&nbsp;<img title="English Language" alt="English Flag" style="width:100px" onclick="location.href='index.php?module=Users&parent=Settings&view=SystemSetup&lang=en'" src="layouts/vlayout/skins/images/usa_flag.png">&nbsp;&nbsp;<img title="Deutsche Sprache" alt="German Flag" style="width:100px" onclick="location.href='index.php?module=Users&parent=Settings&view=SystemSetup'" src="layouts/vlayout/skins/images/germany_flag.png"></p>
+                            </div>
+                          </div>
+                         <div class="row-fluid">
+                            <div class="span8">
+                                <h3 style="display: inline-block;float:left;"> {vtranslate('LBL_PURPOSE', 'Users')}</h3> 
+								<p style="display: inline-block;float:left;margin-top:4px;">&nbsp;&nbsp;({vtranslate('LBL_PURPOSE_COMM', 'Users')})</p>
                             </div>
 							<div class="span4">
-								<div class="pull-right"><label for="checkbox-1" style="vertical-align:bottom;margin:0;margin-top:8px\9;margin-left:10px\9;font-size:15px;"><strong> Select All</strong></label> <input type="checkbox" name="selectAll" class="selectAll"/><div class="chkbox"></div></div>
+								<div class="pull-right"><label for="checkbox-1" style="vertical-align:bottom;margin:0;margin-top:8px\9;margin-left:10px\9;font-size:15px;"><strong> {vtranslate('LBL_SEL_ALL', 'Users')}</strong></label> <input type="checkbox" name="selectAll" class="selectAll"/><div class="chkbox"></div></div>
 							</div>
                         </div>
                         <hr>
@@ -293,15 +299,14 @@
 									<div class="row-fluid">
 									{/if}
 									<div class="group-container {if $COUNTER eq 0} span12 selectedContainer js-basePack {else} span6 {/if}">
-										<div class="module_list"><a> View Modules </a></div>
+										<div class="module_list"><a> {vtranslate('LBL_VIEW_MODULES', 'Users')}</a></div>
 										<div class="row-fluid">
 											<div class="{if $COUNTER eq 0} span2 {else} span3 {/if}">
 												<img src="layouts/vlayout/skins/images/{$PACKAGE_INFO.imageName}" alt="Vtiger Logo"/>
 											</div>
 											<div class="{if $COUNTER eq 0} span10 {else} span9 {/if}">
 												<div class="group-heading">
-													
-													<h4>{$PACKAGE_INFO.label}</h4>
+													<h4>{vtranslate($PACKAGE_INFO.label, 'Users')}</h4>
 													{if $COUNTER neq 0}
 														<div class="pull-right">
 														<input type="checkbox" name="packages[{$PACKAGE_NAME}]"/><div class="chkbox"></div>
@@ -312,7 +317,7 @@
 												</div>
 												<div class="group-desc">
 													<br>
-													<p>{$PACKAGE_INFO.description}</p>
+													<p>{vtranslate($PACKAGE_INFO.description, 'Users')}</p>
 												</div>
 											</div>
 										</div>
@@ -320,14 +325,14 @@
 											<div class="row-fluid">
 												<div class="offset2 span10">
 													<input type="hidden" name="packages[{$PACKAGE_NAME}]" value="on"/>
-													<strong> This feature will be installed by default </strong></label>
+													<strong>{vtranslate('LBL_INSTALL_DEFAULT', 'Users')}</strong></label>
 												</div>
 											</div>
 										{/if}
 										<div class="reveal_modules">
 											<div>
 												{* Vtranslate did not supported here *}
-												<strong>These Modules will be enabled for this feature</strong><hr>
+												<strong>{vtranslate('LBL_MODULE_FEATURE', 'Users')}</strong><hr>
 												<div>	
 													{assign var=ITEMCOUNTER value=0}
 													{foreach from=$PACKAGE_INFO.modules item=MODULE_NAME}
@@ -353,11 +358,11 @@
 							</div>
 							<div class="row-fluid">
 								<div class="span9">
-									<strong>Note: </strong> You can Enable/Disable modules from module manager later   
+									<strong>{vtranslate('LBL_NOTE', 'Users')}:&nbsp;</strong>{vtranslate('LBL_HINT', 'Users')}  
 								</div>
 								<div class="span3">
 									<div class="button-container">
-										<button type="submit" class="btn btn-large btn-primary next" value="Next"> Next </button>
+										<button type="submit" class="btn btn-large btn-primary next" value="Next">&nbsp;{vtranslate('LBL_NEXT', 'Users')}&nbsp;</button>
 									</div>
 								</div>
 							</div>

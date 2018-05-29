@@ -14,7 +14,7 @@ class PBXManager_Record_Model extends Vtiger_Record_Model{
     const lookuptableName = 'vtiger_pbxmanager_phonelookup';
     const entitytableName = 'vtiger_crmentity';
     
-    static function getCleanInstance(){
+    public static function getCleanInstance($modulename = ''){
         return new self;
     }
     
@@ -114,7 +114,7 @@ class PBXManager_Record_Model extends Vtiger_Record_Model{
         return true;
     }
     
-    public static function getInstanceById($phonecallsid){
+    public static function getInstanceById($phonecallsid, $module = NULL){
         $db = PearDatabase::getInstance();
         $record = new self();
         $query = 'SELECT * FROM '.self::moduletableName.' WHERE pbxmanagerid=?';
@@ -218,7 +218,7 @@ class PBXManager_Record_Model extends Vtiger_Record_Model{
     }    
     
     // Because, User is not related to crmentity 
-    public function buildSearchQueryWithUIType($uitype, $value, $module){
+    public static function buildSearchQueryWithUIType($uitype, $value, $module){
         if (empty($value)) {
             return false;
         }
@@ -259,8 +259,8 @@ class PBXManager_Record_Model extends Vtiger_Record_Model{
                     $i++;
                 }
             }
-         }
-         return $query;
+        }
+        return $query;
     }
 
     public static function getUserNumbers(){
@@ -278,4 +278,3 @@ class PBXManager_Record_Model extends Vtiger_Record_Model{
         return $numbers;
     }
 }
-?>

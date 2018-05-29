@@ -8,19 +8,16 @@
  * All Rights Reserved.
  *
  ********************************************************************************/
-include_once 'modules/Quotes/QuotePDFController.php';
-$controller = new Vtiger_QuotePDFController($currentModule);
-$controller->loadRecord(vtlib_purify($_REQUEST['record']));
-$quote_no = getModuleSequenceNumber($currentModule,vtlib_purify($_REQUEST['record']));
+require_once('modules/Quotes/pdfcreator.php');
+global $adb,$app_strings,$focus,$current_user;
+// Request from Customer Portal for downloading the file.
 if(isset($_REQUEST['savemode']) && $_REQUEST['savemode'] == 'file') {
 	$quote_id = vtlib_purify($_REQUEST['record']);
-	$filepath='test/product/'.$quote_id.'_Quotes_'.$quote_no.'.pdf';
-	//added file name to make it work in IE, also forces the download giving the user the option to save
-	$controller->Output($filepath,'F');
-} else {
-	//added file name to make it work in IE, also forces the download giving the user the option to save
-	$controller->Output('Quotes_'.$quote_no.'.pdf', 'D');
-	exit();
+	$filepath='test/product/';
+	createpdffile ($_REQUEST['record'],'customerportal',$filepath,$quote_id);
+}
+else {
+	createpdffile ($_REQUEST['record'],'print');
 }
 
 ?>

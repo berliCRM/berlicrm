@@ -50,7 +50,7 @@
 				<button class="btn dropdown-toggle" href="#" data-toggle="dropdown"><i class="icon-wrench" alt="{vtranslate('LBL_SETTINGS', $MODULE)}" title="{vtranslate('LBL_SETTINGS', $MODULE)}"></i>&nbsp;&nbsp;<i class="caret"></i></button>
 				<ul class="listViewSetting dropdown-menu">
 					{foreach item=LISTVIEW_SETTING from=$LISTVIEW_LINKS['LISTVIEWSETTING']}
-						<li><a href={$LISTVIEW_SETTING->getUrl()}>{vtranslate($LISTVIEW_SETTING->getLabel(), $MODULE)}</a></li>
+						<li><a href="{$LISTVIEW_SETTING->getUrl()}">{vtranslate($LISTVIEW_SETTING->getLabel(), $MODULE)}</a></li>
 					{/foreach}
 				</ul>
 			</span>

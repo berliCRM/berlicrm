@@ -199,7 +199,7 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		return $headerScriptInstances;
 	}
 
-	function showDetailViewByMode($request) {
+	function showDetailViewByMode(Vtiger_Request $request) {
 		$requestMode = $request->get('requestMode');
 		if($requestMode == 'full') {
 			return $this->showModuleDetailView($request);
@@ -224,19 +224,39 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		$structuredValues = $recordStrucure->getStructure();
 
         $moduleModel = $recordModel->getModule();
+        $blockList = $moduleModel->getBlocks();
+        $userModel = Users_Record_Model::getCurrentUserModel();
+
+        // crm-now: dynamic blocks for detail view
+        $blockedBlocks = array();
+        $hiddenBlocks = array();
+        foreach ($blockList as $block) {
+            if (!empty($block->hideWhenPickListHasValue)) {
+                foreach ($block->hideWhenPickListHasValue as $plid => $plv) {
+                    if (in_array($recordModel->entity->column_fields[$plid],$plv)) $hiddenBlocks[$block->id]=true;
+                }
+            }
+            if (!empty($block->blockWhenPickListHasValue) && !($_GET["overridedynblocks"] == 1 && $userModel->isAdminUser())) {
+                foreach ($block->blockWhenPickListHasValue as $plid => $plv) {
+                    if (in_array($recordModel->entity->column_fields[$plid],$plv)) $blockedBlocks[$block->id]=true;
+                }
+            }
+        }
 
 		$viewer = $this->getViewer($request);
 		$viewer->assign('RECORD', $recordModel);
 		$viewer->assign('RECORD_STRUCTURE', $structuredValues);
-        $viewer->assign('BLOCK_LIST', $moduleModel->getBlocks());
-		$viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
+        $viewer->assign('BLOCK_LIST', $blockList);
+		$viewer->assign('USER_MODEL', $userModel);
+        $viewer->assign('BLOCKED_BLOCKS', $blockedBlocks);        
+        $viewer->assign('HIDDEN_BLOCKS', $hiddenBlocks);        
 		$viewer->assign('MODULE_NAME', $moduleName);
 		$viewer->assign('IS_AJAX_ENABLED', $this->isAjaxEnabled($recordModel));
 
 		return $viewer->view('DetailViewFullContents.tpl',$moduleName,true);
 	}
 
-	function showModuleSummaryView($request) {
+	function showModuleSummaryView(Vtiger_Request $request) {
 		$recordId = $request->get('record');
 		$moduleName = $request->getModule();
 
@@ -247,10 +267,24 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		$recordStrucure = Vtiger_RecordStructure_Model::getInstanceFromRecordModel($recordModel, Vtiger_RecordStructure_Model::RECORD_STRUCTURE_MODE_SUMMARY);
 
         $moduleModel = $recordModel->getModule();
+        $blockList = $moduleModel->getBlocks();
+        $userModel = Users_Record_Model::getCurrentUserModel();
+        
+        // crm-now: dynamic blocks for summary view
+        $blockedBlocks = array();
+        foreach ($blockList as $block) {
+            if (!empty($block->blockWhenPickListHasValue) && !($_GET["overridedynblocks"] == 1 && $userModel->isAdminUser())) {
+                foreach ($block->blockWhenPickListHasValue as $plid => $plv) {
+                    if (in_array($recordModel->entity->column_fields[$plid],$plv)) $blockedBlocks[$block->id]=true;
+                }
+            }
+        }
+        
 		$viewer = $this->getViewer($request);
 		$viewer->assign('RECORD', $recordModel);
-        $viewer->assign('BLOCK_LIST', $moduleModel->getBlocks());
-		$viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
+        $viewer->assign('BLOCK_LIST', $blockList);        
+		$viewer->assign('USER_MODEL', $userModel);
+        $viewer->assign('BLOCKED_BLOCKS', $blockedBlocks);
 
 		$viewer->assign('MODULE_NAME', $moduleName);
 		$viewer->assign('IS_AJAX_ENABLED', $this->isAjaxEnabled($recordModel));
@@ -264,7 +298,7 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 	 * Function shows basic detail for the record
 	 * @param <type> $request
 	 */
-	function showModuleBasicView($request) {
+	function showModuleBasicView(Vtiger_Request $request) {
 
 		$recordId = $request->get('record');
 		$moduleName = $request->getModule();
@@ -487,14 +521,14 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		$relationListView = Vtiger_RelationListView_Model::getInstance($parentRecordModel, $relatedModuleName);
 		$models = $relationListView->getEntries($pagingModel);
 		$header = $relationListView->getHeaders();
-
+        $currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$viewer = $this->getViewer($request);
 		$viewer->assign('MODULE' , $moduleName);
 		$viewer->assign('RELATED_RECORDS' , $models);
 		$viewer->assign('RELATED_HEADERS', $header);
 		$viewer->assign('RELATED_MODULE' , $relatedModuleName);
 		$viewer->assign('PAGING_MODEL', $pagingModel);
-
+        $viewer->assign('CURRENTUSER', $currentUserModel);
 		return $viewer->view('SummaryWidgets.tpl', $moduleName, 'true');
 	}
 }

@@ -56,9 +56,11 @@ $languageStrings = array(
          //Patch provided by http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7884
          //campaignstatus picklist values 
         'Planning'=>'Planning', 
-        'Active'=>'Active'
+        'Active'=>'Active',
+
+    'LBL_DUPLICATE_WITH_CONTENT' => 'Complete Duplicate',
 );
 
 $jsLanguageStrings = array(
-       'JS_LBL_ARE_YOU_SURE_YOU_WANT_TO_ADD_THIS_FILTER' => 'Are you sure you want to add this filter records?.',
+       'JS_LBL_ARE_YOU_SURE_YOU_WANT_TO_ADD_THIS_FILTER' => 'Are you sure you want to add this filter records?',
  );

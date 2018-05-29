@@ -95,7 +95,8 @@ class Vtiger_List_View extends Vtiger_Index_View {
 			'modules.CustomView.resources.CustomView',
 			"modules.$moduleName.resources.CustomView",
 			"modules.Emails.resources.MassEdit",
-			"modules.Vtiger.resources.CkEditor"
+			"modules.Vtiger.resources.CkEditor",
+			"modules.Vtiger.resources.FindDuplicates"
 		);
 
 		$jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
@@ -155,7 +156,9 @@ class Vtiger_List_View extends Vtiger_Index_View {
         $searchParmams = $request->get('search_params');
         if(empty($searchParmams)) {
             $searchParmams = array();
-        }
+        } else {
+			$viewer->assign('URL_SEARCH_PARAMETERS', json_encode($searchParmams));
+		}
         $transformedSearchParams = $this->transferListSearchParamsToFilterCondition($searchParmams, $listViewModel->getModule());
         $listViewModel->set('search_params',$transformedSearchParams);
 
@@ -216,6 +219,7 @@ class Vtiger_List_View extends Vtiger_Index_View {
 		}
 		$viewer->assign('LIST_VIEW_MODEL', $listViewModel);
 		$viewer->assign('GROUPS_IDS', Vtiger_Util_Helper::getGroupsIdsForUsers($currentUser->getId()));
+		$viewer->assign('IS_RECORD_CREATABLE', $listViewModel->getModule()->isPermitted('CreateView'));
 		$viewer->assign('IS_MODULE_EDITABLE', $listViewModel->getModule()->isPermitted('EditView'));
 		$viewer->assign('IS_MODULE_DELETABLE', $listViewModel->getModule()->isPermitted('Delete'));
         $viewer->assign('SEARCH_DETAILS', $searchParmams);

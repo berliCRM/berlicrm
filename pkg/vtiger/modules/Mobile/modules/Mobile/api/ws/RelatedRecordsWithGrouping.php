@@ -6,8 +6,10 @@
  * The Initial Developer of the Original Code is vtiger.
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
+ * Modified by crm-now GmbH, www.crm-now.com
  ************************************************************************************/
-
+include_once 'include/Webservices/RetrieveRelated.php';
+include_once dirname(__FILE__) . '/../Relation.php';
 include_once dirname(__FILE__) . '/QueryWithGrouping.php';
 
 class Mobile_WS_RelatedRecordsWithGrouping extends Mobile_WS_QueryWithGrouping {
@@ -19,7 +21,6 @@ class Mobile_WS_RelatedRecordsWithGrouping extends Mobile_WS_QueryWithGrouping {
 		$response = new Mobile_API_Response();
 
 		$record = $request->get('record');
-		$relatedmodule = $request->get('relatedmodule');
 		$currentPage = $request->get('page', 0);
 		
 		// Input validation
@@ -35,45 +36,35 @@ class Mobile_WS_RelatedRecordsWithGrouping extends Mobile_WS_QueryWithGrouping {
 		// Initialize global variable
 		$currentModule = $module;
 		
-		$functionHandler = Mobile_WS_Utils::getRelatedFunctionHandler($module, $relatedmodule); 
-		
-		if ($functionHandler) {
-			$sourceFocus = CRMEntity::getInstance($module);
-			$relationResult = call_user_func_array(	array($sourceFocus, $functionHandler), array($recordid, getTabid($module), getTabid($relatedmodule)) );
-			$query = $relationResult['query'];
-		
-			$querySEtype = "vtiger_crmentity.setype as setype";
-			if ($relatedmodule == 'Calendar') {
-				$querySEtype = "vtiger_activity.activitytype as setype";
+		//related module currently supported
+		$relatedmodule = Array ('Contacts','Potentials','HelpDesk');
+		$activemodule = $this->sessionGet('_MODULES');
+		foreach($activemodule as $amodule) {
+			if (in_array($amodule->name(), $relatedmodule)) {
+				$active_related_module[] = $amodule->name();
 			}
-			
-			$query = sprintf("SELECT vtiger_crmentity.crmid, $querySEtype %s", substr($query, stripos($query, 'FROM')));
-			$queryResult = $adb->query($query);
-			
-			// Gather resolved record id's
-			$relatedRecords = array();
-			while($row = $adb->fetch_array($queryResult)) {
-				$targetSEtype = $row['setype'];
-				if ($relatedmodule == 'Calendar') {
-					if ($row['setype'] != 'Task' && $row['setype'] != 'Emails') {
-						$targetSEtype = 'Events';
-					} else {
-						$targetSEtype = $relatedmodule;
+		}
+
+		foreach ($active_related_module as $relmod) {
+			$functionHandler = Mobile_WS_Utils::getRelatedFunctionHandler($module, $relmod); 
+			$fieldmodel = new Mobile_UI_FieldModel();
+			if ($functionHandler) {
+				$sourceFocus = CRMEntity::getInstance($module);
+				$relationResult = call_user_func_array(	array($sourceFocus, $functionHandler), array($recordid, getTabid($module), getTabid($relmod)) );
+				$relationResult = vtws_retrieve_related($record, $relmod, $relmod, $current_user);
+				foreach ($relationResult as $relkey => $relvalue) {
+					if (is_array ($relvalue)) {
+						$trueidarr = explode('x', $relvalue['id']);
+						$trueid = $trueidarr[1];
+						$relatedRecords[$relmod][] = $trueid;
 					}
 				}
-				$relatedRecords[] = sprintf("%sx%s", Mobile_WS_Utils::getEntityModuleWSId($targetSEtype), $row['crmid']);
+				$response->setResult($relatedRecords);
 			}
-			
-			// Perform query to get record information with grouping
-			$wsquery = sprintf("SELECT * FROM %s WHERE id IN ('%s');", $relatedmodule, implode("','", $relatedRecords));
-			$newRequest = new Mobile_API_Request();
-			$newRequest->set('module', $relatedmodule);
-			$newRequest->set('query', $wsquery);
-			$newRequest->set('page', $currentPage);
-
-			$response = parent::process($newRequest);
+			else {
+				$response->setError(1018, 'Function Handler for module '.$module.' for related Module '.$relmod.'  not found.');
+			}
 		}
-		
 		return $response;
 	}
 }

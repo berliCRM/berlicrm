@@ -135,6 +135,7 @@ class Vtiger_Field_Model extends Vtiger_Field {
 			$row['fieldid'] = $this->get('id');
 			$row['readonly'] = !$this->getProfileReadWritePermission();
 			$row['defaultvalue'] = $this->get('defaultvalue');
+			$row['helpinfo'] = $this->get('helpinfo');
 
 			$this->webserviceField = WebserviceField::fromArray($db, $row);
 		}
@@ -238,7 +239,7 @@ class Vtiger_Field_Model extends Vtiger_Field {
 	 * Function to get all the available picklist values for the current field
 	 * @return <Array> List of picklist values if the field is of type picklist or multipicklist, null otherwise.
 	 */
-	public function getPicklistValues() {
+	public function getPicklistValues($a=false,$b=false) {
         $fieldDataType = $this->getFieldDataType();
 		if($this->getName() == 'hdnTaxType') return null;
 
@@ -487,6 +488,7 @@ class Vtiger_Field_Model extends Vtiger_Field {
 		$this->fieldInfo['quickcreate'] = $this->isQuickCreateEnabled();
 		$this->fieldInfo['masseditable'] = $this->isMassEditable();
 		$this->fieldInfo['defaultvalue'] = $this->hasDefaultValue();
+		$this->fieldInfo['helpinfo'] = $this->hasHelpinfo();
 		$this->fieldInfo['type'] = $fieldDataType;
 		$this->fieldInfo['name'] = $this->get('name');
 		$this->fieldInfo['label'] = vtranslate($this->get('label'), $this->getModuleName());
@@ -949,9 +951,9 @@ class Vtiger_Field_Model extends Vtiger_Field {
             case 'end_period' : $funcName1 = array('name' => 'greaterThanDependentField',
 													'params' => array('start_period'));
 												array_push($validator, $funcName1);
-								$funcName2 = array('name' => 'lessThanDependentField',
-													'params' => array('duedate'));
-												array_push($validator, $funcName2);
+								// $funcName2 = array('name' => 'lessThanDependentField',
+													// 'params' => array('duedate'));
+												// array_push($validator, $funcName2);
 
 		   case 'start_period' :
 								$funcName = array('name' => 'lessThanDependentField',
@@ -989,12 +991,13 @@ class Vtiger_Field_Model extends Vtiger_Field {
 	 */
 	public function getCurrencyList() {
 		$db = PearDatabase::getInstance();
-		$result = $db->pquery('SELECT * FROM vtiger_currency_info WHERE currency_status = ? AND deleted=0', array('Active'));
+		$result = $db->pquery('SELECT id, currency_name FROM vtiger_currency_info WHERE currency_status = ? AND deleted=0', array('Active'));
 		for($i=0; $i<$db->num_rows($result); $i++) {
 			$currencyId = $db->query_result($result, $i, 'id');
 			$currencyName = $db->query_result($result, $i, 'currency_name');
 			$currencies[$currencyId] = $currencyName;
 		}
+		asort($currencies);
 		return $currencies;
 	}
 
@@ -1098,9 +1101,9 @@ class Vtiger_Field_Model extends Vtiger_Field {
 
     public function __update() {
         $db = PearDatabase::getInstance();
-        $query = 'UPDATE vtiger_field SET typeofdata=?,presence=?,quickcreate=?,masseditable=?,defaultvalue=?,summaryfield=? WHERE fieldid=?';
+        $query = 'UPDATE vtiger_field SET typeofdata=?,presence=?,quickcreate=?,masseditable=?,defaultvalue=?,summaryfield=?,helpinfo=? WHERE fieldid=?';
         $params = array($this->get('typeofdata'), $this->get('presence'), $this->get('quickcreate'), $this->get('masseditable'),
-                        $this->get('defaultvalue'), $this->get('summaryfield'), $this->get('id'));
+                        $this->get('defaultvalue'), $this->get('summaryfield'), $this->get('helpinfo'), $this->get('id'));
 		$db->pquery($query,$params);
     }
 
@@ -1123,6 +1126,10 @@ class Vtiger_Field_Model extends Vtiger_Field {
 
 	public function hasDefaultValue() {
 		return $this->defaultvalue == '' ? false : true;
+	}
+	
+	public function hasHelpinfo() {
+		return $this->helpinfo == '' ? false : true;
 	}
 
     public function isActiveField() {

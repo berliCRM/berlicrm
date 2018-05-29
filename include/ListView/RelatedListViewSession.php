@@ -24,12 +24,13 @@ class RelatedListViewSession {
 	var $sortby = null;
 	var $page_view = null;
 
-	function RelatedListViewSession() {
+    // class has only public static functions, constructor probably not needed at all?!
+	function __construct() {
 		global $log,$currentModule;
 		$log->debug("Entering RelatedListViewSession() method ...");
 
-		$this->module = $currentModule;
-		$this->start =1;
+		// $this->module = $currentModule;
+		// $this->start =1;
 	}
 
 	public static function addRelatedModuleToSession($relationId, $header) {

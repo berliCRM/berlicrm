@@ -16,7 +16,9 @@
 
 <div class="commentContainer recentComments">
 	<div class="commentTitle row-fluid">
-		{if $COMMENTS_MODULE_MODEL->isPermitted('EditView')}
+		{assign var=CREATE_PERMISSION value=$COMMENTS_MODULE_MODEL->isPermitted('CreateView')}
+		{assign var=EDIT_PERMISSION value=$COMMENTS_MODULE_MODEL->isPermitted('EditView')}
+		{if $CREATE_PERMISSION}
 			<div class="addCommentBlock">
 				<div>
 					<textarea name="commentcontent" class="commentcontent"  placeholder="{vtranslate('LBL_ADD_YOUR_COMMENT_HERE', $MODULE_NAME)}" rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"></textarea>
@@ -48,7 +50,7 @@
 											<div class="inner">
 												<span class="commentorName"><strong>{$COMMENTOR->getName()}</strong></span>
 												<span class="pull-right">
-													<p class="muted"><small title="{Vtiger_Util_Helper::formatDateTimeIntoDayString($COMMENT->getCommentedTime())}">{Vtiger_Util_Helper::formatDateDiffInStrings($COMMENT->getCommentedTime())}</small></p>
+													<p class="muted"><small title="{Vtiger_Util_Helper::formatDateTimeIntoDayString($COMMENT->getCommentedTime())}">{Vtiger_Util_Helper::formatDateDiffInStrings($COMMENT->getCommentedTime())}&nbsp;&nbsp; ({Vtiger_Util_Helper::convertDateTimeIntoUsersDisplayFormat($COMMENT->getCommentedTime())})</small></p>
 												</span>
 												<div class="clearfix"></div>
 											</div>
@@ -75,29 +77,29 @@
 											<span class="{if empty($REASON_TO_EDIT)}row-fluid{else} span6{/if}">
 												<p class="muted pull-right">
 													<small><em>{vtranslate('LBL_MODIFIED',$MODULE_NAME)}</em></small>&nbsp;
-													<small title="{Vtiger_Util_Helper::formatDateTimeIntoDayString($COMMENT->getModifiedTime())}" class="commentModifiedTime">{Vtiger_Util_Helper::formatDateDiffInStrings($COMMENT->getModifiedTime())}</small>
+													<small title="{Vtiger_Util_Helper::formatDateTimeIntoDayString($COMMENT->getModifiedTime())}" class="commentModifiedTime">{Vtiger_Util_Helper::formatDateDiffInStrings($COMMENT->getModifiedTime())}&nbsp;&nbsp; ({Vtiger_Util_Helper::convertDateTimeIntoUsersDisplayFormat($COMMENT->getModifiedTime())})</small>
 												</p>
 											</span>
 										{/if}
 								</div>
 								<div class="row-fluid">
 									<div class="pull-right commentActions">
-										{if $COMMENTS_MODULE_MODEL->isPermitted('EditView')}
-											<span>
+										<span>
+											{if $CREATE_PERMISSION}
 												<a class="cursorPointer replyComment feedback">
 													<i class="icon-share-alt"></i>{vtranslate('LBL_REPLY',$MODULE_NAME)}
 												</a>
-												{if $CURRENTUSER->getId() eq $COMMENT->get('userid')}
-													&nbsp;<span>|</span>&nbsp;
-													<a class="cursorPointer editComment feedback">
-														{vtranslate('LBL_EDIT',$MODULE_NAME)}
-													</a>
-												{/if}
-											</span>
-										{/if}
+											{/if}
+											{if $CURRENTUSER->getId() eq $COMMENT->get('userid') && $EDIT_PERMISSION}
+												{if $CREATE_PERMISSION}&nbsp;<span>|</span>&nbsp;{/if}
+												<a class="cursorPointer editComment feedback">
+													{vtranslate('LBL_EDIT',$MODULE_NAME)}
+												</a>
+											{/if}
+										</span>
 										<span>
 											{if $PARENT_COMMENT_MODEL neq false or $CHILD_COMMENTS_MODEL neq null}
-												{if $COMMENTS_MODULE_MODEL->isPermitted('EditView')}&nbsp;<span>|</span>&nbsp;{/if}
+												{if $CREATE_PERMISSION || $EDIT_PERMISSION}&nbsp;<span>|</span>&nbsp;{/if}
 												<a href="javascript:void(0);" class="cursorPointer detailViewThread">{vtranslate('LBL_VIEW_THREAD',$MODULE_NAME)}</a>
 											{/if}
 										</span>
@@ -119,35 +121,39 @@
 			</div>
 		</div>
 	{/if}
-	<div class="hide basicAddCommentBlock">
-		<div class="row-fluid">
-			<span class="span1">&nbsp;</span>
-			<div class="span11">
-				<textarea class="commentcontenthidden fullWidthAlways" name="commentcontent" rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}" placeholder="{vtranslate('LBL_ADD_YOUR_COMMENT_HERE', $MODULE_NAME)}"></textarea>
+	{if $CREATE_PERMISSION}
+		<div class="hide basicAddCommentBlock">
+			<div class="row-fluid">
+				<span class="span1">&nbsp;</span>
+				<div class="span11">
+					<textarea class="commentcontenthidden fullWidthAlways" name="commentcontent" rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}" placeholder="{vtranslate('LBL_ADD_YOUR_COMMENT_HERE', $MODULE_NAME)}"></textarea>
+				</div>
+			</div>
+			<div class="pull-right">
+				<button class="btn btn-success detailViewSaveComment" type="button" data-mode="add"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
+				<a class="cursorPointer closeCommentBlock cancelLink" type="reset">{vtranslate('LBL_CANCEL', $MODULE_NAME)}</a>
 			</div>
 		</div>
-		<div class="pull-right">
-			<button class="btn btn-success detailViewSaveComment" type="button" data-mode="add"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
-			<a class="cursorPointer closeCommentBlock cancelLink" type="reset">{vtranslate('LBL_CANCEL', $MODULE_NAME)}</a>
-		</div>
-	</div>
-	<div class="hide basicEditCommentBlock" style="min-height: 150px;">
-		<div class="row-fluid">
-			<span class="span1">&nbsp;</span>
-			<div class="span11">
-				<input type="text" name="reasonToEdit" placeholder="{vtranslate('LBL_REASON_FOR_CHANGING_COMMENT', $MODULE_NAME)}" class="input-block-level"/>
+	{/if}
+	{if $EDIT_PERMISSION}
+		<div class="hide basicEditCommentBlock" style="min-height: 150px;">
+			<div class="row-fluid">
+				<span class="span1">&nbsp;</span>
+				<div class="span11">
+					<input type="text" name="reasonToEdit" placeholder="{vtranslate('LBL_REASON_FOR_CHANGING_COMMENT', $MODULE_NAME)}" class="input-block-level"/>
+				</div>
+			</div>
+			<div class="row-fluid">
+				<span class="span1">&nbsp;</span>
+				<div class="span11">
+					<textarea class="commentcontenthidden fullWidthAlways" name="commentcontent" rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"></textarea>
+				</div>
+			</div>
+			<div class="pull-right">
+				<button class="btn btn-success detailViewSaveComment" type="button" data-mode="edit"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
+				<a class="cursorPointer closeCommentBlock cancelLink" type="reset">{vtranslate('LBL_CANCEL', $MODULE_NAME)}</a>
 			</div>
 		</div>
-		<div class="row-fluid">
-			<span class="span1">&nbsp;</span>
-			<div class="span11">
-				<textarea class="commentcontenthidden fullWidthAlways" name="commentcontent" rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"></textarea>
-			</div>
-		</div>
-		<div class="pull-right">
-			<button class="btn btn-success detailViewSaveComment" type="button" data-mode="edit"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
-			<a class="cursorPointer closeCommentBlock cancelLink" type="reset">{vtranslate('LBL_CANCEL', $MODULE_NAME)}</a>
-		</div>
-	</div>
+	{/if}
 </div>
 {/strip}

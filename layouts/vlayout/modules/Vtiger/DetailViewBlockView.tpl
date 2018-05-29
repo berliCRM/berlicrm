@@ -14,9 +14,18 @@
 	{assign var=BLOCK value=$BLOCK_LIST[$BLOCK_LABEL_KEY]}
 	{if $BLOCK eq null or $FIELD_MODEL_LIST|@count lte 0}{continue}{/if}
 	{assign var=IS_HIDDEN value=$BLOCK->isHidden()}
+
+    {* crm now: dynamic blocks *}
+    {if $BLOCKED_BLOCKS[$BLOCK->id]}{ASSIGN var=blockedblocks value=$blockedblocks+1}{continue}{/if}
+    {if $HIDDEN_BLOCKS[$BLOCK->id]}{ASSIGN var=IS_HIDDEN value=true}{/if}
+
 	{assign var=WIDTHTYPE value=$USER_MODEL->get('rowheight')}
 	<input type=hidden name="timeFormatOptions" data-value='{$DAY_STARTS}' />
-	<table class="table table-bordered equalSplit detailview-table">
+    {if $MODULE eq 'Documents'}
+		<table class="table table-bordered detailview-table">
+	{else}
+		<table class="table table-bordered equalSplit detailview-table">
+	{/if}
 		<thead>
 		<tr>
 				<th class="blockHeader" colspan="4">
@@ -59,12 +68,16 @@
 						{assign var=COUNTER value=0}
 					{/if}
 				{/if}
-				<td class="fieldLabel {$WIDTHTYPE}"><label class="muted pull-right marginRight10px">{vtranslate({$FIELD_MODEL->get('label')},{$MODULE_NAME})}</label></td>
+				<td class="fieldLabel {$WIDTHTYPE}"><label class="muted pull-right marginRight10px">{vtranslate({$FIELD_MODEL->get('label')},{$MODULE_NAME})}
+                {if $FIELD_MODEL->get('helpinfo') != ""}
+                        <i class="icon-info-sign" style="margin:3px 0 0 3px" rel="popover" data-placement="top" data-trigger="hover" data-content="{vtranslate($FIELD_MODEL->get('helpinfo'), $MODULE_NAME)|replace:'"':'&quot;'}" data-original-title="{vtranslate('LBL_HELP', $MODULE)}"></i>
+                {/if}
+                </label></td>
 				<td class="fieldValue {$WIDTHTYPE}">
 					<div id="imageContainer" width="300" height="200">
 						{foreach key=ITER item=IMAGE_INFO from=$IMAGE_DETAILS}
 							{if !empty($IMAGE_INFO.path) && !empty({$IMAGE_INFO.orgname})}
-								<img src="{$IMAGE_INFO.path}_{$IMAGE_INFO.orgname}" width="300" height="200">
+								<img src="{$IMAGE_INFO.path}" width="300" height="200">
 							{/if}
 						{/foreach}
 					</div>
@@ -83,12 +96,19 @@
 				{else}
 					{assign var=COUNTER value=$COUNTER+1}
 				 {/if}
-				 <td class="fieldLabel {$WIDTHTYPE}" id="{$MODULE_NAME}_detailView_fieldLabel_{$FIELD_MODEL->getName()}" {if $FIELD_MODEL->getName() eq 'description' or $FIELD_MODEL->get('uitype') eq '69'} style='width:8%'{/if}>
+				 <td class="fieldLabel {$WIDTHTYPE}" id="{$MODULE_NAME}_detailView_fieldLabel_{$FIELD_MODEL->getName()}" {if $FIELD_MODEL->getName() eq 'description' or $FIELD_MODEL->getName() eq 'terms_conditions' or $FIELD_MODEL->get('uitype') eq '69'} style='width:8%'{/if} >
 					 <label class="muted pull-right marginRight10px">
-						 {vtranslate({$FIELD_MODEL->get('label')},{$MODULE_NAME})}
-						 {if ($FIELD_MODEL->get('uitype') eq '72') && ($FIELD_MODEL->getName() eq 'unit_price')}
+						{if $FIELD_MODEL->get('name') eq "firstname"}
+							{vtranslate("Salutation", $MODULE)}&nbsp;{vtranslate($FIELD_MODEL->get('label'), $MODULE)}
+						{else}
+							{vtranslate($FIELD_MODEL->get('label'), $MODULE_NAME)}
+						{/if}
+					 {if ($FIELD_MODEL->get('uitype') eq '72') && ($FIELD_MODEL->getName() eq 'unit_price')}
 							({$BASE_CURRENCY_SYMBOL})
 						{/if}
+                        {if $FIELD_MODEL->get('helpinfo') != ""}
+                        <i class="icon-info-sign" style="margin:3px 0 0 3px" rel="popover" data-placement="top" data-trigger="hover" data-content="{vtranslate($FIELD_MODEL->get('helpinfo'), $MODULE_NAME)|replace:'"':'&quot;'}" data-original-title="{vtranslate('LBL_HELP', $MODULE)}"></i>
+                        {/if}
 					 </label>
 				 </td>
 				 <td class="fieldValue {$WIDTHTYPE}" id="{$MODULE_NAME}_detailView_fieldValue_{$FIELD_MODEL->getName()}" {if $FIELD_MODEL->get('uitype') eq '19' or $FIELD_MODEL->get('uitype') eq '20'} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
@@ -121,4 +141,16 @@
 	</table>
 	<br>
 	{/foreach}
+{if $USER_MODEL->isAdminUser()}
+    {if $blockedblocks ==1}
+    <div class="alert alert-warning" role="alert">{vtranslate('LBL_BLOCK_HIDDEN_NOTICE')} <a href='{$smarty.server.REQUEST_URI}&overridedynblocks=1'>{vtranslate('LBL_SHOW_HIDDEN_ONCE')}</a></div>
+    {elseif $blockedblocks >1}
+    <div class="alert alert-warning" role="alert">{vtranslate('LBL_BLOCKS_HIDDEN_NOTICE')|sprintf:$blockedblocks} <a href='{$smarty.server.REQUEST_URI}&overridedynblocks=1'>{vtranslate('LBL_SHOW_HIDDEN_ONCE')}</a></div>
+    {/if}
+{/if}
+<script>
+	jQuery().ready(function(){
+		jQuery('[rel=popover]').popover();
+	});
+</script>
 {/strip}

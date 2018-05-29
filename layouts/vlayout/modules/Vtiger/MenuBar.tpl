@@ -198,7 +198,7 @@
 								<li id="compactquickCreate">
 									<div class="CompactQC">
 										{foreach key=moduleName item=moduleModel from=$MENUS}
-											{if $moduleModel->isPermitted('EditView')}
+											{if $moduleModel->isPermitted('CreateView')}
 												{assign var='quickCreateModule' value=$moduleModel->isQuickCreateSupported()}
 												{assign var='singularLabel' value=$moduleModel->getSingularLabelKey()}
 												{if $quickCreateModule == '1'}

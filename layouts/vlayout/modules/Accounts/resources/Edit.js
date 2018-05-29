@@ -10,7 +10,9 @@
 Vtiger_Edit_Js("Accounts_Edit_Js",{
    
 },{
-   
+    // Stores addresses after load for easy change monitoring
+    addresses_after_load : '',
+
     //Stored history of account name and duplicate check result
 	duplicateCheckCache : {},
 	
@@ -79,6 +81,17 @@ Vtiger_Edit_Js("Accounts_Edit_Js",{
 		form.on(Vtiger_Edit_Js.recordPreSave, function(e, data) {
 			var accountName = thisInstance.getAccountName(form);
 			var recordId = thisInstance.getRecordId(form);
+
+            if (thisInstance.addresses_after_load != jQuery('[name^=bill_],[name^=ship_]').serialize()) {
+                var  params = {
+                    title : app.vtranslate('LBL_ADDRESS_CHANGE_TITLE'),
+                    text : app.vtranslate('LBL_ADDRESS_CHANGE_TEXT'),
+                    hide: false,
+                    type: 'notice'
+                }
+                Vtiger_Helper_Js.showPnotify(params);
+            }
+
 			var params = {};
             if(!(accountName in thisInstance.duplicateCheckCache)) {
                 Vtiger_Helper_Js.checkDuplicateName({
@@ -88,6 +101,7 @@ Vtiger_Edit_Js("Accounts_Edit_Js",{
                 }).then(
                     function(data){
                         thisInstance.duplicateCheckCache[accountName] = data['success'];
+                        delayedSubmit=true;
                         form.submit();
                     },
                     function(data, err){
@@ -97,6 +111,7 @@ Vtiger_Edit_Js("Accounts_Edit_Js",{
 						Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(
 							function(e) {
 								thisInstance.duplicateCheckCache[accountName] = false;
+                                delayedSubmit=true;
 								form.submit();
 							},
 							function(error, err) {
@@ -113,6 +128,7 @@ Vtiger_Edit_Js("Accounts_Edit_Js",{
 					Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(
 						function(e) {
 							thisInstance.duplicateCheckCache[accountName] = false;
+                            delayedSubmit=true;
 							form.submit();
 						},
 						function(error, err) {
@@ -251,5 +267,7 @@ Vtiger_Edit_Js("Accounts_Edit_Js",{
 		this.registerEventForCopyingAddress(container);
 		this.registerReferenceSelectionEvent(container);
 			//container.trigger(Vtiger_Edit_Js.recordPreSave, {'value': 'edit'});
+        this.duplicateCheckCache[jQuery("#Accounts_editView_fieldName_accountname").val()] = false;
+        this.addresses_after_load = jQuery('[name^=bill_],[name^=ship_]').serialize();
 	}
 });

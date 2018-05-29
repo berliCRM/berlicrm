@@ -10,7 +10,7 @@
 
 class Documents_Detail_View extends Vtiger_Detail_View {
 	
-	function preProcess(Vtiger_Request $request) {
+	function preProcess(Vtiger_Request $request,$display=false) {
 		$viewer = $this->getViewer($request);
 		$viewer->assign('NO_SUMMARY', true);
 		parent::preProcess($request);
@@ -29,7 +29,7 @@ class Documents_Detail_View extends Vtiger_Detail_View {
 	 * Function shows basic detail for the record
 	 * @param <type> $request
 	 */
-	function showModuleBasicView($request) {
+	function showModuleBasicView(Vtiger_Request $request) {
 		return $this->showModuleDetailView($request);
 	}
 

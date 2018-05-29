@@ -104,7 +104,7 @@ class freetag {
 	 * - PCONNECT: Whether to use ADODB persistent connections. [default: FALSE]
 	 * 
 	 */ 
-	function freetag($options = NULL) {
+	function __construct($options = NULL) {
 /*
 		$available_options = array('debug', 'db', 'db_user', 'db_pass', 'db_host', 'db_name', 'table_prefix', 'normalize_tags', 'normalized_valid_chars', 'block_multiuser_tag_on_object', 'MAX_TAG_LENGTH', 'ADODB_DIR', 'PCONNECT');
 		if (is_array($options)) {

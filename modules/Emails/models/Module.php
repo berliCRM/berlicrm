@@ -80,10 +80,12 @@ class Emails_Module_Model extends Vtiger_Module_Model{
 			$emailFields = $searchFields;
 
 			$nameFields = $moduleModel->getNameFields();
-			foreach ($nameFields as $fieldName) {
+			foreach ($nameFields as $index => $fieldName) {
 				$fieldModel = Vtiger_Field_Model::getInstance($fieldName, $moduleModel);
 				if ($fieldModel->isViewable()) {
 					$searchFields[] = $fieldName;
+				} else {
+					unset($nameFields[$index]);
 				}
 			}
 
@@ -107,15 +109,18 @@ class Emails_Module_Model extends Vtiger_Module_Model{
 				for($i=0; $i<$numOfRows; $i++) {
 					$row = $db->query_result_rowdata($result, $i);
 					foreach ($emailFields as $emailField) {
-						$emailFieldValue = $row[$emailField];
-						if ($emailFieldValue) {
-							$recordLabel = getEntityFieldNameDisplay($moduleName, $nameFields, $row);
-							if (strpos($emailFieldValue, $searchValue) !== false || strpos($recordLabel, $searchValue) !== false) {
-								$emailsResult[vtranslate($moduleName, $moduleName)][$row[$moduleInstance->table_index]][]
-											= array('value'	=> $emailFieldValue,
-													'label'	=> $recordLabel . ' <b>('.$emailFieldValue.')</b>');
-
+						$emailFieldValue = html_entity_decode($row[$emailField]);
+						if (!empty($emailFieldValue)) {
+							$arr_recordLabel = array();
+							foreach ($nameFields as $fieldName) {
+								$arr_recordLabel[] = html_entity_decode($row[$fieldName]);
 							}
+							$recordLabel = implode(" ", $arr_recordLabel);
+							$emailsResult[vtranslate($moduleName, $moduleName)][$row[$moduleInstance->table_index]][]
+								= array('value'	=> $emailFieldValue,
+										'label'	=> $recordLabel . ' <b>('.$emailFieldValue.')</b>');
+							//found one matching instance, no need to check other fields
+							break;
 						}
 					}
 				}

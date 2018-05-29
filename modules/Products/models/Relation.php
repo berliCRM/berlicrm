@@ -17,38 +17,16 @@ class Products_Relation_Model extends Vtiger_Relation_Model {
 	 * @return <String>
 	 */
 	public function getQuery($recordModel, $actions=false){
-		$parentModuleModel = $this->getParentModuleModel();
-		$relatedModuleModel = $this->getRelationModuleModel();
-		$relatedModuleName = $relatedModuleModel->get('name');
-		$parentModuleName = $parentModuleModel->get('name');
 		$functionName = $this->get('name');
-		$focus = CRMEntity::getInstance($parentModuleName);
-		$focus->id = $recordModel->getId();
-		if(method_exists($parentModuleModel, $functionName)) {
-			$query = $parentModuleModel->$functionName($recordModel, $relatedModuleModel);
-		} else {
-			$result = $focus->$functionName($recordModel->getId(), $parentModuleModel->getId(),
-											$relatedModuleModel->getId(), $actions);
-			$query = $result['query'];
-		}
-
-		//modify query if any module has summary fields, those fields we are displayed in related list of that module
-		$relatedListFields = $relatedModuleModel->getConfigureRelatedListFields();
-		if(count($relatedListFields) > 0 ) {
-			$currentUser = Users_Record_Model::getCurrentUserModel();
-			$queryGenerator = new QueryGenerator($relatedModuleName, $currentUser);
-			$queryGenerator->setFields($relatedListFields);
-			$selectColumnSql = $queryGenerator->getSelectClauseColumnSQL();
-			$newQuery = spliti('FROM', $query);
-			$selectColumnSql = 'SELECT DISTINCT vtiger_crmentity.crmid, '.$selectColumnSql;
-		}
+		$query = parent::getQuery($recordModel, $actions);
+		$newQuery = preg_split("/from/i", $query);
 		if($functionName == 'get_product_pricebooks'){
-			$selectColumnSql = $selectColumnSql.' ,vtiger_pricebookproductrel.listprice, vtiger_pricebook.currency_id, vtiger_products.unit_price';
+			$newQuery[0] .= ' ,vtiger_pricebookproductrel.listprice, vtiger_pricebook.currency_id, vtiger_products.unit_price ';
 		}
 		if($functionName == 'get_service_pricebooks'){
-			$selectColumnSql = $selectColumnSql.' ,vtiger_pricebookproductrel.listprice, vtiger_pricebook.currency_id, vtiger_service.unit_price';
+			$newQuery[0] .= ' ,vtiger_pricebookproductrel.listprice, vtiger_pricebook.currency_id, vtiger_service.unit_price ';
 		}
-		$query = $selectColumnSql.' FROM '.$newQuery[1];
+		$query = implode("FROM", $newQuery);
 		return $query;
 	}
 	

@@ -8,20 +8,20 @@
  * All Rights Reserved.
  *
  ********************************************************************************/
-include_once 'modules/Invoice/InvoicePDFController.php';
-global $currentModule;
-
-$controller = new Vtiger_InvoicePDFController($currentModule);
-$controller->loadRecord(vtlib_purify($_REQUEST['record']));
-$invoice_no = getModuleSequenceNumber($currentModule,vtlib_purify($_REQUEST['record']));
-$translatedmodname= vtranslate($currentModule,$currentModule);
+global $adb,$app_strings,$focus,$current_user;
+require_once('modules/Invoice/pdfcreator.php');
+// Request from Customer Portal for downloading the file.
 if(isset($_REQUEST['savemode']) && $_REQUEST['savemode'] == 'file') {
-	$id = vtlib_purify($_REQUEST['record']);
-	$filepath='test/product/'.$id.'_'.$translatedmodname.'_'.$invoice_no.'.pdf';
-	$controller->Output($filepath,'F'); //added file name to make it work in IE, also forces the download giving the user the option to save
-} else {
-	$controller->Output($translatedmodname.'_'.$invoice_no.'.pdf', 'D');//added file name to make it work in IE, also forces the download giving the user the option to save
-	exit();
+	$invoice_id = $_REQUEST['record'];
+	$filepath='test/product/';
+	createpdffile ($_REQUEST['record'],'customerportal',$filepath,$invoice_id);
+
+}
+elseif (isset($_REQUEST['printsn']) && $_REQUEST['printsn'] == 'printsn') {
+	createpdffile ($_REQUEST[record],'printsn');
+}
+else {
+	createpdffile ($_REQUEST[record],'print');
 }
 
 ?>

@@ -15,6 +15,12 @@
             <button data-dismiss="modal" class="close" title="{vtranslate('LBL_CLOSE')}">&times;</button>
             <h3 id="massEditHeader">{vtranslate('LBL_CHANGE_PASSWORD', $MODULE)}</h3>
         </div>
+        <div class="modal-header contentsBackground">
+            <h4 id="massEditHeader">{vtranslate('LBL_PASSWORDHEADER', $MODULE)}</h4>
+                 <div class="modal-body">
+				 {vtranslate('LBL_PASSOWRDRULES', $MODULE)}
+                 </div>
+      </div>
         <form class="form-horizontal" id="changePassword" name="changePassword" method="post" action="index.php">
             <input type="hidden" name="module" value="{$MODULE}" />
             <input type="hidden" name="userid" value="{$USERID}" />

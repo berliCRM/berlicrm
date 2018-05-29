@@ -16,7 +16,7 @@ class RecycleBin_ListView_Model extends Vtiger_ListView_Model {
 	 * @param <Number> $viewId - Custom View Id
 	 * @return Vtiger_ListView_Model instance
 	 */
-	public static function getInstance($moduleName, $sourceModule) {
+	public static function getInstance($moduleName, $sourceModule='') {
 		$db = PearDatabase::getInstance();
 		$currentUser = vglobal('current_user');
 
@@ -134,14 +134,9 @@ class RecycleBin_ListView_Model extends Vtiger_ListView_Model {
 		$listQuery = $queryGenerator->getQuery();
 		$listQuery = preg_replace("/vtiger_crmentity.deleted\s*=\s*0/i", 'vtiger_crmentity.deleted = 1', $listQuery);
 
-		$position = stripos($listQuery, ' from ');
-		if ($position) {
-			$split = spliti(' from ', $listQuery);
-			$splitCount = count($split);
-			$listQuery = 'SELECT count(*) AS count ';
-			for ($i=1; $i<$splitCount; $i++) {
-				$listQuery = $listQuery. ' FROM ' .$split[$i];
-			}
+		$pos = stripos($listQuery, ' from ');
+        if ($pos !== false) {
+			$listQuery = 'SELECT count(*) AS count' . substr($listQuery,$pos); 
 		}
 
 		if($this->getModule()->get('name') == 'Calendar'){

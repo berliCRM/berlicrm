@@ -24,7 +24,7 @@ class Import_Map_Model extends Vtiger_Base_Model {
 		foreach($row as $key=>$value) {
 			if($key == 'content') {
 				$content = array();
-				$pairs = explode("&", $value);
+				$pairs = explode("&", decode_html($value));
 				foreach($pairs as $pair) {
 					list($mappedName, $sequence) = explode("=", $pair);
 					$mappedName = str_replace('/eq/', '=', $mappedName);

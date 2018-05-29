@@ -164,7 +164,7 @@ Vtiger_List_Js("Documents_List_Js", {
 
 	constructOptionElement : function(info){
 		var cvId = this.getCurrentCvId();
-		return '<option data-deletable="1" data-folderid="'+info.folderid+'" data-foldername="'+info.folderName+'" class="filterOptionId_folder'+info.folderid+' folderOption" id="filterOptionId_folder'+info.folderid+'"  data-id="'+cvId+'" >'+info.folderName+'</option>';
+		return '<option data-deletable="1" data-folderid="'+info.folderid+'" data-foldername="'+info.folderName+'" class="filterOptionId_folder'+info.folderid+' folderOption" id="filterOptionId_folder'+info.folderid+'"  data-id="'+cvId+'" value="'+info.folderName+'" >'+info.folderName+'</option>';
 
 	},
 

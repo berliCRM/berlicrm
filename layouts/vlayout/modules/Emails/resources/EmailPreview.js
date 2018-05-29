@@ -34,7 +34,7 @@ jQuery.Class("Vtiger_EmailPreview_Js",{},{
 	 */
 	registerEventsForActionButtons : function(){
 		var thisInstance = this;
-		jQuery('[name="previewForward"],[name="previewEdit"], [name="previewPrint"]').on('click',function(e){
+		jQuery('[name="previewForward"],[name="previewEdit"]').on('click',function(e){
 			var module = "Emails";
 			Vtiger_Helper_Js.checkServerConfig(module).then(function(data){
 				if(data == true){
@@ -47,7 +47,14 @@ jQuery.Class("Vtiger_EmailPreview_Js",{},{
 					Vtiger_Helper_Js.showPnotify(app.vtranslate('JS_EMAIL_SERVER_CONFIGURATION'));
 				}
 			})
-		})
+		});
+        // don't perform server config check for printing
+        jQuery('[name="previewPrint"]').on('click',function(e){
+            var params = thisInstance.getEmailActionsParams("previewPrint");
+            var urlString = (typeof params == 'string')? params : jQuery.param(params);
+            var url = 'index.php?'+urlString;
+            self.location.href = url;
+        });
 	},
 	
 	registerEvents : function(){

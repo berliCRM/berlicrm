@@ -16,6 +16,7 @@ class Settings_MailConverter_RuleRecord_Model extends Settings_Vtiger_Record_Mod
 	var $assignedTo = false;
 	var $cc = false;
 	var $bcc = false;
+	var $folderid = false;
 
 	/**
 	 * Function to get Id of this record instance
@@ -139,6 +140,7 @@ class Settings_MailConverter_RuleRecord_Model extends Settings_Vtiger_Record_Mod
 		$ruleModel->assigned_to = $this->assignedTo;
 		$ruleModel->cc = $this->cc;
 		$ruleModel->bcc = $this->bcc;
+		$ruleModel->folderid = $this->folderid;
 		foreach ($fieldsList as $fieldName) {
 			$ruleModel->$fieldName = $this->get($fieldName);
 		}
@@ -152,7 +154,8 @@ class Settings_MailConverter_RuleRecord_Model extends Settings_Vtiger_Record_Mod
 			$actionId = '';
 			$actions = $this->getActions();
 			if ($actions) {
-				$actionModel = reset($this->getActions());
+                $ruleActions = $this->getActions();
+				$actionModel = reset($ruleActions);
 				$actionId = $actionModel->actionid;
 			}
 			//Svaing the Action info
@@ -180,11 +183,12 @@ class Settings_MailConverter_RuleRecord_Model extends Settings_Vtiger_Record_Mod
 	 */
 	public static function getInstanceById($recordId) {
 		$db = PearDatabase::getInstance();
-		$result = $db->pquery('SELECT * FROM vtiger_mailscanner_rules WHERE ruleid = ', array($recordId));
+		$result = $db->pquery('SELECT * FROM vtiger_mailscanner_rules WHERE ruleid = ?', array($recordId));
 		if ($db->num_rows($result)) {
 			$recordModel = new self();
 			$recordModel->setData($db->query_result_rowdata($result));
-			$action = reset($recordModel->getActions());
+            $recordActions = $recordModel->getActions();
+			$action = reset($recordActions);
 			return $recordModel->set('action', str_replace(',', '_', $action->actiontext));
 		}
 		return false;
@@ -205,7 +209,8 @@ class Settings_MailConverter_RuleRecord_Model extends Settings_Vtiger_Record_Mod
 			$rowData = $db->query_result_rowdata($result,$i);
 			$ruleModel = new self();
 			$ruleModel->setData($rowData);
-			$action = reset($ruleModel->getActions());
+            $ruleActions=$ruleModel->getActions();
+			$action = reset($ruleActions);
 			$ruleModel->set('action', str_replace(',', '_', $action->actiontext));
 			$assignedTo = Settings_MailConverter_RuleRecord_Model::getAssignedTo($rowData['scannerid'], $rowData['ruleid']);
 			$ruleModel->set('assigned_to', $assignedTo[1]);
@@ -229,7 +234,8 @@ class Settings_MailConverter_RuleRecord_Model extends Settings_Vtiger_Record_Mod
 			$ruleModel->setData($rowData);
 			$assignedTo = Settings_MailConverter_RuleRecord_Model::getAssignedTo($scannerId, $ruleId);
 			$ruleModel->set('assigned_to', $assignedTo[1]);
-			$action = reset($ruleModel->getActions());
+            $ruleActions=$ruleModel->getActions();
+			$action = reset($ruleActions);
 			 return $ruleModel->set('action', str_replace(',', '_', $action->actiontext));
 		}
 		return false;
@@ -251,7 +257,7 @@ class Settings_MailConverter_RuleRecord_Model extends Settings_Vtiger_Record_Mod
 		return array('CREATE_HelpDesk_FROM', 'UPDATE_HelpDesk_SUBJECT', 'LINK_Contacts_FROM', 'LINK_Contacts_TO', 'LINK_Leads_FROM', 'LINK_Leads_TO', 'LINK_Accounts_FROM', 'LINK_Accounts_TO');
 	}
 
-	public function getAssignedTo($scannerId, $ruleId) {
+	public static function getAssignedTo($scannerId, $ruleId) {
 		$db = PearDatabase::getInstance();
 		$result = $db->pquery("SELECT assigned_to FROM vtiger_mailscanner_rules WHERE scannerid = ? AND ruleid = ?", array($scannerId, $ruleId));
 		$id = $db->query_result($result, 0, 'assigned_to');
@@ -265,5 +271,22 @@ class Settings_MailConverter_RuleRecord_Model extends Settings_Vtiger_Record_Mod
 			$assignedUserName = $groupInfo[0];
 		}
 		return array($id, $assignedUserName);
+	}
+	
+	/**
+	 * Function to get Document folders where attachments can be saved
+	 * @return <Array> List of ID Name pair
+	 */
+	public static function getAttachmentFolders() {
+		$db = PearDatabase::getInstance();
+		
+		$result = $db->pquery("SELECT folderid, foldername FROM vtiger_attachmentsfolder ORDER BY sequence;", array());
+		$arr_ret = array();
+		if ($result) {
+			while ($row = $db->fetch_row($result)) {
+				$arr_ret[$row['folderid']] = vtranslate($row['foldername'], 'Documents');
+			}
+		}
+		return $arr_ret;
 	}
 }

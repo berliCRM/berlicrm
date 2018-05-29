@@ -30,7 +30,19 @@ class Settings_Vtiger_CompanyDetails_Model extends Settings_Vtiger_Module_Model 
 			'phone' => 'text',
 			'fax' => 'text',
 			'website' => 'text', 
-                        'vatid' => 'text' 
+            'vatid' => 'text',
+            'tax_id' => 'text',
+            'management' => 'text',
+            'irsname' => 'text',
+            'bankname' => 'text',
+            'bankstreet' => 'text',
+            'bankcity' => 'text',
+            'bankzip' => 'text',
+            'bankcountry' => 'text',
+            'bankaccount' => 'text',
+            'bankrouting' => 'text',
+            'bankswift' => 'text',
+            'bankiban' => 'text',
 	);
 
 	/**
@@ -137,7 +149,7 @@ class Settings_Vtiger_CompanyDetails_Model extends Settings_Vtiger_Module_Model 
 	 * Function to get the instance of Company details module model
 	 * @return <Settings_Vtiger_CompanyDetais_Model> $moduleModel
 	 */
-	public static function getInstance() {
+	public static function getInstance($name=false) {
 		$moduleModel = new self();
 		$db = PearDatabase::getInstance();
 
@@ -167,4 +179,52 @@ class Settings_Vtiger_CompanyDetails_Model extends Settings_Vtiger_Module_Model 
             } 
             return self::$settings[$fieldname]; 
        } 
+	   
+	/**
+	 * crm-now: added for Login images display
+	 * Function to get Logo path to display all 3 login logos
+	 * @return <String> path
+	 */
+	public function getLoginLogoPath($no) {
+		$logoPath = $this->logoPath;
+		$handler = @opendir($logoPath);
+		$logoName = 'start_main.jpg';
+		if ($no==2) {
+			$logoName = 'start_main_kundenportal.jpg';
+		}
+		if ($no==3) {
+			$logoName = 'start_main_kundenportal_en.jpg';
+		}
+		if ($logoName && $handler) {
+			while ($file = readdir($handler)) {
+				if($logoName === $file && in_array(str_replace('.', '', strtolower(substr($file, -4))), self::$logoSupportedFormats) && $file != "." && $file!= "..") {
+					closedir($handler);
+					return $logoPath.$logoName;
+				}
+			}
+		}
+		return '';
+	}
+	/**
+	 * crm-now: added for Login images save
+	 * Function to save the Login logoinfos
+	 */
+	public function saveLoginLogo($file,$key) {
+		$uploadDir = vglobal('root_directory'). '/' .$this->logoPath;
+		$logoName = $uploadDir.$file["name"];
+		move_uploaded_file($file["tmp_name"], $logoName);
+		if ($key=='p1') {
+			copy($logoName, $uploadDir.'start_main.jpg');
+		}
+		elseif ($key=='p2') {
+			copy($logoName, $uploadDir.'start_main_kundenportal.jpg');
+		}
+        elseif ($key=='p4') {
+			copy($logoName, $uploadDir.'crmnow_logo_header.png');
+		}
+		else {
+			copy($logoName, $uploadDir.'start_main_kundenportal_en.jpg');
+		}
+	}
+	   
 }

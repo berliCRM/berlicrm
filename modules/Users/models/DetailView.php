@@ -22,6 +22,7 @@ class Users_DetailView_Model extends Vtiger_DetailView_Model {
 		$recordModel = $this->getRecord();
 		$recordId = $recordModel->getId();
 
+		$linkModelList = array();
 		if (($currentUserModel->isAdminUser() == true || $currentUserModel->get('id') == $recordId) && $recordModel->get('status') == 'Active' ) {
 			$recordModel = $this->getRecord();
 
@@ -32,12 +33,6 @@ class Users_DetailView_Model extends Vtiger_DetailView_Model {
 				'linkurl' => $recordModel->getEditViewUrl(),
 				'linkicon' => ''
 				),
-				array(
-					'linktype' => 'DETAILVIEWBASIC',
-					'linklabel' => 'LBL_CHANGE_PASSWORD',
-					'linkurl' => "javascript:Users_Detail_Js.triggerChangePassword('index.php?module=Users&view=EditAjax&mode=changePassword&recordId=$recordId','Users')",
-					'linkicon' => ''
-				)
 			);
 
 			foreach ($detailViewLinks as $detailViewLink) {
@@ -45,12 +40,6 @@ class Users_DetailView_Model extends Vtiger_DetailView_Model {
 			}
 			
 			$detailViewPreferenceLinks = array(
-				array(
-					'linktype' => 'DETAILVIEWPREFERENCE',
-					'linklabel' => 'LBL_CHANGE_PASSWORD',
-					'linkurl' => "javascript:Users_Detail_Js.triggerChangePassword('index.php?module=Users&view=EditAjax&mode=changePassword&recordId=$recordId','Users')",
-					'linkicon' => ''
-				),
 				array(
 					'linktype' => 'DETAILVIEWPREFERENCE',
 					'linklabel' => 'LBL_EDIT',
@@ -72,12 +61,24 @@ class Users_DetailView_Model extends Vtiger_DetailView_Model {
 						'linkicon' => ''
 					)
 				);
-
-				foreach ($detailViewActionLinks as $detailViewLink) {
-					$linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($detailViewLink);
-				}
 			}
-			return $linkModelList;
+			$detailViewActionLinks[] = array(
+						'linktype' => 'DETAILVIEW',
+						'linklabel' => 'LBL_CHANGE_PASSWORD',
+						'linkurl' => "javascript:Users_Detail_Js.triggerChangePassword('index.php?module=Users&view=EditAjax&mode=changePassword&recordId=$recordId','Users')",
+						'linkicon' => ''
+			);
+			$detailViewActionLinks[] = array(
+						'linktype'	=> 'DETAILVIEW',
+						'linklabel' => 'LBL_CHANGE_ACCESS_KEY',
+						'linkurl'	=> "javascript:Users_Detail_Js.triggerChangeAccessKey('index.php?module=Users&action=SaveAjax&mode=changeAccessKey&record=$recordId')",
+						'linkicon'	=> ''
+			);
+
+			foreach ($detailViewActionLinks as $detailViewLink) {
+				$linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($detailViewLink);
+			}
 		}
+		return $linkModelList;
 	}
 }

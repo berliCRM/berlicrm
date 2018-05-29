@@ -13,7 +13,7 @@
     {assign var=SELECTED_FIELDS value=$CUSTOMVIEW_MODEL->getSelectedFields()}
     <div class="container-fluid">
         <form class="form-inline" id="CustomView" name="CustomView" method="post" action="index.php">
-            <input type=hidden name="record" id="record" value="{$RECORD_ID}" />
+            <input type="hidden" name="record" id="record" value="{$RECORD_ID}" />
             <input type="hidden" name="module" value="{$MODULE}" />
             <input type="hidden" name="action" value="Save" />
             <input type="hidden" name="source_module" value="{$SOURCE_MODULE}"/>
@@ -38,6 +38,35 @@
                     <label class="checkbox"><input id="setdefault" type="checkbox" name="setdefault" value="1" {if $CUSTOMVIEW_MODEL->isDefault()} checked="checked"{/if}>{vtranslate('LBL_SET_AS_DEFAULT',$MODULE)}</label>&nbsp;&nbsp;&nbsp;
                     <label class="checkbox"><input id="setmetrics" name="setmetrics" type="checkbox" value="1" {if $CUSTOMVIEW_MODEL->get('setmetrics') eq '1'} checked="checked"{/if}>{vtranslate('LBL_LIST_IN_METRICS',$MODULE)}</label>&nbsp;&nbsp;&nbsp;
                     <label class="checkbox"><input id="status" name="status" type="checkbox" {if $CUSTOMVIEW_MODEL->isSetPublic()} value="{$CUSTOMVIEW_MODEL->get('status')}" checked="checked" {else} value="{$CV_PENDING_VALUE}" {/if}>{vtranslate('LBL_SET_AS_PUBLIC',$MODULE)}</label>
+                    {* crm-now: optional filter copy *}
+                    {if $RECORD_ID}
+                        &nbsp;&nbsp;&nbsp;<label class="checkbox"><input id='copy' name='copy' type='checkbox' onChange='toggleCopy(this.checked);'> {vtranslate('LBL_SAVE_AS_COPY')}</label>
+                        <script type="text/javascript">
+                        var record = {$RECORD_ID};
+                        var filtername = "{$CUSTOMVIEW_MODEL->get('viewname')}";
+                        var namechanged = false;
+                        var nameappendix = " {vtranslate('LBL_COPY_APPENDIX')}";
+                        {literal}
+                        function toggleCopy(x) {
+                            if (x) {
+                                jQuery("#record").val(""); 
+                                if (jQuery("#viewname").val() == filtername) {
+                                    jQuery("#viewname").val(function() {return this.value + nameappendix;});
+                                    namechanged = true;
+                                }
+                            }
+                            else {
+                                jQuery("#record").val(record);
+                                if (namechanged) {
+                                    jQuery("#viewname").val(function() {return this.value.replace(nameappendix,"");});
+                                    namechanged = false;
+                                }
+                            }
+                        }
+                        {/literal}
+                        </script>
+                    {/if}
+                    {* end optional filter copy *}
                 </div>
                 <br>
                 <h4 class="filterHeaders">{vtranslate('LBL_CHOOSE_COLUMNS',$MODULE)} ({vtranslate('LBL_MAX_NUMBER_FILTER_COLUMNS')}) :</h4>
@@ -46,7 +75,15 @@
                     {assign var=MANDATORY_FIELDS value=array()}
                     <select data-placeholder="{vtranslate('LBL_ADD_MORE_COLUMNS',$MODULE)}" multiple class="select2-container columnsSelect" id="viewColumnsSelect">
                         {foreach key=BLOCK_LABEL item=BLOCK_FIELDS from=$RECORD_STRUCTURE}
-                            <optgroup label='{vtranslate($BLOCK_LABEL, $SOURCE_MODULE)}'>
+                        
+                            {* crm now: translate optgroup labels for secondary modules where $BLOCK_LABEL is formatted like LBL:Modulename *}
+                            {assign var=blocklabelparts value=explode(":",$BLOCK_LABEL)}
+                            {if $blocklabelparts[1] !="" }
+                                <optgroup label='({vtranslate($blocklabelparts[1])}) {vtranslate($blocklabelparts[0], $blocklabelparts[1])}'>
+                            {else}
+                                <optgroup label='{vtranslate($BLOCK_LABEL, $SOURCE_MODULE)}'>
+                            {/if}
+                                
                                 {foreach key=FIELD_NAME item=FIELD_MODEL from=$BLOCK_FIELDS}
                                     {if $FIELD_MODEL->isMandatory()}
                                         {array_push($MANDATORY_FIELDS, $FIELD_MODEL->getCustomViewColumnName())}
@@ -55,7 +92,7 @@
                                             {if in_array($FIELD_MODEL->getCustomViewColumnName(), $SELECTED_FIELDS)}
                                                 selected
                                             {/if}
-                                            >{vtranslate($FIELD_MODEL->get('label'), $SOURCE_MODULE)}
+                                            >{if $blocklabelparts[1]!=""}({vtranslate($blocklabelparts[1])}) {/if}{vtranslate($FIELD_MODEL->get('label'), $SOURCE_MODULE)}
                             {if $FIELD_MODEL->isMandatory() eq true} <span>*</span> {/if}
                             </option>
                         {/foreach}
@@ -99,4 +136,5 @@
         </div>
     </form>
 </div>
+
 {/strip}

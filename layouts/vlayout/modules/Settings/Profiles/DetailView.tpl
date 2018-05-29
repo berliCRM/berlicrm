@@ -58,22 +58,19 @@
 							<th width="27%" style="border-left: 1px solid #DDD !important;">
 								{vtranslate('LBL_MODULES', $QUALIFIED_MODULE)}
 							</th>
-							<th width="11%" style="border-left: 1px solid #DDD !important;">
-								<span class="horizontalAlignCenter">
-
-									&nbsp;{'LBL_VIEW_PRVILIGE'|vtranslate:$QUALIFIED_MODULE}
-								</span>
+							<th width="12%" style="border-left: 1px solid #DDD !important; text-align: center;">
+								<span>{'LBL_VIEW_PRVILIGE'|vtranslate:$QUALIFIED_MODULE}</span>
 							</th>
-							<th width="12%" style="border-left: 1px solid #DDD !important;">
-								<span class="horizontalAlignCenter" >
-
-									&nbsp;{'LBL_EDIT_PRVILIGE'|vtranslate:$QUALIFIED_MODULE}
-								</span>
+							<th width="12%" style="border-left: 1px solid #DDD !important; text-align: center;">
+								<span>{'LBL_CREATE_PRVILIGE'|vtranslate:$QUALIFIED_MODULE}</span>
 							</th>
-							<th width="11%" style="border-left: 1px solid #DDD !important;">
-								<span class="horizontalAlignCenter" >{'LBL_DELETE_PRVILIGE'|vtranslate:$QUALIFIED_MODULE}</span>
+							<th width="12%" style="border-left: 1px solid #DDD !important; text-align: center;">
+								<span>{'LBL_EDIT_PRVILIGE'|vtranslate:$QUALIFIED_MODULE}</span>
 							</th>
-							<th width="39%" style="border-left: 1px solid #DDD !important;" nowrap="nowrap">{'LBL_FIELD_AND_TOOL_PRVILIGES'|vtranslate:$QUALIFIED_MODULE}</th>
+							<th width="12%" style="border-left: 1px solid #DDD !important; text-align: center;">
+								<span>{'LBL_DELETE_PRVILIGE'|vtranslate:$QUALIFIED_MODULE}</span>
+							</th>
+							<th width="12%" style="border-left: 1px solid #DDD !important; text-align: center;" nowrap="nowrap">{'LBL_FIELD_AND_TOOL_PRVILIGES'|vtranslate:$QUALIFIED_MODULE}</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -83,12 +80,12 @@
 								<td>
 									<img src="{if $RECORD_MODEL->hasModulePermission($PROFILE_MODULE)}{$ENABLE_IMAGE_PATH}{else}{$DISABLE_IMAGE_PATH}{/if}" class="alignMiddle" />&nbsp;{$PROFILE_MODULE->get('label')|vtranslate:$PROFILE_MODULE->getName()}
 								</td>
-								{assign var="BASIC_ACTION_ORDER" value=array(2,0,1)}
+								{assign var="BASIC_ACTION_ORDER" value=array(2,3,0,1)}
 								{foreach from=$BASIC_ACTION_ORDER item=ACTION_ID}
-									<td style="border-left: 1px solid #DDD !important;">
+									<td style="border-left: 1px solid #DDD !important; text-align: center;">
 										{assign var="ACTION_MODEL" value=$ALL_BASIC_ACTIONS[$ACTION_ID]}
 										{if !$IS_RESTRICTED_MODULE && $ACTION_MODEL->isModuleEnabled($PROFILE_MODULE)}
-											<img style="margin-left: 40%" class="alignMiddle" src="{if $RECORD_MODEL->hasModuleActionPermission($PROFILE_MODULE, $ACTION_MODEL)}{$ENABLE_IMAGE_PATH}{else}{$DISABLE_IMAGE_PATH}{/if}" />
+											<img class="alignMiddle" src="{if $RECORD_MODEL->hasModuleActionPermission($PROFILE_MODULE, $ACTION_MODEL)}{$ENABLE_IMAGE_PATH}{else}{$DISABLE_IMAGE_PATH}{/if}" />
 										{/if}
 									</td>
 								{/foreach}

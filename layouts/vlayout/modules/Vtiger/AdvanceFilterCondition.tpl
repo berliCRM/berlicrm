@@ -15,7 +15,13 @@
 		<select class="{if empty($NOCHOSEN)}chzn-select{/if} row-fluid" name="columnname">
 			<option value="none">{vtranslate('LBL_SELECT_FIELD',$MODULE)}</option>
 			{foreach key=BLOCK_LABEL item=BLOCK_FIELDS from=$RECORD_STRUCTURE}
-				<optgroup label='{vtranslate($BLOCK_LABEL, $SOURCE_MODULE)}'>
+            {* crm now: translate optgroup labels for secondary modules where $BLOCK_LABEL is like LBL:Modulename *}
+                {assign var=blocklabelparts value=explode(":",$BLOCK_LABEL)}
+                {if $blocklabelparts[1] !="" }
+                    <optgroup label='{vtranslate($blocklabelparts[0], $blocklabelparts[1])}'>
+                {else}
+                    <optgroup label='{vtranslate($BLOCK_LABEL, $SOURCE_MODULE)}'>
+                {/if}
 				{foreach key=FIELD_NAME item=FIELD_MODEL from=$BLOCK_FIELDS}
 					{assign var=FIELD_INFO value=$FIELD_MODEL->getFieldInfo()}
 					{assign var=MODULE_MODEL value=$FIELD_MODEL->getModule()}
@@ -55,7 +61,7 @@
 								{$FIELD_INFO['type'] = 'picklist'}
 						{/if}
 					{/if}
-					data-fieldinfo='{Vtiger_Util_Helper::toSafeHTML(ZEND_JSON::encode($FIELD_INFO))}' 
+					data-fieldinfo='{ZEND_JSON::encode($FIELD_INFO)|replace:"'":"&#039;"}' 
                     {if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if}>
 					{if $SOURCE_MODULE neq $MODULE_MODEL->get('name')}
 						({vtranslate($MODULE_MODEL->get('name'), $MODULE_MODEL->get('name'))})  {vtranslate($FIELD_MODEL->get('label'), $MODULE_MODEL->get('name'))}
@@ -104,7 +110,7 @@
 								{$FIELD_INFO['type'] = 'picklist'}
 						{/if}
 					{/if}
-					data-fieldinfo='{Vtiger_Util_Helper::toSafeHTML(ZEND_JSON::encode($FIELD_INFO))}' >
+					data-fieldinfo='{ZEND_JSON::encode($FIELD_INFO)|replace:"'":"&#039;"}' >
 					{if $SOURCE_MODULE neq $MODULE_MODEL->get('name')}
 						({vtranslate($MODULE_MODEL->get('name'), $MODULE_MODEL->get('name'))})  {vtranslate($FIELD_MODEL->get('label'), $MODULE_MODEL->get('name'))}
 					{else}
@@ -134,7 +140,7 @@
 		</select>
 	</span>
 	<span class="span4 fieldUiHolder">
-		<input name="{if $SELECTED_FIELD_MODEL}{$SELECTED_FIELD_MODEL->get('name')}{/if}" data-value="value" class="row-fluid" type="text" value="{$CONDITION_INFO['value']|escape}" />
+		<input name="{if $SELECTED_FIELD_MODEL}{$SELECTED_FIELD_MODEL->get('name')}{/if}" data-value="value" class="row-fluid" type="text" value='{$CONDITION_INFO['value']|replace:"'":"&#039;"}' />
 	</span>
 	<span class="hide">
 		<!-- TODO : see if you need to respect CONDITION_INFO condition or / and  -->

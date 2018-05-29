@@ -44,6 +44,7 @@ abstract class Vtiger_Header_View extends Vtiger_View_Controller {
 	 * @return <Array> - List of Vtiger_Link_Model instances
 	 */
 	function getHeaderLinks() {
+		global $current_language;
 		$appUniqueKey = vglobal('application_unique_key');
 		$vtigerCurrentVersion = vglobal('vtiger_current_version');
 		$site_URL = vglobal('site_URL');
@@ -51,42 +52,58 @@ abstract class Vtiger_Header_View extends Vtiger_View_Controller {
 		$userModel = Users_Record_Model::getCurrentUserModel();
 		$userEmail = $userModel->get('email1');
 
-		$headerLinks = array(
-				// Note: This structure is expected to generate side-bar feedback button.
-			array (
-				'linktype' => 'HEADERLINK',
-				'linklabel' => 'LBL_FEEDBACK',
-				'linkurl' => "javascript:window.open('http://vtiger.com/products/crm/od-feedback/index.php?version=".$vtigerCurrentVersion.
-					"&email=".$userEmail."&uid=".$appUniqueKey.
-					"&ui=6','feedbackwin','height=400,width=550,top=200,left=300')",
-				'linkicon' => 'info.png',
-				'childlinks' => array(
-					array (
-						'linktype' => 'HEADERLINK',
-						'linklabel' => 'LBL_DOCUMENTATION',
-						'linkurl' => 'https://wiki.vtiger.com/vtiger6/index.php/Main_Page',
-						'linkicon' => '',
-						'target' => '_blank'
-					),
-					array (
-						'linktype' => 'HEADERLINK',
-						'linklabel' => 'LBL_VIDEO_TUTORIAL',
-						'linkurl' => 'https://www.vtiger.com/crm/videos',
-						'linkicon' => '',
-						'target' => '_blank'
-					),
+		if ($current_language=='de_de') {
+			$headerLinks = array(
 					// Note: This structure is expected to generate side-bar feedback button.
-					array (
-						'linktype' => 'HEADERLINK',
-						'linklabel' => 'LBL_FEEDBACK',
-						'linkurl' => "javascript:window.open('http://vtiger.com/products/crm/od-feedback/index.php?version=".$vtigerCurrentVersion.
-							"&email=".$userEmail."&uid=".$appUniqueKey.
-							"&ui=6','feedbackwin','height=400,width=550,top=200,left=300')",
-						'linkicon' => '',
+				array (
+					'linktype' => 'HEADERLINK',
+					'linklabel' => 'LBL_HELP',
+					'linkicon' => 'info.png',
+					'childlinks' => array(
+						array (
+							'linktype' => 'HEADERLINK',
+							'linklabel' => 'LBL_HELP',
+							'linkurl' => 'http://blog.crm-now.de/doc/berliCRM/help/v1.0/index.html',
+							'linkicon' => '',
+							'target' => '_blank'
+						),
+						array (
+							'linktype' => 'HEADERLINK',
+							'linklabel' => 'CRM Journal',
+							'linkurl' => 'http://blog.crm-now.de/?lang=de',
+							'linkicon' => '',
+							'target' => '_blank'
+						)
 					)
 				)
-			)
-		);
+			);
+		}
+		else {
+			$headerLinks = array(
+					// Note: This structure is expected to generate side-bar feedback button.
+				array (
+					'linktype' => 'HEADERLINK',
+					'linklabel' => 'LBL_HELP',
+					'linkicon' => 'info.png',
+					'childlinks' => array(
+						array (
+							'linktype' => 'HEADERLINK',
+							'linklabel' => 'LBL_HELP',
+							'linkurl' => 'http://blog.crm-now.de/doc/help2540/index-en.html',
+							'linkicon' => '',
+							'target' => '_blank'
+						),
+						array (
+							'linktype' => 'HEADERLINK',
+							'linklabel' => 'CRM Journal',
+							'linkurl' => 'http://blog.crm-now.de/?lang=en',
+							'linkicon' => '',
+							'target' => '_blank'
+						)
+					)
+				)
+			);
+		}
 		
 		if($userModel->isAdminUser()) {
 			$crmSettingsLink = array(

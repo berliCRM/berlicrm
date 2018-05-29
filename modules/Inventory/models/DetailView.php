@@ -28,6 +28,15 @@ class Inventory_DetailView_Model extends Vtiger_DetailView_Model {
                                         'linkicon' => '' 
                         ); 
                         $linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($detailViewLinks); 
+						//crm-now: delivery note added
+						if ($moduleName =='Invoice') {
+							$printDeliveryNote = array( 
+											'linklabel' => vtranslate('LBL_EXPORT_DELIVERYNOTE_PDF', $moduleName), 
+											'linkurl' => $recordModel->getExportPDFUrlDeliveryNote(), 
+											'linkicon' => '' 
+							);
+							$linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($printDeliveryNote); 
+						}
 
                         $sendEmailLink = array( 
                                         'linklabel' => vtranslate('LBL_SEND_MAIL_PDF', $moduleName), 

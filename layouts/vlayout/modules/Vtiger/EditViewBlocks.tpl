@@ -11,7 +11,7 @@
 -->*}
 
 {strip}
-    <div class='container-fluid editViewContainer'>
+    <div class='container-fluid editViewContainer' style="visibility:hidden">
         <form class="form-horizontal recordEditView" id="EditView" name="EditView" method="post" action="index.php" enctype="multipart/form-data">
             {assign var=WIDTHTYPE value=$USER_MODEL->get('rowheight')}
             {if !empty($PICKIST_DEPENDENCY_DATASOURCE)}
@@ -26,6 +26,8 @@
             {else}
                 <input type="hidden" name="module" value="{$MODULE}" />
             {/if}
+            <input type="hidden" name="mode" value="{$MODE}" />
+            <input type="hidden" name="copy_source" value="{$COPY_SOURCE}" />
             <input type="hidden" name="action" value="Save" />
             <input type="hidden" name="record" value="{$RECORD_ID}" />
             <input type="hidden" name="defaultCallDuration" value="{$USER_MODEL->get('callduration')}" />
@@ -37,7 +39,11 @@
             {/if}
             <div class="contentHeader row-fluid">
                 {assign var=SINGLE_MODULE_NAME value='SINGLE_'|cat:$MODULE}
-                {if $RECORD_ID neq ''}
+                {if $MODE == "copy"}
+                    <h3 class="span8 textOverflowEllipsis">{vtranslate('LBL_CREATING_FROM_COPY', $MODULE)} {vtranslate($SINGLE_MODULE_NAME, $MODULE)}</h3>
+                {elseif $MODE == "copyRelated"}
+                    <h3 class="span8 textOverflowEllipsis">{vtranslate('LBL_CREATING_FROM_COPY_WITH_CONTENT', $MODULE)} {vtranslate($SINGLE_MODULE_NAME, $MODULE)}</h3>
+                {elseif $RECORD_ID neq ''}
                     <h3 class="span8 textOverflowEllipsis" title="{vtranslate('LBL_EDITING', $MODULE)} {vtranslate($SINGLE_MODULE_NAME, $MODULE)} {$RECORD_STRUCTURE_MODEL->getRecordName()}">{vtranslate('LBL_EDITING', $MODULE)} {vtranslate($SINGLE_MODULE_NAME, $MODULE)} - {$RECORD_STRUCTURE_MODEL->getRecordName()}</h3>
                 {else}
                     <h3 class="span8 textOverflowEllipsis">{vtranslate('LBL_CREATING_NEW', $MODULE)} {vtranslate($SINGLE_MODULE_NAME, $MODULE)}</h3>
@@ -48,8 +54,22 @@
                 </span>
             </div>
             {foreach key=BLOCK_LABEL item=BLOCK_FIELDS from=$RECORD_STRUCTURE name="EditViewBlockLevelLoop"}
+            {assign var=BLOCK value=$BLOCK_LIST[$BLOCK_LABEL]}
             {if $BLOCK_FIELDS|@count lte 0}{continue}{/if}
-            <table class="table table-bordered blockContainer showInlineTable equalSplit">
+
+            {* crm now dynamic blocks *}
+            <div class="dynblock"
+                {* NO COLLAPSED BLOCKS IN EDITVIEW, code left in because who knows...  {if !empty($BLOCK->hideWhenPickListHasValue)}{foreach key=plid item=plv from=$BLOCK->hideWhenPickListHasValue} data-hide-{$plid}='{$plv|@json_encode}'{/foreach}{/if} *}
+                {if !empty($BLOCK->blockWhenPickListHasValue)}
+                {foreach key=plid item=plv from=$BLOCK->blockWhenPickListHasValue} data-block-{$plid}='{$plv|@json_encode}'{/foreach}
+                {/if}
+            >
+
+            {if $MODULE eq 'Documents' || $BLOCK_LABEL eq 'LBL_DESCRIPTION_INFORMATION'}
+				<table class="table table-bordered blockContainer showInlineTable">
+				{else}
+				<table class="table table-bordered blockContainer showInlineTable equalSplit">
+			{/if}
                 <thead>
                     <tr>
                         <th class="blockHeader" colspan="4">{vtranslate($BLOCK_LABEL, $MODULE)}</th>
@@ -77,6 +97,9 @@
                                 {assign var=COUNTER value=$COUNTER+1}
                             {/if}
                             <td class="fieldLabel {$WIDTHTYPE}">
+							{if $FIELD_MODEL->get('helpinfo') && {$FIELD_MODEL->get('helpinfo')|trim} neq '' }
+								<i style="margin:2px 0 0 2px;" class="icon-info-sign pull-right" rel="popover" title="{vtranslate('LBL_HELP', $MODULE)}" data-placement="top" data-trigger="hover" data-content="{vtranslate($FIELD_MODEL->get('helpinfo'), $MODULE)|replace:'"':'&quot;'}"></i>
+                            {/if}
                             {if $isReferenceField neq "reference"}<label class="muted pull-right marginRight10px">{/if}
                             {if $FIELD_MODEL->isMandatory() eq true && $isReferenceField neq "reference"} <span class="redColor">*</span> {/if}
                             {if $isReferenceField eq "reference"}
@@ -104,15 +127,24 @@
                         {else if $FIELD_MODEL->get('uitype') eq "83"}
                             {include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE) COUNTER=$COUNTER MODULE=$MODULE}
                         {else}
-                            {vtranslate($FIELD_MODEL->get('label'), $MODULE)}
-                        {/if}
+							{if $FIELD_MODEL->get('name') eq "firstname"}
+								{vtranslate("Salutation", $MODULE)}<br />
+								{vtranslate($FIELD_MODEL->get('label'), $MODULE)}
+							{else}
+								{vtranslate($FIELD_MODEL->get('label'), $MODULE)}
+							{/if}
+                       {/if}
                     {if $isReferenceField neq "reference"}</label>{/if}
             </td>
             {if $FIELD_MODEL->get('uitype') neq "83"}
                 <td class="fieldValue {$WIDTHTYPE}" {if $FIELD_MODEL->get('uitype') eq '19' or $FIELD_MODEL->get('uitype') eq '20'} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
                     <div class="row-fluid">
-                        <span class="span10">
-                            {include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE) BLOCK_FIELDS=$BLOCK_FIELDS}
+					{if ($MODULE eq 'Documents' && $FIELD_MODEL->get('name') eq 'notecontent') || $FIELD_MODEL->get('name') == "imagename"}
+                        <span>
+					{else}
+                         <span class="span10">
+					{/if}                           
+						{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE) BLOCK_FIELDS=$BLOCK_FIELDS}
                         </span>
                     </div>
                 </td>
@@ -132,5 +164,6 @@
 </tbody>
 </table>
 <br>
+</div>
 {/foreach}
 {/strip}

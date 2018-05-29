@@ -59,7 +59,7 @@ class Leads_Record_Model extends Vtiger_Record_Model {
 		$privilegeModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
 		$moduleName = 'Accounts';
 
-		if(!Users_Privileges_Model::isPermitted($moduleName, 'EditView')) {
+		if(!Users_Privileges_Model::isPermitted($moduleName, 'CreateView')) {
 			return;
 		}
 
@@ -101,7 +101,7 @@ class Leads_Record_Model extends Vtiger_Record_Model {
 		$privilegeModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
 		$moduleName = 'Contacts';
 
-		if(!Users_Privileges_Model::isPermitted($moduleName, 'EditView')) {
+		if(!Users_Privileges_Model::isPermitted($moduleName, 'CreateView')) {
 			return;
 		}
 
@@ -148,7 +148,7 @@ class Leads_Record_Model extends Vtiger_Record_Model {
 		$privilegeModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
 		$moduleName = 'Potentials';
 
-		if(!Users_Privileges_Model::isPermitted($moduleName, 'EditView')) {
+		if(!Users_Privileges_Model::isPermitted($moduleName, 'CreateView')) {
 			return;
 		}
 

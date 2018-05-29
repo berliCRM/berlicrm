@@ -23,26 +23,11 @@ if(isset($_REQUEST['username']) && isset($_REQUEST['password'])){
 	if ($user->doLogin($password)) {
 		$zip = new ZipArchive();
 		$fileName = 'vtiger6.zip';
-		if ($zip->open($fileName)) {
-			for ($i = 0; $i < $zip->numFiles; $i++) {
-				$log->fatal('Filename: ' . $zip->getNameIndex($i) . '<br />');
-			}
-			if ($zip->extractTo($root_directory)) {
-				$zip->close();
-				
-				$userid = $user->retrieve_user_id($userName);
-				$_SESSION['authenticated_user_id'] = $userid;
-
-				header('Location: ../index.php?module=Migration&view=Index&mode=step1');
-			} else {
-				$errorMessage = '<p>ERROR EXTRACTING MIGRATION ZIP FILE!</p>';
-				header('Location: index.php?error='.$errorMessage);
-			}
-		} else {
-			$errorMessage = 'ERROR READING MIGRATION ZIP FILE!';
-			header('Location: index.php?error='.$errorMessage);
-		}
-	} else {
+		$userid = $user->retrieve_user_id($userName);
+		$_SESSION[‘authenticated_user_id’] = $userid;
+		header('Location: ../index.php?module=Migration&view=Index&mode=step1')	;	
+	}
+	else {
 		$errorMessage = 'INVALID CREDENTIALS';
 		header('Location: index.php?error='.$errorMessage);
 	}

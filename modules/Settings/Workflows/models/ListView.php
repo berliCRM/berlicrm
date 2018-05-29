@@ -75,7 +75,8 @@ class Settings_Workflows_ListView_Model extends Settings_Vtiger_ListView_Model {
 			}else{
 				$module_name = vtranslate($module_name, $module_name);
 			}
-			
+			//crm-now: added for translation
+			$row['summary'] = vtranslate($row['summary'], 'Settings:Workflows');
 			$row['module_name'] = $module_name;
 			$row['execution_condition'] = vtranslate($record->executionConditionAsLabel($row['execution_condition']), 'Settings:Workflows');
 			$record->setData($row);

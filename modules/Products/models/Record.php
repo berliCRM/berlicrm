@@ -294,10 +294,16 @@ class Products_Record_Model extends Vtiger_Record_Model {
 			if(is_array($imageOriginalNamesList)) {
 				$countOfImages = count($imageOriginalNamesList);
 				for($j=0; $j<$countOfImages; $j++) {
+					//crm-now: added because of restricted access to /storage
+					$imgpath = $imagePathList[$j].$imageIdsList[$j]."_".$imageNamesList[$j];
+					$type = pathinfo($imgpath, PATHINFO_EXTENSION);
+					$data = file_get_contents($imgpath);
+					$str = "data:image/".$type.";base64,".base64_encode($data);
+					
 					$imageDetails[] = array(
 							'id' => $imageIdsList[$j],
 							'orgname' => $imageOriginalNamesList[$j],
-							'path' => $imagePathList[$j].$imageIdsList[$j],
+							'path' => $str,
 							'name' => $imageNamesList[$j]
 					);
 				}

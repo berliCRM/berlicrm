@@ -119,18 +119,14 @@ class VTWorkflowUtils {
 	 * @params :: $modulename - name of the module
 	 */
 
-	function checkModuleWorkflow($modulename) {
+	public static function checkModuleWorkflow($modulename) {
 		global $adb;
 		$tabid = getTabid($modulename);
 		$modules_not_supported = array('Calendar', 'Emails', 'Faq', 'Events' , 'Users');
 		$query = "SELECT name FROM vtiger_tab WHERE name not in (" . generateQuestionMarks($modules_not_supported) . ") AND isentitytype=1 AND presence = 0 AND tabid = ?";
 		$result = $adb->pquery($query, array($modules_not_supported, $tabid));
 		$rows = $adb->num_rows($result);
-		if ($rows > 0) {
-			return true;
-		} else {
-			return false;
-		}
+		return ($rows > 0);
 	}
 
 	function vtGetModules($adb) {

@@ -291,4 +291,12 @@ class Vtiger_Link_Model extends Vtiger_Link {
 	public function getRelatedModuleName() {
 		return $this->relatedModuleName;
 	}
+	
+	/**
+	 * Function to get the count of records in link
+	 * @return <String>
+	 */
+	public function getRecordCount() {
+		return $this->recordcount;
+	}
 }

@@ -71,7 +71,10 @@ class Rss_Record_Model extends Vtiger_Record_Model {
 	 * Function to save the record
      * @param <string> $url
 	 */
-	public function save($url) {
+	public function save($url='') {
+        if (empty($url)) {
+            return false;
+        }
         $db = PearDatabase::getInstance();
         $title = $this->getName();
         $id = $db->getUniqueID("vtiger_rss");
@@ -123,7 +126,7 @@ class Rss_Record_Model extends Vtiger_Record_Model {
 	 * @param <String> $qualifiedModuleName
 	 * @return <Rss_Record_Model> RecordModel
 	 */
-	static public function getInstanceById($recordId, $qualifiedModuleName) {
+	static public function getInstanceById($recordId, $qualifiedModuleName = false) {
 		$db = PearDatabase::getInstance();
 		$result = $db->pquery('SELECT * FROM vtiger_rss WHERE rssid = ?', array($recordId));
 
@@ -151,11 +154,12 @@ class Rss_Record_Model extends Vtiger_Record_Model {
      */
     public function setSenderInfo($rssItems) {
         $items = array();
-        foreach($rssItems as $item) {
-            $item['sender'] = $this->getName();
-            $items[] = $item;
+        if (!empty($rssItems)) {
+            foreach($rssItems as $item) {
+                $item['sender'] = $this->getName();
+                $items[] = $item;
+            }
         }
-        
         return $items;
     }
     

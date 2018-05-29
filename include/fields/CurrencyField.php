@@ -400,7 +400,7 @@ class CurrencyField {
 	
 	public static function convertToDollar($amount, $conversionRate) {
 		if ($conversionRate == 0) return 0;
-		return $amount / $conversionRate;
+		return (float) $amount / (float) $conversionRate;
 	}
 	
 	public static function convertFromDollar($amount, $conversionRate) {
@@ -430,18 +430,18 @@ class CurrencyField {
                 $value = rtrim($value, '0');
             }
             if($user->currency_decimal_separator == '&nbsp;')
-                $decimalSeparator = ' ';
+                $decimalSeperator = ' ';
             else
-				$decimalSeparator = $user->currency_decimal_separator;
+				$decimalSeperator = $user->currency_decimal_separator;
 
-			$fieldValue = explode(decode_html($decimalSeparator), $value);
+			$fieldValue = explode(decode_html($decimalSeperator), $value);
 			if(strlen($fieldValue[1]) <= 1){
 				if(strlen($fieldValue[1]) == 1) {
-					return $value = $fieldValue[0].$decimalSeparator.$fieldValue[1];
+					return $value = $fieldValue[0].$decimalSeperator.$fieldValue[1];
 				} else if (!strlen($fieldValue[1])) {
 					return $value = $fieldValue[0];
 				} else {
-					return $value = $fieldValue[0].$decimalSeparator;
+					return $value = $fieldValue[0].$decimalSeperator;
 				}
 			}else{
 				return preg_replace("/(?<=\\.[0-9])[0]+\$/","",$value);

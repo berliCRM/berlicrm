@@ -106,14 +106,15 @@ class SalesOrder extends CRMEntity {
 	 *  This function creates an instance of LoggerManager class using getLogger method
 	 *  creates an instance for PearDatabase class and get values for column_fields array of SalesOrder class.
 	 */
-	function SalesOrder() {
+	function __construct() {
 		$this->log =LoggerManager::getLogger('SalesOrder');
 		$this->db = PearDatabase::getInstance();
 		$this->column_fields = getColumnFields('SalesOrder');
 	}
 
-	function save_module($module)
-	{
+	function save_module($module) {
+		global $updateInventoryProductRel_deduct_stock;
+		$updateInventoryProductRel_deduct_stock = true;
 
 		//Checking if quote_id is present and updating the quote status
 		if($this->column_fields["quote_id"] != '')
@@ -129,6 +130,9 @@ class SalesOrder extends CRMEntity {
 				&& $_REQUEST['action'] != 'SaveAjax' && $this->isLineItemUpdate != false) {
 			//Based on the total Number of rows we will save the product relationship with this entity
 			saveInventoryProductDetails($this, 'SalesOrder');
+		}
+		else if($_REQUEST['action'] == 'SalesOrderAjax' || $_REQUEST['action'] == 'MassEditSave' || $_REQUEST['action'] == 'FROM_WS') {
+			$updateInventoryProductRel_deduct_stock = false;
 		}
 
 		// Update the currency id and the conversion rate for the sales order

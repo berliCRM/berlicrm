@@ -85,8 +85,10 @@ class Inventory_Module_Model extends Vtiger_Module_Model {
 	 */
 	public function getExportQuery($focus, $query) {
 		$baseTableName = $focus->table_name;
-		$splitQuery = spliti(' FROM ', $query);
-		$columnFields = explode(',', $splitQuery[0]);
+        $pos = stripos($query,' FROM ');
+        $querywhat= substr($query,0,$pos);
+        $queryfrom= substr($query,$pos);
+		$columnFields = explode(',', $querywhat);
 		foreach ($columnFields as $key => &$value) {
 			if($value == ' vtiger_inventoryproductrel.discount_amount'){
 				$value = ' vtiger_inventoryproductrel.discount_amount AS item_discount_amount';
@@ -96,12 +98,8 @@ class Inventory_Module_Model extends Vtiger_Module_Model {
 				$value = ' vtiger_currency_info.currency_name AS currency_id';
 			}
 		}
-		$joinSplit = spliti(' WHERE ',$splitQuery[1]);
-		$joinSplit[0] .= " LEFT JOIN vtiger_currency_info ON vtiger_currency_info.id = $baseTableName.currency_id";
-		$splitQuery[1] = $joinSplit[0] . ' WHERE ' .$joinSplit[1];
-
-		$query = implode(',', $columnFields).' FROM ' . $splitQuery[1];
-		
+        $pos = stripos($queryfrom,' WHERE ');
+		$query = implode(',', $columnFields). substr($queryfrom,0,$pos)." LEFT JOIN vtiger_currency_info ON vtiger_currency_info.id = $baseTableName.currency_id" . substr($queryfrom,$pos);
 		return $query;
 	}
 }

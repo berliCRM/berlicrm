@@ -46,6 +46,10 @@ $languageStrings = array(
 	'SINGLE_Documents' => 'Document',
 	'Title' => 'Title',
 	'Version' => 'Version',
+	//crm-now: missing translations
+	'Default' => 'Default',
+	//crm-now: added for related entries
+	'LBL_RELATED_TO' => 'related to',
 );
 
 $jsLanguageStrings = array(

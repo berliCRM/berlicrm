@@ -20,7 +20,7 @@
 				{/foreach}
 			</span>
 		</span>
-		<span class='span4'><div class="textAlignCenter"><h3 style='margin-top:2px'>{vtranslate('LBL_DUPLICATE')}  {vtranslate($MODULE, $MODULE)}</h3></div></span>
+		<span class='span4'><div class="textAlignCenter"><h3 style='margin-top:2px'>{vtranslate('LBL_DUPLICATES', $MODULE)} {vtranslate($MODULE, $MODULE)}</h3></div></span>
 		<span class="span4 btn-toolbar">
 			{include file='ListViewActions.tpl'|@vtemplate_path}
 		</span>

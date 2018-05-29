@@ -135,8 +135,8 @@ function export($type){
 	}
 	$params = array();
 
-	list($idstring, $export_data) = split("#@@#",getExportRecordIds($type, $viewid, $_REQUEST));
-	
+	list($idstring, $export_data) = explode("#@@#",getExportRecordIds($type, $viewid, $_REQUEST));
+
 	if(($search_type == 'withoutsearch' || $search_type == 'includesearch') && $export_data == 'selecteddata'){
 		$idstring = getSelectedRecords($_REQUEST, $type, $idstring, vtlib_purify($_REQUEST['excludedRecords']));
 		if($type == 'Accounts' && count($idstring) > 0) {
@@ -276,12 +276,7 @@ class ExportUtils{
 	var $fieldsArr = array();
 	var $picklistValues = array();
 	
-	function ExportUtils($module, $fields_array){
-		self::__init($module, $fields_array);
-	}
-	
-	
-	function __init($module, $fields_array){
+	function __construct($module, $fields_array){
 		$infoArr = self::getInformationArray($module);
 		
 		//attach extra fields related information to the fields_array; this will be useful for processing the export data

@@ -23,7 +23,7 @@ class Vtiger_Datetime_UIType extends Vtiger_Date_UIType {
 	 * @param <Object> $value
 	 * @return <Object>
 	 */
-	public function getDisplayValue($value) {
+	public function getDisplayValue($value, $record = false, $recordInstance = false) {
 		return $dateValue = self::getDisplayDateTimeValue($value);
 	}
 	

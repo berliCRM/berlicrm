@@ -10,7 +10,7 @@
 require_once('Smarty_setup.php');
 
 class ConfigEditor_Viewer extends vtigerCRM_Smarty {
-	function ConfigEditor_Viewer() {
+	function __construct() {
 		parent::vtigerCRM_Smarty();
 		
 		global $app_strings, $mod_strings, $currentModule, $theme;

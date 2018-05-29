@@ -17,6 +17,7 @@ class Settings_Picklist_SaveAjax_Action extends Settings_Vtiger_Basic_Action {
         $this->exposeMethod('assignValueToRole');
         $this->exposeMethod('saveOrder');
         $this->exposeMethod('enableOrDisable');
+        $this->exposeMethod('dynamicBlocks');
     }
 
     public function process(Vtiger_Request $request) {
@@ -192,7 +193,31 @@ class Settings_Picklist_SaveAjax_Action extends Settings_Vtiger_Basic_Action {
         }
         $response->emit();
     }
-         
+
+    // ajax endpoint to save "dynamic blocks" (visibility of UI blocks in dependance of an entities picklist value)
+    public function dynamicBlocks(Vtiger_Request $request) {
+        $picklistId = $request->get('picklistId');
+        $moduleId = $request->get('moduleId');
+        $db = PearDatabase::getInstance();
+        parse_str($request->get("query"),$query);
+        foreach ($query["dynblock"] as $picklistvalue => $blocks) {
+            foreach ($blocks as $blockid => $status) {
+                if ($status["hidden"]==0 && $status["blocked"] == 0) {
+                    $q = "DELETE FROM berli_dynamic_blocks WHERE moduleid=? AND picklistid=? AND picklistvalueid=? AND blockid=? LIMIT 1";
+                    $db->pquery($q,array($moduleId,$picklistId,$picklistvalue,$blockid));
+                }
+                else {
+                    $q = "INSERT INTO berli_dynamic_blocks SET moduleid=?, picklistid=?, picklistvalueid=?, blockid=?, initialstatus=?, blocked=?
+                            ON DUPLICATE KEY UPDATE initialstatus=?, blocked=?";
+                    $db->pquery($q,array($moduleId,$picklistId,$picklistvalue,$blockid,$status["hidden"],$status["blocked"],$status["hidden"],$status["blocked"]));        
+                }
+            }
+        }
+        $response = new Vtiger_Response();
+        $response->setResult(array());
+        $response->emit();
+    }
+ 
     public function validateRequest(Vtiger_Request $request) { 
         $request->validateWriteAccess(); 
     } 

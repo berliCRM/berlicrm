@@ -16,4 +16,48 @@ $languageStrings = array(
 	'SINGLE_ProjectTask' => 'Project Task',
     'LBL_MILESTONES_LIST' => 'Milestones List',
      'Canceled ' => 'Cancelled',
+
+	'SINGLE_ProjectTask'	=>	'Project Task',
+	'LBL_ADD_RECORD' => 'Add Project Task',
+	'LBL_RECORDS_LIST' => 'Project Task List',
+	'LBL_PROJECT_TASK_INFORMATION' => 'Project Task Details',
+	'LBL_PROJECTS_LIST' => 'Projects List',
+	'LBL_TASKS_LIST' => 'Tasks List',
+	'LBL_MILESTONES_LIST'	=>	'Milestones List',
+	'Project Task Name'	=>	"Task Name",
+	'Project Task No'	=>	"Task No.",
+	'Project Task Number'	=>	"Task No.",
+	'Status'	=>	"Status",
+	'Priority'	=>	"Priority",
+	'Progress'	=>	"Progress",
+	'Type'	=>	"Type",
+	'Worked Hours'	=>	"Worked Hours",
+	'Start Date'	=>	"Start Date",
+	'End Date'	=>	"End Date",
+	'Related To'	=>	"Related To",
+	'administrative' => 'administrative',
+    'operative' => 'operative',
+    'other' => 'other',
+    'low' => 'low',
+    'normal' => 'normal',
+    'high' => 'high',
+	'Created Time'	=>	"Created Time",
+	'Modified Time'	=>	"Modified Time",
+	'description'	=>	"Description",
+	'Assigned To'	=>	"Assigned To",
+	'Open'	=>	"Open",
+	'In Progress'	=>	"In Progress",
+	'Completed'	=>	"Completed",
+	'Deferred'	=>	"Deferred",
+	'Canceled'	=>	'Cancelled',
+	
+	//crm-now: missing entries in en_us file
+	'Related to' => 'Related to',
+	 
+	 
+);
+
+$jsLanguageStrings = array(
+	'of' => 'of',
+	'to' => 'to',
 );

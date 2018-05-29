@@ -45,7 +45,9 @@ class VTSMSTask extends VTTask {
 			/** Pickup only non-empty numbers */
 			$tonumbers = array();
 			foreach($recepients as $tonumber) {
-				if(!empty($tonumber)) $tonumbers[] = $tonumber;
+				if(!empty($tonumber)) {
+					$tonumbers[] = SMSNotifier::formatPhoneNumber($tonumber);
+				}
 			}
 			
 			SMSNotifier::sendsms($content, $tonumbers, $current_user->id, $relatedCRMid, $relatedModule);

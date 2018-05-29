@@ -361,6 +361,7 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 	public function getCurrentUserMailManagerAllowedModules() {
 		$moduleListForCreateRecordFromMail = array('Contacts', 'Accounts', 'Leads', 'HelpDesk', 'Calendar');
 
+		$mailManagerAllowedModules = array();
 		foreach($moduleListForCreateRecordFromMail as $module) {
 			if(MailManager::checkModuleWriteAccessForCurrentUser($module)) {
 				$mailManagerAllowedModules[] = $module;
@@ -376,6 +377,7 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 	public function linkToAvailableActions() {
 		$moduleListForLinkTo = array('Calendar','HelpDesk','ModComments','Emails');
 
+		$mailManagerAllowedModules = array();
 		foreach($moduleListForLinkTo as $module) {
 			if(MailManager::checkModuleWriteAccessForCurrentUser($module)) {
 				$mailManagerAllowedModules[] = $module;
@@ -411,7 +413,7 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 				$whereClause .= sprintf( " %s LIKE '%%%s%%' OR", $field['name'], $text );
 			}
 		}
-		return sprintf( "SELECT %s FROM %s WHERE %s;", $describe['labelFields'], $module, rtrim($whereClause, 'OR') );
+		return ($whereClause == '') ? false : sprintf( "SELECT %s FROM %s WHERE %s;", $describe['labelFields'], $module, rtrim($whereClause, 'OR') );
 	}
 
 	/**
@@ -427,6 +429,7 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 		$results = array();
 		foreach(explode(",",$emails) as $email){
 			$query = $this->buildSearchQuery($module, $email, 'EMAIL');
+			if (!$query) continue;
 			$qresults = vtws_query( $query, $currentUserModel );
 			$describe = $this->ws_describe($module);
 			$labelFields = explode(',', $describe['labelFields']);

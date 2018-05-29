@@ -331,12 +331,11 @@ class Leads_Module_Model extends Vtiger_Module_Model {
 
 			$position = stripos($listQuery, 'where');
 			if($position) {
-				$split = spliti('where', $listQuery);
-				$overRideQuery = $split[0] . ' WHERE ' . $split[1] . ' AND ' . $condition;
-			} else {
-				$overRideQuery = $listQuery. ' WHERE ' . $condition;
-			}
-			return $overRideQuery;
+                $listQuery .= ' AND ' . $condition;
+            } else {
+                $listQuery .= ' WHERE ' . $condition;
+            }
+            return $listQuery;
 		}
 	}
      public function getDefaultSearchField(){

@@ -7,7 +7,8 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-require_once('modules/Vtiger/CRMEntity.php');
+require_once('data/CRMEntity.php');
+require_once('data/Tracker.php');
 
 class SMSNotifierBase extends CRMEntity {
 	var $db, $log; // Used in class functions of CRMEntity

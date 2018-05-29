@@ -16,15 +16,21 @@ class Quotes_Record_Model extends Inventory_Record_Model {
 	public function getCreateInvoiceUrl() {
 		$invoiceModuleModel = Vtiger_Module_Model::getInstance('Invoice');
 
-		return "index.php?module=".$invoiceModuleModel->getName()."&view=".$invoiceModuleModel->getEditViewName()."&quote_id=".$this->getId();
+		return "index.php?module=".$invoiceModuleModel->getName()."&view=".$invoiceModuleModel->getEditViewName()."&quote_id=".$this->getId()."&convertmode=true";
 	}
 
 	public function getCreateSalesOrderUrl() {
 		$salesOrderModuleModel = Vtiger_Module_Model::getInstance('SalesOrder');
 
-		return "index.php?module=".$salesOrderModuleModel->getName()."&view=".$salesOrderModuleModel->getEditViewName()."&quote_id=".$this->getId();
+		return "index.php?module=".$salesOrderModuleModel->getName()."&view=".$salesOrderModuleModel->getEditViewName()."&quote_id=".$this->getId()."&convertmode=true";
 	}
+	
+	function getCreatePDFDocumentUrl() {
+		$quotesModuleModel = Vtiger_Module_Model::getInstance('Quotes');
 
+		return "index.php?module=Inventory&relmodule=".$quotesModuleModel->getName()."&action=savePDF&record=".$this->getId();
+	}
+ 
 	/**
 	 * Function to get this record and details as PDF
 	 */

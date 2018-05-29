@@ -17,6 +17,7 @@ class Settings_Picklist_IndexAjax_View extends Settings_Vtiger_IndexAjax_View {
         $this->exposeMethod('showDeleteView');
         $this->exposeMethod('getPickListDetailsForModule');
         $this->exposeMethod('getPickListValueForField');
+        $this->exposeMethod('getPickListValueForBlocks');
         $this->exposeMethod('getPickListValueByRole');
         $this->exposeMethod('showAssignValueToRoleView');
     }
@@ -137,6 +138,49 @@ class Settings_Picklist_IndexAjax_View extends Settings_Vtiger_IndexAjax_View {
         $viewer->assign('ROLE_PICKLIST_VALUES',$pickListValuesForRole);
         $viewer->assign('ALL_PICKLIST_VALUES', $allPickListValues);
         $viewer->view('PickListValueByRole.tpl',$qualifiedName);
+    }
+
+    // ajax endpoint to display dynamic block editor for given module and picklist
+    public function getPickListValueForBlocks(Vtiger_Request $request) {
+        $sourceModule = $request->get('source_module');
+        $pickFieldId = $request->get('pickListFieldId');
+        $fieldModel = Settings_Picklist_Field_Model::getInstance($pickFieldId);
+        $moduleModel = Settings_Picklist_Module_Model::getInstance($sourceModule);
+		$moduleName = $request->getModule();
+        $qualifiedName = $request->getModule(false);
+        $db = PearDatabase::getInstance();
+        $fieldName = $fieldModel->getName();
+
+        // fetch all picklist entries indexed by picklist_valueid
+        $q = 'SELECT * FROM vtiger_'.$db->sql_escape_string($fieldName);
+        $res = $db->pquery($q,array());
+        while ($row= $db->fetchByAssoc($res)) {
+            $listEntries[$row['picklist_valueid']]=html_entity_decode($row[$fieldName]);
+        }
+
+        // find picklist id
+        $q = "SELECT picklistid from vtiger_picklist WHERE name =?";
+        $res = $db->pquery($q,array($fieldName));
+        $picklistId = $db->query_result($res,"picklistid");
+
+        // fetch display data for given moduleid and picklistid
+        $q ="SELECT * from berli_dynamic_blocks WHERE moduleid=? AND picklistid=?";
+        $res = $db->pquery($q,array($moduleModel->getId(),$picklistId));
+        while ($row= $db->fetchByAssoc($res)) {
+            $dynamicBlocks[$row['picklistvalueid']][$row['blockid']]=$row;
+        }
+
+        $viewer = $this->getViewer($request);
+        $viewer->assign('DYNAMIC_BLOCKS',$dynamicBlocks);
+        $viewer->assign('BLOCKS',$moduleModel->getBlocks());
+        $viewer->assign('SELECTED_PICKLIST_FIELDMODEL',$fieldModel);
+		$viewer->assign('SELECTED_MODULE_NAME',$sourceModule);
+		$viewer->assign('PICKLISTID',$picklistId);
+		$viewer->assign('MODULEID',$moduleModel->getId());
+		$viewer->assign('MODULE',$moduleName);
+		$viewer->assign('QUALIFIED_MODULE',$qualifiedName);
+        $viewer->assign('PICKLIST_VALUES',$listEntries);
+        $viewer->view('PickListValueByBlock.tpl',$qualifiedName); 
     }
 
 	 /**

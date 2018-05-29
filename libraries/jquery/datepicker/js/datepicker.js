@@ -100,7 +100,7 @@
 							'<td class="<%=weeks[5].days[4].classname%>"><a href="#"><span><%=weeks[5].days[4].text%></span></a></td>',
 							'<td class="<%=weeks[5].days[5].classname%>"><a href="#"><span><%=weeks[5].days[5].text%></span></a></td>',
 							'<td class="<%=weeks[5].days[6].classname%>"><a href="#"><span><%=weeks[5].days[6].text%></span></a></td>',
-						'</tr>',
+						'</tr><tr><td colspan=8 style="text-align:center"><button class="today" style="background-color:#333;color:#fff;border:1px solid #555;border-radius:1px">today</button></td></tr>',
 					'</tbody>'
 				],
 				months: [
@@ -132,6 +132,7 @@
 				prev: '&#9664;',
 				next: '&#9654;',
 				lastSel: false,
+                today: 'today',
 				mode: 'single',
 				view: 'days',
 				calendars: 1,
@@ -234,6 +235,8 @@
 					};
 					html = tmpl(tpl.months.join(''), data) + html;
 					tblCal.append(html);
+                    cal.find(".today").text("» " + options.today);
+                    if (options.mode != "single") cal.find(".today").hide();
 				}
 			},
 			parseDate = function (date, format) {
@@ -459,6 +462,20 @@
 				});
 			},
 			click = function(ev) {
+
+                var options = $(this).data('datepicker');
+
+                if ($(ev.target).is('.today')) {
+                    options.date=0;
+                    options.onChange.apply(this, prepareDate(options));
+                    var today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    options.date=today.valueOf();
+                    options.current = new Date(options.date);
+                    fill(this);
+                    options.onChange.apply(this, prepareDate(options));
+                    return false;
+                }
 				if ($(ev.target).is('span')) {
 					ev.target = ev.target.parentNode;
 				}
@@ -468,7 +485,7 @@
 					if (el.hasClass('datepickerDisabled')) {
 						return false;
 					}
-					var options = $(this).data('datepicker');
+
 					var parentEl = el.parent();
 					var tblEl = parentEl.parent().parent().parent();
 					var tblIndex = $('table', this).index(tblEl.get(0)) - 1;
@@ -637,7 +654,7 @@
 					var viewPort = getViewport();
 					var top = pos.top;
 					var left = pos.left;
-					var oldDisplay = $.curCSS(calEl, 'display');
+					var oldDisplay = $(calEl).css('display');
 					cal.css({
 						visibility: 'hidden',
 						display: 'block'

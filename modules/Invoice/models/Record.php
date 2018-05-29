@@ -12,5 +12,16 @@
  * Inventory Record Model Class
  */
 class Invoice_Record_Model extends Inventory_Record_Model {
+	
+	function getCreatePDFDocumentUrlInvoice() {
+		$invoiceModuleModel = Vtiger_Module_Model::getInstance('Invoice');
+
+		return "index.php?module=Inventory&relmodule=".$invoiceModuleModel->getName()."&action=savePDF&printmode=invoice&record=".$this->getId();
+	}
+	function getCreatePDFDocumentUrlShipping() {
+		$invoiceModuleModel = Vtiger_Module_Model::getInstance('Invoice');
+
+		return "index.php?module=Inventory&relmodule=".$invoiceModuleModel->getName()."&action=savePDF&printmode=shipping&record=".$this->getId();
+	}
 
 }

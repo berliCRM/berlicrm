@@ -56,7 +56,7 @@ class EmailTemplates_ListView_Model extends Vtiger_ListView_Model {
 	 */
 	public function getListViewHeaders() {
 		$fieldObjects = array();
-		$listViewHeaders = array('Template Name' => 'templatename', 'Subject' => 'subject');
+		$listViewHeaders = array('Template ID' => 'templateid','Template Name' => 'templatename', 'Subject' => 'subject');
 		foreach ($listViewHeaders as $key => $fieldName) {
 			$fieldModel = new EmailTemplates_Field_Model();
 			$fieldModel->set('name', $fieldName);
@@ -80,6 +80,12 @@ class EmailTemplates_ListView_Model extends Vtiger_ListView_Model {
 		$orderBy = $this->getForSql('orderby');
 		$sortOrder = $this->getForSql('sortorder');
 
+        // default sort order
+        if (empty($orderBy)) {
+            $orderBy = "templatename";
+            $sortOrder ="ASC";
+        }
+        
 		$listQuery = $this->getQuery();
 		$searchKey = $this->get('search_key');
 		$searchValue = $this->get('search_value');
@@ -148,7 +154,7 @@ class EmailTemplates_ListView_Model extends Vtiger_ListView_Model {
 	}
 	
 	function getQuery() {
-		$listQuery = 'SELECT templateid, templatename, foldername, subject FROM vtiger_emailtemplates';
+		$listQuery = 'SELECT templateid, templatename, subject, foldername FROM vtiger_emailtemplates'; //ORDER BY templatename ASC';
 		return $listQuery;
 	}
 	
@@ -162,15 +168,11 @@ class EmailTemplates_ListView_Model extends Vtiger_ListView_Model {
 
 		$listQuery = $this->getQuery();
 		
-		$position = stripos($listQuery, 'from');
-		if ($position) {
-			$split = spliti('from', $listQuery);
-			$splitCount = count($split);
-			$listQuery = 'SELECT count(*) AS count ';
-			for ($i=1; $i<$splitCount; $i++) {
-				$listQuery = $listQuery. ' FROM ' .$split[$i];
-			}
+        $pos = stripos($listQuery, ' from ');
+        if ($pos !== false) {
+			$listQuery = 'SELECT count(*) AS count' . substr($listQuery,$pos); 
 		}
+
 		$searchKey = $this->get('search_key');
 		$searchValue = $this->get('search_value');
 		

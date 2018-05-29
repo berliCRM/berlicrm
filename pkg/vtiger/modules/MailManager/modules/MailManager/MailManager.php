@@ -105,7 +105,7 @@ class MailManager {
 
 	static function checkModuleWriteAccessForCurrentUser($module) {
 		global $current_user;
-		if (isPermitted($module, 'EditView') == "yes" && vtlib_isModuleActive($module)) {
+		if (isPermitted($module, 'CreateView') == "yes" && vtlib_isModuleActive($module)) {
             return true;
 		}
 		return false;

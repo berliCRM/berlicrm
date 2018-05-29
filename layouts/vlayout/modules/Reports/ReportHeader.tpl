@@ -22,6 +22,27 @@
             <div class="reportHeader row-fluid">
                 <div class="span3">
                     <div class="btn-toolbar">
+ 						{if $PRIMARY_MODULE eq 'Contacts' || $PRIMARY_MODULE eq 'Leads'}
+							<div class="btn-group">
+						        <span class="btn-group">
+									<button class="btn dropdown-toggle" data-toggle="dropdown">
+										<strong>{vtranslate('LBL_SPECIAL_EXPORTS',$MODULE)}</strong>
+										<i class="caret"></i>
+									</button>
+									<ul class="dropdown-menu pull-right">
+										<li>
+											<a href="javascript:callMailChimpList.showlist('{$RECORD_ID}','{$PRIMARY_MODULE}');">{vtranslate('LBL_EXPORT_TO_MC',$MODULE)}</a>
+										</li>
+										<li>
+											<a href="javascript:callCampaignList.showlist('{$RECORD_ID}','{$PRIMARY_MODULE}');">{vtranslate('LBL_EXPORT_TO_CAMP',$MODULE)}</a>
+										</li>
+										<li>
+											<a href="javascript:callCleverReachList.showlist('{$RECORD_ID}','{$PRIMARY_MODULE}');">{vtranslate('LBL_EXPORT_TO_CR',$MODULE)}</a>
+										</li>
+									<ul>
+								</span>
+							</div>
+						{/if}
                         {if $REPORT_MODEL->isEditable() eq true}
                             <div class="btn-group">
                                 <button onclick='window.location.href="{$REPORT_MODEL->getEditViewUrl()}"' type="button" class="cursorPointer btn">
@@ -38,12 +59,12 @@
                     </div>
                 </div>
                 <div class='span5 textAlignCenter'>
-                    <h3>{$REPORT_MODEL->getName()}</h3>
+                    <h3>{vtranslate($REPORT_MODEL->getName(),$MODULE)}</h3>
                     <div id="noOfRecords">{vtranslate('LBL_NO_OF_RECORDS',$MODULE)} <span id="countValue">{$COUNT}</span>
-						{if $COUNT > 1000}
-							<span class="redColor" id="moreRecordsText"> ({vtranslate('LBL_MORE_RECORDS_TXT',$MODULE)})</span>
+						{if $COUNT > $DISPLAYLIMIT}
+							<span class="redColor" id="moreRecordsText"> ({vtranslate('LBL_MORE_RECORDS_TXT1',$MODULE)}&nbsp;{$DISPLAYLIMIT}&nbsp;{vtranslate('LBL_MORE_RECORDS_TXT2',$MODULE)})</span>
 						{else}
-							<span class="redColor hide" id="moreRecordsText"> ({vtranslate('LBL_MORE_RECORDS_TXT',$MODULE)})</span>
+							<span class="redColor hide" id="moreRecordsText">  ({vtranslate('LBL_MORE_RECORDS_TXT1',$MODULE)}&nbsp;{$DISPLAYLIMIT}&nbsp;{vtranslate('LBL_MORE_RECORDS_TXT2',$MODULE)})</span>
                     {/if}
                     </div>
                 </div>

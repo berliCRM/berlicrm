@@ -68,4 +68,7 @@ $languageStrings = array(
 	'LBL_UNDO_RESULT' => 'Undo Import Result',
 	'LBL_VIEW_LAST_IMPORTED_RECORDS' => 'Last Imported Records',
 	'skipped' => 'Skipped Records',
+    //post import email
+    'LBL_POST_IMPORT_MAIL_SUBJECT' => 'CRM - Scheduled Import Report for ',
+    'LBL_POST_IMPORT_MAIL_INTRO' => 'The CRM has just completed your import process with the following result:',
 );

@@ -1742,29 +1742,26 @@ function setOuterHeight(element, height, includeMargins) {
 }
 
 
-// TODO: curCSS has been deprecated (jQuery 1.4.3 - 10/16/2010)
-
-
 function hsides(element, includeMargins) {
 	return hpadding(element) + hborders(element) + (includeMargins ? hmargins(element) : 0);
 }
 
 
 function hpadding(element) {
-	return (parseFloat($.curCSS(element[0], 'paddingLeft', true)) || 0) +
-	       (parseFloat($.curCSS(element[0], 'paddingRight', true)) || 0);
+	return (parseFloat($(element[0]).css('paddingLeft', true)) || 0) +
+	       (parseFloat($(element[0]).css('paddingRight', true)) || 0);
 }
 
 
 function hmargins(element) {
-	return (parseFloat($.curCSS(element[0], 'marginLeft', true)) || 0) +
-	       (parseFloat($.curCSS(element[0], 'marginRight', true)) || 0);
+	return (parseFloat($(element[0]).css('marginLeft', true)) || 0) +
+	       (parseFloat($(element[0]).css('marginRight', true)) || 0);
 }
 
 
 function hborders(element) {
-	return (parseFloat($.curCSS(element[0], 'borderLeftWidth', true)) || 0) +
-	       (parseFloat($.curCSS(element[0], 'borderRightWidth', true)) || 0);
+	return (parseFloat($(element[0]).css('borderLeftWidth', true)) || 0) +
+	       (parseFloat($(element[0]).css('borderRightWidth', true)) || 0);
 }
 
 
@@ -1774,20 +1771,20 @@ function vsides(element, includeMargins) {
 
 
 function vpadding(element) {
-	return (parseFloat($.curCSS(element[0], 'paddingTop', true)) || 0) +
-	       (parseFloat($.curCSS(element[0], 'paddingBottom', true)) || 0);
+	return (parseFloat($(element[0]).css('paddingTop', true)) || 0) +
+	       (parseFloat($(element[0]).css('paddingBottom', true)) || 0);
 }
 
 
 function vmargins(element) {
-	return (parseFloat($.curCSS(element[0], 'marginTop', true)) || 0) +
-	       (parseFloat($.curCSS(element[0], 'marginBottom', true)) || 0);
+	return (parseFloat($(element[0]).css('marginTop', true)) || 0) +
+	       (parseFloat($(element[0]).css('marginBottom', true)) || 0);
 }
 
 
 function vborders(element) {
-	return (parseFloat($.curCSS(element[0], 'borderTopWidth', true)) || 0) +
-	       (parseFloat($.curCSS(element[0], 'borderBottomWidth', true)) || 0);
+	return (parseFloat($(element[0]).css('borderTopWidth', true)) || 0) +
+	       (parseFloat($(element[0]).css('borderBottomWidth', true)) || 0);
 }
 
 
@@ -3838,7 +3835,7 @@ function AgendaEventRenderer() {
 				reportEventElement(event, eventElement);
 			}
 		}
-		
+		jQuery().ready(function(){jQuery('[rel=popover]').popover();});	// needed for popovers on undersized events (bb)
 		lazySegBind(slotSegmentContainer, segs, bindSlotSeg);
 		
 		// record event sides and title positions
@@ -3898,7 +3895,13 @@ function AgendaEventRenderer() {
 			classes = classes.concat(event.source.className || []);
 		}
 		if (url) {
-			html += "a href='" + htmlEscape(event.url) + "'";
+			// entries shorter than 30min (1.800.0000ms) get a popover for readability (bb)
+			if (seg.msLength < 1800000) {
+				html += "a rel='popover' data-placement='bottom' data-trigger='hover' data-original-title='" + htmlEscape(app.vtranslate(event.activitytype)) + "' data-content='" + htmlEscape(formatDates(event.start, event.end, opt('timeFormat'))) + ": "+ 	htmlEscape(event.title) +"' href='" + htmlEscape(event.url) + "'";
+			}
+			else {
+				html += "a href='" + htmlEscape(event.url) + "'";
+			}
 		}else{
 			html += "div";
 		}
@@ -4105,6 +4108,7 @@ function AgendaEventRenderer() {
 				}, ev, 'drag');
 			},
 			drag: function(ev, ui) {
+				jQuery("[rel='popover']").popover('hide');	// hide popovers during drags (bb)
 				minuteDelta = Math.round((ui.position.top - origPosition.top) / slotHeight) * opt('slotMinutes');
 				if (minuteDelta != prevMinuteDelta) {
 					if (!allDay) {
@@ -4163,12 +4167,14 @@ function AgendaEventRenderer() {
 			},
 			grid: slotHeight,
 			start: function(ev, ui) {
+
 				slotDelta = prevSlotDelta = 0;
 				hideEvents(event, eventElement);
 				eventElement.css('z-index', 9);
 				trigger('eventResizeStart', this, event, ev, ui);
 			},
 			resize: function(ev, ui) {
+				jQuery("[rel='popover']").popover('hide');	// hide popovers during resizing (bb)
 				// don't rely on ui.size.height, doesn't take grid into account
 				slotDelta = Math.round((Math.max(slotHeight, eventElement.height()) - ui.originalSize.height) / slotHeight);
 				if (slotDelta != prevSlotDelta) {

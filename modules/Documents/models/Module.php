@@ -65,13 +65,12 @@ class Documents_Module_Model extends Vtiger_Module_Model {
 			$condition = " vtiger_notes.notesid NOT IN (SELECT notesid FROM vtiger_senotesrel WHERE crmid = '$record') AND vtiger_notes.filestatus = 1";
 		}
 		$pos = stripos($listQuery, 'where');
-		if($pos) {
-			$split = spliti('where', $listQuery);
-			$overRideQuery = $split[0] . ' WHERE ' . $split[1] . ' AND ' . $condition;
-		} else {
-			$overRideQuery = $listQuery. ' WHERE ' . $condition;
-		}
-		return $overRideQuery;
+        if($pos) {
+            $listQuery .= ' AND ' . $condition;
+        } else {
+            $listQuery .= ' WHERE ' . $condition;
+        }
+        return $listQuery;
 	}
 
 	/**

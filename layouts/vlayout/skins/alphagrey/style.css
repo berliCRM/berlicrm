@@ -658,7 +658,8 @@ hr {
 }
 .quickWidgetContainer .quickWidget .quickWidgetHeader h5 {
   color: #2b2b2b;
-  margin-left: 15px;
+  margin-left: 5%;
+  width:85%;
   float: left !important;
 }
 .quickWidgetContainer .quickWidget .widgetContainer {
@@ -3177,42 +3178,6 @@ textarea {
 }
 .slidesjs-pagination li a.active, .slidesjs-pagination li a:hover.active {
 background-position: 0 -13px;
-}
-.extensionStorebtn {
-  background: #f08c39;
-  background-image: -webkit-linear-gradient(top, #f08c39, #e68b3c);
-  background-image: -moz-linear-gradient(top, #f08c39, #e68b3c);
-  background-image: -ms-linear-gradient(top, #f08c39, #e68b3c);
-  background-image: -o-linear-gradient(top, #f08c39, #e68b3c);
-  background-image: linear-gradient(to bottom, #f08c39, #e68b3c);
-  -webkit-border-radius: 2;
-  -moz-border-radius: 2;
-  border-radius: 2px;
-  text-shadow: 0px 0px 1px #595959;
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: bold;
-  padding: 8px 20px 8px 20px;
-  text-decoration: none;
-  border : 0px;
-}
-
-.extensionStorebtn:hover {
-  background: #fc9f3c;
-  background-image: -webkit-linear-gradient(top, #fc9f3c, #f08a3c);
-  background-image: -moz-linear-gradient(top, #fc9f3c, #f08a3c);
-  background-image: -ms-linear-gradient(top, #fc9f3c, #f08a3c);
-  background-image: -o-linear-gradient(top, #fc9f3c, #f08a3c);
-  background-image: linear-gradient(to bottom, #fc9f3c, #f08a3c);
-  text-decoration: none;
-}
-.extensionSearch {
-    padding: 8px 12px 8px 30px!important;
-    margin: 6px 0 14px 0;
-    box-shadow: inset 2px 2px 10px #ddd;
-    border-radius: 2px !important;
-    background: url('../images/search.png') no-repeat;
-    background-position: 5px 6px;
 }
 .banner-container{
     border-bottom: 1px solid #FFFFFF;

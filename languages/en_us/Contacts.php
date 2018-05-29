@@ -55,7 +55,14 @@ $languageStrings = array(
 	'Mrs.'=>'Mrs.',
 	'Ms.'=>'Ms.',
 	'Prof.'=>'Prof.',
+	
+	'LBL_CUSTOM_INFORMATION' => 'Custom Informationen',
+	// Google map view
+    'LBL_MISSING_MAP_KEY' => 'No key was provided for the map view. Please contact the CRM Administrator.',
+    'LBL_MISSING_MAP_KEY_ADMIN' => 'Click here to enter a key in the Google settings menu.',
 );
 
 $jsLanguageStrings = array(
+    'LBL_ACCOUNT_ADDRESS_COPIED_TITLE' => 'Address copied',
+    'LBL_ACCOUNT_ADDRESS_COPIED_TEXT' => 'The account\'s address has been copied to this contact.'
  );

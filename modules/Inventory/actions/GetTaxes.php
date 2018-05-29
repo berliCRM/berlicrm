@@ -38,6 +38,7 @@ class Inventory_GetTaxes_Action extends Vtiger_Action_Controller {
 										'id'=>$recordId, 'name'=>decode_html($recordModel->getName()),
 										'taxes'=>$taxes, 'listprice'=>$listPrice, 'listpricevalues'=>$listPriceValues,
 										'description' => decode_html($recordModel->get('description')),
+										'productcode' => decode_html($recordModel->get('productcode')),
 										'quantityInStock' => $recordModel->get('qtyinstock')
 									)));
 		} else {
@@ -59,6 +60,7 @@ class Inventory_GetTaxes_Action extends Vtiger_Action_Controller {
 								'id'=>$id, 'name'=>decode_html($recordModel->getName()),
 								'taxes'=>$taxes, 'listprice'=>$listPrice, 'listpricevalues'=>$listPriceValues,
 								'description' => decode_html($recordModel->get('description')),
+								'productcode' => decode_html($recordModel->get('productcode')),
 								'quantityInStock' => $recordModel->get('qtyinstock')
 							));
 			}

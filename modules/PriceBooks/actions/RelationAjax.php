@@ -36,6 +36,9 @@ class PriceBooks_RelationAjax_Action extends Vtiger_RelationAjax_Action {
 			$price = CurrencyField::convertToDBFormat($relInfo['price'], null, true);
 			$relationModel->addListPrice($sourceRecordId, $relInfo['id'], $price);
 		}
+        $response = new Vtiger_Response();
+        $response->setResult(true);
+        $response->emit();
 	}
 	/*
 	 * Function to add relation for specified source record id and related record id list
@@ -54,6 +57,9 @@ class PriceBooks_RelationAjax_Action extends Vtiger_RelationAjax_Action {
 		foreach($relatedRecordIdList as $relatedRecordId) {
 			$relationModel->addRelation($sourceRecordId,$relatedRecordId,$listPrice);
 		}
+        $response = new Vtiger_Response();
+        $response->setResult(true);
+        $response->emit();
 	}
 
 	/**
@@ -73,5 +79,8 @@ class PriceBooks_RelationAjax_Action extends Vtiger_RelationAjax_Action {
 		foreach($relatedRecordIdList as $relatedRecordId) {
 			$relationModel->deleteRelation($sourceRecordId,$relatedRecordId);
 		}
+        $response = new Vtiger_Response();
+        $response->setResult(true);
+        $response->emit();
 	}
 }

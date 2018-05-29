@@ -1,7 +1,9 @@
 <?php
 
 /**
-  V5.19  23-Apr-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
+  @version   v5.20.9  21-Dec-2016
+  @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+  @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
@@ -750,8 +752,6 @@ class ADODB_DataDict {
 			if ($fdefts) {
 				if (substr($this->connection->databaseType,0,5) == 'mysql') {
 					$ftype = 'TIMESTAMP';
-					// Fix works only for MySQL 5.6 (which allows one or more column to have default timestamp
-					// $fdefault = ' CURRENT_TIMESTAMP'; /* STRICT_TRANS_TABLES fix */
 				} else {
 					$fdefault = $this->connection->sysTimeStamp;
 				}

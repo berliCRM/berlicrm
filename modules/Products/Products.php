@@ -74,7 +74,7 @@ class Products extends CRMEntity {
 
 	/**	Constructor which will set the column_fields in this object
 	 */
-	function Products() {
+	function __construct() {
 		$this->log =LoggerManager::getLogger('product');
 		$this->log->debug("Entering Products() method ...");
 		$this->db = PearDatabase::getInstance();
@@ -121,6 +121,8 @@ class Products extends CRMEntity {
 				$adb->pquery($sql, array($this->id,$taxid));
 			}
 		}
+		//crm-now: save values to taxclass
+		$arr_taxes = array();
 		for($i=0;$i<count($tax_details);$i++)
 		{
 			$tax_name = $tax_details[$i]['taxname'];
@@ -139,7 +141,12 @@ class Products extends CRMEntity {
 
 				$query = "insert into vtiger_producttaxrel values(?,?,?)";
 				$adb->pquery($query, array($this->id,$taxid,$tax_per));
+				$arr_taxes[] = $tax_per;
 			}
+		}
+		if (!empty($arr_taxes)) {
+			$query = "UPDATE vtiger_products SET taxclass = ? WHERE productid = ?;";
+			$adb->pquery($query, array(implode(', ', $arr_taxes), $this->id));
 		}
 
 		$log->debug("Exiting from insertTaxInformation($tablename, $module) method ...");
@@ -973,6 +980,8 @@ class Products extends CRMEntity {
 				ON vtiger_pricebookproductrel.pricebookid = vtiger_pricebook.pricebookid
 			INNER JOIN vtiger_pricebookcf
 				ON vtiger_pricebookcf.pricebookid = vtiger_pricebook.pricebookid
+			INNER JOIN vtiger_products
+				ON vtiger_products.productid = vtiger_pricebookproductrel.productid
 			WHERE vtiger_crmentity.deleted = 0
 			AND vtiger_pricebookproductrel.productid = ".$id;
 		$log->debug("Exiting get_product_pricebooks method ...");

@@ -17,7 +17,7 @@ class Calendar_ListView_Model extends Vtiger_ListView_Model {
 	public function getBasicLinks() {
 		$basicLinks = array();
 		$moduleModel = $this->getModule();
-		$createPermission = Users_Privileges_Model::isPermitted($moduleModel->getName(), 'EditView');
+		$createPermission = Users_Privileges_Model::isPermitted($moduleModel->getName(), 'CreateView');
 		if($createPermission) {
 			$basicLinks[] = array(
 					'linktype' => 'LISTVIEWBASIC',
@@ -43,7 +43,7 @@ class Calendar_ListView_Model extends Vtiger_ListView_Model {
 	 */
 	public function getAdvancedLinks(){
 		$moduleModel = $this->getModule();
-		$createPermission = Users_Privileges_Model::isPermitted($moduleModel->getName(), 'EditView');
+		$createPermission = Users_Privileges_Model::isPermitted($moduleModel->getName(), 'CreateView');
 		$advancedLinks = array();
 		$importPermission = Users_Privileges_Model::isPermitted($moduleModel->getName(), 'Import');
 		if($importPermission && $createPermission) {
@@ -158,7 +158,7 @@ class Calendar_ListView_Model extends Vtiger_ListView_Model {
 		
 		$queryGenerator = $this->get('query_generator');
 		$listViewContoller = $this->get('listview_controller');
-		$listViewFields = array('visibility','assigned_user_id');
+		$listViewFields = array('visibility','assigned_user_id','description');
 		$queryGenerator->setFields(array_unique(array_merge($queryGenerator->getFields(), $listViewFields)));
 		
         $searchParams = $this->get('search_params');

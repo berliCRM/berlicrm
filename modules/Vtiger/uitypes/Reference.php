@@ -40,7 +40,7 @@ class Vtiger_Reference_UIType extends Vtiger_Base_UIType {
 	 * @param <Integer> crmid of record
 	 * @return <String>
 	 */
-	public function getDisplayValue($value) {
+	public function getDisplayValue($value, $record = false, $recordInstance = false) {
 		$referenceModule = $this->getReferenceModule($value);
 		if($referenceModule && !empty($value)) {
 			$referenceModuleName = $referenceModule->get('name');

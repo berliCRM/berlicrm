@@ -14,7 +14,7 @@ class Inventory_ProductsPopup_View extends Vtiger_Popup_View {
 	 * Function returns module name for which Popup will be initialized
 	 * @param type $request
 	 */
-	function getModule($request) {
+	function getModule(Vtiger_Request $request) {
 		return 'Products';
 	}
 	

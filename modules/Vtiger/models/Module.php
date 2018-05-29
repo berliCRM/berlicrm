@@ -601,7 +601,13 @@ class Vtiger_Module_Model extends Vtiger_Module {
 				$relatedListFields[$field->get('column')] = $field->get('name');
 			}
 		}
-        return $relatedListFields;
+		else {
+			//crm-now: use a default field if no related fields are set in layout editor
+			// $entityColumnNames = vtws_getEntityNameFields($this->getName());
+			// $relatedListFields[$entityColumnNames[0]] = $entityColumnNames[0];
+			
+		}
+       return $relatedListFields;
 	}
 
 	public function isWorkflowSupported() {
@@ -704,6 +710,10 @@ class Vtiger_Module_Model extends Vtiger_Module {
                 $query .= ' WHERE presence IN ('. generateQuestionMarks($presence) .')';
                 array_push($params, $presence);
             }
+
+            // sorting in equivalence of the GUI: configured menue entries first (by their tabsequences if > 0), rest by parent
+            // appears to be used for module manager (and now DSVGO module) only
+            $query .= " ORDER BY -SIGN(tabsequence),tabsequence,parent";
 
             $result = $db->pquery($query, $params);
             $noOfModules = $db->num_rows($result);
@@ -1020,7 +1030,7 @@ class Vtiger_Module_Model extends Vtiger_Module {
 		$nowInDBFormat = Vtiger_Datetime_UIType::getDBDateTimeValue($nowInUserFormat);
 		list($currentDate, $currentTime) = explode(' ', $nowInDBFormat);
 
-		$query = "SELECT vtiger_crmentity.crmid, crmentity2.crmid AS parent_id, vtiger_crmentity.smownerid, vtiger_crmentity.setype, vtiger_activity.* FROM vtiger_activity
+		$query = "SELECT vtiger_crmentity.crmid, crmentity2.crmid AS parent_id, vtiger_crmentity.smownerid, vtiger_crmentity.setype, vtiger_crmentity.description, vtiger_activity.* FROM vtiger_activity
 					INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_activity.activityid
 					INNER JOIN vtiger_seactivityrel ON vtiger_seactivityrel.activityid = vtiger_activity.activityid
 					INNER JOIN vtiger_crmentity AS crmentity2 ON vtiger_seactivityrel.crmid = crmentity2.crmid AND crmentity2.deleted = 0 AND crmentity2.setype = ?
@@ -1292,7 +1302,7 @@ class Vtiger_Module_Model extends Vtiger_Module {
 	 */
 	public function searchRecord($searchValue, $parentId=false, $parentModule=false, $relatedModule=false) {
 		if(!empty($searchValue) && empty($parentId) && empty($parentModule)) {
-			$matchingRecords = Vtiger_Record_Model::getSearchResult($searchValue, $this->getName());
+			$matchingRecords = Vtiger_Record_Model::getEntitySearchResult($searchValue, $this->getName());
 		} else if($parentId && $parentModule) {
 			$db = PearDatabase::getInstance();
 			$result = $db->pquery($this->getSearchRecordsQuery($searchValue, $parentId, $parentModule), array());
@@ -1349,9 +1359,9 @@ class Vtiger_Module_Model extends Vtiger_Module {
 			$queryGenerator = new QueryGenerator($relatedModuleName, $currentUser);
 			$queryGenerator->setFields($relatedListFields);
 			$selectColumnSql = $queryGenerator->getSelectClauseColumnSQL();
-			$newQuery = spliti('FROM', $query);
-			$selectColumnSql = 'SELECT DISTINCT vtiger_crmentity.crmid,'.$selectColumnSql;
-			$query = $selectColumnSql.' FROM '.$newQuery[1];
+			$newQuery = preg_split("/from/i", $query);
+			$newQuery[0] = "SELECT DISTINCT vtiger_crmentity.crmid, $selectColumnSql ";
+			$query = implode("FROM", $newQuery);
 		}
 
 		if ($nonAdminQuery) {

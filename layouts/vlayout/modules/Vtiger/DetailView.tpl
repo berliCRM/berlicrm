@@ -39,7 +39,7 @@
 						{/foreach}
 						{if $DETAILVIEW_LINKS['DETAILVIEW']|@count gt 0}
 						<span class="btn-group">
-							<a class="btn dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">
+							<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
 								<strong>{vtranslate('LBL_MORE',{$MODULE_NAME})}</strong>
 								<span class="caret"></span>
 							</a>

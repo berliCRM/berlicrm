@@ -121,7 +121,7 @@ class Reports_Record_Model extends Vtiger_Record_Model {
 	 * @param <String> $module
 	 * @return <Reports_Record_Model>
 	 */
-	public static function getInstanceById($recordId) {
+	public static function getInstanceById($recordId, $module = NULL) {
 		$db = PearDatabase::getInstance();
 
 		$self = new self();
@@ -271,11 +271,12 @@ class Reports_Record_Model extends Vtiger_Record_Model {
 		$selectedColumns = array();
 		for($i=0; $i<$db->num_rows($result); $i++) {
 			$column = $db->query_result($result, $i, 'columnname');
-			list($tableName, $columnName, $moduleFieldLabel, $fieldName, $type) = split(':', $column);
+			list($tableName, $columnName, $moduleFieldLabel, $fieldName, $type) = explode(':', $column);
 			$fieldLabel  = explode('_', $moduleFieldLabel);
 			$module = $fieldLabel[0];
 			$dbFieldLabel = trim(str_replace(array($module, '_'), " ", $moduleFieldLabel));
 			$translatedFieldLabel = vtranslate($dbFieldLabel, $module);
+			if ($fieldName == 'realprice') $fieldName = 'listprice';
 			if(CheckFieldPermission($fieldName, $module) == 'true' && $columnName != 'crmid') {
 				$selectedColumns[$translatedFieldLabel] = $column;
 			}
@@ -498,9 +499,11 @@ class Reports_Record_Model extends Vtiger_Record_Model {
 		$db = PearDatabase::getInstance();
 
 		$sharingInfo = $this->get('sharingInfo');
-		for($i=0; $i<count($sharingInfo); $i++) {
-			$db->pquery('INSERT INTO vtiger_reportsharing(reportid, shareid, setype) VALUES (?,?,?)',
-					array($this->getId(), $sharingInfo[$i]['id'], $sharingInfo[$i]['type']));
+		if ($sharingInfo) {
+			for($i=0; $i<count($sharingInfo); $i++) {
+				$db->pquery('INSERT INTO vtiger_reportsharing(reportid, shareid, setype) VALUES (?,?,?)',
+						array($this->getId(), $sharingInfo[$i]['id'], $sharingInfo[$i]['type']));
+			}
 		}
 	}
 

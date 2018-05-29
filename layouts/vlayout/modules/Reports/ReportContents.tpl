@@ -18,6 +18,7 @@
 	<div id="reportDetails" class="contents-bottomscroll">
 		<div class="bottomscroll-div">
             <input type="hidden" id="updatedCount" value="{$NEW_COUNT}" />
+            <input type="hidden" id="id_list" value="{$IDLIST}" />
             {if !empty($CALCULATION_FIELDS)}
 			<table class=" table-bordered table-condensed marginBottom10px" width="100%">
 				<thead>
@@ -53,11 +54,13 @@
 
 		{if $DATA neq ''}
 			{assign var=HEADERS value=$DATA[0]}
-			<table class="table table-bordered table-striped">
+			<table class="table table-bordered listViewEntriesTable">
 				<thead>
 					<tr class="blockHeader">
 						{foreach from=$HEADERS item=HEADER key=NAME}
-							<th nowrap>{vtranslate($NAME,$MODULE)}</th>
+							{if $NAME neq 'fieldcolor' }
+								<th nowrap>{vtranslate($NAME,$MODULE)}</th>
+							{/if}
 						{/foreach}
 					</tr>
 				</thead>
@@ -89,53 +92,59 @@
                     {assign var=SECOND_VALUE value=" "}
                     {assign var=THIRD_VALUE value=" "}
                     {foreach from=$DATA item=VALUES}
-                        <tr>
+                        <tr bgcolor="{$VALUES.fieldcolor}">
                             {foreach from=$VALUES item=VALUE key=NAME}
-                                {if ($NAME eq $FIRST_FIELD || $NAME|strstr:{$FIRST_FIELD}) && ($FIRST_VALUE eq $VALUE || $FIRST_VALUE eq " ")}
-                                    {if $FIRST_VALUE eq " " || $VALUE eq "-"}
-                                        <td>{$VALUE}</td>
-                                    {else}    
-                                        <td class="summary">{" "}</td>
-                                    {/if}   
-                                    {if $VALUE neq " " }
-                                        {$FIRST_VALUE = $VALUE}
-                                    {/if}   
-                                {else if ( $NAME eq $SECOND_FIELD || $NAME|strstr:$SECOND_FIELD) && ($SECOND_VALUE eq $VALUE || $SECOND_VALUE eq " ")}
-                                     {if $SECOND_VALUE eq " " || $VALUE eq "-"}
-                                        <td>{$VALUE}</td>
-                                    {else}    
-                                        <td class="summary">{" "}</td>
-                                    {/if}   
-                                    {if $VALUE neq " " }
-                                        {$SECOND_VALUE = $VALUE}
-                                    {/if}   
-                                {else if ($NAME eq $THIRD_FIELD || $NAME|strstr:$THIRD_FIELD) && ($THIRD_VALUE eq $VALUE || $THIRD_VALUE eq " ")}
-                                    {if $THIRD_VALUE eq " " || $VALUE eq "-"}
-                                        <td>{$VALUE}</td>
-                                    {else}    
-                                        <td class="summary">{" "}</td>
-                                    {/if}   
-                                    {if $VALUE neq " " }
-                                        {$THIRD_VALUE = $VALUE}
-                                    {/if}
-                                {else}
-                                    <td>{$VALUE}</td>
-                                    {if $NAME eq $FIRST_FIELD || $NAME|strstr:$FIRST_FIELD}
-                                        {$FIRST_VALUE = $VALUE}
-                                    {else if $NAME eq $SECOND_FIELD || $NAME|strstr:$SECOND_FIELD}
-                                        {$SECOND_VALUE = $VALUE}
-                                    {else if $NAME eq $THIRD_FIELD || $NAME|strstr:$THIRD_FIELD}
-                                        {$THIRD_VALUE = $VALUE}
-                                    {/if}    
-                                {/if}   
+								{$VALUE = $VALUE[0]}
+								{if $NAME neq 'fieldcolor' }
+									{if ($NAME eq $FIRST_FIELD || $NAME|strstr:{$FIRST_FIELD}) && ($FIRST_VALUE eq $VALUE || $FIRST_VALUE eq " ")}
+										{if $FIRST_VALUE eq " " || $VALUE eq "-"}
+											<td>{$VALUE}</td>
+										{else}    
+											<td>{$VALUE}</td>
+										{/if}   
+										{if $VALUE neq " " }
+											{$FIRST_VALUE = $VALUE}
+										{/if}   
+									{else if ( $NAME eq $SECOND_FIELD || $NAME|strstr:$SECOND_FIELD) && ($SECOND_VALUE eq $VALUE || $SECOND_VALUE eq " ")}
+										 {if $SECOND_VALUE eq " " || $VALUE eq "-"}
+											<td>{$VALUE}</td>
+										{else}    
+											<td>{$VALUE}</td>
+										{/if}   
+										{if $VALUE neq " " }
+											{$SECOND_VALUE = $VALUE}
+										{/if}   
+									{else if ($NAME eq $THIRD_FIELD || $NAME|strstr:$THIRD_FIELD) && ($THIRD_VALUE eq $VALUE || $THIRD_VALUE eq " ")}
+										{if $THIRD_VALUE eq " " || $VALUE eq "-"}
+											<td>{$VALUE}</td>
+										{else}    
+											<td>{$VALUE}</td>
+										{/if}   
+										{if $VALUE neq " " }
+											{$THIRD_VALUE = $VALUE}
+										{/if}
+									{else}
+										<td>{$VALUE}</td>
+										{if $NAME eq $FIRST_FIELD || $NAME|strstr:$FIRST_FIELD}
+											{$FIRST_VALUE = $VALUE}
+										{else if $NAME eq $SECOND_FIELD || $NAME|strstr:$SECOND_FIELD}
+											{$SECOND_VALUE = $VALUE}
+										{else if $NAME eq $THIRD_FIELD || $NAME|strstr:$THIRD_FIELD}
+											{$THIRD_VALUE = $VALUE}
+										{/if}    
+									{/if}   
+ 								{/if}  
                             {/foreach}
                         </tr>
                     {/foreach}
                 {else}    
                     {foreach from=$DATA item=VALUES}
-                        <tr>
+                        <tr bgcolor="{$VALUES.fieldcolor}">
                             {foreach from=$VALUES item=VALUE key=NAME}
-                                <td>{$VALUE}</td>
+								{$VALUE = $VALUE[0]}
+								{if $NAME neq 'fieldcolor' }
+									<td>{$VALUE}</td>
+								{/if}  
                             {/foreach}
                         </tr>
                     {/foreach}

@@ -39,4 +39,7 @@ $languageStrings = array(
 	'Start Date' => 'Start Date',
 	'Target Budget' => 'Target Budget',
 	'Target End Date' => 'Target End Date',
+	'Project Task Name' => 'Project Task Name',
+    'Project Milestone Name' => 'Project Milestone Name',
+    'Milestone Date' => 'Milestone Date',
 );

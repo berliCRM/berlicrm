@@ -200,7 +200,7 @@ class ReportRunQueryPlanner {
 class ReportRun extends CRMEntity
 {
 	// Maximum rows that should be emitted in HTML view.
-	static $HTMLVIEW_MAX_ROWS = 1000;
+	static $HTMLVIEW_MAX_ROWS = 10000;
 
 	var $reportid;
 	var $primarymodule;
@@ -249,7 +249,7 @@ class ReportRun extends CRMEntity
          *  as we optimize using ReportRunPlanner and setup temporary tables.
 	 */
 
-        function ReportRun($reportid)
+        function __construct($reportid)
 	{
 		$oReport = new Reports($reportid);
 		$this->reportid = $reportid;
@@ -297,8 +297,9 @@ class ReportRun extends CRMEntity
 		{
 			$fieldname ="";
 			$fieldcolname = $columnslistrow["columnname"];
-			list($tablename,$colname,$module_field,$fieldname,$single) = split(":",$fieldcolname);
-			list($module,$field) = split("_",$module_field,2);
+			list($tablename,$colname,$module_field,$fieldname,$single) = explode(":",$fieldcolname);
+			if ($fieldname == 'realprice') $fieldname = 'listprice';
+			list($module,$field) = explode("_",$module_field,2);
 			$inventory_fields = array('serviceid');
 			$inventory_modules = getInventoryModules();
 			require('user_privileges/user_privileges_'.$current_user->id.'.php');
@@ -314,6 +315,7 @@ class ReportRun extends CRMEntity
 				}
 			}
 			$selectedfields = explode(":",$fieldcolname);
+			if (in_array('listprice', $permitted_fields[$module])) $permitted_fields[$module][] = 'realprice';
 			if($is_admin == false && $profileGlobalPermission[1] == 1 && $profileGlobalPermission[2] == 1
 					&& !in_array($selectedfields[3], $permitted_fields[$module])) {
 				//user has no access to this field, skip it.
@@ -383,20 +385,20 @@ class ReportRun extends CRMEntity
 
 
 	function getColumnSQL($selectedfields) {
-		global $adb;
+		global $adb,$current_user;
 		$header_label = $selectedfields[2]; // Header label to be displayed in the reports table
 
-		list($module,$field) = split("_",$selectedfields[2]);
+		list($module,$field) = explode("_",$selectedfields[2]);
         $concatSql = getSqlForNameInDisplayFormat(array('first_name'=>$selectedfields[0].".first_name",'last_name'=>$selectedfields[0].".last_name"), 'Users');
 
         if ($selectedfields[4] == 'C') {
-            $field_label_data = split("_", $selectedfields[2]);
+            $field_label_data = explode("_", $selectedfields[2]);
             $module = $field_label_data[0];
             if ($module != $this->primarymodule) {
-                $columnSQL = "case when (" . $selectedfields[0] . "." . $selectedfields[1] . "='1')then 'yes' else case when (vtiger_crmentity$module.crmid !='') then 'no' else '-' end end AS '".decode_html($selectedfields[2])."'";
+                $columnSQL = "case when (" . $selectedfields[0] . "." . $selectedfields[1] . "='1')then '".getTranslatedString('yes', $currentModule)."' else case when (vtiger_crmentity$module.crmid !='') then '".getTranslatedString('no', $currentModule)."' else '-' end end AS '".decode_html($selectedfields[2])."'";
                 $this->queryPlanner->addTable("vtiger_crmentity$module");
             } else {
-                $columnSQL = "case when (" . $selectedfields[0] . "." . $selectedfields[1] . "='1')then 'yes' else case when (vtiger_crmentity.crmid !='') then 'no' else '-' end end AS '".decode_html($selectedfields[2])."'";
+                $columnSQL = "case when (" . $selectedfields[0] . "." . $selectedfields[1] . "='1')then '".getTranslatedString('yes', $currentModule)."' else case when (vtiger_crmentity.crmid !='') then '".getTranslatedString('no', $currentModule)."' else '-' end end AS '".decode_html($selectedfields[2])."'";
                 $this->queryPlanner->addTable($selectedfields[0]);
             }
         } elseif ($selectedfields[4] == 'D' || $selectedfields[4] == 'DT') {
@@ -533,6 +535,11 @@ class ReportRun extends CRMEntity
 			} else if($selectedfields[1] == 'listprice') {
 				$moduleInstance = CRMEntity::getInstance($module);
 				$columnSQL = $selectedfields[0].$module.".".$selectedfields[1]."/".$moduleInstance->table_name.".conversion_rate AS '". decode_html($header_label) ."'";
+				$this->queryPlanner->addTable($selectedfields[0].$module);
+			} elseif ($selectedfields[1] == 'realprice') {
+				$moduleInstance = CRMEntity::getInstance($module);
+				$tmpTbl = $selectedfields[0].$module;
+				$columnSQL = '(('.$tmpTbl.".listprice/".$moduleInstance->table_name.".conversion_rate) *".$tmpTbl.".quantity - CASE WHEN $tmpTbl.discount_amount IS NOT NULL THEN $tmpTbl.discount_amount ELSE 0 END - CASE WHEN $tmpTbl.discount_percent IS NOT NULL THEN ($tmpTbl.quantity * $tmpTbl.listprice * ($tmpTbl.discount_percent/100)) ELSE 0 END ) AS '". decode_html($header_label) ."'";
 				$this->queryPlanner->addTable($selectedfields[0].$module);
 			} else {
 				$columnSQL = $selectedfields[0].$module.".".$selectedfields[1]." AS '". decode_html($header_label) ."'";
@@ -801,7 +808,7 @@ class ReportRun extends CRMEntity
 			$this->queryPlanner->addTable($secondary->table_name);
 		    }
 		}
-			$field = split('#',$field);
+			$field = explode('#',$field);
 			$module = $field[0];
 			$fieldname = trim($field[1]);
 			$tabid = getTabId($module);
@@ -1220,8 +1227,16 @@ class ReportRun extends CRMEntity
 							} else if($selectedfields[1] == 'serviceid'){
 								$fieldvalue = "vtiger_service$moduleName.servicename ".$this->getAdvComparator($comparator,trim($value),$datatype);
 								$this->queryPlanner->addTable("vtiger_service$moduleName");
-							}
-							else{
+							} elseif($selectedfields[1] == 'discount_amount'){
+								$fieldvalue = " CASE WHEN ({$selectedfields[0]}{$moduleName}.{$selectedfields[1]} != '') THEN {$selectedfields[0]}{$moduleName}.{$selectedfields[1]} ELSE ROUND(({$selectedfields[0]}{$moduleName}.listprice * {$selectedfields[0]}{$moduleName}.quantity * ({$selectedfields[0]}{$moduleName}.discount_percent/100)),3) END ".$this->getAdvComparator($comparator,trim($value),$datatype);
+							} else if($selectedfields[1] == 'listprice') {
+								$moduleInstance = CRMEntity::getInstance($moduleName);
+								$fieldvalue = $selectedfields[0].$moduleName.".".$selectedfields[1]."/".$moduleInstance->table_name.".conversion_rate ".$this->getAdvComparator($comparator,trim($value),$datatype);
+							} elseif ($selectedfields[1] == 'realprice') {
+								$moduleInstance = CRMEntity::getInstance($moduleName);
+								$tmpTbl = $selectedfields[0].$moduleName;
+								$fieldvalue = '(('.$tmpTbl.".listprice/".$moduleInstance->table_name.".conversion_rate) *".$tmpTbl.".quantity - CASE WHEN $tmpTbl.discount_amount IS NOT NULL THEN $tmpTbl.discount_amount ELSE 0 END - CASE WHEN $tmpTbl.discount_percent IS NOT NULL THEN ($tmpTbl.quantity * $tmpTbl.listprice * ($tmpTbl.discount_percent/100)) ELSE 0 END ) ".$this->getAdvComparator($comparator,trim($value),$datatype);
+							} else {
 							   //for inventory module table should be follwed by the module name
 								$selectedfields[0]='vtiger_inventoryproductrel'.$moduleName;
 								$fieldvalue = $selectedfields[0].".".$selectedfields[1].$this->getAdvComparator($comparator, $value, $datatype);
@@ -1862,7 +1877,7 @@ class ReportRun extends CRMEntity
 		while($reportsortrow = $adb->fetch_array($result))
 		{
 			$fieldcolname = $reportsortrow["columnname"];
-			list($tablename,$colname,$module_field,$fieldname,$single) = split(":",$fieldcolname);
+			list($tablename,$colname,$module_field,$fieldname,$single) = explode(":",$fieldcolname);
 			$sortorder = $reportsortrow["sortorder"];
 
 			if($sortorder == "Ascending")
@@ -1882,9 +1897,20 @@ class ReportRun extends CRMEntity
 				if(stripos($selectedfields[1],'cf_')==0 && stristr($selectedfields[1],'cf_')==true){
 					//In sql queries forward slash(/) is treated as query terminator,so to avoid this problem
 					//the column names are enclosed within ('[]'),which will treat this as part of column name
-					$sqlvalue = "`".$adb->sql_escape_string(decode_html($selectedfields[2]))."` ".$sortorder;
-				} else {
-					$sqlvalue = "`".self::replaceSpecialChar($selectedfields[2])."` ".$sortorder;
+					if ($selectedfields[4]=="D") {
+						$sqlvalue = "`".$adb->sql_escape_string(decode_html($selectedfields[1]))."` ".$sortorder;
+					}
+					else {
+						$sqlvalue = "`".$adb->sql_escape_string(decode_html($selectedfields[2]))."` ".$sortorder;
+					}
+				} 
+				else {
+					if ($selectedfields[4]=="D") {
+						$sqlvalue = "`".self::replaceSpecialChar($selectedfields[1])."` ".$sortorder;
+					}
+					else {
+						$sqlvalue = "`".self::replaceSpecialChar($selectedfields[2])."` ".$sortorder;
+					}
 				}
 				if($selectedfields[4]=="D" && strtolower($reportsortrow["dategroupbycriteria"])!="none"){
 					$groupField = $module_field;
@@ -1899,7 +1925,7 @@ class ReportRun extends CRMEntity
 					$sqlvalue = implode(", ",$groupByCondition);
 				}
 				$grouplist[$fieldcolname] = $sqlvalue;
-				$temp = split("_",$selectedfields[2],2);
+				$temp = explode("_",$selectedfields[2],2);
 				$module = $temp[0];
 				if (in_array($module, $inventoryModules) && $fieldname == 'serviceid') {
 					$grouplist[$fieldcolname] = $sqlvalue;
@@ -2842,7 +2868,13 @@ class ReportRun extends CRMEntity
 				$selectedcolumns = "''"; // "''" to get blank column name
 				$allColumnsRestricted = true;
 			}
-			$reportquery = "select DISTINCT ".$selectedcolumns." ".$reportquery." ".$wheresql;
+			//crm-now: fixes inventory reports if there are multiple lines with same quantity
+			if(in_array($this->primarymodule, getInventoryModules())){
+				$reportquery = "select ".$selectedcolumns." ".$reportquery." ".$wheresql;
+			}
+			else {
+				$reportquery = "select DISTINCT ".$selectedcolumns." ".$reportquery." ".$wheresql;
+			}
 		}
 		$reportquery = listQueryNonAdminChange($reportquery, $this->primarymodule);
 
@@ -2896,7 +2928,7 @@ class ReportRun extends CRMEntity
 		$modules_selected = array();
 		$modules_selected[] = $this->primarymodule;
 		if(!empty($this->secondarymodule)){
-			$sec_modules = split(":",$this->secondarymodule);
+			$sec_modules = explode(":",$this->secondarymodule);
 			for($i=0;$i<count($sec_modules);$i++){
 				$modules_selected[] = $sec_modules[$i];
 			}
@@ -2917,6 +2949,8 @@ class ReportRun extends CRMEntity
 				}
 			}
 		}
+		//crm-now added for transfer of report ids zu Mailchimp or Campaigns
+		$contactidlist = '';
 
 		if($outputformat == "HTML")
 		{
@@ -2941,8 +2975,9 @@ class ReportRun extends CRMEntity
 			}
 			// END
 
-			if($is_admin==false && $profileGlobalPermission[1] == 1 && $profileGlobalPermission[2] == 1)
+			if($is_admin==false && $profileGlobalPermission[1] == 1 && $profileGlobalPermission[2] == 1) {
 				$picklistarray = $this->getAccessPickListValues();
+			}
 			if($result)
 			{
 				$y=$adb->num_fields($result);
@@ -2962,7 +2997,7 @@ class ReportRun extends CRMEntity
 						$arrayHeaders[] = $headerLabel;
 					}
 					/*STRING TRANSLATION starts */
-					$mod_name = split(' ',$headerLabel,2);
+					$mod_name = explode(' ',$headerLabel,2);
 					$moduleLabel ='';
 					if(in_array($mod_name[0],$modules_selected)){
 						$moduleLabel = getTranslatedString($mod_name[0],$mod_name[0]);
@@ -3053,6 +3088,8 @@ class ReportRun extends CRMEntity
 						}
 						else if($fld->name == $this->primarymodule.'_LBL_ACTION' && $fieldvalue != '-')
 						{
+							//crm-now added for transfer of report ids zu Mailchimp or Campaigns
+							$contactidlist .= '|'.$fieldvalue;
 							$fieldvalue = "<a href='index.php?module={$this->primarymodule}&action=DetailView&record={$fieldvalue}' target='_blank'>".getTranslatedString('LBL_VIEW_DETAILS', 'Reports')."</a>";
 						}
 
@@ -3151,7 +3188,13 @@ class ReportRun extends CRMEntity
 						$totalDisplayString = self::$HTMLVIEW_MAX_ROWS . "+";
 					}
 
-					echo "</tr></table>";
+					echo '</tr>
+					<tr>
+					<td>
+					<input type="hidden" id ="id_list" name="id_list" value='.$contactidlist.'>
+					</td>
+					</tr>
+					</table>';
 					echo "<script type='text/javascript' id='__reportrun_directoutput_recordcount_script'>
 						if($('_reportrun_total')) $('_reportrun_total').innerHTML='$totalDisplayString';</script>";
 				} else {
@@ -3185,10 +3228,13 @@ class ReportRun extends CRMEntity
 				$noofrows = $adb->num_rows($result);
 				$custom_field_values = $adb->fetch_array($result);
 				$column_definitions = $adb->getFieldsDefinition($result);
+				
+				$arr_colors = $this->getHtmlLineColor();
 
 				do
 				{
 					$arraylists = Array();
+					$arraylists ['fieldcolor'] = '#FFFFFF';
 					for ($i=0; $i<$y; $i++)
 					{
 						$fld = $adb->field_name($result, $i);
@@ -3226,17 +3272,25 @@ class ReportRun extends CRMEntity
 						$temp_val= $fld->name;
 						$fieldvalue = getReportFieldValue($this, $picklistarray, $fld,
 								$custom_field_values, $i);
+						
+						//crm-now: added for field color
+						if (isset($arr_colors[$fieldInfo['fieldid']]) && isset($arr_colors[$fieldInfo['fieldid']][$custom_field_values[strtolower($fld->name)]])) {
+							$arraylists['fieldcolor'] = $arr_colors[$fieldInfo['fieldid']][$custom_field_values[strtolower($fld->name)]];
+						}
 
 						if($fld->name == $this->primarymodule.'_LBL_ACTION' && $fieldvalue != '-') {
+							//crm-now added for transfer of report ids zu Mailchimp or Campaigns
+							$contactidlist .= '|'.$fieldvalue;
 							$fieldvalue = "<a href='index.php?module={$this->primarymodule}&view=Detail&record={$fieldvalue}' target='_blank'>".getTranslatedString('LBL_VIEW_DETAILS', 'Reports')."</a>";
 						}
 
-						$arraylists[$headerLabel] = $fieldvalue;
+						$arraylists[$headerLabel] = array($fieldvalue, $fieldType);
 					}
 					$arr_val[] = $arraylists;
 					set_time_limit($php_max_execution_time);
 				}while($custom_field_values = $adb->fetch_array($result));
-
+				//crm-now added 
+                $data['id_list'] = $contactidlist;
                 $data['data'] = $arr_val;
                 $data['count'] = $noofrows;
                 return $data;
@@ -3520,7 +3574,7 @@ class ReportRun extends CRMEntity
 						$arrayHeaders[] = $headerLabel;
 					}
 					/*STRING TRANSLATION starts */
-					$mod_name = split(' ',$headerLabel,2);
+					$mod_name = explode(' ',$headerLabel,2);
 					$moduleLabel ='';
 					if(in_array($mod_name[0],$modules_selected)){
 						$moduleLabel = getTranslatedString($mod_name[0],$mod_name[0]);
@@ -3769,6 +3823,25 @@ class ReportRun extends CRMEntity
 		}
 	}
 
+	public function getHtmlLineColor() {
+		$db = PearDatabase::getInstance();
+		$modules = array_filter(array_merge(array($this->primarymodule), explode(":", $this->secondarymodule)));
+		$query = 'SELECT berli_listview_colors.* FROM berli_listview_colors 
+				  INNER JOIN vtiger_field ON vtiger_field.fieldid = berli_listview_colors.listfieldid
+				  INNER JOIN vtiger_tab ON vtiger_tab.tabid = vtiger_field.tabid
+				  WHERE vtiger_tab.name IN ('.generateQuestionMarks($modules).');';
+		$result = $db->pquery($query, $modules);
+		
+		$ret_array = array();
+
+		if ($result) {
+			while ($row = $db->fetch_row($result)) {
+				$ret_array[$row['listfieldid']][$row['fieldcontent']] = $row['listcolor'];
+			}
+		}
+		return $ret_array;
+	}
+	
 	//<<<<<<<new>>>>>>>>>>
 	function getColumnsTotal($reportid)
 	{
@@ -3830,7 +3903,7 @@ class ReportRun extends CRMEntity
 				if(CheckColumnPermission($field_tablename,$field_columnname,$premod) != "false"){
 					$field_permitted = true;
 				} else {
-					$mod = split(":",$secmod);
+					$mod = explode(":",$secmod);
 					foreach($mod as $key){
 						if(CheckColumnPermission($field_tablename,$field_columnname,$key) != "false"){
 							$field_permitted=true;
@@ -3839,7 +3912,7 @@ class ReportRun extends CRMEntity
 				}
 
 				//Calculation fields of "Events" module should show in Calendar related report
-				$secondaryModules = split(":", $secmod);
+				$secondaryModules = explode(":", $secmod);
 				if ($field_permitted === false && ($premod === 'Calendar' || in_array('Calendar', $secondaryModules)) && CheckColumnPermission($field_tablename, $field_columnname, "Events") != "false") {
 					$field_permitted = true;
 				}
@@ -3920,6 +3993,8 @@ class ReportRun extends CRMEntity
 			} else if($field_columnname == 'discount_amount') {
 				$field = ' CASE WHEN '.$itemTableName.'.discount_amount is not null THEN '.$itemTableName.'.discount_amount/'.$primaryModuleInstance->table_name.'.conversion_rate '.
 					'WHEN '.$itemTableName.'.discount_percent IS NOT NULL THEN ('.$itemTableName.'.listprice*'.$itemTableName.'.quantity*'.$itemTableName.'.discount_percent/100/'.$primaryModuleInstance->table_name.'.conversion_rate) ELSE 0 END ';
+			} elseif ($field_columnname == 'realprice') {
+				$field = "($field_tablename.listprice".'/'.$primaryModuleInstance->table_name.".conversion_rate)*$field_tablename.quantity) - CASE WHEN $field_tablename.discount_amount IS NOT NULL THEN $field_tablename.discount_amount ELSE 0 END - CASE WHEN $field_tablename.discount_percent IS NOT NULL THEN ($field_tablename.quantity * $field_tablename.listprice * ($field_tablename.discount_percent/100)) ELSE 0 END )";
 			}
 		}
 		return $field;
@@ -4218,6 +4293,7 @@ class ReportRun extends CRMEntity
             //copy the first value details
             $arrayFirstRowValues = $arr_val[0];
 			array_pop($arrayFirstRowValues);			// removed action link in details
+			array_shift($arrayFirstRowValues);  // removed listcolor
 			foreach($arrayFirstRowValues as $key=>$value) {
 				$worksheet->setCellValueExplicitByColumnAndRow($count, $rowcount, $key, true);
 				$worksheet->getStyleByColumnAndRow($count, $rowcount)->applyFromArray($header_styles);
@@ -4232,12 +4308,30 @@ class ReportRun extends CRMEntity
 			foreach($arr_val as $key=>$array_value) {
 				$count = 0;
 				array_pop($array_value);	// removed action link in details
+				array_shift($array_value);  // removed listcolor
 				foreach($array_value as $hdr=>$value) {
-					if($hdr == 'ACTION') continue;
-					$value = decode_html($value);
+					if($hdr == 'ACTION' || $hdr == 'listcolor') continue;
+					$type = $value[1];
+					$value = decode_html($value[0]);
 					// TODO Determine data-type based on field-type.
 					// String type helps having numbers prefixed with 0 intact.
-					$worksheet->setCellValueExplicitByColumnAndRow($count, $rowcount, $value, PHPExcel_Cell_DataType::TYPE_STRING);
+					
+					if ($value == '-') {
+						$type = 'string';
+					}
+					if ($type == 'date') {
+						$date = new DateTimeField($value);
+						$value = PHPExcel_Shared_Date::PHPToExcel(strtotime($date->getDBInsertDateValue()));
+						
+						$worksheet->setCellValueByColumnAndRow($count, $rowcount, $value);
+						$worksheet->getStyleByColumnAndRow($count, $rowcount)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_XLSX14);
+					} elseif ($type == 'double' || $type == 'currency') {
+						//double is currently not in userformat
+						$value = ($type == 'currency') ? CurrencyField::convertToDBFormat($value, null, true) : $value;
+						$worksheet->setCellValueByColumnAndRow($count, $rowcount, $value, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+					} else {
+						$worksheet->setCellValueExplicitByColumnAndRow($count, $rowcount, $value, PHPExcel_Cell_DataType::TYPE_STRING);
+					}
 					$count = $count + 1;
 				}
 				$rowcount++;
@@ -4288,9 +4382,12 @@ class ReportRun extends CRMEntity
 			// Header
 			$csv_values = array_keys($arr_val[0]);
 			array_pop($csv_values);			//removed header in csv file
+			array_shift($csv_values);  // removed listcolor
 			fputcsv($fp, $csv_values);
 			foreach($arr_val as $key=>$array_value) {
+				$array_value = array_map('array_shift', $array_value);
 				array_pop($array_value);	//removed action link
+				array_shift($array_value);  // removed listcolor
 				$csv_values = array_map('decode_html', array_values($array_value));
 				fputcsv($fp, $csv_values);
 			}
@@ -4305,7 +4402,7 @@ class ReportRun extends CRMEntity
         $num_rows = $adb->num_rows($groupByTimeRes);
         for($i=0;$i<$num_rows;$i++){
             $sortColName = $adb->query_result($groupByTimeRes, $i,'sortcolname');
-            list($tablename,$colname,$module_field,$fieldname,$single) = split(':',$sortColName);
+            list($tablename,$colname,$module_field,$fieldname,$single) = explode(':',$sortColName);
             $groupField = $module_field;
             $groupCriteria = $adb->query_result($groupByTimeRes, $i,'dategroupbycriteria');
             if(in_array($groupCriteria,array_keys($this->groupByTimeParent))){

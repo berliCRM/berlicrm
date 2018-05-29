@@ -206,7 +206,6 @@ var Vtiger_Index_Js = {
 			var nextActivityReminderCheck = app.cacheGet('nextActivityReminderCheckTime', 0);
 			if((currentTime + activityReminder) > nextActivityReminderCheck) {
 				Vtiger_Index_Js.requestReminder();
-				setTimeout('Vtiger_Index_Js.requestReminder()', activityReminder);
 				app.cacheSet('nextActivityReminderCheckTime', currentTime + parseInt(activityReminder));
 			}
 		}
@@ -225,6 +224,8 @@ var Vtiger_Index_Js = {
 				}
 			}
 		});
+		//crm-now: trigger self every minute regardless of user interval to keep sessions alive
+		setTimeout('Vtiger_Index_Js.requestReminder()', 60000);
 	},
 
 	/**
@@ -298,7 +299,7 @@ var Vtiger_Index_Js = {
 			}
 		} while (!stopLoop);
 		// Required to get the functionality of All drop-down working.
-		jQuery(window).load(function(){
+		jQuery(window).on("load",function(){
 			jQuery("#topMenus").css({'overflow':'visible'});
 		});
 	},
@@ -307,7 +308,7 @@ var Vtiger_Index_Js = {
 	 * Function to trigger tooltip feature.
 	 */
 	registerTooltipEvents: function() {
-		var references = jQuery.merge(jQuery('[data-field-type="reference"] > a'), jQuery('[data-field-type="multireference"] > a'));
+		var references = jQuery('[data-field-type="reference"] > a,[data-field-type="multireference"] > a');
 		var lastPopovers = [];
 
 		// Fetching reference fields often is not a good idea on a given page.
@@ -368,14 +369,12 @@ var Vtiger_Index_Js = {
 			}
 		}
 
-		references.each(function(index, el){
-			jQuery(el).hoverIntent({
+		references.hoverIntent({
 				interval: 100,
 				sensitivity: 7,
 				timeout: 10,
 				over: prepareAndShowTooltipView,
 				out: hideAllTooltipViews
-			});
 		});
 
 		function registerToolTipDestroy() {

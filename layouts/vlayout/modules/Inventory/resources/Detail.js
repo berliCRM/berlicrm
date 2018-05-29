@@ -11,6 +11,29 @@ Vtiger_Detail_Js("Inventory_Detail_Js",{
     sendEmailPDFClickHandler : function(url){
         var popupInstance = Vtiger_Popup_Js.getInstance();
         popupInstance.show(url,function(){}, app.vtranslate('JS_SEND_PDF_MAIL') );
+    },
+    createPDFDocumentHandler : function(url){
+		var progressIndicatorElement = jQuery.progressIndicator();
+		AppConnector.request(url).then(
+			function(data) {
+				progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+				if(data) {
+					if(data['error']){
+						var param = {text:app.vtranslate('JS_PERMISSION_DENIED')};
+						Vtiger_Helper_Js.showPnotify(param);
+					}
+					else {
+						var param = {text:app.vtranslate('JS_PDF_DOC_SAVED')};
+						Vtiger_Helper_Js.showMessage(param);
+					}
+				}
+			},
+			function(error,err){
+				progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+				var param = {text:app.vtranslate('JS_PERMISSION_DENIED')};
+				Vtiger_Helper_Js.showPnotify(param);
+			}
+		);
     }
 
 },{

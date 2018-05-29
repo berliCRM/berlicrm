@@ -6,17 +6,26 @@
  * The Initial Developer of the Original Code is vtiger.
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
+ * Reviewed by crm-now GmbH
  ************************************************************************************/
 $languageStrings = array(
-	'RecycleBin'                   => 'Recycle Bin'                 , 
-	'LBL_SELECT_MODULE'            => 'Select Module'               , 
-	'LBL_EMPTY_RECYCLEBIN'         => 'Empty Recycle Bin'           , 
-	'LBL_RESTORE'                  => 'Restore'                     , 
-	'LBL_NO_PERMITTED_MODULES'     => 'No permitted modules available', 
-	'LBL_RECORDS_LIST'             => 'Recycle Bin List'            , 
-	'LBL_NO_RECORDS_FOUND'         => 'No records found to Restore in module', 
+	'LBL_EMPTY_RECYCLEBIN' => 'Papierkorb leeren',
+	'LBL_NO_PERMITTED_MODULES' => 'Keine zulässigen Module verfügbar',
+	'LBL_NO_RECORDS_FOUND' => 'Keine Datensätze zum Wiederherstellen gefunden in',
+	'LBL_RECORDS_LIST' => 'Papierkorbinhalt',
+	'LBL_RESTORE' => 'Wiederherstellen',
+	'LBL_SELECT_MODULE' => 'Modul wählen',
+	'Recycle Bin' => 'Papierkorb',
+	//crm-now: missing in en_us file
+	'RecycleBin' => 'Papierkorb',
 );
+
 $jsLanguageStrings = array(
-	'JS_MSG_EMPTY_RB_CONFIRMATION' => 'Are you sure you want to permanently remove all the deleted records from your database?', 
-	'JS_LBL_RESTORE_RECORDS_CONFIRMATION' => 'Are you sure you want to restore the records?', 
+	'JS_LBL_RESTORE_RECORDS_CONFIRMATION' => 'Sind Sie sicher, dass Sie die Datensätze wiederherstellen wollen?',
+	'JS_MSG_EMPTY_RB_CONFIRMATION' => 'Sind Sie sicher, dass Sie die Datensätze endgültig löschen wollen?',
+	'JS_RESTORING_RECORDS' => 'Datensätze werden wieder hergestellt',
+	'of' => 'von',
+	'to' => 'bis',
 );
+
+?>

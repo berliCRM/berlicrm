@@ -310,7 +310,7 @@ class HTTP_Request
     * </ul>
     * @access public
     */
-    function HTTP_Request($url = '', $params = array())
+    function __construct($url = '', $params = array())
     {
         $this->_method         =  HTTP_REQUEST_METHOD_GET;
         $this->_http           =  HTTP_REQUEST_HTTP_VER_1_1;
@@ -722,7 +722,7 @@ class HTTP_Request
 
         $keepAlive = (HTTP_REQUEST_HTTP_VER_1_1 == $this->_http && empty($this->_requestHeaders['connection'])) ||
                      (!empty($this->_requestHeaders['connection']) && 'Keep-Alive' == $this->_requestHeaders['connection']);
-        $sockets   = PEAR::getStaticProperty('HTTP_Request', 'sockets');
+        $sockets   = &PEAR::getStaticProperty('HTTP_Request', 'sockets');
         $sockKey   = $host . ':' . $port;
         unset($this->_sock);
 
@@ -730,7 +730,7 @@ class HTTP_Request
         if ($keepAlive && !empty($sockets[$sockKey]) &&
             !empty($sockets[$sockKey]->fp))
         {
-            $this->_sock = $sockets[$sockKey];
+            $this->_sock =& $sockets[$sockKey];
             $err = null;
         } else {
             $this->_notify('connect');
@@ -777,7 +777,7 @@ class HTTP_Request
             $this->disconnect();
         // Store the connected socket in "static" property
         } elseif (empty($sockets[$sockKey]) || empty($sockets[$sockKey]->fp)) {
-            $sockets[$sockKey] = $this->_sock;
+            $sockets[$sockKey] =& $this->_sock;
         }
 
         // Check for redirection
@@ -1079,7 +1079,7 @@ class HTTP_Request
         if (!is_a($listener, 'HTTP_Request_Listener')) {
             return false;
         }
-        $this->_listeners[$listener->getId()] = $listener;
+        $this->_listeners[$listener->getId()] =& $listener;
         return true;
     }
 
@@ -1196,10 +1196,10 @@ class HTTP_Response
     * @param  Net_Socket    socket to read the response from
     * @param  array         listeners attached to request
     */
-    function HTTP_Response(&$sock, &$listeners)
+    function __construct(&$sock, &$listeners)
     {
-        $this->_sock      = $sock;
-        $this->_listeners = $listeners;
+        $this->_sock      =& $sock;
+        $this->_listeners =& $listeners;
     }
 
 

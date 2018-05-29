@@ -1309,12 +1309,13 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 			}
 		})
 
-		contents.on('change', '[name="defaultvalue"]', function(e) {
+		contents.on('change', '[name="defaultvalue"], [name="helptext"]', function(e) {
 			var currentTarget = jQuery(e.currentTarget);
 			var defaultValueUi = currentTarget.closest('span').find('.defaultValueUi');
-			var defaultField = defaultValueUi.find('[name="fieldDefaultValue"]');
+			var defaultField = defaultValueUi.find('[name="fieldDefaultValue"], [name="helptextValue"]');
 			if(currentTarget.is(':checked')) {
 				defaultValueUi.removeClass('zeroOpacity');
+				defaultValueUi.show();
 				defaultField.removeAttr('disabled');
 				if(defaultField.is('select')){
 					defaultField.trigger("liszt:updated");
@@ -1323,6 +1324,7 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 				defaultField.attr('disabled', 'disabled');
 			//	defaultField.val('');
 				defaultValueUi.addClass('zeroOpacity');
+				defaultValueUi.hide();
 			}
 		})
 

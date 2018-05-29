@@ -23,6 +23,7 @@ $languageStrings = array(
 	'LBL_ADD_RECORD' => 'Add Organization',
 	'LBL_COPY_BILLING_ADDRESS' => 'Copy Billing Address',
 	'LBL_COPY_SHIPPING_ADDRESS' => 'Copy Shipping Address',
+    'LBL_COPY_ADDRESS_TO_RELATED_CONTACTS' => 'Copy address to related contacts',
 	'LBL_DUPLICATES_EXIST' => 'Organization Name already exists',
 	'LBL_END_DATE' => 'End Date',
 	'LBL_RECORDS_LIST' => 'Organization List',
@@ -38,8 +39,11 @@ $languageStrings = array(
 	'Reseller'=>'Reseller',
 	'SIC Code' => 'SIC Code',
 	'SINGLE_Accounts' => 'Organization',
-	'Ticker Symbol' => 'Ticker Symbol',
+	'Ticker Symbol' => 'Add. Account Name',
 	'Website' => 'Website',
+	// Google map view
+    'LBL_MISSING_MAP_KEY' => 'No key was provided for the map view. Please contact the CRM Administrator.',
+    'LBL_MISSING_MAP_KEY_ADMIN' => 'Click here to enter a key in the Google settings menu.',
 );
 
 $jsLanguageStrings = array(
@@ -47,4 +51,8 @@ $jsLanguageStrings = array(
 	'LBL_DELETE_CONFIRMATION' => 'Deleting this Organization will remove its related Opportunities & Quotes. Are you sure you want to delete this Organization?',
 	'LBL_MASS_DELETE_CONFIRMATION' => 'Deleting this Organization(s) will remove its related Opportunities & Quotes. Are you sure you want to delete the selected records?',
 	'LBL_RELATED_RECORD_DELETE_CONFIRMATION' => 'Are you sure you want to delete?',
+    'LBL_ADDRESS_CHANGE_TITLE' => 'Address changed',
+    'LBL_ADDRESS_CHANGE_TEXT' => 'The address has been changed.',
+    'LBL_ACCOUNT_ADDRESS_COPIED_TITLE' => 'Address copied',
+    'LBL_ACCOUNT_ADDRESS_COPIED_TEXT' => 'The account\'s address has been copied to this contact.'
 );

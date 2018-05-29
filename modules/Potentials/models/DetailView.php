@@ -23,7 +23,7 @@ class Potentials_DetailView_Model extends Vtiger_DetailView_Model {
 		$invoiceModuleModel = Vtiger_Module_Model::getInstance('Invoice');
         $quoteModuleModel = Vtiger_Module_Model::getInstance('Quotes');
 
-		if($currentUserModel->hasModuleActionPermission($invoiceModuleModel->getId(), 'EditView')) {
+		if($currentUserModel->hasModuleActionPermission($invoiceModuleModel->getId(), 'CreateView')) {
 			$basicActionLink = array(
 				'linktype' => 'DETAILVIEW',
 				'linklabel' => vtranslate('LBL_CREATE').' '.vtranslate($invoiceModuleModel->getSingularLabelKey(), 'Invoice'),
@@ -32,8 +32,8 @@ class Potentials_DetailView_Model extends Vtiger_DetailView_Model {
 			);
 			$linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($basicActionLink);
 		}
-        
-        if($currentUserModel->hasModuleActionPermission($quoteModuleModel->getId(), 'EditView')) {
+
+		if($currentUserModel->hasModuleActionPermission($quoteModuleModel->getId(), 'CreateView')) {
 			$basicActionLink = array(
 				'linktype' => 'DETAILVIEW',
 				'linklabel' => vtranslate('LBL_CREATE').' '.vtranslate($quoteModuleModel->getSingularLabelKey(), 'Quotes'),
@@ -45,7 +45,7 @@ class Potentials_DetailView_Model extends Vtiger_DetailView_Model {
 
 		$CalendarActionLinks[] = array();
 		$CalendarModuleModel = Vtiger_Module_Model::getInstance('Calendar');
-		if($currentUserModel->hasModuleActionPermission($CalendarModuleModel->getId(), 'EditView')) {
+		if($currentUserModel->hasModuleActionPermission($CalendarModuleModel->getId(), 'CreateView')) {
 			$CalendarActionLinks[] = array(
 					'linktype' => 'DETAILVIEW',
 					'linklabel' => 'LBL_ADD_EVENT',
@@ -79,7 +79,7 @@ class Potentials_DetailView_Model extends Vtiger_DetailView_Model {
 
 		$documentsInstance = Vtiger_Module_Model::getInstance('Documents');
 		if($userPrivilegesModel->hasModuleActionPermission($documentsInstance->getId(), 'DetailView')) {
-			$createPermission = $userPrivilegesModel->hasModuleActionPermission($documentsInstance->getId(), 'EditView');
+			$createPermission = $userPrivilegesModel->hasModuleActionPermission($documentsInstance->getId(), 'CreateView');
 			$widgets[] = array(
 					'linktype' => 'DETAILVIEWWIDGET',
 					'linklabel' => 'Documents',
@@ -93,7 +93,7 @@ class Potentials_DetailView_Model extends Vtiger_DetailView_Model {
 
 		$contactsInstance = Vtiger_Module_Model::getInstance('Contacts');
 		if($userPrivilegesModel->hasModuleActionPermission($contactsInstance->getId(), 'DetailView')) {
-			$createPermission = $userPrivilegesModel->hasModuleActionPermission($contactsInstance->getId(), 'EditView');
+			$createPermission = $userPrivilegesModel->hasModuleActionPermission($contactsInstance->getId(), 'CreateView');
 			$widgets[] = array(
 					'linktype' => 'DETAILVIEWWIDGET',
 					'linklabel' => 'LBL_RELATED_CONTACTS',
@@ -107,7 +107,7 @@ class Potentials_DetailView_Model extends Vtiger_DetailView_Model {
 
 		$productsInstance = Vtiger_Module_Model::getInstance('Products');
 		if($userPrivilegesModel->hasModuleActionPermission($productsInstance->getId(), 'DetailView')) {
-			$createPermission = $userPrivilegesModel->hasModuleActionPermission($productsInstance->getId(), 'EditView');
+			$createPermission = $userPrivilegesModel->hasModuleActionPermission($productsInstance->getId(), 'CreateView');
 			$widgets[] = array(
 					'linktype' => 'DETAILVIEWWIDGET',
 					'linklabel' => 'LBL_RELATED_PRODUCTS',

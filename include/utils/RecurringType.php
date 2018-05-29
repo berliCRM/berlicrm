@@ -31,7 +31,7 @@ class RecurringType {
 	 * Constructor for class RecurringType
 	 * @param array  $repeat_arr     - array contains recurring info
 	 */
-	function RecurringType($repeat_arr) {
+	function __construct($repeat_arr) {
 
 		$st_date = explode("-", $repeat_arr["startdate"]);
 		$st_time = explode(":", $repeat_arr["starttime"]);

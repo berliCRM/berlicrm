@@ -38,20 +38,22 @@ class Emails extends CRMEntity {
 		'vtiger_seactivityrel' => 'activityid', 'vtiger_cntactivityrel' => 'activityid', 'vtiger_email_track' => 'mailid', 'vtiger_emaildetails' => 'emailid');
 	// This is the list of vtiger_fields that are in the lists.
 	var $list_fields = Array(
-		'Subject' => Array('activity' => 'subject'),
-		'Related to' => Array('seactivityrel' => 'parent_id'),
-		'Date Sent' => Array('activity' => 'date_start'),
-        'Time Sent' => Array('activity' => 'time_start'),
-		'Assigned To' => Array('crmentity', 'smownerid'),
-		'Access Count' => Array('email_track', 'access_count')
+		'Subject' => Array('activity', 'subject'),
+        'From' => Array('emaildetails', 'from_email'),
+        'To' => Array('emaildetails', 'to_email'),
+		'Related to' => Array('seactivityrel', 'parent_id'),
+		'Date Sent' => Array('activity', 'date_start'),
+        'Time Start' => Array('activity', 'time_start'),
+		'Assigned To' => Array('crmentity', 'smownerid')
 	);
 	var $list_fields_name = Array(
 		'Subject' => 'subject',
+        'From' => 'from_email',
+        'To' => 'saved_toid',
 		'Related to' => 'parent_id',
 		'Date Sent' => 'date_start',
         'Time Sent' => 'time_start',
-		'Assigned To' => 'assigned_user_id',
-		'Access Count' => 'access_count'
+		'Assigned To' => 'assigned_user_id'
 	);
 	var $list_link_field = 'subject';
 	var $column_fields = Array();
@@ -65,7 +67,7 @@ class Emails extends CRMEntity {
 
 	/** This function will set the columnfields for Email module
 	 */
-	function Emails() {
+	function __construct() {
 		$this->log = LoggerManager::getLogger('email');
 		$this->log->debug("Entering Emails() method ...");
 		$this->log = LoggerManager::getLogger('email');
@@ -93,6 +95,7 @@ class Emails extends CRMEntity {
 				$adb->pquery($mysql, array($parentid, $actid));
 			} else {
 				$myids = explode("|", $parentid);  //2@71|
+				
 				for ($i = 0; $i < (count($myids) - 1); $i++) {
 					$realid = explode("@", $myids[$i]);
 					$mycrmid = $realid[0];

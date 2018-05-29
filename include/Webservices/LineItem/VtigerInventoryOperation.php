@@ -198,6 +198,18 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
         }
         return $describe;
     }
+	
+	public function query($q) {
+		$output = parent::query($q);
+		$handler = vtws_getModuleHandlerFromName('LineItem', $this->user);
+		
+		foreach ($output AS &$element) {
+			$components = vtws_getIdComponents($element['id']);
+            $parentId = $components[1];
+			$element['LineItems'] = $handler->getAllLineItemForParent($parentId);
+		}
+		return $output;
+	}
 }
 
 ?>

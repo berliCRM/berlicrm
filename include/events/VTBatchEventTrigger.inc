@@ -11,6 +11,7 @@
 class VTBatchEventTrigger extends VTEventTrigger{
 
 	function trigger($data){
+        global $log;
 		$adb = $this->adb;
 
 		$eventInfos = self::lookupCache($this->name);
@@ -18,11 +19,16 @@ class VTBatchEventTrigger extends VTEventTrigger{
 			$eventInfos = self::getActiveEventInfos($this->adb, $this->name);
 		}
         if(!empty($eventInfos)){
-   		foreach($eventInfos as $eventInfo) {
-			require_once($eventInfo['handler_path']);
-			$handler = new $eventInfo['handler_class']();
-			$handler->handleEvent($this->name, $data);
-		}
+            foreach($eventInfos as $eventInfo) {
+                if (!file_exists($eventInfo['handler_path'])) {
+                    $log->debug("WARNING: Eventhandler {$eventInfo['handler_path']} not found!");
+                }
+                else {
+                    require_once($eventInfo['handler_path']);
+                    $handler = new $eventInfo['handler_class']();
+                    $handler->handleEvent($this->name, $data);
+                }
+            }
         }
 	}
 }

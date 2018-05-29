@@ -45,7 +45,13 @@ function sendmail($to,$from,$subject,$contents,$mail_server,$mail_server_usernam
 	$mail->Password = $mail_server_password ;//$smtp_password; // SMTP password
 	$mail->From = $from;
 	$mail->FromName = $initialfrom;
-	$mail->AddAddress($to);                  // name is optional
+	//crm-now: add group support
+	if (!is_array($to)) {
+		$to = array($to);
+	}
+	foreach ($to as $new_to) {
+		$mail->AddAddress($new_to); // name is optional   
+	}
 	$mail->AddReplyTo($from);
 	$mail->WordWrap = 50;                                 // set word wrap to 50 characters
 	$mail->IsHTML(true);                                  // set email format to HTML

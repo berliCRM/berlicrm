@@ -9,6 +9,9 @@
   *
  ********************************************************************************/
 -->*}
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
 <div style="margin:0 auto;width: 50em;">
 	<table border='0' cellpadding='5' cellspacing='0' height='600px' width="700px">
 	<tr><td align='center'>

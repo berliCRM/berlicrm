@@ -53,7 +53,7 @@
 		$state->success = false;
 		$state->error = $error;
 		unset($state->result);
-		$output = $operationManager->encode($state);
+		$output = (isset($operationManager)) ? $operationManager->encode($state) : $error->getMessage();
 		echo $output;
 
 	}
@@ -76,9 +76,10 @@
 	$sessionId = vtws_getParameter($_REQUEST,"sessionName");
 
 	$sessionManager = new SessionManager();
-	$operationManager = new OperationManager($adb,$operation,$format,$sessionManager);
-
+	
 	try{
+		$operationManager = new OperationManager($adb,$operation,$format,$sessionManager);
+	
 		if(!$sessionId || strcasecmp($sessionId,"null")===0){
 			$sessionId = null;
 		}

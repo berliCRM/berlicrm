@@ -46,4 +46,12 @@ class PurchaseOrder_Record_Model extends Inventory_Record_Model {
 			$purchaseOrderStatus = $db->query_result($result,0,"postatus");
 			return $purchaseOrderStatus;
 	}
+	
+	
+	function getCreatePDFDocumentUrl() {
+		$purchaseOrderModuleModel = Vtiger_Module_Model::getInstance('PurchaseOrder');
+
+		return "index.php?module=Inventory&relmodule=".$purchaseOrderModuleModel->getName()."&action=savePDF&record=".$this->getId();
+	}
+
 }

@@ -595,6 +595,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 				parentRow.data('quantity-in-stock',recordData.quantityInStock);
 			}
 			var description = recordData.description;
+			var productcode = recordData.productcode;
 			jQuery('input.selectedModuleId',parentRow).val(recordId);
 			jQuery('input.lineItemType',parentRow).val(referenceModule);
 			lineItemNameElment.val(selectedName);
@@ -607,7 +608,8 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
                 this.lineItemRowCalculations(parentRow);
         	}
             jQuery('input.listPrice',parentRow).attr('list-info',listPriceValuesJson);
-			jQuery('textarea.lineItemCommentBox',parentRow).val(description);
+			jQuery('textarea.lineItemDescriptionBox',parentRow).val(description);
+			jQuery('input.lineItemProductCode',parentRow).val(productcode);
 			var taxUI = this.getTaxDiv(taxes,parentRow);
 			jQuery('.taxDivContainer',parentRow).html(taxUI);
             if(this.isIndividualTaxMode()) {
@@ -876,7 +878,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
             if(isNaN(groupTaxPercentageElement.val())){
                 var groupTaxValue = "0";
             } else {
-                var groupTaxValue = Math.abs(amount * groupTaxPercentageElement.val())/100;
+                var groupTaxValue = amount * groupTaxPercentageElement.val()/100;
             }
 			groupTaxValue = parseFloat(groupTaxValue).toFixed(numberOfDecimal);
 			groupTaxRow.find('.groupTaxTotal').val(groupTaxValue);
@@ -1455,6 +1457,8 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 			var elem = jQuery(e.currentTarget);
 			var parentElem = elem.closest('div');
 			var comment = jQuery('.lineItemCommentBox',parentElem).val('');
+			var comment = jQuery('.lineItemDescriptionBox',parentElem).val('');
+			var comment = jQuery('.lineItemProductCode',parentElem).val('');
 		});
 
     },
@@ -1473,10 +1477,10 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 			currentSequenceNumber = 0;
 		}
 
-		var idFields = new Array('productName','subproduct_ids','hdnProductId',
+		var idFields = new Array('productName','subproduct_ids','hdnProductId','productDescription',
 							   'comment','qty','listPrice','discount_type','discount_percentage',
 							   'discount_amount','lineItemType','searchIcon','netPrice','subprod_names',
-								'productTotal','discountTotal','totalAfterDiscount','taxTotal');
+								'productTotal','discountTotal','totalAfterDiscount','taxTotal','hdnLineitemId');
 
 		var nameFields = new Array('discount');
 		var classFields = new Array('taxPercentage');
@@ -1597,6 +1601,9 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 		var thisInstance = this;
 
 		jQuery('input[name="contact_id"]', container).on(Vtiger_Edit_Js.referenceSelectionEvent, function(e, data){
+			thisInstance.referenceSelectionEventHandler(data, container);
+		});
+		jQuery('input[name="vendor_id"]', container).on(Vtiger_Edit_Js.referenceSelectionEvent, function(e, data){
 			thisInstance.referenceSelectionEventHandler(data, container);
 		});
 	},
@@ -1756,6 +1763,8 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 		jQuery('input.selectedModuleId',lineItemRow).val('');
 		jQuery('input.listPrice',lineItemRow).val('0');
 		jQuery('.lineItemCommentBox', lineItemRow).val('');
+		jQuery('.lineItemDescriptionBox', lineItemRow).val('');
+		jQuery('.lineItemProductCode', lineItemRow).val('');
 		thisInstance.quantityChangeActions(lineItemRow);
 	},
 

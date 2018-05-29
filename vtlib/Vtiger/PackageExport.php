@@ -24,7 +24,7 @@ class Vtiger_PackageExport {
 	/**
 	 * Constructor
 	 */
-	function Vtiger_PackageExport() {
+	function __construct() {
 		if(is_dir($this->_export_tmpdir) === FALSE) {
 			mkdir($this->_export_tmpdir);
 		}
@@ -74,7 +74,7 @@ class Vtiger_PackageExport {
 			Vtiger_Utils::checkFileAccessForInclusion("modules/$module/$module.php");
 		}
 		$this->_export_modulexml_file = fopen($this->__getManifestFilePath(), 'w');
-		$this->__write("<?xml version='1.0'?>\n");
+		$this->__write("<?xml version='1.0' encoding='UTF-8'?>\n");
 	}
 
 	/**
@@ -171,7 +171,8 @@ class Vtiger_PackageExport {
 
 		if($directDownload) {
 			$zip->forceDownload($zipfilename);
-			unlink($zipfilename);
+			//crm-now: remove the unlink for package export in order to have the exported zip file available for manual download from test/vtlib/ (package export is not available for customers)
+			//unlink($zipfilename);
 		}
 		$this->__cleanupExport();
 	}

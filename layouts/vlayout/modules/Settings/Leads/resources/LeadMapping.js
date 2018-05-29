@@ -203,7 +203,7 @@ jQuery.Class("Settings_LeadMapping_Js",{
 				else{
 					notifyParams={
 						title:app.vtranslate('JS_MAPPING_SAVED_SUCCESSFULLY'),
-						text:data.result,
+						text:'',
 						type:'info',
 						width:'25%'
 					};

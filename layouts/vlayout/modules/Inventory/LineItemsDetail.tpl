@@ -44,6 +44,11 @@
     {foreach key=INDEX item=LINE_ITEM_DETAIL from=$RELATED_PRODUCTS}
 	<tr>
 	    <td>
+		{if !empty($LINE_ITEM_DETAIL["productName$INDEX"])}
+			<div>
+				{$LINE_ITEM_DETAIL["hdnProductcode$INDEX"]|nl2br}
+			</div>
+		{/if}
 		<div class="row-fluid">
 		    {$LINE_ITEM_DETAIL["productName$INDEX"]}
 		</div>
@@ -52,7 +57,7 @@
 				{if empty($LINE_ITEM_DETAIL["productName$INDEX"])}
 					{vtranslate('LBL_THIS_LINE_ITEM_IS_DELETED_FROM_THE_SYSTEM_PLEASE_REMOVE_THIS_LINE_ITEM',$MODULE)}
 				{else}
-					{vtranslate('LBL_THIS',$MODULE)} {$LINE_ITEM_DETAIL["entityType$INDEX"]} {vtranslate('LBL_IS_DELETED_FROM_THE_SYSTEM_PLEASE_REMOVE_OR_REPLACE_THIS_ITEM',$MODULE)}
+					{vtranslate('LBL_THIS',$MODULE)} {vtranslate($LINE_ITEM_DETAIL["entityType$INDEX"],$MODULE)} {vtranslate('LBL_IS_DELETED_FROM_THE_SYSTEM_PLEASE_REMOVE_OR_REPLACE_THIS_ITEM',$MODULE)}
 				{/if}
 			</div>
 		{/if}
@@ -68,6 +73,9 @@
 		    </div>
 		{/if}
 		{if !empty($LINE_ITEM_DETAIL["productName$INDEX"])}
+			<div>
+				{$LINE_ITEM_DETAIL["productDescription$INDEX"]|nl2br}
+			</div>
 			<div>
 				{$LINE_ITEM_DETAIL["comment$INDEX"]|nl2br}
 			</div>

@@ -33,8 +33,43 @@ $languageStrings = array(
 	'Sales Order' => 'Sales Order',
 	'Sent'=>'Sent',
 	'SINGLE_Invoice' => 'Invoice',
+	
+	//crmnow: added for PDF export from List View
+	'LBL_PDF_FOLDERNAME'=>'saved PDFs from Invoices',
+	'LBL_PDF_FOLDERDES'=>'PDF outputs which has been saved at an Invoice list view.',
+	'LBL_MASS_PRINT_PDF' => 'PDF Export',
+
+	//crm-now added for PDF saving as document
+	'LBL_PDF_FOLDERDES_DETAIL'=>'PDF outputs which has been saved at an Invoice detail view.',
+	'Shippingnote' => 'shipping note',
+	'Invoice' => 'Invoice',
+	'LBL_PDFSUBJECT'=>'saved PDF from an invoice with the subject',
+	'LBL_PDFSUBJECT_SHN'=>'saved PDF from a shipping note with the subject',
+
+    // product search popup
+    'Part Number' => 'Part Number',
+    'Product Active' => 'Product Active',
+    'Product Category' => 'Product Category',
+    'Product Image' => 'Product Image',
+    'Product No' => 'Product No',
+    'Product Sheet' => 'Product Sheet',
+    'Manufacturer' => 'Manufacturer',
+    'Mfr PartNo' => 'Mfr PartNo',
+    'Vendor PartNo' => 'Vendor PartNo',
+    'Serial No' => 'Serial No',
+    'Unit Price' => 'Unit Price',
+    'GL Account' => 'GL Account',
+    'Qty In Demand' => 'Qty In Demand',
+    'Qty In Stock' => 'Qty In Stock',
+    'Qty/Unit' => 'Qty/Unit',
+    'Reorder Level' => 'Reorder Level',
+    'Handler' => 'Handler',
 );
 
 $jsLanguageStrings = array(
 	'JS_PLEASE_REMOVE_LINE_ITEM_THAT_IS_DELETED' => 'Please remove line item that is deleted',
+    'JS_PLEASE_ENABLE_PRODUCT_OR_SERVICE_MODULE'=>'Please enable you Product or Service module in the CRM.' ,
+	'of' => 'of',
+	'to' => 'to',
+	'JS_NO_SUPPORT_OF_ALL_RECORDS' => 'This function does not support the All selection.',
 );

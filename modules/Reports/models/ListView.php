@@ -17,7 +17,7 @@ class Reports_ListView_Model extends Vtiger_ListView_Model {
 	 * Function to get the list of listview links for the module
 	 * @return <Array> - Associate array of Link Type to List of Vtiger_Link_Model instances
 	 */
-	public function getListViewLinks() {
+	public function getListViewLinks($params=false) {
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$privileges = Users_Privileges_Model::getCurrentUserPrivilegesModel();
 		$basicLinks = array();
@@ -70,7 +70,7 @@ class Reports_ListView_Model extends Vtiger_ListView_Model {
 	 * @param <Array> $linkParams
 	 * @return <Array> - Associative array of Link type to List of  Vtiger_Link_Model instances for Mass Actions
 	 */
-	public function getListViewMassActions() {
+	public function getListViewMassActions($params=false) {
 		$currentUserModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
 
 		$massActionLinks = array();

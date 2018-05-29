@@ -21,3 +21,6 @@
     {$FIELD_MODEL->get('fieldvalue')}</textarea>
 {/if}
 {/strip}
+{if $smarty.request.view == "MassActionAjax"}
+<br><input type="checkbox" id="add[{$FIELD_NAME}]" name="add[{$FIELD_NAME}]"><label for="add[{$FIELD_NAME}]" style="display:inline;vertical-align:middle"> {vtranslate('LBL_MASSOP_APPEND_TEXT')}</label>
+{/if}

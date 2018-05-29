@@ -6,12 +6,15 @@
  * The Initial Developer of the Original Code is vtiger.
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
+ * Modified by crm-now GmbH, www.crm-now.com
  ************************************************************************************/
-
 include_once dirname(__FILE__) . '/Mobile.Config.php';
+include_once dirname(__FILE__) . '/MobileSettings.config.php';
+//settings information
+global $displayed_modules; 
+global $config_settings; 
 
 class Mobile {
-	
 	/**
 	 * Detect if request is from IPhone
 	 */
@@ -77,15 +80,20 @@ class Mobile {
 		if($event_type == 'module.postinstall') {
 			$registerWSAPI = true;
 			$registerAlerts= true;
-		} else if($event_type == 'module.disabled') {
+		} 
+		else if($event_type == 'module.disabled') {
 			// TODO Handle actions when this module is disabled.
-		} else if($event_type == 'module.enabled') {
+		} 
+		else if($event_type == 'module.enabled') {
 			// TODO Handle actions when this module is enabled.
-		} else if($event_type == 'module.preuninstall') {
+		} 
+		else if($event_type == 'module.preuninstall') {
 			// TODO Handle actions when this module is about to be deleted.
-		} else if($event_type == 'module.preupdate') {
+		} 
+		else if($event_type == 'module.preupdate') {
 			// TODO Handle actions before this module is updated.
-		} else if($event_type == 'module.postupdate') {
+		} 
+		else if($event_type == 'module.postupdate') {
 			$registerWSAPI = true;
 			$registerAlerts= true;
 		}
@@ -227,5 +235,4 @@ class Mobile_WS_Operation {
 		}
 	}
 }
-	
 ?>

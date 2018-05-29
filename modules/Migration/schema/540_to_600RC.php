@@ -7,6 +7,9 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  *********************************************************************************/
+ini_set('display_errors',1);
+error_reporting(E_ALL^E_NOTICE);
+error_reporting(E_ERROR | E_WARNING | E_PARSE);
 if (!defined('VTIGER_UPGRADE')) die('Invalid entry point');
 
 vimport('~~include/utils/utils.php');
@@ -19,38 +22,39 @@ vimport('~~modules/Users/Users.php');
 if(defined('VTIGER_UPGRADE')) {
 	//Collating all module package updates here
 	updateVtlibModule('Import', 'packages/vtiger/mandatory/Import.zip');
+	echo "Import updated<br>";
 	updateVtlibModule('MailManager', 'packages/vtiger/mandatory/MailManager.zip');
-	updateVtlibModule('Mobile', 'packages/vtiger/mandatory/Mobile.zip');
+	echo "MailManager updated<br>";
 	updateVtlibModule('ModTracker', 'packages/vtiger/mandatory/ModTracker.zip');
+	echo "ModTracker updated<br>";
 	updateVtlibModule('Services', "packages/vtiger/mandatory/Services.zip");
+	echo "Services updated<br>";
 	updateVtlibModule('ServiceContracts', "packages/vtiger/mandatory/ServiceContracts.zip");
+	echo "ServiceContracts updated<br>";
 	updateVtlibModule('WSAPP', 'packages/vtiger/mandatory/WSAPP.zip');
+	echo "WSAPP updated<br>";
 	updateVtlibModule('Assets', 'packages/vtiger/optional/Assets.zip');
+	echo "Assets updated<br>";
 	updateVtlibModule('CustomerPortal', 'packages/vtiger/optional/CustomerPortal.zip');
+	echo "CustomerPortal updated<br>";
 	updateVtlibModule('ModComments', "packages/vtiger/optional/ModComments.zip");
+	echo "ModComments updated<br>";
 	updateVtlibModule('Projects', "packages/vtiger/optional/Projects.zip");
+	echo "Projects updated<br>";
 	updateVtlibModule('RecycleBin', 'packages/vtiger/optional/RecycleBin.zip');
+	echo "RecycleBin updated<br>";
 	updateVtlibModule('SMSNotifier', "packages/vtiger/optional/SMSNotifier.zip");
+	echo "SMSNotifier updated<br>";
 	updateVtlibModule("Webforms","packages/vtiger/optional/Webforms.zip");
 	installVtlibModule('Google', 'packages/vtiger/optional/Google.zip');
+	echo "Google installed";
 	installVtlibModule('EmailTemplates', 'packages/vtiger/optional/EmailTemplates.zip');
+	echo "EmailTemplates installed";
 
 	// updated language packs.
 
-	updateVtlibModule('PT Brasil', 'packages/vtiger/optional/BrazilianLanguagePack_bz_bz.zip');
-	updateVtlibModule('British English', 'packages/vtiger/optional/BritishLanguagePack_br_br.zip');
-	updateVtlibModule('Dutch', 'packages/vtiger/optional/Dutch.zip');
 	updateVtlibModule('Deutsch', 'packages/vtiger/optional/Deutsch.zip');
-	updateVtlibModule('French', 'packages/vtiger/optional/French.zip');
-	updateVtlibModule('Hungarian', 'packages/vtiger/optional/Hungarian.zip');
-	updateVtlibModule('Mexican Spanish', 'packages/vtiger/optional/MexicanSpanishLanguagePack_es_mx.zip');
-	updateVtlibModule('Spanish', 'packages/vtiger/optional/Spanish.zip');
-	installVtlibModule('Italian', 'packages/vtiger/optional/ItalianLanguagePack_it_it.zip');
-	installVtlibModule('RomanianLanguagePack_rm_rm', 'packages/vtiger/optional/RomanianLanguagePack_rm_rm.zip');
-	installVtlibModule('Turkce', 'packages/vtiger/optional/TurkishLanguagePack_tr_tr.zip');
-	installVtlibModule('Russian', 'packages/vtiger/optional/Russian.zip');
-	installVtlibModule('Polish', 'packages/vtiger/optional/PolishLanguagePack_pl_pl.zip');
-	installVtlibModule('Russian', 'packages/vtiger/optional/Russian.zip');
+	echo "language files updated";
 }
 
 if(!defined('INSTALLATION_MODE')) {
@@ -136,7 +140,7 @@ $taskManager = new VTTaskManager($adb);
 
 $potentailsWorkFlow = $workflowManager->newWorkFlow("Potentials");
 $potentailsWorkFlow->test = '';
-$potentailsWorkFlow->description = "Calculate or Update forecast amount";
+$potentailsWorkFlow->description = "LBL_CALC_FORECAST";
 $potentailsWorkFlow->executionCondition = VTWorkflowManager::$ON_EVERY_SAVE;
 $potentailsWorkFlow->defaultworkflow = 1;
 $workflowManager->save($potentailsWorkFlow);
@@ -592,17 +596,20 @@ for($i=0; $i<$noOfTabs; ++$i) {
 }
 
 //Adding status field for project task
-
+//!!!! only if Project module is installed 
+$fieldqueryres = Migration_Index_View::ExecuteQuery('SELECT 1 FROM vtiger_field WHERE fieldname = ?', array('projecttaskstatus'));
 $moduleInstance = Vtiger_Module::getInstance('ProjectTask');
-$blockInstance = Vtiger_Block::getInstance('LBL_PROJECT_TASK_INFORMATION', $moduleInstance);
-$fieldInstance = new Vtiger_Field();
-$fieldInstance->name = 'projecttaskstatus';
-$fieldInstance->label = 'Status';
-$fieldInstance->uitype = 15;
-$fieldInstance->quickcreate = 0;
-$blockInstance->addField($fieldInstance);
+if (!empty($moduleInstance) && $adb->num_rows($fieldqueryres) <1 ) {
+	$blockInstance = Vtiger_Block::getInstance('LBL_PROJECT_TASK_INFORMATION', $moduleInstance);
+	$fieldInstance = new Vtiger_Field();
+	$fieldInstance->name = 'projecttaskstatus';
+	$fieldInstance->label = 'Status';
+	$fieldInstance->uitype = 15;
+	$fieldInstance->quickcreate = 0;
+	$blockInstance->addField($fieldInstance);
+}
 
-$pickListValues = array('--None--', 'Open', 'In Progress', 'Completed', 'Deferred', 'Canceled ');
+$pickListValues = array('--None--', 'Open', 'In Progress', 'Completed', 'Deferred', 'Cancelled');
 
 $fieldInstance->setPicklistValues($pickListValues);
 
@@ -744,7 +751,6 @@ Migration_Index_View::ExecuteQuery('ALTER TABLE vtiger_links MODIFY column linkt
 Migration_Index_View::ExecuteQuery('ALTER TABLE vtiger_links MODIFY column linklabel VARCHAR(50)', array());
 Migration_Index_View::ExecuteQuery('ALTER TABLE vtiger_links MODIFY column handler_class VARCHAR(50)', array());
 Migration_Index_View::ExecuteQuery('ALTER TABLE vtiger_links MODIFY column handler VARCHAR(50)', array());
-
 //--
 //Add ModComments to HelpDesk and Faq module
 
@@ -781,6 +787,9 @@ do {
 	for($i=0; $i<$rows; $i++) {
 		$modComments = CRMEntity::getInstance('ModComments');
 		$modComments->column_fields['commentcontent'] = decode_html($adb->query_result($ticketComments, $i, 'comments'));
+		$ownerId = $adb->query_result($ticketComments, $i, 'ownerid');
+		$current_user->id = $ownerId;
+		$modComments->column_fields['assigned_user_id'] = $modComments->column_fields['creator'] = $ownerId;
 		$modComments->column_fields['createdtime'] = $adb->query_result($ticketComments, $i, 'createdtime');
 		$modComments->column_fields['modifiedtime'] = $adb->query_result($ticketComments, $i, 'createdtime');
 		$modComments->column_fields['related_to'] = $adb->query_result($ticketComments, $i, 'ticketid');
@@ -1178,8 +1187,7 @@ if (!$field4) {
 }
 
 
-$sqltimelogTable = "CREATE TABLE vtiger_sqltimelog ( id integer, type VARCHAR(10),
-					data text, started decimal(18,2), ended decimal(18,2), loggedon datetime)";
+$sqltimelogTable = "CREATE TABLE if not exists vtiger_sqltimelog ( id integer, type VARCHAR(10), data text, started decimal(18,2), ended decimal(18,2), loggedon datetime)";
 
 Migration_Index_View::ExecuteQuery($sqltimelogTable, array());
 
@@ -1190,7 +1198,7 @@ $emm->addEntityMethod($moduleName,"UpdateInventory","include/InventoryHandler.ph
 
 $vtWorkFlow = new VTWorkflowManager($adb);
 $poWorkFlow = $vtWorkFlow->newWorkFlow($moduleName);
-$poWorkFlow->description = "Update Inventory Products On Every Save";
+$poWorkFlow->description = "LBL_PO_INVENTORY_UPDATE";
 $poWorkFlow->defaultworkflow = 1;
 $poWorkFlow->executionCondition = 3;
 $vtWorkFlow->save($poWorkFlow);
@@ -1207,19 +1215,23 @@ $homeModule = Vtiger_Module::getInstance('Home');
 $homeModule->addLink('DASHBOARDWIDGET', 'Tag Cloud', 'index.php?module=Home&view=ShowWidget&name=TagCloud');
 
 // Schema changed for capturing Dashboard widget positions
-Migration_Index_View::ExecuteQuery('ALTER TABLE vtiger_module_dashboard_widgets ADD COLUMN position VARCHAR(50)',array());
-
-$moduleInstance = Vtiger_Module::getInstance('Contacts');
-if($moduleInstance) {
-	$moduleInstance->addLink('LISTVIEWSIDEBARWIDGET','Google Contacts',
-		'module=Google&view=List&sourcemodule=Contacts', '','', '');
+$chkcol = $adb->pquery("SHOW COLUMNS FROM `vtiger_module_dashboard_widgets` LIKE 'position'", array());
+$count = $adb->num_rows($chkcol);
+if($count == 0){
+	Migration_Index_View::ExecuteQuery('ALTER TABLE vtiger_module_dashboard_widgets ADD COLUMN position VARCHAR(50)',array());
 }
+//crm-now: remove links to Google Calendar and Google Contacts
+//$moduleInstance = Vtiger_Module::getInstance('Contacts');
+//if($moduleInstance) {
+//	$moduleInstance->addLink('LISTVIEWSIDEBARWIDGET','Google Contacts',
+//		'module=Google&view=List&sourcemodule=Contacts', '','', '');
+//}
 
-$moduleInstance = Vtiger_Module::getInstance('Calendar');
-if($moduleInstance) {
-	$moduleInstance->addLink('LISTVIEWSIDEBARWIDGET','Google Calendar',
-		'module=Google&view=List&sourcemodule=Calendar', '','', '');
-}
+//$moduleInstance = Vtiger_Module::getInstance('Calendar');
+//if($moduleInstance) {
+//	$moduleInstance->addLink('LISTVIEWSIDEBARWIDGET','Google Calendar',
+//		'module=Google&view=List&sourcemodule=Calendar', '','', '');
+//}
 
 Migration_Index_View::ExecuteQuery('ALTER TABLE vtiger_cvadvfilter MODIFY comparator VARCHAR(20)', array());
 Migration_Index_View::ExecuteQuery('UPDATE vtiger_cvadvfilter SET comparator = ? WHERE comparator = ?', array('next120days', 'next120day'));
@@ -1600,8 +1612,10 @@ foreach($entityModules as $moduleModel) {
 	$crmInstance = CRMEntity::getInstance($moduleModel->getName());
 	$tabId = $moduleModel->getId();
 	$defaultRelatedFields = $crmInstance->list_fields_name;
-	$updateQuery = 'UPDATE vtiger_field SET summaryfield=1  where tabid=? and fieldname IN ('.generateQuestionMarks($defaultRelatedFields).')';
-	Migration_Index_View::ExecuteQuery($updateQuery,  array_merge(array($tabId), array_values($defaultRelatedFields)));
+    if (!empty($defaultRelatedFields)) {
+        $updateQuery = 'UPDATE vtiger_field SET summaryfield=1  where tabid=? and fieldname IN ('.generateQuestionMarks($defaultRelatedFields).')';
+        Migration_Index_View::ExecuteQuery($updateQuery,  array_merge(array($tabId), array_values($defaultRelatedFields)));
+    }
 }
 
 Migration_Index_View::ExecuteQuery('UPDATE vtiger_currencies SET currency_name = ? where currency_name = ? and currency_code = ?',
@@ -2002,7 +2016,7 @@ for ($i = 0; $i < $numOfRows; $i++) {
 
 				unset($newWorkflowModel->id);
 				$newWorkflowModel->test = Zend_Json::encode($newWorkflowConditions);
-				$newWorkflowModel->description = 'Comment Added From Portal : Send Email to Record Owner';
+				$newWorkflowModel->description = 'LBL_COMMENT_PORTAL_EMAIL';
 				$wfs->save($newWorkflowModel);
 
 				$emailTask->id = '';
@@ -2056,7 +2070,7 @@ for ($i = 0; $i < $numOfRows; $i++) {
 
 				unset($newWorkflowModel->id);
 				$newWorkflowModel->test = Zend_Json::encode(array_merge($portalCondition, $newWorkflowConditions));
-				$newWorkflowModel->description = 'Comment Added From CRM : Send Email to Contact, where Contact is not a Portal User';
+				$newWorkflowModel->description = 'LBL_COMMENT_CRM_EMAIL';
 				$wfs->save($newWorkflowModel);
 
 				$emailTask->id = '';
@@ -2091,7 +2105,7 @@ for ($i = 0; $i < $numOfRows; $i++) {
 
 				unset($newWorkflowModel->id);
 				$newWorkflowModel->test = Zend_Json::encode(array_merge($portalCondition, $newWorkflowConditions));
-				$newWorkflowModel->description = 'Comment Added From CRM : Send Email to Contact, where Contact is Portal User';
+				$newWorkflowModel->description = 'LBL_COMMENT_CRM_PORTAL_EMAIL';
 				$wfs->save($newWorkflowModel);
 
 				$emailTask->id = '';
@@ -2118,7 +2132,7 @@ for ($i = 0; $i < $numOfRows; $i++) {
 				);
 
 				$workflowModel->test = Zend_Json::encode($newConditions);
-				$workflowModel->description = 'Comment Added From CRM : Send Email to Organization';
+				$workflowModel->description = 'LBL_COMMENT_ORG_EMAIL';
 				$wfs->save($workflowModel);
 
 				$emailTask->id = '';
@@ -2394,7 +2408,7 @@ for ($i = 0; $i < $numOfRows; $i++) {
 
 				unset($newWorkflowModel->id);
 				$newWorkflowModel->test = Zend_Json::encode($newConditions);
-				$newWorkflowModel->description = 'Send Email to Record Owner on Ticket Update';
+				$newWorkflowModel->description = 'LBL_TICKET_UPDATE_OWNER_EMAIL';
 				$wfs->save($newWorkflowModel);
 
 				$emailTask->id = '';
@@ -2431,7 +2445,7 @@ for ($i = 0; $i < $numOfRows; $i++) {
 				unset($newWorkflowModel->id);
 				$newWorkflowModel->executionCondition = 1;
 				$newWorkflowModel->test = Zend_Json::encode($portalCondition);
-				$newWorkflowModel->description = 'Ticket Creation From CRM : Send Email to Record Owner';
+				$newWorkflowModel->description = 'LBL_TICKET_CREATE_OWNER_EMAIL';
 				$wfs->save($newWorkflowModel);
 
 				$emailTask->id = '';
@@ -2502,3 +2516,4 @@ Migration_Index_View::ExecuteQuery("CREATE TABLE IF NOT EXISTS vtiger_faqcf (
                                 PRIMARY KEY (faqid), 
                                 CONSTRAINT fk_1_vtiger_faqcf FOREIGN KEY (faqid) REFERENCES vtiger_faq(id) ON DELETE CASCADE 
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8", array()); 
+//!!!!! missing for migrated data --> create fields for data sets

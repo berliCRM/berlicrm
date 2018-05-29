@@ -8,15 +8,16 @@
  * All Rights Reserved.
  ************************************************************************************/
 
-define('XML_HTMLSAX3', dirname(__FILE__) . '/../third-party/XML/');
-include_once dirname(__FILE__) . '/../third-party/HTML.Safe.php';
+// define('XML_HTMLSAX3', dirname(__FILE__) . '/../third-party/XML/');  // replaced by htmlpurifier
+// include_once dirname(__FILE__) . '/../third-party/HTML.Safe.php';
 
 class MailManager_Utils_Helper {
 
 	public function safe_html_string( $string) {
-		$htmlSafe = new HTML_Safe();
-		array_push($htmlSafe->whiteProtocols, 'cid');
-		return $htmlSafe->parse($string);
+		// $htmlSafe = new HTML_Safe();
+		// array_push($htmlSafe->whiteProtocols, 'cid', 'data');
+		// return $htmlSafe->parse($string);
+        die("no more safe_html_string in mailmanager/utils!");
 	}
 
 	public function allowedFileExtension($filename) {

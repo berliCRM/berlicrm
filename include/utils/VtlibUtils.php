@@ -634,8 +634,9 @@ function vtlib_purify($input, $ignore=false) {
 			include_once ('libraries/htmlpurifier/library/HTMLPurifier.auto.php');
 
 			$config = HTMLPurifier_Config::createDefault();
-	    	$config->set('Core', 'Encoding', $use_charset);
-	    	$config->set('Cache', 'SerializerPath', "$use_root_directory/test/vtlib");
+	    	$config->set('Core.Encoding', $use_charset);
+	    	$config->set('Cache.SerializerPath', "$use_root_directory/test/vtlib");
+            $config->set('URI.AllowedSchemes', array('http' => true,'https' => true,'mailto' => true,'ftp' => true,'nntp' => true,'news' => true,'data' => true));
 
 			$__htmlpurifier_instance = new HTMLPurifier($config);
 		}

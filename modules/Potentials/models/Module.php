@@ -310,6 +310,7 @@ class Potentials_Module_Model extends Vtiger_Module_Model {
 				if(!empty($amount)){
 					$values[0] = $db->query_result($result, $i, 'amount');
 					$values[1] = vtranslate($picklistValue, $this->getName());
+					$values[2] = $picklistValue;
 					$data[] = $values;
 				}
 				
@@ -334,14 +335,13 @@ class Potentials_Module_Model extends Vtiger_Module_Model {
 				$condition = " vtiger_potential.potentialid NOT IN (SELECT relcrmid FROM vtiger_crmentityrel WHERE crmid = '$record' UNION SELECT crmid FROM vtiger_crmentityrel WHERE relcrmid = '$record') ";
 			}
 
-			$pos = stripos($listQuery, 'where');
-			if ($pos) {
-				$split = spliti('where', $listQuery);
-				$overRideQuery = $split[0] . ' WHERE ' . $split[1] . ' AND ' . $condition;
+			$position = stripos($listQuery, 'where');
+			if($position) {
+				$listQuery .= ' AND ' . $condition;
 			} else {
-				$overRideQuery = $listQuery . ' WHERE ' . $condition;
+				$listQuery .= ' WHERE ' . $condition;
 			}
-			return $overRideQuery;
+			return $listQuery;
 		}
 	}
 

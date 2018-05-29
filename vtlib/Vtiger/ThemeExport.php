@@ -41,7 +41,7 @@ class Vtiger_ThemeExport extends Vtiger_Package {
             Vtiger_Utils::checkFileAccessForInclusion("layouts/$layoutName/skins/$themeName/style.less");
 
             $this->_export_modulexml_file = fopen($this->__getManifestFilePath(), 'w');
-            $this->__write("<?xml version='1.0'?>\n");
+            $this->__write("<?xml version='1.0' encoding='UTF-8'?>\n");
     }
 
     /**

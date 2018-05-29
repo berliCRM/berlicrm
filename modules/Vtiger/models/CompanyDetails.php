@@ -45,6 +45,8 @@ class Vtiger_CompanyDetails_Model extends Vtiger_Base_Model {
             if ($result && $db->num_rows($result) > 0) {
                 $resultRow = $db->query_result_rowdata($result, 0);
                 $companyDetails->setData($resultRow);
+				//crm-now: use different logo for menues
+               $companyDetails->set('logoname', 'crmnow_logo_header.png');
             }
             Vtiger_Cache::set('vtiger','organization',$companyDetails);
         }

@@ -16,17 +16,13 @@
 			<div class="span10">
 				<h4>{vtranslate('LBL_WELCOME', 'Install')}</h4>
 			</div>
-			<div class="span2">
-				<a href="https://wiki.vtiger.com/vtiger6/" target="_blank" class="pull-right">
-					<img src="{'help.png'|vimage_path}" alt="Help-Icon"/>
-				</a>
-			</div>
 		</div>
 		<hr>
 
 		<form class="form-horizontal" name="step1" method="post" action="index.php">
 			<input type=hidden name="module" value="Install" />
 			<input type=hidden name="view" value="Index" />
+			<input type="hidden" id="svn_tag"  name="svn_tag" value="{$SVNTAG}" />
 			<input type=hidden name="mode" value="Step2" />
 			<div class="row-fluid">
 				<div class="span4 welcome-image">

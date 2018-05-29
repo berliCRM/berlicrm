@@ -53,7 +53,7 @@
                     <br><br>
 				    <textarea name="{$FIELD_MODEL->getName()}">{$RECORD_MODEL->get($FIELD_NAME)}</textarea>
 				{else}
-				    <select id="actions" name="action1" class="select2" style="min-width:220px">
+				    <select id="actions" name="action1" class="select2" style="min-width:280px">
 					{foreach key=PICKLIST_KEY item=PICKLIST_VALUE from=$PICKLIST_VALUES}
 					    <option value="{$PICKLIST_KEY}" {if $RECORD_MODEL->get($FIELD_NAME) eq $PICKLIST_KEY} selected {/if} >{$PICKLIST_VALUE}</option>
 					{/foreach}
@@ -100,6 +100,22 @@
 			    </option>
 			{/foreach}
 		    </optgroup>
+		</select>
+	    </div>
+	</div>
+	<div class="control-group">
+		<div class="control-label">
+		<label>
+		    {vtranslate('LBL_ATTACHMENTS',$QUALIFIED_MODULE)}
+		</label>
+		</div>
+		 <div class="controls">
+		<select class="select2-container select2" id="attachmentDocFolder" name="attachmentDocFolder" style="width: 49%;">
+			{foreach key=FOLDER_ID item=FOLDER_NAME from=$ATTACHMENT_FOLDERS}
+			    <option value="{$FOLDER_ID}" data-picklistvalue="{$FOLDER_NAME}" {if $RECORD_MODEL->get('folderid') eq $FOLDER_ID}selected{/if}>
+				{$FOLDER_NAME}
+			    </option>
+			{/foreach}
 		</select>
 	    </div>
 	</div>

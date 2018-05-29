@@ -73,7 +73,7 @@
 									{assign var=PICKLIST_VALUES value=$FIELD_MODEL->getPicklistValues()}
 									{assign var="SPECIAL_VALIDATOR" value=$FIELD_MODEL->getValidator()}
 									<select class="chzn-select" name="{$FIELD_MODEL->get('name')}" data-validation-engine="validate[{if $FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-fieldinfo='{$FIELD_INFO|escape}' {if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if} >
-										<option>{vtranslate('LBL_SELECT_STATUS',$MODULE_NAME)}</option>
+										<option value=''>{vtranslate('LBL_SELECT_STATUS',$MODULE_NAME)}</option>
 										{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$PICKLIST_VALUES}
 											<option value="{$PICKLIST_NAME}" {if $FIELD_MODEL->get('fieldvalue') eq $PICKLIST_NAME} selected {/if}>{$PICKLIST_VALUE}</option>
 										{/foreach}
@@ -138,7 +138,7 @@
 									{assign var=PICKLIST_VALUES value=$FIELD_MODEL->getPicklistValues()}
 									{assign var="SPECIAL_VALIDATOR" value=$FIELD_MODEL->getValidator()}
 									<select style="width: 160px;" class="chzn-select" name="{$FIELD_MODEL->get('name')}" data-validation-engine="validate[{if $FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-fieldinfo='{$FIELD_INFO|escape}' {if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if} >
-										<option>{vtranslate('LBL_SELECT_STATUS',$MODULE_NAME)}</option>
+										<option value=''>{vtranslate('LBL_SELECT_STATUS',$MODULE_NAME)}</option>
 										{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$PICKLIST_VALUES}
 											<option value="{$PICKLIST_NAME}" {if $FIELD_MODEL->get('fieldvalue') eq $PICKLIST_NAME} selected {/if}>{$PICKLIST_VALUE}</option>
 										{/foreach}
@@ -162,6 +162,45 @@
 		{/if}
 		{* Summary View Tasks Widget Ends Here *}
         
+        {* Summary View Tasks progress Widget*}
+		{if $TASKS_WIDGET_MODEL}
+			<div class="summaryWidgetContainer">
+				<div class="widgetContainer_tasks" data-url="{$TASKS_WIDGET_MODEL->getUrl()}" data-name="{$TASKS_WIDGET_MODEL->getLabel()}">
+					<div class="widget_header row-fluid">
+						<span class="span9">
+							<div class="row-fluid">
+								<span class="span4 margin0px"><h4>{vtranslate($TASKS_WIDGET_MODEL->getLabel(),$MODULE_NAME)}</h4></span>
+								<span class="span7">
+									{assign var=RELATED_MODULE_MODEL value=Vtiger_Module_Model::getInstance('ProjectTask')}
+									{assign var=FIELD_MODEL value=$RELATED_MODULE_MODEL->getField('projecttaskprogress')}
+									{assign var="FIELD_INFO" value=Zend_Json::encode($FIELD_MODEL->getFieldInfo())}
+									{assign var=PICKLIST_VALUES value=$FIELD_MODEL->getPicklistValues()}
+									{assign var="SPECIAL_VALIDATOR" value=$FIELD_MODEL->getValidator()}
+									<select style="width: 160px;" class="chzn-select" name="{$FIELD_MODEL->get('name')}" data-validation-engine="validate[{if $FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-fieldinfo='{$FIELD_INFO|escape}' {if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if} >
+										<option value=''>{vtranslate('LBL_SELECT_PROGRESS',$MODULE_NAME)}</option>
+										{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$PICKLIST_VALUES}
+											<option value="{$PICKLIST_NAME}" {if $FIELD_MODEL->get('fieldvalue') eq $PICKLIST_NAME} selected {/if}>{$PICKLIST_VALUE}</option>
+										{/foreach}
+									</select>
+								</span>
+							</div>
+						</span>
+						<span class="span3">
+							{if $TASKS_WIDGET_MODEL->get('action')}
+								<button class="btn pull-right addButton" id="createProjectTask" type="button" data-url="{$TASKS_WIDGET_MODEL->get('actionURL')}" data-parent-related-field="projectid">
+									<strong>{vtranslate('LBL_ADD',$MODULE_NAME)}</strong>
+								</button>
+							{/if}
+						</span>
+						<input type="hidden" name="relatedModule" value="{$TASKS_WIDGET_MODEL->get('linkName')}" />
+					</div>
+					<div class="widget_contents">
+					</div>
+				</div>
+			</div>
+		{/if}
+		{* Summary View Tasks Progress Widget Ends Here *}
+
 		{* Summary View Document Widget*}
 		{if $DOCUMENT_WIDGET_MODEL}
 			<div class="summaryWidgetContainer">

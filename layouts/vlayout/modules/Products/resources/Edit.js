@@ -214,6 +214,7 @@ Vtiger_Edit_Js("Products_Edit_Js",{
 			AppConnector.request(moreCurrenciesParams).then(
 				function(data){
 					moreCurrenciesContainer.html(data);
+                    InitialFormData = jQuery("#EditView").serialize();
 					aDeferred.resolve(data);
 				},
 				function(textStatus, errorThrown){
@@ -276,7 +277,7 @@ Vtiger_Edit_Js("Products_Edit_Js",{
 						css : css,
 						cb : callback
 					}
-					app.showModalWindow(modalWindowParams)
+					app.showModalWindow(modalWindowParams);
 				}
 			})
 		});
@@ -436,5 +437,6 @@ Vtiger_Edit_Js("Products_Edit_Js",{
 		this.registerEventForTaxes();
 		this.registerEventForUnitPrice();
 		this.registerRecordPreSaveEvent();
+        this.getMoreCurrenciesUI();
 	}
 })

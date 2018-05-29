@@ -16,18 +16,11 @@ class Settings_Vtiger_Announcement_Model extends Vtiger_Base_Model {
     
     public function save() {
         $db = PearDatabase::getInstance();
-        $currentUser = Users_Record_Model::getCurrentUserModel();
-        $currentDate = date('Y-m-d H:i:s');
-        $checkQuery = 'SELECT 1 FROM '.self::tableName.' WHERE creatorid=?';
-        $result = $db->pquery($checkQuery,array($currentUser->getId()));
-        if($db->num_rows($result) > 0) {
-            $query = 'UPDATE '.self::tableName.' SET announcement=?,time=? WHERE creatorid=?';
-            $params = array($this->get('announcement'),$db->formatDate($currentDate, true),$currentUser->getId());
-        }else{
-            $query = 'INSERT INTO '.self::tableName.' VALUES(?,?,?,?)';
-            $params = array($currentUser->getId(),$this->get('announcement'),'announcement',$db->formatDate($currentDate, true));
-        }
-        $db->pquery($query,$params);
+        $currentUserId = Users_Record_Model::getCurrentUserModel()->getId();
+        $dbTime = $db->formatDate(date('Y-m-d H:i:s'),true);
+        $announcement = html_entity_decode($this->get('announcement'));
+        $q = 'INSERT INTO '.self::tableName.' SET creatorid=?,announcement=?,title=?,time=? ON DUPLICATE KEY UPDATE announcement=?,time=?,title=?';
+        $db->pquery($q,array($currentUserId,$announcement,"announcement",$dbtime,$announcement,$dbtime,"announcement"));
     }
     
     public static function getInstanceByCreator(Users_Record_Model $user) {

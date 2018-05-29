@@ -319,6 +319,10 @@ function getListQuery($module, $where = '') {
 				ON vtiger_crmentity.crmid = vtiger_vendor.vendorid
 			INNER JOIN vtiger_vendorcf
 				ON vtiger_vendor.vendorid = vtiger_vendorcf.vendorid
+			LEFT JOIN vtiger_groups
+				ON vtiger_groups.groupid = vtiger_crmentity.smownerid
+			LEFT JOIN vtiger_users
+				ON vtiger_users.id = vtiger_crmentity.smownerid
 			WHERE vtiger_crmentity.deleted = 0 " . $where;
 			break;
 		Case "PriceBooks":
@@ -330,6 +334,10 @@ function getListQuery($module, $where = '') {
 				ON vtiger_pricebook.pricebookid = vtiger_pricebookcf.pricebookid
 			LEFT JOIN vtiger_currency_info
 				ON vtiger_pricebook.currency_id = vtiger_currency_info.id
+			LEFT JOIN vtiger_groups
+				ON vtiger_groups.groupid = vtiger_crmentity.smownerid
+			LEFT JOIN vtiger_users
+				ON vtiger_users.id = vtiger_crmentity.smownerid
 			WHERE vtiger_crmentity.deleted = 0 " . $where;
 			break;
 		Case "Quotes":
@@ -684,13 +692,13 @@ function popup_decode_html($str) {
 function textlength_check($field_val) {
 	global $listview_max_textlength, $default_charset;
 	if ($listview_max_textlength && $listview_max_textlength > 0) {
-		$temp_val = preg_replace("/(<\/?)(\w+)([^>]*>)/i", "", $field_val);
+		$temp_val = strip_tags(html_entity_decode($field_val));
 		if (function_exists('mb_strlen')) {
-			if (mb_strlen(html_entity_decode($temp_val)) > $listview_max_textlength) {
-				$temp_val = mb_substr(preg_replace("/(<\/?)(\w+)([^>]*>)/i", "", $field_val), 0, $listview_max_textlength, $default_charset) . '...';
+			if (mb_strlen($temp_val) > $listview_max_textlength) {
+				$temp_val = mb_substr($temp_val, 0, $listview_max_textlength, $default_charset) . '...';
 			}
-		} elseif (strlen(html_entity_decode($field_val)) > $listview_max_textlength) {
-			$temp_val = substr(preg_replace("/(<\/?)(\w+)([^>]*>)/i", "", $field_val), 0, $listview_max_textlength) . '...';
+		} elseif (strlen($field_val) > $listview_max_textlength) {
+			$temp_val = substr($temp_val, 0, $listview_max_textlength) . '...';
 		}
 	} else {
 		$temp_val = $field_val;

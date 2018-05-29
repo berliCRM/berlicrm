@@ -6,19 +6,29 @@
  * The Initial Developer of the Original Code is vtiger.
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
+ * reviewed by crm-now GmbH
  *************************************************************************************/
 $languageStrings = array(
-	'LBL_ADD_RECORD' => 'Add Email Template',
-	'SINGLE_EmailTemplates' => 'Email Template',
-	'LBL_EMAIL_TEMPLATES'=> 'Email Templates',
-	'LBL_EMAIL_TEMPLATE' => 'Email Template',
+	'Email Templates' => 'E-Mail Vorlagen',
+	'LBL_ADD_RECORD' => 'E-Mail Vorlage hinzufügen',
+	'LBL_DESCRIPTION' => 'Beschreibung',
+	'LBL_EMAIL_TEMPLATE_DESCRIPTION'=>'Manage Vorlagen für das E-Mail Modul',
+	'LBL_EMAIL_TEMPLATE' => 'E-Mail Vorlage',
+	'LBL_EMAIL_TEMPLATES'=> 'E-Mail Vorlagen',
+	'LBL_GENERAL_FIELDS' => 'allgemeine Felder',
+	'LBL_SELECT_FIELD_TYPE' => 'Feldtyp auswählen',
+	'LBL_SUBJECT' => 'Betreff',
+	'LBL_TEMPLATE_NAME' => 'Vorlagenname',
+	'SINGLE_EmailTemplates' => 'E-Mail Vorlage',
+    
+         //Patch provided by http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7884
+        'Template Name' => 'Vorlagenname', 
+        'Templatename' => 'Vorlagenname', 
+        'Message' => 'Nachricht', 
+        'Email Template - Properties of ' => 'E-Mail Vorlage - Eigenschaften von ', 
 	
-	'LBL_TEMPLATE_NAME' => 'Template name',
-	'LBL_DESCRIPTION' => 'Description',
-	'LBL_SUBJECT' => 'Subject',
-	'LBL_GENERAL_FIELDS' => 'General Fields',
-	'LBL_SELECT_FIELD_TYPE' => 'Select Field Type',
-	
-	'LBL_EMAIL_TEMPLATE_DESCRIPTION'=>'Manage templates for E-Mail module',
-	
+	//crm-now: not available en en_us
+	'EmailTemplates' => 'E-Mail Vorlagen',
+
 );
+?>

@@ -13,6 +13,7 @@
 	<input type=hidden name="module" value="Install" />
 	<input type=hidden name="view" value="Index" />
 	<input type=hidden name="mode" value="Step5" />
+	<input type="hidden" id="svn_tag"  name="svn_tag" value="{$SVNTAG}" />
 
 	<div class="row-fluid main-container">
 		<div class="inner-container">
@@ -73,7 +74,7 @@
 							<tr><td>{vtranslate('LBL_CURRENCIES','Install')}<span class="no">*</span></td>
 								<td><select name="currency_name" class="select2" style="width:220px;">
 										{foreach key=CURRENCY_NAME item=CURRENCY_INFO from=$CURRENCIES}
-											<option value="{$CURRENCY_NAME}" {if $CURRENCY_NAME eq 'USA, Dollars'} selected {/if}>{$CURRENCY_NAME} ({$CURRENCY_INFO.1})</option>
+											<option value="{$CURRENCY_NAME}" {if $CURRENCY_NAME eq $CURRENCY} selected {/if}>{$CURRENCY_NAME} ({$CURRENCY_INFO.1})</option>
 										{/foreach}
 									</select>
 								</td>
@@ -85,7 +86,7 @@
 						</thead>
 						<tbody>
 							<tr><td>{vtranslate('LBL_USERNAME', 'Install')}</td>
-								<td>admin<input type="hidden" name="{$ADMIN_NAME}" value="admin" /></td>
+								<td>admin<input type="hidden" name="admin" value="admin" /></td>
 							</tr>
 							<tr><td>{vtranslate('LBL_PASSWORD', 'Install')}<span class="no">*</span></td>
 								<td><input type="password" value="{$ADMIN_PASSWORD}" name="password" /></td>
@@ -100,7 +101,7 @@
 							<tr><td>
 									{vtranslate('Last Name', 'Install')} <span class="no">*</span>
 								</td><td>
-									<input type="text" value="{$ADMIN_LASTNAME}" name="lastname" />
+									<input type="text" value="{if $ADMIN_LASTNAME neq ''}$ADMIN_LASTNAME{else}Administrator{/if}" name="lastname" />
 								</td>
 							</tr>
 							<tr>
@@ -116,7 +117,7 @@
 								</td>
 								<td><select class="select2" style="width:220px;" name="dateformat">
 										<option> mm-dd-yyyy</option>
-										<option> dd-mm-yyyy</option>
+										<option selected> dd-mm-yyyy</option>
 										<option> yyyy-mm-dd</option>
 									</select>
 								</td>
@@ -127,7 +128,7 @@
 								</td>
 								<td><select class="select2" name="timezone">
 									{foreach item=TIMEZONE from=$TIMEZONES}
-										<option value="{$TIMEZONE}" {if $TIMEZONE eq 'America/Los_Angeles'}selected{/if}>{vtranslate($TIMEZONE, 'Users')}</option>
+										<option value="{$TIMEZONE}" {if $TIMEZONE eq 'Europe/Amsterdam'}selected{/if}>{vtranslate($TIMEZONE, 'Users')}</option>
 									{/foreach}
 									</select>
 								</td>

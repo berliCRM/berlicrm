@@ -18,7 +18,15 @@ class Users_SystemSetup_View extends Vtiger_Index_View {
 		$moduleName = $request->getModule();
 		$viewer = $this->getViewer($request);
 		$userModel = Users_Record_Model::getCurrentUserModel();
+		if (isset($_REQUEST['lang']) and $_REQUEST['lang']=='en') {
+			$userModel->set('language','en_us'); 
+		}
+		else {
+			$userModel->set('language','de_de');
+		}		
 		$isFirstUser = Users_CRMSetup::isFirstUser($userModel);
+		$currentLanguage = Vtiger_Language_Handler::getLanguage();
+		include 'languages/'.$currentLanguage.'/Users.php';
 		
 		if($isFirstUser) {
 			$viewer->assign('IS_FIRST_USER', $isFirstUser);

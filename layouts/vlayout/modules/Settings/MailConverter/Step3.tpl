@@ -35,6 +35,9 @@
 				    {/foreach}
 				</select>&nbsp;&nbsp;
 				<input type="text" name="{$FIELD_MODEL->getName()}" value="{$RECORD_MODEL->get($FIELD_NAME)}" style="margin-left: 10px;" />
+				<div>
+				{vtranslate('LBL_REGEX_RULE',$QUALIFIED_MODULE)}
+				</div>
 			    {elseif $FIELD_NAME eq 'body'}
 				<select name="bodyop" class="chzn-select" style="min-width:220px;float: left;">
                                     <option value="" {if $RECORD_MODEL->get('bodyop') eq ""}selected{/if}>{vtranslate('LBL_SELECT_OPTION',$QUALIFIED_MODULE)}</option>

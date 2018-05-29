@@ -88,6 +88,9 @@ class Users_Module_Model extends Vtiger_Module_Model {
 	 * @param Vtiger_Record_Model $recordModel
 	 */
 	public function deleteRecord($recordModel) {
+		//crm-now: prevent deletion of admin user
+		if ($recordModel->getId() == 1) return;
+		
 		$db = PearDatabase::getInstance();
 		$moduleName = $this->get('name');
 		$date_var = date('Y-m-d H:i:s');
@@ -159,7 +162,7 @@ class Users_Module_Model extends Vtiger_Module_Model {
 	public function saveLoginHistory($username){
 		$adb = PearDatabase::getInstance();
 
-		$userIPAddress = $_SERVER['REMOTE_ADDR'];
+		$userIPAddress = self::get_ip();
 		$loginTime = date("Y-m-d H:i:s");
 		$query = "INSERT INTO vtiger_loginhistory (user_name, user_ip, logout_time, login_time, status) VALUES (?,?,?,?,?)";
 		$params = array($username, $userIPAddress, '0000-00-00 00:00:00',  $loginTime, 'Signed in');
@@ -174,7 +177,7 @@ class Users_Module_Model extends Vtiger_Module_Model {
 		$adb = PearDatabase::getInstance();
 
 		$userRecordModel = Users_Record_Model::getCurrentUserModel();
-		$userIPAddress = $_SERVER['REMOTE_ADDR'];
+		$userIPAddress = self::get_ip();
 		$outtime = date("Y-m-d H:i:s");
 
 		$loginIdQuery = "SELECT MAX(login_id) AS login_id FROM vtiger_loginhistory WHERE user_name=? AND user_ip=?";
@@ -260,7 +263,26 @@ class Users_Module_Model extends Vtiger_Module_Model {
 		   $label = decode_html($adb->query_result($result, $i, 'label'));
 		   $languages_list[$lang_prefix] = $label;
 	   }
+	   asort($languages_list);
 	   return $languages_list;
    }
-
+	public function get_ip() {
+		//Just get the headers if we can or else use the SERVER global
+		if ( function_exists( 'apache_request_headers' ) ) {
+			$headers = apache_request_headers();
+		} else {
+			$headers = $_SERVER;
+		}
+		//Get the forwarded IP if it exists
+		if ( array_key_exists( 'X-Forwarded-For', $headers ) && filter_var( $headers['X-Forwarded-For'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+			$the_ip = $headers['X-Forwarded-For'];
+		} 
+		elseif ( array_key_exists( 'HTTP_X_FORWARDED_FOR', $headers ) && filter_var( $headers['HTTP_X_FORWARDED_FOR'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 )) {
+			$the_ip = $headers['HTTP_X_FORWARDED_FOR'];
+		} 
+		else {
+			$the_ip = filter_var( $_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 );
+		}
+		return $the_ip;
+	}
 }

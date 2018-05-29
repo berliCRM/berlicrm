@@ -16,11 +16,12 @@ class VtigerCRMObjectMeta extends EntityMeta {
 	private $assign;
 	private $hasAccess;
 	private $hasReadAccess;
-	private $hasWriteAccess;
+	private $hasCreateAccess;
+	private $hasWriteAccess;//Edit Access
 	private $hasDeleteAccess;
 	private $assignUsers;
 	
-	function VtigerCRMObjectMeta($webserviceObject,$user){
+	function __construct($webserviceObject,$user){
 		
 		parent::__construct($webserviceObject,$user);
 		
@@ -34,6 +35,7 @@ class VtigerCRMObjectMeta extends EntityMeta {
 		$this->moduleFields = array();
 		$this->hasAccess = false;
 		$this->hasReadAccess = false;
+		$this->hasCreateAccess = false;
 		$this->hasWriteAccess = false;
 		$this->hasDeleteAccess = false;
 		$instance = vtws_getModuleInstance($this->webserviceObject);
@@ -84,6 +86,7 @@ class VtigerCRMObjectMeta extends EntityMeta {
 		if($active == false){
 			$this->hasAccess = false;
 			$this->hasReadAccess = false;
+			$this->hasCreateAccess = false;
 			$this->hasWriteAccess = false;
 			$this->hasDeleteAccess = false;
 			return;
@@ -93,6 +96,7 @@ class VtigerCRMObjectMeta extends EntityMeta {
 		if($is_admin == true || $profileGlobalPermission[1] == 0 || $profileGlobalPermission[2] == 0){
 			$this->hasAccess = true;
 			$this->hasReadAccess = true;
+			$this->hasCreateAccess = true;
 			$this->hasWriteAccess = true;
 			$this->hasDeleteAccess = true;
 		}else{
@@ -113,6 +117,7 @@ class VtigerCRMObjectMeta extends EntityMeta {
 				if($permission != 1 || $permission != "1"){
 					$this->hasAccess = true;
 					if($globalactionid == 2 || $globalactionid == "2"){
+						$this->hasCreateAccess = true;
 						$this->hasWriteAccess = true;
 						$this->hasDeleteAccess = true;
 					}else{
@@ -158,11 +163,14 @@ class VtigerCRMObjectMeta extends EntityMeta {
 						$this->hasDeleteAccess = true;
 					}else if($operation == 4 || $operation == "4"){
 						$this->hasReadAccess = true;
+					}else if($operation == 7 || $operation == "7"){
+						$this->hasCreateAccess = true;
 					}
 				}
 			}
 			if(!$standardDefined){
 				$this->hasReadAccess = true;
+				$this->hasCreateAccess = true;
 				$this->hasWriteAccess = true;
 				$this->hasDeleteAccess = true;
 			}
@@ -183,7 +191,14 @@ class VtigerCRMObjectMeta extends EntityMeta {
 		}
 		return $this->hasWriteAccess;
 	}
-	
+
+	function hasCreateAccess() {
+		if(!$this->meta) {
+			$this->retrieveMeta();
+		}
+		return $this->hasCreateAccess;
+	}
+
 	function hasReadAccess(){
 		if(!$this->meta){
 			$this->retrieveMeta();

@@ -11,7 +11,7 @@
 -->*}
 <div style='padding:5px'>
 {if count($MODELS) > 0}
-<div class='row-fluid'>
+    <div class='row-fluid'>
 		<div class='span12'>
 			<div class='row-fluid'>
 				 {foreach item=HEADER from=$MODULE_HEADER}
@@ -33,9 +33,7 @@
                  {/if}
                 </div>
                  {/foreach}
-                         
 			</div>
-		</div>
 		{/foreach}
 	</div>
 {else}

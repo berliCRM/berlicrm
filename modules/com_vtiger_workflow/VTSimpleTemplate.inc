@@ -201,6 +201,18 @@ class VTSimpleTemplate{
 
 			case 'supportName'			: return $HELPDESK_SUPPORT_NAME;
 			case 'supportEmailId'		: return $HELPDESK_SUPPORT_EMAIL_ID;
+			case 'mailtoken'			:	// $module = $this->parent->getModuleName();
+											// $fields = getEntityFieldNames($module);
+											// $preToken = $this->parent->getId();
+											// foreach($fields['fieldname'] AS $field) {
+												// $preToken .= $data[$field];
+											// }
+											global $token_string;
+											// $token_string = '';
+											$salt = '$6$rounds=5000$'.$token_string.'$';
+											$hash = crypt($this->parent->get('email'), $salt);
+											$token = array_pop(explode('$', $hash));
+											return $token;
 			default: '';
 		}
 	}
@@ -245,6 +257,13 @@ class VTSimpleTemplate{
 		$entityHandler = new $handlerClass($entityObject, $current_user, $adb, $log);
 		$entityMeta = $entityHandler->getMeta();
 		$entityFields = $entityMeta->getModuleFields();
+		//crm-now: prevent unknown fields to cause a crash and enable $id for links
+		if ($fieldName == 'id') {
+			$id = explode('x', $fieldValue);
+			return $id[1];
+		} elseif (!isset($entityFields[$fieldName])) {
+			return $fieldName;
+		}
 		$fieldInstance = $entityFields[$fieldName];
 
 		switch($fieldInstance->getFieldDataType()) {

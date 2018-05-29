@@ -18,5 +18,8 @@
 		<div class="span2 row-fluid">
 			{include file="SideBar.tpl"|vtemplate_path:$MODULE_NAME}
 		</div>
+		<input type="hidden" class="isRecordCreatable" value="{$IS_RECORD_CREATABLE}">
+		<input type="hidden" class="isModuleEditable" value="{$IS_MODULE_EDITABLE}">
+		<input type="hidden" class="isModuleDeletable" value="{$IS_MODULE_DELETABLE}">
 		<div class="contentsDiv span10 marginLeftZero">
 {/strip}

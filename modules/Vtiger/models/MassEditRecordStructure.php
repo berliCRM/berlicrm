@@ -32,7 +32,7 @@ class Vtiger_MassEditRecordStructure_Model extends Vtiger_EditRecordStructure_Mo
 			if (!empty ($fieldModelList)) {
 				$values[$blockLabel] = array();
 				foreach($fieldModelList as $fieldName=>$fieldModel) {
-					if($fieldModel->isEditable() && $fieldModel->isMassEditable()) {
+					if(($fieldModel->isEditable() && $fieldModel->isMassEditable()) OR $fieldModel->get('name')== 'salutationtype') {
 						if($fieldModel->isViewable() && $this->isFieldRestricted($fieldModel)) {
 							if($recordExists) {
 								$fieldModel->set('fieldvalue', $recordModel->get($fieldName));

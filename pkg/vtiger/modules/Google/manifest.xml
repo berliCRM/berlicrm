@@ -1,16 +1,27 @@
-<?xml version='1.0'?>
+<?xml version='1.0' encoding='UTF-8'?>
 <module>
-<exporttime>2013-03-29 10:08:29</exporttime>
+<exporttime>2018-03-22 09:12:36</exporttime>
 <name>Google</name>
 <label>Google</label>
 <parent></parent>
 <type>extension</type>
-<version>1.5</version>
+<version>1.6</version>
 <dependencies>
 <vtiger_version>6.0.0rc</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>
 </dependencies>
 <tables>
+<table>
+<name>berli_google_settings</name>
+<sql><![CDATA[CREATE TABLE IF NOT EXISTS `berli_google_settings` (
+  `id` int(11) NOT NULL,
+  `google_username` varchar(16) COLLATE utf8_unicode_ci NOT NULL,
+  `google_password` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `google_api_id` varchar(400) COLLATE utf8_unicode_ci NOT NULL,
+  `type` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;]]></sql>
+</table>
 </tables>
 <crons>
 </crons>

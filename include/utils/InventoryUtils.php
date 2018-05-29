@@ -450,9 +450,14 @@ function updateInventoryProductRel($entity) {
 	if ($moduleName === 'Invoice') {
 		$statusFieldName = 'invoicestatus';
 		$statusFieldValue = 'Cancel';
-	} elseif ($moduleName === 'PurchaseOrder') {
+	} 
+	elseif ($moduleName === 'PurchaseOrder') {
 		$statusFieldName = 'postatus';
 		$statusFieldValue = 'Received Shipment';
+	}
+	elseif ($moduleName === 'SalesOrder') {
+		$statusFieldName = 'sostatus';
+		$statusFieldValue = 'Cancelled';
 	}
 
 	$statusChanged = false;
@@ -510,7 +515,7 @@ function updateInventoryProductRel($entity) {
  */
 function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false', $updateDemand='')
 {
-	global $log, $adb;
+	global $log, $adb, $current_user;
 	$id=$focus->id;
 	$log->debug("Entering into function saveInventoryProductDetails($module).");
 	//Added to get the convertid
@@ -532,6 +537,17 @@ function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false
 		if($module != 'PurchaseOrder')
 		{
 			$return_old_values = 'return_old_values';
+		}
+		
+		$query = "SELECT * FROM vtiger_inventoryproductrel WHERE id = ?;";
+		$res = $adb->pquery($query, array($focus->id));
+		$tmp_arr_li = array();
+		while ($row = $adb->fetch_row($res)) {
+			foreach ($row AS $column => $value) {
+				if (!is_numeric($column) && $column != 'lineitem_id') {
+					$tmp_arr_li[$row['lineitem_id']][$column] = $value;
+				}
+			}
 		}
 
 		//we will retrieve the existing product details and store it in a array and then delete all the existing product details and save new values, retrieve the old value and update stock only for SO, Quotes and Invoice not for PO
@@ -565,6 +581,7 @@ function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false
         $comment = vtlib_purify($_REQUEST['comment'.$i]); 
         $purchaseCost = vtlib_purify($_REQUEST['purchaseCost'.$i]); 
         $margin = vtlib_purify($_REQUEST['margin'.$i]); 
+		$line_id = (!empty($_REQUEST['hdnLineitemId'.$i])) ? $_REQUEST['hdnLineitemId'.$i] : NULL;
 
 		//we have to update the Product stock for PurchaseOrder if $update_prod_stock is true
 		if($module == 'PurchaseOrder' && $update_prod_stock == 'true')
@@ -583,15 +600,15 @@ function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false
 			}
 		}
 
-		$query ="insert into vtiger_inventoryproductrel(id, productid, sequence_no, quantity, listprice, comment, description) values(?,?,?,?,?,?,?)";
-		$qparams = array($focus->id,$prod_id,$prod_seq,$qty,$listprice,$comment,$description);
+		$query ="insert into vtiger_inventoryproductrel(id, productid, sequence_no, quantity, listprice, comment, description, lineitem_id) values(?,?,?,?,?,?,?,?)";
+		$qparams = array($focus->id,$prod_id,$prod_seq,$qty,$listprice,$comment,$description,$line_id);
 		$adb->pquery($query,$qparams);
 
 		$lineitem_id = $adb->getLastInsertID();
 
 		$sub_prod_str = $_REQUEST['subproduct_ids'.$i];
 		if (!empty($sub_prod_str)) {
-			$sub_prod = split(":",$sub_prod_str);
+			$sub_prod = explode(":",$sub_prod_str);
 			for($j=0;$j<count($sub_prod);$j++){
 				$query ="insert into vtiger_inventorysubproductrel(id, sequence_no, productid) values(?,?,?)";
 				$qparams = array($focus->id,$prod_seq,$sub_prod[$j]);
@@ -614,6 +631,7 @@ function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false
 		if($_REQUEST['discount_type'.$i] == 'percentage')
 		{
 			$updatequery .= " discount_percent=?,";
+			$discount_percent = $_REQUEST['discount_percentage'.$i];
 			array_push($updateparams, $_REQUEST['discount_percentage'.$i]);
 		}
 		elseif($_REQUEST['discount_type'.$i] == 'amount')
@@ -654,6 +672,55 @@ function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false
  		if( !preg_match( '/set\s+where/i', $updatequery)) {
  		    $adb->pquery($updatequery,$updateparams);
  		}
+		
+		if(file_exists('modules/ModTracker/ModTrackerUtils.php')) {
+			require_once 'modules/ModTracker/ModTracker.php';
+			if (ModTracker::isTrackingEnabledForModule($module)) {
+				$delta = array();
+				$delta['productid'] = array($tmp_arr_li[$lineitem_id]['productid'], $prod_id);
+				$delta['sequence_no'] = array($tmp_arr_li[$lineitem_id]['sequence_no'], $prod_seq-1);
+				$delta['quantity'] = array($tmp_arr_li[$lineitem_id]['quantity'], $qty);
+				$delta['listprice'] = array($tmp_arr_li[$lineitem_id]['listprice'], $listprice);
+				$delta['discount_percent'] = array($tmp_arr_li[$lineitem_id]['discount_percent'], $discount_percent);
+				$delta['discount_amount'] = array($tmp_arr_li[$lineitem_id]['discount_amount'], $discount_amount);
+				$delta['comment'] = array($tmp_arr_li[$lineitem_id]['comment'], $comment);
+				$delta['description'] = array($tmp_arr_li[$lineitem_id]['description'], $description);
+				// $delta['incrementondel'] = array($tmp_arr_li[$lineitem_id]['incrementondel'], NULL);
+				// $delta['tax1'] = array($tmp_arr_li[$lineitem_id]['tax1'], NULL);
+				// $delta['tax2'] = array($tmp_arr_li[$lineitem_id]['tax2'], NULL);
+				// $delta['tax3'] = array($tmp_arr_li[$lineitem_id]['tax3'], NULL);
+				foreach ($delta AS $column => $arr_vals) {
+					if ($arr_vals[0] != $arr_vals[1]) {
+						if (!isset($modid)) {
+							$modid = $adb->getUniqueId('vtiger_modtracker_basic');
+							$query = "INSERT INTO vtiger_modtracker_basic(id, crmid, module, whodid, changedon, status) VALUES(?,?,?,?,?,?);";
+							$status = ModTracker::$UPDATED;
+							$adb->pquery($query, array($modid, $focus->id, $module, $current_user->id, date('Y-m-d H:i:s'), $status));
+						}
+						$query = "INSERT INTO vtiger_modtracker_detail(id,fieldname,prevalue,postvalue) VALUES(?,?,?,?);";
+						$adb->pquery($query, array($modid, $column, $arr_vals[0], $arr_vals[1]));
+					}
+				}
+				unset($tmp_arr_li[$lineitem_id]);
+			}
+		}
+	}
+	if(file_exists('modules/ModTracker/ModTrackerUtils.php')) {
+		require_once 'modules/ModTracker/ModTracker.php';
+		if (ModTracker::isTrackingEnabledForModule($module)) {
+			if (isset($tmp_arr_li) && count($tmp_arr_li) > 0) {
+				foreach ($tmp_arr_li AS $lid => $vals) {
+					if (!isset($modid)) {
+						$modid = $adb->getUniqueId('vtiger_modtracker_basic');
+						$query = "INSERT INTO vtiger_modtracker_basic(id, crmid, module, whodid, changedon, status) VALUES(?,?,?,?,?,?)";
+						$status = ModTracker::$UPDATED;
+						$adb->pquery($query, array($modid, $focus->id, $module, $current_user->id, date('Y-m-d H:i:s'), $status));
+					}
+					$query = "INSERT INTO vtiger_modtracker_detail(id,fieldname,prevalue,postvalue) VALUES(?,?,?,?);";
+					$adb->pquery($query, array($modid, 'productid', $tmp_arr_li[$lid]['productid'], NULL));
+				}
+			}
+		}
 	}
 
 	//we should update the netprice (subtotal), taxtype, group discount, S&H charge, S&H taxes, adjustment and total
@@ -724,8 +791,12 @@ function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false
 	$sh_query_fields = trim($sh_query_fields,',');
 	$sh_query_values = trim($sh_query_values,',');
 	
-	$updatequery .= " s_h_percent=?";
+	$updatequery .= " s_h_percent=?,";
 	array_push($updateparams, $sh_tax_pecent);
+	
+	//crm-now: fix pre_tax_total mess
+	$updatequery .= " pre_tax_total =?";
+	array_push($updateparams, $_REQUEST['pre_tax_total']);
 
 	//$id_array = Array('PurchaseOrder'=>'purchaseorderid','SalesOrder'=>'salesorderid','Quotes'=>'quoteid','Invoice'=>'invoiceid');
 	//Added where condition to which entity we want to update these values
@@ -933,7 +1004,7 @@ function getPriceDetailsForProduct($productid, $unit_price, $available='availabl
 				} else {
 					$cur_value = '0';
 				}
-			} else if($is_basecurrency){
+			} else if($is_basecurrency || !empty($cur_value)){
 				$price_details[$i]['check_value'] = true;
 			}
 			$price_details[$i]['curvalue'] = CurrencyField::convertToUserFormat($cur_value, null, true);

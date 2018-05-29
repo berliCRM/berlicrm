@@ -193,6 +193,6 @@
   }
 
   //Change the z-index of the block overlay value
-  $.blockUI.defaults.baseZ = 10000;
+  $.blockUI.defaults.baseZ = 9000;
 })( jQuery );
 

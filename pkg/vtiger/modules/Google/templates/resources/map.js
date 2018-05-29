@@ -23,35 +23,32 @@
             }).done(function(res){
                 var result=JSON.parse(res);
                 var address=result["address"];
-                var map_url=MapView.getStaticMapURL(address,"250x250");
-                var location=jQuery.trim((address).replace(/\,/g," "));
-                if(location != '' && location!=null){
-                    jQuery("#map_address").html(location);
-                    jQuery('#map_address').show();
+				var mapapikey=result["mapapikey"];
+                var map_url=MapView.getStaticMapURL(address,"250x250",mapapikey);
+                var location=address.replace(/\,/g,"");
+                if(location != '' && location!=null && mapapikey != ''){
+                    jQuery("#map_address").html(address.replace(/\,/g,", ")).show();
+                    jQuery("#map_canvas").append("<img id='map_image'></img>");
+                    jQuery("#map_image").attr("src",map_url).addClass('cursorPointer');
+                    jQuery("#map_image,#map_link").on('click',function(){
+                        window.open(MapView.getQueryString(address,mapapikey));
+                    });
+                    jQuery("#map_link").show();
                 }
-                jQuery("#map_canvas").append("<img id='map_image'></img>");
-                jQuery("#map_image").attr("src",map_url); 
-                jQuery("#map_image").addClass('cursorPointer'); 
-                jQuery("#map_image").on('click',function(){
-                   window.open(MapView.getQueryString(address,'_parent'));
-                });             
-                jQuery("#map_link").on('click',function(){
-                   window.open(MapView.getQueryString(address,'_parent'));
-                });
             });
         },
         /**
          * get the googleapis url based on the address and the size of the image.
          */        
-        getStaticMapURL : function (address,size){
+        getStaticMapURL : function (address,size,mapapikey){
             var encoded_address=encodeURIComponent(address);
-            var url=" http://maps.googleapis.com/maps/api/staticmap?size="+size+"&maptype=roadmap&markers=size:mid%7Ccolor:red%7C"+encoded_address+"&sensor=false";
+            var url=" https://maps.googleapis.com/maps/api/staticmap?size="+size+"&maptype=roadmap&markers=size:mid%7Ccolor:red%7C"+encoded_address+"&sensor=false&key="+mapapikey;
             return url;
         } ,
         
-        getQueryString:function (address){
+        getQueryString:function (address,mapapikey){
             address=address.replace(/ /g,'+');
-            return "http://maps.google.com/maps?q="+address+"&zoom=14&size=512x512&maptype=roadmap&sensor=false";
+            return "https://maps.google.com/maps?q="+address+"&zoom=14&size=512x512&maptype=roadmap&sensor=false&key="+mapapikey;
         }
         
     },{});

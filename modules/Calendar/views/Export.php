@@ -10,7 +10,7 @@
 
 class Calendar_Export_View extends Vtiger_Export_View {
 
-	public function preprocess(Vtiger_Request $request) {
+	public function preprocess(Vtiger_Request $request,$display=false) {
 	}
 
 	public function process(Vtiger_Request $request) {

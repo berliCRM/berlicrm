@@ -33,6 +33,10 @@ $CALCULATOR_DISPLAY = 'true';
 $CHAT_DISPLAY = 'true'; 
 $USE_RTE = 'true';
 
+// url for customer portal (Example: http://vtiger.com/portal)
+$PORTAL_URL = 'https://_DBC_USER_.co.crm-now.de/kundenportal';
+$PORTAL_URL_ENG = 'https://_DBC_USER_.co.crm-now.de/customerportal';
+
 // helpdesk support email id and support name (Example: 'support@vtiger.com' and 'vtiger support')
 $HELPDESK_SUPPORT_EMAIL_ID = '_USER_SUPPORT_EMAIL_';
 $HELPDESK_SUPPORT_NAME = 'your-support name';
@@ -84,8 +88,6 @@ $host_name = $dbconfig['db_hostname'];
 
 $site_URL = '_SITE_URL_';
 
-// url for customer portal (Example: http://vtiger.com/portal)
-$PORTAL_URL = $site_URL.'/customerportal';
 // root directory path
 $root_directory = '_VT_ROOTDIR_';
 
@@ -102,8 +104,8 @@ $import_dir = 'cache/import/';
 $upload_dir = '_VT_UPLOADDIR_';
 
 // maximum file size for uploaded files in bytes also used when uploading import files
-// upload_maxsize default value = 3000000
-$upload_maxsize = 3000000;
+// upload_maxsize default value = 5000000
+$upload_maxsize = 5000000;
 
 // flag to allow export functionality
 // 'all' to allow anyone to use exports 
@@ -193,6 +195,9 @@ $listview_max_textlength = 40;
 
 // Maximum time limit for PHP script execution (in seconds)
 $php_max_execution_time = 0;
+
+// Maximum number of  Mailboxes in mail converter
+$max_mailboxes = 3;
 
 // Set the default timezone as per your preference
 $default_timezone = 'UTC';

@@ -10,11 +10,12 @@
 $languageStrings = array(
 	'Comment' => 'Comment',
 	'Creator' => 'Creator',
-	'LBL_ADDING_COMMENT' => 'Adding Comment',
+	'LBL_ADDING_COMMENT' => 'Adding comment',
 	'LBL_MODCOMMENTS_INFORMATION' => 'Comments',
-	'LBL_OTHER_INFORMATION' => 'Other Information',
+	'LBL_OTHER_INFORMATION' => 'Other information',
 	'LBL_RECORDS_LIST' => 'Comments List',
 	'LBL_WRITE_YOUR_COMMENT_HERE' => 'Enter comments here',
-	'Related To Comments' => 'Related To',
+	'Related To Comments' => 'Related to',
 	'SINGLE_ModComments' => 'Comment',
+	'ReasonToEdit' => 'Reason to edit',
 );

@@ -240,7 +240,7 @@ class CRMEntity {
 		}
 
 		$date_var = date("Y-m-d H:i:s");
-                $insertion_mode = $this->mode;
+        $insertion_mode = $this->mode;
 		$ownerid = $this->column_fields['assigned_user_id'];
 		if(empty($ownerid)) {
 			$ownerid = $current_user->id;
@@ -252,11 +252,19 @@ class CRMEntity {
 		if ($this->mode == 'edit') {
 			$description_val = from_html($this->column_fields['description'], ($insertion_mode == 'edit') ? true : false);
 
+            // crm-now: optional appending in mass operations, preventing multiple appends (by save-triggered workflows f.e.)
+            if ($_REQUEST["add"]["description"]=="on" && !$_REQUEST["added"]["description"][$this->id]) { 
+                $sql = "UPDATE vtiger_crmentity SET smownerid=?,modifiedby=?,description=TRIM(LEADING '\n' FROM CONCAT(TRIM(TRAILING '\n' FROM description),'\n',?)), modifiedtime=? WHERE crmid=?";
+                $_REQUEST["added"]["description"][$this->id]=true;
+            }
+            else {
+                $sql = "UPDATE vtiger_crmentity SET smownerid=?,modifiedby=?,description=?, modifiedtime=? WHERE crmid=?";
+            }
+
 			checkFileAccessForInclusion('user_privileges/user_privileges_' . $current_user->id . '.php');
 			require('user_privileges/user_privileges_' . $current_user->id . '.php');
 			$tabid = getTabid($module);
 			if ($is_admin == true || $profileGlobalPermission[1] == 0 || $profileGlobalPermission[2] == 0) {
-				$sql = "update vtiger_crmentity set smownerid=?,modifiedby=?,description=?, modifiedtime=? where crmid=?";
 				$params = array($ownerid, $current_user->id, $description_val, $adb->formatDate($date_var, true), $this->id);
 			} else {
 				$profileList = getCurrentUserProfileList();
@@ -267,7 +275,6 @@ class CRMEntity {
 					$columname[] = $adb->query_result($perm_result, $i, "columnname");
 				}
 				if (is_array($columname) && in_array("description", $columname)) {
-					$sql = "update vtiger_crmentity set smownerid=?,modifiedby=?,description=?, modifiedtime=? where crmid=?";
 					$params = array($ownerid, $current_user->id, $description_val, $adb->formatDate($date_var, true), $this->id);
 				} else {
 					$sql = "update vtiger_crmentity set smownerid=?,modifiedby=?, modifiedtime=? where crmid=?";
@@ -429,6 +436,10 @@ class CRMEntity {
 			$generatedtype = $this->resolve_query_result_value($result, $i, "generatedtype");
 			$typeofdata = $this->resolve_query_result_value($result, $i, "typeofdata");
 
+            // crm-now: flag for appending data, preventing multiple appends (by save-triggered workflows f.e.)
+            $append = $_REQUEST["add"][$fieldname]=="on" && !$_REQUEST["added"][$fieldname][$this->id];
+            $_REQUEST["added"][$fieldname][$this->id]=true;
+
 			$typeofdata_array = explode("~", $typeofdata);
 			$datatype = $typeofdata_array[0];
 
@@ -465,17 +476,23 @@ class CRMEntity {
 					} else {
 						$fldvalue = $this->column_fields[$fieldname];
 					}
-				} elseif ($uitype == 33) {
-					if (is_array($this->column_fields[$fieldname])) {
-						$field_list = implode(' |##| ', $this->column_fields[$fieldname]);
-					} else {
-						$field_list = $this->column_fields[$fieldname];
-					}
-					if ($field_list == '') {
-                      $fldvalue = NULL;
+                } elseif ($uitype == 33) {
+                    $field_list = (array) $this->column_fields[$fieldname];
+                    if ($append) {
+                        $sql = "SELECT $columname FROM  $table_name WHERE " . $this->tab_name_index[$table_name] . "=?";
+						$res = $adb->pquery($sql, array($this->id));
+                        $tmp = decode_html($adb->query_result($res, 0, $columname));
+                        $prevvalues = explode(' |##| ',$tmp);
+                        $field_list = array_merge($field_list,$prevvalues);
+                        $append= false;
+                    }
+                    $field_list=array_unique(array_filter($field_list));
+					
+					if (count($field_list) == 0) {
+                        $fldvalue = NULL;
                     }
                     else {
-                      $fldvalue = $field_list;
+                        $fldvalue = implode(" |##| ",$field_list);
                     }
 				} elseif ($uitype == 5 || $uitype == 6 || $uitype == 23) {
 					//Added to avoid function call getDBInsertDateValue in ajax save
@@ -545,8 +562,14 @@ class CRMEntity {
 
 			if ($insertion_mode == 'edit') {
 				if ($table_name != 'vtiger_ticketcomments' && $uitype != 4) {
-					array_push($update, $columname . "=?");
-					array_push($update_params, $fldvalue);
+					// crm-now: append for text fields
+                    if ($append && ($uitype == 19 || $uitype == 20 || $uitype == 21 || $uitype == 24)) {
+                        array_push($update, $columname . "=TRIM(LEADING '\n' FROM CONCAT(TRIM(TRAILING '\n' FROM $columname),'\n',?))"); 
+                    }
+                    else {
+                        array_push($update, $columname . "=?"); 
+                    }
+                    array_push($update_params, $fldvalue);
 				}
 			} else {
 				array_push($column, $columname);
@@ -1671,6 +1694,8 @@ class CRMEntity {
 
 		$related_module = vtlib_getModuleNameById($rel_tab_id);
 		$other = CRMEntity::getInstance($related_module);
+		//crm-now: get custom field table name to be included in the general query
+		$cf_tablename = $other->customFieldTable[0];
 
 		// Some standard module class doesn't have required variables
 		// that are used in the query, they are defined in this generic API
@@ -1702,7 +1727,8 @@ class CRMEntity {
 		else
 			$returnset = "&return_module=$currentModule&return_action=CallRelatedList&return_id=$id";
 
-		$query = "SELECT vtiger_crmentity.*, $other->table_name.*";
+		//crm-now: include custom table 
+		$query = "SELECT vtiger_crmentity.*, $other->table_name.*, $cf_tablename.*";
 
 		$userNameSql = getSqlForNameInDisplayFormat(array('first_name'=>'vtiger_users.first_name',
 														'last_name' => 'vtiger_users.last_name'), 'Users');
@@ -1721,14 +1747,15 @@ class CRMEntity {
 				$more_relation .= " LEFT JOIN $tname ON $tname.$relmap[0] = $relmap[1].$relmap[2]";
 			}
 		}
-
+        // crm-now: double joined crmentityrel (instead of OR in join-condition) yielding *huge* performance boost
 		$query .= " FROM $other->table_name";
 		$query .= " INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = $other->table_name.$other->table_index";
-		$query .= " INNER JOIN vtiger_crmentityrel ON (vtiger_crmentityrel.relcrmid = vtiger_crmentity.crmid OR vtiger_crmentityrel.crmid = vtiger_crmentity.crmid)";
+		$query .= " LEFT JOIN vtiger_crmentityrel as entrel1 ON entrel1.relcrmid = vtiger_crmentity.crmid";
+		$query .= " LEFT JOIN vtiger_crmentityrel as entrel2 ON entrel2.crmid = vtiger_crmentity.crmid";
 		$query .= $more_relation;
-		$query .= " LEFT  JOIN vtiger_users ON vtiger_users.id = vtiger_crmentity.smownerid";
-		$query .= " LEFT  JOIN vtiger_groups ON vtiger_groups.groupid = vtiger_crmentity.smownerid";
-		$query .= " WHERE vtiger_crmentity.deleted = 0 AND (vtiger_crmentityrel.crmid = $id OR vtiger_crmentityrel.relcrmid = $id)";
+		$query .= " LEFT JOIN vtiger_users ON vtiger_users.id = vtiger_crmentity.smownerid";
+		$query .= " LEFT JOIN vtiger_groups ON vtiger_groups.groupid = vtiger_crmentity.smownerid";
+		$query .= " WHERE vtiger_crmentity.deleted = 0 AND (entrel2.relcrmid = $id OR entrel1.crmid = $id)";
 		$return_value = GetRelatedList($currentModule, $related_module, $other, $query, $button, $returnset);
 
 		if ($return_value == null)
@@ -1753,6 +1780,9 @@ class CRMEntity {
 
 		$related_module = vtlib_getModuleNameById($rel_tab_id);
 		$other = CRMEntity::getInstance($related_module);
+
+		//crm-now: get custom field table name to be included in the general query
+		$cf_tablename = $other->customFieldTable[0];
 
 		// Some standard module class doesn't have required variables
 		// that are used in the query, they are defined in this generic API
@@ -1791,7 +1821,8 @@ class CRMEntity {
 				}
 			}
 
-			$query = "SELECT vtiger_crmentity.*, $other->table_name.*";
+			//crm-now: include custom table 
+			$query = "SELECT vtiger_crmentity.*, $other->table_name.*, $cf_tablename.*";
 
 			$userNameSql = getSqlForNameInDisplayFormat(array('first_name'=>'vtiger_users.first_name',
 														'last_name' => 'vtiger_users.last_name'), 'Users');
@@ -2136,6 +2167,10 @@ class CRMEntity {
 		// Look forward for temporary table usage as defined by the QueryPlanner
 		$secQuery = "select $table_name.* from $table_name inner join vtiger_crmentity on " .
 				"vtiger_crmentity.crmid=$table_name.$column_name and vtiger_crmentity.deleted=0";
+		//crm-now: added to avoid converted leads
+		if ($table_name == 'vtiger_leaddetails') {
+			$secQuery = $secQuery." and vtiger_leaddetails.converted = 0";
+		}
 
 		$secQueryTempTableQuery = $queryPlanner->registerTempTable($secQuery, array($column_name, $fields[1], $prifieldname));
 

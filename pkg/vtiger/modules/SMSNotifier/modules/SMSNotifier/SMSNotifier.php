@@ -8,6 +8,7 @@
  * All Rights Reserved.
  ************************************************************************************/
 include_once dirname(__FILE__) . '/SMSNotifierBase.php';
+include_once dirname(__FILE__) . '/models/ISMSProvider.php';
 include_once 'include/Zend/Json.php';
 
 class SMSNotifier extends SMSNotifierBase {
@@ -141,7 +142,7 @@ class SMSNotifier extends SMSNotifierBase {
 	       	while($phoneSqlResultRow = $adb->fetch_array($phoneSqlResult)) {
 	       		$number = $phoneSqlResultRow['phone_mobile'];
 	       		if(!empty($number)) {
-	       			$tonumbers[] = $number;
+					$tonumbers[] = self::formatPhoneNumber($number);
 	       		}
 	       	}
       	}
@@ -165,9 +166,11 @@ class SMSNotifier extends SMSNotifierBase {
 
 			$needlookup = 1;
 			if($response['error']) {
-				$responseStatus = ISMSProvider::MSG_STATUS_FAILED;
+				$responseStatus = SMSNotifier_ISMSProvider_Model::MSG_STATUS_FAILED;
 				$needlookup = 0;
-			} else {
+				$responseID ='';
+			} 
+			else {
 				$responseID = $response['id'];
 				$responseStatus = $response['status'];
 			}
@@ -176,8 +179,8 @@ class SMSNotifier extends SMSNotifierBase {
 				$responseStatusMessage = $response['statusmessage'];
 			}
 			$adb->pquery("INSERT INTO vtiger_smsnotifier_status(smsnotifierid,tonumber,status,statusmessage,smsmessageid,needlookup) VALUES(?,?,?,?,?,?)",
-				array($this->id,$response['to'],$responseStatus,$responseStatusMessage,$responseID,$needlookup)
-			);
+				array($this->id,$response['to'],$responseStatus,$responseStatusMessage,$responseID,$needlookup) );
+			
 		}
 	}
 
@@ -225,12 +228,44 @@ class SMSNotifier extends SMSNotifierBase {
 		global $adb;
 		$results = array();
 		$qresult = $adb->pquery("SELECT * FROM vtiger_smsnotifier_status WHERE smsnotifierid=?", array($record));
+
 		if($qresult && $adb->num_rows($qresult)) {
 			while($resultrow = $adb->fetch_array($qresult)) {
 				 $results[] = $resultrow;
 			}
 		}
 		return $results;
+	}
+	
+	//crm-now: added for proper phone number formating
+	static function formatPhoneNumber($ph_number) {
+		global $adb;
+		//crm-now: check whether a country prefix from settings must get added
+		$resultprefix = $adb->pquery("SELECT countryprefix FROM vtiger_smsnotifier_servers limit 1", array());
+		$prefix = trim($adb->query_result($resultprefix,0,"countryprefix"));
+		//remove all char which are not numbers, except + sign if any
+		$smsGoesTo = preg_replace('/[^\d+]/i', '', trim($ph_number));
+		if ($smsGoesTo =='') {
+			return $smsGoesTo;
+		}
+		//do not add country prefix if phone number starts with + char
+		if (substr($smsGoesTo, 0, 1) !='+') {
+			if (substr($smsGoesTo, 0, 2) =='00') {
+				//replace 00 country prefix with + char
+				$smsGoesTo = substr($smsGoesTo, 2);
+				$smsGoesTo = $prefix.$smsGoesTo;
+			}
+			elseif (substr($smsGoesTo, 0, 1) =='0') {
+				//replace leading 0 by prefix
+				$smsGoesTo = substr($smsGoesTo, 1);
+				$smsGoesTo = $prefix.$smsGoesTo;
+			}
+			else {
+				//add prefix
+				$smsGoesTo = $prefix.$smsGoesTo;
+			}
+		}	
+		return $smsGoesTo;
 	}
 }
 

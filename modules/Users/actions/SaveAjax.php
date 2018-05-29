@@ -15,6 +15,7 @@ class Users_SaveAjax_Action extends Vtiger_SaveAjax_Action {
 		parent::__construct();
 		$this->exposeMethod('userExists');
 		$this->exposeMethod('savePassword');
+		$this->exposeMethod('changeAccessKey');
                 $this->exposeMethod('restoreUser');
 	}
 
@@ -144,4 +145,33 @@ class Users_SaveAjax_Action extends Vtiger_SaveAjax_Action {
 		$response->setResult(array('message'=>vtranslate('LBL_USER_RESTORED_SUCCESSFULLY', $moduleName), 'listViewUrl' => $listViewUrl));
 		$response->emit();
         }
-        }
+	
+	public function changeAccessKey(Vtiger_Request $request) {
+		$recordId = $request->get('record');
+		$moduleName = $request->getModule();
+
+		$response = new Vtiger_Response();
+		try {
+			$recordModel = Users_Record_Model::getInstanceById($recordId, $moduleName);
+			$oldAccessKey = $recordModel->get('accesskey');
+
+			$entity = $recordModel->getEntity();
+			$entity->createAccessKey();
+
+			require_once('modules/Users/CreateUserPrivilegeFile.php');
+			createUserPrivilegesfile($recordId);
+
+			$recordModel = Users_Record_Model::getInstanceFromPreferenceFile($recordId);
+			$newAccessKey = $recordModel->get('accesskey');
+
+			if ($newAccessKey != $oldAccessKey) {
+				$response->setResult(array('message' => vtranslate('LBL_ACCESS_KEY_UPDATED_SUCCESSFULLY', $moduleName), 'accessKey' => $newAccessKey));
+			} else {
+				$response->setError(vtranslate('LBL_FAILED_TO_UPDATE_ACCESS_KEY', $moduleName));
+			}
+		} catch (Exception $ex) {
+			$response->setError($ex->getMessage());
+		}
+		$response->emit();
+	}
+}

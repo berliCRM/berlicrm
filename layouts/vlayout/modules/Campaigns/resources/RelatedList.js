@@ -75,6 +75,7 @@ Vtiger_RelatedList_Js("Campaigns_RelatedList_Js",{
 	
 	registerChangeCustomFilterEvent : function(){
 		var filterSelectElement = jQuery('#recordsFilter');
+		filterSelectElement.off();  // make sure it isn't attached twice after reloading list        
 		filterSelectElement.change(function(e){
              var message = app.vtranslate('JS_LBL_ARE_YOU_SURE_YOU_WANT_TO_ADD_THIS_FILTER');
              Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(     
@@ -102,7 +103,7 @@ Vtiger_RelatedList_Js("Campaigns_RelatedList_Js",{
 					progressIndicatorElement.progressIndicator({
 						'mode' : 'hide'
 					})
-					if(responseData != null){
+					if(responseData.result == 0){
 						var message = app.vtranslate('JS_NO_RECORDS_RELATED_TO_THIS_FILTER');
 						var params = {
 							text: message,

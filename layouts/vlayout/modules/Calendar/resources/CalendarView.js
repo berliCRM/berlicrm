@@ -62,17 +62,20 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			aDeferred.resolve(this.calendarCreateView.clone(true,true));
 			return aDeferred.promise();
 		}
-		var progressInstance = jQuery.progressIndicator();
-		this.loadCalendarCreateView().then(
-			function(data){
-				progressInstance.hide();
-				thisInstance.calendarCreateView = data;
-				aDeferred.resolve(data.clone(true,true));
-			},
-			function(){
-				progressInstance.hide();
-			}
-		);
+
+		if (jQuery('.isRecordCreatable').val()) {
+			var progressInstance = jQuery.progressIndicator();
+			this.loadCalendarCreateView().then(
+				function(data){
+					progressInstance.hide();
+					thisInstance.calendarCreateView = data;
+					aDeferred.resolve(data.clone(true,true));
+				},
+				function(){
+					progressInstance.hide();
+				}
+			);
+		}
 		return aDeferred.promise();
 	},
 
@@ -111,7 +114,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 				callback([]);
 				return;
 			}
-			feedcheckbox.attr('disabled', true);
+			feedcheckbox.prop('disabled', true);
 			var params = {
 				module: 'Calendar',
 				action: 'Feed',
@@ -130,7 +133,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 
 			AppConnector.request(params).then(function(events){
 				callback(events);
-				feedcheckbox.attr('disabled', false).attr('checked', true);
+				feedcheckbox.prop('disabled', false).prop('checked', true);
 			},
             function(error){
                 //To send empty events if error occurs
@@ -150,7 +153,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			var feedcheckbox = jQuery(element);
 			var	disabledOnes = app.cacheGet('calendar.feeds.disabled',[]);
 			if (disabledOnes.indexOf(feedcheckbox.data('calendar-sourcekey')) == -1) {
-				feedcheckbox.attr('checked',true);
+				feedcheckbox.prop('checked',true);
 			}
 			thisInstance.fetchCalendarFeed(feedcheckbox);
 		});
@@ -264,10 +267,13 @@ jQuery.Class("Calendar_CalendarView_Js",{
         if(activityType == 'undefined') return;
         //imgContainer is event time div in week and day view and fc-event-inner in month view
         var imgContainer = element.find('.fc-event-head').length ? element.find('.fc-event-time') : element.find('div.fc-event-inner');
-        if(activityType == 'Call')
-            imgContainer.prepend('&nbsp<img width="13px" title="(call)" alt="(call)" src="layouts/vlayout/skins/images/Call_white.png">&nbsp');
-        if(activityType == 'Meeting')
-            imgContainer.prepend('&nbsp<img width="14px" title="(meeting)" alt="(meeting)" src="layouts/vlayout/skins/images/Meeting_white.png">&nbsp');
+        var actTypeTranslated = app.vtranslate(activityType);
+        if(activityType == 'Call') {
+            imgContainer.prepend('&nbsp<img width="13px" title="'+actTypeTranslated+'" alt="'+actTypeTranslated+'" src="layouts/vlayout/skins/images/Call_white.png">&nbsp');
+        }
+        if(activityType == 'Meeting') {
+            imgContainer.prepend('&nbsp<img width="14px" title="'+actTypeTranslated+'" alt="'+actTypeTranslated+'" src="layouts/vlayout/skins/images/Meeting_white.png">&nbsp');
+        }
     },
 
 
@@ -501,15 +507,17 @@ jQuery.Class("Calendar_CalendarView_Js",{
                 var targetElement = jQuery(this).find('.fc-event-time');
                 var trashElement = jQuery(this).find('a.delete');
                 if(!trashElement.length) {
-                    if(!targetElement.length) {
-                        targetElement = jQuery(this).find('.fc-event-title');
-                            targetElement.append('<a class="delete" style="position:absolute;right:1px;" href="javascript:void(0)"><i class="icon-trash icon-white"></i></a>'); 
-                    }
-                    else {
-                        if(view.name == 'month') targetElement = jQuery(this).find('.fc-event-inner');
-                        targetElement.append('<a class="delete" style="position:absolute;right:1px;" href="javascript:void(0)"><i class="icon-trash icon-white"></i></a>');                    
-                    }
-                    thisInstance.registerEventDelete(targetElement,calEvent);
+					if (jQuery('.isModuleDeletable').val()) {
+						if(!targetElement.length) {
+							targetElement = jQuery(this).find('.fc-event-title');
+							targetElement.append('<a class="delete" style="position:absolute;right:1px;" href="javascript:void(0)"><i class="icon-trash icon-white"></i></a>'); 
+						}
+						else {
+							if(view.name == 'month') targetElement = jQuery(this).find('.fc-event-inner');
+							targetElement.append('<a class="delete" style="position:absolute;right:1px;" href="javascript:void(0)"><i class="icon-trash icon-white"></i></a>');                    
+						}
+						thisInstance.registerEventDelete(targetElement,calEvent);
+					}
                 }
                 else {
                     trashElement.removeClass('hide');
@@ -521,22 +529,29 @@ jQuery.Class("Calendar_CalendarView_Js",{
                 jQuery(this).find('.delete').addClass('hide');
 			}
 		}
+
+		if (!jQuery('.isModuleEditable').val()) {
+			config['editable'] = false;
+		}
+
 		if(typeof customConfig != 'undefined'){
 			config = jQuery.extend(config,customConfig);
 		}
 		calendarview.fullCalendar(config);
 
-		//To create custom button to create event or task
-		jQuery('<span class="pull-left"><button class="btn addButton">'+ app.vtranslate('LBL_ADD_EVENT_TASK') +'</button></span>')
-				.prependTo(calendarview.find('.fc-header .fc-header-right')).on('click', 'button', function(e){
-					thisInstance.getCalendarCreateView().then(function(data){
-						var headerInstance = new Vtiger_Header_Js();
-						headerInstance.handleQuickCreateData(data,{callbackFunction:function(data){
-								thisInstance.addCalendarEvent(data.result);
-						}});
-					});
+		if (jQuery('.isRecordCreatable').val()) {
+			//To create custom button to create event or task
+			jQuery('<span class="pull-left"><button class="btn addButton">'+ app.vtranslate('LBL_ADD_EVENT_TASK') +'</button></span>')
+			.prependTo(calendarview.find('.fc-header .fc-header-right')).on('click', 'button', function(e){
+				thisInstance.getCalendarCreateView().then(function(data){
+					var headerInstance = new Vtiger_Header_Js();
+					headerInstance.handleQuickCreateData(data,{callbackFunction:function(data){
+						thisInstance.addCalendarEvent(data.result);
+					}});
+				});
 
-				})
+			})
+		}
 		jQuery('<span class="pull-right marginLeft5px"><button class="btn"><i id="calendarSettings" class="icon-cog"></i></button></span>')
 		.prependTo(calendarview.find('.fc-header .fc-header-right')).on('click', 'button', function(e){
 			var params = {
@@ -568,14 +583,14 @@ jQuery.Class("Calendar_CalendarView_Js",{
 	changeCalendarSharingType : function(data) {
         var selectedUsersContainer = app.getSelect2ElementFromSelect(jQuery('#selectedUsers',data));
         if(jQuery('#selectedUsers').is(':checked')){
-            selectedUsersContainer.attr('style','display:block;width:90%;');
+            selectedUsersContainer.prop('style','display:block;width:90%;');
         }
 		jQuery('[name="sharedtype"]').on('change',function(e) {
 			var sharingType = jQuery(e.currentTarget).data('sharingtype');
 
 			if(sharingType == 'selectedusers') {
 				selectedUsersContainer.show();
-                selectedUsersContainer.attr('style','display:block;width:90%;');
+                selectedUsersContainer.prop('style','display:block;width:90%;');
 			} else {
 				selectedUsersContainer.hide();
 			}
@@ -773,7 +788,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			var editCalendarViewsList = jQuery('#calendarview-feeds').find('.editCalendarViewsList');
 			var selectElement = editCalendarViewsList.find('[name="editingUsersList"]');
 			selectElement.find('option:selected').removeAttr('selected');
-			selectElement.find('option[value="'+feedUserEle.data('calendar-fieldname')+'"]').attr('selected', true);
+			selectElement.find('option[value="'+feedUserEle.data('calendar-fieldname')+'"]').prop('selected', true);
 			thisInstance.showAddUserCalendarModal(currentTarget);
 		})
 	},
@@ -843,7 +858,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 				} else {
 					var selectElement = data.find('select[name="editingUsersList"]');
 				}
-				selectedUser.val(selectElement.val()).attr('data-username', selectElement.find('option:selected').text());
+				selectedUser.val(selectElement.val()).data('username', selectElement.find('option:selected').text());
 				selectedViewModule.val(selectElement.find('option:selected').data('viewmodule'));
 				thisInstance.saveUserCalendar(data, currentEle);
 				
@@ -922,9 +937,9 @@ jQuery.Class("Calendar_CalendarView_Js",{
 				var clonedContainer = labelModal.clone(true, true);
 				var labelView = clonedContainer.find('label');
 				feedUserEle = labelView.find('[type="checkbox"]');
-				feedUserEle.attr('checked', 'checked');
-				feedUserEle.attr('data-calendar-sourcekey', fieldName).attr('data-calendar-feed', moduleName).attr('data-calendar-feed-color',userColor)
-						.attr('data-calendar-feed-textcolor',textColor).attr('data-calendar-fieldname',fieldName).attr('data-calendar-fieldlabel', userName);
+				feedUserEle.prop('checked', 'checked');
+				feedUserEle.data('calendar-sourcekey', fieldName).data('calendar-feed', moduleName).data('calendar-feed-color',userColor)
+						.data('calendar-feed-textcolor',textColor).data('calendar-fieldname',fieldName).data('calendar-fieldlabel', userName);
 				feedUserEle.closest('.addedCalendars').find('.label').css({'background-color':userColor,'color':textColor}).text(userName);
 				parentElement.append(labelView);
 				

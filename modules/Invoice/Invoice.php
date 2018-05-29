@@ -104,7 +104,7 @@ class Invoice extends CRMEntity {
 
 	/**	Constructor which will set the column_fields in this object
 	 */
-	function Invoice() {
+	function __construct() {
 		$this->log =LoggerManager::getLogger('Invoice');
 		$this->log->debug("Entering Invoice() method ...");
 		$this->db = PearDatabase::getInstance();
@@ -141,6 +141,13 @@ class Invoice extends CRMEntity {
 
 		$update_params = array($this->column_fields['currency_id'], $this->column_fields['conversion_rate'], $this->id);
 		$this->db->pquery($update_query, $update_params);
+		
+		//crm-now: Checking if SO is present and updating the SO status
+		if($this->column_fields["salesorder_id"] != '') 		{
+        	$so_id = $this->column_fields["salesorder_id"];
+        	$query1 = "update vtiger_salesorder set sostatus='Approved' where salesorderid=?";
+        	$this->db->pquery($query1, array($so_id));
+		}
 	}
 
 	/**

@@ -8,6 +8,8 @@
    * All Rights Reserved.
   *
  ********************************************************************************/
+ini_set('include_path',ini_get('include_path'). PATH_SEPARATOR . '../../..'); 
+
 require_once('include/utils/utils.php');
 require_once('include/logging.php');
 
@@ -21,8 +23,9 @@ $sql="SELECT vtiger_salesorder.salesorderid, recurring_frequency, start_period, 
 		 payment_duration, invoice_status FROM vtiger_salesorder
 		 INNER JOIN vtiger_crmentity ON vtiger_salesorder.salesorderid = vtiger_crmentity.crmid AND vtiger_crmentity.deleted = 0
 		 INNER JOIN vtiger_invoice_recurring_info ON vtiger_salesorder.salesorderid = vtiger_invoice_recurring_info.salesorderid
-		 WHERE DATE_FORMAT(start_period,'%Y-%m-%d') <= '".date('Y-m-d')."' AND DATE_FORMAT(end_period,'%Y-%m-%d') >= '".date('Y-m-d')."'";
-$result = $adb->pquery($sql, array());
+		 WHERE DATE_FORMAT(start_period,'%Y-%m-%d') <= ? AND DATE_FORMAT(end_period,'%Y-%m-%d') >= ?;";
+$currentDate = date('Y-m-d');
+$result = $adb->pquery($sql, array($currentDate, $currentDate));
 $no_of_salesorder = $adb->num_rows($result);
 
 for($i=0; $i<$no_of_salesorder;$i++) {
@@ -31,42 +34,70 @@ for($i=0; $i<$no_of_salesorder;$i++) {
 	$end_period = $adb->query_result($result, $i,'end_period');
 	$last_recurring_date = $adb->query_result($result, $i,'last_recurring_date');
 	$recurring_frequency = $adb->query_result($result, $i,'recurring_frequency');
-
-	if ($last_recurring_date == NULL  || $last_recurring_date == '' || $last_recurring_date == '0000-00-00') {
-		$last_recurring_date = $start_period;
+	
+	if (empty($last_recurring_date)) {
+		$last_recurring_date = '1970-01-01';
 	}
-    $currentDate = date('Y-m-d');
-    if(strtotime($last_recurring_date) < strtotime($currentDate)){
-        $last_recurring_date = $currentDate;
-    }
-	$currentRecurringDate = $last_recurring_date;
-
-	if(strtotime($currentRecurringDate) > strtotime($end_period)) {
-		continue;
-	}
-
-	switch(strtolower($recurring_frequency)) {
-		case 'daily'	:	$period = '+1 day';		break;
-		case 'weekly'	:	$period = '+1 week';	break;
-		case 'monthly'	:	$period = '+1 month';	break;
-		case 'quarterly':	$period = '+3 month';	break;
-		case 'yearly'	:	$period = '+1 year';	break;
-		default			:	$period = '';
-	}
-
-	if (strtotime($currentRecurringDate) <= strtotime($currentDate)) {
-		list($y, $m, $d) = explode('-', $last_recurring_date);
-		$nextRecurringDate = date('Y-m-d', strtotime($period, mktime(0, 0, 0, $m, $d, $y)));
+	$cDate = new DateTime($currentDate);
+	$lDate = new DateTime($last_recurring_date);
+	$sDate = new DateTime($start_period);
+	$expectedDate = clone $lDate;
+	
+	if (strtolower($recurring_frequency) == 'daily') {
+		$interval = 'P1D';
+		$format = 'd';
+	} elseif (strtolower($recurring_frequency) == 'weekly') {
+		$interval = 'P7D';
+		//get day of week
+		$format = 'N';
+	} elseif (strtolower($recurring_frequency) == 'monthly') {
+		$interval = 'P1M';
+		//get day of month
+		$format = 'j';
+	} elseif (strtolower($recurring_frequency) == 'quarterly') {
+		$interval = 'P3M';
+		//get day of month
+		$format = 'j';
+	} elseif (strtolower($recurring_frequency) == 'yearly') {
+		$interval = 'P1Y';
+		//get day of month
+		$format = 'Y';
 	} else {
-		$nextRecurringDate = $currentRecurringDate;
+		return;
 	}
-    if(strtotime($currentRecurringDate) == strtotime($currentDate)) {
-		createInvoice($salesorder_id);
+
+	$expectedDate->add(new DateInterval($interval));
+
+	$sDoW = $sDate->format($format);
+	$eDoW = $expectedDate->format($format);
+	//last day of month
+	$ssDoM = $sDate->format('t');
+	$slDoM = $expectedDate->format('t');
+	$diff = 0;
+	if ($format == 'j' && $sDoW == $ssDoM) {
+		$tmpDate = clone $expectedDate;
+		$diff = $slDoM - $eDoW;
+		//start month had more days than following month
+		if ($lDate != $tmpDate->sub(new DateInterval($interval))) {
+			$diff = -$eDoW;
+		}
+	} elseif ($format == 'Y') {
+		$expectedDate->setDate($expectedDate->format('Y'), $sDate->format('m'), $sDate->format('d'));
+	} elseif ($format != 'd') {
+		$diff = $sDoW - $eDoW;
+	}
+	if ($diff < 0) {
+		$diff = abs($diff);
+		$ops = 'sub';
+	} else {
+		$ops = 'add';
+	}
+	$expectedDate->$ops(new DateInterval('P'.$diff.'D'));
 		
+	if ($expectedDate <= $cDate) {
+		createInvoice($salesorder_id);
+		$adb->pquery('UPDATE vtiger_invoice_recurring_info SET last_recurring_date = ? WHERE salesorderid = ?', array($currentDate, $salesorder_id));
 	}
-    if(strtotime($nextRecurringDate) != strtotime($last_recurring_date)){
-        $adb->pquery('UPDATE vtiger_invoice_recurring_info SET last_recurring_date = ? WHERE salesorderid = ?', array($nextRecurringDate, $salesorder_id));
-    }
 }
 
 /* Function to create a new Invoice using the given Sales Order id */

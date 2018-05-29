@@ -108,6 +108,7 @@
 		}
 
 		function trigger($data){
+            global $log;
 			$adb = $this->adb;
 
 			$eventInfos = self::lookupCache($this->name);
@@ -120,43 +121,50 @@
 				while(count($eventInfos) > count($completedEvents)) {
 					$handlerCounter = 0; // Tracks the number of handlers triggered for the current iteration.
 					foreach($eventInfos as $eventInfo){
-						$condition = new VTEventCondition($eventInfo['condition']);
-						if($condition->test($data)){
-							$handler_class = $eventInfo['handler_class'];
-							if(in_array($handler_class, $completedEvents)) {
-								continue;
-							}
+                        if (!file_exists($eventInfo['handler_path'])) {
+                            $log->debug("WARNING: Eventhandler {$eventInfo['handler_path']} not found!");
+                            // Mark the event-handler as finished - without actually invoking.
+                            $completedEvents[] = $eventInfo['handler_class'];
+                        }
+                        else {
+                            $condition = new VTEventCondition($eventInfo['condition']);
+                            if($condition->test($data)){
+                                $handler_class = $eventInfo['handler_class'];
+                                if(in_array($handler_class, $completedEvents)) {
+                                    continue;
+                                }
 
-							$dependentEventsNotCompleted = false;
-							$dependentOn = $eventInfo['dependent_on'];
-							$dependentEvents = Zend_Json::decode($dependentOn);
-							foreach($dependentEvents as $eventHandlerClass) {
-								if(!in_array($eventHandlerClass, $completedEvents)) {
-									$dependentEventsNotCompleted = true;
-								}
-							}
-							if($dependentEventsNotCompleted) continue;
+                                $dependentEventsNotCompleted = false;
+                                $dependentOn = $eventInfo['dependent_on'];
+                                $dependentEvents = Zend_Json::decode($dependentOn);
+                                foreach($dependentEvents as $eventHandlerClass) {
+                                    if(!in_array($eventHandlerClass, $completedEvents)) {
+                                        $dependentEventsNotCompleted = true;
+                                    }
+                                }
+                                if($dependentEventsNotCompleted) continue;
 
-							require_once($eventInfo['handler_path']);
-							$handler = new $handler_class();
+                                require_once($eventInfo['handler_path']);
+                                $handler = new $handler_class();
 
-							$handler->handleEvent($this->name, $data);
-							$completedEvents[] = $handler_class;
-							$handlerCounter++;
-						} else {
-							// Mark the event-handler as finished - without actually invoking.
-							$completedEvents[] = $eventInfo['handler_class'];
-						}
-					}
-					if($handlerCounter == 0 && count($eventInfos) > count($completedEvents)) {
-						$uncompletedEvents = array();
-						foreach($eventInfos as $eventInfo){
-							if(!in_array($eventInfo['handler_class'], $completedEvents)) {
-								$uncompletedEvents[] = $eventInfo['handler_class'];
-							}
-						}
-						throw new Exception("Deadlock occured for events: ". implode(' , ', $uncompletedEvents));
-					}
+                                $handler->handleEvent($this->name, $data);
+                                $completedEvents[] = $handler_class;
+                                $handlerCounter++;
+                            } else {
+                                // Mark the event-handler as finished - without actually invoking.
+                                $completedEvents[] = $eventInfo['handler_class'];
+                            }
+                        }
+                        if($handlerCounter == 0 && count($eventInfos) > count($completedEvents)) {
+                            $uncompletedEvents = array();
+                            foreach($eventInfos as $eventInfo){
+                                if(!in_array($eventInfo['handler_class'], $completedEvents)) {
+                                    $uncompletedEvents[] = $eventInfo['handler_class'];
+                                }
+                            }
+                            throw new Exception("Deadlock occured for events: ". implode(' , ', $uncompletedEvents));
+                        }
+                    }
 				}
 			}
 		}

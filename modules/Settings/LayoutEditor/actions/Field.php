@@ -55,6 +55,7 @@ class Settings_LayoutEditor_Field_Action extends Settings_Vtiger_Index_Action {
 			$defaultValue = implode(' |##| ',$defaultValue);
 		}
         $fieldInstance->set('defaultvalue', $defaultValue);
+		$fieldInstance->set('helpinfo',$request->get('helptextValue'));
         $response = new Vtiger_Response();
         try{
             $fieldInstance->save();

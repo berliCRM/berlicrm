@@ -202,7 +202,7 @@ return $this->token."";
         if ($this->index >= strlen($this->data)) {
             return false; // end of input
         }
-        $yy_global_pattern = "/^((\\w+|'(?:[^']|'')+'|\\(|\\)|(\\+|-)?\\d+|,|\\*|(?!<|>)=|<(?!=)|>(?!=)|<=|>=|!=|;))|^([ \t\r\n]+)/";
+        $yy_global_pattern = "/^((\\w+|'(?:[^']|'')+'|\\(|\\)|(\\+|-)?\\d+|,|\\*|(?!<|>)=|<(?!=)|>(?!=)|<=|>=|!=|;)|'')|^([ \t\r\n]+)/";
 
         do {
             if (preg_match($yy_global_pattern, substr($this->data, $this->index), $yymatches)) {

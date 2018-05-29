@@ -36,6 +36,7 @@ class Settings_MailConverter_SaveRule_Action extends Settings_Vtiger_Index_Actio
 		$recordModel->assignedTo = $request->get('assignedTo');
 		$recordModel->cc = $request->get('cc');
 		$recordModel->bcc = $request->get('bcc');
+		$recordModel->folderid = $request->get('attachmentDocFolder');
 		$fieldsList = $recordModel->getFields();
 		foreach ($fieldsList as $fieldName) {
 			$recordModel->set($fieldName, $request->get($fieldName));

@@ -33,13 +33,12 @@ class Services_Module_Model extends Products_Module_Model {
 			}
 
 			$pos = stripos($listQuery, 'where');
-			if ($pos) {
-				$split = spliti('where', $listQuery);
-				$overRideQuery = $split[0] . ' WHERE ' . $split[1] . ' AND ' . $condition;
-			} else {
-				$overRideQuery = $listQuery . ' WHERE ' . $condition;
-			}
-			return $overRideQuery;
+            if($pos) {
+                $listQuery .= ' AND ' . $condition;
+            } else {
+                $listQuery .= ' WHERE ' . $condition;
+            }
+            return $listQuery;
 		}
 	}
 	

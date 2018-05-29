@@ -203,13 +203,14 @@ class MailManager_Message_Model extends Vtiger_MailRecord  {
 	public function readFromDB($uid) {
 		$db = PearDatabase::getInstance();
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
-		$result = $db->pquery("SELECT * FROM vtiger_mailmanager_mailrecord
+		$result = $db->pquery("SELECT * FROM vtiger_mailmanager_mailrecord LEFT JOIN vtiger_mailmanager_mailrel ON muniqueid=mailuid
 			WHERE userid=? AND muid=?", array($currentUserModel->getId(), $uid));
 		if ($db->num_rows($result)) {
 			$resultrow = $db->fetch_array($result);
 			$this->mUid  = decode_html($resultrow['muid']);
 
 			$this->_from = Zend_Json::decode(decode_html($resultrow['mfrom']));
+			$this->_fromcrmid = Zend_Json::decode(decode_html($resultrow['crmid']));	// related crm id
 			$this->_to   = Zend_Json::decode(decode_html($resultrow['mto']));
 			$this->_cc   = Zend_Json::decode(decode_html($resultrow['mcc']));
 			$this->_bcc  = Zend_Json::decode(decode_html($resultrow['mbcc']));
@@ -410,7 +411,7 @@ class MailManager_Message_Model extends Vtiger_MailRecord  {
 	public function subject($safehtml=true) {
 		$mailSubject = str_replace("_", " ", $this->_subject);
 		if ($safehtml==true) {
-			return MailManager_Utils_Helper::safe_html_string($mailSubject);
+			return vtlib_purify($mailSubject);
 		}
 		return $mailSubject;
 	}
@@ -441,7 +442,7 @@ class MailManager_Message_Model extends Vtiger_MailRecord  {
 	public function getBodyHTML($safehtml=true) {
 		$bodyhtml = parent::getBodyHTML();
 		if ($safehtml) {
-			$bodyhtml = MailManager_Utils_Helper::safe_html_string($bodyhtml);
+			$bodyhtml = vtlib_purify($bodyhtml);
 		}
 		return $bodyhtml;
 	}
@@ -454,7 +455,7 @@ class MailManager_Message_Model extends Vtiger_MailRecord  {
 	public function from($maxlen = 0) {
 		$fromString = $this->_from;
 		if ($maxlen && strlen($fromString) > $maxlen) {
-			$fromString = substr($fromString, 0, $maxlen-3).'...';
+			$fromString = mb_substr($fromString, 0, $maxlen-3).'...';
 		}
 		return $fromString;
 	}

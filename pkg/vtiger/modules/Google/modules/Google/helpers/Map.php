@@ -27,7 +27,7 @@ class Google_Map_Helper {
                 $address[$key] = Vtiger_Util_Helper::getDecodedValue($recordModel->get($value));
             }
         }
-        return $address;
+        return array_filter($address);
     }
 
     /**
@@ -38,17 +38,18 @@ class Google_Map_Helper {
      */
     static function getLocationFields($module) {
         switch ($module) {
-            case 'Contacts': return array('street' => 'mailingstreet', 'city' => 'mailingcity', 'country' => 'mailingcountry');
+            case 'Contacts': 
+                return array('street' => 'mailingstreet', 'city' => 'mailingcity', 'country' => 'mailingcountry');
                 break;
-            case 'Leads' : return array('street' => 'lane', 'city' => 'city', 'country' => 'country');
+            case 'Leads' : 
+                return array('street' => 'lane', 'city' => 'city', 'country' => 'country');
                 break;
-	    case 'Accounts' : return array('street' => 'bill_street', 'city' => 'bill_city', 'country' => 'bill_country');
-		break;
-            default : return array();
+            case 'Accounts' : 
+                return array('street' => 'bill_street', 'city' => 'bill_city', 'country' => 'bill_country');
                 break;
+            default : 
+                return array();
         }
     }
 
 }
-
-?>

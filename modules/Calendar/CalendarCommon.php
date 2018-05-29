@@ -73,10 +73,10 @@ function getaddEventPopupTime($starttime,$endtime,$format)
  * @param   string   $from              - to differenciate from notification to invitation.
  * return   string   $list              - HTML in string format
  */
-function getActivityDetails($description,$user_id,$from='')
+function getActivityDetails($description,$user_id,$from='',$linkid='')
 {
 	global $log,$current_user,$current_language;
-	global $adb;
+	global $adb, $site_URL;
 	require_once 'include/utils/utils.php';
 	$mod_strings = return_module_language($current_language, 'Calendar');
 	$log->debug("Entering getActivityDetails(".$description.") method ...");
@@ -99,6 +99,11 @@ function getActivityDetails($description,$user_id,$from='')
 	$inviteeUser->retrieveCurrentUserInfoFromFile($user_id);
 	$startDate = new DateTimeField($description['st_date_time']);
 	$endDate = new DateTimeField($description['end_date_time']);
+	if (!empty($linkid)) {
+		$siteLink = "<a href='$site_URL/index.php?module=Calendar&view=Detail&record=$linkid'>".$description['subject']."</a>";
+	} else {
+		$siteLink = $description['subject'];
+	}
 
 	if($from == "invite")
 		$msg = getTranslatedString($mod_strings['LBL_ACTIVITY_INVITATION']);
@@ -109,25 +114,28 @@ function getActivityDetails($description,$user_id,$from='')
 	$status = getTranslatedString($description['status'],'Calendar');
 	$list = $name.',';
 	$list .= '<br><br>'.$msg.' '.$reply.'.<br> '.$mod_strings['LBL_DETAILS_STRING'].':<br>';
-	$list .= '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$mod_strings["LBL_SUBJECT"].' : '.$description['subject'];
-	$list .= '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$mod_strings["Start date and time"].' : '.$startDate->getDisplayDateTimeValue($inviteeUser) .' '.getTranslatedString($inviteeUser->time_zone, 'Users');
-	$list .= '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$end_date_lable.' : '.$endDate->getDisplayDateTimeValue($inviteeUser).' '.getTranslatedString($inviteeUser->time_zone, 'Users');
-	$list .= '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$mod_strings["LBL_STATUS"].': '.$status;
-	$list .= '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$mod_strings["Priority"].': '.getTranslatedString($description['taskpriority']);
-	$list .= '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$mod_strings["Related To"].': '.getTranslatedString($description['relatedto']);
+	$list .= '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>'.$mod_strings["LBL_SUBJECT"].'</b>: '.$siteLink;
+	$list .= '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>'.$mod_strings["Start date and time"].'</b>: '.$startDate->getDisplayDateTimeValue($inviteeUser) .' '.getTranslatedString($inviteeUser->time_zone, 'Users');
+	$list .= '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>'.$end_date_lable.'</b>: '.$endDate->getDisplayDateTimeValue($inviteeUser).' '.getTranslatedString($inviteeUser->time_zone, 'Users');
+	$list .= '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>'.$mod_strings["LBL_STATUS"].'</b>: '.$status;
+	$list .= '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>'.$mod_strings["Priority"].'</b>: '.getTranslatedString($description['taskpriority']);
+	if(!empty($description['relatedto'])) {
+		$list .= '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>'.$mod_strings["Related To"].'</b>: '.getTranslatedString($description['relatedto']);
+	}
 	if(!empty($description['contact_name']))
 	{
-        	$list .= '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$mod_strings["LBL_CONTACT_LIST"].' '.$description['contact_name'];
+        	$list .= '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>'.$mod_strings["LBL_CONTACT_LIST"].'</b>: '.$description['contact_name'];
 	}
-	else
-		$list .= '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$mod_strings["Location"].' : '.$description['location'];
+	elseif (!empty($description['location'])) {
+		$list .= '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>'.$mod_strings["Location"].'</b>: '.$description['location'];
+	}
 
-        $list .= '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$mod_strings["LBL_APP_DESCRIPTION"].': '.$description['description'];
-        $list .= '<br><br>'.$mod_strings["LBL_REGARDS_STRING"].' ,';
-        $list .= '<br>'.$current_username.'.';
+    $list .= '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>'.$mod_strings["LBL_APP_DESCRIPTION"].'</b>: '.$description['description'];
+    $list .= '<br><br>'.$mod_strings["LBL_REGARDS_STRING"].'.';
+    $list .= '<br>'.$current_username.'';
 
-        $log->debug("Exiting getActivityDetails method ...");
-		return $list;
+    $log->debug("Exiting getActivityDetails method ...");
+	return $list;
 }
 
 function twoDigit( $no ){
@@ -135,19 +143,18 @@ function twoDigit( $no ){
 	else return "".$no;
 }
 
-function sendInvitation($inviteesid,$mode,$subject,$desc)
+function sendInvitation($inviteesid,$mode,$subject,$desc,$record)
 {
 	global $current_user,$mod_strings;
 	require_once("modules/Emails/mail.php");
 	$invites=$mod_strings['INVITATION'];
 	$invitees_array = explode(';',$inviteesid);
-	$subject = $invites.' : '.$subject;
-	$record = $focus->id;
+	$subject = $invites.' : '.decode_html($subject);
 	foreach($invitees_array as $inviteeid)
 	{
 		if($inviteeid != '')
 		{
-			$description=getActivityDetails($desc,$inviteeid,"invite");
+			$description=getActivityDetails($desc,$inviteeid,"invite",$record);
 			$to_email = getUserEmailId('id',$inviteeid);
 			send_mail('Calendar',$to_email,$current_user->user_name,'',$subject,$description);
 		}

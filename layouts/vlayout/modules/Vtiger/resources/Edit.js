@@ -24,6 +24,8 @@ jQuery.Class("Vtiger_Edit_Js",{
 
 	editInstance : false,
 
+    locked: false,
+    
     postReferenceSelectionEvent: 'Vtiger.PostReference.Selection',
     
 	/**
@@ -64,7 +66,24 @@ jQuery.Class("Vtiger_Edit_Js",{
 			return instance;
 		}
 		return Vtiger_Edit_Js.editInstance;
-	}
+	},
+    
+    // lock record and set timer to refresh lock every 115 sec.
+    lockRecord: function(recordid) {
+        var url = "index.php?module=Vtiger&action=EditLocksAjax&record="+recordid+"&mode=lock";
+        AppConnector.request(url);
+        Vtiger_Edit_Js.locked = true;
+        setTimeout(function() {Vtiger_Edit_Js.lockRecord(recordid)},115000);
+    },
+    
+    // release lock (if it was created by this editview)
+    releaseLock: function() {
+        var recordid = jQuery('input[name="record"]').val();
+        if (recordid > 0 && Vtiger_Edit_Js.locked) {
+            var url = "index.php?module=Vtiger&action=EditLocksAjax&record="+recordid+"&mode=release";
+            jQuery.ajax({url: url, async: false}); // do this synchronously or it might fail in onbeforeunload event
+        }
+    }
 
 },{
 
@@ -294,8 +313,7 @@ jQuery.Class("Vtiger_Edit_Js",{
 			},
 			'open' : function(event,ui) {
 				//To Make the menu come up in the case of quick create
-				jQuery(this).data('autocomplete').menu.element.css('z-index','100001');
-
+				jQuery(".ui-autocomplete").css('z-index','100001');
 			}
 		});
 	},
@@ -488,6 +506,9 @@ jQuery.Class("Vtiger_Edit_Js",{
 						editViewForm.removeData('submit');
 						e.preventDefault();
 					}
+                    else {
+                        Vtiger_Edit_Js.releaseLock();
+                    }
 				} else {
 					//If validation fails, form should submit again
 					editViewForm.removeData('submit');
@@ -554,7 +575,7 @@ jQuery.Class("Vtiger_Edit_Js",{
 		for(var i=0;i<sourcePicklists.length;i++){
 			sourcePickListNames += '[name="'+sourcePicklists[i]+'"],';
 		}
-		var sourcePickListElements = container.find(sourcePickListNames);
+		var sourcePickListElements = container.find(sourcePickListNames.slice(0,-1));// chop off trailing comma
 
 		sourcePickListElements.on('change',function(e){
 			var currentElement = jQuery(e.currentTarget);
@@ -609,11 +630,70 @@ jQuery.Class("Vtiger_Edit_Js",{
     
 	 registerLeavePageWithoutSubmit : function(form){
         InitialFormData = form.serialize();
+        delayedSubmit = false;  // should be set to true by successful ajax-request handler that prevented the forms submission before
         window.onbeforeunload = function(e){
-            if (InitialFormData != form.serialize() && form.data('submit') != "true") {
+            Vtiger_Edit_Js.releaseLock();
+            if (InitialFormData != form.serialize() && form.data('submit') != "true" && !delayedSubmit) {
                 return app.vtranslate("JS_CHANGES_WILL_BE_LOST");
             }
         };
+    },
+
+    registerPicklistChanges : function() {
+        jQuery("td.fieldValue select").on("change",function(e) {
+            var fieldname = e.currentTarget.name;
+            var fieldvalue = e.currentTarget.value;
+            jQuery(".dynblock").each(function(index,elem) {
+                // var hidedata = jQuery(elem).data("hide-"+fieldname);
+                var blockdata = jQuery(elem).data("block-"+fieldname);
+
+                if (blockdata && blockdata.indexOf(fieldvalue) >= 0) {
+                    jQuery(elem).hide();
+                    jQuery(elem).data("blockedby-"+fieldname,true);
+                    return true;
+                }
+                // else if (hidedata && hidedata.indexOf(fieldvalue) >= 0) {
+                    // jQuery(elem).show();
+                    // jQuery(elem).find("tbody").hide();
+                    // jQuery(elem).data("hiddenby-"+fieldname,true);
+                    // return true;
+                // }
+                else {
+                    // only unblock or unhide block by the same picklist that blocked/hid it
+                    if (jQuery(elem).data("hiddenby-"+fieldname) || jQuery(elem).data("blockedby-"+fieldname)) {
+                        jQuery(elem).show();
+                        // jQuery(elem).find("tbody").show();
+                        jQuery(elem).data("blockedby-"+fieldname,false);
+                        // jQuery(elem).data("hiddenby-"+fieldname,false);
+                    }
+                }
+           });
+        });
+        jQuery("td.fieldValue select").trigger("change");
+
+        // show initially invisible container to prevent flickering during init
+        jQuery(".editViewContainer").css("visibility","visible");
+    },
+
+    checkEditLock: function() {
+        var recordid = jQuery('input[name="record"]').val();
+        if (recordid > 0) {
+            var url = "index.php?module=Vtiger&action=EditLocksAjax&record="+recordid+"&mode=isLocked";
+            AppConnector.request(url).then(
+                function(data){
+                    if (data.result != false) {
+                        // display alert and remove submit button when record is locked
+                        jQuery(":button[type='submit']").remove();
+                        alert(app.vtranslate('JS_RECORD_LOCKED_BY_USER').replace(/{user}/, data.result.lockedByUser));
+                    }
+                    else {
+                        // otherwise create lock
+                        Vtiger_Edit_Js.lockRecord(recordid);
+                        jQuery("a.cancelLink").on("click",function() { Vtiger_Edit_Js.releaseLock();});
+                    }
+                }
+            );
+        }
     },
 
 	registerEvents: function(){
@@ -623,6 +703,8 @@ jQuery.Class("Vtiger_Edit_Js",{
 			return;
 		}
 
+        this.checkEditLock();
+        
 		this.registerBasicEvents(this.getForm());
 		this.registerEventForImageDelete();
 		this.registerSubmitEvent();
@@ -655,6 +737,8 @@ jQuery.Class("Vtiger_Edit_Js",{
 		}
 		editViewForm.validationEngine(params);
 
+        this.registerPicklistChanges();
+        
 		this.registerReferenceCreate(editViewForm);
 	//this.triggerDisplayTypeEvent();
 	}

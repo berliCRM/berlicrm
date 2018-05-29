@@ -175,26 +175,28 @@ jQuery.Class("Vtiger_Header_Js", {
     },
     registerCalendarButtonClickEvent: function() {
         var element = jQuery('#calendarBtn');
-        var dateFormat = element.data('dateFormat');
-        var currentDate = element.data('date');
-        var vtigerDateFormat = app.convertToDatePickerFormat(dateFormat);
-        element.on('click', function(e) {
-            e.stopImmediatePropagation();
-            element.closest('div.nav').find('div.open').removeClass('open');
-            var calendar = jQuery('#' + element.data('datepickerId'));
-            if (jQuery(calendar).is(':visible')) {
-                element.DatePickerHide();
-            } else {
-                element.DatePickerShow();
-            }
-        })
-        element.DatePicker({
-            format: vtigerDateFormat,
-            date: currentDate,
-            calendars: 1,
-            starts: 1,
-            className: 'globalCalendar'
-        });
+		if (element.length != 0) {
+			var dateFormat = element.data('dateFormat');
+			var currentDate = element.data('date');
+			var vtigerDateFormat = app.convertToDatePickerFormat(dateFormat);
+			element.on('click', function(e) {
+				e.stopImmediatePropagation();
+				element.closest('div.nav').find('div.open').removeClass('open');
+				var calendar = jQuery('#' + element.data('datepickerId'));
+				if (jQuery(calendar).is(':visible')) {
+					element.DatePickerHide();
+				} else {
+					element.DatePickerShow();
+				}
+			})
+			element.DatePicker({
+				format: vtigerDateFormat,
+				date: currentDate,
+				calendars: 1,
+				starts: 1,
+				className: 'globalCalendar'
+			});
+		}
     },
     handleQuickCreateData: function(data, params) {
         if (typeof params == 'undefined') {
@@ -307,7 +309,7 @@ jQuery.Class("Vtiger_Header_Js", {
             }
         });
 
-        form.find('#goToFullForm').on('click', function(e) {
+        form.find('.goToFullForm').on('click', function(e) {
             var form = jQuery(e.currentTarget).closest('form');
             var editViewUrl = jQuery(e.currentTarget).data('editViewUrl');
             if (typeof goToFullFormCallBack != "undefined") {
@@ -401,8 +403,11 @@ jQuery.Class("Vtiger_Header_Js", {
     registerEvents: function() {
         var thisInstance = this;
 
+        var myNav = navigator.userAgent.toLowerCase();
+        var isIE = (myNav.indexOf('msie') != -1) ? parseInt(myNav.split('msie')[1]) : false;
+
 		//Show Alert if user is on a unsupported browser (IE7, IE8, ..etc)
-		if(jQuery.browser.msie && jQuery.browser.version < 9.0) {
+		if(isIE && isIE < 9) {
 			if(app.getCookie('oldbrowser') != 'true') {
 				app.setCookie("oldbrowser",true, 365);
 				window.location.href = 'layouts/vlayout/modules/Vtiger/browsercompatibility/Browser_compatibility.html';
@@ -488,7 +493,7 @@ jQuery.Class("Vtiger_Header_Js", {
 		$(document).ajaxComplete(function() {
 			 Vtiger_Header_Js.getInstance().adjustContentHeight();
 		});
-		$(document).load(function() {
+		$(document).on("load",function() {
 			 Vtiger_Header_Js.getInstance().adjustContentHeight();
 		});
     }

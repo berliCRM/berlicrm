@@ -12,16 +12,16 @@
 class Google_Map_View extends Vtiger_Detail_View {
 
     /**
-     * must be overriden
+     * must be overridden
      * @param Vtiger_Request $request
      * @return boolean 
      */
-    function preProcess(Vtiger_Request $request) {
+    function preProcess(Vtiger_Request $request, $display=false) {
         return true;
     }
 
     /**
-     * must be overriden
+     * must be overridden
      * @param Vtiger_Request $request
      * @return boolean 
      */
@@ -30,7 +30,7 @@ class Google_Map_View extends Vtiger_Detail_View {
     }
 
     /**
-     * called when the request is recieved.
+     * called when the request is received.
      * if viewtype : detail then show location
      * TODO : if viewtype : list then show the optimal route.    
      * @param Vtiger_Request $request 
@@ -48,11 +48,15 @@ class Google_Map_View extends Vtiger_Detail_View {
      * @param Vtiger_Request $request 
      */
     function showLocation(Vtiger_Request $request) {
-        $viewer = $this->getViewer($request);
+		$user = Users_Record_Model::getCurrentUserModel();
+		$viewer = $this->getViewer($request);
         // record and source_module values to be passed to populate the values in the template,
         // required to get the respective records address based on the module type.
         $viewer->assign('RECORD', $request->get('record'));
         $viewer->assign('SOURCE_MODULE', $request->get('source_module'));
+		$viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
+		$viewer->assign('MAPAPIKEY', Settings_Google_Module_Model::getGoogleApikey());
+		$viewer->assign('SETMENUEURL', Settings_Google_Module_Model::getIndexViewUrl());
         $viewer->view('map.tpl', $request->getModule());
     }
 

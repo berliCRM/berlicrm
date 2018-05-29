@@ -17,7 +17,7 @@ class Settings_LayoutEditor_Module_Model extends Vtiger_Module_Model {
 	 * Function that returns all the fields for the module
 	 * @return <Array of Vtiger_Field_Model> - list of field models
 	 */
-	public function getFields() {
+	public function getFields($a = false) {
 		if(empty($this->fields)){
 			$fieldList = array();
 			$blocks = $this->getBlocks();
@@ -204,8 +204,8 @@ class Settings_LayoutEditor_Module_Model extends Vtiger_Module_Model {
                                $fieldLength = $params['fieldLength'];
                                $decimal = $params['decimal'];
                                $uitype = 71;
+							   $decimal = (empty($decimal) || $decimal < 3) ? 3 : $decimal;
                                $dbfldlength = $fieldLength + $decimal + 1;
-                               $decimal = $decimal + 3;
                                $type="NUMERIC(".$dbfldlength.",".$decimal.")"; //adodb type
                                $uichekdata='N~O';
                                break;

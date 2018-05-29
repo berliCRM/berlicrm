@@ -18,7 +18,7 @@ class Vtiger_BasicAjax_View extends Vtiger_Basic_View {
 
 	function checkPermission() { }
 
-	function preProcess(Vtiger_Request $request) {
+	function preProcess(Vtiger_Request $request, $display = false) {
 		return true;
 	}
 

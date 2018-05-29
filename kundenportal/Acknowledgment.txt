@@ -1,0 +1,21 @@
+ACKNOWLEDGMENTS:
+
+The vtiger Customer Portal contains the software product of other developers. 
+We wish to acknowledge the following third party software that are used in vtiger Customer Portal:
+
+1. GNU LGPL License for usage of nusoap downloaded from http://sourceforge.net/projects/nusoap
+
+2. AdminLTE v1.2 - AlmsaeedStudio.com - MIT
+
+3. Bootstrap v3.0.3 - Apache 2.0 License
+
+4. csrf-magic - BSD - https://github.com/ezyang/csrf-magic
+
+CREDITS:
+
+(2014) 
+Thanks to Simone Travaglini and Matteo Baranzoni for contributing the UI enhancements for the Customer Portal.
+http://lists.vtigercrm.com/pipermail/vtigercrm-developers/2014-October/030310.html
+
+---------------------------------------------
+2014 www.vtiger.com. All Rights Reserved.

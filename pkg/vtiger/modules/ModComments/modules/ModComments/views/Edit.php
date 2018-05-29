@@ -14,7 +14,12 @@ Class ModComments_Edit_View extends Vtiger_Edit_View {
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$moduleName = $request->getModule();
 		$record = $request->get('record');
-		if (!empty($record) || !Users_Privileges_Model::isPermitted($moduleName, 'EditView')) {
+		$actionName = 'CreateView';
+		if ($record && !$request->get('isDuplicate')) {
+			$actionName = 'EditView';
+		}
+
+		if(!Users_Privileges_Model::isPermitted($moduleName, $actionName, $record)) {
 			throw new AppException('LBL_PERMISSION_DENIED');
 		}
 	}

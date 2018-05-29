@@ -64,10 +64,8 @@
   `roundrobin_userid` varchar(256)DEFAULT NULL,
   `roundrobin_logic` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `webformname` (`name`),
-  UNIQUE KEY `publicid` (`id`),
-  KEY `webforms_webforms_id_idx` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+  UNIQUE KEY `webformname` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_webforms_field</name>
@@ -81,12 +79,11 @@
   `sequence` int(10) DEFAULT NULL,
   `hidden` int(10) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `webforms_webforms_field_idx` (`id`),
   KEY `fk_1_vtiger_webforms_field` (`webformid`),
   KEY `fk_2_vtiger_webforms_field` (`fieldname`),
   CONSTRAINT `fk_1_vtiger_webforms_field` FOREIGN KEY (`webformid`) REFERENCES `vtiger_webforms` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_3_vtiger_webforms_field` FOREIGN KEY (`fieldname`) REFERENCES `vtiger_field` (`fieldname`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 </tables>
 <crons>

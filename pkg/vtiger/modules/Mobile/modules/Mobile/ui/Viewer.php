@@ -35,5 +35,6 @@ class Mobile_UI_Viewer extends Vtiger_Viewer{
 		$response->setResult($smarty->fetch(vtlib_getModuleTemplate('Mobile', $templateName)));
 		return $response;
 	}
-
+	
 }
+?>

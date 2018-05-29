@@ -111,7 +111,7 @@ class soapclient2 extends nusoap_base  {
 				
 				// instantiate wsdl object and parse wsdl file
 				$this->debug('instantiating wsdl class with doc: '.$endpoint);
-				$this->wsdl = new wsdl($this->wsdlFile,$this->proxyhost,$this->proxyport,$this->proxyusername,$this->proxypassword,$this->timeout,$this->response_timeout);
+				$this->wsdl =& new wsdl($this->wsdlFile,$this->proxyhost,$this->proxyport,$this->proxyusername,$this->proxypassword,$this->timeout,$this->response_timeout);
 			}
 			$this->appendDebug($this->wsdl->getDebug());
 			$this->wsdl->clearDebug();
@@ -362,7 +362,7 @@ class soapclient2 extends nusoap_base  {
 			case ereg('^http',$this->endpoint):
 				$this->debug('transporting via HTTP');
 				if($this->persistentConnection == true && is_object($this->persistentConnection)){
-					$http = $this->persistentConnection;
+					$http =& $this->persistentConnection;
 				} else {
 					$http = new soap_transport_http($this->endpoint);
 					if ($this->persistentConnection) {

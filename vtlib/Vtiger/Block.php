@@ -31,6 +31,8 @@ class Vtiger_Block {
 	var $iscustom=0;
 
 	var $module;
+    public $hideWhenPickListHasValue;
+    public $blockWhenPickListHasValue;
 
 	/**
 	 * Constructor
@@ -207,6 +209,22 @@ class Vtiger_Block {
 		for($index = 0; $index < $adb->num_rows($result); ++$index) {
 			$instance = new self();
 			$instance->initialize($adb->fetch_array($result), $moduleInstance);
+
+            // crm-now: fetch data for dynamic blocks
+            $q = "SELECT * from berli_dynamic_blocks LEFT JOIN vtiger_picklist USING (picklistid) WHERE moduleId = ? and blockId= ?";
+            $res = $adb->pquery($q,array($moduleInstance->id,$instance->id));
+            while ($row = $adb->fetchByAssoc($res)) {
+                $fieldname = $row["name"];
+                $q2 = "SELECT $fieldname FROM vtiger_$fieldname WHERE picklist_valueid =?";
+                $res2 = $adb->pquery($q2,array($row["picklistvalueid"]));
+                $picklistvalue = $adb->query_result($res2,0,$fieldname);
+                if ($row["initialstatus"]>0) {
+                    $instance->hideWhenPickListHasValue[$fieldname][]=$picklistvalue;
+                }
+                if ($row['blocked']>0) {
+                    $instance->blockWhenPickListHasValue[$fieldname][]=$picklistvalue;
+                }
+            }
 			$instances[] = $instance;
 		}
 		return $instances;

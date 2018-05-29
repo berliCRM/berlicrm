@@ -201,7 +201,7 @@ Vtiger_List_Js('Vtiger_FindDuplicates_Js',{
 				var url = 'module='+app.getModuleName()+'&view=MergeRecord&records='+records;
 				thisInstance.popupWindowInstance = popupInstance.show(url, '', '', '', function(params){
 					thisInstance.mergeRecordPopupCallback();
-				});
+				},'location=1,width=1200,height=900,resizable=1,scrollbars=1');
 			}
 		});
 	},
@@ -227,6 +227,40 @@ Vtiger_List_Js('Vtiger_FindDuplicates_Js',{
 			});
 		});
 	},
+	
+	/**
+	 * Callback function after the merge popup appears for ListView
+	 */
+	mergeRecordPopupCallbackForListView : function() {
+        
+		var thisInstance = this;
+		var win = thisInstance.popupWindowInstance;
+		var form = win.document.forms['massMerge'];
+        win.scrollbars = true;
+		jQuery(form.primaryRecord).on('change', function(event) {
+			var id = jQuery(event.currentTarget).val();
+			jQuery(form).find('[data-id='+id+']').attr('checked', true);
+		});
+        
+		jQuery(form).on('submit', function(e){
+			e.preventDefault();
+			var params = jQuery(form).serialize();
+            
+			AppConnector.request(params).then(function(data){
+				win.close();
+				var params = {
+					title : app.vtranslate('JS_MESSAGE'),
+					text: app.vtranslate('JS_RECORDS_DUPLICATE_REMOVED'),
+					animation: 'show',
+					type: 'info'
+				};
+				Vtiger_Helper_Js.showPnotify(params);
+				thisInstance.getListViewRecords();
+				Vtiger_List_Js.clearList();
+			});
+            
+		});
+	},
 
 	/**
 	 * Function registers various events for duplicate search
@@ -234,6 +268,7 @@ Vtiger_List_Js('Vtiger_FindDuplicates_Js',{
 	registerEvents : function() {
 		var thisInstance = this;
 		thisInstance.registerMergeRecordEvent(thisInstance.mergeRecordPopupCallback);
+		// thisInstance.mergeRecordPopupCallbackForListView();
 		thisInstance.registerMainCheckBoxClickEvent();
 		thisInstance.registerPageNavigationEvents();
 		thisInstance.registerCheckBoxClickEvent();

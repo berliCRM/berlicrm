@@ -164,7 +164,7 @@ Vtiger_List_Js("Portal_List_Js",{
     },
     
     registerEditBookmark : function() {
-        jQuery('.editRecord').live('click', function(e) {
+        jQuery('.editRecord').on('click', function(e) {
             e.stopPropagation();
             var currentTarget = jQuery(e.currentTarget);
             var id = currentTarget.closest('.listViewEntries').data('id');
@@ -179,7 +179,7 @@ Vtiger_List_Js("Portal_List_Js",{
     },
     
     registerDeleteBookmark : function() {
-        jQuery('.deleteRecord').live('click', function(e) {
+        jQuery('.deleteRecord').on('click', function(e) {
             e.stopPropagation();
             e.preventDefault();
             var currentTarget = jQuery(e.currentTarget);
@@ -212,7 +212,7 @@ Vtiger_List_Js("Portal_List_Js",{
     },
     
     registerAlphabetSearch : function() {
-        jQuery('.portalAlphabetSearch').live('click', function(e) {
+        jQuery('.portalAlphabetSearch').on('click', function(e) {
             var currentTarget = jQuery(e.currentTarget);
             var searchValue = currentTarget.find('a').attr('id');
             var url = Portal_List_Js.getDefaultParams();
@@ -222,7 +222,7 @@ Vtiger_List_Js("Portal_List_Js",{
     },
     
     registerSortingEvent : function() {
-        jQuery('.portalListViewHeader').live('click', function(e) {
+        jQuery('.portalListViewHeader').on('click', function(e) {
             var currentTarget = jQuery(e.currentTarget);
             var orderBy = currentTarget.attr('id');
             var sortOrder = currentTarget.data('nextsortorderval');
@@ -259,7 +259,7 @@ Vtiger_List_Js("Portal_List_Js",{
     },
     
     registerRowClickEvent: function(){
-		jQuery('.listViewEntries').live('click', function(e){
+		jQuery('.listViewEntries').on('click', function(e){
 			if(jQuery(e.target, jQuery(e.currentTarget)).is('td:first-child')) return;
 			if(jQuery(e.target).is('input[type="checkbox"]')) return;
 			var elem = jQuery(e.currentTarget);

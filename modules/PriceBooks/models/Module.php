@@ -66,7 +66,6 @@ class PriceBooks_Module_Model extends Vtiger_Module_Model {
 	public function getQueryByModuleField($sourceModule, $field, $record, $listQuery, $currencyId = false) {
 		$relatedModulesList = array('Products', 'Services');
 		if (in_array($sourceModule, $relatedModulesList)) {
-			$pos = stripos($listQuery, ' where ');
 			if ($currencyId && in_array($field, array('productid', 'serviceid'))) {
 				$condition = " vtiger_pricebook.pricebookid IN (SELECT pricebookid FROM vtiger_pricebookproductrel WHERE productid = $record)
 								AND vtiger_pricebook.currency_id = $currencyId AND vtiger_pricebook.active = 1";
@@ -74,13 +73,13 @@ class PriceBooks_Module_Model extends Vtiger_Module_Model {
 				$condition = "vtiger_pricebook.pricebookid NOT IN (SELECT pricebookid FROM vtiger_pricebookproductrel WHERE productid = $record)
 								AND vtiger_pricebook.active = 1";
 			}
-			if ($pos) {
-				$split = spliti(' where ', $listQuery);
-				$overRideQuery = $split[0] . ' WHERE ' . $split[1] . ' AND ' . $condition;
+			$position = stripos($listQuery, 'where');
+			if($position) {
+				$listQuery .= ' AND ' . $condition;
 			} else {
-				$overRideQuery = $listQuery . ' WHERE ' . $condition;
+				$listQuery .= ' WHERE ' . $condition;
 			}
-			return $overRideQuery;
+			return $listQuery;
 		}
 	}
 	

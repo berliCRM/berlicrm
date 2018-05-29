@@ -151,6 +151,9 @@ class VtigerActorOperation extends WebserviceEntityOperation {
 				"Record not found");
 		}
 		$element = $this->getElement();
+		if ($this->meta->getEntityName() == 'LineItem') {
+			unset($element['id']);
+		}
 
 		return DataTransform::filterAndSanitize($element,$this->meta);
 	}
@@ -245,7 +248,7 @@ class VtigerActorOperation extends WebserviceEntityOperation {
 		$app_strings = VTWS_PreserveGlobal::getGlobal('app_strings');
 		$current_user = vtws_preserveGlobal('current_user',$this->user);;
 		$label = (isset($app_strings[$elementType]))? $app_strings[$elementType]:$elementType;
-		$createable = $this->meta->hasWriteAccess();
+		$createable = $this->meta->hasCreateAccess();
 		$updateable = $this->meta->hasWriteAccess();
 		$deleteable = $this->meta->hasDeleteAccess();
 		$retrieveable = $this->meta->hasReadAccess();

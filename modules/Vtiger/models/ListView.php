@@ -125,6 +125,16 @@ class Vtiger_ListView_Model extends Vtiger_Base_Model {
 				'linkicon' => ''
 			);
 		}
+		
+		//crm-now: added action for duplicate removal
+		if($currentUserModel->hasModuleActionPermission($moduleModel->getId(), 'Delete')) {
+			$massActionLinks[] = array(
+				'linktype' => 'LISTVIEWMASSACTION',
+				'linklabel' => 'LBL_REMOVE_DUPLICATES',
+				'linkurl' => 'javascript:Vtiger_List_Js.triggerRemoveDuplicates("module='.$moduleModel->get('name').'&view=MergeRecord")',
+				'linkicon' => ''
+			);
+		}
 
 		foreach($massActionLinks as $massActionLink) {
 			$links['LISTVIEWMASSACTION'][] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
@@ -144,7 +154,19 @@ class Vtiger_ListView_Model extends Vtiger_Base_Model {
 		$headerFields = $listViewContoller->getListViewHeaderFields();
 		foreach($headerFields as $fieldName => $webserviceField) {
 			if($webserviceField && !in_array($webserviceField->getPresence(), array(0,2))) continue;
-			$headerFieldModels[$fieldName] = Vtiger_Field_Model::getInstance($fieldName,$module);
+            // crm-now: fieldname prepended by (secondary) module name? create an instance of that module...
+            if (strpos($fieldName,".")>0) {
+                list($modname,$fname) = explode(".",$fieldName);
+
+                if (!isset($modinst[$modname])) {
+                    $modinst[$modname] = Vtiger_Module_Model::getInstance($modname);
+                }
+                $headerFieldModels[$fieldName] = Vtiger_Field_Model::getInstance($fname,$modinst[$modname]);
+                $headerFieldModels[$fieldName]->name = $fieldName;
+            }
+            else {
+				$headerFieldModels[$fieldName] = Vtiger_Field_Model::getInstance($fieldName,$module);
+            }
 		}
 		return $headerFieldModels;
 	}
@@ -185,9 +207,14 @@ class Vtiger_ListView_Model extends Vtiger_Base_Model {
         $orderBy = $this->getForSql('orderby');
 		$sortOrder = $this->getForSql('sortorder');
 
+        // sort by alias'd column in combined customview
+        if (strpos($orderBy,".")>0) {
+            $orderBy = str_replace(".","",$orderBy);
+        }
+
 		//List view will be displayed on recently created/modified records
 		if(empty($orderBy) && empty($sortOrder) && $moduleName != "Users"){
-			$orderBy = 'modifiedtime';
+			$orderBy = 'vtiger_crmentity.modifiedtime';
 			$sortOrder = 'DESC';
 			if (PerformancePrefs::getBoolean('LISTVIEW_DEFAULT_SORTING', true)) {
                                 $orderBy = $moduleFocus->default_order_by;
@@ -333,14 +360,9 @@ class Vtiger_ListView_Model extends Vtiger_Base_Model {
 				}
 			}
 		}
-		$position = stripos($listQuery, ' from ');
-		if ($position) {
-			$split = spliti(' from ', $listQuery);
-			$splitCount = count($split);
-			$listQuery = 'SELECT count(*) AS count ';
-			for ($i=1; $i<$splitCount; $i++) {
-				$listQuery = $listQuery. ' FROM ' .$split[$i];
-			}
+		$pos = stripos($listQuery, ' from ');
+        if ($pos !== false) {
+			$listQuery = 'SELECT count(*) AS count' . substr($listQuery,$pos); 
 		}
 
 		if($this->getModule()->get('name') == 'Calendar'){
@@ -424,7 +446,7 @@ class Vtiger_ListView_Model extends Vtiger_Base_Model {
 	 */
 	public function getAdvancedLinks(){
 		$moduleModel = $this->getModule();
-		$createPermission = Users_Privileges_Model::isPermitted($moduleModel->getName(), 'EditView');
+		$createPermission = Users_Privileges_Model::isPermitted($moduleModel->getName(), 'CreateView');
 		$advancedLinks = array();
 		$importPermission = Users_Privileges_Model::isPermitted($moduleModel->getName(), 'Import');
 		if($importPermission && $createPermission) {
@@ -475,7 +497,7 @@ class Vtiger_ListView_Model extends Vtiger_Base_Model {
 	public function getBasicLinks(){
 		$basicLinks = array();
 		$moduleModel = $this->getModule();
-		$createPermission = Users_Privileges_Model::isPermitted($moduleModel->getName(), 'EditView');
+		$createPermission = Users_Privileges_Model::isPermitted($moduleModel->getName(), 'CreateView');
 		if($createPermission) {
 			$basicLinks[] = array(
 					'linktype' => 'LISTVIEWBASIC',

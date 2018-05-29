@@ -185,7 +185,7 @@ class Settings_MailConverter_Record_Model extends Settings_Vtiger_Record_Model {
 		$scannerLatestInfo = new Vtiger_MailScannerInfo(false, false);
 		$fieldsList = $this->getModule()->getFields();
 		foreach ($fieldsList as $fieldName => $fieldModel) {
-			$scannerLatestInfo->$fieldName = $this->get($fieldName);
+			$scannerLatestInfo->$fieldName = html_entity_decode($this->get($fieldName));
 		}
 		$scannerId = $this->getId();
 		if (!empty($scannerId)) {
@@ -328,7 +328,7 @@ class Settings_MailConverter_Record_Model extends Settings_Vtiger_Record_Model {
 	 */
 	public static function getInstanceById($recordId) {
 		$db = PearDatabase::getInstance();
-		$result = $db->pquery('SELECT * FROM vtiger_mailscanner WHERE scannerid = ', array($recordId));
+		$result = $db->pquery('SELECT * FROM vtiger_mailscanner WHERE scannerid = ?', array($recordId));
 		if ($db->num_rows($result)) {
 			$recordModel = self::getCleanInstance();
 			$recordModel->setData($db->query_result_rowdata($result));

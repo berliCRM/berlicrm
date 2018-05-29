@@ -17,10 +17,11 @@ $languageStrings = array(
 	'LBL_DESCRIPTION' => 'Description',
 	'LBL_DUPLICATE_RECORD' => 'Duplicate',
 	'LBL_DUPLICATES_EXIST' => 'Duplicate Profile Exists',
-        'LBL_EDIT_ALL_DESC' => 'Can edit all the module\'s information',
-        'LBL_EDIT_ALL' => 'Edit All',
+	'LBL_EDIT_ALL_DESC' => 'Can edit all the module\'s information',
+	'LBL_EDIT_ALL' => 'Edit All',
 	'LBL_EDIT_PRIVILIGES_FOR_THIS_PROFILE' => 'Edit privileges for this profile',
-	'LBL_EDIT_PRVILIGE' => 'Create/Edit',
+	'LBL_CREATE_PRVILIGE' => 'Create',
+	'LBL_EDIT_PRVILIGE' => 'Edit',
 	'LBL_EDIT_RECORD' => 'Edit',
 	'LBL_FIELD_AND_TOOL_PRVILIGES' => 'Field and Tool Privileges',
 	'LBL_FIELDS' => 'Fields',
@@ -32,25 +33,25 @@ $languageStrings = array(
 	'LBL_READ_ONLY' => 'Read only',
 	'LBL_TOOLS' => 'Tools',
 	'LBL_TRANSFER_ROLES_TO_PROFILE' => 'Transfer roles to profile',
-        'LBL_VIEW_ALL_DESC' => 'Can view all the module\'s information',
-        'LBL_VIEW_ALL' => 'View All',
+	'LBL_VIEW_ALL_DESC' => 'Can view all the module\'s information',
+	'LBL_VIEW_ALL' => 'View All',
 	'LBL_VIEW_PRVILIGE' => 'View',
 	'LBL_WRITE' => 'Write',
 	'Profiles' => 'Profiles',
 	'SINGLE_Profiles' => 'Profile',
-    
-        'Import' => 'Import',
-        'Export' => 'Export',
+
+	'Import' => 'Import',
+	'Export' => 'Export',
 	'Merge'  => 'Merge',
-        'ConvertLead' => 'Convert Lead',
-        'DuplicatesHandling' => 'Duplicates Handling',
-        'ReceiveIncomingCalls' => 'Receive Incoming Calls',
-        'MakeOutgoingCalls' => 'Make Outgoing Calls',
-        'Print' => 'Print',
-        
-         //Patch provided by http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7884
-        //Field names 
-        'Name' => 'Profile Name', 
+	'ConvertLead' => 'Convert Lead',
+	'DuplicatesHandling' => 'Duplicates Handling',
+	'ReceiveIncomingCalls' => 'Receive Incoming Calls',
+	'MakeOutgoingCalls' => 'Make Outgoing Calls',
+	'Print' => 'Print',
+
+	 //Patch provided by http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7884
+	//Field names 
+	'Name' => 'Profile Name', 
 );
 
 $jsLanguageStrings = array(

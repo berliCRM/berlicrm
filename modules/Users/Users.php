@@ -139,12 +139,13 @@ class Users extends CRMEntity {
      *
      */
 
-    function Users() {
+    function __construct() {
         $this->log = LoggerManager::getLogger('user');
         $this->log->debug("Entering Users() method ...");
         $this->db = PearDatabase::getInstance();
+        //$this->DEFAULT_PASSWORD_CRYPT_TYPE = 'MD5';
         $this->DEFAULT_PASSWORD_CRYPT_TYPE = (version_compare(PHP_VERSION, '5.3.0') >= 0)?
-                'PHP5.3MD5': 'MD5';
+                'SHA512': 'MD5';
         $this->column_fields = getColumnFields('Users');
         $this->column_fields['currency_name'] = '';
         $this->column_fields['currency_code'] = '';
@@ -267,13 +268,15 @@ class Users extends CRMEntity {
             // Try to get the crypt_type which is in database for the user
             $crypt_type = $this->get_user_crypt_type();
         }
-
         // For more details on salt format look at: http://in.php.net/crypt
         if($crypt_type == 'MD5') {
             $salt = '$1$' . $salt . '$';
         } elseif($crypt_type == 'BLOWFISH') {
             $salt = '$2$' . $salt . '$';
-        } elseif($crypt_type == 'PHP5.3MD5') {
+        } elseif($crypt_type == 'SHA512') {
+            $salt = '$6$'.substr(str_replace('+', '.', base64_encode(pack('N4', mt_rand(), mt_rand(), mt_rand(), mt_rand()))), 0,25);
+         
+        }  elseif($crypt_type == 'PHP5.3MD5') {
             //only change salt for php 5.3 or higher version for backward
             //compactibility.
             //crypt API is lot stricter in taking the value for salt.
@@ -345,6 +348,7 @@ class Users extends CRMEntity {
      */
     function doLogin($user_password) {
         global $AUTHCFG;
+        //crm-now: added for brute force check
         $usr_name = $this->column_fields["user_name"];
 
         switch (strtoupper($AUTHCFG['authType'])) {
@@ -371,20 +375,79 @@ class Users extends CRMEntity {
                 break;
 
             default:
+				$currentLanguage = Vtiger_Language_Handler::getLanguage();
+				include 'languages/'.$currentLanguage.'/Users.php';
                 $this->log->debug("Using integrated/SQL authentication");
-                $query = "SELECT crypt_type, user_name FROM $this->table_name WHERE user_name=?";
+                $query = "SELECT crypt_type, user_name ,user_password FROM $this->table_name WHERE user_name=?";
                 $result = $this->db->requirePsSingleResult($query, array($usr_name), false);
                 if (empty($result)) {
-                    return false;
-                }
-                $crypt_type = $this->db->query_result($result, 0, 'crypt_type');
-				$this->column_fields["user_name"] = $this->db->query_result($result, 0, 'user_name');
-                $encrypted_password = $this->encrypt_password($user_password, $crypt_type);
-                $query = "SELECT 1 from $this->table_name where user_name=? AND user_password=? AND status = ?";
-                $result = $this->db->requirePsSingleResult($query, array($usr_name, $encrypted_password, 'Active'), false);
-                if (empty($result)) {
-                    return false;
+					// $_SESSION['loginerror'] = $languageStrings['ERR_GENERAL'];
+                    // return false;
                 } else {
+					$crypt_type = $this->db->query_result($result, 0, 'crypt_type');
+					// $this->column_fields["user_name"] = $this->db->query_result($result, 0, 'user_name');
+					// the CRM encrypts the password with the same salt (build from the user name)
+					// and compares is with the DB content ...
+					$crypt_type = $this->get_user_crypt_type();
+					if($crypt_type != "SHA512") {
+						$encrypted_password = $this->encrypt_password($user_password, $crypt_type);
+						$query = "SELECT 1 from $this->table_name where user_name=? AND user_password=? AND status = ?";
+						$result = $this->db->requirePsSingleResult($query, array($usr_name, $encrypted_password, 'Active'), false);
+					}
+					else {
+						// wir machen das jetzt richtig ... das eingegebene klartext passwort wird mit dem 
+						// gespeicherten hash neu gecryptet und das ergebnis muss wieder exact der hash sein ...
+						$query = "SELECT `user_password` FROM $this->table_name where user_name=? AND status = ?";
+						$result = $this->db->requirePsSingleResult($query, array($usr_name,'Active'), false);
+						if ($result) {
+							$stored_hash=$this->db->query_result($result, 0, 'user_password');
+							if(!empty($stored_hash)) {
+								$encrypted_password=crypt($user_password,$stored_hash);
+								if($encrypted_password != $stored_hash) {
+									$result='';
+								}
+							}
+							else {
+								$result='';
+							}
+						}
+					}
+				}
+                //$result="xaxa";
+                if (empty($result)) {
+					$login_tries = 5;
+					$ret = crmnow_login_protection($usr_name, $login_tries);
+					if ($ret === false) {
+						if ($usr_name=='admin') {
+							$_SESSION['loginerror'] = $languageStrings['ERR_ACCOUNT_LOCKED'];
+						}
+						else {
+							$_SESSION['loginerror'] = $languageStrings['ERR_ACCOUNT_LOCKED_USER'];
+						}
+					} else {
+						$errormessage = $languageStrings['ERR_TRY'].' '.$ret.' '.$languageStrings['ERR_TO'].' '.$login_tries;
+						$_SESSION['loginerror'] = $errormessage;
+					}
+					
+					return false;
+                } 
+				else {
+					$query = "SELECT `status` FROM `vtiger_users` WHERE `user_name`='".$usr_name . "'";
+					$result = $this->db->requireSingleResult($query, false);
+					if (!$result) {
+						$this->log->warn("MySQL error: (".$query.")"); 
+					}
+					$row = $this->db->fetchByAssoc($result);
+					if($row['status']=='Active') {
+						$tablecheck = $this->db->query("show tables like 'berli_failed_logins'");
+						if ($this->db->num_rows($tablecheck) > 0) {
+							$query = "DELETE FROM `berli_failed_logins` WHERE  `user_name` = '".$usr_name."'";
+							$result = $this->db->requireSingleResult($query, false);
+							if (!$result) {
+								$this->log->warn("MySQL error: (".$query.")"); 
+							}
+						}
+					}
                     return true;
                 }
                 break;
@@ -577,9 +640,21 @@ class Users extends CRMEntity {
         $row = $this->db->fetchByAssoc($result);
         $this->log->debug("select old password query: $query");
         $this->log->debug("return result of $row");
-        $encryptedPassword = $this->encrypt_password($password, $row['crypt_type']);
-        if($encryptedPassword != $row['user_password']) {
+        if($row['crypt_type'] != "SHA512")
+        {
+          $encryptedPassword = $this->encrypt_password($password, $row['crypt_type']);
+          if($encryptedPassword != $row['user_password']) {
+              return false;
+          }
+          return true;
+        }
+        else
+        {
+          $pw_hash=crypt($password,$row['user_password']);
+          if( $pw_hash != $row['user_password'])
+          {
             return false;
+          }          
         }
         return true;
     }
@@ -681,8 +756,15 @@ class Users extends CRMEntity {
      */
 
     function retrieveCurrentUserInfoFromFile($userid) {
-		checkFileAccessForInclusion('user_privileges/user_privileges_'.$userid.'.php');
-        require('user_privileges/user_privileges_'.$userid.'.php');
+		//crm-now: added to make object available to workflows
+		if (strpos(getcwd(), 'com_vtiger_workflow')) {
+			$usepath = '../../../';
+		}
+		else {
+			$usepath = '';
+		}
+		checkFileAccessForInclusion($usepath.'user_privileges/user_privileges_'.$userid.'.php');
+        require($usepath.'user_privileges/user_privileges_'.$userid.'.php');
         foreach($this->column_fields as $field=>$value_iter) {
             if(isset($user_info[$field])) {
                 $this->$field = $user_info[$field];
@@ -1713,7 +1795,7 @@ class Users_CRMSetup {
 			'Tools' => array(
 				'label' => 'Contact Management',
 				'imageName' => 'BasicPackage.png',
-				'description' => 'Unify and store your contacts alongside detailed notes, documents, emails, calendar events, and more. Additionally, configure what information each CRM user can see and update, and automate business activities such as email responses and contact information updates.',
+				'description' => 'LBL_TOOLS_DESCR',
 				'modules' => array(
 					'Contacts' => 'Contacts',
 					'Accounts' => 'Organizations',
@@ -1727,29 +1809,29 @@ class Users_CRMSetup {
 			'Sales' => array(
 				'label' => 'Sales Automation',
 				'imageName' => 'SalesAutomation.png',
-				'description' => 'Capture Leads from your website, or import lists of them, then develop a process for qualifying and turning them into potential sales opportunities, and another for winning those potential opportunities. Additionally, track and segment your sales funnel, individual, and team, performance areas.',
+				'description' => 'LBL_SALES_DESCR',
 				'modules' => array(
 					'Potentials' => 'Opportunities'
 				)),
 			'Marketing' => array(
 				'label' => 'Marketing',
 				'imageName' => 'Marketing.png',
-				'description' => 'Send individual, targeted, or bulk emails to your contacts, leads, and customers, and see how they engage with each communication, with tools to analyze and improve campaign performance.',
-				'modules' => array()),
-			
+				'description' => 'LBL_MARKETING_DESCR',
+				'modules' => array(
+				)),
 			'Support' => array(
 				'label' => 'Support',
 				'imageName' => 'Support.png',
-				'description' => 'Create and track customer requests/tasks via tickets, and even allow your customers to create and monitor their own tickets and details through a professional customer portal.',
+				'description' => 'LBL_SUPPORT_DESCR',
 				'modules' => array(
 					'HelpDesk' => 'Tickets',
 					'ServiceContracts' => 'Service Contracts',
 					'CustomerPortal' => 'Customer Portal'
 				)),
 			'Inventory' => array(
-				'label' => 'Invoicing & Inventory Management',
+				'label' => 'Invoicing and Inventory Management',
 				'imageName' => 'Inventory.png',
-				'description' => 'Build a database of your products and services, maintain inventories, standard prices and prices books, and use these to create quotes, invoices, and sales orders.',
+				'description' => 'LBL_INVENTORY_DESCR',
 				'modules' => array(
 					'Quotes' => 'Quotes',
 					'Invoice' => 'Invoice',
@@ -1760,7 +1842,7 @@ class Users_CRMSetup {
 			'Project' => array(
 				'label' => 'Project Management',
 				'imageName' => 'ProjectManagement.png',
-				'description' => 'Build and manage customer-associated projects, with detailed tasks that can be assigned to CRM users and placed on their calendars.',
+				'description' => 'LBL_PROJECT_DESCR',
 				'modules' => array(
 					'Project' => 'Projects',
 					'ProjectTask' => 'Tasks',

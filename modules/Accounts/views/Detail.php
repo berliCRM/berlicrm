@@ -11,6 +11,10 @@
 
 class Accounts_Detail_View extends Vtiger_Detail_View {
 
+	function __construct() {
+		parent::__construct();
+		$this->exposeMethod('showRelatedRecords');
+	}
 	/**
 	 * Function to get activities
 	 * @param Vtiger_Request $request

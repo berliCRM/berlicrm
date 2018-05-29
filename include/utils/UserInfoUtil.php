@@ -297,6 +297,11 @@ function isPermitted($module,$actionname,$record_id='')
 	$tabid = getTabid($module);
 	$actionid=getActionid($actionname);
 	$checkModule = $module;
+	
+	//crm-now: forbid deletion of admin user
+	if ($module == 'Users' && $record_id == '1' && $actionid == 2) {
+		return "no";
+	}
 
 	if($checkModule == 'Events'){
 		$checkModule = 'Calendar';

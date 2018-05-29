@@ -112,6 +112,15 @@
                             {elseif $RELATED_HEADERNAME eq 'access_count'}
                                 {$RELATED_RECORD->getAccessCountValue($PARENT_RECORD->getId())}
                             {elseif $RELATED_HEADERNAME eq 'time_start'}
+							{elseif $RELATED_HEADERNAME eq 'phone'}
+								{assign var=SOFTPHONE value=berliSoftphones_Record_Model::getSoftphonePrefix()}
+								{if $SOFTPHONE and $RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}
+										{assign var=PHONE_FIELD_VALUE value=$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}
+										{assign var=PHONE_NUMBER value=$PHONE_FIELD_VALUE|regex_replace:"/[-()\s]/":""}
+										<a class="phoneField" data-value="{$PHONE_NUMBER}" record="{$RELATED_RECORD->getId()}" href="{$SOFTPHONE}{$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}">{$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}</a>
+                                 {else}
+                                    {$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}   
+ 								{/if}
                             {elseif $RELATED_HEADERNAME eq 'listprice' || $RELATED_HEADERNAME eq 'unit_price'}
                                 {CurrencyField::convertToUserFormat($RELATED_RECORD->get($RELATED_HEADERNAME), null, true)}
                                 {if $RELATED_HEADERNAME eq 'listprice'}
@@ -165,8 +174,9 @@
                                     </span>
                                 </div>
                             </td>
-                        {/if}
+                        {else}
                         </td>
+						{/if}
                     {/foreach}
                 </tr>
             {/foreach}

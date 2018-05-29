@@ -141,7 +141,7 @@ class Vtiger_MailScannerAction {
 				$returnid = $this->__CreateAccount($mailscanner, $mailrecord,$mailscannerrule);
 			}
 		} else if($this->actiontype == 'LINK') {
-			$returnid = $this->__LinkToRecord($mailscanner, $mailrecord);
+			$returnid = $this->__LinkToRecord($mailscanner, $mailrecord, $mailscannerrule);
 		} else if ($this->actiontype == 'UPDATE') {
 			if ($this->module == 'HelpDesk') {
 				$returnid = $this->__UpdateTicket($mailscanner, $mailrecord, $mailscannerrule->hasRegexMatch($matchresult),$mailscannerrule);
@@ -191,7 +191,7 @@ class Vtiger_MailScannerAction {
 				// Set the ticket status to Open if its Closed
 				$adb->pquery("UPDATE vtiger_troubletickets set status=? WHERE ticketid=? AND status='Closed'", Array('Open', $linkfocus->id));
 
-				$returnid = $this->__CreateNewEmail($mailrecord, $this->module, $linkfocus);
+				$returnid = $this->__CreateNewEmail($mailrecord, $this->module, $linkfocus, $mailscannerrule);
 
 			} else {
 				// TODO If matching ticket was not found, create ticket?
@@ -207,7 +207,7 @@ class Vtiger_MailScannerAction {
 	function __CreateContact($mailscanner, $mailrecord, $mailscannerrule) {
         if($mailscanner->LookupContact($mailrecord->_from[0])) {
             $this->lookup = 'FROM';
-            return $this->__LinkToRecord($mailscanner, $mailrecord);
+            return $this->__LinkToRecord($mailscanner, $mailrecord, $mailscannerrule);
         }
                 $name = $this->getName($mailrecord);
 		$email = $mailrecord->_from[0];
@@ -222,7 +222,7 @@ class Vtiger_MailScannerAction {
 		$contact->column_fields['description'] = $description;
 		$contact->save('Contacts');
 
-		$this->__SaveAttachements($mailrecord, 'Contacts', $contact);
+		$this->__SaveAttachements($mailrecord, 'Contacts', $contact, $mailscannerrule->folderid);
 
 		return $contact->id;
 	}
@@ -233,7 +233,7 @@ class Vtiger_MailScannerAction {
 	function __CreateLead($mailscanner, $mailrecord, $mailscannerrule) {
         if($mailscanner->LookupLead($mailrecord->_from[0])) {
             $this->lookup = 'FROM';
-            return $this->__LinkToRecord($mailscanner, $mailrecord);
+            return $this->__LinkToRecord($mailscanner, $mailrecord, $mailscannerrule);
         }
 		$name = $this->getName($mailrecord);
 		$email = $mailrecord->_from[0];
@@ -248,7 +248,7 @@ class Vtiger_MailScannerAction {
 		$lead->column_fields['description'] = $description;
 		$lead->save('Leads');
 
-		$this->__SaveAttachements($mailrecord, 'Leads', $lead);
+		$this->__SaveAttachements($mailrecord, 'Leads', $lead, $mailscannerrule->folderid);
 
 		return $lead->id;
 	}
@@ -259,7 +259,7 @@ class Vtiger_MailScannerAction {
 	function __CreateAccount($mailscanner, $mailrecord, $mailscannerrule) {
         if($mailscanner->LookupAccount($mailrecord->_from[0])) {
             $this->lookup = 'FROM';
-            return $this->__LinkToRecord($mailscanner, $mailrecord);
+            return $this->__LinkToRecord($mailscanner, $mailrecord, $mailscannerrule);
         }
 		$name = $this->getName($mailrecord);
 		$email = $mailrecord->_from[0];
@@ -273,7 +273,7 @@ class Vtiger_MailScannerAction {
 		$account->column_fields['description'] = $description;
 		$account->save('Accounts');
 
-		$this->__SaveAttachements($mailrecord, 'Accounts', $account);
+		$this->__SaveAttachements($mailrecord, 'Accounts', $account, $mailscannerrule->folderid);
 
 		return $account->id;
 	}
@@ -312,13 +312,13 @@ class Vtiger_MailScannerAction {
 		$ticket->save('HelpDesk');
 
 		// Associate any attachement of the email to ticket
-		$this->__SaveAttachements($mailrecord, 'HelpDesk', $ticket);
+		$this->__SaveAttachements($mailrecord, 'HelpDesk', $ticket, $mailscannerrule->folderid);
                 
                 if($contactLinktoid)
                     $relatedTo = $contactLinktoid;
                 else
                     $relatedTo = $linktoid;
-                $this->linkMail($mailscanner, $mailrecord, $relatedTo);
+                $this->linkMail($mailscanner, $mailrecord, $relatedTo, $mailscannerrule);
                 
 		return $ticket->id;
 	}
@@ -329,7 +329,7 @@ class Vtiger_MailScannerAction {
          * @param type $mailscanner
          * @param type $mailrecord
          */
-        function linkMail($mailscanner, $mailrecord, $relatedTo) {
+        function linkMail($mailscanner, $mailrecord, $relatedTo, $mailscannerrule) {
             $fromemail = $mailrecord->_from[0];
             
             $linkfocus = $mailscanner->GetContactRecord($fromemail, $relatedTo);
@@ -340,14 +340,14 @@ class Vtiger_MailScannerAction {
             }
 
             if($linkfocus) {
-                $this->__CreateNewEmail($mailrecord, $module, $linkfocus);
+                $this->__CreateNewEmail($mailrecord, $module, $linkfocus, $mailscannerrule);
             }
         }
 
         /**
 	 * Add email to CRM record like Contacts/Accounts
 	 */
-	function __LinkToRecord($mailscanner, $mailrecord) {
+	function __LinkToRecord($mailscanner, $mailrecord, $mailscannerrule) {
 		$linkfocus = false;
 
 		$useemail  = false;
@@ -376,7 +376,7 @@ class Vtiger_MailScannerAction {
 
 		$returnid = false;
 		if($linkfocus) {
-			$returnid = $this->__CreateNewEmail($mailrecord, $this->module, $linkfocus);
+			$returnid = $this->__CreateNewEmail($mailrecord, $this->module, $linkfocus, $mailscannerrule);
 		}
 		return $returnid;
 	}
@@ -384,7 +384,7 @@ class Vtiger_MailScannerAction {
 	/**
 	 * Create new Email record (and link to given record) including attachements
 	 */
-	function __CreateNewEmail($mailrecord, $module, $linkfocus) {
+	function __CreateNewEmail($mailrecord, $module, $linkfocus, $mailscannerrule) {
 		global $current_user, $adb;
 		if(!$current_user) {
 			$current_user = Users::getActiveAdminUser();
@@ -422,7 +422,7 @@ class Vtiger_MailScannerAction {
 		$this->log("Created [$focus->id]: $mailrecord->_subject linked it to " . $linkfocus->id);
 
 		// TODO: Handle attachments of the mail (inline/file)
-		$this->__SaveAttachements($mailrecord, 'Emails', $focus);
+		$this->__SaveAttachements($mailrecord, 'Emails', $focus, $mailscannerrule->folderid);
 
 		return $emailid;
 	}
@@ -430,7 +430,7 @@ class Vtiger_MailScannerAction {
 	/**
 	 * Save attachments from the email and add it to the module record.
 	 */
-	function __SaveAttachements($mailrecord, $basemodule, $basefocus) {
+	function __SaveAttachements($mailrecord, $basemodule, $basefocus, $folderid = 1) {
 		global $adb;
 
 		// If there is no attachments return
@@ -453,6 +453,8 @@ class Vtiger_MailScannerAction {
 
 			$issaved = $this->__SaveAttachmentFile($attachid, $filename, $filecontent);
 			if($issaved) {
+				$res = $adb->pquery("SELECT * FROM vtiger_attachmentsfolder WHERE folderid = ?;", array($folderid));
+				if (!$res || $adb->num_rows($res) < 1) $folderid = 1;
 				// Create document record
 				$document = new Documents();
 				$document->column_fields['notes_title']		 = $filename;
@@ -460,7 +462,7 @@ class Vtiger_MailScannerAction {
 				$document->column_fields['filesize']		 = mb_strlen($filecontent, '8bit');
 				$document->column_fields['filestatus']		 = 1;
 				$document->column_fields['filelocationtype'] = 'I';
-				$document->column_fields['folderid']         = 1; // Default Folder
+				$document->column_fields['folderid']         = $folderid; // Default Folder
 				$document->column_fields['assigned_user_id'] = $userid;
 				$document->save('Documents');
 
@@ -473,9 +475,11 @@ class Vtiger_MailScannerAction {
 					Array($basefocus->id, $document->id));
 
 				// Link document to Parent entity - Account/Contact/...
-				list($eid,$junk)=explode('@',$basefocus->column_fields['parent_id']);
-				$adb->pquery("INSERT INTO vtiger_senotesrel(crmid, notesid) VALUES(?,?)",
-					Array($eid, $document->id));
+				if (!empty($eid)) {
+					list($eid,$junk)=explode('@',$basefocus->column_fields['parent_id']);
+					$adb->pquery("INSERT INTO vtiger_senotesrel(crmid, notesid) VALUES(?,?)",
+						Array($eid, $document->id));
+				}
 
 				// Link Attachement to the Email
 				$adb->pquery("INSERT INTO vtiger_seattachmentsrel(crmid, attachmentsid) VALUES(?,?)",

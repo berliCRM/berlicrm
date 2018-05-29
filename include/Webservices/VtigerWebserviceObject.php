@@ -15,7 +15,7 @@ class VtigerWebserviceObject{
 	private $handlerPath;
 	private $handlerClass;
 	
-	private function VtigerWebserviceObject($entityId,$entityName,$handler_path,$handler_class){
+	private function __construct($entityId,$entityName,$handler_path,$handler_class){
 		$this->id = $entityId;
 		$this->name = $entityName;
 		// Quick Fix to override default Actor class & path (good to update DB itself)

@@ -44,6 +44,17 @@ class SalesOrder_DetailView_Model extends Inventory_DetailView_Model {
 		    $linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($basicActionLink);
 		}
 		
+		$documentsModuleModel = Vtiger_Module_Model::getInstance('Documents');
+		if($currentUserModel->hasModuleActionPermission($documentsModuleModel->getId(), 'CreateView')) {
+			$basicActionLink = array(
+				'linktype' => 'DETAILVIEW',
+				'linklabel' => vtranslate('LBL_GENERATE').' PDF '.vtranslate($documentsModuleModel->getSingularLabelKey(), 'Documents'),
+				'linkurl' => 'javascript:Inventory_Detail_Js.createPDFDocumentHandler("'.$recordModel->getCreatePDFDocumentUrl().'")',
+				'linkicon' => ''
+			);
+			$linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($basicActionLink);
+		}
+		
 		return $linkModelList;
 	}
 		

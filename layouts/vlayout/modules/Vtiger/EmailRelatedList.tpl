@@ -96,9 +96,14 @@
                 <tr class="listViewEntries" data-id='{$RELATED_RECORD->getId()}' name="emailsRelatedRecord">
                     {foreach item=HEADER_FIELD from=$RELATED_HEADERS}
                         {assign var=RELATED_HEADERNAME value=$HEADER_FIELD->get('name')}
+                        {assign var=RELATED_ATTACHMENTS value=$RELATED_RECORD->getAttachmentCount($RELATED_RECORD->getId())}
 							<td class="{$WIDTHTYPE}">
                             {if $HEADER_FIELD->isNameField() eq true or $HEADER_FIELD->get('uitype') eq '4'}
+								{if $RELATED_ATTACHMENTS > '0'}
+                                <a><img class="listViewLoadingImage" src="{vimage_path('emailattachment.gif')}" alt="no-image" title="{vtranslate('LBL_ATTACHMENTS')}"/>({$RELATED_ATTACHMENTS})&nbsp;{$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}</a>
+								{else}
                                 <a>{$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}</a>
+								{/if}
                             {elseif $RELATED_HEADERNAME eq 'access_count'}
                                 {$RELATED_RECORD->getAccessCountValue($PARENT_RECORD->getId())}
                               {elseif $RELATED_HEADERNAME eq 'date_start'}
@@ -127,6 +132,13 @@
                                    onclick="if(event.stopPropagation){ldelim}event.stopPropagation();{rdelim}else{ldelim}event.cancelBubble=true;{rdelim}">
                                     {$REFERENCE_RECORD_ENTIYNAME_LIST.$REFERENCE_RECORD}
                                 </a>
+                            {elseif $RELATED_HEADERNAME eq 'saved_toid'}
+                                {* crm-now: decode json encoded email receivers for related email *}
+                                {assign var=toemails value=$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)|html_entity_decode|json_decode:1}
+                                {foreach item=toemail from=$toemails name=emails}
+                                    <span style='white-space:nowrap'>{$toemail|escape}</span>
+                                    {if $smarty.foreach.emails.last == false}, {/if}
+                                {/foreach}
                             {else if $HEADER_FIELD->getFieldDataType() eq 'owner'}
                                 {getOwnerName($RELATED_RECORD->get($RELATED_HEADERNAME))}
                             {else}

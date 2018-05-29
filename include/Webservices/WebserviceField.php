@@ -367,7 +367,7 @@ class WebserviceField{
 		$result = $this->pearDB->pquery($sql,array($fieldName));
 		$numRows = $this->pearDB->num_rows($result);
 		if($numRows == 0){
-			$sql = "select * from vtiger_$fieldName";
+			$sql = "select * from vtiger_$fieldName order by sortorderid asc";
 			$result = $this->pearDB->pquery($sql,array());
 			$numRows = $this->pearDB->num_rows($result);
 			for($i=0;$i<$numRows;++$i){

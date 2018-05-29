@@ -141,15 +141,15 @@ Inventory_Edit_Js("SalesOrder_Edit_Js",{},{
 					relatedField.attr('data-validation-engine','validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]');
 				}
 				if(relatedField.is("select")){
-					relatedField.attr('disabled',false).trigger("liszt:updated");
+					relatedField.prop('disabled',false).trigger("liszt:updated");
 				}else{
-					relatedField.removeAttr('disabled');
+					relatedField.prop('disabled',false);
 				}
 			}else if(!addValidation){
 				if(relatedField.is("select")){
-					relatedField.attr('disabled',true).trigger("liszt:updated");
+					relatedField.prop('disabled',true).trigger("liszt:updated");
 				}else{
-					relatedField.attr('disabled',"disabled");
+					relatedField.prop('disabled',true);
 				}
 				relatedField.validationEngine('hide');
 				if(relatedField.is('select') && relatedField.hasClass('chzn-select')){
@@ -161,10 +161,10 @@ Inventory_Edit_Js("SalesOrder_Edit_Js",{},{
 	},
 
 	registerEvents: function(){
-		this._super();
 		this.registerEventForEnablingRecurrence();
 		this.registerForTogglingBillingandShippingAddress();
 		this.registerEventForCopyAddress();
+        this._super(); // call parent method last, so form elements changed by registerEventForEnablingRecurrence are reflected in InitalFormData variable.
 	}
 });
 

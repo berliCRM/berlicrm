@@ -485,9 +485,15 @@ function getColumnFields($module)
 
 	if($module == 'Calendar') {
 		$cachedEventsFields = VTCacheUtils::lookupFieldInfo_Module('Events');
-		if ($cachedEventsFields) {
-			if(empty($cachedModuleFields)) $cachedModuleFields = $cachedEventsFields;
-			else $cachedModuleFields = array_merge($cachedModuleFields, $cachedEventsFields);
+		if (!$cachedEventsFields) {
+			getColumnFields('Events');
+			$cachedEventsFields = VTCacheUtils::lookupFieldInfo_Module('Events');
+		}
+
+		if (!$cachedModuleFields) {
+			$cachedModuleFields = $cachedEventsFields;
+		} else {
+			$cachedModuleFields = array_merge($cachedModuleFields, $cachedEventsFields);
 		}
 	}
 
@@ -1070,7 +1076,7 @@ function getInvoiceRelatedSalesOrder($record_id)
 /**
 * the function is like unescape in javascript
 * added by dingjianting on 2006-10-1 for picklist editor
-*/
+* appears not to be used anymore, removed 2018-02-06 
 function utf8RawUrlDecode ($source) {
     global $default_charset;
     $decodedStr = "";
@@ -1110,7 +1116,7 @@ function utf8RawUrlDecode ($source) {
 
 /**
 *simple HTML to UTF-8 conversion:
-  */
+
 function html_to_utf8 ($data)
 {
 	return preg_replace("/\\&\\#([0-9]{3,10})\\;/e", '_html_to_utf8("\\1")', $data);
@@ -1135,8 +1141,8 @@ function _html_to_utf8 ($data)
 	else
 		$ret = "&#$data;";
 	return $ret;
-	}
-
+}
+  */
 // Return Question mark
 function _questionify($v){
 	return "?";
@@ -2145,7 +2151,7 @@ function getSelectAllQuery($input,$module) {
 		$query = $oCustomView->getModifiedCvListQuery($viewid,$listquery,$module);
 		$where = '';
 		if($input['query'] == 'true') {
-			list($where, $ustring) = split("#@@#",getWhereCondition($module, $input));
+			list($where, $ustring) = explode("#@@#",getWhereCondition($module, $input));
 			if(isset($where) && $where != '') {
 				$query .= " AND " .$where;
 			}
@@ -2332,5 +2338,65 @@ function php7_compat_ereg($pattern, $str, $ignore_case=false) {
 if (!function_exists('ereg')) { function ereg($pattern, $str) { return php7_compat_ereg($pattern, $str); } }
 if (!function_exists('eregi')) { function eregi($pattern, $str) { return php7_compat_ereg($pattern, $str, true); } }
 
+if (!function_exists('get_magic_quotes_runtime')) { function get_magic_quotes_runtime() { return false; } }
+if (!function_exists('set_magic_quotes_runtime')) { function set_magic_quotes_runtime($flag) {} }
 
+function crmnow_login_protection($usr_name, $login_tries) {
+	global $adb, $log;
+	/* added for brute force protection */
+	$query = 'CREATE TABLE IF NOT EXISTS `berli_failed_logins` (
+			  `user_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+			  `failed_count` int(11) NOT NULL DEFAULT \'1\',
+			  `failed_address` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+			  `failed_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			  UNIQUE KEY `user_name` (`user_name`),
+			  KEY `failed_count` (`failed_count`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;';
+	$result = $adb->pquery($query, array());
+	if (!$result) { 
+		$log->warn("MySQL error: creating berli_failed_logins");
+		return false;
+	}
+	
+	//activate users after two hour
+	// $query = "UPDATE vtiger_users
+			  // INNER JOIN berli_failed_logins ON berli_failed_logins.user_name = vtiger_users.user_name
+			  // SET vtiger_users.status = ? WHERE berli_failed_logins.failed_timestamp < ?;";
+	// $result = $adb->pquery($query, array('Active', date("Y-m-d H:i:s", strtotime("-2 hours"))));
+	// if (!$result) { 
+		// $log->warn("MySQL error: (".$query.")");
+		// return false;
+	// }
+	
+	$query = "INSERT INTO `berli_failed_logins` SET `user_name`=?,".
+			 "`failed_timestamp`= NOW(), ".
+			 "`failed_address`=? ".
+			 "ON DUPLICATE KEY UPDATE `failed_count`=`failed_count`+1, failed_address = ?, failed_timestamp = NOW();";
+	$ip_addr = (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'];
+	$result = $adb->pquery($query, array($usr_name, $ip_addr, $ip_addr));
+	if (!$result) { 
+		$log->warn("MySQL error: (".$query.")");
+		return false;
+	}
+	
+	$query = "SELECT `failed_count` FROM `berli_failed_logins` WHERE `user_name`=?;";
+	$result = $adb->pquery($query, array($usr_name));
+	if (!$result) { 
+		$log->warn("MySQL error: (".$query.")");
+		return false;
+	}
+	
+	$failed_count = $adb->query_result($result, 0, 'failed_count');
+	if ($failed_count >= $login_tries) {
+		$query = "UPDATE vtiger_users SET status = ? WHERE user_name = ?;";
+		$result = $adb->pquery($query, array('Inactive', $usr_name));
+		if (!$result) { 
+			$log->warn("MySQL error: (".$query.")");
+			return false;
+		}
+		return false;
+	} else {
+		return $failed_count;
+	}
+}
 ?>

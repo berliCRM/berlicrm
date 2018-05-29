@@ -31,7 +31,7 @@
 				{/if}
 			{/foreach}
 		</div>
-		<div class="span5" style="overflow: hidden">
+		<div class="span5">
 			<div id="relatedActivities">
 				{$RELATED_ACTIVITIES}
 			</div>

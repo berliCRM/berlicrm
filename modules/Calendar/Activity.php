@@ -100,7 +100,7 @@ class Activity extends CRMEntity {
 
 	//var $groupTable = Array('vtiger_activitygrouprelation','activityid');
 
-	function Activity() {
+	function __construct() {
 		$this->log = LoggerManager::getLogger('Calendar');
 		$this->db = PearDatabase::getInstance();
 		$this->column_fields = getColumnFields('Calendar');
@@ -121,7 +121,7 @@ class Activity extends CRMEntity {
 			$this->deleteRelation("vtiger_seactivityrel");
 		}
 
-        $recordId = $this->id;
+        $recordId = intval($this->id);
 		if(isset($_REQUEST['contactidlist']) && $_REQUEST['contactidlist'] != '') {
 			$adb->pquery( 'DELETE from vtiger_cntactivityrel WHERE activityid = ?', array($recordId));
 
@@ -130,6 +130,7 @@ class Activity extends CRMEntity {
 
 			$sql = 'INSERT INTO vtiger_cntactivityrel VALUES ';
 			for($i=0; $i<$count; $i++) {
+				$contactIdsList[$i] = intval($contactIdsList[$i]);
 				$sql .= " ($contactIdsList[$i], $recordId)";
 				if ($i != $count - 1) {
 					$sql .= ',';

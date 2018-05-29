@@ -53,7 +53,7 @@
 								{assign var="isReferenceField" value=$FIELD_MODEL->getFieldDataType()}
 								{assign var="refrenceList" value=$FIELD_MODEL->getReferenceList()}
 								{assign var="refrenceListCount" value=count($refrenceList)}
-								{if $FIELD_MODEL->isEditable() eq true}
+								{if $FIELD_MODEL->isEditable() eq true OR $FIELD_MODEL->get('name') eq 'salutationtype'}
 									{if $FIELD_MODEL->get('uitype') eq "19"}
 										{if $COUNTER eq '1'}
 											<td></td><td></td></tr><tr>

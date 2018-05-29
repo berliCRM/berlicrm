@@ -106,8 +106,17 @@ class Vtiger_WebUI extends Vtiger_EntryPoint {
 		
 		// Check we are being connected to on the right host and protocol
 		global $site_URL;
-		$request_URL = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']==='on')? 'https': 'http')."://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-        if ($site_URL && stripos($request_URL, $site_URL) !== 0){
+
+		//crm-now mod: allow https only and proxy
+		if (isset($_SERVER['HTTP_X_FORWARDED_HOST']) and ($_SERVER['HTTP_X_FORWARDED_HOST'] !='')) {
+			$request_URL = "https://".$_SERVER['HTTP_X_FORWARDED_HOST'].$_SERVER['REQUEST_URI'];
+			
+		}
+		else {
+			$request_URL = "https://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+		}
+ 
+      if ($site_URL && stripos($request_URL, $site_URL) !== 0){
             header("Location: $site_URL",TRUE,301);
             exit;
         }
@@ -139,6 +148,17 @@ class Vtiger_WebUI extends Vtiger_EntryPoint {
 
 		try {
 			if($this->isInstalled() === false && $module != 'Install') {
+                $cris = $request->get('CRIS');
+				if (!empty($cris)) {
+					$_SESSION['installer_info']['svn_tag'] = $request->get('svn_tag');
+					$_SESSION['installer_info']['db_name'] = $request->get('db_name');
+					$_SESSION['installer_info']['db_username'] = $request->get('db_username');
+					$_SESSION['installer_info']['db_password'] = $request->get('db_password');
+					$_SESSION['installer_info']['db_hostname'] = $request->get('db_hostname');
+					$_SESSION['installer_info']['admin_password'] = $request->get('admin_password');
+					$_SESSION['installer_info']['admin_email'] = $request->get('admin_email');
+					$_SESSION['installer_info']['currency_name'] = $request->get('currency_name');
+				}
 				header('Location:index.php?module=Install&view=Index');
 				exit;
 			}

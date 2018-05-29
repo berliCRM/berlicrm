@@ -22,3 +22,6 @@
     {/foreach}
 </select>
 {/strip}
+{if $smarty.request.view == "MassActionAjax"}
+<input type="checkbox" id="add[{$FIELD_MODEL->getFieldName()}]" name="add[{$FIELD_MODEL->getFieldName()}]"><label for="add[{$FIELD_MODEL->getFieldName()}]" style="display:inline;vertical-align:middle"> {vtranslate('LBL_MASSOP_APPEND_MULTIPICKLIST')}</label>
+{/if}

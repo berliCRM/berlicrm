@@ -11,7 +11,7 @@
 /* NOTE: Should be inline with Calendar language translation but few variations */
 
 $languageStrings = array(
-	'Activity Type'=>'Event Type', /* Events Field */
+	'Activity Type'=>'Event Type',
 	'Busy' => 'Busy',
 	'Call' => 'Call',
 	'Daily'=>'Day(s)',
@@ -72,6 +72,8 @@ $languageStrings = array(
 	'Visibility' => 'Visibility',
 	'Weekly'=>'Week(s)',
 	'Yearly'=>'Year',
+
+	'Mobile Call' => 'Mobile Call',
     
          //Patch provided by http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7884
         'End Date &amp; Time' => 'End Date & Time', 

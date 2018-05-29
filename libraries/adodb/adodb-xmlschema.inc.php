@@ -118,7 +118,7 @@ class dbObject {
 	/**
 	* NOP
 	*/
-	function dbObject( &$parent, $attributes = NULL ) {
+	function __construct( &$parent, $attributes = NULL ) {
 		$this->parent = $parent;
 	}
 
@@ -157,7 +157,6 @@ class dbObject {
 	* Destroys the object
 	*/
 	function destroy() {
-		unset( $this );
 	}
 
 	/**
@@ -243,18 +242,12 @@ class dbTable extends dbObject {
 	var $drop_field = array();
 
 	/**
-	* @var array Platform-specific options
-	* @access private
-	*/
-	var $currentPlatform = true;
-
-	/**
 	* Iniitializes a new table object.
 	*
 	* @param string $prefix DB Object prefix
 	* @param array $attributes Array of table attributes.
 	*/
-	function dbTable( &$parent, $attributes = NULL ) {
+	function __construct( &$parent, $attributes = NULL ) {
 		$this->parent = $parent;
 		$this->name = $this->prefix($attributes['NAME']);
 	}
@@ -271,12 +264,14 @@ class dbTable extends dbObject {
 		switch( $this->currentElement ) {
 			case 'INDEX':
 				if( !isset( $attributes['PLATFORM'] ) OR $this->supportedPlatform( $attributes['PLATFORM'] ) ) {
-					xml_set_object( $parser, $this->addIndex( $attributes ) );
+					$index = $this->addIndex( $attributes );
+					xml_set_object( $parser,  $index );
 				}
 				break;
 			case 'DATA':
 				if( !isset( $attributes['PLATFORM'] ) OR $this->supportedPlatform( $attributes['PLATFORM'] ) ) {
-					xml_set_object( $parser, $this->addData( $attributes ) );
+					$data = $this->addData( $attributes );
+					xml_set_object( $parser, $data );
 				}
 				break;
 			case 'DROP':
@@ -311,11 +306,6 @@ class dbTable extends dbObject {
 			case 'DEFTIMESTAMP':
 				// Add a field option to the table object
 				$this->addFieldOpt( $this->current_field, $this->currentElement );
-				break;
-			case 'OPT':
-			case 'CONSTRAINT':
-				// Accept platform-specific options
-				$this->currentPlatform = ( !isset( $attributes['PLATFORM'] ) OR $this->supportedPlatform( $attributes['PLATFORM'] ) );
 				break;
 			default:
 				// print_r( array( $tag, $attributes ) );
@@ -362,10 +352,6 @@ class dbTable extends dbObject {
 				break;
 			case 'FIELD':
 				unset($this->current_field);
-				break;
-			case 'OPT':
-			case 'CONSTRAINT':
-				$this->currentPlatform = true;
 				break;
 
 		}
@@ -657,7 +643,7 @@ class dbIndex extends dbObject {
 	*
 	* @internal
 	*/
-	function dbIndex( &$parent, $attributes = NULL ) {
+	function __construct( &$parent, $attributes = NULL ) {
 		$this->parent = $parent;
 
 		$this->name = $this->prefix ($attributes['NAME']);
@@ -801,7 +787,7 @@ class dbData extends dbObject {
 	*
 	* @internal
 	*/
-	function dbData( &$parent, $attributes = NULL ) {
+	function __construct( &$parent, $attributes = NULL ) {
 		$this->parent = $parent;
 	}
 
@@ -1000,7 +986,7 @@ class dbQuerySet extends dbObject {
 	* @param object $parent Parent object
 	* @param array $attributes Attributes
 	*/
-	function dbQuerySet( &$parent, $attributes = NULL ) {
+	function __construct( &$parent, $attributes = NULL ) {
 		$this->parent = $parent;
 
 		// Overrides the manual prefix key
@@ -1316,7 +1302,7 @@ class adoSchema {
 	*
 	* @param object $db ADOdb database connection object.
 	*/
-	function adoSchema( $db ) {
+	function __construct( $db ) {
 		// Initialize the environment
 		$this->mgq = get_magic_quotes_runtime();
 		ini_set("magic_quotes_runtime", 0);
@@ -2211,7 +2197,6 @@ class adoSchema {
 	function Destroy() {
 		ini_set("magic_quotes_runtime", $this->mgq );
 		#set_magic_quotes_runtime( $this->mgq );
-		unset( $this );
 	}
 }
 

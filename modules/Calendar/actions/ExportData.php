@@ -68,7 +68,7 @@ class Calendar_ExportData_Action extends Vtiger_ExportData_Action {
 		header("Content-Disposition: attachment; filename={$fileName}.ics");
 
 		$timeZone = new iCalendar_timezone;
-		$timeZoneId = split('/', date_default_timezone_get());
+		$timeZoneId = explode('/', date_default_timezone_get());
 
 		if(!empty($timeZoneId[1])) {
 			$zoneId = $timeZoneId[1];

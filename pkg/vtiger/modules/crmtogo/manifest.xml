@@ -1,0 +1,58 @@
+<?xml version='1.0'?>
+<module>
+	<exporttime>2017-09-24 15:54:26</exporttime>
+	<name>crmtogo</name>
+	<label>crmtogo</label>
+	<parent></parent>
+	<type>extension</type>
+	<version>4.0</version>
+	<dependencies>
+		<vtiger_version>6.5.0</vtiger_version>
+		<vtiger_max_version>6.*</vtiger_max_version>
+	</dependencies>
+	<license>
+		<inline><![CDATA[/*+**********************************************************************************
+		 * The contents of this file are subject to the vtiger CRM Public License Version 1.0
+		 * ("License"); You may not use this file except in compliance with the License
+		 * The Original Code is:  vtiger CRM Open Source
+		 * The Initial Developer of the Original Code is vtiger.
+		 * Portions created by vtiger are Copyright (C) vtiger.
+		 * The developer of the CRM To Go version is crm-now the GmbH, www.crm-now.com.
+		 * The CRM To Go version is based on vtiger's Mobile module.
+		 * All Rights Reserved.
+		 ************************************************************************************/]]>
+		</inline>
+	</license>
+	<tables>
+		<table>
+			<name>berli_crmtogo_defaults</name>
+			<sql><![CDATA[CREATE TABLE IF NOT EXISTS `berli_crmtogo_defaults` (
+				  `fetch_limit` int(3) NOT NULL,
+				  `crmtogo_lang` varchar(5) NOT NULL,
+				  `defaulttheme` varchar(1) NOT NULL,
+				  `crm_version` varchar(5) NOT NULL
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8  COLLATE=utf8_unicode_ci]]></sql>
+		</table>
+		<table>
+			<name>berli_crmtogo_config</name>
+			<sql><![CDATA[CREATE TABLE IF NOT EXISTS `berli_crmtogo_config` (
+				  `crmtogouser` int(19) NOT NULL,
+				  `navi_limit` int(3) NOT NULL,
+				  `theme_color` varchar(1) NOT NULL,
+				  `compact_cal` int(1) NOT NULL,
+				   PRIMARY KEY  (`crmtogouser`),
+				   CONSTRAINT `fk_1_berli_crmtogo_config` FOREIGN KEY (`crmtogouser`) REFERENCES `vtiger_users` (`id`) ON DELETE CASCADE
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+		</table>
+		<table>
+			<name>berli_crmtogo_modules</name>
+			<sql><![CDATA[CREATE TABLE IF NOT EXISTS `berli_crmtogo_modules` (
+				  `crmtogo_user` int(19) NOT NULL,
+				  `crmtogo_module` varchar(50) NOT NULL,
+				  `crmtogo_active` int(1) NOT NULL DEFAULT '1',
+				  `order_num` int(3) NOT NULL,
+				   CONSTRAINT `fk_1_berli_crmtogo_modules` FOREIGN KEY (`crmtogo_user`) REFERENCES `vtiger_users` (`id`) ON DELETE CASCADE
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+		</table>
+	</tables>
+</module>

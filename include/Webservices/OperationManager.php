@@ -36,7 +36,7 @@
 		private $operationId;
 		private $operationParams;
 		
-		function OperationManager($adb,$operationName,$format, $sessionManager){
+		function __construct($adb,$operationName,$format, $sessionManager){
 			
 			$this->format = strtolower($format);
 			$this->sessionManager = $sessionManager;
@@ -154,7 +154,8 @@
 						$webserviceObject = VtigerWebserviceObject::fromName($adb,"Users");
 						$userId = vtws_getId($webserviceObject->getEntityId(),$userDetails->id);
 						$vtigerVersion = vtws_getVtigerVersion();
-						$resp = array("sessionName"=>$this->sessionManager->getSessionId(),"userId"=>$userId,"version"=>$API_VERSION,"vtigerVersion"=>$vtigerVersion);
+						$tagVersion = vtws_getTagVersion();
+						$resp = array("sessionName"=>$this->sessionManager->getSessionId(),"userId"=>$userId,"version"=>$API_VERSION,"vtigerVersion"=>$vtigerVersion,"tagVersion"=>$tagVersion);
 						return $resp;
 					}
 				}

@@ -17,6 +17,9 @@ $languageStrings = array(
 	'LBL_WRITE_YOUR_MESSAGE_HERE' => 'write your message here',
 	'LBL_ADD_MORE_FIELDS' => 'Add more fields',
 	'LBL_SERVER_CONFIG' => 'Server Configuration',
+	'LBL_PROVIDER_MESSAGE' => 'Provider Message:',
+	'LBL_PROVIDER_ERROR_MESSAGE' => 'Provider Error Message:',
+	'LBL_MESSAGE_SENT' => 'Message Sent',
 
 	//DetailView Actions
 	'LBL_CHECK_STATUS' => 'Check Status',
@@ -25,4 +28,6 @@ $languageStrings = array(
 	//Blocks
 	'LBL_SMSNOTIFIER_INFORMATION' => 'SMS Information',
 	'SINGLE_SMSNotifier' => 'SMS Notifier',
+
+	
 );

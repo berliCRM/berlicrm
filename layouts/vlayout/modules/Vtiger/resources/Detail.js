@@ -316,7 +316,6 @@ jQuery.Class("Vtiger_Detail_Js",{
 				//Attach date picker event to date fields
 				app.registerEventForDatePickerFields(detailContentsHolder);
 				app.registerEventForTextAreaFields(jQuery(".commentcontent"));
-				jQuery('.commentcontent').autosize();
 				thisInstance.getForm().validationEngine();
 				aDeferred.resolve(responseData);
 			},
@@ -864,6 +863,10 @@ jQuery.Class("Vtiger_Detail_Js",{
 			var currentBlock = jQuery(block);
 			var headerAnimationElement = currentBlock.find('.blockToggle').not('.hide');
 			var bodyContents = currentBlock.find('tbody')
+            // crm-now: prevent hidden dynamic blocks from being unhidden
+            if (bodyContents.hasClass("hide")) {
+                return true;
+            }
 			var blockId = headerAnimationElement.data('id');
 			var cacheKey = module+'.'+blockId;
 			var value = app.cacheGet(cacheKey, null);
@@ -964,8 +967,6 @@ jQuery.Class("Vtiger_Detail_Js",{
 				if(errorExists) {
 					return;
 				}
-
-
 
                 fieldElement.validationEngine('hide');
                 //Before saving ajax edit values we need to check if the value is changed then only we have to save
@@ -1081,8 +1082,8 @@ jQuery.Class("Vtiger_Detail_Js",{
 			var preQuickCreateSave = function(data){
 				thisInstance.addElementsToQuickCreateForCreatingRelation(data,module,recordId);
 
-				var taskGoToFullFormButton = data.find('[class^="CalendarQuikcCreateContents"]').find('#goToFullForm');
-				var eventsGoToFullFormButton = data.find('[class^="EventsQuikcCreateContents"]').find('#goToFullForm');
+				var taskGoToFullFormButton = data.find('[class^="CalendarQuikcCreateContents"]').find('.goToFullForm');
+				var eventsGoToFullFormButton = data.find('[class^="EventsQuikcCreateContents"]').find('.goToFullForm');
 				var taskFullFormUrl = taskGoToFullFormButton.data('editViewUrl')+"&"+fullFormUrl;
 				var eventsFullFormUrl = eventsGoToFullFormButton.data('editViewUrl')+"&"+fullFormUrl;
 				taskGoToFullFormButton.data('editViewUrl',taskFullFormUrl);
@@ -1163,7 +1164,8 @@ jQuery.Class("Vtiger_Detail_Js",{
 				var fieldName = fieldnameElement.val();
 				var fieldElement = jQuery('[name="'+ fieldName +'"]', editElement);
 				var previousValue = fieldnameElement.data('prevValue');
-				var ajaxEditNewValue = fieldElement.find('option:selected').text();
+				var ajaxEditNewValue = fieldElement.find('option:selected').val();
+				var ajaxEditNewText = fieldElement.find('option:selected').text();
 
 				if(previousValue == ajaxEditNewValue) {
                                         editElement.addClass('hide');
@@ -1197,7 +1199,7 @@ jQuery.Class("Vtiger_Detail_Js",{
 							currentDiv.progressIndicator({'mode':'hide'});
 							detailViewElement.removeClass('hide');
 							currentTarget.show();
-							detailViewElement.html(ajaxEditNewValue);
+							detailViewElement.html(ajaxEditNewText);
 							fieldnameElement.data('prevValue', ajaxEditNewValue);
 						}
 					);
@@ -1636,7 +1638,7 @@ jQuery.Class("Vtiger_Detail_Js",{
         for (var i = 0; i < sourcePicklists.length; i++) {
             sourcePickListNames += '[name="' + sourcePicklists[i] + '"],';
         }
-        var sourcePickListElements = container.find(sourcePickListNames);
+        var sourcePickListElements = container.find(sourcePickListNames.slice(0,-1));// chop off trailing comma for jQuery > 1.9
         sourcePickListElements.on('change', function(e) {
             var currentElement = jQuery(e.currentTarget);
             var sourcePicklistname = currentElement.attr('name');

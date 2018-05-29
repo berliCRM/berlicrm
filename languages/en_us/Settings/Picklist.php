@@ -39,6 +39,19 @@ $languageStrings = array(
 	'LBL_TO_DELETE_MULTIPLE_HOLD_CONTROL_KEY' => 'To Delete multiple items hold Ctrl key down while selecting items',
 	'LBL_VALUES_ASSIGNED_TO_A_ROLE' => 'Values assigned to a role',
     'NO_PICKLIST_FIELDS'=> 'do not have any picklist fields',
+    // crm-now: dynamic blocks
+    'LBL_VALUES_ASSIGNED_TO_BLOCK' => 'Blocks assigned to a value',
+    'LBL_SELECT_PICKLIST_ENTRY' => 'Please select a picklist value:',
+    'LBL_SAVE' => 'Save',
+    'LBL_OPTIONS_FOR_ENTRY' => 'Display options for picklist value',
+    'LBL_BLOCK_NAME' => 'Block name',
+    'LBL_INITIAL_HIDE' => 'Collapsed initially',
+    'LBL_HIDDEN' => 'Hidden',
+    'LBL_OVERVIEW' => 'Overview:',
+    'LBL_SINGLEVIEW' => 'Single view:',
+    'LBL_SHOWALL' => 'Show settings for all values',
+    'LBL_UNAVAILABLE' => 'This block cannot be hidden, because it contains the chosen picklist.',
+    'LBL_DYNAMIC_BLOCKS_INFO' => 'This menu provides the option to collapse blocks in detail and edit views or to hide blocks completely depending on a chosen picklist value in another block.<br>The "Save" button will save all your selected settings at once.',
 );
 
 $jsLanguageStrings = array(
@@ -47,6 +60,7 @@ $jsLanguageStrings = array(
 	'JS_ITEM_RENAMED_SUCCESSFULLY' => 'Item Renamed Successfully',
 	'JS_ITEMS_DELETED_SUCCESSFULLY' => 'Items Deleted Successfully',
 	'JS_LIST_UPDATED_SUCCESSFULLY' => 'List updated Successfully',
+	'JS_DYNBLOCKS_UPDATED_SUCCESSFULLY' => 'Block assignment saved successfully.',
 	'JS_MORE_THAN_ONE_ITEM_SELECTED' => 'More than one Item selected',
 	'JS_NO_ITEM_SELECTED' => 'No item Selected',
 	'JS_NOT_ALLOWED' => 'are not allowed',

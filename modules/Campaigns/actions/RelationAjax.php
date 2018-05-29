@@ -17,13 +17,13 @@ class Campaigns_RelationAjax_Action extends Vtiger_RelationAjax_Action {
 	}
 
 	/**
-	 * Function to add relations using related module viewid
+	 * Function to add relations using related module viewid, returns number of relations added (no output breaks jquery > 1.7)
 	 * @param Vtiger_Request $request
 	 */
 	public function addRelationsFromRelatedModuleViewId(Vtiger_Request $request) {
 		$sourceRecordId = $request->get('sourceRecord');
 		$relatedModuleName = $request->get('relatedModule');
-
+        $relatedRecordIdsList = array();
 		$viewId = $request->get('viewId');
 		if ($viewId) {
 			$sourceModuleModel = Vtiger_Module_Model::getInstance($request->getModule());
@@ -48,17 +48,16 @@ class Campaigns_RelationAjax_Action extends Vtiger_RelationAjax_Action {
 				for ($i=0; $i<$numOfRows; $i++) {
 					$relatedRecordIdsList[] = $db->query_result($result, $i, $fieldName);
 				}
-				if(empty($relatedRecordIdsList)){
-					$response = new Vtiger_Response();
-					$response->setResult(array(false));
-					$response->emit();
-				} else{
+				if(!empty($relatedRecordIdsList)){
 					foreach($relatedRecordIdsList as $relatedRecordId) {
 						$relationModel->addRelation($sourceRecordId, $relatedRecordId);
 					}
 				}
 			}
 		}
+        $response = new Vtiger_Response();
+        $response->setResult(array(count($relatedRecordIdsList)));
+        $response->emit();
 	}
 
 	/**

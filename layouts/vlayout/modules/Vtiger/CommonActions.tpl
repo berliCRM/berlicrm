@@ -67,7 +67,7 @@
                                         <div class="row-fluid">
                                             <div class="span12">
                                                 {foreach key=moduleName item=moduleModel from=$MENUS}
-                                                    {if $moduleModel->isPermitted('EditView')}
+                                                    {if $moduleModel->isPermitted('CreateView')}
                                                         {assign var='quickCreateModule' value=$moduleModel->isQuickCreateSupported()}
                                                         {assign var='singularLabel' value=$moduleModel->getSingularLabelKey()}
 														{if $singularLabel == 'SINGLE_Calendar'}

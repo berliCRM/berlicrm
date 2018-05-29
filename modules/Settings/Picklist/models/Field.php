@@ -26,7 +26,7 @@ class Settings_Picklist_Field_Model extends Vtiger_Field_Model {
      * @param type $groupMode -- Intersection/Conjuction , intersection will give only picklist values that exist for all roles
      * @return type -- array
      */
-    public function getPicklistValues($roleIdList, $groupMode='INTERSECTION') {
+    public function getPicklistValues($roleIdList=array(), $groupMode='INTERSECTION') {
         if(!$this->isRoleBased()) {
             return parent::getPicklistValues();
         }

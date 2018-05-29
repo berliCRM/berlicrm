@@ -144,17 +144,32 @@ class Users_Record_Model extends Vtiger_Record_Model {
 	public static function getCurrentUserModel() {
 		//TODO : Remove the global dependency
 		$currentUser = vglobal('current_user');
+		//crm-now: get SVN Tag
+		global $adb;
 		if(!empty($currentUser)) {
+			if(isset($_SESSION['svn_tag'])){ 
+				$svn_tag = $_SESSION['svn_tag'];
+			}
+			else {
+				//crm-now: set SVN Tag version in Users Object
+				$query = "SELECT tag_version from vtiger_version";
+				$result = $adb->pquery($query, array());
+				//remove some content
+				$svn_tag = $adb->query_result($result,0,"tag_version");
+				$svn_tag = str_replace('/', '', $svn_tag );
+				$svn_tag = str_replace('crm-now-', '', $svn_tag );
+				$_SESSION['svn_tag'] = $svn_tag;
+			}
 			
 			// Optimization to avoid object creation every-time
 			// Caching is per-id as current_user can get swapped at runtime (ex. workflow)
 			$currentUserModel = NULL;
 			if (isset(self::$currentUserModels[$currentUser->id])) {
 				$currentUserModel = self::$currentUserModels[$currentUser->id];
-				if (isset($currentUser->column_fields['modifiedtime']) && 
-				    $currentUser->column_fields['modifiedtime'] != $currentUserModel->get('modifiedtime')) {
+				$currentUserModel->svn_tag = $svn_tag;
+				if ($currentUser->column_fields['modifiedtime'] != $currentUserModel->get('modifiedtime')) {
 					$currentUserModel = NULL;
-		        }
+				}
 			}
 			if (!$currentUserModel) {
 				$currentUserModel = self::getInstanceFromUserObject($currentUser);
@@ -163,6 +178,15 @@ class Users_Record_Model extends Vtiger_Record_Model {
 			return $currentUserModel;
 		}
 		return new self();
+	}
+
+	/**
+	 * Function to return user object from preference file.
+	 */
+	public static function getInstanceFromPreferenceFile($userId) {
+		$focusObj = new Users();
+		$focusObj->retrieveCurrentUserInfoFromFile($userId);
+		return self::getInstanceFromUserObject($focusObj);
 	}
 
 	/**
@@ -332,12 +356,19 @@ class Users_Record_Model extends Vtiger_Record_Model {
 			//decode_html - added to handle UTF-8 characters in file names
 			$imageOriginalName = decode_html($imageName);
 
-			$imageDetails[] = array(
-					'id' => $imageId,
-					'orgname' => $imageOriginalName,
-					'path' => $imagePath.$imageId,
-					'name' => $imageName
-			);
+			if(!empty($imageName)){
+				//crm-now: added because of restricted access to /storage
+				$imgpath = $imagePath.$imageId."_".$imageName;
+				$type = pathinfo($imgpath, PATHINFO_EXTENSION);
+				$data = file_get_contents($imgpath);
+				$str = "data:image/".$type.";base64,".base64_encode($data);
+				$imageDetails[] = array(
+						'id' => $imageId,
+						'orgname' => $imageOriginalName,
+						'path' => $str,
+						'name' => $imageName
+				);
+			}
 		}
 		return $imageDetails;
 	}
@@ -520,7 +551,8 @@ class Users_Record_Model extends Vtiger_Record_Model {
 	function getTagCloudStatus() {
 		$db = PearDatabase::getInstance();
 		$query = "SELECT visible FROM vtiger_homestuff WHERE userid=? AND stufftype='Tag Cloud'";
-		$visibility = $db->query_result($db->pquery($query, array($this->getId())), 0, 'visible');
+        $res = $db->pquery($query, array($this->getId()));
+		$visibility = $db->query_result($res, 0, 'visible');
 		if($visibility == 0) {
 			return true;
 		} 
@@ -636,7 +668,7 @@ class Users_Record_Model extends Vtiger_Record_Model {
 		$this->getModule()->deleteRecord($this);
 	}
 	
-        public function isAccountOwner() {
+    public function isAccountOwner() {
 		$db = PearDatabase::getInstance();
 		$query = 'SELECT is_owner FROM vtiger_users WHERE id = ?';
 		$res = $db->pquery($query, array($this->getId()));
@@ -693,34 +725,36 @@ class Users_Record_Model extends Vtiger_Record_Model {
 			return $db->query_result($result, 0, 'user_hash');
 			
 		}
-        }
+    }
         
-        /*
-         * Function to delete user permanemtly from CRM and
-         * assign all record which are assigned to that user
-         * and not transfered to other user to other user
-         * 
-         * @param User Ids of user to be deleted and user
-         * to whom records should be assigned
-         */
-        public function deleteUserPermanently($userId, $newOwnerId) {
-                $db = PearDatabase::getInstance();
-                
-                $sql = "UPDATE vtiger_crmentity SET smcreatorid=?,smownerid=? WHERE smcreatorid=? AND setype=?";
-                $db->pquery($sql, array($newOwnerId, $newOwnerId, $userId,'ModComments'));
-                
-                //update history details in vtiger_modtracker_basic 
-                $sql ="update vtiger_modtracker_basic set whodid=? where whodid=?"; 
-                $db->pquery($sql, array($newOwnerId, $userId)); 
+    /*
+     * Function to delete user permanemtly from CRM and
+     * assign all record which are assigned to that user
+     * and not transfered to other user to other user
+     * 
+     * @param User Ids of user to be deleted and user
+     * to whom records should be assigned
+     */
+    public static function deleteUserPermanently($userId, $newOwnerId) {
+        //crm-now: prevent deletion of admin user
+        if ($userId == 1) return;
+        
+        $db = PearDatabase::getInstance();
+        
+        $sql = "UPDATE vtiger_crmentity SET smcreatorid=?,smownerid=? WHERE smcreatorid=? AND setype=?";
+        $db->pquery($sql, array($newOwnerId, $newOwnerId, $userId,'ModComments'));
+        
+        //update history details in vtiger_modtracker_basic 
+        $sql ="update vtiger_modtracker_basic set whodid=? where whodid=?"; 
+        $db->pquery($sql, array($newOwnerId, $userId)); 
 
-                //update comments details in vtiger_modcomments 
-                $sql ="update vtiger_modcomments set userid=? where userid=?"; 
-                $db->pquery($sql, array($newOwnerId, $userId));
+        //update comments details in vtiger_modcomments 
+        $sql ="update vtiger_modcomments set userid=? where userid=?"; 
+        $db->pquery($sql, array($newOwnerId, $userId));
 
-                $sql = "DELETE FROM vtiger_users WHERE id=?";
-                $db->pquery($sql, array($userId));
-                
-        }
+        $sql = "DELETE FROM vtiger_users WHERE id=?";
+        $db->pquery($sql, array($userId));
+    }
 	
 	/**
 	 * Function to get the Display Name for the record

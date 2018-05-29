@@ -27,18 +27,18 @@ class Settings_MailConverter_Module_Model extends Settings_Vtiger_Module_Model {
 	 */
 	public function getFields() {
 		$fields =  array(
-                'scannername' => array('name' => 'scannername','typeofdata'=>'V~M','label'=>'Scanner Name','datatype'=>'string'),
-                'server'      => array('name' => 'server','typeofdata'=>'V~M','label'=>'Server','datatype'=>'string'),
-                'username'    => array('name' => 'username','typeofdata'=>'V~M','label'=>'User Name','datatype'=>'string') ,
-                'password'    => array('name' => 'password','typeofdata'=>'V~M','label'=>'Password','datatype'=>'password') ,
-                'protocol'    => array('name' => 'protocol','typeofdata'=>'C~O','label'=>'Protocol','datatype'=>'radio') ,
-                'ssltype'     => array('name' => 'ssltype','typeofdata'=>'C~O','label'=>'SSL Type','datatype'=>'radio') ,
-                'sslmethod'   => array('name' => 'sslmethod','typeofdata'=>'C~O','label'=>'SSL Method','datatype'=>'radio') ,
-                'connecturl'  => array('name' => 'connecturl', 'typeofdata'=>'V~O','label' => 'Connect URL','datatype' => 'string','isEditable'=>false),
-                'searchfor'   => array('name' => 'searchfor', 'typeofdata'=>'V~O','label'=>'Look For','datatype'=>'picklist'),
-                'markas'      => array('name' => 'markas', 'typeofdata'=>'V~O','label'=>'After Scan','datatype'=>'picklist'),
-                'isvalid'     => array('name' => 'isvalid', 'typeofdata'=>'C~O','label'=>'Status','datatype'=>'boolean'),
-                'time_zone'    => array('name' => 'time_zone', 'typeofdata'=>'V~O','label'=>'Time Zone','datatype'=>'picklist'));
+            'scannername' => array('name' => 'scannername','typeofdata'=>'V~M','label'=>'Scanner Name','datatype'=>'string'),
+            'server'      => array('name' => 'server','typeofdata'=>'V~M','label'=>'Server','datatype'=>'string'),
+            'username'    => array('name' => 'username','typeofdata'=>'V~M','label'=>'User Name','datatype'=>'string') ,
+            'password'    => array('name' => 'password','typeofdata'=>'V~M','label'=>'Password','datatype'=>'password') ,
+            'protocol'    => array('name' => 'protocol','typeofdata'=>'C~O','label'=>'Protocol','datatype'=>'radio') ,
+            'ssltype'     => array('name' => 'ssltype','typeofdata'=>'C~O','label'=>'SSL Type','datatype'=>'radio') ,
+            'sslmethod'   => array('name' => 'sslmethod','typeofdata'=>'C~O','label'=>'SSL Method','datatype'=>'radio') ,
+            'connecturl'  => array('name' => 'connecturl', 'typeofdata'=>'V~O','label' => 'Connect URL','datatype' => 'string','isEditable'=>false),
+            'searchfor'   => array('name' => 'searchfor', 'typeofdata'=>'V~O','label'=>'Look For','datatype'=>'picklist'),
+            'markas'      => array('name' => 'markas', 'typeofdata'=>'V~O','label'=>'After Scan','datatype'=>'picklist'),
+            'isvalid'     => array('name' => 'isvalid', 'typeofdata'=>'C~O','label'=>'Status','datatype'=>'boolean'),
+            'time_zone'    => array('name' => 'time_zone', 'typeofdata'=>'V~O','label'=>'Time Zone','datatype'=>'picklist'));
 
         $fieldsList = array();
         foreach($fields as $fieldName => $fieldInfo) {
@@ -90,7 +90,7 @@ class Settings_MailConverter_Module_Model extends Settings_Vtiger_Module_Model {
 		return false;
 	}
 
-	public function MailBoxExists() {
+	public static function MailBoxExists() {
 		$db = PearDatabase::getInstance();
 		$result = $db->pquery("SELECT COUNT(*) AS count FROM vtiger_mailscanner", array());
 		$response = $db->query_result($result, 0, 'count');
@@ -99,14 +99,14 @@ class Settings_MailConverter_Module_Model extends Settings_Vtiger_Module_Model {
 		return true;
 	}
 
-	public function getDefaultId() {
+	public static function getDefaultId() {
 		$db = PearDatabase::getInstance();
 		$result = $db->pquery("SELECT MIN(scannerid) AS id FROM vtiger_mailscanner", array());
 		$id = $db->query_result($result, 0, 'id');
 		return $id;
 	}
 
-	public function getMailboxes() {
+	public static function getMailboxes() {
 		$mailBox = array();
 		$db = PearDatabase::getInstance();
 		$result = $db->pquery("SELECT scannerid, scannername FROM vtiger_mailscanner", array());
@@ -118,7 +118,7 @@ class Settings_MailConverter_Module_Model extends Settings_Vtiger_Module_Model {
 		return $mailBox;
 	}
 
-	public function getScannedFolders($id) {
+	public static function getScannedFolders($id) {
 		$folders = array();
 		$db = PearDatabase::getInstance();
 		$result = $db->pquery("SELECT foldername FROM vtiger_mailscanner_folders WHERE scannerid=? AND enabled=1", array($id));
@@ -129,42 +129,41 @@ class Settings_MailConverter_Module_Model extends Settings_Vtiger_Module_Model {
 		return $folders;
 	}
 
-	public function getFolders($id) {
+	public static function getFolders($id) {
 		include_once 'modules/Settings/MailConverter/handlers/MailScannerInfo.php';
 		include_once 'modules/Settings/MailConverter/handlers/MailBox.php';
 		$scannerName = Settings_MailConverter_Module_Model::getScannerName($id);
 		$scannerInfo = new Vtiger_MailScannerInfo($scannerName);
 		$mailBox = new Vtiger_MailBox($scannerInfo);
 		$isConnected = $mailBox->connect();
-                if($isConnected) {
-                        $allFolders = $mailBox->getFolders();
-                        $folders = array();
-                        $selectedFolders = Settings_MailConverter_Module_Model::getScannedFolders($id);
-                        if(is_array($allFolders)) {
-                                foreach ($allFolders as $a) {
-                                        if (in_array($a, $selectedFolders)) {
-                                                $folders[$a] = 'checked';
-                                        } else {
-                                                $folders[$a] = '';
-                                        }
-                                }
-                                return $folders;
-                        } else {
-                                return $allFolders;
-                        }
-
+        if($isConnected) {
+            $allFolders = $mailBox->getFolders();
+            $folders = array();
+            $selectedFolders = Settings_MailConverter_Module_Model::getScannedFolders($id);
+            if(is_array($allFolders)) {
+                foreach ($allFolders as $a) {
+                    if (in_array($a, $selectedFolders)) {
+                        $folders[$a] = 'checked';
+                    } else {
+                        $folders[$a] = '';
+                    }
                 }
-                return false;
+                return $folders;
+            } else {
+                return $allFolders;
+            }
+        }
+        return false;
 	}
 
-	public function getScannerName($id) {
+	public static function getScannerName($id) {
 		$db = PearDatabase::getInstance();
 		$result = $db->pquery("SELECT scannername FROM vtiger_mailscanner WHERE scannerid=?", array($id));
 		$scannerName = $db->query_result($result, 0, 'scannername');
 		return $scannerName;
 	}
 
-	public function updateFolders($scannerId, $folders) {
+	public static function updateFolders($scannerId, $folders) {
 		include_once 'modules/Settings/MailConverter/handlers/MailScannerInfo.php';
 		$db = PearDatabase::getInstance();
 		$scannerName = Settings_MailConverter_Module_Model::getScannerName($scannerId);
@@ -175,5 +174,4 @@ class Settings_MailConverter_Module_Model extends Settings_Vtiger_Module_Model {
 			$db->pquery("INSERT INTO vtiger_mailscanner_folders VALUES(?,?,?,?,?,?)", array('', $scannerId, $folder, $lastScan, '0', '1'));
 		}
 	}
-
 }

@@ -25,7 +25,7 @@
 			 if (!form.data('jqv') || form.data('jqv') == null ) {
 				 options = methods._saveOptions(form, options);
 				 // bind all formError elements to close on click
-				 $(".formError").live("click", function() {
+				 $(".formError").on("click", function() {
 					 $(this).fadeOut(150, function() {
 						 // remove prompt once invisible
 						 $(this).parent('.formErrorOuter').remove();
@@ -85,9 +85,6 @@
 
 			// unbind form.submit
 			form.off("submit", methods.onAjaxFormComplete);
-
-			// unbind form.submit
-			form.die("submit", methods.onAjaxFormComplete);
 			form.removeData('jqv');
             
 			form.off("click", "a[data-validation-engine-skip], a[class*='validate-skip'], button[data-validation-engine-skip], button[class*='validate-skip'], input[data-validation-engine-skip], input[class*='validate-skip']", methods._submitButtonClick);
@@ -711,7 +708,7 @@
 			var fieldType = field.prop("type");
 			var positionType=field.data("promptPosition") || options.promptPosition;
 
-			if ((fieldType == "radio" || fieldType == "checkbox") && form.find("input[name='" + fieldName + "']").size() > 1) {
+			if ((fieldType == "radio" || fieldType == "checkbox") && form.find("input[name='" + fieldName + "']").length > 1) {
 				if(positionType === 'inline') {
 					field = $(form.find("input[name='" + fieldName + "'][type!=hidden]:last"));
 				} else {

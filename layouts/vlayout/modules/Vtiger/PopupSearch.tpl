@@ -40,7 +40,7 @@
                     <span><strong>{vtranslate('LBL_IN')}</strong></span>&nbsp;
                     <span>
                         {assign var = defaultSearchField value = $RECORD_STRUCTURE_MODEL->getModule()->getDefaultSearchField()}
-                        <select style="width: 140px;" class="chzn-select" id="searchableColumnsList">
+                        <select style="width: 200px;" class="chzn-select" id="searchableColumnsList">
                             {foreach key=block item=fields from=$RECORD_STRUCTURE}
                                 {foreach key=fieldName item=fieldObject from=$fields}
                                     <optgroup>

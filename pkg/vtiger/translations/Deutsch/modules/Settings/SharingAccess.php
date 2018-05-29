@@ -1,36 +1,39 @@
 <?php
-/*+**********************************************************************************
+/*+***********************************************************************************
  * The contents of this file are subject to the vtiger CRM Public License Version 1.0
  * ("License"); You may not use this file except in compliance with the License
  * The Original Code is:  vtiger CRM Open Source
  * The Initial Developer of the Original Code is vtiger.
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
- ************************************************************************************/
+ * Reviewed by crm-now GmbH
+ *************************************************************************************/
 $languageStrings = array(
-	'Accounts'                     => 'Organizations & Contacts'    , 
-	'LBL_ADD_CUSTOM_RULE'          => 'erstelle benutzerdefinierte Regel', 
-	'Read Only'                    => 'R'                           , 
-	'Read Write'                   => 'R+W'                         , 
-	'LBL_ADD_CUSTOM_RULE_TO'       => 'Add Custom Rule to'          , 
-	'LBL_CAN_ACCESSED_BY'          => 'Kann zugegriffen werden durch', 
-	'LBL_PRIVILEGES'               => 'Privilegien'                 , 
-	'LBL_SHARING_RULE'             => 'Sharing Rules'               , 
-	'LBL_RULE_NO'                  => 'Regelnr.'                    , 
-	'LBL_MODULE'                   => 'Module'                      , 
-	'LBL_ADVANCED_SHARING_RULES'   => 'Advanced Sharing Rules'      , 
-	'LBL_WITH_PERMISSIONS'         => 'With Permissions'            , 
-	'LBL_APPLY_NEW_SHARING_RULES'  => 'Apply New Sharing Rules'     , 
-	'LBL_READ'                     => 'Read'                        , 
-	'LBL_READ_WRITE'               => 'Read and Write'              , 
-	'LBL_CUSTOM_ACCESS_MESG'       => 'No Custom Access Rules defined', 
-	'SINGLE_Groups'                => 'Group'                       , 
-	'SINGLE_Roles'                 => 'Role'                        , 
-	'SINGLE_RoleAndSubordinates'   => 'RoleAndSubordinate'          , 
+	'Accounts' => 'Organisationen & Personen',
+	'LBL_ADD_CUSTOM_RULE' => 'Erstelle benutzerdefinierte Regel',
+	'LBL_ADD_CUSTOM_RULE_TO' => 'Erstelle benutzerdefinierte Regel für',
+	'LBL_ADVANCED_SHARING_RULES' => 'erweiterte Zugangsregeln',
+	'LBL_APPLY_NEW_SHARING_RULES' => 'neue Zugangsregeln anwenden',
+	'LBL_CAN_ACCESSED_BY' => 'kann zugegriffen werden durch',
+	'LBL_CUSTOM_ACCESS_MESG' => 'keine benutzerdefinierten Regeln definiert',
+	'LBL_MODULE' => 'Module',
+	'LBL_PRIVILEGES' => 'Rechte',
+	'LBL_READ' => 'Lesen',
+	'LBL_READ_WRITE' => 'Lesen und Schreiben',
+	'LBL_RULE_NO' => 'Regelnummer',
+	'LBL_SHARING_RULE' =>  'Zugangsregeln',
+	'LBL_WITH_PERMISSIONS' => 'mit Berechtigungen',
+	'Read Only' => 'nur Lesen',
+	'Read Write' => 'Lesen/Schreiben',
+	'SINGLE_Groups' => 'Gruppe',
+	'SINGLE_RoleAndSubordinates' => 'Rolle und Unterstellte',
+	'SINGLE_Roles' => 'Rolle',
 );
+
 $jsLanguageStrings = array(
-	'JS_CUSTOM_RULE_SAVED_SUCCESSFULLY' => 'Custom Sharing Rule Saved Successfully', 
-	'JS_SELECT_ANY_OTHER_ACCESSING_USER' => 'Select any other accessing user', 
-	'JS_NEW_SHARING_RULES_APPLIED_SUCCESSFULLY' => 'New Sharing Rules Applied Successfully', 
-	'JS_DEPENDENT_PRIVILEGES_SHOULD_CHANGE' => 'Opportunities, Tickets, Quotes, SalesOrder & Invoice Access must be set to Private when the Organization Access is set to Private', 
+	'JS_CUSTOM_RULE_SAVED_SUCCESSFULLY' => 'benutzerdefinierte Regel erfolgreich gespeichert',
+	'JS_DEPENDENT_PRIVILEGES_SHOULD_CHANGE' => 'Der Zugang zu Potentialen, Tickets, Angebote, Verkaufsbestellungen & Rechnungen muss auch auf prvat gesetzt werdesn, wenn der Zugang zu Organisationen auf privat gesetzt wird.',
+	'JS_NEW_SHARING_RULES_APPLIED_SUCCESSFULLY' => 'neue benutzerdefinierte Regel erfolgreich zugewiesen',
+	'JS_SELECT_ANY_OTHER_ACCESSING_USER' => 'Wählen Sie einen anderen Nutzer.',
 );
+?>

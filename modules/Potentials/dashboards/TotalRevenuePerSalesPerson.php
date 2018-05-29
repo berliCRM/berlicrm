@@ -37,7 +37,7 @@ class Potentials_TotalRevenuePerSalesPerson_Dashboard extends Vtiger_IndexAjax_V
         
 		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
 		$data = $moduleModel->getTotalRevenuePerSalesPerson($dates);
-        $listViewUrl = $moduleModel->getListViewUrl();
+        $listViewUrl = $moduleModel->getListViewUrlWithAllFilter();
         for($i = 0;$i<count($data);$i++){
             $data[$i]["links"] = $listViewUrl.$this->getSearchParams($data[$i]["last_name"],$dates);
         }

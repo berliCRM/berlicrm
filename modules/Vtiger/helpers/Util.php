@@ -49,10 +49,8 @@ class Vtiger_Util_Helper {
 	 * @return <String>
 	 */
 	public static function formatDateDiffInStrings($dateTime) {
-		// http://www.php.net/manual/en/datetime.diff.php#101029
-		$currentDateTime = date('Y-m-d H:i:s');
 
-		$seconds =  strtotime($currentDateTime) - strtotime($dateTime);
+		$seconds =  time() - strtotime($dateTime);
 
 		if ($seconds == 0) return vtranslate('LBL_JUSTNOW');
 		if ($seconds > 0) {
@@ -72,7 +70,14 @@ class Vtiger_Util_Helper {
 		if ($seconds < 60)	return $prefix . self::pluralize($seconds,	"LBL_SECOND") . $suffix;
 		if ($minutes < 60)	return $prefix . self::pluralize($minutes,	"LBL_MINUTE") . $suffix;
 		if ($hours < 24)	return $prefix . self::pluralize($hours,	"LBL_HOUR") . $suffix;
-		if ($days < 30)		return $prefix . self::pluralize($days,		"LBL_DAY") . $suffix;
+		if ($days < 30)	{
+			if ($suffix !='') {
+				return $prefix . self::pluralize($days,	"LBL_DAY") . $suffix;
+			}
+			else {
+				return $prefix . $days ." ".vtranslate('LBL_DAYS_N');
+			}
+		}
 		if ($months < 12)	return $prefix . self::pluralize($months,	"LBL_MONTH") . $suffix;
 		if ($months > 11)	return $prefix . self::pluralize(floor($days/365), "LBL_YEAR") . $suffix;
 	}
@@ -84,7 +89,7 @@ class Vtiger_Util_Helper {
 	 * @return <String>
 	 */
 	public static function pluralize($count, $text) {
-		return $count ." ". (($count == 1) ? vtranslate("$text") : vtranslate("${text}S"));
+		return $count ." ". (($count == 1) ? vtranslate("$text") : vtranslate("{$text}S"));
 	}
 
 	/**
@@ -269,6 +274,7 @@ class Vtiger_Util_Helper {
      * @return type -- array of values
      */
     public static function getPickListValues($fieldName) {
+        $fieldName = str_replace("Accounts.","",$fieldName);    // crm-now: strip module prefix for combined customview
         $cache = Vtiger_Cache::getInstance();
         if($cache->getPicklistValues($fieldName)) {
             return $cache->getPicklistValues($fieldName);
@@ -305,6 +311,7 @@ class Vtiger_Util_Helper {
 	 * @return <Array> list of role based picklist values
 	 */
     public static function getRoleBasedPicklistValues($fieldName, $roleId) {
+        $fieldName = str_replace("Accounts.","",$fieldName);    // crm-now: strip module prefix for combined customview
 		$db = PearDatabase::getInstance();
 
         $query = "SELECT $fieldName
@@ -528,9 +535,17 @@ class Vtiger_Util_Helper {
             foreach($groupInfo as $fieldSearchInfo){
                    $advFilterFieldInfoFormat = array();
                    $fieldName = $fieldSearchInfo[0];
+                   
+                   // crmnow: load secondary module model for combined custom view
+                   $fieldModuleModel = $moduleModel;
+                   if (strpos($fieldName,".")>0) {
+                        list($fieldModuleName,$fieldName) = explode(".",$fieldName);
+                        $fieldModuleModel = Vtiger_Module_Model::getInstance($fieldModuleName);
+                   }
+                   
                    $operator = $fieldSearchInfo[1];
                    $fieldValue = $fieldSearchInfo[2];
-                   $fieldInfo = $moduleModel->getField($fieldName);
+                   $fieldInfo = $fieldModuleModel->getField($fieldName);
 
                    //Request will be having in terms of AM and PM but the database will be having in 24 hr format so converting
  		            //Database format
@@ -628,7 +643,7 @@ class Vtiger_Util_Helper {
     * @return returns default value for data type if match case found
     * else returns empty string
     */
-   function getDefaultMandatoryValue($dataType) {
+    public static function getDefaultMandatoryValue($dataType) {
        $value;
        switch ($dataType) {
            case 'date':
@@ -661,7 +676,8 @@ class Vtiger_Util_Helper {
                break;
        }
        return $value;
-   }
+    }
+
 	public static function checkDbUTF8Support($conn) {
 		global $db_type;
 		if($db_type == 'pgsql')

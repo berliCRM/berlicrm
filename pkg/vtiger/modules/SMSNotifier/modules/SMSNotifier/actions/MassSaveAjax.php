@@ -7,6 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  *************************************************************************************/
+require_once('modules/SMSNotifier/SMSNotifier.php');
 
 class SMSNotifier_MassSaveAjax_Action extends Vtiger_Mass_Action {
 
@@ -38,7 +39,7 @@ class SMSNotifier_MassSaveAjax_Action extends Vtiger_Mass_Action {
 			foreach($phoneFieldList as $fieldname) {
 				$fieldValue = $recordModel->get($fieldname);
 				if(!empty($fieldValue)) {
-					$toNumbers[] = $fieldValue;
+					$toNumbers[] = SMSNotifier::formatPhoneNumber($fieldValue);
 					$numberSelected = true;
 				}
 			}

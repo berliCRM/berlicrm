@@ -105,7 +105,8 @@ class Reports_Folder_Model extends Vtiger_Base_Model {
 		$pageLimit = $pagingModel->getPageLimit();
 		if($reportsCount > $pageLimit){
 			if(!$fldrId){
-				$lastKey = end(array_keys($reportsList));
+                $arrKeys = array_keys($reportsList);
+				$lastKey = end($arrKeys);
 				array_pop($reportsList[$lastKey]);
 			}else{
 				array_pop($reportsList);
@@ -296,6 +297,8 @@ class Reports_Folder_Model extends Vtiger_Base_Model {
 		$params = array();
 		
         // To get the report ids which are permitted for the user
+        // crm-now: removed because it breaks pagination of reports
+        /*
             $query = "SELECT reportmodulesid, primarymodule from vtiger_reportmodules";
             $result = $db->pquery($query, array());
             $noOfRows = $db->num_rows($result);
@@ -308,10 +311,14 @@ class Reports_Folder_Model extends Vtiger_Base_Model {
                 }
             }
         //End
+        */
+        
 		$sql = "SELECT count(*) AS count FROM vtiger_report
-				INNER JOIN vtiger_reportfolder ON vtiger_reportfolder.folderid = vtiger_report.folderid AND 
-                vtiger_report.reportid in (".implode(',',$allowedReportIds).")";
-		$fldrId = $this->getId();
+				INNER JOIN vtiger_reportfolder ON vtiger_reportfolder.folderid = vtiger_report.folderid";
+
+        // crm-now: removed because it breaks pagination of reports       "AND vtiger_report.reportid in (".implode(',',$allowedReportIds).")";
+
+        $fldrId = $this->getId();
 		if($fldrId == 'All') {
 			$fldrId = false;
 		}

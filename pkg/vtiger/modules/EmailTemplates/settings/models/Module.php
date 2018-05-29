@@ -17,7 +17,7 @@ class Settings_EmailTemplates_Module_Model extends Settings_Vtiger_Module_Model 
 	 * Function retruns List of Email Templates
 	 * @return string
 	 */
-	function getListViewUrl() {
+	public static function getListViewUrl() {
 		return 'module=EmailTemplates&parent=Settings&view=List';
 	}
 
@@ -25,9 +25,9 @@ class Settings_EmailTemplates_Module_Model extends Settings_Vtiger_Module_Model 
 	 * Function returns all the Email Template Models
 	 * @return <Array of EmailTemplates_Record_Model>
 	 */
-	function getAll() {
+	public static function getAll() {
 		$db = PearDatabase::getInstance();
-		$result = $db->pquery('SELECT * FROM vtiger_emailtemplates WHERE deleted = 0', array());
+		$result = $db->pquery('SELECT * FROM vtiger_emailtemplates WHERE deleted = 0  ORDER BY templatename ASC', array());
 
 		$emailTemplateModels = array();
 		for($i=0; $i<$db->num_rows($result); $i++) {

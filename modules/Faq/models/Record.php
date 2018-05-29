@@ -11,6 +11,13 @@
 class Faq_Record_Model extends Vtiger_Record_Model {
 
 	/**
+	 * Fuction to get the Name of the Record
+	 * @return <String>
+	 */
+	function getName() {
+		return $this->get('question');
+	}
+ 	/**
 	 * Function to get Instance of Faq Record Model using TroubleTicket RecordModel
 	 * @param  HelpDesk_Record_Model
 	 * @return Faq_Record_Model

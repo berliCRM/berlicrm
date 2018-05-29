@@ -54,7 +54,23 @@ Class CustomView_EditAjax_View extends Vtiger_IndexAjax_View {
             $itemsBlock = "LBL_ITEM_DETAILS";
             unset($recordStructure[$itemsBlock]);
         }
+        
+        // crm-now: allow columns and conditions from related account in contact's customviews
+        if ($moduleName == "Contacts") {
+
+            $secModule = "Accounts";
+            $secModuleModel = Vtiger_Module_Model::getInstance($secModule);
+            $secRecordStructureInstance = Vtiger_RecordStructure_Model::getInstanceForModule($secModuleModel);
+            $secRecordStructure = $secRecordStructureInstance->getStructure();
+
+            // append keys of array (used as optgroup label in template) with name of secondary module to 1. prevent overwriting and 2. allow module-aware translation in template
+            foreach ($secRecordStructure as $key => $value) {
+                    $recordStructure[$key.":".$secModule] = $value;
+            }
+        }
+
 		$viewer->assign('RECORD_STRUCTURE', $recordStructure);
+
 		// Added to show event module custom fields
 		if($moduleName == 'Calendar'){
         	$relatedModuleName = 'Events';

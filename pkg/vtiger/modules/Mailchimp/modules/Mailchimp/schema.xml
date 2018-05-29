@@ -1,0 +1,46 @@
+<?xml version='1.0'?>
+<schema>
+	<tables>
+		<table>
+			<name>vtiger_mailchimp</name>
+			<sql><![CDATA[CREATE TABLE IF NOT EXISTS `vtiger_mailchimp` (
+			  `mailchimpid` int(11) NOT NULL,
+			  `mailchimpname` varchar(50) DEFAULT NULL,
+			  `campaign_no` varchar(100) DEFAULT NULL,
+			  `campaign_type` varchar(200) DEFAULT NULL,
+			  `campaign_status` varchar(200) DEFAULT NULL,
+			  `lastsynchronization` datetime DEFAULT NULL,
+			  PRIMARY KEY  (`mailchimpid`),
+			  CONSTRAINT `fk_1_vtiger_mailchimp` FOREIGN KEY (`mailchimpid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]></sql>
+		</table>
+		<table>
+			<name>vtiger_mailchimpcf</name>
+			<sql><![CDATA[CREATE TABLE IF NOT EXISTS `vtiger_mailchimpcf` (
+			  `mailchimpid` int(11) NOT NULL,
+			  PRIMARY KEY (`mailchimpid`),
+			  CONSTRAINT `fk_1_vtiger_mailchimpcf` FOREIGN KEY (`mailchimpid`) REFERENCES `vtiger_mailchimp` (`mailchimpid`) ON DELETE CASCADE
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>vtiger_mailchimpsyncdiff</name>
+			<sql><![CDATA[CREATE TABLE IF NOT EXISTS `vtiger_mailchimpsyncdiff` (
+			  `crmid` int(11) NOT NULL,
+			  `module` varchar(100) NOT NULL,
+			  `relcrmid` int(11) NOT NULL,
+			  `relmodule` varchar(100) NOT NULL
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>vtiger_mailchimp_settings</name>
+			<sql><![CDATA[CREATE TABLE IF NOT EXISTS `vtiger_mailchimp_settings` (
+			  `id` int(11) NOT NULL,
+			  `apikey` varchar(100) NOT NULL,
+			  `listid` varchar(50) NOT NULL,
+			  `newsubscribertype` varchar(50) NOT NULL,
+			  `lastsyncdate` varchar(25) NOT NULL DEFAULT '1970-01-01 09:30:00',
+			  PRIMARY KEY (`id`)
+			) ENGINE=InnoDB  DEFAULT CHARSET=utf8]]></sql>
+		</table>
+	</tables>
+</schema>

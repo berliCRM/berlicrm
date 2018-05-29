@@ -43,7 +43,7 @@ if (isset($_REQUEST['user_name']) && isset($_REQUEST['emailId'])) {
                             <br><br> 
                             This request was made on ' . date("Y-m-d H:i:s") . ' and will expire in next 24 hours.<br><br> 
 		            Regards,<br> 
-		            VtigerCRM Open source Support Team.<br>' ;
+		            Support Team.<br>' ;
         $mail = new PHPMailer();
         $query = "select from_email_field,server_username from vtiger_systems where server_type=?";
         $params = array('email');

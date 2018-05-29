@@ -18,7 +18,7 @@ class Reports_RecordStructure_Model extends Vtiger_RecordStructure_Model {
 	 * Function to get the values in stuctured format
 	 * @return <array> - values in structure array('block'=>array(fieldinfo));
 	 */
-	public function getStructure($moduleName) {
+	public function getStructure($moduleName=false) {
 		if (!empty($this->structuredValues[$moduleName])) {
 			return $this->structuredValues[$moduleName];
 		}
@@ -56,6 +56,17 @@ class Reports_RecordStructure_Model extends Vtiger_RecordStructure_Model {
 				}
 			}
 			$moduleRecordStructure = $calendarRecordStructure;
+		} elseif ($moduleName === 'SalesOrder') {
+			$recordStructureInstance = Vtiger_RecordStructure_Model::getInstanceForModule($moduleModel);
+			$moduleRecordStructure = $recordStructureInstance->getStructure();
+			if (!empty($moduleRecordStructure['LBL_ITEM_DETAILS'])) {
+				$blockId = $moduleModel->get('blocks')['LBL_ITEM_DETAILS']->id;
+				$fName = 'realprice';
+				$fieldVals = array('fieldname' => $fName, 'fieldlabel' => strtoupper("LBL_$fName"), 'columnname' => $fName, 'tablename' => 'vtiger_inventoryproductrel', 'uitype' => 71, 'typeofdata' => 'N~O', 'block' => $blockId);
+				$tmpField = new Vtiger_Field_Model();
+				$tmpField->initialize($fieldVals, $moduleModel);
+				$moduleRecordStructure['LBL_ITEM_DETAILS'][$ext_field] = $tmpField;
+			}
 		} else {
 			$recordStructureInstance = Vtiger_RecordStructure_Model::getInstanceForModule($moduleModel);
 			$moduleRecordStructure = $recordStructureInstance->getStructure();

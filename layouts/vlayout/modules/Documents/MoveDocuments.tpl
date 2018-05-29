@@ -31,7 +31,7 @@
 						<select class="chzn-select span11" name="folderid">
 							<optgroup label="{vtranslate('LBL_FOLDERS', $MODULE)}">
 								{foreach item=FOLDER from=$FOLDERS}
-									<option value="{$FOLDER->getId()}">{$FOLDER->getName()}</option>
+									<option value="{$FOLDER->getId()}">{vtranslate($FOLDER->getName(), $MODULE)}</option>
 								{/foreach}
 							</optgroup>
 						</select>

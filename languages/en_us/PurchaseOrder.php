@@ -6,6 +6,7 @@
  * The Initial Developer of the Original Code is vtiger.
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
+ * Reviewed by crm-now GmbH
  *************************************************************************************/
 $languageStrings = array(
 	//DetailView Actions
@@ -42,6 +43,30 @@ $languageStrings = array(
         'List Price'                   => 'List Price',
     
     'LBL_COPY_COMPANY_ADDRESS' => 'Copy Company Address',
+
+	//crm-now added for PDF saving as document
+	'LBL_PDFSUBJECT'=>'saved PDF from a purchase order with the subject',
+	'LBL_PDF_FOLDERNAME'=>'saved PDFs from Purchase Orders',
+	'LBL_PDF_FOLDERDES_DETAIL'=>'PDF outputs which has been saved at a purchase order detail view.',
+
+    // product search popup
+    'Part Number' => 'Part Number',
+    'Product Active' => 'Product Active',
+    'Product Category' => 'Product Category',
+    'Product Image' => 'Product Image',
+    'Product No' => 'Product No',
+    'Product Sheet' => 'Product Sheet',
+    'Manufacturer' => 'Manufacturer',
+    'Mfr PartNo' => 'Mfr PartNo',
+    'Vendor PartNo' => 'Vendor PartNo',
+    'Serial No' => 'Serial No',
+    'Unit Price' => 'Unit Price',
+    'GL Account' => 'GL Account',
+    'Qty In Demand' => 'Qty In Demand',
+    'Qty In Stock' => 'Qty In Stock',
+    'Qty/Unit' => 'Qty/Unit',
+    'Reorder Level' => 'Reorder Level',
+    'Handler' => 'Handler',
 
 );
 

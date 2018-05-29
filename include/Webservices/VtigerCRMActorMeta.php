@@ -13,7 +13,7 @@ class VtigerCRMActorMeta extends EntityMeta {
 	protected static $fieldTypeMapping = array();
 	protected static $referenceTypeMapping = array();
 	
-	function VtigerCRMActorMeta($tableName,$webserviceObject,$adb,$user){
+	function __construct($tableName,$webserviceObject,$adb,$user){
 		parent::__construct($webserviceObject,$user);
 		$this->baseTable = $tableName;
 		$this->idColumn = null;
@@ -241,7 +241,15 @@ class VtigerCRMActorMeta extends EntityMeta {
 	public function hasReadAccess(){
 		return true;
 	}
-	
+
+	public function hasCreateAccess() {
+		if (is_admin($this->user)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	public function hasWriteAccess(){
 		if(is_admin($this->user)){
 			return true;

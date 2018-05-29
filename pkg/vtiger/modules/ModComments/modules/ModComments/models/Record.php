@@ -54,7 +54,7 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
             } else {
 				$imagePath = $commentor->getImageDetails();
 				if (!empty($imagePath[0]['name'])) {
-					return $imagePath[0]['path'] . '_' . $imagePath[0]['name'];
+					return $imagePath[0]['path'];
 				}
 			}
 		}
@@ -66,7 +66,7 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 	 * @param <Integer> $record
 	 * @return ModComment_Record_Model
 	 */
-	public static function getInstanceById($record) {
+	public static function getInstanceById($record, $module = NULL) {
 		$db = PearDatabase::getInstance();
 		$result = $db->pquery('SELECT vtiger_modcomments.*, vtiger_crmentity.smownerid,
 					vtiger_crmentity.createdtime, vtiger_crmentity.modifiedtime FROM vtiger_modcomments
@@ -272,5 +272,22 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 	 */
 	public function isDeletable() {
 		return false;
+	}
+	
+	/**
+	 * crm-now Extension
+	 * Function returns all count
+	 * @return <type>
+	 */
+	public static function getAllCommentRecordsCount($parentRecordId) {
+		$db = PearDatabase::getInstance();
+		$query = 'SELECT 1 FROM vtiger_modcomments WHERE related_to = ?';
+		$result = $db->pquery($query, array($parentRecordId));
+		if($db->num_rows($result)) {
+			return $db->num_rows($result);
+		} 
+		else {
+			return 0;
+		}
 	}
 }

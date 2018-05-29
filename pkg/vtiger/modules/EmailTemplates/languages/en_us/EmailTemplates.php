@@ -18,6 +18,8 @@ $languageStrings = array(
 	'LBL_SUBJECT' => 'Subject',
 	'LBL_GENERAL_FIELDS' => 'General Fields',
 	'LBL_SELECT_FIELD_TYPE' => 'Select Field Type',
+	'EmailTemplates' => 'Email Templates',
+	'Email Templates' => 'Email Templates',
 	
 	'LBL_EMAIL_TEMPLATE_DESCRIPTION'=>'Manage templates for E-Mail module',
 	

@@ -38,16 +38,18 @@ Vtiger_Detail_Js("Project_Detail_Js",{},{
 			var referenceModuleName = widgetDataContainer.find('[name="relatedModule"]').val();
 			var recordId = thisInstance.getRecordId();
 			var module = app.getModuleName();
-			var selectedStatus = currentElement.find('option:selected').text();
-			if(selectedStatus != "Select Status" && referenceModuleName == "HelpDesk"){
-				statusCondition['vtiger_troubletickets.status'] = selectedStatus;
+			var selectedValue = currentElement.val();
+
+			if(selectedValue && referenceModuleName == "HelpDesk"){
+				statusCondition['vtiger_troubletickets.status'] = selectedValue;
 				params['whereCondition'] = statusCondition;
-			} else if(selectedStatus != app.vtranslate('JS_LBL_SELECT_STATUS') && referenceModuleName == "ProjectTask" && picklistName == 'projecttaskstatus'){
-				statusCondition['vtiger_projecttask.projecttaskstatus'] = selectedStatus;
+			} 
+            else if(selectedValue && referenceModuleName == "ProjectTask" && picklistName == 'projecttaskstatus'){
+				statusCondition['vtiger_projecttask.projecttaskstatus'] = selectedValue;
 				params['whereCondition'] = statusCondition;
 			}
-            else if(selectedStatus != app.vtranslate('JS_LBL_SELECT_PROGRESS') && referenceModuleName == "ProjectTask" && picklistName == 'projecttaskprogress'){
-				statusCondition['vtiger_projecttask.projecttaskprogress'] = selectedStatus;
+            else if(selectedValue && referenceModuleName == "ProjectTask" && picklistName == 'projecttaskprogress'){
+				statusCondition['vtiger_projecttask.projecttaskprogress'] = selectedValue;
 				params['whereCondition'] = statusCondition;
 			}
 			

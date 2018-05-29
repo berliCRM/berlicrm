@@ -44,6 +44,7 @@ class QueryGenerator {
 	private $referenceFieldInfoList;
 	private $referenceFieldList;
 	private $ownerFields;
+    private $crmEntityDoubleJoin = false;
 	private $columns;
 	private $fromClause;
 	private $whereClause;
@@ -159,6 +160,17 @@ class QueryGenerator {
             $eventModuleFieldList = $eventmoduleMeta->getModuleFields();
             $moduleFields = array_merge($moduleFields, $eventModuleFieldList);
         }
+        
+        // crm-now: add accounts fields to contact module, prepend module name to array key
+        if ($module == 'Contacts') {
+            $secModuleMeta = $this->getMeta('Accounts');
+            $secModuleFieldList = $secModuleMeta->getModuleFields();
+            
+            foreach ($secModuleFieldList as $key => $value) {
+                $moduleFields["Accounts.".$key] = $value;
+            }
+        }
+
         return $moduleFields;
     }
 
@@ -183,6 +195,12 @@ class QueryGenerator {
 		$this->customViewColumnList = $customView->getColumnsListByCvid($viewId);
 		foreach ($this->customViewColumnList as $customViewColumnInfo) {
 			$details = explode(':', $customViewColumnInfo);
+
+            // crm-now: prepend secondary modulename to fieldname to make index unique for combined customview
+            list($fieldModule) = explode("_",$details[3]);
+            if ($fieldModule == "Accounts" && $this->module == "Contacts") {
+                $details[2] = $fieldModule.".".$details[2];
+            }
 			if(empty($details[2]) && $details[1] == 'crmid' && $details[0] == 'vtiger_crmentity') {
 				$name = 'id';
 				$this->customViewFields[] = $name;
@@ -216,6 +234,11 @@ class QueryGenerator {
 			if(!empty($this->stdFilterList['columnname'])) {
 				$this->startGroup('');
 				$name = explode(':',$this->stdFilterList['columnname']);
+                // crm-now: prepend secondary modulename to fieldname to make index unique for combined customview
+                list($fieldModule) = explode("_",$name[3]);
+                if ($fieldModule == "Accounts" && $this->module == "Contacts") {
+                    $name[2] = $fieldModule.".".$name[2];
+                }
 				$name = $name[2];
 				$value[] = $this->fixDateTimeValue($name, $this->stdFilterList['startdate']);
 				$value[] = $this->fixDateTimeValue($name, $this->stdFilterList['enddate'], false);
@@ -246,6 +269,12 @@ class QueryGenerator {
 				$this->startGroup('');
 				foreach ($filtercolumns as $index=>$filter) {
 					$nameComponents = explode(':',$filter['columnname']);
+                    
+                    // crm-now: prepend secondary modulename to fieldname to make index unique
+                    list($fieldModule) = explode("_",$nameComponents[3]);
+                    if ($fieldModule == "Accounts" && $this->module == "Contacts") {
+                        $nameComponents[2] = $fieldModule.".".$nameComponents[2];
+                    }
                     // For Events "End Date & Time" field datatype should be DT. But, db will give D for due_date field
                     if($nameComponents[2] == 'due_date' && $nameComponents[3] == 'Events_End_Date_&_Time')
                         $nameComponents[4] = 'DT';
@@ -388,6 +417,17 @@ class QueryGenerator {
 		//TODO optimization to eliminate one more lookup of name, incase the field refers to only
 		//one module or is of type owner.
 		$column = $field->getColumnName();
+        
+        // crm-now: create alias for $tablename.$fieldname for combined customview
+        if (strpos($name,".")>0) {
+            $alias = str_replace(".","",$name);
+            $tablename = $field->getTableName();
+            if ($tablename == "vtiger_crmentity") {
+                $tablename = "Accounts_crmentity";
+                $this->crmEntityDoubleJoin = true;
+            }
+            return $tablename.'.'.$column." AS $alias";
+        }
 		return $field->getTableName().'.'.$column;
 	}
 
@@ -542,6 +582,7 @@ class QueryGenerator {
 		}
 
 		$defaultTableList = $this->meta->getEntityDefaultTableList();
+
 		foreach ($defaultTableList as $table) {
 			if(!in_array($table, $tableList)) {
 				$tableList[$table] = $table;
@@ -565,6 +606,7 @@ class QueryGenerator {
 					"$baseTableIndex = $tableName.$moduleTableIndexList[$tableName]";
 			unset($tableList[$tableName]);
 		}
+
 		foreach ($tableList as $tableName) {
 			if($tableName == 'vtiger_users') {
 				$field = $moduleFields[$ownerField];
@@ -574,7 +616,19 @@ class QueryGenerator {
 				$field = $moduleFields[$ownerField];
 				$sql .= " $tableJoinMapping[$tableName] $tableName ON ".$field->getTableName().".".
 					$field->getColumnName()." = $tableName.groupid";
-			} else {
+            } 
+            //crm-now: join tables for contacts+accounts combined customview
+            elseif($tableName == 'vtiger_account') {
+				$sql .= " $tableJoinMapping[$tableName] $tableName ON $baseTable.".
+					"accountid = $tableName.accountid";
+			} elseif($tableName == 'vtiger_accountbillads' || $tableName == 'vtiger_accountshipads') {
+				$sql .= " $tableJoinMapping[$tableName] $tableName ON $baseTable.".
+					"accountid = $tableName.accountaddressid";
+			} elseif($tableName == 'vtiger_accountscf') {
+				$sql .= " $tableJoinMapping[$tableName] $tableName ON $baseTable.".
+					"accountid = $tableName.accountid";
+			}
+            else {
 				$sql .= " $tableJoinMapping[$tableName] $tableName ON $baseTable.".
 					"$baseTableIndex = $tableName.$moduleTableIndexList[$tableName]";
 			}
@@ -643,6 +697,11 @@ class QueryGenerator {
 
 		$sql .= $this->meta->getEntityAccessControlQuery();
 		$this->fromClause = $sql;
+
+        // crm-now: double join aliased crmentity table for combined customview
+        if ($this->crmEntityDoubleJoin) {
+            $sql .= " INNER JOIN vtiger_crmentity AS Accounts_crmentity ON Accounts_crmentity.crmid = vtiger_account.accountid";
+        }
 		return $sql;
 	}
 
@@ -668,9 +727,16 @@ class QueryGenerator {
 		$baseTableIndex = $moduleTableIndexList[$baseTable];
 		$groupSql = $this->groupInfo;
 		$fieldSqlList = array();
+        $aliasTableName = array();
         foreach ($this->conditionals as $index=>$conditionInfo) {
 			$fieldName = $conditionInfo['name'];
 			$field = $moduleFieldList[$fieldName];
+            
+            // crm-now: field from crmentity aliased for accounts in combined customview? table-name gets replaced by alias later (line 936..)
+            if (strpos($fieldName,".")>0 && $field->getTableName() == "vtiger_crmentity") {
+                $aliasTableName[$index]= true;
+            }
+
             if(empty($field) || $conditionInfo['operator'] == 'None') {
 				continue;
 			}
@@ -678,6 +744,9 @@ class QueryGenerator {
 			$fieldGlue = '';
 			$valueSqlList = $this->getConditionValue($conditionInfo['value'],
 				$conditionInfo['operator'], $field);
+
+            if ($conditionInfo['operator'] == "n") $fieldSql .= "NOT "; // NULL-safe nonequality fix
+
             $operator = strtolower($conditionInfo['operator']);
             if($operator == 'between'&& $this->isDateType($field->getFieldDataType())){
                 $start = explode(' ', $conditionInfo['value'][0]);
@@ -774,15 +843,15 @@ class QueryGenerator {
 							$fieldSql .= "$dateFieldColumnName $valueSql";
 						}
 					} else {
-                                                if(is_array($value)){
-                                                    $value = $value[0];
-                                                }
-                                                $values = explode(' ', $value);
-                                                if(count($values) == 2) {
-                                                        $fieldSql .= "$fieldGlue CAST(CONCAT($dateFieldColumnName,' ',$timeFieldColumnName) AS DATETIME) $valueSql ";
-                                                } else {
-                                                        $fieldSql .= "$fieldGlue $dateFieldColumnName $valueSql";
-                                                }
+						if(is_array($value)){
+							$value = $value[0];
+						}
+						$values = explode(' ', $value);
+						if(count($values) == 2) {
+								$fieldSql .= "$fieldGlue CAST(CONCAT($dateFieldColumnName,' ',$timeFieldColumnName) AS DATETIME) $valueSql ";
+						} else {
+								$fieldSql .= "$fieldGlue $dateFieldColumnName $valueSql";
+						}
 					}
 				} elseif($field->getFieldDataType() == 'datetime') {
 					$value = $conditionInfo['value'];
@@ -792,7 +861,7 @@ class QueryGenerator {
 						$startDateValue = explode(' ', $values[0]);
 						$endDateValue = explode(' ', $values[1]);
 						if($startDateValue[1] == '00:00:00' && ($endDateValue[1] == '00:00:00' || $endDateValue[1] == '23:59:59')) {
-							$fieldSql .= "$fieldGlue CAST(".$field->getTableName().'.'.$field->getColumnName()." AS DATE) $valueSql";
+							$fieldSql .= "$fieldGlue CAST(".$field->getTableName().'.'.$field->getColumnName()." AS DATETIME) $valueSql";
 						} else {
 							$fieldSql .= "$fieldGlue ".$field->getTableName().'.'.$field->getColumnName().' '.$valueSql;
 						}
@@ -854,8 +923,15 @@ class QueryGenerator {
 				}
 			}
 			$fieldSql .= ')';
+            
 			$fieldSqlList[$index] = $fieldSql;
 		}
+        
+        // crm-now: replace tablename with alias where needed
+        foreach ($aliasTableName as $key => $value) {
+            $fieldSqlList[$key] = str_replace("vtiger_crmentity.","Accounts_crmentity.",$fieldSqlList[$key]);
+        }
+        
 		foreach ($this->manyToManyRelatedModuleConditions as $index=>$conditionInfo) {
 			$relatedModuleMeta = RelatedModuleMeta::getInstance($this->meta->getTabName(),
 					$conditionInfo['relatedModule']);
@@ -878,7 +954,11 @@ class QueryGenerator {
 				$columnName = $fieldObject->getColumnName();
 				$tableName = $fieldObject->getTableName();
 				$valueSQL = $this->getConditionValue($conditionInfo['value'], $conditionInfo['SQLOperator'], $fieldObject);
-				$fieldSql = "(".$tableName.$conditionInfo['referenceField'].'.'.$columnName.' '.$valueSQL[0].")";
+
+                $fieldSql = "(";
+                if ($conditionInfo['SQLOperator'] == "n") $fieldSql .= "NOT "; // NULL-safe nonequality fix
+
+				$fieldSql .= $tableName.$conditionInfo['referenceField'].'.'.$columnName.' '.$valueSQL[0].")";
 				$fieldSqlList[$index] = $fieldSql;
 			}
 		}
@@ -902,7 +982,7 @@ class QueryGenerator {
 	 * @param WebserviceField $field
 	 */
 	private function getConditionValue($value, $operator, $field) {
-
+        
 		$operator = strtolower($operator);
 		$db = PearDatabase::getInstance();
         $inEqualityFieldTypes = array('currency','percentage','double','integer','number');
@@ -1069,11 +1149,11 @@ class QueryGenerator {
 				$sql[] = "NOT LIKE ''";
 				continue;
 			}
-
+            $dontquote=false;
 			switch($operator) {
 				case 'e': $sqlOperator = "=";
 					break;
-				case 'n': $sqlOperator = "<>";
+				case 'n': $sqlOperator = "<=>";  // NULL-safe nonequality fix
 					break;
 				case 's': $sqlOperator = "LIKE";
 					$value = "$value%";
@@ -1099,10 +1179,19 @@ class QueryGenerator {
 					break;
 				case 'b': $sqlOperator = "<";
 					break;
+                case 'ci': $sqlOperator = "IN";
+                    $value = "('".str_replace(",","','",$value)."')";
+                    $dontquote=true;
+                    break;
+                case 'nci': $sqlOperator = "NOT IN";
+                    $value = "('".str_replace(",","','",$value)."')";
+                    $dontquote=true;
+                    break;
+                    
 			}
 			if(!$this->isNumericType($field->getFieldDataType()) &&
 					($field->getFieldName() != 'birthday' || ($field->getFieldName() == 'birthday'
-							&& $this->isRelativeSearchOperators($operator)))){
+							&& $this->isRelativeSearchOperators($operator))) && !$dontquote){
 				$value = "'$value'";
 			}
 			if($this->isNumericType($field->getFieldDataType()) && empty($value)) {
@@ -1243,6 +1332,12 @@ class QueryGenerator {
 					$this->startGroup('');
 					foreach ($filtercolumns as $index=>$filter) {
 						$name = explode(':',$filter['columnname']);
+
+                        // crm-now: prepend secondary modulename to fieldname to make index unique
+                        list($fieldModule) = explode("_",$name[3]);
+                        if ($fieldModule == "Accounts" && $this->module == "Contacts") {
+                            $name[2] = $fieldModule.".".$name[2];
+                        }
 						if(empty($name[2]) && $name[1] == 'crmid' && $name[0] == 'vtiger_crmentity') {
 							$name = $this->getSQLColumn('id');
 						} else {

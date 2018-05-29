@@ -36,7 +36,10 @@ Vtiger_Base_Validator_Js("Vtiger_Email_Validator_Js",{
 	 * @return false if validation error occurs
 	 */
 	validateValue : function(fieldValue){
-		var emailFilter = /^[_/a-zA-Z0-9*]+([!"#$%&'()*+,./:;<=>?\^_`{|}~-]?[a-zA-Z0-9/_/-])*@[a-zA-Z0-9]+([\_\-\.]?[a-zA-Z0-9]+)*\.([\-\_]?[a-zA-Z0-9])+(\.?[a-zA-Z0-9]+)?$/;
+		//var emailFilter = /^[_/a-zA-Z0-9*]+([!"#$%&'()*+,./:;<=>?\^_`{|}~-]?[a-zA-Z0-9/_/-])*@[a-zA-Z0-9]+([\_\-\.]?[a-zA-Z0-9]+)*\.([\-\_]?[a-zA-Z0-9])+(\.?[a-zA-Z0-9]+)?$/;
+		//crm-now: better expression to allow email formats like yyyy@xxx.zz.kkkkk-uuuuuu.de and yyy@yyyy.fffff
+		//var emailFilter =/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i;
+		var emailFilter = /^[^@]+@[^@.]+\.[^@]*\w\w$/ ;
 		var illegalChars= /[\(\)\<\>\,\;\:\\\"\[\]]/ ;
 
 		if (!emailFilter.test(fieldValue)) {
