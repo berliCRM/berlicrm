@@ -24,6 +24,6 @@ class Settings_gdpr_saveFields_Action extends Settings_Vtiger_Index_Action {
                 $db->pquery($q,array($setting_date, $tabid, $delmodes[$tabid], $fieldids));
             }
         }
-        header("Location: https://berlitest1.tribun.crm-now.de/index.php?parent=Settings&module=gdpr&view=Index");
+        header("Location: index.php?parent=Settings&module=gdpr&view=Index");
     }
 }
