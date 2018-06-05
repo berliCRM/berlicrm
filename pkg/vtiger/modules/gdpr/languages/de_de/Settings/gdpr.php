@@ -49,7 +49,7 @@ $languageStrings = array(
 	'LBL_GDPR_HINT3' => 'Wählen Sie aus der Liste die Module aus, die in Ihrem CRM personenbezogene Daten enthalten. Wenn Sie die automatische Löschung aktivieren, wird ........',
 	'LBL_GDPR_HINT4' => 'Wenn Sie die Daten nur in den Papierkorb verschieben, so müssen Sie diese danach noch selbst aus dem Papierkorb löschen, damit diese endgültig gelöscht sind. Eine Liste der endgültig gelöchten Daten (nur die Identifikationsnummern) wird gesichert und kann herangezogen werden, wenn Daten aus einem Backup wieder hergesellt werden müssen.',
 	'LBL_GDPR_IMPORTANT' => 'Bitte beachten:',
-	'LBL_GDPR_IMPORTANT1' => 'Lt. DSGVO müssen Daten für die kein Grund zur Speicherung vorliegt, spätestens nach 6 Monaten gelöscht werden. Das CRM zieht für die Zeitbestimmung den Inhalt des Feldes "geändert" aus den entsprechenden Modulen heran.<br><b>Die Löschfunktion ist noch nicht implementiert!</b>',
+	'LBL_GDPR_IMPORTANT1' => 'Lt. DSGVO müssen Daten für die kein Grund zur Speicherung vorliegt, spätestens nach 6 Monaten gelöscht werden. Das CRM zieht für die Zeitbestimmung den Inhalt des Feldes "erstellt" aus den entsprechenden Modulen heran.',
 	'LBL_GDPR_IMPORTANT2' => 'Was Walter weiß .....',
 	'LBL_SELECT_FIELD' => 'auswählen',
 	
