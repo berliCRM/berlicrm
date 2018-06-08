@@ -11,14 +11,114 @@
 -->*}
 
 <center>{'LBL_LOADING_PLEASE_WAIT'|vtranslate}...</center>
+<div style="width:600px;margin:0 auto;">
+	<div class="row-fluid">
+		<div class="span6">
+			{vtranslate('LBL_CREATE_CONFIG', 'Install')}
+		</div>
+		<div class="span6" id="config">
+			
+		</div>
+	</div>
+	<div class="row-fluid">
+		<div class="span6">
+			{vtranslate('LBL_INIT_DB', 'Install')}
+		</div>
+		<div class="span6" id="database">
+			
+		</div>
+	</div>
+	<div class="row-fluid">
+		<div class="span6">
+			{vtranslate('LBL_CREATE_USER', 'Install')}
+		</div>
+		<div class="span6" id="user">
+			
+		</div>
+	</div>
+	<div class="row-fluid">
+		<div class="span6">
+			{vtranslate('LBL_INSTALL_MODULES', 'Install')}
+		</div>
+		<div class="span6" id="modules">
+			
+		</div>
+	</div>
+	<div class="row-fluid">
+		<div class="span6">
+			{vtranslate('LBL_FINALIZE', 'Install')}
+		</div>
+		<div class="span6" id="final">
+			
+		</div>
+	</div>
+</div>
 
 <form class="form-horizontal" name="step7" method="post" action="?module=Users&action=Login">
-	<input type=hidden name="username" value="admin" >
-	<input type=hidden name="password" value="{$PASSWORD}" >
+	<input type="hidden" name="username" value="admin" />
+	<input type="hidden" name="password" value="{$PASSWORD}" />
 	<input type="hidden" id="svn_tag"  name="svn_tag" value="{$SVNTAG}" />
 </form>
+{literal}
+<script type="text/javascript" src="resources/Connector.js"></script>
 <script type="text/javascript">
-	jQuery(document).ready(function() {
-		jQuery('form[name="step7"]').submit();
+	var imgLoadPath = '{/literal}{vimage_path("vtbusy.gif")}{literal}';
+	var imgSuccessPath = '{/literal}{vimage_path("green.png")}{literal}';
+	var imgFailPath = '{/literal}{vimage_path("Tickets.png")}{literal}';
+	//create config
+	var params = {
+		module : 'Install',
+		action : 'ajaxInitDB',
+		mode   : 'config'
+	};
+	jQuery('#'+params.mode).html('<img src="'+imgLoadPath+'">');
+	AppConnector.request(params).then(function(response) {
+		if (response.success && response.result.success) {
+			jQuery('#'+params.mode).html('<img src="'+imgSuccessPath+'">');
+			//fill database
+			params.mode = 'database';
+			jQuery('#'+params.mode).html('<img src="'+imgLoadPath+'">');
+			AppConnector.request(params).then(function(response) {
+				if (response.success && response.result.success) {
+					jQuery('#'+params.mode).html('<img src="'+imgSuccessPath+'">');
+					//create user
+					params.mode = 'user';
+					jQuery('#'+params.mode).html('<img src="'+imgLoadPath+'">');
+					AppConnector.request(params).then(function(response) {
+						if (response.success && response.result.success) {
+							jQuery('#'+params.mode).html('<img src="'+imgSuccessPath+'">');
+							//install modules
+							params.mode = 'modules';
+							jQuery('#'+params.mode).html('<img src="'+imgLoadPath+'">');
+							AppConnector.request(params).then(function(response) {
+								if (response.success && response.result.success) {
+									jQuery('#'+params.mode).html('<img src="'+imgSuccessPath+'">');
+									//final
+									params.mode = 'final';
+									jQuery('#'+params.mode).html('<img src="'+imgLoadPath+'">');
+									AppConnector.request(params).then(function(response) {
+										if (response.success && response.result.success) {
+											jQuery('#'+params.mode).html('<img src="'+imgSuccessPath+'">');
+											setTimeout(function() { jQuery('form[name="step7"]').submit();}, 2000);
+										} else {
+											jQuery('#'+params.mode).html('<img src="'+imgFailPath+'">&nbsp'+response.result.message);
+										}
+									});
+								} else {
+									jQuery('#'+params.mode).html('<img src="'+imgFailPath+'">&nbsp'+response.result.message);
+								}
+							});
+						} else {
+							jQuery('#'+params.mode).html('<img src="'+imgFailPath+'">&nbsp'+response.result.message);
+						}
+					});
+				} else {
+					jQuery('#'+params.mode).html('<img src="'+imgFailPath+'">&nbsp'+response.result.message);
+				}
+			});
+		} else {
+			jQuery('#'+params.mode).html('<img src="'+imgFailPath+'">&nbsp'+response.result.message);
+		}
 	});
 </script>
+{/literal}

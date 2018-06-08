@@ -422,6 +422,7 @@ class Install_Utils_Model {
 	 * Function installs all the available modules
 	 */
 	public static function installModules() {
+		ob_start();
 		require_once('vtlib/Vtiger/Package.php');
 		require_once('vtlib/Vtiger/Module.php');
 		require_once('include/utils/utils.php');
@@ -453,5 +454,8 @@ class Install_Utils_Model {
 				closedir($handle);
 			}
 		}
+		//catch output as this would kill ajax requests
+		$tmp = ob_get_clean();
+		return true;
 	}
 }
