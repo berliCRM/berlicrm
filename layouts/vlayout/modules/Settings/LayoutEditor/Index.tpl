@@ -546,7 +546,16 @@
                                         <label class="checkbox" style="padding-left: 25px; padding-top: 5px;">
                                             <input type="checkbox" name="defaultvalue" value="" />&nbsp;
                                             {vtranslate('LBL_DEFAULT_VALUE', $QUALIFIED_MODULE)}</label>
-                                        <div class="padding1per defaultValueUi" style="padding : 0px 10px 0px 25px;"></div>
+                                        <div class="padding1per defaultValueUi" style="padding:0 10px 0 25px;display:none"></div>
+                                    </span>
+                                    <span>
+                                        <input type="hidden" name="helptext" value="" />
+                                        <label class="checkbox" style="padding-left: 25px; padding-top: 5px;">
+                                            <input type="checkbox" name="helptext" value="" />&nbsp;
+                                            {vtranslate('LBL_HELPTEXT_VALUE', $QUALIFIED_MODULE)}</label>
+                                        <div class="padding1per helptextUi" style="padding:0 10px 0 25px;display:none">
+                                            <textarea class="input-medium" name="helptextValue"></textarea>
+                                        </div>
                                     </span>
                                 </div>
                                 <div class="modal-footer">

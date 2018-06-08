@@ -1311,7 +1311,7 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 
 		contents.on('change', '[name="defaultvalue"], [name="helptext"]', function(e) {
 			var currentTarget = jQuery(e.currentTarget);
-			var defaultValueUi = currentTarget.closest('span').find('.defaultValueUi');
+			var defaultValueUi = currentTarget.closest('span').find('.defaultValueUi,.helptextUi');
 			var defaultField = defaultValueUi.find('[name="fieldDefaultValue"], [name="helptextValue"]');
 			if(currentTarget.is(':checked')) {
 				defaultValueUi.removeClass('zeroOpacity');
