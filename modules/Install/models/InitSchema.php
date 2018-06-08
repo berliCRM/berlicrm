@@ -18,11 +18,19 @@ class Install_InitSchema_Model {
 	public static function initialize() {
 		global $adb;
 		$adb = PearDatabase::getInstance();
+		$configParams = $_SESSION['config_file_info'];
+		$adb->resetSettings($configParams['db_type'], $configParams['db_hostname'], $configParams['db_name'], $configParams['db_username'], $configParams['db_password']);
+		$adb->query('SET NAMES utf8');
 		
 		$adb->database->multiQuery = true;
 		$schema = file_get_contents('schema/DatabaseSchema.sql');
 		$adb->pquery($schema);
 		$adb->database->multiQuery = false;
+		if ($adb->database->_failedQuery) {
+			return $adb->database->_failedQuery;
+		} else {
+			return true;
+		}
 		// $adb->createTables("schema/DatabaseSchema.xml");
 
 		// $defaultDataPopulator = new DefaultDataPopulator();
@@ -852,6 +860,7 @@ class Install_InitSchema_Model {
 		//Creating the flat files for admin user
 		createUserPrivilegesfile($adminUserId);
 		createUserSharingPrivilegesfile($adminUserId);
+		return true;
 	}
 
 	/**
@@ -1315,7 +1324,8 @@ class Install_InitSchema_Model {
 		$adb = PearDatabase::getInstance();
 		//crm-now: space for tag version to be filled by make_ps during installation und upgrades
 		// $adb->query("ALTER TABLE vtiger_version ADD column `tag_version` varchar(30) default 0");
-		// $adb->pquery("UPDATE `vtiger_version` SET `tag_version` = ?", array($_REQUEST['svn_tag']));
+		//set tag
+		$adb->pquery("UPDATE vtiger_version SET tag_version = ? WHERE id = ?;", array($_SESSION['installer_info']['svn_tag'], 1));
 		
 		//crm-now: new settings menu for PDF templates
 		$ID = $adb->getUniqueID('vtiger_settings_field');
@@ -1388,7 +1398,7 @@ class Install_InitSchema_Model {
 		// add web service: retrievedocattachment
 		// $operationId = vtws_addWebserviceOperation('retrievedocattachment','include/Webservices/RetrieveDocAttachment.php','berli_retrievedocattachment','Get','0');
 		// vtws_addWebserviceOperationParam($operationId,'id','string','1');
-		// vtws_addWebserviceOperationParam($operationId,'returnfile','string','2');#
+		// vtws_addWebserviceOperationParam($operationId,'returnfile','string','2');
 		
 		//crm-now: add all modules to tracking (this was done in migration script)
 		if(file_exists('modules/ModTracker/ModTrackerUtils.php')) {
@@ -1401,7 +1411,7 @@ class Install_InitSchema_Model {
 			}
 		}
 		
-		return;
+		return true;
 	}
 
 }

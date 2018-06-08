@@ -180,32 +180,32 @@ class Install_Index_view extends Vtiger_View_Controller {
                 $webuiInstance = new Vtiger_WebUI();
                 $isInstalled = $webuiInstance->isInstalled();
                 if(!$isInstalled){
-                    if($_SESSION['config_file_info']['authentication_key'] != $request->get('auth_key')) {
-                            // die(vtranslate('ERR_NOT_AUTHORIZED_TO_PERFORM_THE_OPERATION', $moduleName));
-                    }
+                    // if($_SESSION['config_file_info']['authentication_key'] != $request->get('auth_key')) {
+                            // // die(vtranslate('ERR_NOT_AUTHORIZED_TO_PERFORM_THE_OPERATION', $moduleName));
+                    // }
 
-                    // Create configuration file
-                    $configParams = $_SESSION['config_file_info'];
-                    $configFile = new Install_ConfigFileUtils_Model($configParams);
-                    $configFile->createConfigFile();
+                    // // Create configuration file
+                    // $configParams = $_SESSION['config_file_info'];
+                    // $configFile = new Install_ConfigFileUtils_Model($configParams);
+                    // $configFile->createConfigFile();
 
-                    global $adb;
-                    $adb->resetSettings($configParams['db_type'], $configParams['db_hostname'], $configParams['db_name'],
-                                                            $configParams['db_username'], $configParams['db_password']);
-                    $adb->query('SET NAMES utf8');
+                    // global $adb;
+                    // $adb->resetSettings($configParams['db_type'], $configParams['db_hostname'], $configParams['db_name'],
+                                                            // $configParams['db_username'], $configParams['db_password']);
+                    // $adb->query('SET NAMES utf8');
 
-                    // Initialize and set up tables
-                    Install_InitSchema_Model::initialize();
-					//set tag
-					$adb->pquery("UPDATE vtiger_version SET tag_version = ? WHERE id = ?;", array($_SESSION['installer_info']['svn_tag'], 1));
-					//create admin user + files
-					Install_InitSchema_Model::createUser();
+                    // // Initialize and set up tables
+                    // Install_InitSchema_Model::initialize();
+					// //set tag
+					// $adb->pquery("UPDATE vtiger_version SET tag_version = ? WHERE id = ?;", array($_SESSION['installer_info']['svn_tag'], 1));
+					// //create admin user + files
+					// Install_InitSchema_Model::createUser();
 
-                    // Install all the available modules
-                    Install_Utils_Model::installModules();
+                    // // Install all the available modules
+                    // Install_Utils_Model::installModules();
 
-                    // Install_InitSchema_Model::upgrade();
-					Install_InitSchema_Model::setCRMNOWmodifications();
+                    // // Install_InitSchema_Model::upgrade();
+					// Install_InitSchema_Model::setCRMNOWmodifications();
 
                     $viewer = $this->getViewer($request);
                     $viewer->assign('PASSWORD', $_SESSION['config_file_info']['password']);
