@@ -423,6 +423,10 @@ class gdpr extends CRMEntity {
                 `setting_date` datetime NOT NULL,`tabid` int(11) NOT NULL,`deletion_mode` int(11) NOT NULL,`fieldids` text COLLATE utf8_unicode_ci NOT NULL,
                 PRIMARY KEY (`setting_date`,`tabid`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci");
+
+            //register cron
+            require_once('vtlib/Vtiger/Cron.php');
+            Vtiger_Cron::register( 'DSGVO Scanner', 'cron/modules/gdpr/Scanner.service', 86400, 'gdpr', 1, 7, 'LBL_DSGVOSCANNER_DES');
 		} 
 		else if($eventType == 'module.disabled') {
 			$this->deactivateSettingsLinks();

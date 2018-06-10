@@ -59,7 +59,7 @@
 <info_type>BAS</info_type>
 <helpinfo><![CDATA[]]></helpinfo>
 <masseditable>1</masseditable>
-<summaryfield>0</summaryfield>
+<summaryfield>1</summaryfield>
 <entityidentifier>
 <entityidfield>gdprid</entityidfield>
 <entityidcolumn>gdprid</entityidcolumn>
