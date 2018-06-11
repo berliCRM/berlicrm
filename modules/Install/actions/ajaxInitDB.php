@@ -6,18 +6,26 @@ class Install_ajaxInitDB_Action extends Vtiger_BasicAjax_Action {
 	}
 	
 	public function checkPermission() {
-		$webuiInstance = new Vtiger_WebUI();
-		$isInstalled = $webuiInstance->isInstalled();
+		$ret = true;
+		$path = Install_Utils_Model::INSTALL_FINISHED;
+		$isInstalled = file_exists($path);
 
 		if($isInstalled) {
-			throw new AppException('Already installed');
+			$ret = false;
 		}
+		return $ret;
 	}
 	
-	function process(Vtiger_Request $request) {
-		// $this->checkPermission();
+	function process(Vtiger_Request $request) { 
 		$ret = array(false, 'Unknown error');
 		$mode = $request->get('mode');
+		if (!$this->checkPermission()) {
+			$ret[1] = 'Already Installed';
+			$mode = 'failed';
+		}
+		$path = Install_Utils_Model::INSTALL_LOG;
+		$fh = fopen($path, 'a+');
+		fwrite($fh, "[".date('Y-m-d h:i:s')."] Start $mode\n");
 		if ($mode == 'config') {
 			try {
 				// Create configuration file
@@ -57,6 +65,8 @@ class Install_ajaxInitDB_Action extends Vtiger_BasicAjax_Action {
 				$ret[1] = $e->getMessage();
 			}
 		}
+		fwrite($fh, "[".date('Y-m-d h:i:s')."] End $mode\n\n");
+		fclose($fh);
 		$result = array("success" => $ret[0], "message" => $ret[1]);
 		
 		$response = new Vtiger_Response();

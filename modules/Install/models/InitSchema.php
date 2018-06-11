@@ -17,15 +17,20 @@ class Install_InitSchema_Model {
 	 */
 	public static function initialize() {
 		global $adb;
+		$path = Install_Utils_Model::INSTALL_LOG;
+		$fh = fopen($path, 'a+');
+		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Init DB from Session vars\n");
 		$adb = PearDatabase::getInstance();
 		$configParams = $_SESSION['config_file_info'];
 		$adb->resetSettings($configParams['db_type'], $configParams['db_hostname'], $configParams['db_name'], $configParams['db_username'], $configParams['db_password']);
 		$adb->query('SET NAMES utf8');
 		
+		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Set MultiQuery Mode (requires mysqli) and import SQL dump\n");
 		$adb->database->multiQuery = true;
 		$schema = file_get_contents('schema/DatabaseSchema.sql');
 		$adb->pquery($schema);
 		$adb->database->multiQuery = false;
+		fclose($fh);
 		if ($adb->database->_failedQuery) {
 			return $adb->database->_failedQuery;
 		} else {
@@ -810,6 +815,9 @@ class Install_InitSchema_Model {
 	}
 	
 	public static function createUser() {
+		$path = Install_Utils_Model::INSTALL_LOG;
+		$fh = fopen($path, 'a+');
+		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Get AdoDB instance and new Users object\n");
 		$adb = PearDatabase::getInstance();
 		
 		$adminPassword = $_SESSION['config_file_info']['password'];
@@ -850,16 +858,21 @@ class Install_InitSchema_Model {
 		$adminEmail = (!empty($_SESSION['config_file_info']['admin_email'])) ? $_SESSION['config_file_info']['admin_email'] : 'admin@berlicrm.de';
 		$user->column_fields["email1"] = $adminEmail;
 		$user->column_fields["roleid"] = 'H2';
-
+		
+		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Save User\n");
         $user->save("Users");
         $adminUserId = 1;
 		
+		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Update User ID\n");
 		//due to late user entry the groups already exist, so cheat admin to id 1
 		$adb->pquery("UPDATE vtiger_users SET id = ? WHERE id = ?;", array($adminUserId, $user->id));
 		
 		//Creating the flat files for admin user
+		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Create Privilege file\n");
 		createUserPrivilegesfile($adminUserId);
+		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Create Sharing file\n");
 		createUserSharingPrivilegesfile($adminUserId);
+		fclose($fh);
 		return true;
 	}
 
@@ -1320,14 +1333,19 @@ class Install_InitSchema_Model {
 	
 	//crm-now: modifications to DB during install
 	public static function setCRMNOWmodifications() {
+		$path = Install_Utils_Model::INSTALL_LOG;
+		$fh = fopen($path, 'a+');
+		fwrite($fh, "[".date('Y-m-d h:i:s')."] Include Webservice Utils, get AdoDB instance\n");
 		vimport('~~include/Webservices/Utils.php');
 		$adb = PearDatabase::getInstance();
 		//crm-now: space for tag version to be filled by make_ps during installation und upgrades
 		// $adb->query("ALTER TABLE vtiger_version ADD column `tag_version` varchar(30) default 0");
 		//set tag
+		fwrite($fh, "[".date('Y-m-d h:i:s')."] Update version table\n");
 		$adb->pquery("UPDATE vtiger_version SET tag_version = ? WHERE id = ?;", array($_SESSION['installer_info']['svn_tag'], 1));
 		
 		//crm-now: new settings menu for PDF templates
+		fwrite($fh, "[".date('Y-m-d h:i:s')."] Update vtiger_field to add PDF Templates entry\n");
 		$ID = $adb->getUniqueID('vtiger_settings_field');
 		$params = array($ID, '3', 'LBL_PDF_TEMPLATES', '', 'LBL_PDF_TEMPLATE_DESCRIPTION', 'index.php?parent=Settings&module=Vtiger&view=listpdftexttemplates', '3', '0', '0');
 		$adb->pquery("INSERT INTO `vtiger_settings_field` (`fieldid` ,`blockid` ,`name` ,`iconpath` ,`description` ,`linkto` ,`sequence` ,`active`, `pinned`)
@@ -1401,15 +1419,24 @@ class Install_InitSchema_Model {
 		// vtws_addWebserviceOperationParam($operationId,'returnfile','string','2');
 		
 		//crm-now: add all modules to tracking (this was done in migration script)
+		fwrite($fh, "[".date('Y-m-d h:i:s')."] Update Modtracker tracked modules\n");
 		if(file_exists('modules/ModTracker/ModTrackerUtils.php')) {
 			require_once 'modules/ModTracker/ModTrackerUtils.php';
 			$modules = $adb->pquery('SELECT * FROM vtiger_tab WHERE isentitytype = ?;', array(1));
 			$rows = $adb->num_rows($modules);
 			for($i=0; $i<$rows; $i++) {
 				$tabid=$adb->query_result($modules, $i, 'tabid');
+				$module=$adb->query_result($modules, $i, 'name');
+				fwrite($fh, "[".date('Y-m-d h:i:s')."] Track $module\n");
 				ModTrackerUtils::modTrac_changeModuleVisibility($tabid, 'module_enable');
 			}
 		}
+		fclose($fh);
+		
+		//last step, set info this system was installed
+		$path = Install_Utils_Model::INSTALL_FINISHED;
+		$fh = fopen($path, 'a+');
+		fclose($fh);
 		
 		return true;
 	}
