@@ -32,6 +32,20 @@
 		if($user->status != 'Inactive'){
 			global $adb;
 			$adb->pquery("DELETE FROM berli_failed_logins WHERE user_name = ?;", array($username));
+
+            // get remote IP, possibly proxied, and log login
+            $ip="0.0.0.0";
+            if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && filter_var($_SERVER['HTTP_X_FORWARDED_FOR'],FILTER_VALIDATE_IP,FILTER_FLAG_IPV4)) {
+                $ip=$_SERVER['HTTP_X_FORWARDED_FOR'];
+            }
+            elseif (filter_var($_SERVER['REMOTE_ADDR'],FILTER_VALIDATE_IP,FILTER_FLAG_IPV4)) {
+                $ip = $_SERVER['REMOTE_ADDR'];
+            }
+            $loginTime = date("Y-m-d H:i:s");
+            $q = "INSERT INTO vtiger_loginhistory (user_name, user_ip, logout_time, login_time, status) VALUES (?,?,?,?,?)";
+            $params = array($username, $ip, '0000-00-00 00:00:00',  $loginTime, 'WebService Login');
+            $adb->pquery($q, $params);
+
 			return $user;
 		}
 		throw new WebServiceException(WebServiceErrorCode::$AUTHREQUIRED,'Given user is inactive');
