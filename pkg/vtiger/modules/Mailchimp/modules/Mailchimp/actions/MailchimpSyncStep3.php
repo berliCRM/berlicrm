@@ -70,10 +70,12 @@ class Mailchimp_MailchimpSyncStep3_Action extends Mailchimp_MailChimpStepControl
 		$emails_in_Mailchimp = array();
 		foreach(parent::$existingMailChimpEntries as $member){
 			$string_email_in_Mailchimp .= '"'.strtolower($member['email_address']).'",';
-			$emails_in_Mailchimp[] = strtolower($member['email_address']);
+			if ($member['status'] != 'cleaned') {
+				$emails_in_Mailchimp[] = strtolower($member['email_address']);
+			}
 			// make list of members which are not subscribed
 			if ($member['status'] != 'subscribed') {
-				$unsubscribed_data[] = array('SALUTATION'=>$member['merge_fields']['SALUTATION'], 'EMAIL'=>$member['email_address'], 'FNAME'=>$member['merge_fields']['FNAME'], 'LNAME'=>$member['merge_fields']['LNAME']?$member['merge_fields']['LNAME']:$l_name[0], 'COMPANY'=>$member['merge_fields']['COMPANY']);
+				$unsubscribed_data[] = array('SALUTATION'=>$member['merge_fields']['SALUTATION'], 'EMAIL'=>$member['email_address'], 'FNAME'=>$member['merge_fields']['FNAME'], 'LNAME'=>$member['merge_fields']['LNAME']?$member['merge_fields']['LNAME']:$l_name[0], 'COMPANY'=>$member['merge_fields']['COMPANY'],'SUBSCRIBESTATUS'=>$member['status']);
 			}
 		}
 		//remove trailing comma
@@ -207,7 +209,7 @@ class Mailchimp_MailchimpSyncStep3_Action extends Mailchimp_MailChimpStepControl
 				// list unsubscribed
 				parent::writeLogEventText(getTranslatedString('LBL_LIST_UNSUBSCRIBED', 'Mailchimp'));
 				foreach ($unsubscribed_data as $dataset) {
-					parent::writeLogEventText($dataset['EMAIL']." ".$dataset['FNAME']." ".$dataset['LNAME'],'red','','','20');
+					parent::writeLogEventText($dataset['EMAIL']." ".$dataset['FNAME']." ".$dataset['LNAME']." -> ".$dataset['SUBSCRIBESTATUS']  ,'red','','','20');
 					//to do: create option to remove unsubscribed from CRM list
 					if (self::$setEmailOptOut == true) {
 						// Contact Special: set Email Opt Out Checkbox 
