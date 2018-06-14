@@ -19,14 +19,14 @@ At the minimum you should provide 24GB HDD and 2GiB RAM with a 4 core CPU.
 However, the actual demand depends on your data volume. For better performance it is recommended to provide 100GB HDD and 4GiB RAM with a 8 core CPU. 
 
 Software requirements and installation instructions: 
-http://blog.crm-now.de/doc/berliCRM/installation/Installation_berlicrm.html
+https://blog.crm-now.de/doc/berliCRM/installation/Installation_berlicrm.html
  
 Provided that your server meets all setup requirements an installation is quick and easily done by a browsers GUI.
 
 
 Documentation
 ------------
-User's and administration manuals: http://blog.crm-now.de/doc/berliCRM/help/v1.0/index.html
+User's and administration manuals: https://blog.crm-now.de/doc/berliCRM/help/v1.0/index.html
 
 Security
 ------------
