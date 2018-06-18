@@ -351,7 +351,7 @@ class Import_Data_Action extends Vtiger_Action_Controller {
                 $label = trim($label);
                 $adb->pquery('UPDATE vtiger_crmentity SET label=? WHERE crmid=?', array($label, $recordId));
 				//crm-now: added for global search
-                $adb->pquery('INSERT IGNORE INTO berli_globalsearch_data  SET searchlabel=? WHERE gscrmid=?', array($label, $recordId));
+                $adb->pquery('INSERT INTO berli_globalsearch_data SET searchlabel=?, gscrmid=? ON DUPLICATE KEY UPDATE searchlabel=?', array($label, $recordId, $label));
             }
 
 			$this->importedRecordInfo[$rowId] = $entityInfo;
