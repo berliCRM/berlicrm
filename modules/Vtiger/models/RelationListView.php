@@ -190,6 +190,7 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
 		if($relationModuleName == 'Calendar') {
 			//Adding visibility in the related list, showing records based on the visibility
 			$relatedColumnFields['visibility'] = 'visibility';
+			$relatedColumnFields['description'] = 'description';
 		}
 		
 		if($relationModuleName == 'PriceBooks') {
