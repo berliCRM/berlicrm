@@ -315,7 +315,11 @@ jQuery.Class("Vtiger_Detail_Js",{
 				app.changeSelectElementView(detailContentsHolder);
 				//Attach date picker event to date fields
 				app.registerEventForDatePickerFields(detailContentsHolder);
+                //Attach time picker event to time fields
+                app.registerEventForTimeFields(detailContentsHolder);
 				app.registerEventForTextAreaFields(jQuery(".commentcontent"));
+                //Attach popover events
+                detailContentsHolder.find('[rel=popover]').popover();
 				thisInstance.getForm().validationEngine();
 				aDeferred.resolve(responseData);
 			},
@@ -1590,9 +1594,6 @@ jQuery.Class("Vtiger_Detail_Js",{
 				function(data){
 					thisInstance.deSelectAllrelatedTabs();
 					thisInstance.markTabAsSelected(tabElement);
-                                        app.registerEventForDatePickerFields(detailContentsHolder);
-                                        //Attach time picker event to time fields
-                                        app.registerEventForTimeFields(detailContentsHolder);
 					Vtiger_Helper_Js.showHorizontalTopScrollBar();
 					element.progressIndicator({'mode': 'hide'});
 					if(typeof callBack == 'function'){
