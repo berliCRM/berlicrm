@@ -89,23 +89,23 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 			$mailer->ConfigSenderInfo($fromEmail, $userName, $replyTo);
 			$old_mod_strings = vglobal('mod_strings');
 			$description = $this->get('description');
-                        $subject = $this->get('subject');
+            $subject = $this->get('subject');
 			$parentModule = $this->getEntityType($id);
-			if ($parentModule) {
-			$currentLanguage = Vtiger_Language_Handler::getLanguage();
-			$moduleLanguageStrings = Vtiger_Language_Handler::getModuleStringsFromFile($currentLanguage,$parentModule);
-			vglobal('mod_strings', $moduleLanguageStrings['languageStrings']);
+            if ($parentModule) {
+                $currentLanguage = Vtiger_Language_Handler::getLanguage();
+                $moduleLanguageStrings = Vtiger_Language_Handler::getModuleStringsFromFile($currentLanguage,$parentModule);
+                vglobal('mod_strings', $moduleLanguageStrings['languageStrings']);
 
-			if ($parentModule != 'Users') {
-				// Apply merge for non-Users module merge tags.
-				$description = getMergedDescription($mergedDescription, $id, $parentModule);
-                                $subject = getMergedDescription($mergedSubject, $id, $parentModule);
-			} else {
-				// Re-merge the description for user tags based on actual user.
-					$description = getMergedDescription($description, $id, 'Users');
-                                        $subject = getMergedDescription($mergedSubject, $id, 'Users');
-					vglobal('mod_strings', $old_mod_strings);
-				}
+                if ($parentModule != 'Users') {
+                    // Apply merge for non-Users module merge tags.
+                    $description = getMergedDescription($mergedDescription, $id, $parentModule);
+                    $subject = getMergedDescription($mergedSubject, $id, $parentModule);
+                } else {
+                    // Re-merge the description for user tags based on actual user.
+                    $description = getMergedDescription($description, $id, 'Users');
+                    $subject = getMergedDescription($mergedSubject, $id, 'Users');
+                    vglobal('mod_strings', $old_mod_strings);
+                }
 			}
 
 			if (strpos($description, '$logo$')) {
@@ -127,6 +127,8 @@ class Emails_Record_Model extends Vtiger_Record_Model {
                         $mailer->Body.= '<br><br>'.decode_html($mailer->Signature);
                     }
 				}
+                // create non-html alternative body
+                $mailer->AltBody = decode_html(strip_tags(preg_replace(array("/<p>/i","/<br>/i","/<br \/>/i"),array("\n","\n","\n"),$mailer->Body)));
 				$mailer->Subject = $subject;
 				$mailer->AddAddress($email);
 
