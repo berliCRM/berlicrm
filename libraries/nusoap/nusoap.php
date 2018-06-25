@@ -132,8 +132,8 @@ class nusoap_base {
 	* @var      string
 	* @access   public
 	*/
-    var $soap_defencoding = 'ISO-8859-1';
-	//var $soap_defencoding = 'UTF-8';
+    // var $soap_defencoding = 'ISO-8859-1';
+	var $soap_defencoding = 'UTF-8';
 
 	/**
 	* namespaces in an array of prefix => uri
@@ -3546,7 +3546,7 @@ class nusoap_server extends nusoap_base {
 	 * @var boolean
 	 * @access public
 	 */
-    var $decode_utf8 = true;
+    var $decode_utf8 = false;
 
 	/**
 	 * HTTP headers of response
@@ -4329,7 +4329,7 @@ class nusoap_server extends nusoap_base {
 			}
 		} else {
 			// should be US-ASCII for HTTP 1.0 or ISO-8859-1 for HTTP 1.1
-			$this->xml_encoding = 'ISO-8859-1';
+			$this->xml_encoding = 'UTF-8';
 		}
 		$this->debug('Use encoding: ' . $this->xml_encoding . ' when creating nusoap_parser');
 		// parse response, get soap parser obj
@@ -6570,7 +6570,7 @@ class nusoap_parser extends nusoap_base {
 	// array of id => hrefs => pos
 	var $multirefs = array();
 	// toggle for auto-decoding element content
-	var $decode_utf8 = true;
+	var $decode_utf8 = false;
 
 	/**
 	* constructor that actually does the parsing
@@ -6581,7 +6581,7 @@ class nusoap_parser extends nusoap_base {
 	* @param    string $decode_utf8 whether to decode UTF-8 to ISO-8859-1
 	* @access   public
 	*/
-	function __construct($xml,$encoding='UTF-8',$method='',$decode_utf8=true){
+	function __construct($xml,$encoding='UTF-8',$method='',$decode_utf8=false){
 		parent::nusoap_base();
 		$this->xml = $xml;
 		$this->xml_encoding = $encoding;
@@ -6666,7 +6666,7 @@ class nusoap_parser extends nusoap_base {
 			$this->setError('xml was empty, didn\'t parse!');
 		}
 	}
-    function nusoap_parser($xml,$encoding='UTF-8',$method='',$decode_utf8=true){
+    function nusoap_parser($xml,$encoding='UTF-8',$method='',$decode_utf8=false){
         self::__construct($xml,$encoding,$method,$decode_utf8);
     }
 	/**
@@ -7217,7 +7217,7 @@ class nusoap_client extends nusoap_base  {
 	var $response = '';				// HTTP response
 	var $responseData = '';			// SOAP payload of response
 	var $cookies = array();			// Cookies from response or for request
-    var $decode_utf8 = true;		// toggles whether the parser decodes element content w/ utf8_decode()
+    var $decode_utf8 = false;		// toggles whether the parser decodes element content w/ utf8_decode()
 	var $operations = array();		// WSDL operations, empty for WSDL initialization error
 	var $curl_options = array();	// User-specified cURL options
 	var $bindingType = '';			// WSDL operation binding type
