@@ -788,6 +788,15 @@ $languageStrings = array(
 	
 	//Reports
 	'LBL_REALPRICE'=>'Actual Price',
+	
+	//Documents Drag & Drop widget
+	'LBL_UPLOAD_DOCUMENTS' => 'Upload Documents',
+	'LBL_UPLOAD_ERROR' => 'Upload Error',
+	'LBL_FILE_DRAGANDDROP' => 'Drag & Drop file here or click for file selection',
+	'LBL_GIVE_VALID_FILE'=>'Kindly give a valid file for upload!',
+	'LBL_UPLOAD_FILE_LARGE'=>'Sorry, the uploaded file exceeds the maximum filesize limit. Please try a small file',
+	'LBL_PROBLEM_UPLOAD'=>'Problems in file upload. Please try again!',
+
 );
 
 $jsLanguageStrings = array(
@@ -977,5 +986,15 @@ $jsLanguageStrings = array(
     'JS_PDF_DOC_SAVED' => 'The PDF has been saved as document',
 	
     'JS_RECORD_LOCKED_BY_USER' => 'This record is currently being edited by user {user} and is temporarily locked for further editing.',
+	
+	// crm-now for drag & drop doc upload
+	'JS_FILE_UPLOAD' => 'upload file',
+	'JS_FILE_UPLOADED' => 'file uploaded',
+	'JS_FILE_UPLOADED_MESSAGE' => 'the file has been saved',
+	'JS_FILE_DRAGANDDROP' => 'Drag & Drop file here or click for file selection',
+	'JS_FILE_DRAG' => 'drag here',
+	'JS_FILE_DROP' => 'drop',
+	'JS_FILE_UPLOAD' => 'Uploading ..',
+	'JS_UPLOAD_ERROR' => 'Upload Error',
 	
 );
