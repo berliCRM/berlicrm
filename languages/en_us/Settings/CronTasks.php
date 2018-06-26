@@ -33,5 +33,6 @@ $languageStrings = array(
 	'LBL_SENDREMINDER_DES' => 'the frequency for sending reminders is app. every 15 min',
 	'LBL_REPORT_DES' => 'the frequency for sending scheduled reports is app. every 15 min',
 	'LBL_MAILSCANNER_DES' => 'the frequency for Mail Scanner is app. every 15 min',
+	'LBL_DSGVOSCANNER_DES' => 'the frequency for GDPR messages is app. every 24 hours',
 
 );

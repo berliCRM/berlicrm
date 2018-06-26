@@ -34,6 +34,7 @@ $languageStrings = array(
 	'LBL_SENDREMINDER_DES' => 'Erinnerungen werden ca. alle 15 min rausgesendet',
 	'LBL_REPORT_DES' => 'geplante Berichte werden ca. alle 15 min rausgesendet',
 	'LBL_MAILSCANNER_DES' => 'Der Mail Konverter wird ca. alle 15 min aufgerufen',
+	'LBL_DSGVOSCANNER_DES' => 'DSGVO Nachrichten werden ca. alle 24h erstellt',
 	
 
 );

@@ -416,9 +416,9 @@ class gdpr extends CRMEntity {
             // create settings tables
             $adb->pquery("DROP TABLE IF EXISTS `berli_dsgvo_global`");
             $adb->pquery("CREATE TABLE `berli_dsgvo_global` (
-                `op_mode` varchar(1) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'm',`del_note_time_days` int(10) NOT NULL,`del_mode` varchar(1) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0'
+                `op_mode` varchar(1) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'd',`del_note_time_days` int(10) NOT NULL,`del_mode` varchar(1) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0'
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci");
-            $adb->pquery("INSERT INTO `berli_dsgvo_global` VALUES ('m',7,'0')");
+            $adb->pquery("INSERT INTO `berli_dsgvo_global` VALUES ('d',7,'0')");
             $adb->pquery("CREATE TABLE IF NOT EXISTS `berli_dsgvo_module` (
                 `setting_date` datetime NOT NULL,`tabid` int(11) NOT NULL,`deletion_mode` int(11) NOT NULL,`fieldids` text COLLATE utf8_unicode_ci NOT NULL,
                 PRIMARY KEY (`setting_date`,`tabid`)
@@ -426,7 +426,7 @@ class gdpr extends CRMEntity {
 
             //register cron
             require_once('vtlib/Vtiger/Cron.php');
-            Vtiger_Cron::register( 'DSGVO Scanner', 'cron/modules/gdpr/Scanner.service', 86400, 'gdpr', 1, 7, 'LBL_DSGVOSCANNER_DES');
+            Vtiger_Cron::register( 'DSGVO Scanner', 'cron/modules/gdpr/Scanner.service', 86400, 'gdpr', 0, 8, 'LBL_DSGVOSCANNER_DES');
 		} 
 		else if($eventType == 'module.disabled') {
 			$this->deactivateSettingsLinks();
