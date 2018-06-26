@@ -19,7 +19,7 @@ class berliWidgets {
 	function vtlib_handler($modulename, $event_type) {
 		require_once('include/utils/utils.php');			
 		if($event_type == 'module.postinstall') {
-			$this->initberliWidgets();
+			self::initberliWidgets();
 		} else if($event_type == 'module.disabled') {
 			// TODO Handle actions when this module is disabled.
 			return;
@@ -28,7 +28,7 @@ class berliWidgets {
 			return;
 		} else if($event_type == 'module.preuninstall') {
 			// TODO Handle actions when this module is about to be deleted.
-			$this->uninstallberliWidgets();
+			//$this->uninstallberliWidgets();
 			return;		
 		} else if($event_type == 'module.preupdate') {
 			// TODO Handle actions before this module is updated.
@@ -39,9 +39,38 @@ class berliWidgets {
 	}
 	
 	function initberliWidgets() {
-		include_once('vtlib/Vtiger/Module.php');
+		include_once 'vtlib/Vtiger/Module.php';
 		$module = Vtiger_Module::getInstance('Documents');
-		$module->addLink('DETAILVIEWSIDEBARWIDGET', 'LBL_RELATED_TO', 'module=berliWidgets&view=relatedDocumentEntries&mode=showEntries&viewtype=detail');	
+		$module->addLink('DETAILVIEWSIDEBARWIDGET', 'LBL_RELATED_TO', 'module=berliWidgets&view=relatedDocumentEntries&mode=showEntries&viewtype=detail');
+		
+		// Documents Drag & Drop widget
+		$module = Vtiger_Module::getInstance('Leads');
+		$module->addLink('DETAILVIEWSIDEBARWIDGET', 'LBL_UPLOAD_DOCUMENTS', 'module=berliWidgets&view=dropDocument');	
+			
+		$module = Vtiger_Module::getInstance('Contacts');
+		$module->addLink('DETAILVIEWSIDEBARWIDGET', 'LBL_UPLOAD_DOCUMENTS', 'module=berliWidgets&view=dropDocument');	
+			
+		$module = Vtiger_Module::getInstance('Accounts');
+		$module->addLink('DETAILVIEWSIDEBARWIDGET', 'LBL_UPLOAD_DOCUMENTS', 'module=berliWidgets&view=dropDocument');	
+			
+		$module = Vtiger_Module::getInstance('Potentials');
+		$module->addLink('DETAILVIEWSIDEBARWIDGET', 'LBL_UPLOAD_DOCUMENTS', 'module=berliWidgets&view=dropDocument');	
+			
+		$module = Vtiger_Module::getInstance('Quotes');
+		$module->addLink('DETAILVIEWSIDEBARWIDGET', 'LBL_UPLOAD_DOCUMENTS', 'module=berliWidgets&view=dropDocument');	
+			
+		$module = Vtiger_Module::getInstance('SalesOrder');
+		$module->addLink('DETAILVIEWSIDEBARWIDGET', 'LBL_UPLOAD_DOCUMENTS', 'module=berliWidgets&view=dropDocument');	
+
+		$module = Vtiger_Module::getInstance('Invoice');
+		$module->addLink('DETAILVIEWSIDEBARWIDGET', 'LBL_UPLOAD_DOCUMENTS', 'module=berliWidgets&view=dropDocument');	
+			
+		$module = Vtiger_Module::getInstance('PurchaseOrder');
+		$module->addLink('DETAILVIEWSIDEBARWIDGET', 'LBL_UPLOAD_DOCUMENTS', 'module=berliWidgets&view=dropDocument');	
+			
+		$module = Vtiger_Module::getInstance('Vendors');
+		$module->addLink('DETAILVIEWSIDEBARWIDGET', 'LBL_UPLOAD_DOCUMENTS', 'module=berliWidgets&view=dropDocument');	
+		
 	}
 
 

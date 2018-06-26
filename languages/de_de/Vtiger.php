@@ -825,7 +825,15 @@ $languageStrings = array(
 	
 	//Reports
 	'LBL_REALPRICE'=>'tatsächlicher Preis',
-	
+
+	//Documents Drag & Drop widget
+	'LBL_UPLOAD_DOCUMENTS' => 'Dokumente hochladen',
+	'LBL_UPLOAD_ERROR' => 'Upload Fehler',
+	'LBL_FILE_DRAGANDDROP' => 'Drag und Drop Datei hierher oder klick für Dateiauswahl',
+	'LBL_GIVE_VALID_FILE'=>'Bitte eine Datei für den Upload auswählen!',
+	'LBL_UPLOAD_FILE_LARGE'=>'Leider ist die Datei zu groß. Bitte eine kleinere Datei auswählen',
+	'LBL_PROBLEM_UPLOAD'=>'Es gab beim Hochladen der Datei ein Problem! Bitt noch einmal versuchen.',
+
 );
 
 $jsLanguageStrings = array(
@@ -1026,5 +1034,16 @@ $jsLanguageStrings = array(
     'JS_PDF_DOC_SAVED' => 'Das PDF wurde als Dokument hinzugefügt',
 	
     'JS_RECORD_LOCKED_BY_USER' => 'Dieser Datensatz wird zur Zeit vom Benutzer {user} bearbeitet und ist derweil für weitere Bearbeitung gesperrt.',
+	
+	// crm-now for drag & drop doc upload
+	'JS_FILE_UPLOAD' => 'Datei hochladen',
+	'JS_FILE_UPLOADED' => 'Datei hochgeladen',
+	'JS_FILE_UPLOADED_MESSAGE' => 'die Datei wurde hochgeladen',
+	'JS_FILE_DRAGANDDROP' => 'Drag und Drop Datei hierher oder klick für Dateiauswahl',
+	'JS_FILE_DRAG' => 'hierher ziehen',
+	'JS_FILE_DROP' => 'Drop',
+	'JS_FILE_UPLOAD' => 'Uploading ..',
+	'JS_UPLOAD_ERROR' => 'Upload Fehler',
+	
 );
 ?>
