@@ -89,11 +89,14 @@ class Vtiger_Language_Handler {
      * @param <String> $module - module scope in which the translation need to be check
      * @return <String> - translated string
      */
-    public static function getJSTranslatedString($language, $key, $module = '') {
+    public static function getJSTranslatedString($key, $module = '', $currentLanguage = '') {
+		if (empty($currentLanguage)) {
+            $currentLanguage = self::getLanguage();
+        }
         $moduleStrings = array();
 
         $module = str_replace(':', '.', $module);
-        $moduleStrings = self::getModuleStringsFromFile($language, $module);
+        $moduleStrings = self::getModuleStringsFromFile($currentLanguage, $module);
         if (!empty($moduleStrings['jsLanguageStrings'][$key])) {
             return $moduleStrings['jsLanguageStrings'][$key];
         }
@@ -103,13 +106,13 @@ class Vtiger_Language_Handler {
             if ($baseModule == 'Settings') {
                 $baseModule = 'Settings.Vtiger';
             }
-            $moduleStrings = self::getModuleStringsFromFile($language, $baseModule);
+            $moduleStrings = self::getModuleStringsFromFile($currentLanguage, $baseModule);
             if (!empty($moduleStrings['jsLanguageStrings'][$key])) {
                 return $moduleStrings['jsLanguageStrings'][$key];
             }
         }
 
-        $commonStrings = self::getModuleStringsFromFile($language);
+        $commonStrings = self::getModuleStringsFromFile($currentLanguage);
         if (!empty($commonStrings['jsLanguageStrings'][$key]))
             return $commonStrings['jsLanguageStrings'][$key];
 
