@@ -36,10 +36,10 @@
                                 <div class="pull-right muted" style="font-size:11px" title="{Vtiger_Util_Helper::formatDateTimeIntoDayString($RECENT_ACTIVITY->getActivityTime())}">{Vtiger_Util_Helper::formatDateDiffInStrings($RECENT_ACTIVITY->getActivityTime())}&nbsp;&nbsp;({Vtiger_Util_Helper::convertDateTimeIntoUsersDisplayFormat($RECENT_ACTIVITY->getActivityTime())})</div>
 	
 								{foreach item=FIELDMODEL from=$RECENT_ACTIVITY->getFieldInstances()}
-
-									{if $FIELDMODEL && $FIELDMODEL->getFieldInstance() && $FIELDMODEL->getFieldInstance()->isViewable()}
+									{assign var=LINEITEM_PRODUCT value=$FIELDMODEL->getLineItemProduct()}
+									{if $FIELDMODEL && $FIELDMODEL->getFieldInstance() && $FIELDMODEL->getFieldInstance()->isViewable() && ($FIELDMODEL->getFieldInstance()->getDisplayType() neq '5' || $LINEITEM_PRODUCT)}
 										<div class='font-x-small updateInfoContainer'>
-											<i>{vtranslate($FIELDMODEL->getName(),$MODULE_NAME)}</i> :&nbsp;
+											<i>{if $LINEITEM_PRODUCT}{$LINEITEM_PRODUCT}&nbsp;{/if}{vtranslate($FIELDMODEL->getName(),$MODULE_NAME)}</i> :&nbsp;
 												{if $FIELDMODEL->get('prevalue') neq '' && $FIELDMODEL->get('postvalue') neq '' && !($FIELDMODEL->getFieldInstance()->getFieldDataType() eq 'reference' && ($FIELDMODEL->get('postvalue') eq '0' || $FIELDMODEL->get('prevalue') eq '0'))}
 													&nbsp;{vtranslate('LBL_FROM')} <b style="white-space:pre-wrap;">{Vtiger_Util_Helper::toVtiger6SafeHTML($FIELDMODEL->getDisplayValue(decode_html($FIELDMODEL->get('prevalue'))))}</b>
 												{else if $FIELDMODEL->get('postvalue') eq '' || ($FIELDMODEL->getFieldInstance()->getFieldDataType() eq 'reference' && $FIELDMODEL->get('postvalue') eq '0')}
