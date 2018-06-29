@@ -27,7 +27,7 @@ class Vtiger_DocumentsFolder_UIType extends Vtiger_Base_UIType {
 		$db = PearDatabase::getInstance();
 		$result = $db->pquery('SELECT * FROM vtiger_attachmentsfolder WHERE folderid = ?', array($value));
 		if($db->num_rows($result)) {
-			return $db->query_result($result, 0, 'foldername');
+			return vtranslate($db->query_result($result, 0, 'foldername'), 'Documents');
 		}
 		return false;
 	}
