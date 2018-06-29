@@ -18,7 +18,7 @@
 				<td class="fieldLabel" style="width:35%">
 					<label class="muted">
 						{if $FIELD_MODEL->get('name') eq "firstname"}
-							{vtranslate("Salutation", $MODULE_NAME)}&nbsp;{vtranslate($FIELD_MODEL->get('label'), $MODULE_NAME)}
+							{vtranslate("Salutation", $MODULE_NAME)}<br>{vtranslate($FIELD_MODEL->get('label'), $MODULE_NAME)}
 						{else}
 							{vtranslate($FIELD_MODEL->get('label'),$MODULE_NAME)}
 						{/if}
