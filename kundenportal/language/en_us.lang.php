@@ -384,9 +384,10 @@ Additionally, you can also search the entire knowledge base by entering keywords
 'Quotes'	=>'Quotes',
 'Invoice' 	=>'Invoice',
 'Documents'	=>'Documents',
+'Assets' 	=> 'Bestandsverwaltung',
 'HelpDesk' 			=> 'Tickets',
 'Faq' 				=> 'Knowledge Base',
-'Accounts' 			=> 'Organization',
+'Accounts' 			=> 'Organizations',
 'Contacts' 			=> 'Contacts',
 'Products' 			=> 'Products',
 'Services'			=> 'Services',
@@ -435,6 +436,8 @@ Additionally, you can also search the entire knowledge base by entering keywords
 'Project Milestone Name' => 'Milestone Name',
 'Milestone Date' => 'Milestone Date',
 'LBL_PROJECT_DOCUMENTS' => 'Project Documents',
+
+'PAGE_TITLE'=>'Customer Portal',
 
 'Hi' => 'Hi',
 'Dear' => 'Dear',
