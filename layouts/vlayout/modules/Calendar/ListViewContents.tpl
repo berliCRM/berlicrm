@@ -129,10 +129,10 @@
 				</td><td nowrap class="{$WIDTHTYPE}">
 				<div class="actions pull-right">
 					<span class="actionImages">
-                        {if $IS_MODULE_EDITABLE && $EDIT_VIEW_URL && $LISTVIEW_ENTRY->get('taskstatus') neq 'Held' && $LISTVIEW_ENTRY->get('taskstatus') neq 'Completed'}
+                        {if $IS_MODULE_EDITABLE && $EDIT_VIEW_URL && $LISTVIEW_ENTRY->get('taskstatus') neq vtranslate("Held", $MODULE) && $LISTVIEW_ENTRY->get('taskstatus') neq vtranslate("Completed", $MODULE)}
                             <a class="markAsHeld"><i title="{vtranslate('LBL_MARK_AS_HELD', $MODULE)}" class="icon-ok alignMiddle"></i></a>&nbsp;
                         {/if}
-                        {if $IS_MODULE_EDITABLE && $EDIT_VIEW_URL && $LISTVIEW_ENTRY->get('taskstatus') eq 'Held'}
+                        {if $IS_MODULE_EDITABLE && $EDIT_VIEW_URL && $LISTVIEW_ENTRY->get('taskstatus') eq vtranslate("Held", $MODULE)}
 							<a class="holdFollowupOn"><i title="{vtranslate('LBL_HOLD_FOLLOWUP_ON', "Events")}" class="icon-flag alignMiddle"></i></a>&nbsp;
 						{/if}
 						{if $FULL_DETAIL_VIEW_URL}
