@@ -41,4 +41,5 @@ $languageStrings = array(
 	'LBL_TO' => 'To',
 	'SINGLE_Emails' => 'Email',
 	'Time Start' => 'Time Sent',
+    'LBL_SELECTED_RECIPIENTS' => 'selected recipients',
 );

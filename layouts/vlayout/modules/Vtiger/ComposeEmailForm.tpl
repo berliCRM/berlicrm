@@ -48,12 +48,24 @@
 					<span class="span2">{vtranslate('LBL_TO',$MODULE)}<span class="redColor">*</span></span>
 					{if !empty($TO)}
 						{assign var=TO_EMAILS value=","|implode:$TO}
-					{/if}
-					<span class="span9">
-					<input id="toEmail" name="toEmail" type="text" class="row-fluid autoComplete emailField select2"
+                    {/if}
+                    
+                    <span class="span9">
+                    
+                    {* hide emails if more than 100 *}
+                    {if count($TO) > 100}
+                        <input type="text" class="row-fluid" value="{count($TO)} {vtranslate('LBL_SELECTED_RECIPIENTS',$MODULE)}" readonly>
+                        <input id="toEmail" name="toEmail" type="hidden" class="row-fluid"
 					value="{$TO_EMAILS}" data-validation-engine="validate[required, funcCall[Vtiger_To_Email_Validator_Js.invokeValidation]]"
 					data-fieldinfo='{$FIELD_INFO}'
 					{if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if}/>
+                    {else}
+                    <input id="toEmail" name="toEmail" type="text" class="row-fluid autoComplete emailField select2"
+					value="{$TO_EMAILS}" data-validation-engine="validate[required, funcCall[Vtiger_To_Email_Validator_Js.invokeValidation]]"
+					data-fieldinfo='{$FIELD_INFO}'
+					{if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if}/>
+                    {/if}
+
 				</span>
 			</span>
 			</span>

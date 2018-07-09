@@ -44,6 +44,7 @@ $languageStrings = array(
 	'LBL_TO' => 'An',
 	'SINGLE_Emails' => 'E-Mail',
 	'Time Start' => 'gesendet',
+    'LBL_SELECTED_RECIPIENTS' => 'ausgewählte Empfänger',
 	// missing translations (not in English files)
 	'Recurrence'=>'Wiederholung',
     'Status'=>'Status',
