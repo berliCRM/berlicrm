@@ -973,6 +973,7 @@ function AddTasks($username,$session,$taskdtls)
 			$task->column_fields[taskpriority]= in_array('taskpriority',$permitted_lists) ? $taskrow["priority"] : "";
 			$task->column_fields[description]= in_array('description',$permitted_lists) ? $taskrow["description"] : "";
 			$task->column_fields[activitytype]="Task";
+			$task->column_fields['visibility']= 'Private';
 			//$task->column_fields[contact_id]= retrievereportsto($contact_name,$user_id,null); 
 			$task->column_fields[assigned_user_id]= in_array('assigned_user_id',$permitted_lists) ? $user_id : "";
 			$task->save("Calendar");
@@ -1068,6 +1069,7 @@ function UpdateTasks($username,$session,$taskdtls)
 			$task->column_fields[taskpriority] = in_array('taskpriority',$permitted_lists) ? $taskrow["priority"] : "";
 			$task->column_fields[description] = in_array('description',$permitted_lists) ? $taskrow["description"] : "";
 			$task->column_fields[activitytype] = "Task";
+			$task->column_fields['visibility']= 'Private';
 			//$task->column_fields[contact_id]= retrievereportsto($contact_name,$user_id,null); 
 			//$task->column_fields[assigned_user_id] = in_array('assigned_user_id',$permitted_lists) ? $user_id : "";
 

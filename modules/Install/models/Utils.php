@@ -34,6 +34,16 @@ class Install_Utils_Model {
 		'Logo Directory' => './test/logo/',
 		'Logs Directory' => './logs/',
 	);
+	
+	/**
+	 *variable that contains Log file path
+	*/
+	const INSTALL_LOG = 'logs/installLog.txt';
+	
+	/**
+	 *variable that determines finished installation
+	*/
+	const INSTALL_FINISHED = 'test/installFinished';
 
 	/**
 	 * Function returns all the files and folder that are not writable
@@ -422,6 +432,10 @@ class Install_Utils_Model {
 	 * Function installs all the available modules
 	 */
 	public static function installModules() {
+		$path = Install_Utils_Model::INSTALL_LOG;
+		$fh = fopen($path, 'a+');
+		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Require Package, Module und utils PHP files\n");
+		ob_start();
 		require_once('vtlib/Vtiger/Package.php');
 		require_once('vtlib/Vtiger/Module.php');
 		require_once('include/utils/utils.php');
@@ -440,18 +454,27 @@ class Install_Utils_Model {
 						$packagepath = "$moduleFolder/$file";
 						$package = new Vtiger_Package();
 						$module = $package->getModuleNameFromZip($packagepath);
+						fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Found $packagepath\n");
 						if($module != null) {
 							$moduleInstance = Vtiger_Module::getInstance($module);
 							if($moduleInstance) {
+								fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Update module $packagepath\n");
 								updateVtlibModule($module, $packagepath);
 							} else {
+								fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Install module $packagepath\n");
 								installVtlibModule($module, $packagepath);
 							}
+							fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Done $packagepath\n");
 						}
 					}
 				}
 				closedir($handle);
 			}
 		}
+		//catch output as this would kill ajax requests
+		$tmp = ob_get_clean();
+		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." $tmp\n");
+		fclose($fh);
+		return true;
 	}
 }

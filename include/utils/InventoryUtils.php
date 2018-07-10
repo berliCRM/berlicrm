@@ -698,7 +698,7 @@ function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false
 							$adb->pquery($query, array($modid, $focus->id, $module, $current_user->id, date('Y-m-d H:i:s'), $status));
 						}
 						$query = "INSERT INTO vtiger_modtracker_detail(id,fieldname,prevalue,postvalue) VALUES(?,?,?,?);";
-						$adb->pquery($query, array($modid, $column, $arr_vals[0], $arr_vals[1]));
+						$adb->pquery($query, array($modid, $column, $arr_vals[0], $arr_vals[1].'|#KAY#|'.$prod_id));
 					}
 				}
 				unset($tmp_arr_li[$lineitem_id]);

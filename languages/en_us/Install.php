@@ -69,4 +69,9 @@ $languageStrings = array(
         'LBL_MYSQLI_CONNECT_SUPPORT'=>'mysqli support',
         'LBL_OPEN_SSL'=>'openssl support',
         'LBL_CURL'=>'cURL support',
+	'LBL_CREATE_CONFIG' => 'create config file (config.inc.php)',
+	'LBL_INIT_DB' => 'initialize database',
+	'LBL_CREATE_USER' => 'create user (admin)',
+	'LBL_INSTALL_MODULES' => 'install modules',
+	'LBL_FINALIZE' => 'finalize',
 );

@@ -84,4 +84,16 @@ class ModTracker_Field_Model extends Vtiger_Record_Model {
 	public function getModuleName() {
 		return $this->getParent()->getParent()->getModule()->getName();
 	}
+	
+	// get name of product if exists in postvalue, remove info from postvalue
+	public function getLineItemProduct() {
+		$value = $this->get('postvalue');
+		$tmp = explode('|#KAY#|', $value);
+		if (isset($tmp[1])) {
+			$this->set('postvalue', $tmp[0]);
+			return Vtiger_Field_Model::getInstance('productid', $this->getFieldInstance()->getModule())->getDisplayValue($tmp[1]);
+		} else {
+			return false;
+		}
+	}
 }
