@@ -85,7 +85,7 @@ class RecycleBin_ListView_Model extends Vtiger_ListView_Model {
                     $columnList = array();
                     foreach($referenceNameFields as $nameField) {
                         $fieldModel = $referenceModuleModel->getField($nameField);
-                        $columnList[] = $fieldModel->get('table').'.'.$fieldModel->get('column');
+                        $columnList[] = $fieldModel->get('table').$orderByFieldModel->getName().'.'.$fieldModel->get('column');
                     }
                     if(count($columnList) > 1) {
                         $referenceNameFieldOrderBy[] = getSqlForNameInDisplayFormat(array('first_name'=>$columnList[0],'last_name'=>$columnList[1]),'Users').' '.$sortOrder;
