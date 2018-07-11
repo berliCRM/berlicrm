@@ -294,14 +294,20 @@ class Mailchimp_MailchimpSyncStep1_Action extends Mailchimp_MailChimpStepControl
 		$categories_arr = $interest_cat['categories'];
 		$groupid = '';
 		// get all interest of the interest-categories related to this list and group
-		foreach ($categories_arr as $key => $category) {
-			if ($category['title'] == self::$campaignName) {
-				$interests_arr =self::$mc_api->get('lists/'.self::$list_id.'/interest-categories/'.$category['id'].'/interests');
-				if (self::$list_id == $interests_arr['interests'][0]['list_id'] and $category['id'] == $interests_arr['interests'][0]['category_id'] ) {
-					$groupid = $interests_arr['interests'][0]['id'];
+		if (is_array($categories_arr) ) {
+			foreach ($categories_arr as $key => $category) {
+				if ($category['title'] == self::$campaignName) {
+					$interests_arr =self::$mc_api->get('lists/'.self::$list_id.'/interest-categories/'.$category['id'].'/interests');
+					if (self::$list_id == $interests_arr['interests'][0]['list_id'] and $category['id'] == $interests_arr['interests'][0]['category_id'] ) {
+						$groupid = $interests_arr['interests'][0]['id'];
+					}
 				}
 			}
 		}
+		else {
+			parent::writeLogEventText(getTranslatedString('LBL_INTERESTGROUP_FAILED', 'Mailchimp'),'red','','','20');
+		}
+
 		foreach ($crm_data_arr as $key => $value_arr) {
 			set_time_limit(0);
 			//check whether it is already a member of the Mailchimp list

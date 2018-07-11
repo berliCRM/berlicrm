@@ -58,13 +58,13 @@ class Mailchimp_MailchimpSyncStep2_Action extends Mailchimp_MailChimpStepControl
 										(SELECT crmid FROM vtiger_crmentityrel WHERE vtiger_crmentityrel.relcrmid  = ? )
 							';
 			
-			$result = $db->pquery($Contactquery,array($this->recordid,$this->recordid));
+			$result = $db->pquery($Contactquery,array(self::$recordid,self::$recordid));
 			//We only get emails because it is a primary id for MailChimp, all we need to delete members from the MailChimp List
 			while($donnee = $db->fetch_row($result)) {
 				$emails_to_delete[] = $donnee['email'];
 			}
 
-			$result = $db->pquery($Leadquery,array($this->recordid,$this->recordid));
+			$result = $db->pquery($Leadquery,array(self::$recordid,self::$recordid));
 			//We only get emails because it is a primary id for MailChimp, this is all we need to delete members from the MailChimp List
 			while($donnee = $db->fetch_row($result)) {
 				$emails_to_delete[] = $donnee['email'];
@@ -77,14 +77,14 @@ class Mailchimp_MailchimpSyncStep2_Action extends Mailchimp_MailChimpStepControl
 				}
 				//unsubscribe deleted contacts at Mailchimp
 				foreach ($emails_to_delete as $key => $email_address) {
-					$subscriber_hash = $this->mc_api->subscriberHash($email_address);
-					$this->mc_api->delete("lists/".$this->list_id."/members/".$subscriber_hash);
-					if (!$this->mc_api->success()) {
+					$subscriber_hash = self::$mc_api->subscriberHash($email_address);
+					self::$mc_api->delete("lists/".self::$list_id."/members/".$subscriber_hash);
+					if (!self::$mc_api->success()) {
 						parent::writeLogEventText(getTranslatedString('LBL_BATCH_FAILED', 'Mailchimp'),'red','','','20');
 						if (empty($email_address)) {
 							parent::writeLogEventText(getTranslatedString('LBL_EMPTY_MAIL', 'Mailchimp'),'red');
 						}
-						parent::writeLogEventText(getTranslatedString('LBL_ERROR_MSG', 'Mailchimp').' '.$this->mc_api->getLastError(),'red','','','20');
+						parent::writeLogEventText(getTranslatedString('LBL_ERROR_MSG', 'Mailchimp').' '.self::$mc_api->getLastError(),'red','','','20');
 					}
 					// we also have to remove these entries from the var $existingMailChimpEntries for the next step3
 					foreach (parent::$existingMailChimpEntries as $key => $member) {
