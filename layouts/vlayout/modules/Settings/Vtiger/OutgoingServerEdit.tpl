@@ -26,6 +26,7 @@
 			<input type="hidden" name="server_port" value="0" />
 			<input type="hidden" name="server_type" value="email" />
 			<input type="hidden" name="id" value="{$MODEL->get('id')}" />
+            <input type="hidden" name="smtp_auth" value="0">
 
 			<div class="row-fluid hide errorMessage">
 				<div class="alert alert-error">
