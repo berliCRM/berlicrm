@@ -21,6 +21,16 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
 		$element = $this->sanitizeShippingTaxes($element);
 		$lineItems = $element['LineItems'];
 		if (!empty($lineItems)) {
+			//check at least for valid Product IDs before creating the parent
+			$pHandler =  vtws_getModuleHandlerFromName('Products', $this->user);
+			foreach ($lineItems AS $lineItem) {
+				$pid = $lineItem['productid'];
+				try {
+					$pHandler->retrieve($pid);
+				} catch (Exception $e) {
+					throw new WebServiceException(WebServiceErrorCode::$REFERENCEINVALID, "LineItem productid missing or invalid: ".json_encode($lineItem));
+				}
+			}
             $element = parent::create($elementType, $element);
             $handler = vtws_getModuleHandlerFromName('LineItem', $this->user);
 			$handler->setLineItems('LineItem', $lineItems, $element);
@@ -36,7 +46,7 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
             $parent['LineItems'] = $handler->getAllLineItemForParent($parentId);
             
 		} else {
-			throw new WebServiceException(WebServiceErrorCode::$MANDFIELDSMISSING, "Mandatory Fields Missing..");
+			throw new WebServiceException(WebServiceErrorCode::$MANDFIELDSMISSING, "Mandatory Fields Missing: LineItems");
 		}
 		return array_merge($element,$parent);
 	}
@@ -47,6 +57,16 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
 		$lineItemList = $element['LineItems'];
 		$handler = vtws_getModuleHandlerFromName('LineItem', $this->user);
 		if (!empty($lineItemList)) {
+			//check at least for valid Product IDs before creating the parent
+			$pHandler =  vtws_getModuleHandlerFromName('Products', $this->user);
+			foreach ($lineItemList AS $lineItem) {
+				$pid = $lineItem['productid'];
+				try {
+					$pHandler->retrieve($pid);
+				} catch (Exception $e) {
+					throw new WebServiceException(WebServiceErrorCode::$REFERENCEINVALID, "LineItem productid missing or invalid: ".json_encode($lineItem));
+				}
+			}
 			$updatedElement = parent::update($element);
 			$handler->setLineItems('LineItem', $lineItemList, $updatedElement);
 			$parent = $handler->getParentById($element['id']);
@@ -73,6 +93,16 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
 		if (!empty($element['LineItems'])) {
 			$lineItemList = $element['LineItems'];
 			unset($element['LineItems']);
+			//check at least for valid Product IDs before creating the parent
+			$pHandler =  vtws_getModuleHandlerFromName('Products', $this->user);
+			foreach ($lineItemList AS $lineItem) {
+				$pid = $lineItem['productid'];
+				try {
+					$pHandler->retrieve($pid);
+				} catch (Exception $e) {
+					throw new WebServiceException(WebServiceErrorCode::$REFERENCEINVALID, "LineItem productid missing or invalid: ".json_encode($lineItem));
+				}
+			}
 
 			$updatedElement = parent::revise($element);
 			$handler->setLineItems('LineItem', $lineItemList, $updatedElement);
