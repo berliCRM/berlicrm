@@ -96,7 +96,7 @@
 				{/if}
 			</div>
 		{else}
-			<div><br><textarea id="{$productDescription}" name="{$productDescription}" class="lineItemDescriptionBox">{$data.$productDescription}</textarea>
+			<div><br><textarea id="{$productDescription}" name="{$productDescription}" class="lineItemDescriptionBox">{$data.$productDescription|html_entity_decode:$smarty.const.ENT_QUOTES:'utf-8'}</textarea>
 			<div><br><textarea id="{$comment}" name="{$comment}" class="lineItemCommentBox">{$data.$comment}</textarea>
 		{/if}
 	</td>
