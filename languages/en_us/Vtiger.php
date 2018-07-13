@@ -791,11 +791,13 @@ $languageStrings = array(
 	
 	//Documents Drag & Drop widget
 	'LBL_UPLOAD_DOCUMENTS' => 'Upload Documents',
-	'LBL_UPLOAD_ERROR' => 'Upload Error',
-	'LBL_FILE_DRAGANDDROP' => 'Drag & Drop file here or click for file selection',
-	'LBL_GIVE_VALID_FILE'=>'Kindly give a valid file for upload!',
-	'LBL_UPLOAD_FILE_LARGE'=>'Sorry, the uploaded file exceeds the maximum filesize limit. Please try a small file',
-	'LBL_PROBLEM_UPLOAD'=>'Problems in file upload. Please try again!',
+	'LBL_UPLOAD_ERROR' => 'Upload error',
+	'LBL_FILE_DRAGANDDROP' => 'drag and drop file here or click for file selection',
+	'LBL_GIVE_VALID_FILE'=>'Please select a file for upload!',
+	'LBL_UPLOAD_FILE_LARGE'=>'Unfortunately the file is too big. Please select a smaller file.',
+	'LBL_PROBLEM_UPLOAD'=>'There was a problem uploading the file! Please try again.',
+	
+	'LBL_APPROVE' => 'enable view',
 
 );
 
