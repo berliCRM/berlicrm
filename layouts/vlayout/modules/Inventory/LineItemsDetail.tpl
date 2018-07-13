@@ -74,7 +74,7 @@
 		{/if}
 		{if !empty($LINE_ITEM_DETAIL["productName$INDEX"])}
 			<div>
-				{$LINE_ITEM_DETAIL["productDescription$INDEX"]|nl2br}
+				{$LINE_ITEM_DETAIL["productDescription$INDEX"]|nl2br|html_entity_decode:$smarty.const.ENT_QUOTES:'utf-8'}
 			</div>
 			<div>
 				{$LINE_ITEM_DETAIL["comment$INDEX"]|nl2br}
