@@ -829,10 +829,13 @@ $languageStrings = array(
 	//Documents Drag & Drop widget
 	'LBL_UPLOAD_DOCUMENTS' => 'Dokumente hochladen',
 	'LBL_UPLOAD_ERROR' => 'Upload Fehler',
-	'LBL_FILE_DRAGANDDROP' => 'Drag und Drop Datei hierher oder klick für Dateiauswahl',
+	'LBL_FILE_DRAGANDDROP' => 'Drag und Drop Datei hierher oder klick für Dateiauswahl.',
 	'LBL_GIVE_VALID_FILE'=>'Bitte eine Datei für den Upload auswählen!',
 	'LBL_UPLOAD_FILE_LARGE'=>'Leider ist die Datei zu groß. Bitte eine kleinere Datei auswählen',
-	'LBL_PROBLEM_UPLOAD'=>'Es gab beim Hochladen der Datei ein Problem! Bitt noch einmal versuchen.',
+	'LBL_PROBLEM_UPLOAD'=>'Es gab beim Hochladen der Datei ein Problem! Bitte noch einmal versuchen.',
+	
+	'LBL_APPROVE' => 'Ansicht freischalten',
+
 
 );
 
