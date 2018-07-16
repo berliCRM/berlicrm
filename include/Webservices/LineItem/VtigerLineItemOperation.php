@@ -272,7 +272,7 @@ class VtigerLineItemOperation  extends VtigerActorOperation {
 		$parentId = $parentId[1];
 
 		$parent = $this->getParentById($element['parent_id']);
-		if(empty($element['listprice']) && $element['listprice'] != 0){
+		if($element['listprice'] == '' || $element['listprice'] == NULL){
 			$productId = vtws_getIdComponents($element['productid']);
 			$productId = $productId[1];
 			$element['listprice'] = $this->getProductPrice($productId);
@@ -308,7 +308,7 @@ class VtigerLineItemOperation  extends VtigerActorOperation {
 		if($location === false){
 			throw new WebserviceException('UNKOWN_CHILD','given line  item is not child of parent');
 		}
-		if(empty($element['listprice']) && $element['listprice'] != 0){
+		if($element['listprice'] == '' || $element['listprice'] == NULL){
 			$productId = vtws_getIdComponents($element['productid']);
 			$productId = $productId[1];
 			$element['listprice'] = $this->getProductPrice($productId);
