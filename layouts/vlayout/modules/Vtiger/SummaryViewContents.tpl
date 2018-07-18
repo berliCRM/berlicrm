@@ -17,11 +17,7 @@
 			<tr class="summaryViewEntries">
 				<td class="fieldLabel" style="width:35%">
 					<label class="muted">
-						{if $FIELD_MODEL->get('name') eq "firstname"}
-							{vtranslate("Salutation", $MODULE_NAME)}<br>{vtranslate($FIELD_MODEL->get('label'), $MODULE_NAME)}
-						{else}
-							{vtranslate($FIELD_MODEL->get('label'),$MODULE_NAME)}
-						{/if}
+						{vtranslate($FIELD_MODEL->get('label'),$MODULE_NAME)}
                         {if $FIELD_MODEL->get('helpinfo') != ""}
                         <i class="icon-info-sign pull-right" style="margin:3px" rel="popover" data-placement="top" data-trigger="hover" data-content="{vtranslate($FIELD_MODEL->get('helpinfo'), $MODULE_NAME)|replace:'"':'&quot;'}" data-original-title="{vtranslate('LBL_HELP', $MODULE)}"></i>
                         {/if}

@@ -28,14 +28,6 @@ class Vtiger_SaveAjax_Action extends Vtiger_Save_Action {
 			$result[$fieldName] = array('value' => $fieldValue, 'display_value' => $displayValue);
 		}
 
-		//Handling salutation type
-		if ($request->get('field') === 'firstname' && in_array($request->getModule(), array('Contacts', 'Leads'))) {
-			$salutationType = $recordModel->getDisplayValue('salutationtype');
-			$firstNameDetails = $result['firstname'];
-			$firstNameDetails['display_value'] = $salutationType. " " .$firstNameDetails['display_value'];
-			if ($salutationType != '--None--') $result['firstname'] = $firstNameDetails;
-		}
-
 		$result['_recordLabel'] = $recordModel->getName();
 		$result['_recordId'] = $recordModel->getId();
 

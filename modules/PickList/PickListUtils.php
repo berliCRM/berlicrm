@@ -23,11 +23,10 @@ function getUserFldArray($fld_module,$roleid){
 	$user_fld = Array();
 	$tabid = getTabid($fld_module);
 
-	$query="select vtiger_field.fieldlabel,vtiger_field.columnname,vtiger_field.fieldname, vtiger_field.uitype" .
-			" FROM vtiger_field inner join vtiger_picklist on vtiger_field.fieldname = vtiger_picklist.name" .
-			" where (displaytype=1 and vtiger_field.tabid=? and vtiger_field.uitype in ('15','55','33','16') " .
-			" or (vtiger_field.tabid=? and fieldname='salutationtype' and fieldname !='vendortype')) " .
-			" and vtiger_field.presence in (0,2) ORDER BY vtiger_picklist.picklistid ASC";
+	$query="SELECT vtiger_field.fieldlabel,vtiger_field.columnname,vtiger_field.fieldname, vtiger_field.uitype" .
+			" FROM vtiger_field inner join vtiger_picklist ON vtiger_field.fieldname = vtiger_picklist.name" .
+			" WHERE (displaytype=1 AND vtiger_field.tabid=? AND vtiger_field.uitype IN ('15','33','16')) " .
+			" AND vtiger_field.presence IN (0,2) ORDER BY vtiger_picklist.picklistid ASC";
 
 	$result = $adb->pquery($query, array($tabid, $tabid));
 	$noofrows = $adb->num_rows($result);
