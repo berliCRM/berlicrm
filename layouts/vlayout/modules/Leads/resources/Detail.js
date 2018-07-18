@@ -21,7 +21,7 @@ Vtiger_Detail_Js("Leads_Detail_Js",{
 	 */
 	convertLead : function(convertLeadUrl, buttonElement) {
 		var instance = Leads_Detail_Js.detailCurrentInstance;
-		//Initially clear the elements to overwtite earliear cache
+		//Initially clear the elements to overwrite earlier cache
 		instance.convertLeadContainer = false;
 		instance.convertLeadForm = false;
 		instance.convertLeadModules = false;
@@ -116,7 +116,7 @@ Vtiger_Detail_Js("Leads_Detail_Js",{
 					'parent': '#leadAccordion',
 					'toggle' : false
 				});
-				app.showScrollBar(jQuery(data).find('#leadAccordion'), {'height':'350px'});
+				app.showScrollBar(jQuery(data).find('#leadAccordion'), {'height':'600px','width': '800px'});
 				editViewObj.registerBasicEvents(data);
 				var checkBoxElements = instance.getConvertLeadModules();
 				jQuery.each(checkBoxElements, function(index, element){
