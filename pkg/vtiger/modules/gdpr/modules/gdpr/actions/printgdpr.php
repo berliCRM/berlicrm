@@ -94,11 +94,11 @@ class gdpr_printgdpr_Action {
 		$result = $db->query($add_query);
 		$num_rows = $db->num_rows($result);
 		if($num_rows > 0) {
-			$org_name = $db->query_result($result,0,"organizationname");
-			$org_address = $db->query_result($result,0,"address");
-			$org_city = $db->query_result($result,0,"city");
-			$org_state = $db->query_result($result,0,"state");
-			$org_country = $db->query_result($result,0,"country");
+			$org_name = decode_html($db->query_result($result,0,"organizationname"));
+			$org_address = decode_html($db->query_result($result,0,"address"));
+			$org_city = decode_html($db->query_result($result,0,"city"));
+			$org_state = decode_html($db->query_result($result,0,"state"));
+			$org_country = decode_html($db->query_result($result,0,"country"));
 			$org_code = $db->query_result($result,0,"code");
 			$org_phone = $db->query_result($result,0,"phone");
 			$org_fax = $db->query_result($result,0,"fax");
@@ -167,13 +167,17 @@ class gdpr_printgdpr_Action {
 		
 		// get related entries
 		// get module with personalized information from settings
-		foreach($moduleSettings as $tabid => $settingsfields) {
-			if ($tabid != $current_tabid) {
-				if (!empty($settingsfields['fields'])) {
-					$other_module[] = vtlib_getModuleNameById($tabid);
+		$other_module = array ();
+		if (is_array ($moduleSettings ) ) {
+			foreach($moduleSettings as $tabid => $settingsfields) {
+				if ($tabid != $current_tabid) {
+					if (!empty($settingsfields['fields'])) {
+						$other_module[] = vtlib_getModuleNameById($tabid);
+					}
 				}
 			}
 		}
+		
 		$relations = $parentModuleModel->getRelations();
 		foreach($relations as $relation) {
 			$relatedModuleName = $relation->getRelationModuleModel()->getName();
