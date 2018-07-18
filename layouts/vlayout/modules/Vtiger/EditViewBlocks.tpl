@@ -127,19 +127,14 @@
                         {else if $FIELD_MODEL->get('uitype') eq "83"}
                             {include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE) COUNTER=$COUNTER MODULE=$MODULE}
                         {else}
-							{if $FIELD_MODEL->get('name') eq "firstname"}
-								{vtranslate("Salutation", $MODULE)}<br />
-								{vtranslate($FIELD_MODEL->get('label'), $MODULE)}
-							{else}
-								{vtranslate($FIELD_MODEL->get('label'), $MODULE)}
-							{/if}
+                            {vtranslate($FIELD_MODEL->get('label'), $MODULE)}
                        {/if}
                     {if $isReferenceField neq "reference"}</label>{/if}
             </td>
             {if $FIELD_MODEL->get('uitype') neq "83"}
                 <td class="fieldValue {$WIDTHTYPE}" {if $FIELD_MODEL->get('uitype') eq '19' or $FIELD_MODEL->get('uitype') eq '20'} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
                     <div class="row-fluid">
-					{if ($MODULE eq 'Documents' && $FIELD_MODEL->get('name') eq 'notecontent') || $FIELD_MODEL->get('name') == "imagename"}
+					{if $MODULE eq 'Documents' && $FIELD_MODEL->get('name') eq 'notecontent'}
                         <span>
 					{else}
                          <span class="span10">

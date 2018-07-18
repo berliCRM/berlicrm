@@ -163,11 +163,7 @@ class Vtiger_Field_Model extends Vtiger_Field {
 				$fieldDataType = 'productTax';
 			} else if($uiType == '117') {
 				$fieldDataType = 'currencyList';
-			} else if($uiType == '55' && $this->getName() === 'salutationtype') {
-				$fieldDataType = 'picklist';
-			} else if($uiType == '55' && $this->getName() === 'firstname') {
-				$fieldDataType = 'salutation';
-            } else if($uiType == '54') {
+			} else if($uiType == '54') {
                 $fieldDataType = 'multiowner';
 			} else {
 				$webserviceField = $this->getWebserviceFieldObject();
@@ -229,7 +225,7 @@ class Vtiger_Field_Model extends Vtiger_Field {
 	}
 
     public function isRoleBased() {
-        if($this->get('uitype') == '15' || $this->get('uitype') == '33' || ($this->get('uitype') == '55' && $this->getFieldName() == 'salutationtype')) {
+        if($this->get('uitype') == '15' || $this->get('uitype') == '33') {
             return true;
         }
         return false;
@@ -951,9 +947,6 @@ class Vtiger_Field_Model extends Vtiger_Field {
             case 'end_period' : $funcName1 = array('name' => 'greaterThanDependentField',
 													'params' => array('start_period'));
 												array_push($validator, $funcName1);
-								// $funcName2 = array('name' => 'lessThanDependentField',
-													// 'params' => array('duedate'));
-												// array_push($validator, $funcName2);
 
 		   case 'start_period' :
 								$funcName = array('name' => 'lessThanDependentField',

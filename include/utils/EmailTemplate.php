@@ -140,7 +140,14 @@ class EmailTemplate {
 				$values = array();
 				foreach ($it as $row) {
 					foreach ($fieldList as $field) {
-                        $values[$field] = $row->get($fieldColumnMapping[$field]); 
+						     $moduleModel = Vtiger_Module_Model::getInstance($module); 
+ 	                         $fieldModel = Vtiger_Field_Model::getInstance($field, $moduleModel); 
+ 		                     $value = $row->get($fieldColumnMapping[$field]); 
+ 		                        if($fieldModel->isReferenceField()) { 
+ 		                            $values[$field] = $value; 
+ 		                        } else { 
+ 		                            $values[$field] = $fieldModel->getDisplayValue($value, $recordId); 
+ 		                        } 
 					}
 				}
 				$moduleFields = $meta->getModuleFields();
@@ -187,9 +194,6 @@ class EmailTemplate {
 									$referencedObjectMeta->getEntityId(),
 									$values[$fieldName]));
 						} elseif (strcasecmp($webserviceField->getFieldDataType(), 'picklist') === 0) {
-							$values[$fieldName] = getTranslatedString(
-									$values[$fieldName], $module);
-						} elseif (strcasecmp($fieldName, 'salutationtype') === 0 && $webserviceField->getUIType() == '55'){
 							$values[$fieldName] = getTranslatedString(
 									$values[$fieldName], $module);
 						} elseif (strcasecmp($webserviceField->getFieldDataType(), 'datetime') === 0) {

@@ -4152,8 +4152,6 @@ class ReportRun extends CRMEntity
 
 			if($uitype == 33)
 				$fieldlists[1][$keyvalue] = $fieldvalues;
-			else if($uitype == 55 && $fieldname == 'salutationtype')
-				$fieldlists[$keyvalue] = $fieldvalues;
 	        else if($uitype == 15)
 		        $fieldlists[$keyvalue] = $fieldvalues;
 		}
