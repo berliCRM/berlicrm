@@ -73,7 +73,7 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 			// load entities from auxilliary table that have been synced to this group before to identify changes
 			$q = "SELECT crmid FROM `vtiger_berlicleverreach_synced_entities` LEFT JOIN `vtiger_crmentity` USING (crmid) WHERE crgroupid = ? AND recordid = ? AND deleted = 0";
 			$result = $this->db->pquery($q,array($this->crgroupid,$this->recordid));
-			while($row = $this->db->fetchByAssoc($result)) {
+			while($row = $this->db->fetchByAssoc($result,-1,false)) {
 				$crmidsyncedbefore[$row["crmid"]]=true;
 			}
 			$_SESSION['clvrreach']['crmidsyncedbefore']=$crmidsyncedbefore;
@@ -88,23 +88,32 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 					vtiger_contactdetails.emailoptout,
 					vtiger_account.accountname
 				FROM vtiger_contactdetails
+					LEFT JOIN vtiger_contactaddress ON contactaddressid = vtiger_contactdetails.contactid
+                    LEFT JOIN vtiger_contactscf ON vtiger_contactdetails.contactid = vtiger_contactscf.contactid
 					INNER JOIN vtiger_crmentity on vtiger_crmentity.crmid = vtiger_contactdetails.contactid
-					INNER JOIN vtiger_crmentityrel on vtiger_crmentityrel.crmid = vtiger_contactdetails.contactid
+					LEFT JOIN vtiger_crmentityrel as rel1 on rel1.crmid = vtiger_contactdetails.contactid
+					LEFT JOIN vtiger_crmentityrel as rel2 on rel2.relcrmid = vtiger_contactdetails.contactid
 					LEFT OUTER JOIN vtiger_account
 						ON vtiger_contactdetails.accountid = vtiger_account.accountid
-				WHERE vtiger_crmentityrel.relcrmid = ?
+				WHERE (rel1.relcrmid = ? OR rel2.crmid = ?)
 					AND vtiger_crmentity.deleted = 0";
 
 			$crm_data = array();
 
-			$result = $this->db->pquery($Contactquery,array($this->recordid));
-			while($row = $this->db->fetchByAssoc($result)) {
+			$result = $this->db->pquery($Contactquery,array($this->recordid,$this->recordid));
+			while($row = $this->db->fetchByAssoc($result,-1,false)) {
 				if (empty($row["email"])) {	
 					$_SESSION['clvrreach']['brokenContacts'][$row["crmid"]]=$row["firstname"]." ".$row["lastname"];
 				}
 				else {
-					$crm_data[decode_html($row["email"])] = array('crmid'=>$row['crmid'], 'salutation'=>decode_html($row['salutation']) ,'email'=>decode_html($row['email']), 'firstname'=>decode_html($row['firstname']), 
-					'lastname'=>decode_html($row['lastname']), 'accountname'=>decode_html($row['accountname']), 'emailoptout'=>$row['emailoptout']);
+					$crm_data[$row["email"]] = array(
+                        'crmid'=>$row['crmid'],
+                        'salutation'=>$row['salutation'],
+                        'email'=>$row['email'],
+                        'firstname'=>$row['firstname'], 
+                        'lastname'=>$row['lastname'],
+                        'accountname'=>$row['accountname'],
+                        'emailoptout'=>$row['emailoptout']);
 					
 					unset($crmidsyncedbefore[$row["crmid"]]);
 				}
@@ -121,13 +130,16 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 					vtiger_leaddetails.emailoptout,
 					vtiger_leaddetails.company as accountname
 					FROM vtiger_leaddetails
+					LEFT JOIN vtiger_leadaddress on vtiger_leadaddress.leadaddressid = vtiger_leaddetails.leadid
+                    LEFT JOIN vtiger_leadscf ON vtiger_leaddetails.leadid = vtiger_leadscf.leadid
 					INNER JOIN vtiger_crmentity on vtiger_crmentity.crmid = vtiger_leaddetails.leadid
-					INNER JOIN vtiger_crmentityrel on vtiger_crmentityrel.crmid = vtiger_leaddetails.leadid
-					WHERE vtiger_crmentityrel.relcrmid = ?
+					LEFT JOIN vtiger_crmentityrel as rel1 on rel1.crmid = vtiger_leaddetails.leadid
+					LEFT JOIN vtiger_crmentityrel as rel2 on rel2.relcrmid = vtiger_leaddetails.leadid
+                    WHERE (rel1.relcrmid = ? OR rel2.crmid = ?)
 					AND vtiger_crmentity.deleted = 0"; # AND converted <> 1
 
-			$result = $this->db->pquery($Leadquery,array($this->recordid));
-			while($row = $this->db->fetchByAssoc($result)) {
+			$result = $this->db->pquery($Leadquery,array($this->recordid,$this->recordid));
+			while($row = $this->db->fetchByAssoc($result,-1,false)) {
 				
 				// leads left over in CRM sync group after conversion are removed and skipped
 				if ($row["converted"]==1) {
@@ -141,8 +153,15 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 					$_SESSION['clvrreach']['brokenLeads'][$row["crmid"]]=$row["firstname"]." ".$row["lastname"];
 				}
 				else {
-					$crm_data[decode_html($row["email"])] = array('crmid'=>$row['crmid'], 'salutation'=>decode_html($row['salutation']) ,'email'=>decode_html($row['email']), 'firstname'=>decode_html($row['firstname']), 
-					'lastname'=>decode_html($row['lastname']), 'accountname'=>decode_html($row['accountname']), 'emailoptout'=>$row['emailoptout']);
+					$crm_data[$row["email"]] = array(
+                        'crmid'=>$row['crmid'],
+                        'salutation'=>$row['salutation'],
+                        'email'=>$row['email'],
+                        'firstname'=>$row['firstname'], 
+                        'lastname'=>$row['lastname'],
+                        'accountname'=>$row['accountname'],
+                        'emailoptout'=>$row['emailoptout'],
+                        'isLead' => true);
 					
 					unset($crmidsyncedbefore[$row["crmid"]]);
 				}
@@ -187,7 +206,7 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 				$q = "SELECT contactid,email FROM vtiger_contactdetails WHERE contactid IN (".implode(', ', $_SESSION["clvrreach"]["removedlocally"]).")";
 				$result = $this->db->query($q);
 
-				while($row = $this->db->fetchByAssoc($result)) {
+				while($row = $this->db->fetchByAssoc($result,-1,false)) {
 					$_SESSION["clvractions"]["delete"][$row["contactid"]]=$row["email"];
 
 					// remove from cached remotecontacts
@@ -199,7 +218,7 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 				$q = "SELECT leadid,email FROM vtiger_leaddetails WHERE leadid IN (".implode(', ', $_SESSION["clvrreach"]["removedlocally"]).")";
 				$result = $this->db->query($q);
 
-				while($row = $this->db->fetchByAssoc($result)) {
+				while($row = $this->db->fetchByAssoc($result,-1,false)) {
 					$_SESSION["clvractions"]["delete"][$row["leadid"]]=$row["email"];
 
 					// remove from cached remotecontacts
@@ -310,7 +329,7 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 					if ( $remotecontact->active == false && $remotecontact->deactivated > 0 && $_SESSION['clvrreach']['crmidsyncedbefore'][$_SESSION["clvrreach"]["localcontacts"][$remotecontact->email]["crmid"]] ) {
 						
 						if ($verbose) $msg .= sprintf(getTranslatedString('LBL_VERBOSELOG_UNSUBSCRIBED','berliCleverReach'),date("Y-m-d",$remotecontact->deactivated)); 
-						# do something here?
+						$_SESSION["clvractions"]["optout"][]=$remotecontact->email;
 					}
 					elseif ($remotecontact->active == false && $remotecontact->bounced > 0) {
 						if ($verbose) $msg .= sprintf(getTranslatedString('LBL_VERBOSELOG_BOUNCED','berliCleverReach'),date ("Y-m-d",$remotecontact->bounced));
@@ -585,6 +604,20 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 				}
 			}
 			
+            // optionally: set local emailoptout if receiver unsubscribed
+            // if (is_array($_SESSION["clvractions"]["optout"])) {
+                // foreach ($_SESSION["clvractions"]["optout"] as $key => $email) {
+                    // if ($_SESSION["clvrreach"]["localcontacts"][$email]["isLead"]) {
+                        // $q = "UPDATE vtiger_leaddetails SET emailoptout = 1 WHERE leadid=?";
+                    // }
+                    // else {
+                        // $q = "UPDATE vtiger_contactdetails SET emailoptout = 1 WHERE contactid=?";
+                    // }
+                    // $this->db->pquery($q,array($_SESSION["clvrreach"]["localcontacts"][$email]['crmid']));
+                // }
+            // }
+            // unset ($_SESSION["clvractions"]["optout"]);
+
 			// remove receivers from sync group
 			if (is_array($_SESSION["clvractions"]["removelocally"])) {
 				
@@ -682,8 +715,8 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 	}
 
 	private function removeFromSyncGroup($crmid) {
-		$q = "DELETE from vtiger_crmentityrel WHERE crmid = ? AND relcrmid = ?";
-		$this->db->pquery($q,array($crmid, $this->recordid));
+		$q = "DELETE from vtiger_crmentityrel WHERE (crmid = ? AND relcrmid = ?) OR (crmid = ? AND relcrmid = ?)";
+		$this->db->pquery($q,array($crmid, $this->recordid, $this->recordid, $crmid));
 	}
 	
 	private function addToSyncGroup($crmid,$type) {
