@@ -93,13 +93,9 @@
 									{/if}
 			   				    {/if}
 								{if $_FIELD->uitype() eq '23' || $_FIELD->uitype() eq '5' || $_FIELD->uitype() eq '6' || $_FIELD->uitype() eq '252'}
-										{foreach key=date_value item=time_value from=$_FIELD->value()}
-											{assign var=date_val value="$date_value"}
-											{assign var=time_val value="$time_value"}
-										{/foreach}
 										{assign var=dateFormat value="$SMARTYDATEFORMAT"}
 										{assign var=dateStr value="$HOURFORMATFORMAT"}
-										
+	
 										{if $_FIELD->name() neq 'time_start' &&  $_FIELD->name() neq 'time_end'}
 											{if $_FIELD->name() eq 'date_start'}
 												<input type="hidden" name="dateformat" id="dateformat" value="{$DATEFORMAT}" />
@@ -112,14 +108,14 @@
 										{/if}
 										{if $_FIELD->uitype() eq '252' && $_FIELD->name() eq 'time_start'}
 											<input type="hidden" name="startformat" id="startformat" value="{$dateStr}" />
-											<input type="time" name="time_start" id="time_start" value="{$time_value}" class="required" />
+											<input type="time" name="time_start" id="time_start" value="{$_FIELD->value()}" class="required" />
 											<div id="format_note_{$_FIELD->name()}" style="margin-bottom:25px;font-style:italic;font-size:10px;display:none;">Format: HH:MM (24 H)</div>
 										{/if}
 										{if $_FIELD->uitype() eq '252' && $_FIELD->name() eq 'time_end' && $ORIGMODULE eq 'Events'}
 											{if $mode eq 'create'}
 											<input type="hidden" name="time_end" id="time_end" value=""  />
 											{else}
-											<input type="time" name="time_end" id="time_end" value="{$time_value}" />
+											<input type="time" name="time_end" id="time_end" value="{$_FIELD->value()}" />
 											<div id="format_note_time_end" style="margin-bottom:25px;font-style:italic;font-size:10px;display:none;">Format: HH:MM (24 H)</div>
 											{/if}
 										{/if}

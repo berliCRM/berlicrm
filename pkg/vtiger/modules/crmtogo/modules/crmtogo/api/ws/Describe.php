@@ -43,6 +43,7 @@ class crmtogo_WS_Describe extends crmtogo_WS_Controller {
 		foreach($moduleFieldGroups as $blocklabel => $fieldgroups) {
 			$fields = array();
 			foreach($fieldgroups as $fieldname => $fieldinfo) {
+                $field = array();
 				$field['name'] = $fieldname;	
 				$field['value'] = '';	
 				$field['label'] = $fieldinfo['label'];	
@@ -51,7 +52,7 @@ class crmtogo_WS_Describe extends crmtogo_WS_Controller {
 				$field['mandatory']= $fieldinfo['mandatory'];
 				foreach($describeInfo['fields'] as $describeField) {
 					if ($describeField['name']== $fieldname) {
-						$field['type'] = '';
+						$field['type'] = array();
 						if (isset($describeField['type']) && $describeField['type']!='') {
 							$picklistValues = $describeField['type']['picklistValues'];
 							$field['type']['value'] = array ('value' =>$picklistValues,'name' => $fieldname);
