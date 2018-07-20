@@ -1002,7 +1002,7 @@ class CustomView extends CRMEntity {
 		$columnslist = $this->getColumnsListByCvid($cvid);
 		if (isset($columnslist)) {
 			foreach ($columnslist as $columnname => $value) {
-				$tablefield = "";
+				$tablefield = array();
 				if ($value != "") {
 					$list = explode(":", $value);
 
