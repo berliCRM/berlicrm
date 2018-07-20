@@ -532,7 +532,7 @@ class crmtogo_WS_Utils {
 	}
 	
 	static function getContactBase64Image($contactid) {
-		$contactid = explode ('x',$contactid);
+		$contactid = explode('x',$contactid);
 		$db = PearDatabase::getInstance();
 		$sql = "SELECT vtiger_attachments.*, vtiger_crmentity.setype FROM vtiger_attachments
 						INNER JOIN vtiger_seattachmentsrel ON vtiger_seattachmentsrel.attachmentsid = vtiger_attachments.attachmentsid
@@ -556,7 +556,7 @@ class crmtogo_WS_Utils {
 		}
 	}
 	static function getProductBase64Image($productid) {
-		$productid = explode ('x',$productid);
+		$productid = explode('x',$productid);
 		$db = PearDatabase::getInstance();
 		$sql = "SELECT vtiger_attachments.*, vtiger_crmentity.setype FROM vtiger_attachments
 						INNER JOIN vtiger_seattachmentsrel ON vtiger_seattachmentsrel.attachmentsid = vtiger_attachments.attachmentsid
@@ -580,7 +580,7 @@ class crmtogo_WS_Utils {
 		}
 	}
 	static function gettaxclassInformation($productid) {
-		$productid = explode ('x',$productid);
+		$productid = explode('x',$productid);
 		$db = PearDatabase::getInstance();
 		$sql = "SELECT taxpercentage FROM vtiger_producttaxrel
 				WHERE taxid = 1 and productid = ?";
@@ -596,7 +596,7 @@ class crmtogo_WS_Utils {
 		}
 	}
 	static function getDetailedDocumentInformation($documentrecord) {
-		$documentid = explode ('x',$documentrecord['id']);
+		$documentid = explode('x',$documentrecord['id']);
 		$db = PearDatabase::getInstance();
 		$sql = "SELECT filename,filetype,fileversion, filedownloadcount,notecontent,filesize, path, vtiger_attachments.attachmentsid FROM vtiger_notes
 					INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_notes.notesid
@@ -623,7 +623,7 @@ class crmtogo_WS_Utils {
 		$db = PearDatabase::getInstance();
 		$sql = "SELECT * FROM berli_crmtogo_defaults";
 		$result = $db->pquery($sql, array());
-		$config = array ();
+		$config = array();
 		$config ['language'] = $db->query_result($result, 0, 'crmtogo_lang');
 		$config ['fetch_limit'] = $db->query_result($result, 0, 'fetch_limit');
 		$config ['theme'] = $db->query_result($result, 0, 'defaulttheme');
@@ -636,7 +636,7 @@ class crmtogo_WS_Utils {
 		$result = $db->pquery($sql, array($userid));
 		$noofrows = $db->num_rows($result);
 		if ($noofrows >0) {
-			$config = array ();
+			$config = array();
 			$config ['NavigationLimit'] = $db->query_result($result, 0, 'navi_limit');
 			$config ['theme'] = $db->query_result($result, 0, 'theme_color');
 			$config ['compactcalendar'] = $db->query_result($result, 0, 'compact_cal');
@@ -646,7 +646,7 @@ class crmtogo_WS_Utils {
 			$sql = "SELECT * FROM berli_crmtogo_config where crmtogouser = 1";
 			$result = $db->pquery($sql, array());
 			$noofrows = $db->num_rows($result);
-			$config = array ();
+			$config = array();
 			for($i=0; $i<$noofrows; $i++){
 				$navi_limit = $db->query_result($result, $i, 'navi_limit');
 				$theme = $db->query_result($result, $i, 'theme_color');;
@@ -662,7 +662,7 @@ class crmtogo_WS_Utils {
 	}
 	
 	static function getUserConfigModuleSettings($userid) {
-		$config_module = array ();
+		$config_module = array();
 		$db = PearDatabase::getInstance();
 		$sql = "SELECT * FROM berli_crmtogo_modules where crmtogo_user = ? order by order_num";
 		$result = $db->pquery($sql, array($userid));
@@ -682,7 +682,7 @@ class crmtogo_WS_Utils {
 			$sql = "SELECT * FROM berli_crmtogo_modules where crmtogo_user = 1 order by order_num";
 			$result = $db->pquery($sql, array());
 			$noofrows = $db->num_rows($result);
-			$module = array ();
+			$module = array();
 			for($i=0; $i<$noofrows; $i++){
 				$module = $db->query_result($result, $i, 'crmtogo_module');
 				$config_module[$module]['name'] = $module;
@@ -699,7 +699,7 @@ class crmtogo_WS_Utils {
 	
 	static function getConfigComments() {
 		//todo: find better way to identify modules with comments
-		$comments_module = array ();
+		$comments_module = array();
 		$db = PearDatabase::getInstance();
 		$sql = "SELECT * FROM vtiger_links where linktype = 'DETAILVIEWWIDGET' and linkurl = 'block://ModComments:modules/ModComments/ModComments.php'";
 		$result = $db->pquery($sql, array());
@@ -762,7 +762,8 @@ class crmtogo_WS_Utils {
 	static function convertTimeZone($user, $time){
 		$sourceTimeZone = new DateTimeZone($user->time_zone);
 		$newtime = new DateTime($time, $sourceTimeZone);
-		$dbtimeZone = new DateTimeZone('UTC');
+        global $default_timezone;
+		$dbtimeZone = new DateTimeZone($default_timezone);
 		$newtime->setTimeZone($dbtimeZone);
 		return $newtime->format('Y-m-d H:i:s');
 	}

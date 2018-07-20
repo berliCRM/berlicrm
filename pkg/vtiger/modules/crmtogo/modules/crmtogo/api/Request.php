@@ -54,7 +54,7 @@ class crmtogo_API_Request {
 		return $this->get('_session');
 	}
 	
-	function getvaluemap($request) {
+	public static function getvaluemap($request) {
 		return $request->valuemap;
 	}
 }

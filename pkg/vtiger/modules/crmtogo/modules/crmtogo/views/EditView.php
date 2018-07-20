@@ -38,7 +38,8 @@ class crmtogo_UI_EditView extends crmtogo_WS_FetchRecordDetails {
 			$wsResponse = parent::process($request);
 		}
 		else {
-			$wsResponse = crmtogo_WS_Describe::process($request);
+            $wsDescribe = new crmtogo_WS_Describe();
+			$wsResponse = $wsDescribe->process($request);
 		}
 	
 		$response = false;

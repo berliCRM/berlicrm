@@ -67,7 +67,7 @@ $languageStrings = Array (
 	'Helpdesk'=>'Trouble Tickets',
 	'Users'=>'Benutzer',
 	'Campaigns'=>'Kampagnen',
-	'Assets'=>'Produktverwaltung',
+	'Assets'=>'Bestandsverwaltung',
 	'address'=>'Adresse',
 	'otheraddress'=>'weitere Adresse',
 	'bill_address'=>'Rechnungsadresse',
@@ -96,8 +96,8 @@ $languageStrings = Array (
 	'LBL_THEME_COLOR_B'=>'blau',
 	'LBL_THEME_COLOR_C'=>'weiß',
 	'LBL_NAVI_SELECTION'=>'Anzahl beim Scrollen:',
-	'LBL_STARTDATE'=>'Anfangsdatum',
-	'LBL_STARTTIME'=>'Anfangszeit',
+    'LBL_STARTDATE'=>'Anfangsdatum',
+    'LBL_STARTTIME'=>'Anfangszeit',
 );
 
 ?>

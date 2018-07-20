@@ -35,7 +35,8 @@ class crmtogo_UI_ListModuleRecords extends crmtogo_WS_ListModuleRecords {
 			$recordid = $request->get('record');
 			if (trim($recordid) !='') {
 				//delete record
-				$delResponse = crmtogo_WS_DeleteRecords::process($request);
+                $wsDeleteRecords = new crmtogo_WS_DeleteRecords();
+				$delResponse = $wsDeleteRecords->process($request);
 			}
 		}
 		$current_user = $this->getActiveUser();

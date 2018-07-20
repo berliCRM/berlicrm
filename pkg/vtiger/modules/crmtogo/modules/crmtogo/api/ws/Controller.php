@@ -47,7 +47,7 @@ class crmtogo_WS_Controller  {
 		return ($user !== false);
 	}
 	
-	function sessionGet($key, $defvaule = '') {
+	public static function sessionGet($key, $defvaule = '') {
 		return crmtogo_API_Session::get($key, $defvalue);
 	}
 	
@@ -82,7 +82,7 @@ class crmtogo_WS_Controller  {
 		return $crmtogoDefaultsConfigCache;
 	}
 	
-	function getUserConfigSettings() {
+	public static function getUserConfigSettings() {
 
 		//cache config information
 		static $crmtogoConfigCache = NULL;
@@ -112,7 +112,7 @@ class crmtogo_WS_Controller  {
 
 	function getUserModule() {
 		//vtws_listtypes class is used to get permitted modules and set the language
-		$listresult = vtws_listtypes(null,self::getActiveUser());
+		$listresult = vtws_listtypes(null,$this->getActiveUser());
 		$modulewsids = crmtogo_WS_Utils::getEntityModuleWSIds();
 		unset($modulewsids['Users']);
 
