@@ -15,7 +15,7 @@ jQuery.Class("Vtiger_createpdfstexttemplate_Js",{},{
 			jQuery(window).data("pnotify", []);
             var form = jQuery('form[name="createform"]');
             var inputdata = form.serializeFormData();
-			var saveURL = 'index.php?parent=Settings&module=Vtiger&view=listpdftexttemplates&action=savepdftexttemplate&textmodules='+inputdata.textmodules+'&displaymodul='+inputdata.displaymodul+'&templateid='+inputdata.templateid+'&templatename='+inputdata.templatename+'&body='+inputdata.body;
+			var saveURL = 'index.php?parent=Settings&module=Vtiger&view=listpdftexttemplates&action=savepdftexttemplate&textmodules='+inputdata.textmodules+'&displaymodul='+inputdata.displaymodul+'&templateid='+inputdata.templateid+'&templatename='+encodeURIComponent(inputdata.templatename)+'&body='+encodeURIComponent(inputdata.body);
 			var data = new Object();
 			Vtiger_Helper_Js.checkServerConfigResponseCache = '';
  			if( (inputdata.templatename.trim() == '')) {
