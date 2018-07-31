@@ -16,7 +16,7 @@ class berliWidgets_relatedDocumentEntries_View extends Vtiger_Detail_View {
      * @param Vtiger_Request $request
      * @return boolean 
      */
-    function preProcess(Vtiger_Request $request, $display= true) {
+    public function preProcess(Vtiger_Request $request, $display= true) {
         return true;
     }
 
@@ -25,7 +25,7 @@ class berliWidgets_relatedDocumentEntries_View extends Vtiger_Detail_View {
      * @param Vtiger_Request $request
      * @return boolean 
      */
-    function postProcess(Vtiger_Request $request) {
+    public function postProcess(Vtiger_Request $request) {
         return true;
     }
 
@@ -34,7 +34,7 @@ class berliWidgets_relatedDocumentEntries_View extends Vtiger_Detail_View {
      * if view type : detail then show related CRM entries
      * @param Vtiger_Request $request 
      */
-    function process(Vtiger_Request $request) {
+    public function process(Vtiger_Request $request) {
         switch ($request->get('viewtype')) {
             case 'detail':$this->showRelatedEntries($request);
                 break;
@@ -46,15 +46,18 @@ class berliWidgets_relatedDocumentEntries_View extends Vtiger_Detail_View {
      * display the template.
      * @param Vtiger_Request $request 
      */
-    function showRelatedEntries(Vtiger_Request $request) {
+    public function showRelatedEntries(Vtiger_Request $request) {
 		//document number
 		$parentRecordId = $request->get('record');
 		$moduleName = $request->getModule();
 		$relatedEntriesObj = array ();
-		$relatedEntries = $this::getRelatedEntries($parentRecordId, $pagingModel);
+		$relatedEntries = self::getRelatedEntries($parentRecordId, $pagingModel);
 		foreach ($relatedEntries as $key => $relatedrecord) {
 			foreach ($relatedrecord as $relModuleName => $recordid) {
-				$relatedEntriesObj[] = Vtiger_Record_Model::getInstanceById($recordid, $relModuleName);
+				$moduleInstance  = Vtiger_Module::getInstance($relModuleName);
+				if ($moduleInstance) {
+					$relatedEntriesObj[] = Vtiger_Record_Model::getInstanceById($recordid, $relModuleName);
+				}
 			}
 		}
 
@@ -65,7 +68,7 @@ class berliWidgets_relatedDocumentEntries_View extends Vtiger_Detail_View {
         $viewer->assign('MODULE', $moduleName);
         $viewer->view('showRelatedDocumentEntries.tpl', 'berliWidgets');
     }
-	function getRelatedEntries($documentid,$pagingModel=null) {
+	static function getRelatedEntries($documentid,$pagingModel=null) {
 		$db = PearDatabase::getInstance();
 		$entryDetails = array();
 		$result = $db->pquery("SELECT  vtiger_crmentity.setype as modulename, vtiger_senotesrel.crmid as relatedentryid FROM vtiger_senotesrel inner join vtiger_crmentity on vtiger_crmentity.crmid = vtiger_senotesrel.crmid  WHERE vtiger_crmentity.deleted = 0 and  vtiger_senotesrel.notesid  = ?", array($documentid));

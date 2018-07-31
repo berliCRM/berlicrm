@@ -19,11 +19,11 @@ $text_databases = array('letter'=>'berli_multistarttext','conclusion'=>'berli_mu
 $text_databases_tables['berli_multistarttext'] = array('starttextid','starttexttitle','multistext','texttypes');
 $text_databases_tables['berli_multiendtext'] = array('endtextid','endtexttitle','multietext','texttype');
 $log->debug("the template is for ".$textmodules." and of type ".$texttype );
-$templatename = from_html(stripslashes (vtlib_purify($_REQUEST["templatename"])));
+$templatename = from_html(urldecode (vtlib_purify($_REQUEST["templatename"])));
 $log->debug("the templatename is ".$templatename);
 $templateid = vtlib_purify($_REQUEST["templateid"]);
 $log->debug("the templateid is ".$templateid);
-$templatetext = stripslashes (vtlib_purify($_REQUEST["body"]));
+$templatetext = urldecode (vtlib_purify($_REQUEST["body"]));
 $log->debug("the body is ".$templatetext); 
 
 if(isset($templateid) && $templateid !='') {

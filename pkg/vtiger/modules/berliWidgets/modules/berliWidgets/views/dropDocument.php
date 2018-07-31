@@ -34,7 +34,7 @@ class berliWidgets_dropDocument_View extends Vtiger_Detail_View {
      * @param Vtiger_Request $request
      * @return boolean 
      */
-    function preProcess(Vtiger_Request $request, $display= true) {
+    public function preProcess(Vtiger_Request $request, $display= true) {
         return true;
     }
 
@@ -43,7 +43,7 @@ class berliWidgets_dropDocument_View extends Vtiger_Detail_View {
      * @param Vtiger_Request $request
      * @return boolean 
      */
-    function postProcess(Vtiger_Request $request) {
+    public function postProcess(Vtiger_Request $request) {
         return true;
     }
 
@@ -52,7 +52,7 @@ class berliWidgets_dropDocument_View extends Vtiger_Detail_View {
      * if view type : detail then show related CRM entries
      * @param Vtiger_Request $request 
      */
-    function process(Vtiger_Request $request) {
+    public function process(Vtiger_Request $request) {
 		$this->showDragAnDropMenu($request);
     }
 
@@ -60,7 +60,7 @@ class berliWidgets_dropDocument_View extends Vtiger_Detail_View {
      * display the template.
      * @param Vtiger_Request $request 
      */
-    function showDragAnDropMenu(Vtiger_Request $request) {
+    public function showDragAnDropMenu(Vtiger_Request $request) {
 		//document number
 		$parentRecordId = $request->get('record');
 		$moduleName = $request->getModule();

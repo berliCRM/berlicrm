@@ -7,8 +7,6 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  *************************************************************************************/
-ini_set('display_errors',1);
-error_reporting(E_ALL & ~E_NOTICE);
 
 class Settings_gdpr_Index_View extends Settings_Vtiger_Index_View{
     
