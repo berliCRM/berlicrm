@@ -288,7 +288,7 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 		$moduleName = vtlib_getModuleNameById($tabid);
 		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
 		
-		if (!empty ($moduleModel)  and $moduleModel->isActive() and $moduleName!='PBXManager') {
+		if (!empty($moduleModel) && $moduleModel->isActive() && $moduleName!='PBXManager') {
 			$fieldModels = $moduleModel->getFields();
 			$listquery = getListQuery($moduleName);
 			$serachcol_arr = Vtiger_Record_Model::getDisplayLabelsArray($tabid);
@@ -300,9 +300,18 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 				else {
 					$newfiled = $fieldname;
 				}
+
 				if (!empty($fieldModels[$newfiled])) {
 						$fieldtable[] = $fieldModels[$newfiled]->table.'.'.$fieldname;
 				}
+                else {
+                    // workaround to find fields where columnname and fieldname differs (globalsearch stores the later, fieldModel expects the first)
+                    $q = "SELECT * from vtiger_field WHERE tabid = ? AND columnname = ?";
+                    $res = $db->pquery($q,array($tabid, $newfiled));
+                    if ($row = $db->fetchByAssoc($res,-1,false)) {
+                        $fieldtable[] = $fieldModels[$row['fieldname']]->table.'.'.$fieldModels[$row['fieldname']]->column;
+                    }
+                }
 			}
 			if (!empty($fieldtable) and is_array($fieldtable)){
 				//fields to display are defined in berli_globalsearch_settings
