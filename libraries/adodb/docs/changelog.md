@@ -5,6 +5,32 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
+## 5.20.12 - 30-Mar-2018
+
+- adodb: PHP 7.2 compatibility
+	- Replace each() with foreach. #373
+	- Replace deprecated create_function() calls. #404
+	- Replace $php_errormsg with error_get_last(). #405
+- adodb: Don't call `dl()` when the function is disabled #406
+- adodb: Don't bother with magic quotes when not available #407
+- adodb: fix potential SQL injection vector in SelectLimit(). #190 #311 #401
+
+## 5.20.11 - Withdrawn
+
+This release has been withdrawn as it introduced a regression on PHP 5.x.
+Please use version 5.20.12 or later.
+
+## 5.20.10 - 08-Mar-2018
+
+- Fix year validation in adodb_validdate() #375
+- Release db resource when closing connection #379
+- Avoid full file path disclosure in ADOLoadCode() #389
+- mssql: fix PHP warning in _adodb_getcount() #359
+- mssql: string keys are not allowed in parameters arrays #316
+- mysqli: fix PHP warning on DB connect #348
+- pdo: fix auto-commit error in sqlsrv #347
+- sybase: fix PHP Warning in _connect()/_pconnect #371
+
 ## 5.20.9 - 21-Dec-2016
 
 - mssql: fix syntax error in version matching regex #305

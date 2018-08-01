@@ -1,6 +1,6 @@
 <?php
 /*
-@version   v5.20.9  21-Dec-2016
+@version   v5.20.12  30-Mar-2018
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -113,7 +113,7 @@ class ADODB_mysqli extends ADOConnection {
 		if ($persist && PHP_VERSION > 5.2 && strncmp($argHostname,'p:',2) != 0) $argHostname = 'p:'.$argHostname;
 
 		#if (!empty($this->port)) $argHostname .= ":".$this->port;
-		$ok = mysqli_real_connect($this->_connectionID,
+		$ok = @mysqli_real_connect($this->_connectionID,
 					$argHostname,
 					$argUsername,
 					$argPassword,
@@ -128,7 +128,7 @@ class ADODB_mysqli extends ADOConnection {
 			return true;
 		} else {
 			if ($this->debug) {
-				ADOConnection::outp("Could't connect : "  . $this->ErrorMsg());
+				ADOConnection::outp("Could not connect : "  . $this->ErrorMsg());
 			}
 			$this->_connectionID = null;
 			return false;
@@ -713,6 +713,8 @@ class ADODB_mysqli extends ADOConnection {
 				$inputarr = false,
 				$secs = 0)
 	{
+		$nrows = (int) $nrows;
+		$offset = (int) $offset;
 		$offsetStr = ($offset >= 0) ? "$offset," : '';
 		if ($nrows < 0) $nrows = '18446744073709551615';
 
@@ -777,29 +779,20 @@ class ADODB_mysqli extends ADOConnection {
 		*/
 
 		if ($this->multiQuery) {
-			//crm-now: improved multi_query handling
-			if (mysqli_multi_query($this->_connectionID, $sql.';')) {
-				$i = 0;
-				$rs = array();
-				do {
-					$rs[] = mysqli_store_result($this->_connectionID);
-					$i++;
-				} while (mysqli_next_result($this->_connectionID));
-				if (!mysqli_errno($this->_connectionID)) {
-					return $rs;
-				}
+			$rs = mysqli_multi_query($this->_connectionID, $sql.';');
+			if ($rs) {
+				$rs = ($ADODB_COUNTRECS) ? @mysqli_store_result( $this->_connectionID ) : @mysqli_use_result( $this->_connectionID );
+				return $rs ? $rs : true; // mysqli_more_results( $this->_connectionID )
 			}
 		} else {
 			$rs = mysqli_query($this->_connectionID, $sql, $ADODB_COUNTRECS ? MYSQLI_STORE_RESULT : MYSQLI_USE_RESULT);
 
 			if ($rs) return $rs;
 		}
-		//crm-now: explode needs to be replaced by preg_split() that doesn't take comment lines and values inside '' into account
-		if ($this->multiQuery) $sql = explode(';', $sql)[$i];
+
 		if($this->debug)
 			ADOConnection::outp("Query: " . $sql . " failed. " . $this->ErrorMsg());
-		$this->_failedQuery = $sql;
-		
+
 		return false;
 
 	}
