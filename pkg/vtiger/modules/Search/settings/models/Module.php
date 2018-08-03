@@ -92,8 +92,6 @@ class Settings_Search_Module_Model extends Settings_Vtiger_Module_Model {
 		$moduleEntity = $modulesEntity[$tabid];
 		$modulename = $moduleEntity['modulename'];
 		$tablename = $moduleEntity['tablename'];
-
-
 		$entityidfield = $moduleEntity['entityidfield'];
 
 		$primary = CRMEntity::getInstance($modulename);
@@ -111,9 +109,17 @@ class Settings_Search_Module_Model extends Settings_Vtiger_Module_Model {
 
 		$fieldname = $moduleEntity['fieldname'];
 		$searchcolumn = $moduleEntity['displayfield'];
+
+        // use same default fields as template when displayfields empty
+        if (empty($searchcolumn)) {
+            $columns_search = explode(',', $fieldname);
+        }
+        else {
+            $columns_search = explode(',', $searchcolumn);
+        }
+        
 		$moduleInfo = Vtiger_Functions::getModuleFieldInfos($modulename);
 		$columns_name = explode(',', $fieldname);
-		$columns_search = explode(',', $searchcolumn);
 		$sql_ext = '';
 		$sql_fieldname = '';
 		$sql_searchcolumn = '';
