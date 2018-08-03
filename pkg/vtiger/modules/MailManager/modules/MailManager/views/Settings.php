@@ -57,12 +57,15 @@ class MailManager_Settings_View extends MailManager_MainUI_View {
             $model->setFolder($sentFolder);
 			if ($connector->isConnected()) {
 				$model->save();
-
 				$request->set('_operation', 'mainui');
 				return parent::process($request);
-			} else if($connector->hasError()) {
+			} elseif(!function_exists('mb_convert_encoding')) { 
+                $error = "PHP mbstring extension needed!";
+                $response->isJSON(true);
+				$response->setError(101, $error);
+            } elseif($connector->hasError()) {
                 $error = $connector->lastError();
-                		$response->isJSON(true);
+                $response->isJSON(true);
 				$response->setError(101, $error);
 			}
 		} else if ('remove' == $this->getOperationArg($request)) {
