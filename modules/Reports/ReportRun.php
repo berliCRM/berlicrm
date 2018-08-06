@@ -3219,6 +3219,14 @@ class ReportRun extends CRMEntity
 
 			$sSQL = $this->sGetSQLforReport($this->reportid,$filtersql,$outputformat,false,$startLimit,$endLimit);
 			$result = $adb->pquery($sSQL,array());
+			
+			if (!$result) {
+				$rSQL = str_ireplace('INNER JOIN', '<br>INNER JOIN', $sSQL);
+				$rSQL = str_ireplace('WHERE', '<br>WHERE', $sSQL);
+				echo '<div style="color:red;">'.$rSQL.'<br><br>'.$adb->database->errorMsg().'</div>';
+				return;
+			}
+			
 			if($is_admin==false && $profileGlobalPermission[1] == 1 && $profileGlobalPermission[2] == 1)
                 $picklistarray = $this->getAccessPickListValues();
 
