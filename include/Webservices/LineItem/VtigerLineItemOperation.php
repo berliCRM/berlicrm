@@ -551,6 +551,8 @@ class VtigerLineItemOperation  extends VtigerActorOperation {
 				unset($describe['fields'][$key]);
 			}
 		}
+		//crm-now: fix gap in numeric keys that will lead to a different JSON contruct
+		$describe['fields'] = array_values($describe['fields']);
 		return $describe;
 	}
 }

@@ -11,7 +11,7 @@
 
 class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 
-	var $scheduledFormat = 'CSV';
+	var $scheduledFormat = 'XLS';
 
 	static $SCHEDULED_DAILY = 1;
 	static $SCHEDULED_WEEKLY = 2;
@@ -204,6 +204,11 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 			$filePath = 'storage/' . $fileName;
 			$attachments[$fileName] = $filePath;
 			$oReportRun->writeReportToCSVFile($filePath);
+		} elseif ($reportFormat == 'XLS') {
+			$fileName = $baseFileName . '.xls';
+			$filePath = 'storage/' . $fileName;
+			$attachments[$fileName] = $filePath;
+			$oReportRun->writeReportToExcelFile($filePath);
 		}
 
 		foreach ($attachments as $attachmentName => $path) {
