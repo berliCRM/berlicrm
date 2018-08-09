@@ -66,6 +66,11 @@ class Settings_LayoutEditor_Field_Model extends Vtiger_Field_Model {
             $adb->pquery($deltableseqquery, array()); 
             $adb->pquery("delete from  vtiger_picklist_dependency where sourcefield=? or targetfield=?", array($columnname,$columnname));
         }
+
+        //delete from vtiger_picklist and dynamic blocks
+        if($this->getFieldDataType() == 'picklist') {
+            $adb->pquery("DELETE berli_dynamic_blocks, vtiger_picklist FROM vtiger_picklist LEFT JOIN berli_dynamic_blocks USING (picklistid) WHERE name = ?",array($fieldname));
+        }
     }
 
 	/**
