@@ -76,6 +76,7 @@ class cleverreachAPI
 		
 			foreach ($somereceivers as $rec) {
 				unset($rec->attributes,$rec->activated,$rec->registered,$rec->source);	// unused, save memory
+                $rec->email = strtolower($rec->email);
 				$clvrcontacts[$rec->email]=$rec;
 			}
 		
