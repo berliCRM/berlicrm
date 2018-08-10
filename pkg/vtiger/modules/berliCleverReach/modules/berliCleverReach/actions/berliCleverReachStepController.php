@@ -34,7 +34,9 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 		// get group name and nr.
 		$q = "SELECT cleverreachname, bcr_campaign_no FROM `vtiger_berlicleverreach` WHERE cleverreachid = ?";
 		$result = $this->db->pquery($q,array($this->recordid));
-		list($this->crmgrouplabel,$this->crmgroupnr) = $this->db->fetch_row($result);
+		$row = $this->db->fetchByAssoc($result,-1,false);
+        $this->crmgrouplabel = $row['cleverreachname'];
+        $this->crmgroupnr = $row['bcr_campaign_no'];
 		
         $response = new Vtiger_Response();
 		
