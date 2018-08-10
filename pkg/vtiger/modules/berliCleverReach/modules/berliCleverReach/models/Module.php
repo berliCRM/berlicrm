@@ -43,7 +43,7 @@ class berliCleverReach_Module_Model extends Vtiger_Module_Model{
 	/**
 	 * Function to get the Subscriber type (lead or contact)
 	 */
-	public function getSubscriberType() {
+	public static function getSubscriberType() {
 		$SubscriberType = 'lead';
 		$db = PearDatabase::getInstance();
 		$query = 'SELECT newsubscribertype FROM vtiger_berlicleverreach_settings WHERE id=1';
@@ -57,7 +57,7 @@ class berliCleverReach_Module_Model extends Vtiger_Module_Model{
 	/**
 	 * Function to get full CleverReach credentials
 	 */
-	public function getApiCredentials() {
+	public static function getApiCredentials() {
 
 		$db = PearDatabase::getInstance();
 		$query = 'SELECT customerid,customername,accesstoken FROM vtiger_berlicleverreach_settings WHERE id=1';
@@ -71,7 +71,7 @@ class berliCleverReach_Module_Model extends Vtiger_Module_Model{
 	/**
 	 * Function to update token
 	 */
-	public function updateToken($token) {
+	public static function updateToken($token) {
 
 		$db = PearDatabase::getInstance();
 		$query = "UPDATE vtiger_berlicleverreach_settings SET `accesstoken`=? WHERE id=1";
