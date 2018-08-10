@@ -275,11 +275,11 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	$discount_amount = $final_details["discount_amount_final"];
 	$discount_percent = $final_details["discount_percentage_final"];
 
-	if($discount_amount != "") {
+	if($discount_amount != "" AND $discount_amount != "0.00") {
 		$price_discount = $discount_amount;
 		$price_discount_formated = number_format($price_discount,$decimal_precision,$decimals_separator,$thousands_separator);
-		}
-	else if($discount_percent != ""){
+	}
+	else if($discount_percent != "" AND $discount_percent != "0.00"){
 		//This will be displayed near Discount label 
 		$final_price_discount_percent = "(".number_format($discount_percent,$decimal_precision,$decimals_separator,$thousands_separator)." %)";
 		$price_discount = ($discount_percent*$final_details["hdnSubTotal"])/100;
