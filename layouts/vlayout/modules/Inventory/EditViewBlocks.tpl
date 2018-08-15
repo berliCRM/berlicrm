@@ -13,7 +13,8 @@
 {strip}
 <div class='editViewContainer container-fluid'>
 	<form class="form-horizontal recordEditView" id="EditView" name="EditView" method="post" action="index.php" enctype="multipart/form-data">
-		{assign var=WIDTHTYPE value=$USER_MODEL->get('rowheight')}
+        <input type="hidden" name="mode" value="{$MODE}" />
+ 		{assign var=WIDTHTYPE value=$USER_MODEL->get('rowheight')}
 		{if !empty($PICKIST_DEPENDENCY_DATASOURCE)}
 			<input type="hidden" name="picklistDependency" value='{Vtiger_Util_Helper::toSafeHTML($PICKIST_DEPENDENCY_DATASOURCE)}' />
 		{/if}
@@ -30,6 +31,10 @@
 		{if $RECORD_ID neq ''}
             <div class="span6">
                 <h3 title="{vtranslate('LBL_EDITING', $MODULE)} {vtranslate($SINGLE_MODULE_NAME, $MODULE)} {$RECORD_STRUCTURE_MODEL->getRecordName()}">{vtranslate('LBL_EDITING', $MODULE)} {vtranslate($SINGLE_MODULE_NAME, $MODULE)} - {$RECORD_STRUCTURE_MODEL->getRecordName()}</h3>
+            </div>
+        {else if $IS_DUPLICATE eq 1}
+            <div class="span6">
+                <h3>{vtranslate('LBL_CREATING_FROM_COPY', $MODULE)} {vtranslate($SINGLE_MODULE_NAME, $MODULE)}</h3>
             </div>
         {else}
             <div class="span6">
