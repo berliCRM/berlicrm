@@ -77,6 +77,9 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
             $parent['hdnGrandTotal'] = $updatedParent['hdnGrandTotal'];
             $parent['pre_tax_total'] = $updatedParent['pre_tax_total'];
             $updatedElement = array_merge($updatedElement,$parent);
+			$components = vtws_getIdComponents($element['id']);
+            $parentId = $components[1];
+			$updatedElement['LineItems'] = $handler->getAllLineItemForParent($parentId);
 		} else {
 			$updatedElement = $this->revise($element);
 		}
