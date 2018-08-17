@@ -1480,7 +1480,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 		var idFields = new Array('productName','subproduct_ids','hdnProductId','productDescription',
 							   'comment','qty','listPrice','discount_type','discount_percentage',
 							   'discount_amount','lineItemType','searchIcon','netPrice','subprod_names',
-								'productTotal','discountTotal','totalAfterDiscount','taxTotal','hdnLineitemId');
+								'productTotal','discountTotal','totalAfterDiscount','taxTotal','hdnLineitemId','hdnProductcode');
 
 		var nameFields = new Array('discount');
 		var classFields = new Array('taxPercentage');
