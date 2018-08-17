@@ -33,6 +33,14 @@ class berliWidgets_saveDroppedDocument_Action extends Vtiger_Action_Controller {
 			$response->emit();
 			exit;
 		}
+		if (empty($_FILES)) {
+			$errorMessage = getTranslatedString('LBL_PROBLEM_UPLOAD', $currentModule);
+			$result = array('success'=>false, 'error'=>$errorMessage);
+			$response = new Vtiger_Response();
+			$response->setResult($result);
+			$response->emit();
+			return;
+		}
 		
 		foreach($_FILES as $fileindex => $files) {
 			$fileerror = $files['error'];
