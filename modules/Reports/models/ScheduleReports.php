@@ -192,6 +192,9 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		$vtigerMailer->Subject = $subject;
 		$vtigerMailer->Body = $this->getEmailContent($reportRecordModel);
 		$vtigerMailer->IsHTML();
+		//set sender
+		global $HELPDESK_SUPPORT_EMAIL_ID, $HELPDESK_SUPPORT_NAME;
+		$vtigerMailer->SetFrom($HELPDESK_SUPPORT_EMAIL_ID, $HELPDESK_SUPPORT_NAME);
 
 		$baseFileName = $reportname . '_' . $currentTime;
 
