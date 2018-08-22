@@ -190,11 +190,11 @@
 									<input type="hidden" name="ticketid" value="'.$ticketid.'">
 									<div class="form-group col-sm-12 no-padding">
 										<label class="col-sm-2 control-label no-padding-right">
-											Add Comment
+											'.getTranslatedString('LBL_ADD_COMMENT').'
 										</label>
 										<div class="col-sm-10 dvtCellInfo" align="left" style = "background-color:none;">
 											<textarea name="comments" style = "width:100%;"></textarea><br/><br/>
-											<input class="btn btn-minier btn-success" title="'.getTranslatedString('LBL_SUBMIT').'" accesskey="S" class="small"  name="submit" value="'.getTranslatedString('LBL_SUBMIT').'" style="width: 70px;" type="submit" onclick="this.form.module.value=\'HelpDesk\';this.form.action.value=\'index\';this.form.fun.value=\'updatecomment\'; if(trim(this.form.comments.value) != \'\')	return true; else return false;"/>
+											<input class="btn btn-minier btn-success" title="'.getTranslatedString('LBL_SUBMIT').'" accesskey="S" class="small"  name="submit" value="'.getTranslatedString('LBL_SUBMIT').'" style="width: 100px;" type="submit" onclick="this.form.module.value=\'HelpDesk\';this.form.action.value=\'index\';this.form.fun.value=\'updatecomment\'; if(trim(this.form.comments.value) != \'\')	return true; else return false;"/>
 										</div>
 									</div>
 								</form>
