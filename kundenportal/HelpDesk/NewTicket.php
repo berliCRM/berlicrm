@@ -118,10 +118,10 @@ if($servicename == '#MODULE INACTIVE#' || $serviceid == '#MODULE INACTIVE#'){
 							</div>
 							<div class="box-footer">
 	                            <button title="<?PHP echo getTranslatedString('LBL_SAVE_ALT');?>" accessKey="S" class="btn btn-primary" value="<?PHP echo getTranslatedString('LBL_SAVE');?>" onclick="return formvalidate(this.form)" type="submit" name="button">
-	                            	Submit
+	                            	<?PHP echo getTranslatedString('LBL_SAVE');?>
 	                            </button>
 	                            <button title="<?PHP echo getTranslatedString('LBL_CANCEL_ALT');?>" accessKey="X" class="btn btn-primary" onclick="window.history.back()" type="button" name="button"  value="<?PHP echo getTranslatedString('LBL_CANCEL');?>">
-	                            	Cancel
+	                            	<?PHP echo getTranslatedString('LBL_CANCEL');?>
 	                           	</button>
 							</div>
 						</div>
