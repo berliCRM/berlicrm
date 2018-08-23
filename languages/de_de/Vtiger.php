@@ -672,7 +672,6 @@ $languageStrings = array(
 	'Calendar Hour Format' => 'Stundenformat',
 	//for Services
 	'Service Name'=>'Dienstleistungsname',
-	'Service Name'=>'Dienstleistungsname',
 	'Service Active'=>'aktiv',
 	'Service Category'=>'Kategorie',
 	'Service No'=>'Dienstleistungsnummmer',
@@ -835,6 +834,8 @@ $languageStrings = array(
 	'LBL_PROBLEM_UPLOAD'=>'Es gab beim Hochladen der Datei ein Problem! Bitte noch einmal versuchen.',
 	
 	'LBL_APPROVE' => 'Ansicht freischalten',
+
+	'Inventory' => 'Bestand',
 
 
 );
@@ -1047,6 +1048,11 @@ $jsLanguageStrings = array(
 	'JS_FILE_DROP' => 'Drop',
 	'JS_FILE_UPLOAD' => 'Uploading ..',
 	'JS_UPLOAD_ERROR' => 'Upload Fehler',
+
+	//crm-now: added for MailManager notification
+	'JS_NEW_INFO' => 'Neue Nachrichten!',
+	'JS_MM_TITLE' => 'Neue Emails',
+	'JS_MM_TEXT' => 'Sie haben %d neue %s erhalten',
 	
 );
 ?>
