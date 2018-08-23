@@ -653,6 +653,38 @@ $languageStrings = array(
     
         'LBL_LEFT_PANEL_SHOW_HIDE' => 'Left panel show/hide',
  	
+	//labels not available in en_us file
+	'Planned' => 'Planned',
+	'Not Held' => 'Not Held',
+	'Created By' => 'Created By',  
+	'Public: Read Only' => 'Public: Read Only',
+	'Public: Read, Create/Edit' => 'Public: Read, Create/Edit',
+	'Public: Read, Create/Edit, Delete' => 'Public: Read, Create/Edit, Delete',
+	'Private' => 'Private',
+	'ToDo' => 'ToDo',
+	'Scheduler' => 'Scheduler',
+	'Starting Day of the week' => 'Starting Day of the week',
+	'Day starts at' => 'Day starts at',
+	'Time Zone' => 'Time Zone',
+	'Default Activity View'=> 'Default Activity View',
+	'Date Format' => 'Datumsformat',
+	'Calendar Hour Format' => 'Calendar Hour Format',
+	//for Services
+	'Service Name'=>'Service Name',
+	'Service Active'=>'Service Active',
+	'Service Category'=>'Service Category',
+	'Service No'=>'Service No',
+	'Owner'=>'Owner',
+	'No of Units'=>'No of Units',
+	'Commission Rate'=>'Commission Rate',
+	'Price'=>'Price',
+	'Usage Unit'=>'Usage Unit',
+	'Tax Class'=>'Tax Class',
+	'Website'=>'Website',
+	'Quick Create'=>'Quick Create',
+	'CustomerPortal'=>'CustomerPortal',
+	'Faq'=>'Faq',
+
 	//added for outgoing mail server
 	'LBL_CONFIRM_SUBJECT'=>'email server setup confirmation',
 	'LBL_CONFIRM_BODY'=>'This is an automatic message from your CRM System. <br>It confirms the connectivity between your mail server and the CRM.<br>',
@@ -798,6 +830,9 @@ $languageStrings = array(
 	'LBL_PROBLEM_UPLOAD'=>'There was a problem uploading the file! Please try again.',
 	
 	'LBL_APPROVE' => 'enable view',
+
+	'Inventory' => 'Bestand',
+
 
 );
 
@@ -976,6 +1011,16 @@ $jsLanguageStrings = array(
 	'JS_PASSWORD_OK'=>'The password has been changed.',
 	'JS_INCORRECTPW' => 'Your password does not match the rules!',
 	
+	//translate picklist in widgets
+	'Closed Lost'=>'Closed Lost',
+	'Closed Won'=>'Closed Won',
+	'Needs Analysis'=>'Needs Analysis',
+	'Negotiation or Review'=>'Negotiation or Review',
+	'Proposal or Price Quote'=>'Proposal or Price Quote',
+	'Prospecting'=>'Prospecting',
+	'Qualification'=>'Qualification',
+	'Id. Decision Makers'=>'Id. Decision Makers',
+	
 	'LBL_SUCCESS' => 'exercised successfully',
 
 	//crm-now: added for duplicate removal in List View
@@ -998,5 +1043,10 @@ $jsLanguageStrings = array(
 	'JS_FILE_DROP' => 'drop',
 	'JS_FILE_UPLOAD' => 'Uploading ..',
 	'JS_UPLOAD_ERROR' => 'Upload Error',
+
+	//crm-now: added for MailManager notification
+	'JS_NEW_INFO' => 'New Info!',
+	'JS_MM_TITLE' => 'New mails',
+	'JS_MM_TEXT' => 'You received %d new %s',
 	
 );
