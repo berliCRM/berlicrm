@@ -192,7 +192,7 @@ function setMailerProperties($mail,$subject,$contents,$from_email,$from_name,$to
 	//Added back as we have changed php mailer library, older library was using html_entity_decode before sending mail
 	$mail->Body = decode_html($contents);
 	//$mail->Body = html_entity_decode(nl2br($contents));	//if we get html tags in mail then we will use this line
-	$mail->AltBody = strip_tags(preg_replace(array("/<p>/i","/<br>/i","/<br \/>/i"),array("\n","\n","\n"),$contents));
+	$mail->AltBody = decode_html(strip_tags(preg_replace(array("/<p>/i","/<br>/i","/<br \/>/i"),array("\n","\n","\n"),$contents)));
 
 	$mail->IsSMTP();		//set mailer to use SMTP
 	//$mail->Host = "smtp1.example.com;smtp2.example.com";  // specify main and backup server
