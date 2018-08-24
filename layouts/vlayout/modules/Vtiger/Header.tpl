@@ -16,8 +16,8 @@
 		<title>
 			{vtranslate($PAGETITLE, $MODULE_NAME)}
 		</title>
-		<link REL="SHORTCUT ICON" HREF="layouts/vlayout/skins/images/favicon.ico">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link id="favicon" REL="SHORTCUT ICON" HREF="layouts/vlayout/skins/images/favicon.ico">
+		<meta name="viewport" content="width=device-width, initial-scale=0.7">
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<link rel="stylesheet" href="libraries/jquery/chosen/chosen.css" media="screen">
 		<link rel="stylesheet" href="libraries/jquery/jquery-ui/css/custom-theme/jquery-ui-1.8.16.custom.css" media="screen">
