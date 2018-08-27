@@ -349,7 +349,7 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 						}
 						
 						if ($remotecontact->active == true && $_SESSION["clvrreach"]["localcontacts"][$remotecontact->email]["emailoptout"] > 0 ) {
-							if ($verbose) $msg .= getTranslatedString('LBL_VERBOSELOG_OPTEDOUT','berliCleverReach');
+							if ($verbose) $msg .= getTranslatedString('LBL_VERBOSELOG_OPTOUT','berliCleverReach');
 							$upd=1;
 						}
 
