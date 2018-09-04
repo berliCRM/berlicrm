@@ -264,7 +264,7 @@ function getAssociatedProducts($module,$focus,$seid='')
 		$product_Detail[$i]['listPrice'.$i]=$listprice;
 		$product_Detail[$i]['unitPrice'.$i]=number_format($unitprice, $no_of_decimal_places,'.','');
 		$product_Detail[$i]['usageunit'.$i]= from_html($usageunit);
-		$product_Detail[$i]['productTotal'.$i]=$productTotal;
+		$product_Detail[$i]['productTotal'.$i]=number_format($productTotal, $no_of_decimal_places,'.','');
 		$product_Detail[$i]['subproduct_ids'.$i]=$subprodid_str;
 		$product_Detail[$i]['subprod_names'.$i]=$subprodname_str;
 		$discount_percent = decimalFormat($adb->query_result($result,$i-1,'discount_percent'));
@@ -318,7 +318,7 @@ function getAssociatedProducts($module,$focus,$seid='')
 				$netPrice = $netPrice+$taxTotal;
 			}
 		}
-		$product_Detail[$i]['netPrice'.$i] = $netPrice;
+		$product_Detail[$i]['netPrice'.$i] = number_format($netPrice, $no_of_decimal_places,'.','');
 
 		//First we will get all associated taxes as array
 		$tax_details = getTaxDetailsForProduct($hdnProductId,'all');
