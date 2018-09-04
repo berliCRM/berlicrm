@@ -259,7 +259,8 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 	 * @return : current instance;
 	 */
 	setLineItemTotal : function(lineItemRow, lineItemTotalValue) {
-		jQuery('.productTotal', lineItemRow).text(lineItemTotalValue);
+        var numberOfDecimal = parseInt(jQuery('.numberOfCurrencyDecimal').val());
+		jQuery('.productTotal', lineItemRow).text(parseFloat(lineItemTotalValue).toFixed(numberOfDecimal));
 		return this;
 	},
 
@@ -288,7 +289,8 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 	 * @return : current instance;
 	 */
 	setDiscountTotal : function(lineItemRow, discountValue) {
-		jQuery('.discountTotal',lineItemRow).text(discountValue);
+        var numberOfDecimal = parseInt(jQuery('.numberOfCurrencyDecimal').val());
+		jQuery('.discountTotal',lineItemRow).text(parseFloat(discountValue).toFixed(numberOfDecimal));
 		return this;
 	},
 
@@ -308,7 +310,8 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 	 * @return : current instance;
 	 */
 	setTotalAfterDiscount : function(lineItemRow, totalAfterDiscountValue){
-		jQuery('.totalAfterDiscount',lineItemRow).text(totalAfterDiscountValue);
+        var numberOfDecimal = parseInt(jQuery('.numberOfCurrencyDecimal').val());
+		jQuery('.totalAfterDiscount',lineItemRow).text(parseFloat(totalAfterDiscountValue).toFixed(numberOfDecimal));
 		return this;
 	},
 
@@ -362,7 +365,8 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 	},
 
 	setNetTotal : function(netTotalValue){
-		jQuery('#netTotal').text(netTotalValue);
+        var numberOfDecimal = parseInt(jQuery('.numberOfCurrencyDecimal').val());
+		jQuery('#netTotal').text(parseFloat(netTotalValue).toFixed(numberOfDecimal));
 		return this;
 	},
 
@@ -383,7 +387,8 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 	},
 
 	setGroupTaxTotal : function(groupTaxTotalValue) {
-		jQuery('#tax_final').text(groupTaxTotalValue);
+        var numberOfDecimal = parseInt(jQuery('.numberOfCurrencyDecimal').val());
+		jQuery('#tax_final').text(parseFloat(groupTaxTotalValue).toFixed(numberOfDecimal));
 	},
 
 	getGroupTaxTotal : function() {
