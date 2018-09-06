@@ -183,11 +183,12 @@ jQuery.Class("Vtiger_Edit_Js",{
 
 		var selectedName = params.name;
 		var id = params.id;
+        var oldval = fieldElement.val();
         // trigger change event on input
-        if (fieldElement.val() != id) {
+        fieldElement.val(id);
+        if (oldval != id) {
             jQuery(fieldElement).trigger("change");
         }
-		fieldElement.val(id);
 		fieldDisplayElement.val(selectedName).attr('readonly',true);
 		fieldElement.trigger(Vtiger_Edit_Js.referenceSelectionEvent, {'source_module' : popupReferenceModule, 'record' : id, 'selectedName' : selectedName});
 
