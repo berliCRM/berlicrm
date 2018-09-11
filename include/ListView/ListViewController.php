@@ -318,6 +318,8 @@ class ListViewController {
 						$userModel = Users_Privileges_Model::getCurrentUserModel();
 						if($userModel->get('hour_format') == '12'){
 							$value = Vtiger_Time_UIType::getTimeValueInAMorPM($value);
+						} else {
+							$value = Vtiger_Time_UIType::getDisplayTimeValue($value);
 						}
 					}
 				} elseif($field->getFieldDataType() == 'currency') {
