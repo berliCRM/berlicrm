@@ -1284,7 +1284,7 @@ class QueryGenerator {
 		if(is_string($value)) {
 			$value = trim($value);
 		} elseif(is_array($value)) {
-			$value = array_map(trim, $value);
+			$value = array_map('trim', $value);
 		}
 		return array('name'=>$fieldname,'value'=>$value,'operator'=>$operator);
 	}
@@ -1400,7 +1400,7 @@ class QueryGenerator {
 			if(isset($input['search_text']) && $input['search_text']!="") {
 				// search other characters like "|, ?, ?" by jagi
 				$value = $input['search_text'];
-				$stringConvert = function_exists(iconv) ? @iconv("UTF-8",$default_charset,$value)
+				$stringConvert = function_exists("iconv") ? @iconv("UTF-8",$default_charset,$value)
 						: $value;
 				if(!$this->isStringType($type)) {
 					$value=trim($stringConvert);
