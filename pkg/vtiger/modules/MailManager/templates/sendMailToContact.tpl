@@ -27,20 +27,14 @@
 						<form name="ContactSearch">
 							<input id="searchcontactid" name="searchcontactid" value="" type="hidden">
 							<div class="ui-widget">
-								<table width="650px">
-									<tr>
-										<td width="100%">
-											<input id="searchlastname" class="detailedViewTextBox" value="" onfocus="this.className='detailedViewTextBoxOn'" onblur="this.className='detailedViewTextBox'" type="text">
-										</td>
-									</tr>
-								</table>
+                                <input id="searchlastname" class="detailedViewTextBox" value="" onfocus="this.className='detailedViewTextBoxOn'" onblur="this.className='detailedViewTextBox'" type="text">
 							</div>
 						</form>
 					</div>
 					<div class="small" style="padding:10px">
 						<p>{vtranslate('LBL_SHOW_LASTNAME','MailManager')}</p>
 						<form name="ContactOptions" id="ContactOptions">
-							<select id="selectedcontact" class="contactdrop" multiple="multiple" size="15" style="width:650px">
+							<select id="selectedcontact" class="contactdrop" size="15" style="width:650px;line-height:18px">
 							{foreach item=contactdata key=contactid from=$CONTACTS}
 								<option value="{$contactid}">{$contactdata.lastname}, {$contactdata.firstname}, {$contactdata.email}, {$contactdata.contact_no}</option>		
 							{/foreach}

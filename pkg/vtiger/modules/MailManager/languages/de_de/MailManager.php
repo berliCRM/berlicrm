@@ -107,8 +107,8 @@ $languageStrings = Array (
 	//added for adding email to any contact
 	'LBL_COPY_MAIL_TO_OTHER' => 'wähle Person',
 	'LBL_HEADLINE_CONTACTSEL2' => 'Person auswählen bei welcher die E-Mail gespeichert werden soll',
-	'LBL_SEARCH_LASTNAME' => 'Hier können Sie einen Suchbegriff (Nachname) eingeben:',
-	'LBL_SHOW_LASTNAME' => 'Hier können Sie einen Nachnamen auswählen:',
+	'LBL_SEARCH_LASTNAME' => 'Hier können Sie einen Suchbegriff (Nachname, Vorname, Email, Personen Nr.) eingeben:',
+	'LBL_SHOW_LASTNAME' => 'Hier können Sie einen Kontakt auswählen:',
 	'LBL_SAVE_EMAIL' => 'E-Mail bei der Person speichern',
 
 );

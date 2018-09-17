@@ -875,18 +875,22 @@ if (typeof(MailManager) == 'undefined') {
 						jQuery("#selectedcontact").attr('selectedIndex', '-1').children("option:selected").removeAttr("selected");
 						//no search
 						if(jQuery(this).val() === "") {
-							jQuery(".contactdrop option").show();
+							jQuery(".contactdrop option").css("display","block");
 							jQuery(".contactdrop option").removeAttr('disabled');
 						} else {
 							//search
-							var filter = jQuery(this).val();
-							jQuery(".contactdrop option:contains('" + filter + "')").show();
-							//the following applies to IE because hide() does not work
-							jQuery(".contactdrop option:contains('" + filter + "')").removeAttr('disabled');
-							jQuery(".contactdrop option:contains('" + filter + "')").attr('background-color','Green');
-							//the following applies to IE because hide() does not work
-							jQuery(".contactdrop option:not(:contains('" + filter + "'))").attr('disabled','disabled');
-							jQuery(".contactdrop option:not(:contains('" + filter + "'))").hide();
+							var filter = jQuery(this).val().toLowerCase();
+                            // loop through select option text for case-insensitive substring search, with css workaround (not using .hide/.show) for IE/Edge 
+                            jQuery(".contactdrop option").each(function(i,v) {
+                                if (jQuery(v).text().toLowerCase().indexOf(filter)>=0) {
+                                    jQuery(v).css("display","block");
+                                    jQuery(v).removeAttr('disabled');
+                                }
+                                else {
+                                    jQuery(v).css("display","none");
+                                    jQuery(v).attr('disabled', 'disabled');
+                                }
+                            });
 						}
 						//test whether there are still trees in list
 						var optionsArr = jQuery("select.contactdrop").map(function() {
@@ -894,7 +898,7 @@ if (typeof(MailManager) == 'undefined') {
 							 }).toArray();
 						if (optionsArr == 0) {
 								var s= document.getElementById('selectedcontact');
-								s.options[s.options.length]= new Option('Suche erfolglos ...', '0');
+								s.options[s.options.length]= new Option(app.vtranslate('JSLBL_Nothing_Found'), '0');
 						}
 						else {
 							jQuery(".contactdrop option[value='0']").remove();
