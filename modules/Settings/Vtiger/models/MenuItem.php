@@ -120,7 +120,7 @@ class Settings_Vtiger_MenuItem_Model extends Vtiger_Base_Model {
         $query_str = parse_url(htmlspecialchars_decode($url), PHP_URL_QUERY);
         parse_str($query_str, $query_params);
 
-        if ($query_params[parent]) {
+        if ($query_params['parent']) {
             return ("$query_params[parent]:$query_params[module]");
         }
 

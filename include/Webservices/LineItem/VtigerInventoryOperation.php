@@ -44,6 +44,8 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
             $components = vtws_getIdComponents($element['id']);
             $parentId = $components[1]; 
             $parent['LineItems'] = $handler->getAllLineItemForParent($parentId);
+
+            $this->executeDelayedTriggers();
             
 		} else {
 			throw new WebServiceException(WebServiceErrorCode::$MANDFIELDSMISSING, "Mandatory Fields Missing: LineItems");
@@ -77,11 +79,26 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
             $parent['hdnGrandTotal'] = $updatedParent['hdnGrandTotal'];
             $parent['pre_tax_total'] = $updatedParent['pre_tax_total'];
             $updatedElement = array_merge($updatedElement,$parent);
+			$components = vtws_getIdComponents($element['id']);
+            $parentId = $components[1];
+			$updatedElement['LineItems'] = $handler->getAllLineItemForParent($parentId);
+
+            $this->executeDelayedTriggers();
+
 		} else {
 			$updatedElement = $this->revise($element);
 		}
 		return $updatedElement;
 	}
+
+    private function executeDelayedTriggers() {
+            // execute delayed triggers after lineitems have been saved
+            if (is_array($_SESSION["delayedtrigger"])) {
+                    $_SESSION["delayedtrigger"]["em"]->triggerEvent("vtiger.entity.aftersave", $_SESSION["delayedtrigger"]["data"]);
+                    $_SESSION["delayedtrigger"]["em"]->triggerEvent("vtiger.entity.aftersave.final", $_SESSION["delayedtrigger"]["data"]);
+                unset($_SESSION["delayedtrigger"]);
+            }
+    }
 
 	public function revise($element) {
 		$element = $this->sanitizeInventoryForInsert($element);
@@ -114,7 +131,10 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
 			$parent['hdnGrandTotal'] = $updatedParent['hdnGrandTotal'];
 			$parent['pre_tax_total'] = $updatedParent['pre_tax_total'];
 			$parent['LineItems'] = $handler->getAllLineItemForParent($parentId);
-		} else {
+
+            $this->executeDelayedTriggers();
+		} 
+        else {
 			$prevAction = $_REQUEST['action'];
 			// This is added as we are passing data in user format, so in the crmentity insertIntoEntity API
 			// should convert to database format, we have added a check based on the action name there. But 

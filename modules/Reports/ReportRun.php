@@ -303,7 +303,7 @@ class ReportRun extends CRMEntity
 			$inventory_fields = array('serviceid');
 			$inventory_modules = getInventoryModules();
 			require('user_privileges/user_privileges_'.$current_user->id.'.php');
-			if(sizeof($permitted_fields[$module]) == 0 && $is_admin == false && $profileGlobalPermission[1] == 1 && $profileGlobalPermission[2] == 1)
+			if(empty($permitted_fields[$module]) && $is_admin == false && $profileGlobalPermission[1] == 1 && $profileGlobalPermission[2] == 1)
 			{
 				$permitted_fields[$module] = $this->getaccesfield($module);
 			}
@@ -315,7 +315,9 @@ class ReportRun extends CRMEntity
 				}
 			}
 			$selectedfields = explode(":",$fieldcolname);
-			if (in_array('listprice', $permitted_fields[$module])) $permitted_fields[$module][] = 'realprice';
+			if (is_array ($permitted_fields[$module]) AND in_array('listprice', $permitted_fields[$module])) { 
+				$permitted_fields[$module][] = 'realprice';
+			}
 			if($is_admin == false && $profileGlobalPermission[1] == 1 && $profileGlobalPermission[2] == 1
 					&& !in_array($selectedfields[3], $permitted_fields[$module])) {
 				//user has no access to this field, skip it.
@@ -3219,6 +3221,14 @@ class ReportRun extends CRMEntity
 
 			$sSQL = $this->sGetSQLforReport($this->reportid,$filtersql,$outputformat,false,$startLimit,$endLimit);
 			$result = $adb->pquery($sSQL,array());
+			
+			if (!$result) {
+				$rSQL = str_ireplace('INNER JOIN', '<br>INNER JOIN', $sSQL);
+				$rSQL = str_ireplace('WHERE', '<br>WHERE', $sSQL);
+				echo '<div style="color:red;">'.$rSQL.'<br><br>'.$adb->database->errorMsg().'</div>';
+				return;
+			}
+			
 			if($is_admin==false && $profileGlobalPermission[1] == 1 && $profileGlobalPermission[2] == 1)
                 $picklistarray = $this->getAccessPickListValues();
 
@@ -4268,7 +4278,7 @@ class ReportRun extends CRMEntity
 
 	function writeReportToExcelFile($fileName, $filterlist='') {
 
-		global $currentModule, $current_language;
+		global $currentModule, $current_language, $current_user;
 		$mod_strings = return_module_language($current_language, $currentModule);
 
 		require_once("libraries/PHPExcel/PHPExcel.php");
@@ -4301,6 +4311,14 @@ class ReportRun extends CRMEntity
 
 				$count = $count + 1;
 			}
+			
+			$currencyId = (isset($current_user)) ? $current_user->currency_id : 1;
+			$currencyRateAndSymbol = getCurrencySymbolandCRate($currencyId);
+			$currencySymbol = $currencyRateAndSymbol['symbol'];
+			$currencySymbolPlacement = (isset($current_user)) ? $current_user->currency_symbol_placement : '$';
+			$currencyFormat = '#,##0.00_-';
+			$tmpCurrencySymbol = '"'.$currencySymbol.'"';
+			$currencyFormat = (strpos($currencySymbolPlacement, '$') === 0) ? $tmpCurrencySymbol.$currencyFormat : $currencyFormat.$tmpCurrencySymbol;
 
 			$rowcount++;
 			foreach($arr_val as $key=>$array_value) {
@@ -4325,8 +4343,10 @@ class ReportRun extends CRMEntity
 						$worksheet->getStyleByColumnAndRow($count, $rowcount)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_XLSX14);
 					} elseif ($type == 'double' || $type == 'currency') {
 						//double is currently not in userformat
+						if (isset($currencySymbol)) $value = str_replace($currencySymbol, '', html_entity_decode($value));
 						$value = ($type == 'currency') ? CurrencyField::convertToDBFormat($value, null, true) : $value;
 						$worksheet->setCellValueByColumnAndRow($count, $rowcount, $value, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+						if ($type == 'currency') $worksheet->getStyleByColumnAndRow($count, $rowcount)->getNumberFormat()->setFormatCode($currencyFormat);
 					} else {
 						$worksheet->setCellValueExplicitByColumnAndRow($count, $rowcount, $value, PHPExcel_Cell_DataType::TYPE_STRING);
 					}

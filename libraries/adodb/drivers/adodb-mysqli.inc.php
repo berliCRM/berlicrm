@@ -779,20 +779,29 @@ class ADODB_mysqli extends ADOConnection {
 		*/
 
 		if ($this->multiQuery) {
-			$rs = mysqli_multi_query($this->_connectionID, $sql.';');
-			if ($rs) {
-				$rs = ($ADODB_COUNTRECS) ? @mysqli_store_result( $this->_connectionID ) : @mysqli_use_result( $this->_connectionID );
-				return $rs ? $rs : true; // mysqli_more_results( $this->_connectionID )
+			//crm-now: improved multi_query handling
+			if (mysqli_multi_query($this->_connectionID, $sql.';')) {
+				$i = 0;
+				$rs = array();
+				do {
+					$rs[] = mysqli_store_result($this->_connectionID);
+					$i++;
+				} while (mysqli_next_result($this->_connectionID));
+				if (!mysqli_errno($this->_connectionID)) {
+					return $rs;
+				}
 			}
 		} else {
 			$rs = mysqli_query($this->_connectionID, $sql, $ADODB_COUNTRECS ? MYSQLI_STORE_RESULT : MYSQLI_USE_RESULT);
 
 			if ($rs) return $rs;
 		}
-
+		//crm-now: explode needs to be replaced by preg_split() that doesn't take comment lines and values inside '' into account
+		if ($this->multiQuery) $sql = explode(';', $sql)[$i];
 		if($this->debug)
 			ADOConnection::outp("Query: " . $sql . " failed. " . $this->ErrorMsg());
-
+		$this->_failedQuery = $sql;
+		
 		return false;
 
 	}

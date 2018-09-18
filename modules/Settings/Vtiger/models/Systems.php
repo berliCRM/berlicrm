@@ -21,7 +21,7 @@ class Settings_Vtiger_Systems_Model extends Vtiger_Base_Model{
         return ($smtp_auth_value == 'on' || $smtp_auth_value == 1 || $smtp_auth_value == 'true') ? true : false;
     }
 
-    public function save() {
+    public function save($request) {
         $db = PearDatabase::getInstance();
 
         $id = $this->getId();
