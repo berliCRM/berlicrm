@@ -83,7 +83,7 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
             $parentId = $components[1];
 			$updatedElement['LineItems'] = $handler->getAllLineItemForParent($parentId);
 
-            $this->executeDelayedTriggers();
+      $this->executeDelayedTriggers();
 
 		} else {
 			$updatedElement = $this->revise($element);

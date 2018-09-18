@@ -105,6 +105,7 @@ class Install_InitSchema_Model {
 	 * Function creates default user's Role, Profiles
 	 */
 	public static function createDefaultUsersAccess() {
+		global $adb;
       	$adb = PearDatabase::getInstance();
         $roleId1 = $adb->getUniqueID("vtiger_role");
 		$roleId2 = $adb->getUniqueID("vtiger_role");
@@ -815,6 +816,7 @@ class Install_InitSchema_Model {
 	}
 	
 	public static function createUser() {
+		global $adb;
 		$path = Install_Utils_Model::INSTALL_LOG;
 		$fh = fopen($path, 'a+');
 		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Get AdoDB instance and new Users object\n");
@@ -880,6 +882,7 @@ class Install_InitSchema_Model {
 	 * Function add necessary schema for event handlers and workflows, also add defaul workflows
 	 */
 	public static function installDefaultEventsAndWorkflows() {
+		global $adb;
 		$adb = PearDatabase::getInstance();
 
 		// Register All the Events
@@ -1333,6 +1336,7 @@ class Install_InitSchema_Model {
 	
 	//crm-now: modifications to DB during install
 	public static function setCRMNOWmodifications() {
+		global $adb;
 		$path = Install_Utils_Model::INSTALL_LOG;
 		$fh = fopen($path, 'a+');
 		fwrite($fh, "[".date('Y-m-d h:i:s')."] Include Webservice Utils, get AdoDB instance\n");
