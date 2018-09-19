@@ -1200,6 +1200,7 @@ function AddClndr($username,$session,$clndrdtls)
 			$clndr->column_fields[activitytype]="Meeting";
 			$clndr->column_fields[assigned_user_id]= in_array('assigned_user_id',$permitted_lists) ? $user_id : "";
 			$clndr->column_fields[eventstatus]="Planned";
+			$clndr->column_fields['visibility']= 'Private';
 			$clndr->save("Calendar");
 		}
 	}
@@ -1268,6 +1269,7 @@ function UpdateClndr($username,$session,$clndrdtls)
 			$clndr->column_fields[location]= in_array('location',$permitted_lists) ? $clndrow["location"] : "";
 			$clndr->column_fields[description]= in_array('description',$permitted_lists) ? $clndrow["description"] : "";
 			$clndr->column_fields[activitytype]="Meeting";
+			$clndr->column_fields['visibility']= 'Private';
 			//$clndr->column_fields[assigned_user_id]= in_array('assigned_user_id',$permitted_lists) ? $user_id : "";
 			$clndr->id = $clndrow["id"];
 			$clndr->mode="edit";
