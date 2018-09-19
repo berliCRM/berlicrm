@@ -98,7 +98,7 @@
                             {/if}
                             <td class="fieldLabel {$WIDTHTYPE}">
 							{if $FIELD_MODEL->get('helpinfo') && {$FIELD_MODEL->get('helpinfo')|trim} neq '' }
-								<i style="margin:2px 0 0 2px;" class="icon-info-sign pull-right" rel="popover" title="{vtranslate('LBL_HELP', $MODULE)}" data-placement="top" data-trigger="hover" data-content="{vtranslate($FIELD_MODEL->get('helpinfo'), $MODULE)|replace:'"':'&quot;'}"></i>
+								<i style="margin:2px 0 0 2px;" class="icon-info-sign pull-right" rel="popover" title="{vtranslate('LBL_HELP', $MODULE)}" data-placement="top" data-trigger="hover" data-content="{vtranslate($FIELD_MODEL->get('helpinfo'), $MODULE)|escape:'html'}"></i>
                             {/if}
                             {if $isReferenceField neq "reference"}<label class="muted pull-right marginRight10px">{/if}
                             {if $FIELD_MODEL->isMandatory() eq true && $isReferenceField neq "reference"} <span class="redColor">*</span> {/if}

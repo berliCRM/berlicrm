@@ -1049,4 +1049,6 @@ $jsLanguageStrings = array(
 	'JS_MM_TITLE' => 'New mails',
 	'JS_MM_TEXT' => 'You received %d new %s',
 	
+	'SINGLE_Vendors' => 'Lieferant',
+	
 );

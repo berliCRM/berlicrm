@@ -72,6 +72,6 @@ class Settings_Vtiger_OutgoingServer_Model extends Settings_Vtiger_Systems_Model
         if($mail_status != 1 && !$this->isDefaultSettingLoaded()) {
             throw new Exception('Error occurred while sending mail');
         } 
-        return parent::save();
+        return parent::save($request);
     }
 }

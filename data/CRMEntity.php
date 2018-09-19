@@ -829,28 +829,38 @@ class CRMEntity {
 
 		//In Bulk mode stop triggering events
 		if(!self::isBulkSaveMode()) {
-		$em = new VTEventsManager($adb);
-		// Initialize Event trigger cache
-		$em->initTriggerCache();
-		$entityData = VTEntityData::fromCRMEntity($this);
+			$em = new VTEventsManager($adb);
+			// Initialize Event trigger cache
+			$em->initTriggerCache();
+			$entityData = VTEntityData::fromCRMEntity($this);
 
-		$em->triggerEvent("vtiger.entity.beforesave.modifiable", $entityData);
-		$em->triggerEvent("vtiger.entity.beforesave", $entityData);
-		$em->triggerEvent("vtiger.entity.beforesave.final", $entityData);
+			$em->triggerEvent("vtiger.entity.beforesave.modifiable", $entityData);
+			$em->triggerEvent("vtiger.entity.beforesave", $entityData);
+			$em->triggerEvent("vtiger.entity.beforesave.final", $entityData);
 		}
 		//Event triggering code ends
 
 		//GS Save entity being called with the modulename as parameter
 		$this->saveentity($module_name, $fileid);
 
+        if($em) {
+            // delay after save events if triggered by webservice operation on Inventory modules because lineitems won't exist at this point
+            // cache $entityData NOW or, probably better yet, fetch again later? 
+            // delayed triggering is in include\Webservices\LineItem\VtigerInventoryOperation.php line 85 after lineitems got written
+			
+			$q = "SELECT id FROM vtiger_ws_entity WHERE handler_class = 'VtigerInventoryOperation' AND name = ?";
+			$res = $adb->pquery($q,array($entityData->getModuleName()));
 
-		if($em) {
-		//Event triggering code
-		$em->triggerEvent("vtiger.entity.aftersave", $entityData);
-		$em->triggerEvent("vtiger.entity.aftersave.final", $entityData);
-		//Event triggering code ends
-	}
-
+            if ($res && $adb->num_rows($res) > 0 && isset($_REQUEST["operation"]) && ($_REQUEST["operation"] == "create" || $_REQUEST["operation"] == "update" || $_REQUEST["operation"] == "revise")) {
+				$_SESSION["delayedtrigger"] = array("em" => $em, "data" => $entityData);
+            }
+            else {
+                //Event triggering code
+                $em->triggerEvent("vtiger.entity.aftersave", $entityData);
+                $em->triggerEvent("vtiger.entity.aftersave.final", $entityData);
+                //Event triggering code ends
+            }
+        }
 	}
 
 	function process_list_query($query, $row_offset, $limit = -1, $max_per_page = -1) {

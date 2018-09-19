@@ -15,7 +15,7 @@
 
 		static $types = array();
 		if(!empty($fieldTypeList)) {
-			$fieldTypeList = array_map(strtolower, $fieldTypeList);
+			$fieldTypeList = array_map('strtolower', $fieldTypeList);
 			sort($fieldTypeList);
 			$fieldTypeString = implode(',', $fieldTypeList);
 		} else {

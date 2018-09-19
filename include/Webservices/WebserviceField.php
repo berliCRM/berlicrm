@@ -26,6 +26,7 @@ class WebserviceField{
 	private $massEditable;
 	private $tabid;
 	private $presence;
+	private $maxlength;
 	/**
 	 *
 	 * @var PearDatabase
@@ -176,6 +177,11 @@ class WebserviceField{
 		$this->nullable = $nullable;
 	}
 
+
+	private function setMaxlength($maxlength){
+		$this->maxlength = $maxlength;
+	}
+
 	public function setDefault($value){
 		$this->default = $value;
 		$this->explicitDefaultValue = true;
@@ -209,6 +215,7 @@ class WebserviceField{
 		foreach ($tableFields as $fieldName => $dbField) {
 			if(strcmp($fieldName,$this->getColumnName())===0){
 				$this->setNullable(!$dbField->not_null);
+				$this->setMaxlength($dbField->max_length);
 				if($dbField->has_default === true && !$this->explicitDefaultValue){
 					$this->defaultValuePresent = $dbField->has_default;
 					$this->setDefault($dbField->default_value);
@@ -398,6 +405,13 @@ class WebserviceField{
 
 	function getPresence() {
 		return $this->presence;
+	}
+	
+	public function getMaxLength(){
+		if($this->dataFromMeta !== true){
+			$this->fillColumnMeta();
+		}
+		return $this->maxlength;
 	}
 
 }
