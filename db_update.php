@@ -14,7 +14,7 @@ $query = "UPDATE vtiger_field SET uitype = '2' WHERE columnname = 'lastname'";
 $adb->pquery($query, array());
 echo " done";
 
-echo "<br>update Tag version to 9.. ";
-$query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.9'";
+echo "<br>update Tag version to 10.. ";
+$query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.10'";
 $adb->pquery($query, array());
 echo " Tag version done.<br>";
