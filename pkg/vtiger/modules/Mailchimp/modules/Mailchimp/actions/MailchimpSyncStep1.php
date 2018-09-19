@@ -156,7 +156,7 @@ class Mailchimp_MailchimpSyncStep1_Action extends Mailchimp_MailChimpStepControl
 					vtiger_leaddetails.firstname, 
 					vtiger_leaddetails.lastname
 					FROM vtiger_leaddetails
-					INNER JOIN vtiger_crmentityrel on vtiger_crmentityrel.relcrmid = vtiger_leaddetails.leadid
+					INNER JOIN vtiger_crmentityrel on vtiger_crmentityrel.crmid = vtiger_leaddetails.leadid
 					INNER JOIN vtiger_crmentity on vtiger_crmentity.crmid = vtiger_leaddetails.leadid
 					WHERE vtiger_crmentityrel.relcrmid = '.self::$recordid.' 
 					AND converted <> 1

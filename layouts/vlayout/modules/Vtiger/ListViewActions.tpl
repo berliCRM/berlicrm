@@ -44,7 +44,7 @@
 				</span>	
 			</div>
         {/if}
-	{if $LISTVIEW_LINKS['LISTVIEWSETTING']|@count gt 0}
+	{if $LISTVIEW_LINKS['LISTVIEWSETTING']|is_array && $LISTVIEW_LINKS['LISTVIEWSETTING']|@count gt 0}
 		<div class="settingsIcon">
 			<span class="pull-right btn-group">
 				<button class="btn dropdown-toggle" href="#" data-toggle="dropdown"><i class="icon-wrench" alt="{vtranslate('LBL_SETTINGS', $MODULE)}" title="{vtranslate('LBL_SETTINGS', $MODULE)}"></i>&nbsp;&nbsp;<i class="caret"></i></button>

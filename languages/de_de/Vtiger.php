@@ -963,7 +963,7 @@ $jsLanguageStrings = array(
 	'LBL_NO' => 'nein',
 	'LBL_YES' => 'ja',
 	'NONE_OF_THE_FIELD_VALUES_ARE_CHANGED_IN_MASS_EDIT' => 'Die Massenbearbeitung hat nichts verändert',
-	'OVERWRITE_EXISTING_MSG1' => 'Überschreibe die Adresse mit den ausgewählten ',
+	'OVERWRITE_EXISTING_MSG1' => 'Überschreibe die Adresse mit ',
 	'OVERWRITE_EXISTING_MSG2' => 'Adressdetails?',
 	'PM' => 'PM',
 	'SHOULD_BE_LESS_THAN_TODAY' => 'muss vor heute liegen',
@@ -1053,6 +1053,8 @@ $jsLanguageStrings = array(
 	'JS_NEW_INFO' => 'Neue Nachrichten!',
 	'JS_MM_TITLE' => 'Neue Emails',
 	'JS_MM_TEXT' => 'Sie haben %d neue %s erhalten',
+	
+	'SINGLE_Vendors' => 'Lieferant',
 	
 );
 ?>

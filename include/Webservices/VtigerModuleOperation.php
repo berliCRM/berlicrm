@@ -255,7 +255,7 @@ class VtigerModuleOperation extends WebserviceEntityOperation {
 		
 		$describeArray = array('name'=>$webserviceField->getFieldName(),'label'=>$fieldLabel,'mandatory'=>
 			$webserviceField->isMandatory(),'type'=>$typeDetails,'nullable'=>$webserviceField->isNullable(),
-			"editable"=>$editable);
+			"editable"=>$editable,"fieldsize"=>$webserviceField->getMaxLength());
 		if($webserviceField->hasDefault()){
 			$describeArray['default'] = $webserviceField->getDefault();
 		}

@@ -483,8 +483,9 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 					$allPicklistValues[] = $picklistDetails['value'];
 				}
 
-				$picklistValueInLowerCase = strtolower(htmlentities($fieldValue, ENT_QUOTES, $default_charset));
+				$picklistValueInLowerCase = strtolower($fieldValue);
 				$allPicklistValuesInLowerCase = array_map('strtolower', $allPicklistValues);
+
 				$picklistDetails = array_combine($allPicklistValuesInLowerCase, $allPicklistValues);
 
 				if (!in_array($picklistValueInLowerCase, $allPicklistValuesInLowerCase)) {

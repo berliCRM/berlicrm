@@ -1588,7 +1588,7 @@ function getRelationTables($module,$secmodule){
 			}
 		}
 	}else {
-		if(method_exists($primary_obj,setRelationTables)){
+		if(method_exists($primary_obj,'setRelationTables')){
 			$reltables = $primary_obj->setRelationTables($secmodule);
 		} else {
 			$reltables = '';
@@ -1809,6 +1809,9 @@ function getValidDBInsertDateValue($value) {
 
 function getValidDBInsertDateTimeValue($value) {
 	$value = trim($value);
+	if (empty($value)) {
+		$value = array ();
+	}
 	$valueList = explode(' ',$value);
 	if(count($valueList) == 2) {
 		$dbDateValue = getValidDBInsertDateValue($valueList[0]);
@@ -1826,7 +1829,7 @@ function getValidDBInsertDateTimeValue($value) {
 		} catch (Exception $ex) {
 			return '';
 		}
-	} elseif(count($valueList == 1)) {
+	} elseif(count($valueList) == 1) {
 		return getValidDBInsertDateValue($value);
 	}
 }
