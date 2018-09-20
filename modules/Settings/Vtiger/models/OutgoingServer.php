@@ -53,11 +53,11 @@ class Settings_Vtiger_OutgoingServer_Model extends Settings_Vtiger_Systems_Model
         return $this->defaultLoaded;
     }
     
-    public function save($request){
+    public function save(){
         vimport('~~/modules/Emails/mail.php');
         $currentUser = Users_Record_Model::getCurrentUserModel();
 
-        $from_email =  $request->get('from_email_field');
+        $from_email =  $this->get('from_email_field');
         $to_email = getUserEmailId('id',$currentUser->getId());
         
         $subject = $this->getSubject();
@@ -72,6 +72,6 @@ class Settings_Vtiger_OutgoingServer_Model extends Settings_Vtiger_Systems_Model
         if($mail_status != 1 && !$this->isDefaultSettingLoaded()) {
             throw new Exception('Error occurred while sending mail');
         } 
-        return parent::save($request);
+        return parent::save();
     }
 }
