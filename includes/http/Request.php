@@ -38,7 +38,7 @@ class Vtiger_Request {
 	/**
 	 * Get key value (otherwise default value)
 	 */
-	function get($key, $defvalue = '') {
+	function get($key, $defvalue = '', $purify = true) {
 		$value = $defvalue;
 		if(isset($this->valuemap[$key])) {
 			$value = $this->valuemap[$key];
@@ -66,7 +66,7 @@ class Vtiger_Request {
 		}
 
         //Handled for null because vtlib_purify returns empty string
-        if(!empty($value)){
+        if(!empty($value) && $purify){
             $value = vtlib_purify($value);
         }
 		return $value;
