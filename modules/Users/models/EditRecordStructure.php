@@ -33,15 +33,15 @@ class Users_EditRecordStructure_Model extends Vtiger_EditRecordStructure_Model {
                     if($fieldModel->get('uitype') == 115) {
                         $fieldModel->set('editable', false);
                     }
-					if(empty($recordId) && ($fieldModel->get('uitype') == 99 || $fieldModel->get('uitype') == 106)) {
+                    // make username and password fields editable on new or copied records
+					if(($_GET['saveascopy']==1 || empty($recordId)) && ($fieldModel->get('uitype') == 99 || $fieldModel->get('uitype') == 106)) {
 							$fieldModel->set('editable', true);
 					}
-					//Is Admin field is editable when the record user != current user
-					if (in_array($fieldModel->get('uitype'), array(156)) && $currentUserModel->getId() !== $recordId) {
+					//make "is Admin field" editable when copying or record user != current user
+					if ($fieldModel->get('uitype') == 156 && ($currentUserModel->getId() !== $recordId || $_GET['saveascopy']==1)) {
 						$fieldModel->set('editable', true);
 						if ($fieldModel->get('uitype') == 156) {
 							$fieldValue = false;
-							$defaultValue = $fieldModel->getDefaultFieldValue();
 							if ($recordModel->get($fieldName) === 'on') {
 								$fieldValue = true;
 							}
@@ -49,9 +49,9 @@ class Users_EditRecordStructure_Model extends Vtiger_EditRecordStructure_Model {
 						}
 					}
 					if($fieldName == 'is_owner') {
-                                            $fieldModel->set('editable', false);
-                                        } else if($fieldName == 'reports_to_id' && !$currentUserModel->isAdminUser()) {
-                                            continue;
+                        $fieldModel->set('editable', false);
+                    } else if($fieldName == 'reports_to_id' && !$currentUserModel->isAdminUser()) {
+                        continue;
 					}
 					if($fieldModel->isEditable() && $fieldName != 'is_owner') {
 						if($recordModel->get($fieldName) != '') {
@@ -61,8 +61,11 @@ class Users_EditRecordStructure_Model extends Vtiger_EditRecordStructure_Model {
 							if(!empty($defaultValue) && !$recordId)
 								$fieldModel->set('fieldvalue', $defaultValue);
 						}
-						
-						if(!$recordId && $fieldModel->get('uitype') == 99) {
+						// when copying empty username and password fields
+                        if($_GET['saveascopy']==1 && ($fieldModel->get('uitype') == 99 || $fieldModel->get('uitype') == 106 || $fieldName == 'first_name' || $fieldName == 'last_name' || $fieldName == 'email1')) {
+                            $fieldModel->set('fieldvalue', "");
+                        }
+						if((empty($recordId) || $_GET['saveascopy']==1) && $fieldModel->get('uitype') == 99) {
 							$fieldModel->set('editable', true);
 							$values[$blockLabel][$fieldName] = $fieldModel;
 						} else if($fieldModel->get('uitype') != 99){

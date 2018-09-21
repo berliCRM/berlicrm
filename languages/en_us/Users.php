@@ -41,6 +41,8 @@ $languageStrings = array(
 	'LBL_CHOOSE_TIMEZONE'	=> 'Choose Timezone',
 	'LBL_COMPANY_SIZE'		=> 'Company Size',
 	'LBL_CONFIRM_PASSWORD' => 'Confirm Password',
+    'LBL_COPY' => 'Create copy as new user',
+    'LBL_COPY_OF' => 'copy of',
 	'LBL_CHANGE_ACCESS_KEY' => 'Change Access Key',
 	'LBL_ACCESS_KEY_UPDATED_SUCCESSFULLY' => 'Access key updated successfully',
 	'LBL_FAILED_TO_UPDATE_ACCESS_KEY' => 'Failed to update access key',
@@ -348,7 +350,7 @@ $jsLanguageStrings = array(
 	'JS_PASSWORD_CHANGE_FAILED_1'=>'User password change failed for ',
 	'JS_PASSWORD_CHANGE_FAILED_2'=>' failed.  The new password must be set.',
 	'JS_PASSWORD_INCORRECT_OLD'=>'Incorrect old password specified. Re-enter password information.',
-	'JS_REENTER_PASSWORDS'=>'Please re-enter passwords.  The \"new password\" and \"confirm password\" values do not match.',
+	'JS_REENTER_PASSWORDS'=>'Please re-enter passwords. The "new password" and "confirm password" values do not match.',
 	'JS_NEW_ACCESS_KEY_REQUESTED' => 'New Access key requested', 
  	'JS_CHANGE_ACCESS_KEY_CONFIRMATION' => 'You have requested for a new Access key.&lt;br&gt;&lt;br&gt;With the new Access key provision, you have to replace the old access key with the new one in all installed extensions.&lt;br&gt;&lt;br&gt;Do you want to continue?',
 );
