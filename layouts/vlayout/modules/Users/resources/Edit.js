@@ -72,15 +72,18 @@ Vtiger_Edit_Js("Users_Edit_Js",{},{
 			if(groupingSeperatorValue == decimalSeperatorValue){
 				Vtiger_Helper_Js.showPnotify(app.vtranslate('JS_DECIMAL_SEPARATOR_AND_GROUPING_SEPARATOR_CANT_BE_SAME'));
 				e.preventDefault();
+                return;
 			}
 			var userName = jQuery('input[name="user_name"]').val();
 			var newPassword = jQuery('input[name="user_password"]').val();
 			var confirmPassword = jQuery('input[name="confirm_password"]').val();
 			var record = jQuery('input[name="record"]').val();
+
 			if(record == ''){
 				if(newPassword != confirmPassword){
 					Vtiger_Helper_Js.showPnotify(app.vtranslate('JS_REENTER_PASSWORDS'));
 					e.preventDefault();
+                    return;
 				}
 				if(!(userName in thisInstance.duplicateCheckCache)) {
 					thisInstance.checkDuplicateUser(userName).then(

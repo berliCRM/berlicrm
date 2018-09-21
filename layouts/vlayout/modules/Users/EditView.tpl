@@ -14,7 +14,7 @@
 	<form class="form-horizontal recordEditView equalSplit" id="EditView" name="EditView" method="post" enctype="multipart/form-data" action="index.php">
 		<input type="hidden" name="module" value="{$MODULE}" />
 		<input type="hidden" name="action" value="Save" />
-		<input type="hidden" name="record" value="{$RECORD_ID}" />
+		<input type="hidden" name="record" value="{if $smarty.get.saveascopy!=1}{$RECORD_ID}{/if}" />
 		<input type="hidden" name="isPreference" value="{$IS_PREFERENCE}" />
 		<input type=hidden name="timeFormatOptions" data-value='{$DAY_STARTS}' />
 		{if $IS_RELATION_OPERATION }
@@ -26,7 +26,9 @@
 		<div class="contentHeader row-fluid">
 		{assign var=SINGLE_MODULE_NAME value='Single_'|cat:$MODULE}
 			<span class="span8">
-		{if $RECORD_ID neq ''}
+		{if $RECORD_ID neq '' && $smarty.get.saveascopy == 1}
+            <h3 class="span8 marginLeftZero" title="{vtranslate('LBL_CREATING_NEW', $MODULE)} {vtranslate($SINGLE_MODULE_NAME, $MODULE)}">{vtranslate('LBL_CREATING_NEW', $MODULE)} {vtranslate($SINGLE_MODULE_NAME, $MODULE)} ({vtranslate('LBL_COPY_OF', $MODULE)} {$RECORD_STRUCTURE_MODEL->getRecordName()})</h3>
+        {elseif $RECORD_ID neq ''}
 			<h3 class="span8 marginLeftZero" title='{vtranslate('LBL_EDITING', $MODULE)} {vtranslate($SINGLE_MODULE_NAME, $MODULE)} "{$RECORD_STRUCTURE_MODEL->getRecordName()}"'>{vtranslate('LBL_EDITING', $MODULE)} {vtranslate($SINGLE_MODULE_NAME, $MODULE)} "{$RECORD_STRUCTURE_MODEL->getRecordName()}"</h3>
 		{else}
 			<h3 class="span8 marginLeftZero" title="{vtranslate('LBL_CREATING_NEW', $MODULE)} {vtranslate($SINGLE_MODULE_NAME, $MODULE)}">{vtranslate('LBL_CREATING_NEW', $MODULE)} {vtranslate($SINGLE_MODULE_NAME, $MODULE)}</h3>
