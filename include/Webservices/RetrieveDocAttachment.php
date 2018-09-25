@@ -95,7 +95,7 @@ function vtws_retrievedocattachment_get_attachment($fileid,$nr=false,$returnfile
 	}
 	if($db->num_rows($result) == 1)	{
 		$fileType = $db->query_result($result, 0, "filetype");
-		$name = $db->query_result($result, 0, "filename");
+		$name = $db->query_result($result, 0, "name");
 		$name = decode_html($name);
 		$filepath = $db->query_result($result,0,'path');
 		$attachid = $db->query_result($result,0,'attachmentsid');
