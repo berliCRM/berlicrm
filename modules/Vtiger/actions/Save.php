@@ -14,6 +14,10 @@ class Vtiger_Save_Action extends Vtiger_Action_Controller {
 		$moduleName = $request->getModule();
 		$record = $request->get('record');
 
+        if(empty($record) && Users_Privileges_Model::isPermitted($moduleName, 'CreateView', $record)) {
+            return;
+        }
+
 		if(!Users_Privileges_Model::isPermitted($moduleName, 'Save', $record)) {
 			throw new AppException('LBL_PERMISSION_DENIED');
 		}
