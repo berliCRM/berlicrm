@@ -496,7 +496,8 @@ class Accounts extends CRMEntity {
 				AND vtiger_crmentity.crmid = vtiger_activity.activityid
 				AND vtiger_activity.activitytype='Emails'
 				AND vtiger_account.accountid = ".$id."
-				AND vtiger_crmentity.deleted = 0";
+				AND vtiger_crmentity.deleted = 0
+                GROUP BY vtiger_activity.activityid";
 
 		$return_value = GetRelatedList($this_module, $related_module, $other, $query, $button, $returnset);
 
