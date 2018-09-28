@@ -30,7 +30,10 @@ $admin_email = $current_user->email1;
 // get global settings
 $settings = Settings_gdpr_Record_Model::getGlobalSettingsParameters();
 
-$op_mode = $settings->get('op_mode'); // "m"anual or "a"utomatic deletion
+$op_mode = $settings->get('op_mode'); // "m"anual or "a"utomatic deletion, "d"eactivated
+
+if ($op_mode=="d") die();
+
 $del_mode = (int) $settings->get('del_mode'); // 0 = move to recycle bin, 1 = delete immediately
 $del_note_time_days = (int) $settings->get('del_note_time_days'); // time to prepone notification of pending deletions (in days)
 
@@ -46,6 +49,8 @@ $notedate = date("Y-m-d",time() - $maximum_default_retention_days*86400 + $del_n
 $deldate = date("Y-m-d",time() - $maximum_default_retention_days*86400);
 
 $expirationnotedate = date("Y-m-d",time() - $del_note_time_days*86400);
+
+$today = date("Y-m-d");
 
 $mailbody = "";
 $trashed_entities = array();
@@ -106,12 +111,12 @@ foreach ($moduleSettings as $tabId => $moduleSetting) {
         if ($modInst->name == "Contacts") {
             $queryColumns.=", vtiger_gdpr.expiration_date, vtiger_gdpr.permission_check";
             $queryFrom.=" LEFT JOIN vtiger_gdpr ON vtiger_contactdetails.contactid = vtiger_gdpr.contactid";
-            $queryWhere.= " AND (vtiger_gdpr.expiration_date < '$expirationnotedate' OR vtiger_gdpr.expiration_date IS NULL)";
+            $queryWhere.= " AND (vtiger_gdpr.expiration_date < '$today' OR permission_check = 0 OR permission_check IS NULL)";
         }
         if ($modInst->name == "Leads") {
             $queryColumns.=", vtiger_gdpr.expiration_date, vtiger_gdpr.permission_check";
             $queryFrom.=" LEFT JOIN vtiger_gdpr ON vtiger_leaddetails.leadid = vtiger_gdpr.leadid";
-            $queryWhere.= " AND (vtiger_gdpr.expiration_date < '$expirationnotedate' OR vtiger_gdpr.expiration_date IS NULL)";
+            $queryWhere.= " AND (vtiger_gdpr.expiration_date < '$today' OR permission_check = 0 OR permission_check IS NULL)";
         }
 
         $query = "SELECT $queryColumns $queryFrom $queryWhere";
@@ -171,12 +176,12 @@ foreach ($moduleSettings as $tabId => $moduleSetting) {
     if ($modInst->name == "Contacts") {
         $queryColumns.=", vtiger_gdpr.expiration_date, vtiger_gdpr.permission_check";
         $queryFrom.=" LEFT JOIN vtiger_gdpr ON vtiger_contactdetails.contactid = vtiger_gdpr.contactid";
-        $queryWhere.= " AND (vtiger_gdpr.expiration_date < '$expirationnotedate' OR vtiger_gdpr.expiration_date IS NULL)";
+        $queryWhere.= " AND (vtiger_gdpr.expiration_date < '$expirationnotedate' OR permission_check = 0 OR permission_check IS NULL)";
     }
     if ($modInst->name == "Leads") {
         $queryColumns.=", vtiger_gdpr.expiration_date, vtiger_gdpr.permission_check";
         $queryFrom.=" LEFT JOIN vtiger_gdpr ON vtiger_leaddetails.leadid = vtiger_gdpr.leadid";
-        $queryWhere.= " AND (vtiger_gdpr.expiration_date < '$expirationnotedate' OR vtiger_gdpr.expiration_date IS NULL)";
+        $queryWhere.= " AND (vtiger_gdpr.expiration_date < '$expirationnotedate' OR permission_check = 0 OR permission_check IS NULL)";
     }
 
     $query = "SELECT $queryColumns $queryFrom $queryWhere";
