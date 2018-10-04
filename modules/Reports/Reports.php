@@ -798,6 +798,7 @@ class Reports extends CRMEntity{
 							'quantity'=>getTranslatedString('Quantity',$module),
 							'realprice'=>getTranslatedString('LBL_REALPRICE',$module),
 							'comment'=>getTranslatedString('Comments',$module),
+							'description'=>getTranslatedString('Description',$module),
 			);
 			$fields_datatype = array('productid'=>'V',
 							'serviceid'=>'V',
@@ -806,6 +807,7 @@ class Reports extends CRMEntity{
 							'quantity'=>'I',
 							'realprice'=>'I',
 							'comment'=>'V',
+							'description'=>'V',
 			);
 			foreach($fields as $fieldcolname=>$label){
 				$column_name = str_replace(' ', '_', $label);
