@@ -836,6 +836,10 @@ $languageStrings = array(
 	'LBL_APPROVE' => 'Ansicht freischalten',
 
 	'Inventory' => 'Bestand',
+	
+	//ListView Excel Export
+	'LBL_CSV_FORMAT' => 'CSV-Format',
+	'LBL_EXCEL_FORMAT' => 'Excel-Format',
 
 
 );
