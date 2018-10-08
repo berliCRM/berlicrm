@@ -151,6 +151,7 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 		if(empty($type)) {
 			return 'text/csv';
 		}
+		return $type;
 	}
 
 	/**
@@ -163,21 +164,83 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 		$moduleName = $request->get('source_module');
 		$fileName = str_replace(' ','_',decode_html(vtranslate($moduleName, $moduleName)));
 		$exportType = $this->getExportContentType($request);
-
-		header("Content-Disposition:attachment;filename=$fileName.csv");
+		
 		header("Content-Type:$exportType;charset=UTF-8");
 		header("Expires: Mon, 31 Dec 2000 00:00:00 GMT" );
 		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT" );
 		header("Cache-Control: post-check=0, pre-check=0", false );
-
-		$fp = fopen("php://output", "w");
-		fputcsv($fp, $headers);
-
-		foreach($entries as $row) {
-			fputcsv($fp, $row);
-		}
 		
-		fclose($fp);
+		if ($exportType == 'text/csv') {
+			$fileName .= '.csv';
+			header("Content-Disposition:attachment;filename=$fileName");
+			$fp = fopen("php://output", "w");
+			fputcsv($fp, $headers);
+
+			foreach($entries as $row) {
+				fputcsv($fp, $row);
+			}
+			
+			fclose($fp);
+		} elseif ($exportType == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+			$fileName .= '.xls';
+			header("Content-Disposition:attachment;filename=$fileName");
+			require_once("libraries/PHPExcel/PHPExcel.php");
+
+			$workbook = new PHPExcel();
+			$worksheet = $workbook->setActiveSheetIndex(0);
+			
+			//header
+			$count = 0;
+			$rowcount = 1;
+			$header_styles = array(
+				'fill' => array( 'type' => PHPExcel_Style_Fill::FILL_SOLID, 'color' => array('rgb'=>'E1E0F7') ),
+				//'font' => array( 'bold' => true )
+			);
+			foreach($headers as $value) {
+				$worksheet->setCellValueExplicitByColumnAndRow($count, $rowcount, $value, true);
+				$worksheet->getStyleByColumnAndRow($count, $rowcount)->applyFromArray($header_styles);
+
+				$count++;
+			}
+			$rowcount++;
+			foreach($entries AS $array_value) {
+				$count = 0;
+				foreach($array_value AS $fieldName => $value) {
+					$fieldInfo = $this->fieldArray[$fieldName];
+					// $uitype = $fieldInfo->get('uitype');
+					$fieldname = $fieldInfo->get('name');
+					$type = $this->fieldDataTypeCache[$fieldName];
+					
+					$currencyId = (isset($current_user)) ? $current_user->currency_id : 1;
+					$currencyRateAndSymbol = getCurrencySymbolandCRate($currencyId);
+					$currencySymbol = $currencyRateAndSymbol['symbol'];
+					$currencySymbolPlacement = (isset($current_user)) ? $current_user->currency_symbol_placement : '$';
+					$currencyFormat = '#,##0.00_-';
+					$tmpCurrencySymbol = '"'.$currencySymbol.'"';
+					$currencyFormat = (strpos($currencySymbolPlacement, '$') === 0) ? $tmpCurrencySymbol.$currencyFormat : $currencyFormat.$tmpCurrencySymbol;
+					
+					if ($type == 'date' || $type == 'datetime') {
+						list($date, $time) = explode(' ', $value);
+						$date = DateTimeField::convertToDBFormat($date).' '.$time;
+						$value = PHPExcel_Shared_Date::PHPToExcel(strtotime($date));
+						
+						$worksheet->setCellValueByColumnAndRow($count, $rowcount, $value);
+						$worksheet->getStyleByColumnAndRow($count, $rowcount)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_XLSX14);
+					} elseif ($type == 'double' || $type == 'currency') {
+						if (isset($currencySymbol)) $value = str_replace($currencySymbol, '', $value);
+						$value = CurrencyField::convertToDBFormat($value, null, true);
+						$worksheet->setCellValueByColumnAndRow($count, $rowcount, $value, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+						if ($type == 'currency') $worksheet->getStyleByColumnAndRow($count, $rowcount)->getNumberFormat()->setFormatCode($currencyFormat);
+					} else {
+						$worksheet->setCellValueExplicitByColumnAndRow($count, $rowcount, $value, PHPExcel_Cell_DataType::TYPE_STRING);
+					}
+					$count++;
+				}
+				$rowcount++;
+			}
+			$workbookWriter = PHPExcel_IOFactory::createWriter($workbook, 'Excel5');
+			$workbookWriter->save('php://output');
+		}
 	}
 
 	private $picklistValues;
