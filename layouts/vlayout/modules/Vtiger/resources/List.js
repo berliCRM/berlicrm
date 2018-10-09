@@ -569,9 +569,14 @@ jQuery.Class("Vtiger_List_Js",{
 
         var listViewInstance = Vtiger_List_Js.getInstance();
         var searchValue = listViewInstance.getAlphabetSearchValue();
+		var orderBy = jQuery('#orderBy');
+		var sortOrder = jQuery('#sortOrder');
 
 		if((typeof searchValue != "undefined") && (searchValue.length > 0)) {
             exportActionUrl += '&search_key='+listViewInstance.getAlphabetSearchField()+'&search_value='+searchValue+'&operator=s';
+        }
+		if((typeof orderBy != "undefined") && (orderBy.length > 0)) {
+            exportActionUrl += '&orderby='+orderBy.val()+'&sortorder='+sortOrder.val();
         }
         exportActionUrl += '&search_params='+JSON.stringify(listInstance.getListSearchParams());
         window.location.href = exportActionUrl;

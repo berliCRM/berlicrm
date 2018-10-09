@@ -96,7 +96,71 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
             }
         }
 		$queryGenerator->setFields($fields);
+		$orderBy = $request->get('orderby');
+		$sortOrder = $request->get('sortorder');
+		if(empty($orderBy) && empty($sortOrder) && $moduleName != "Users"){
+			$orderBy = 'vtiger_crmentity.modifiedtime';
+			$sortOrder = 'DESC';
+			if (PerformancePrefs::getBoolean('LISTVIEW_DEFAULT_SORTING', true)) {
+				$moduleFocus = CRMEntity::getInstance($moduleName);
+				$orderBy = $moduleFocus->default_order_by;
+				$sortOrder = $moduleFocus->default_sort_order;
+			}
+		}
+		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
+		if(!empty($orderBy)){
+			$columnFieldMapping = $moduleModel->getColumnFieldMapping();
+			$orderByFieldName = $columnFieldMapping[$orderBy];
+			$orderByFieldModel = $moduleModel->getField($orderByFieldName);
+			if($orderByFieldModel && $orderByFieldModel->getFieldDataType() == Vtiger_Field_Model::REFERENCE_TYPE){
+				$queryGenerator->addWhereField($orderByFieldName);
+			}
+		}
+		
+		$searchParams = $request->get('search_params');
+		$searchParams = Vtiger_Util_Helper::transferListSearchParamsToFilterCondition($searchParams, $moduleModel);
+        if(empty($searchParams)) {
+            $searchParams = array();
+        }
+        $glue = "";
+        if(count($queryGenerator->getWhereFields()) > 0 && (count($searchParams)) > 0) {
+            $glue = QueryGenerator::$AND;
+        }
+        $queryGenerator->parseAdvFilterList($searchParams, $glue);
+		
 		$query = $queryGenerator->getQuery();
+		if(!empty($orderBy)) {
+			if($orderByFieldModel && $orderByFieldModel->isReferenceField()){
+				$referenceModules = $orderByFieldModel->getReferenceList();
+				$referenceNameFieldOrderBy = array();
+				foreach($referenceModules as $referenceModuleName) {
+					$referenceModuleModel = Vtiger_Module_Model::getInstance($referenceModuleName);
+					$referenceNameFields = $referenceModuleModel->getNameFields();
+
+					$columnList = array();
+					foreach($referenceNameFields as $nameField) {
+						$fieldModel = $referenceModuleModel->getField($nameField);
+						$columnList[] = $fieldModel->get('table').$orderByFieldModel->getName().'.'.$fieldModel->get('column');
+					}
+					if(count($columnList) > 1) {
+						$referenceNameFieldOrderBy[] = getSqlForNameInDisplayFormat(array('first_name'=>$columnList[0],'last_name'=>$columnList[1]),'Users', '').' '.$sortOrder;
+					} else {
+						$referenceNameFieldOrderBy[] = implode('', $columnList).' '.$sortOrder ;
+					}
+				}
+				$query .= ' ORDER BY '. implode(',',$referenceNameFieldOrderBy);
+			}
+			else if (!empty($orderBy) && $orderBy === 'smownerid') { 
+				$fieldModel = Vtiger_Field_Model::getInstance('assigned_user_id', $moduleModel); 
+				if ($fieldModel->getFieldDataType() == 'owner') { 
+					$orderBy = 'COALESCE(CONCAT(vtiger_users.first_name,vtiger_users.last_name),vtiger_groups.groupname)'; 
+				} 
+				$query .= ' ORDER BY '. $orderBy . ' ' .$sortOrder;
+			}
+			else{
+				$query .= ' ORDER BY '. $orderBy . ' ' .$sortOrder;
+			}
+		}
 
 		if(in_array($moduleName, getInventoryModules())){
 			$query = $this->moduleInstance->getExportQuery($this->focus, $query);
