@@ -26,6 +26,8 @@
 		<input type="hidden" name="operator" value="{$OPERATOR}" />
 		<input type="hidden" name="search_value" value="{$ALPHABET_VALUE}" />
 		<input type="hidden" name="search_params" value='{ZEND_JSON::encode($SEARCH_PARAMS)}' />
+		<input type="hidden" name="orderby" value="{$ORDER_BY}" />
+		<input type="hidden" name="sortorder" value="{$SORT_ORDER}" />
 		
 		<div class="row-fluid">
 			<div class="span">&nbsp;</div>

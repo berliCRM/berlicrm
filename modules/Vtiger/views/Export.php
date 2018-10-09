@@ -46,6 +46,8 @@ class Vtiger_Export_View extends Vtiger_Index_View {
             $viewer->assign('SEARCH_KEY',$searchKey);
 		}
 		$viewer->assign('SEARCH_PARAMS', $request->get('search_params'));
+		$viewer->assign('ORDER_BY', $request->get('orderby'));
+		$viewer->assign('SORT_ORDER', $request->get('sortorder'));
 		$viewer->view('Export.tpl', $source_module);
 	}
 }
