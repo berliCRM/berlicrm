@@ -296,6 +296,9 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 						$worksheet->setCellValueByColumnAndRow($count, $rowcount, $value, PHPExcel_Cell_DataType::TYPE_NUMERIC);
 						if ($type == 'currency') $worksheet->getStyleByColumnAndRow($count, $rowcount)->getNumberFormat()->setFormatCode($currencyFormat);
 					} else {
+						if ($type == 'reference') {
+							list($parent_module, $value) = explode('::::', $value);
+						}
 						$worksheet->setCellValueExplicitByColumnAndRow($count, $rowcount, $value, PHPExcel_Cell_DataType::TYPE_STRING);
 					}
 					$count++;
