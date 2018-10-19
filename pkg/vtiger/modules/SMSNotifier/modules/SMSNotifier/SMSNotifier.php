@@ -241,7 +241,8 @@ class SMSNotifier extends SMSNotifierBase {
 	static function formatPhoneNumber($ph_number) {
 		global $adb;
 		//crm-now: check whether a country prefix from settings must get added
-		$resultprefix = $adb->pquery("SELECT countryprefix FROM vtiger_smsnotifier_servers limit 1", array());
+		$resultprefix = $adb->pquery("SELECT countryprefix FROM vtiger_smsnotifier_servers WHERE isactive = ? LIMIT 1", array(1));
+		if (!$resultprefix || $adb->num_rows($resultprefix) < 1) return false;
 		$prefix = trim($adb->query_result($resultprefix,0,"countryprefix"));
 		//remove all char which are not numbers, except + sign if any
 		$smsGoesTo = preg_replace('/[^\d+]/i', '', trim($ph_number));
@@ -294,58 +295,58 @@ class SMSNotifierManager {
 		return false;
 	}
 
-	static function listConfiguredServer($id) {
-		global $adb;
-		$result = $adb->pquery("SELECT * FROM vtiger_smsnotifier_servers WHERE id=?", array($id));
-		if($result) {
-			return $adb->fetch_row($result);
-		}
-		return false;
-	}
-	static function listConfiguredServers() {
-		global $adb;
-		$result = $adb->pquery("SELECT * FROM vtiger_smsnotifier_servers", array());
-		$servers = array();
-		if($result) {
-			while($resultrow = $adb->fetch_row($result)) {
-				$servers[] = $resultrow;
-			}
-		}
-		return $servers;
-	}
-	static function updateConfiguredServer($id, $frmvalues) {
-		global $adb;
-		$providertype = vtlib_purify($frmvalues['smsserver_provider']);
-		$username     = vtlib_purify($frmvalues['smsserver_username']);
-		$password     = vtlib_purify($frmvalues['smsserver_password']);
-		$isactive     = vtlib_purify($frmvalues['smsserver_isactive']);
+	// static function listConfiguredServer($id) {
+		// global $adb;
+		// $result = $adb->pquery("SELECT * FROM vtiger_smsnotifier_servers WHERE id=?", array($id));
+		// if($result) {
+			// return $adb->fetch_row($result);
+		// }
+		// return false;
+	// }
+	// static function listConfiguredServers() {
+		// global $adb;
+		// $result = $adb->pquery("SELECT * FROM vtiger_smsnotifier_servers", array());
+		// $servers = array();
+		// if($result) {
+			// while($resultrow = $adb->fetch_row($result)) {
+				// $servers[] = $resultrow;
+			// }
+		// }
+		// return $servers;
+	// }
+	// static function updateConfiguredServer($id, $frmvalues) {
+		// global $adb;
+		// $providertype = vtlib_purify($frmvalues['smsserver_provider']);
+		// $username     = vtlib_purify($frmvalues['smsserver_username']);
+		// $password     = vtlib_purify($frmvalues['smsserver_password']);
+		// $isactive     = vtlib_purify($frmvalues['smsserver_isactive']);
 
-		$provider = SMSNotifier_Provider_Model::getInstance($providertype);
+		// $provider = SMSNotifier_Provider_Model::getInstance($providertype);
 
-		$parameters = '';
-		if($provider) {
-			$providerParameters = $provider->getRequiredParams();
-			$inputServerParams = array();
-			foreach($providerParameters as $k=>$v) {
-				$lookupkey = "smsserverparam_{$providertype}_{$v}";
-				if(isset($frmvalues[$lookupkey])) {
-					$inputServerParams[$v] = vtlib_purify($frmvalues[$lookupkey]);
-				}
-			}
-			$parameters = Zend_Json::encode($inputServerParams);
-		}
+		// $parameters = '';
+		// if($provider) {
+			// $providerParameters = $provider->getRequiredParams();
+			// $inputServerParams = array();
+			// foreach($providerParameters as $k=>$v) {
+				// $lookupkey = "smsserverparam_{$providertype}_{$v}";
+				// if(isset($frmvalues[$lookupkey])) {
+					// $inputServerParams[$v] = vtlib_purify($frmvalues[$lookupkey]);
+				// }
+			// }
+			// $parameters = Zend_Json::encode($inputServerParams);
+		// }
 
-		if(empty($id)) {
-			$adb->pquery("INSERT INTO vtiger_smsnotifier_servers (providertype,username,password,isactive,parameters) VALUES(?,?,?,?,?)",
-				array($providertype, $username, $password, $isactive, $parameters));
-		} else {
-			$adb->pquery("UPDATE vtiger_smsnotifier_servers SET username=?, password=?, isactive=?, providertype=?, parameters=? WHERE id=?",
-				array($username, $password, $isactive, $providertype, $parameters, $id));
-		}
-	}
-	static function deleteConfiguredServer($id) {
-		global $adb;
-		$adb->pquery("DELETE FROM vtiger_smsnotifier_servers WHERE id=?", array($id));
-	}
+		// if(empty($id)) {
+			// $adb->pquery("INSERT INTO vtiger_smsnotifier_servers (providertype,username,password,isactive,parameters) VALUES(?,?,?,?,?)",
+				// array($providertype, $username, $password, $isactive, $parameters));
+		// } else {
+			// $adb->pquery("UPDATE vtiger_smsnotifier_servers SET username=?, password=?, isactive=?, providertype=?, parameters=? WHERE id=?",
+				// array($username, $password, $isactive, $providertype, $parameters, $id));
+		// }
+	// }
+	// static function deleteConfiguredServer($id) {
+		// global $adb;
+		// $adb->pquery("DELETE FROM vtiger_smsnotifier_servers WHERE id=?", array($id));
+	// }
 }
 ?>

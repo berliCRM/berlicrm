@@ -15,8 +15,8 @@
         <button data-dismiss="modal" class="close" title="{vtranslate('LBL_CLOSE')}">&times;</button>
 		<h3>{vtranslate('LBL_SEND_SMS_TO_SELECTED_NUMBERS', $MODULE)}</h3>
 	</div>
-	<form class="form-horizontal" id="massSave" method="post" action="index.php">
-		<input type="hidden" name="module" value="{$MODULE}" />
+	<form class="form-horizontal" id="massSMS" method="post" action="index.php">
+		<input type="hidden" id="smsModuleName" name="smsModuleName" value="{$MODULE}" />
 		<input type="hidden" name="source_module" value="{$SOURCE_MODULE}" />
 		<input type="hidden" name="action" value="MassSaveAjax" />
 		<input type="hidden" name="viewname" value="{$VIEWNAME}" />
@@ -33,7 +33,7 @@
 				&nbsp;:&nbsp;
 				{vtranslate('LBL_SELECT_THE_PHONE_NUMBER_FIELDS_TO_SEND',$MODULE)}
 			</div>
-			<select name="fields[]" data-placeholder="{vtranslate('LBL_ADD_MORE_FIELDS',$MODULE)}" multiple class="chzn-select">
+			<select name="smsFields[]" id="smsFields" data-placeholder="{vtranslate('LBL_ADD_MORE_FIELDS',$MODULE)}" multiple class="chzn-select" data-validation-engine="validate[required]">
 				<optgroup>
 					{foreach item=PHONE_FIELD from=$PHONE_FIELDS}
 						{assign var=PHONE_FIELD_NAME value=$PHONE_FIELD->get('name')}
@@ -52,7 +52,7 @@
 				&nbsp;:&nbsp;
 				{vtranslate('LBL_TYPE_THE_MESSAGE',$MODULE)}&nbsp;(&nbsp;{vtranslate('LBL_SMS_MAX_CHARACTERS_ALLOWED',$MODULE)}&nbsp;)
 			</div>
-			<textarea class="input-xxlarge" name="message" id="message" placeholder="{vtranslate('LBL_WRITE_YOUR_MESSAGE_HERE', $MODULE)}"></textarea>
+			<textarea class="input-xxlarge" name="smsMessage" id="smsMessage" placeholder="{vtranslate('LBL_WRITE_YOUR_MESSAGE_HERE', $MODULE)}" data-validation-engine="validate[required]"></textarea>
 		</div>
 		<div class="modal-footer">
 			<div class=" pull-right cancelLinkContainer">

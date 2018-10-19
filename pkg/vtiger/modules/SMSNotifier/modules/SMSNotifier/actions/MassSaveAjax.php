@@ -31,7 +31,9 @@ class SMSNotifier_MassSaveAjax_Action extends Vtiger_Mass_Action {
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$recordIds = $this->getRecordsListFromRequest($request);
 		$phoneFieldList = $request->get('fields');
+		if (!$phoneFieldList) $phoneFieldList = array();
 		$message = $request->get('message');
+		$toNumbers = array();
 
 		foreach($recordIds as $recordId) {
 			$recordModel = Vtiger_Record_Model::getInstanceById($recordId);

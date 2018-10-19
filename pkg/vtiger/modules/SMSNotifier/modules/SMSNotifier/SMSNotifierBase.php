@@ -15,6 +15,10 @@ class SMSNotifierBase extends CRMEntity {
 
 	var $table_name = 'vtiger_smsnotifier';
 	var $table_index= 'smsnotifierid';
+	var $column_fields = Array();
+
+	/** Mandatory for supporting custom fields in related lists -> get_dependents_list (CRMEntity.php */
+	var $related_tables = array ('vtiger_smsnotifiercf' => Array('smsnotifierid'));
 
 	/** Indicator if this is a custom module or standard module */
 	var $IsCustomModule = true;
