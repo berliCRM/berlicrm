@@ -119,6 +119,9 @@ jQuery.Class('Vtiger_BasicSearch_Js',{},{
 		//not showing overlay
 		params.overlayCss = {'opacity':'0.2'};
 		app.showModalWindow(params);
+        jQuery(".globalSearchResults a").on("click",function(e) {
+            jQuery(this).css("background-color","#eeeeee");
+        });
 		return aDeferred.promise();
 	}
 	
