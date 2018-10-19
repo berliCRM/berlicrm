@@ -82,14 +82,46 @@ jQuery.Class("Vtiger_List_Js",{
 	 * @params: send email url , module name.
 	 */
 	triggerSendSms : function(massActionUrl, module){
+		var thisInstance = this;
 		var listInstance = Vtiger_List_Js.getInstance();
 		var validationResult = listInstance.checkListRecordSelected();
 		if(validationResult != true){
-			var progressIndicatorElement = jQuery.progressIndicator();
 			Vtiger_Helper_Js.checkServerConfig(module).then(function(data){
+				var progressIndicatorElement = jQuery.progressIndicator();
 				progressIndicatorElement.progressIndicator({'mode' : 'hide'});
 				if(data == true){
-					Vtiger_List_Js.triggerMassAction(massActionUrl);
+					var progressIndicatorElement = jQuery.progressIndicator();
+					var actionParams = {
+						"type":"POST",
+						"url":massActionUrl,
+						"dataType":"html",
+						"data" : {}
+					};
+					AppConnector.request(actionParams).then(
+						function(data) {
+							progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+							if(data) {
+								var callback = function(data) {
+									var params = app.validationEngineOptions;
+									params.onValidationComplete = function(form, valid){
+										if(valid){
+											thisInstance.sendSMS(form)
+										}
+										return false;
+									}
+									jQuery('#massSMS').validationEngine(params);
+								}
+								app.showModalWindow(data, function(data){
+									if(typeof callback == 'function'){
+										callback(data);
+									}
+								});
+							}
+						}
+					),
+					function(error,err){
+						progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+					};
 				} else {
 					alert(app.vtranslate('JS_SMS_SERVER_CONFIGURATION'));
 				}
@@ -98,6 +130,50 @@ jQuery.Class("Vtiger_List_Js",{
 			listInstance.noRecordSelectedAlert();
 		}
 
+	},
+	
+	sendSMS : function (form){
+		var listInstance = Vtiger_List_Js.getInstance();
+		var module = jQuery('#smsModuleName').val();
+		var selectedIds = listInstance.readSelectedIds(true);
+		var excludedIds = listInstance.readExcludedIds(true);
+		var cvId = listInstance.getCurrentCvId();
+		var message = jQuery('#smsMessage').val();
+		var fields = jQuery('#smsFields').val();
+
+		var params = {
+			'module': module,
+			'action' : 'MassSaveAjax',
+			"viewname" : cvId,
+			"selected_ids":selectedIds,
+			"excluded_ids" : excludedIds,
+			'message' : message,
+			'fields' : fields
+		};
+		AppConnector.request(params).then(
+			function(data) {
+				if(data.success && data.result){
+					app.hideModalWindow();
+					var params = {
+						title : app.vtranslate('JS_MESSAGE'),
+						text: app.vtranslate('JS_SMS_SUCCESS'),
+						animation: 'show',
+						type: 'info'
+					};
+					Vtiger_Helper_Js.showPnotify(params);
+					listInstance.getListViewRecords();
+					Vtiger_List_Js.clearList();
+				} else {
+					var  params = {
+						title : app.vtranslate('JS_MESSAGE'),
+						text: app.vtranslate('JS_SMS_FAILURE'),
+						animation: 'show',
+						type: 'info'
+					}
+					Vtiger_Helper_Js.showPnotify(params);
+				}
+			}
+		);
 	},
 
 	triggerTransferOwnership : function(massActionUrl){
