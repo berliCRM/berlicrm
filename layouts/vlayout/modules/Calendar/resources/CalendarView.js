@@ -460,18 +460,23 @@ jQuery.Class("Calendar_CalendarView_Js",{
                     id : event.id,
                     activitytype : event.activitytype,
                     dayDelta : dayDelta,
-                    minuteDelta : minuteDelta,
-                    view : view.name
+                    minuteDelta : minuteDelta
                 }
                 AppConnector.request(params).then(function(data){
-                    var response = JSON.parse(data);
-                    if(!response['result'].ispermitted){
-                        Vtiger_Helper_Js.showPnotify(app.vtranslate('JS_NO_EDIT_PERMISSION'));
-                        revertFunc();
-                    }
-                    if(response['result'].error)
-                        revertFunc();
-                });
+                    if (!data || !data.result) {
+							var err = app.vtranslate('JS_ERROR');
+							if (data.error && data.error.message) err = err+ ': '+data.error.message;
+							Vtiger_Helper_Js.showPnotify(err);
+                            revertFunc();
+						} else if(!data.result.ispermitted){
+                            Vtiger_Helper_Js.showPnotify(app.vtranslate('JS_NO_EDIT_PERMISSION'));
+                            revertFunc();
+                        }
+                    }, function() {
+						var err = app.vtranslate('JS_ERROR')+': Internal Server Error';
+						Vtiger_Helper_Js.showPnotify(err);
+						revertFunc();
+				});
            },
 
            eventDrop : function( event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view ) {
@@ -490,16 +495,23 @@ jQuery.Class("Calendar_CalendarView_Js",{
                         id : event.id,
                         activitytype : event.activitytype,
                         dayDelta : dayDelta,
-                        minuteDelta : minuteDelta,
-                        view : view.name
+                        minuteDelta : minuteDelta
                     }
                     AppConnector.request(params).then(function(data){
-                        var response = JSON.parse(data);
-                        if(!response['result'].ispermitted){
+						if (!data || !data.result) {
+							var err = app.vtranslate('JS_ERROR');
+							if (data.error && data.error.message) err = err+ ': '+data.error.message;
+							Vtiger_Helper_Js.showPnotify(err);
+                            revertFunc();
+						} else if(!data.result.ispermitted){
                             Vtiger_Helper_Js.showPnotify(app.vtranslate('JS_NO_EDIT_PERMISSION'));
                             revertFunc();
                         }
-                    });
+                    }, function() {
+						var err = app.vtranslate('JS_ERROR')+': Internal Server Error';
+						Vtiger_Helper_Js.showPnotify(err);
+						revertFunc();
+					});
             },
 			
 			eventMouseover : function(calEvent, jsEvent, view) {
