@@ -141,15 +141,16 @@ class Activity extends CRMEntity {
         	$adb->pquery('DELETE FROM vtiger_cntactivityrel WHERE activityid = ?', array($recordId));
         }
         
+        // REMOVED because it leads to transaction rollback after duplicate-key error for PRIMARY on vtiger_cntactivityrel 
         //Insert into cntactivity rel
-        if(isset($this->column_fields['contact_id']) && $this->column_fields['contact_id'] != '' && !isset($_REQUEST['contactidlist']))
-        {
-                $this->insertIntoEntityTable('vtiger_cntactivityrel', $module);
-        }
-        elseif($this->column_fields['contact_id'] =='' && $insertion_mode=="edit" && !isset($_REQUEST['contactidlist']))
-        {
-                $this->deleteRelation('vtiger_cntactivityrel');
-        }
+        // if(isset($this->column_fields['contact_id']) && $this->column_fields['contact_id'] != '' && !isset($_REQUEST['contactidlist']))
+        // {
+                // $this->insertIntoEntityTable('vtiger_cntactivityrel', $module);
+        // }
+        // elseif($this->column_fields['contact_id'] =='' && $insertion_mode=="edit" && !isset($_REQUEST['contactidlist']))
+        // {
+                // $this->deleteRelation('vtiger_cntactivityrel');
+        // }
         
 		$recur_type='';
 		if(($recur_type == "--None--" || $recur_type == '') && $this->mode == "edit")
