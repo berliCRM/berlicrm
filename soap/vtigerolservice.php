@@ -1384,7 +1384,6 @@ function getEntityEntries($module, $username, $oWhere = false) {
 	try {
 		$res = vtws_query($query, $current_user);
 	} catch (Exception $e) {
-		syslog(LOG_DEBUG, serialize($query));
 		return $arr_ret;
 	}
 	
