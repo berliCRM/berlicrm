@@ -800,7 +800,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			var editCalendarViewsList = jQuery('#calendarview-feeds').find('.editCalendarViewsList');
 			var selectElement = editCalendarViewsList.find('[name="editingUsersList"]');
 			selectElement.find('option:selected').removeAttr('selected');
-			selectElement.find('option[value="'+feedUserEle.data('calendar-fieldname')+'"]').prop('selected', true);
+			selectElement.find('option[value="'+feedUserEle.data('calendar-fieldname')+'"]').attr('selected', 'selected');
 			thisInstance.showAddUserCalendarModal(currentTarget);
 		})
 	},
