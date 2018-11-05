@@ -29,7 +29,7 @@ $languageStrings = array(
 	'LBL_EXCEEDED' => 'überschritten',
 	'LBL_FORWARD' => 'Weiterleiten',
 	'LBL_FROM' => 'Von',
-	'LBL_GO_TO_PREVIEW' => 'Vorschau ansehen',
+	'LBL_GO_TO_PREVIEW' => 'Druckansicht',
 	'LBL_INFO' => 'Information',
 	'LBL_MAX_UPLOAD_SIZE' => 'Die maximale Dateigröße zum Hochladen beträgt',
     'LBL_NO_SIGNATURE' => 'Keine Signatur',
@@ -50,5 +50,16 @@ $languageStrings = array(
     'Status'=>'Status',
     'Access Count'=>'Zugangshäufigkeit',
     'Parent ID'=>'bezogen auf',
+	'LBL_EMAIL_PREVIEW' => 'E-Mail Vorschau',
+
+	//added for email HTML preview
+	'LBL_SHOW_EMAIL'=>'E-Mail Anzeige im HTML Format',
+	'LBL_EMAILHTML_COMMENT'=>'Mit dieser Vorschau können Sie kontrollieren, ob die Ersatzfeldern für den ersten Kontakt aus Ihrer Empfängerliste richtig ausgefüllt worden sind.<br>Bitte beachten Sie, dass die endgültige Darstellung durch das E-Mail Programm des Empfängers festgelegt wird und deshalb u.U. von dieser Darstellung abweichen kann. Senden Sie sich ggf. selbst eine E-Mail zur Kontrolle.',
+	'LBL_FAILED_ON' => 'Versand fehlgeschlagen am',
 );
+$jsLanguageStrings = array(
+    'JS_LBL_NO_RECEIVERS' => 'Es muss ein E-Mail Empfänger angegeben werden.',
+    'JS_LBL_NO_CONTENT' => 'Es wurde kein E-Mail Inhalt angegeben.',
+);
+
 ?>

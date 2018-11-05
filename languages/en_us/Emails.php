@@ -9,6 +9,8 @@
  *************************************************************************************/
 $languageStrings = array(
 	'Date & Time Sent' => 'Date Sent',
+    'To' => 'To',
+    'From' => 'From',
 	'Emails' => 'Emails',
 	'LBL_ADD_BCC' => 'Add Bcc',
 	'LBL_ADD_CC' => 'Add Cc',
@@ -26,7 +28,7 @@ $languageStrings = array(
 	'LBL_EXCEEDED' => 'Exceeded',
 	'LBL_FORWARD' => 'Forward',
 	'LBL_FROM' => 'From',
-	'LBL_GO_TO_PREVIEW' => 'Go to Preview',
+	'LBL_GO_TO_PREVIEW' => 'Print View',
 	'LBL_INFO' => 'Info',
 	'LBL_MAX_UPLOAD_SIZE' => 'Maximum upload size is',
     'LBL_NO_SIGNATURE' => 'No signature',
@@ -42,4 +44,22 @@ $languageStrings = array(
 	'SINGLE_Emails' => 'Email',
 	'Time Start' => 'Time Sent',
     'LBL_SELECTED_RECIPIENTS' => 'selected recipients',
+	// missing translations (not in English files)
+	'Recurrence'=>'Recurrence',
+    'Status'=>'Status',
+    'Access Count'=>'Access Count',
+    'Parent ID'=>'related to',
+	'LBL_EMAIL_PREVIEW' => 'Email Preview',
+
+	//added for email HTML preview
+	'LBL_SHOW_EMAIL'=>'Email in HTML format',
+	'LBL_EMAILHTML_COMMENT'=>'With this preview, you can check whether the replacement fields for the first contact from your recipient list have been correctly filled out.<br>Please note that the final presentation will be determined by the recipients e-mail programs. If necessary, send yourself an e-mail to check.',
+	'LBL_FAILED_ON' => 'delivery failed on',
 );
+
+$jsLanguageStrings = array(
+    'JS_LBL_NO_RECEIVERS' => 'An e-mail recipient must be specified.',
+    'JS_LBL_NO_CONTENT' => 'No e-mail content was specified.',
+);
+
+?>
