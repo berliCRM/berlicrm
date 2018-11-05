@@ -133,7 +133,7 @@
 					</span>
 					<span class="span9">
 						<span class="row-fluid">
-							{decode_html($RECORD->get('description'))}
+							{decode_html($RECORD->get('description')|unescape:'html')}
 						</span>
 					</span>
 				</span>
@@ -149,10 +149,13 @@
 						{if $RECORD->get('email_flag') eq "SAVED"}
 							<small><em>{vtranslate('LBL_DRAFTED_ON',$MODULE)}</em></small>
 							<span><small><em>&nbsp;{Vtiger_Util_Helper::formatDateTimeIntoDayString($RECORD->get('createdtime'))}</em></small></span>
-                                                {elseif $RECORD->get('email_flag') eq "MailManager"} 
-                                                        <small><em>{vtranslate('LBL_MAIL_DATE',$MODULE)} : </em></small> 
-                                                        {assign var="MAIL_DATE" value=$RECORD->get('date_start')|@cat:' '|@cat:$RECORD->get('time_start')} 
-                                                        <span><small><em>&nbsp;{Vtiger_Util_Helper::formatDateTimeIntoDayString($MAIL_DATE)}</em></small></span> 
+                        {elseif $RECORD->get('email_flag') eq "MailManager"} 
+							<small><em>{vtranslate('LBL_MAIL_DATE',$MODULE)} : </em></small> 
+							{assign var="MAIL_DATE" value=$RECORD->get('date_start')|@cat:' '|@cat:$RECORD->get('time_start')} 
+							<span><small><em>&nbsp;{Vtiger_Util_Helper::formatDateTimeIntoDayString($MAIL_DATE)}</em></small></span> 
+						{elseif $RECORD->get('email_flag') eq "FAILED"}
+							<small><em>{vtranslate('LBL_FAILED_ON',$MODULE)}</em></small>
+							<span><small><em>&nbsp;{Vtiger_Util_Helper::formatDateTimeIntoDayString($RECORD->get('createdtime'))}</em></small></span>
 						{else}
 							<small><em>{vtranslate('LBL_SENT_ON',$MODULE)}</em></small>
                             {assign var="SEND_TIME" value=$RECORD->get('date_start')|@cat:' '|@cat:$RECORD->get('time_start')}
