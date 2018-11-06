@@ -1012,6 +1012,14 @@ class QueryGenerator {
 				$valueArray[1] = getValidDBInsertDateTimeValue($valueArray[1]);
 				$sql[] = "BETWEEN DATE_FORMAT(".$db->quote($valueArray[0]).", '%m%d') AND ".
 						"DATE_FORMAT(".$db->quote($valueArray[1]).", '%m%d')";
+			} elseif ($field->getFieldName() == 'createdtime' || $field->getFieldName() == 'modifiedtime') {
+				$start = explode(' ', $valueArray[0]);
+				$start[0] = DateTimeField::convertToDBFormat($start[0]);
+                $end = explode(' ',$valueArray[1]);
+				$end[0] = DateTimeField::convertToDBFormat($end[0]);
+				$not = ($operator == 'notequal') ? 'NOT' : '';
+				
+				$sql[] = "$not BETWEEN ".$db->quote(implode(' ', $start))." AND ".$db->quote(implode(' ', $end));
 			} else {
 				if($this->isDateType($field->getFieldDataType())) {
                     $start = explode(' ', $valueArray[0]);
@@ -1127,6 +1135,9 @@ class QueryGenerator {
 				} elseif ($uiType == 71) {
 					$value = CurrencyField::convertToDBFormat($value);
 				}
+			}
+			else if ($field->getFieldDataType() === 'double') {
+				$value = NumberField::convertToDBFormat($value);
 			}
 
 			if($field->getFieldName() == 'birthday' && !$this->isRelativeSearchOperators(

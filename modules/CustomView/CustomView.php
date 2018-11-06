@@ -927,8 +927,8 @@ class CustomView extends CRMEntity {
 								$dateTime = explode(' ',$originalValue);
 								$temp_val[$x] = $dateTime[0];
 							}
-							$date = new DateTimeField(trim($temp_val[$x]));
-							$val[$x] = $date->getDisplayDateTimeValue();
+							$date = new DateTimeField($originalValue);
+							$val[$x] = explode(' ', $date->getDisplayDateTimeValue())[0];
 						} else {
 							$date = new DateTimeField(trim($temp_val[$x]));
 							$val[$x] = $date->getDisplayTime();
@@ -1921,7 +1921,7 @@ class CustomView extends CRMEntity {
 							$log->debug("Entering when status=1 or status=2 & action = ListView or $module.Ajax or index");
 							$sql = "select vtiger_users.id from vtiger_customview inner join vtiger_users where vtiger_customview.cvid = ? and vtiger_customview.userid in (select vtiger_user2role.userid from vtiger_user2role inner join vtiger_users on vtiger_users.id=vtiger_user2role.userid inner join vtiger_role on vtiger_role.roleid=vtiger_user2role.roleid where vtiger_role.parentrole like '%" . $current_user_parent_role_seq . "::%')";
 							$result = $adb->pquery($sql, array($record_id));
-
+							$temp_result = array();
 							while ($row = $adb->fetchByAssoc($result)) {
 								$temp_result[] = $row['id'];
 							}
