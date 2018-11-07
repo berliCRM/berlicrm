@@ -1128,6 +1128,9 @@ class QueryGenerator {
 					$value = CurrencyField::convertToDBFormat($value);
 				}
 			}
+			else if ($field->getFieldDataType() === 'double') {
+				$value = NumberField::convertToDBFormat($value);
+			}
 
 			if($field->getFieldName() == 'birthday' && !$this->isRelativeSearchOperators(
 					$operator)) {

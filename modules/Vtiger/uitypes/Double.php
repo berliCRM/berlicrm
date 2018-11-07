@@ -24,7 +24,25 @@ class Vtiger_Double_UIType extends Vtiger_Base_UIType {
 	 * @return <Object>
 	 */
 	public function getDisplayValue($value, $record = false, $recordInstance = false) {
-		return decimalFormat($value);
+		$value = NumberField::convertToUserFormat($value, null, false);
+		return $value;
 	}
-
+	/**
+	 * Function to get the display value in edit view
+	 * @param reference record id
+	 * @return link
+	 */
+	public function getEditViewDisplayValue($value) {
+		$value = NumberField::convertToUserFormat($value, null, false);
+		return $value;
+	}
+	/**
+	 * Function to get the Value of the field in the format, the user provides it on Save
+	 * @param <Object> $value
+	 * @return <Object>
+	 */
+	public function getUserRequestValue($value) {
+		return $this->getDisplayValue($value);
+	}
+ 
 }

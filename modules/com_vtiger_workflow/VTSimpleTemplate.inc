@@ -335,8 +335,9 @@ class VTSimpleTemplate{
 									break;
 			case 'double'		:   if ($moduleName === 'HelpDesk' && in_array($fieldName, array('days', 'hours'))) {
 										$fieldValue = decimalFormat($fieldValue);
-									} else {
-										$fieldValue;
+									} 
+									else {
+										$fieldValue = NumberField::convertToUserFormat($fieldValue);
 									}
 									break;
 			default				:	$fieldValue;

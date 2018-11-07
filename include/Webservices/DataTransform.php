@@ -134,6 +134,7 @@
 
 			$row = DataTransform::sanitizeDateFieldsForInsert($row,$meta);
 			$row = DataTransform::sanitizeCurrencyFieldsForInsert($row,$meta);
+			$row = DataTransform::sanitizeNumberFieldsForInsert($row,$meta);
 
 			return $row;
 			
@@ -269,6 +270,17 @@
 					} else if($fieldObj->getUIType() == '72') {
 						$row[$fieldName] = CurrencyField::convertToUserFormat($row[$fieldName],$current_user,true);
 					}
+				}
+			}
+			return $row;
+		}
+
+		public static function sanitizeNumberFieldsForInsert($row,$meta){
+			global $current_user;
+			$moduleFields = $meta->getModuleFields();
+			foreach($moduleFields as $fieldName=>$fieldObj){
+				if($fieldObj->getFieldDataType()=="double" && !empty($row[$fieldName])) {
+					$row[$fieldName] = NumberField::convertToUserFormat($row[$fieldName],$current_user);
 				}
 			}
 			return $row;
