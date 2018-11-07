@@ -11,6 +11,12 @@
 
 class berliWidgets_dropDocument_View extends Vtiger_Detail_View {
 
+	function checkPermission(Vtiger_Request $request) {
+		$recordPermission = Users_Privileges_Model::isPermitted('Documents', 'CreateView');
+		if(!$recordPermission) {
+			throw new AppException('LBL_PERMISSION_DENIED');
+		}
+	}
 	/**
 	 * Function to get the list of Script models to be included
 	 * @param Vtiger_Request $request

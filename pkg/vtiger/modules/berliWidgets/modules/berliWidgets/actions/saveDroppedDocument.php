@@ -58,55 +58,28 @@ class berliWidgets_saveDroppedDocument_Action extends Vtiger_Action_Controller {
 				$files['original_name'] = vtlib_purify($files['name']);
 				$filesize = $files['size'];
 				$filetype = $files['type'];
-				$attachid = $db->getUniqueId('vtiger_crmentity');
 
 				//sanitize the file name
 				$binFile = sanitizeUploadFileName($files['name'], vglobal('upload_badext'));
 				$fileName = ltrim(basename(" ".$binFile));
-				$upload_filepath = decideFilePath();
-				$upload_status = move_uploaded_file($files["tmp_name"],$upload_filepath.'/'.$attachid."_".$binFile);
-				$save_file = 'true';
 				$folderid = 1;
 				
-				if ($save_file == 'true' && $upload_status == 'true') {
-					if($attachid !== false) {
-						$documentRecordModel = Vtiger_Record_Model::getCleanInstance('Documents');
-						$documentRecordModel->set('label', $fileName);
-						$documentRecordModel->set('notes_title', $fileName);
-						$documentRecordModel->set('filename', $fileName);
-						$documentRecordModel->set('filetype', $filetype);
-						$documentRecordModel->set('filestatus', 1);
-						$documentRecordModel->set('filelocationtype', 'I');
-						$documentRecordModel->set('folderid', $folderid);
-						$documentRecordModel->set('filesize', $filesize);
-						$documentRecordModel->set('assigned_user_id', $current_user->getId());
-						$documentRecordModel->save();
-						
-						// create attachment
-						$current_id = $db->getUniqueID("vtiger_crmentity");
-						$date_var = date('Y-m-d H:i:s');
-						$sql1 = "insert into vtiger_crmentity (crmid,smcreatorid,smownerid,setype,description,createdtime,modifiedtime) values(?,?,?,?,?,?,?)";
-						$params1 = array($attachid, $current_user->getId(),$current_user->getId(), "Documents Attachment", 'Drag and Drop upload', $db->formatDate($date_var, true), $db->formatDate($date_var, true));
-						$db->pquery($sql1, $params1);
+				$documentRecordModel = Vtiger_Record_Model::getCleanInstance('Documents');
+				$documentRecordModel->set('label', $fileName);
+				$documentRecordModel->set('notes_title', $fileName);
+				$documentRecordModel->set('filename', $fileName);
+				$documentRecordModel->set('filetype', $filetype);
+				$documentRecordModel->set('filestatus', 1);
+				$documentRecordModel->set('filelocationtype', 'I');
+				$documentRecordModel->set('folderid', $folderid);
+				$documentRecordModel->set('filesize', $filesize);
+				$documentRecordModel->set('assigned_user_id', $current_user->getId());
+				$documentRecordModel->save();
+				// Link document to entity
+				$db->pquery("INSERT INTO vtiger_senotesrel(crmid, notesid) VALUES(?,?)", array($parentid, $documentRecordModel->getId()));
+				
+				$result =  array('success'=>true, 'docid'=>$documentRecordModel->getId());
 
-						$sql2 = "insert into vtiger_attachments(attachmentsid, name, description, type, path) values(?,?,?,?,?)";
-						$params2 = array($attachid, $fileName,$fileName, $filetype, $upload_filepath);
-						$result = $db->pquery($sql2, $params2);
-
-
-						// Link file attached to document
-						$db->pquery("INSERT INTO vtiger_seattachmentsrel(crmid, attachmentsid) VALUES(?,?)", array($documentRecordModel->getId(), $attachid));
-						// Link document to entity
-						$db->pquery("INSERT INTO vtiger_senotesrel(crmid, notesid) VALUES(?,?)", array($parentid, $documentRecordModel->getId()));
-
-						
-						$result =  array('success'=>true, 'docid'=>$documentRecordModel->getId(), 'attachid'=>$attachid);
-
-					}
-					else {
-						$result = array('success'=>false, 'error'=>'upload DB error');
-					}
-				}
 			}
 			else {
 				if ($upload_error !='') {
