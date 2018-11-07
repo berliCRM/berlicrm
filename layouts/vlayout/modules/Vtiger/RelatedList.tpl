@@ -132,7 +132,7 @@
                                     {$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}   
                             {/if}
                             {if $RELATED_MODULE_NAME == 'Calendar' && $RELATED_HEADERNAME == "subject" && $RELATED_RECORD->get('description') && {$RELATED_RECORD->get('description')|trim} != '' }
-                                <i class="icon-info-sign" style="margin-left: 2px;" rel="popover" title="{vtranslate('Description', $MODULE)}" data-placement="bottom" data-trigger="hover" data-content="{$RELATED_RECORD->get('description')|escape:"html"}"></i>
+                                <i class="icon-info-sign" style="margin-left: 2px;" rel="popover" title="{vtranslate('Description', $MODULE)}" data-placement="bottom" data-trigger="hover" data-content="{$RELATED_RECORD->get('description')|escape:'html'}"></i>
                             {/if}
                             {if $HEADER_FIELD@last}
                             </td><td nowrap class="{$WIDTHTYPE}">
