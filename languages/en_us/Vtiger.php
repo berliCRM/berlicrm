@@ -810,7 +810,7 @@ $languageStrings = array(
 	// GDPR module
 	'gdpr' => 'GDPR',
  	//PDF GDPR information
-	'LBL_DSGVO_NAME' => 'DSGVO Information',
+	'LBL_DSGVO_NAME' => 'GDPR Information',
 	'LBL_CONTACT_RELATED_DATA' => 'stored personal data',
 	'LBL_GDPR_INQUIRY' => 'We hereby give you the information about the personal data stored by us.',
 	'LBL_GDPR_INQUIRY_OTHER_MODULE' => 'this information are usd for',
@@ -830,12 +830,12 @@ $languageStrings = array(
 	'LBL_PROBLEM_UPLOAD'=>'There was a problem uploading the file! Please try again.',
 	
 	'LBL_APPROVE' => 'enable view',
-
+	'Visibility' => 'Visibility',
 	'Inventory' => 'Inventory',
-	
+
 	//ListView Excel Export
-	'LBL_CSV_FORMAT' => 'CSV-Format',
-	'LBL_EXCEL_FORMAT' => 'Excel-Format',
+	'LBL_CSV_FORMAT' => 'CSV Format',
+	'LBL_EXCEL_FORMAT' => 'Excel Format',
 
 
 );
@@ -1055,6 +1055,6 @@ $jsLanguageStrings = array(
 	'JS_MM_TITLE' => 'New mails',
 	'JS_MM_TEXT' => 'You received %d new %s',
 	
-	'SINGLE_Vendors' => 'Lieferant',
+	'SINGLE_Vendors' => 'Vendor',
 	
 );
