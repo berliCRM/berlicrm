@@ -369,7 +369,7 @@ class CustomView_Record_Model extends Vtiger_Base_Model {
 							//value will be empty
 							if(trim($temp_val[$x]) != '') {
 								$date = new DateTimeField(trim($temp_val[$x]));
-								if($fieldType == 'date') {
+								if($fieldType == 'date' || $fieldName == 'createdtime' || $fieldName == 'modifiedtime') {
 									$val[$x] = DateTimeField::convertToDBFormat(
 											trim($temp_val[$x]));
 								} elseif($fieldType == 'datetime') {

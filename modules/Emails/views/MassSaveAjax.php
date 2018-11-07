@@ -207,6 +207,9 @@ class Emails_MassSaveAjax_View extends Vtiger_Footer_View {
 				} else {
 					$success = false;
 					$message = $status;
+					$recordModel->set('email_flag', 'FAILED');
+					$recordModel->set('mode', 'edit');
+					$recordModel->save();
 				}
 			}
 
