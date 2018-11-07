@@ -84,7 +84,7 @@ class Settings_ListViewColors_Field_Model extends Vtiger_Field_Model {
      * Function which will set the field color for picklist fields
      * @return value array
      */
-    public function getColorForPicklistFields($fieldModel) {
+    public static function getColorForPicklistFields($fieldModel) {
 		$values = array();
 		$picklistvalues = array_values(Vtiger_Util_Helper::getPickListValues($fieldModel -> get('name')));
 		for($i = 0; $i < count($picklistvalues); $i++) {
@@ -99,7 +99,7 @@ class Settings_ListViewColors_Field_Model extends Vtiger_Field_Model {
      * Function which will get the field color for list view
      * @return listfieldcolor array
      */
-    public function getFieldColorForListView($fieldid,$picklistvalue) {
+    public static function getFieldColorForListView($fieldid,$picklistvalue) {
         $db = PearDatabase::getInstance();
 		$listfieldcolor = array();
         $query = 'SELECT listcolor FROM berli_listview_colors  WHERE listfieldid =? AND fieldcontent =?';
@@ -116,7 +116,7 @@ class Settings_ListViewColors_Field_Model extends Vtiger_Field_Model {
      * Function which will set the field color for checkbox fields
      * @return value array
      */
-    public function getColorForCheckBoxFields($fieldModel) {
+    public static function getColorForCheckBoxFields($fieldModel) {
 		$values = array();
 		$checkboxvalues = array('0','1');
 		for($i = 0; $i < count($checkboxvalues); $i++) {
