@@ -894,6 +894,92 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		}
 		toEmails.val(JSON.stringify(updatedValue));
 	},
+	
+	// function that previews an email with filled substitute fields
+	registerEventEmailPreview : function(){
+		var thisInstance = this;
+		jQuery('#previewEmail').on('click',function(e){
+			// added for email preview
+	
+			//get email receivers
+			var form = jQuery("#massEmailForm");
+			var receivers = form.find('[name="toemailinfo"]').val();
+			if (receivers.length < 3) {
+				alert ( app.vtranslate('JS_LBL_NO_RECEIVERS'));
+				return;
+			}
+			var oCKeditor = CKEDITOR.instances.description.getData();
+			
+			var editor_val = CKEDITOR.instances.description.document.getBody().getChild(0).getText() ;
+			if (editor_val == '') {
+				alert ( app.vtranslate('JS_LBL_NO_CONTENT'));
+				return false ;
+			}
+			
+			var params = {
+				module: 'Emails',
+				view: 'showEmailContent',
+				receivers : receivers,
+				mode : 'previewEmail',
+				emailbody: oCKeditor
+			}
+			var aDeferred = jQuery.Deferred();
+			thisInstance.getMenuActionResponseData(params).then(
+				function(data) {
+					thisInstance.displayTplMenueResponseData(data);
+				}
+			);
+		});
+	},
+	/*
+	 * function to get the URL response data
+	 */
+	//cache for response data
+	use_cache: false,
+	getMenuActionResponseDataCache : {},
+	getMenuActionResponseData : function(params) {
+		var progressIndicatorElement = jQuery.progressIndicator({
+			'position' : 'html',
+			'blockInfo' : {
+				'enabled' : false
+			}
+		});
+		var aDeferred = jQuery.Deferred();
+		// check cache
+		if(!(jQuery.isEmptyObject(this.getMenuActionResponseDataCache)) && this.use_cache == true) {
+			aDeferred.resolve(this.getMenuActionResponseDataCache);
+		} 
+		else {
+			AppConnector.request(params).then(
+				function(data) {
+					//store it in the cache, so that we do no multiple request
+					this.getMenuActionResponseDataCache = data;
+					aDeferred.resolve(this.getMenuActionResponseDataCache);
+				}
+			);
+		}
+		progressIndicatorElement.progressIndicator({
+			'mode' : 'hide'
+		});
+		return aDeferred.promise();
+	},
+	/*
+	 * function to display the response data (tpl)
+	 */
+	displayTplMenueResponseData : function(data) {
+        var callbackFunction = function(data) {
+            app.showScrollBar(jQuery('#menueScroll'), {
+                height: '450px',
+                railVisible: true,
+                size: '6px'
+            });
+        }
+        app.showModalWindow(data, function(data){
+            if(typeof callbackFunction == 'function' && jQuery('#menueScroll').height() > 300){
+                callbackFunction(data);
+            }
+        });
+	},
 
 	registerEvents : function(){
 		var thisInstance = this;
@@ -929,6 +1015,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			this.registerEventForRemoveCustomAttachments();
 			this.calculateUploadFileSize();
 			this.registerEventForGoToPreview();
+			this.registerEventEmailPreview();
 		}
 	}
 });

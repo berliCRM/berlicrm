@@ -161,26 +161,23 @@
 			<span class="span4"></span>
 		</div>
 		<div class="paddingTop20 row-fluid boxSizingBorderBox">
-			<div class="span8">
+			<div class="span9">
 				<div class="btn-toolbar">
-					<span class="btn-group marginLeftZero">
-						<button class="btn btn-success" id="sendEmail" type="submit" title="{vtranslate('LBL_SEND',$MODULE)}"><strong>{vtranslate('LBL_SEND',$MODULE)}</strong></button>&nbsp;&nbsp;
-						<button type="submit" class="btn" style="" id="saveDraft" title="{vtranslate('LBL_SAVE_AS_DRAFT',$MODULE)}"><strong>{vtranslate('LBL_SAVE_AS_DRAFT',$MODULE)}</strong></button>
-						{if !empty($PARENT_EMAIL_ID)}
-							<button type="button" class="btn" id="gotoPreview" title="{vtranslate('LBL_GO_TO_PREVIEW',$MODULE)}" style="margin-left: 5px;"><strong>{vtranslate('LBL_GO_TO_PREVIEW',$MODULE)}</strong></button>
-						{/if}
-                        <label style="display:inline;margin:0 12px;line-height:25px"><input type="checkbox" name="nosignature" style="vertical-align:text-top"> {vtranslate('LBL_NO_SIGNATURE',$MODULE)}</label>
-					</span>
-					<span name="progressIndicator" style="height:30px;">&nbsp;</span>
+                <span class="btn-group marginLeftZero" style="display:inline">
+                    <button class="btn btn-success" id="sendEmail" type="submit" title="{vtranslate('LBL_SEND',$MODULE)}"><strong>{vtranslate('LBL_SEND',$MODULE)}</strong></button>&nbsp;&nbsp;
+                    <button type="submit" class="btn" style="" id="saveDraft" title="{vtranslate('LBL_SAVE_AS_DRAFT',$MODULE)}"><strong>{vtranslate('LBL_SAVE_AS_DRAFT',$MODULE)}</strong></button>
+                    {if !empty($PARENT_EMAIL_ID)}
+                        <button type="button" class="btn" id="gotoPreview" title="{vtranslate('LBL_GO_TO_PREVIEW',$MODULE)}" style="margin-left: 5px;"><strong>{vtranslate('LBL_GO_TO_PREVIEW',$MODULE)}</strong></button>
+                    {/if}
+                    <button type="button" class="btn" id="previewEmail" data-url="{$EMAIL_TEMPLATE_URL}"  style="margin-left: 5px;" title="{vtranslate('LBL_EMAIL_PREVIEW',$MODULE)}"><strong>{vtranslate('LBL_EMAIL_PREVIEW',$MODULE)}</strong></button>
+                    <label style="display:inline;margin:0 12px;line-height:25px"><input type="checkbox" name="nosignature" style="vertical-align:text-top"> {vtranslate('LBL_NO_SIGNATURE',$MODULE)}</label>
+                    {if $MODULE_IS_ACTIVE}
+                        <button type="button" class="btn" style="float:none" id="selectEmailTemplate" data-url="{$EMAIL_TEMPLATE_URL}" title="{vtranslate('LBL_SELECT_EMAIL_TEMPLATE',$MODULE)}"><strong>{vtranslate('LBL_SELECT_EMAIL_TEMPLATE',$MODULE)}</strong></button>
+                    {/if}
+                </span>
+				<span name="progressIndicator" style="height:30px;">&nbsp;</span>
 				</div>
 			</div>
-			{if $MODULE_IS_ACTIVE}
-				<div class="span4">
-					<span class="btn-toolbar pull-right">
-						<button type="button" class="btn" id="selectEmailTemplate" data-url="{$EMAIL_TEMPLATE_URL}" title="{vtranslate('LBL_SELECT_EMAIL_TEMPLATE',$MODULE)}"><strong>{vtranslate('LBL_SELECT_EMAIL_TEMPLATE',$MODULE)}</strong></button>
-					</span>
-				</div>
-			{/if}
 		</div>
 		{if $RELATED_LOAD eq true}
 			<input type="hidden" name="related_load" value={$RELATED_LOAD} />
