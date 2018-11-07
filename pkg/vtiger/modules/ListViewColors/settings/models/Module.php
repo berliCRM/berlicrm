@@ -26,7 +26,9 @@ class Settings_ListViewColors_Module_Model extends Settings_Vtiger_Module_Model 
 		$moduleEntity = array();
 		for ($i = 0; $i < $adb->num_rows($result); $i++) {
 			$row = $adb->query_result_rowdata($result, $i);
-			$moduleEntity[$row['tabid']] = $row;
+			if (vtlib_isModuleActive($row['modulename'])) {
+				$moduleEntity[$row['tabid']] = $row;
+			}
 		}
 		$log->debug("Exiting Settings_ListViewColors_Module_Model::getModulesEntity() method ...");
 		return $moduleEntity;
