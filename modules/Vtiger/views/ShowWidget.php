@@ -16,7 +16,7 @@ class Vtiger_ShowWidget_View extends Vtiger_IndexAjax_View {
 
 	function process(Vtiger_Request $request) {
 		$currentUser = Users_Record_Model::getCurrentUserModel();
-
+        session_write_close();
 		$moduleName = $request->getModule();
 		$componentName = $request->get('name');
 		$linkId = $request->get('linkid');
