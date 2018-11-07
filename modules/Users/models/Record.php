@@ -167,9 +167,6 @@ class Users_Record_Model extends Vtiger_Record_Model {
 			if (isset(self::$currentUserModels[$currentUser->id])) {
 				$currentUserModel = self::$currentUserModels[$currentUser->id];
 				$currentUserModel->svn_tag = $svn_tag;
-				if ($currentUser->column_fields['modifiedtime'] != $currentUserModel->get('modifiedtime')) {
-					$currentUserModel = NULL;
-				}
 			}
 			if (!$currentUserModel) {
 				$currentUserModel = self::getInstanceFromUserObject($currentUser);
