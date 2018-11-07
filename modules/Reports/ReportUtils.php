@@ -186,9 +186,9 @@ function getReportFieldValue ($report, $picklistArray, $dbField, $valueArray, $f
 		} else {
 			implode(', ', $translatedValueList);
 		}
-	} elseif ($fieldType == 'double') {
-        if($current_user->truncate_trailing_zeros == true)
-            $fieldvalue = decimalFormat($fieldvalue);
+	} 
+	elseif ($fieldType == 'double') {
+		$fieldvalue = NumberField::convertToUserFormat($fieldvalue, null, false);
     }
 	if($fieldvalue == "") {
 		return "-";

@@ -17,6 +17,7 @@
 {else}
 	{assign var="FIELD_VALUE" value=$FIELD_MODEL->get('fieldvalue')}
 {/if}
-<input id="{$MODULE}_editView_fieldName_{$FIELD_MODEL->get('name')}" type="text" class="input-large" data-validation-engine="validate[{if $FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" name="{$FIELD_MODEL->getFieldName()}"
-value="{$FIELD_VALUE}" data-fieldinfo='{$FIELD_INFO}' {if !empty($SPECIAL_VALIDATOR)}data-validator={Zend_Json::encode($SPECIAL_VALIDATOR)}{/if} />
+<input id="{$MODULE}_editView_fieldName_{$FIELD_NAME}" type="text" class="input-medium numberField" data-validation-engine="validate[{if $FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" name="{$FIELD_MODEL->getFieldName()}"
+ data-fieldinfo="{$FIELD_INFO}" value="{$FIELD_MODEL->getEditViewDisplayValue($FIELD_MODEL->get('fieldvalue'))}" {if !empty($SPECIAL_VALIDATOR)}data-validator="{Zend_Json::encode($SPECIAL_VALIDATOR)}"{/if} 
+	data-decimal-separator="{$USER_MODEL->get('currency_decimal_separator')}" data-group-separator="{$USER_MODEL->get('currency_grouping_separator')}" data-number-of-decimal-places="{$USER_MODEL->get('no_of_currency_decimals')}"/>
 {/strip}
