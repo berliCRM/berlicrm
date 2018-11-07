@@ -32,7 +32,7 @@
 								<input type='radio' name='exportCalendar' value = 'iCal' checked /> {vtranslate('ICAL_FORMAT', $MODULE)}
 							</td>
 							<td class="fieldValue">
-								<input type='text' name='filename' id='filename' size='25' value='vtiger.calendar'/>
+								<input type='text' name='filename' id='filename' size='25' value='{vtranslate('LBL_EXPORT', $MODULE)}iCal'/>
 							</td>
 						</tr>
 					</table>
