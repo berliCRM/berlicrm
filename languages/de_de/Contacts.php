@@ -62,6 +62,14 @@ $languageStrings = array(
     'LBL_MISSING_MAP_KEY' => 'Für die Kartenansicht wurde kein Schlüssel bereitgestellt. Bitte kontaktieren Sie den CRM Administrator.',
     'LBL_MISSING_MAP_KEY_ADMIN' => 'Bitte im Google Einstellungsmenü einen Schlüssel eingeben.',
 	
+	//translation of Account's field
+	'Ticker Symbol' => 'Org. Namenszusatz',	
+	'Account No' => 'Organisationsnr.',	
+	'Ownership' => 'Eigentümer',
+	'SIC Code' => 'Ust. Nr.',
+	'industry' => 'Branche',
+	'Employees' => 'Mitarbeiter',
+	
 	
 );
 
