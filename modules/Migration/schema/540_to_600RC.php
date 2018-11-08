@@ -37,7 +37,7 @@ if(defined('VTIGER_UPGRADE')) {
 	echo "Assets updated<br>";
 	updateVtlibModule('CustomerPortal', 'packages/vtiger/optional/CustomerPortal.zip');
 	echo "CustomerPortal updated<br>";
-	updateVtlibModule('ModComments', "packages/vtiger/optional/ModComments.zip");
+	updateVtlibModule('ModComments', "packages/vtiger/mandatory/ModComments.zip");
 	echo "ModComments updated<br>";
 	updateVtlibModule('Projects', "packages/vtiger/optional/Projects.zip");
 	echo "Projects updated<br>";
@@ -45,7 +45,7 @@ if(defined('VTIGER_UPGRADE')) {
 	echo "RecycleBin updated<br>";
 	updateVtlibModule('SMSNotifier', "packages/vtiger/optional/SMSNotifier.zip");
 	echo "SMSNotifier updated<br>";
-	updateVtlibModule("Webforms","packages/vtiger/optional/Webforms.zip");
+	updateVtlibModule("Webforms","packages/vtiger/mandatory/Webforms.zip");
 	installVtlibModule('Google', 'packages/vtiger/optional/Google.zip');
 	echo "Google installed";
 	installVtlibModule('EmailTemplates', 'packages/vtiger/optional/EmailTemplates.zip');
@@ -755,18 +755,19 @@ Migration_Index_View::ExecuteQuery('ALTER TABLE vtiger_links MODIFY column handl
 //Add ModComments to HelpDesk and Faq module
 
 $moduleInstance = Vtiger_Module::getInstance('ModComments');
-$customer = Vtiger_Field::getInstance('customer', $moduleInstance);
-if (!$customer) {
-	$customer = new Vtiger_Field();
-	$customer->name = 'customer';
-	$customer->label = 'Customer';
-	$customer->uitype = '10';
-	$customer->displaytype = '3';
-	$blockInstance = Vtiger_Block::getInstance('LBL_MODCOMMENTS_INFORMATION', $moduleInstance);
-	$blockInstance->addField($customer);
-	$customer->setRelatedModules(array('Contacts'));
+if($moduleInstance) {
+	$customer = Vtiger_Field::getInstance('customer', $moduleInstance);
+	if (!$customer) {
+		$customer = new Vtiger_Field();
+		$customer->name = 'customer';
+		$customer->label = 'Customer';
+		$customer->uitype = '10';
+		$customer->displaytype = '3';
+		$blockInstance = Vtiger_Block::getInstance('LBL_MODCOMMENTS_INFORMATION', $moduleInstance);
+		$blockInstance->addField($customer);
+		$customer->setRelatedModules(array('Contacts'));
+	}
 }
-
 require_once 'modules/ModComments/ModComments.php';
 ModComments::addWidgetTo(array("HelpDesk", "Faq"));
 global $current_user, $VTIGER_BULK_SAVE_MODE;
@@ -851,6 +852,7 @@ do {
 		break;
 	}
 	while ($row = $adb->fetch_array($rs)) {
+		set_time_limit(0);
 		/**
 		 * TODO: Optimize underlying API to cache re-usable data, for speedy data.
 		 */
@@ -1476,28 +1478,29 @@ for($i=0; $i<$adb->num_rows($result); $i++) {
 }
 
 $moduleInstance = Vtiger_Module::getInstance('ModComments');
-$modCommentsUserId = Vtiger_Field::getInstance("userid", $moduleInstance);
-$modCommentsReasonToEdit = Vtiger_Field::getInstance("reasontoedit", $moduleInstance);
+if ($moduleInstance) {
+	$modCommentsUserId = Vtiger_Field::getInstance("userid", $moduleInstance);
+	$modCommentsReasonToEdit = Vtiger_Field::getInstance("reasontoedit", $moduleInstance);
 
-if(!$modCommentsUserId){
-	$blockInstance = Vtiger_Block::getInstance('LBL_MODCOMMENTS_INFORMATION', $moduleInstance);
-	$userId = new Vtiger_Field();
-	$userId->name = 'userid';
-	$userId->label = 'UserId';
-	$userId->uitype = '10';
-	$userId->displaytype = '3';
-	$blockInstance->addField($userId);
+	if(!$modCommentsUserId){
+		$blockInstance = Vtiger_Block::getInstance('LBL_MODCOMMENTS_INFORMATION', $moduleInstance);
+		$userId = new Vtiger_Field();
+		$userId->name = 'userid';
+		$userId->label = 'UserId';
+		$userId->uitype = '10';
+		$userId->displaytype = '3';
+		$blockInstance->addField($userId);
+	}
+	if(!$modCommentsReasonToEdit){
+		$blockInstance = Vtiger_Block::getInstance('LBL_MODCOMMENTS_INFORMATION', $moduleInstance);
+		$reasonToEdit = new Vtiger_Field();
+		$reasonToEdit->name = 'reasontoedit';
+		$reasonToEdit->label = 'ReasonToEdit';
+		$reasonToEdit->uitype = '19';
+		$reasonToEdit->displaytype = '1';
+		$blockInstance->addField($reasonToEdit);
+	}
 }
-if(!$modCommentsReasonToEdit){
-	$blockInstance = Vtiger_Block::getInstance('LBL_MODCOMMENTS_INFORMATION', $moduleInstance);
-	$reasonToEdit = new Vtiger_Field();
-	$reasonToEdit->name = 'reasontoedit';
-	$reasonToEdit->label = 'ReasonToEdit';
-	$reasonToEdit->uitype = '19';
-	$reasonToEdit->displaytype = '1';
-	$blockInstance->addField($reasonToEdit);
-}
-
 Migration_Index_View::ExecuteQuery('ALTER TABLE vtiger_invoice MODIFY balance decimal(25,8)',array());
 Migration_Index_View::ExecuteQuery('ALTER TABLE vtiger_invoice MODIFY received decimal(25,8)',array());
 Migration_Index_View::ExecuteQuery('ALTER TABLE vtiger_purchaseorder MODIFY balance decimal(25,8)',array());
