@@ -174,7 +174,7 @@ class Vtiger_Relation_Model extends Vtiger_Base_Model{
 
 		if(!empty($label)) {
 			$query .= ' AND label = ?';
-			$params[] = $label;
+			$params[] = html_entity_decode($label);
 		}
 		
 		$result = $db->pquery($query, $params);
