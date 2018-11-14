@@ -764,6 +764,7 @@ class Users extends CRMEntity {
 			$usepath = '';
 		}
 		checkFileAccessForInclusion($usepath.'user_privileges/user_privileges_'.$userid.'.php');
+        opcache_invalidate($usepath.'user_privileges/user_privileges_'.$userid.'.php');
         require($usepath.'user_privileges/user_privileges_'.$userid.'.php');
         foreach($this->column_fields as $field=>$value_iter) {
             if(isset($user_info[$field])) {
