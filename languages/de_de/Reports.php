@@ -10,7 +10,7 @@
  *************************************************************************************/
 $languageStrings = array(
 	'Account and Contact Reports'=>'Organisations- und Personenberichte',
-	'Accounts Email Report'=>'Organizationen E-Mail Bericht',
+	'Accounts Email Report'=>'Organisationen E-Mail Bericht',
 	'Activity Reports'=>'Aktivitätenberichte',
 	'Campaign Expectations and Actuals'=>'Kampagnenerwartungen und Aktuelles', //Added for Campaigns
 	'Campaign Reports'=>'Kampagnenberichte', //Added for Campaigns
