@@ -18,4 +18,9 @@ $languageStrings = array(
 	'Related To Comments' => 'Related to',
 	'SINGLE_ModComments' => 'Comment',
 	'ReasonToEdit' => 'Reason to edit',
+
+    'LBL_SHOW_REPLY' => 'Show reply',
+    'LBL_SHOW_REPLIES' => 'Show %d replies',
+    'LBL_HIDE_REPLY' => 'Hide reply',
+    'LBL_HIDE_REPLIES' => 'Hide replies',
 );
