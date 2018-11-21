@@ -174,12 +174,11 @@ class Vtiger_Relation_Model extends Vtiger_Base_Model{
 
 		if(!empty($label)) {
 			$query .= ' AND label = ?';
-			$params[] = $label;
+			$params[] = html_entity_decode($label);
 		}
-		
+
 		$result = $db->pquery($query, $params);
-		if($db->num_rows($result)) {
-			$row = $db->query_result_rowdata($result, 0);
+		while ($row =$db->fetchByAssoc($result,-1,false)) {
 			$relationModelClassName = Vtiger_Loader::getComponentClassName('Model', 'Relation', $parentModuleModel->get('name'));
 			$relationModel = new $relationModelClassName();
 			$relationModel->setData($row)->setParentModuleModel($parentModuleModel)->setRelationModuleModel($relatedModuleModel);
@@ -208,8 +207,7 @@ class Vtiger_Relation_Model extends Vtiger_Base_Model{
 
 		$relationModels = array();
 		$relationModelClassName = Vtiger_Loader::getComponentClassName('Model', 'Relation', $parentModuleModel->get('name'));
-		for($i=0; $i<$db->num_rows($result); $i++) {
-			$row = $db->query_result_rowdata($result, $i);
+		while ($row =$db->fetchByAssoc($result,-1,false)) {
 			//$relationModuleModel = Vtiger_Module_Model::getCleanInstance($moduleName);
 			// Skip relation where target module does not exits or is no permitted for view.
 			if (!Users_Privileges_Model::isPermitted($row['modulename'],'DetailView')) {
