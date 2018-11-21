@@ -148,17 +148,17 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 						$referenceNameFieldOrderBy[] = implode('', $columnList).' '.$sortOrder ;
 					}
 				}
-				$query .= ' ORDER BY '. implode(',',$referenceNameFieldOrderBy);
+				$orderQuery = ' ORDER BY '. implode(',',$referenceNameFieldOrderBy);
 			}
 			else if (!empty($orderBy) && $orderBy === 'smownerid') { 
 				$fieldModel = Vtiger_Field_Model::getInstance('assigned_user_id', $moduleModel); 
 				if ($fieldModel->getFieldDataType() == 'owner') { 
 					$orderBy = 'COALESCE(CONCAT(vtiger_users.first_name,vtiger_users.last_name),vtiger_groups.groupname)'; 
 				} 
-				$query .= ' ORDER BY '. $orderBy . ' ' .$sortOrder;
+				$orderQuery = ' ORDER BY '. $orderBy . ' ' .$sortOrder;
 			}
 			else{
-				$query .= ' ORDER BY '. $orderBy . ' ' .$sortOrder;
+				$orderQuery = ' ORDER BY '. $orderBy . ' ' .$sortOrder;
 			}
 		}
 
@@ -169,8 +169,7 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 		$this->accessibleFields = $queryGenerator->getFields();
 
 		switch($mode) {
-			case 'ExportAllData' :	return $query;
-									break;
+			case 'ExportAllData' :		break;
 
 			case 'ExportCurrentPage' :	$pagingModel = new Vtiger_Paging_Model();
 										$limit = $pagingModel->getPageLimit();
@@ -180,9 +179,8 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 
 										$currentPageStart = ($currentPage - 1) * $limit;
 										if ($currentPageStart < 0) $currentPageStart = 0;
-										$query .= ' LIMIT '.$currentPageStart.','.$limit;
+										$limitQuery = ' LIMIT '.$currentPageStart.','.$limit;
 
-										return $query;
 										break;
 
 			case 'ExportSelectedRecords' :	$idList = $this->getRecordsListFromRequest($request);
@@ -196,13 +194,14 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 											} else {
 												$query .= ' AND '.$baseTable.'.'.$baseTableColumnId.' NOT IN ('.implode(',',$request->get('excluded_ids')).')';
 											}
-											return $query;
 											break;
 
 
-			default :	return $query;
-						break;
+			default :					break;
 		}
+		if (isset($orderQuery)) $query .= $orderQuery;
+		if (isset($limitQuery)) $query .= $limitQuery;
+		return $query;
 	}
 
 	/**

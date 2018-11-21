@@ -1717,7 +1717,10 @@ function updateVtlibModule($module, $packagepath) {
 			$log->debug("$module - Module instance found - Update starts here");
 			$package->update($moduleInstance, $packagepath);
 		} else {
-			$log->fatal("$module doesn't exists!");
+			//crm-now: try fallback method and install module instead
+			$log->debug("$module didn't exist!");
+			unset($_installOrUpdateVtlibModule[$module.$packagepath]);
+			installVtlibModule($module, $packagepath);
 		}
 	}
 }
