@@ -66,6 +66,9 @@ class Vtiger_Viewer extends SmartyBC {
 		if (!file_exists($compileDir)) {
 			mkdir($compileDir, 0777, true);
 		}
+        if (!is_writable($compileDir)) {
+            die("Fatal error: Smarty compile directory not writable. Please fix permissions under /test/templates_c/.");
+        }
 		$this->setTemplateDir(array($templatesDir));
 		$this->setCompileDir($compileDir);		
 

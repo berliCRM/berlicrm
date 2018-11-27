@@ -20,7 +20,7 @@ class Install_ajaxInitDB_Action extends Vtiger_BasicAjax_Action {
 		$ret = array(false, 'Unknown error');
 		$mode = $request->get('mode');
 		if (!$this->checkPermission()) {
-			$ret[1] = 'Already Installed';
+			$ret[1] = 'Already installed<br>(if this is in error, delete /test/installFinished)';
 			$mode = 'failed';
 		}
 		$path = Install_Utils_Model::INSTALL_LOG;
