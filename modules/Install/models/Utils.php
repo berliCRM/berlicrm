@@ -72,7 +72,7 @@ class Install_Utils_Model {
 		if (ini_get('memory_limit') < 512)
 			$directiveValues['memory_limit'] = ini_get('memory_limit');
 		if (ini_get('short_open_tag') == '1' || stripos(ini_get('short_open_tag'), 'On') > -1)
-			$directiveValues['short_open_tag'] = 'Off';
+			$directiveValues['short_open_tag'] = 'On';
         if (ini_get('max_input_vars') < 8192)
 			$directiveValues['max_input_vars'] = ini_get('max_input_vars');
 		return $directiveValues;

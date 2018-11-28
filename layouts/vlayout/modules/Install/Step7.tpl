@@ -64,7 +64,7 @@
 <script type="text/javascript">
 	var imgLoadPath = '{/literal}{vimage_path("vtbusy.gif")}{literal}';
 	var imgSuccessPath = '{/literal}{vimage_path("green.png")}{literal}';
-	var imgFailPath = '{/literal}{vimage_path("Tickets.png")}{literal}';
+	var aDeferred = jQuery.Deferred();
 	//create config
 	var params = {
 		module : 'Install',
@@ -101,24 +101,60 @@
 											jQuery('#'+params.mode).html('<img src="'+imgSuccessPath+'">');
 											setTimeout(function() { jQuery('form[name="step7"]').submit();}, 2000);
 										} else {
-											jQuery('#'+params.mode).html('<img src="'+imgFailPath+'">&nbsp'+response.result.message);
+											handleError(response);
 										}
+										aDeferred.resolve();
+									},
+									function(error){
+										handleError(error);
+										aDeferred.reject();
 									});
 								} else {
-									jQuery('#'+params.mode).html('<img src="'+imgFailPath+'">&nbsp'+response.result.message);
+									handleError(response);
 								}
+								aDeferred.resolve();
+							},
+							function(error){
+								handleError(error);
+								aDeferred.reject();
 							});
 						} else {
-							jQuery('#'+params.mode).html('<img src="'+imgFailPath+'">&nbsp'+response.result.message);
+							handleError(response);
 						}
+						aDeferred.resolve();
+					},
+					function(error){
+						handleError(error);
+						aDeferred.reject();
 					});
 				} else {
-					jQuery('#'+params.mode).html('<img src="'+imgFailPath+'">&nbsp'+response.result.message);
+					handleError(response);
 				}
+				aDeferred.resolve();
+			},
+			function(error){
+				handleError(error);
+				aDeferred.reject();
 			});
 		} else {
-			jQuery('#'+params.mode).html('<img src="'+imgFailPath+'">&nbsp'+response.result.message);
+			handleError(response);
 		}
+		aDeferred.resolve();
+	},
+	function(error){
+		handleError(error);
+		aDeferred.reject();
 	});
+function handleError(response) {
+	var imgFailPath = '{/literal}{vimage_path("Tickets.png")}{literal}';
+	var errorMsg = 'Unknown error';
+	
+	if (response.error && response.error.message) {
+		errorMsg = response.error.message;
+	} else if (response) {
+		errorMsg = response;
+	}
+	jQuery('#'+params.mode).html('<img src="'+imgFailPath+'">&nbsp'+errorMsg);
+}
 </script>
 {/literal}
