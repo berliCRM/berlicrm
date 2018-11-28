@@ -102,6 +102,9 @@ var AppConnector = {
 		}
 
 		var error = function(jqXHR, textStatus, errorThrown){
+			if (textStatus == 'parsererror' && jqXHR.responseText) {
+				textStatus = textStatus+': '+jqXHR.responseText;
+			}
 			aDeferred.reject(textStatus, errorThrown);
 		}
 		
