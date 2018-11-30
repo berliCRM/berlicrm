@@ -25,18 +25,35 @@ class Vtiger_BasicAjax_Action extends Vtiger_Action_Controller {
 		$parentModuleName = $request->get('parent_module');
 		$relatedModule = $request->get('module');
 
-		$searchModuleModel = Vtiger_Module_Model::getInstance($searchModule);
-		$records = $searchModuleModel->searchRecord($searchValue, $parentRecordId, $parentModuleName, $relatedModule);
+        // get results for autocomplete fields (uitype cr16)
+        if ($searchModule == "Picklist") {
+            $fieldname = $request->get('fieldname');
+            // sanitize fieldname for use as tablename
+            $ftmp = explode("_",$fieldname);
+            if ($ftmp[0]!="cf" || !is_numeric($ftmp[1])) {
+                throw new AppException(vtranslate('LBL_NO_RECORDS_FOUND'));
+            }
+            global $adb;
+            $q = "SELECT $fieldname as value FROM vtiger_$fieldname WHERE presence = 1 AND $fieldname LIKE ? ORDER BY sortorderid";
+            $res = $adb->pquery($q,array($searchValue."%"));
+            while ($res && $row=$adb->fetchByAssoc($res,-1,false)) {
+                $result[] = array('value'=>$row['value']);
+            }
+        }
+        else {
+            $searchModuleModel = Vtiger_Module_Model::getInstance($searchModule);
 
-		$result = array();
-		if(is_array($records)){
-			foreach($records as $moduleName=>$recordModels) {
-				foreach($recordModels as $recordModel) {
-					$result[] = array('label'=>decode_html($recordModel->getName()), 'value'=>decode_html($recordModel->getName()), 'id'=>$recordModel->getId());
-				}
-			}
-		}
+            $records = $searchModuleModel->searchRecord($searchValue, $parentRecordId, $parentModuleName, $relatedModule);
 
+            $result = array();
+            if(is_array($records)){
+                foreach($records as $moduleName=>$recordModels) {
+                    foreach($recordModels as $recordModel) {
+                        $result[] = array('label'=>decode_html($recordModel->getName()), 'value'=>decode_html($recordModel->getName()), 'id'=>$recordModel->getId());
+                    }
+                }
+            }
+        }
 		$response = new Vtiger_Response();
 		$response->setResult($result);
 		$response->emit();

@@ -57,8 +57,8 @@ class Settings_LayoutEditor_Field_Model extends Vtiger_Field_Model {
             $adb->pquery($map_del_q, array($id));
         }
 
-        //HANDLE HERE - we have to remove the table for other picklist type values which are text area and multiselect combo box
-        if($this->getFieldDataType() == 'picklist' || $this->getFieldDataType() == 'multipicklist') {
+        //Remove the table for picklist, multipicklist and autocompletion values
+        if($this->getFieldDataType() == 'picklist' || $this->getFieldDataType() == 'multipicklist' || $this->getFieldDataType() == 'autocompletedtext') {
             $deltablequery = 'drop table vtiger_'.$adb->sql_escape_string($columnname);
             $adb->pquery($deltablequery, array());
             //To Delete Sequence Table 

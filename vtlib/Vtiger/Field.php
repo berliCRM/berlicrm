@@ -36,7 +36,7 @@ class Vtiger_Field extends Vtiger_FieldBasic {
 		global $adb,$default_charset;
 
 		// Non-Role based picklist values
-		if($this->uitype == '16') {
+		if($this->uitype == '16' || $this->uitype == 'cr16') {
 			$this->setNoRolePicklistValues($values);
 			return;
 		}
@@ -56,7 +56,7 @@ class Vtiger_Field extends Vtiger_FieldBasic {
 			$adb->pquery("INSERT INTO vtiger_picklist (picklistid,name) VALUES(?,?)",Array($new_picklistid, $this->name));
 			self::log("Creating table $picklist_table ... DONE");
 		} else {
-                        $picklistResult = $adb->pquery("SELECT picklistid FROM vtiger_picklist WHERE name=?", Array($this->name));
+            $picklistResult = $adb->pquery("SELECT picklistid FROM vtiger_picklist WHERE name=?", Array($this->name));
 			$new_picklistid = $adb->query_result($picklistResult, 0, 'picklistid');
 		}
 
@@ -117,6 +117,10 @@ class Vtiger_Field extends Vtiger_FieldBasic {
 				presence INT (11) NOT NULL DEFAULT 1)",
 				true);
 			self::log("Creating table $picklist_table ... DONE");
+            // create index on value column for autocomplete fields
+            if ($this->uitype == 'cr16') {
+                $adb->query("ALTER TABLE `$picklist_table` ADD INDEX (`$this->name`)");
+            }
 		}
 
 		// Add value to picklist now
