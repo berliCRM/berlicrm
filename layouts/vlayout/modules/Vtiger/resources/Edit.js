@@ -274,11 +274,13 @@ jQuery.Class("Vtiger_Edit_Js",{
 				var inputElement = jQuery(this.element[0]);
 				var searchValue = request.term;
 				var params = thisInstance.getReferenceSearchParams(inputElement);
+                var fieldname = inputElement.data("fieldname"); // only set for "autocomplete" fields uitype cr16
 				params.search_value = searchValue;
+				params.fieldname = fieldname;
 				thisInstance.searchModuleNames(params).then(function(data){
 					var reponseDataList = new Array();
-					var serverDataFormat = data.result
-					if(serverDataFormat.length <= 0) {
+					var serverDataFormat = data.result;
+					if(!serverDataFormat || serverDataFormat.length <= 0) {
 						jQuery(inputElement).val('');
 						serverDataFormat = new Array({
 							'label' : app.vtranslate('JS_NO_RESULTS_FOUND'),
@@ -310,6 +312,10 @@ jQuery.Class("Vtiger_Edit_Js",{
 			},
 			'change' : function(event, ui) {
 				var element = jQuery(this);
+                // if field is "autocompletedText" (uitype cr16) accept only values from ajax source, clear field otherwise
+                if (element.data("fieldname") && !ui.item){
+                    element.val("");
+                }
 				//if you dont have readonly attribute means the user didnt select the item
 				if(element.attr('readonly')== undefined) {
 					element.closest('td').find('.clearReferenceSelection').trigger('click');
@@ -349,7 +355,7 @@ jQuery.Class("Vtiger_Edit_Js",{
 			//Stop the submit when enter is pressed in the form
 			var currentElement = jQuery(e.target);
 			if(e.which == 13 && (!currentElement.is('textarea'))) {
-				e. preventDefault();
+				e.preventDefault();
 			}
 		})
 	},

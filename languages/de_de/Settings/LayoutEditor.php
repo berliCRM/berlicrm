@@ -57,6 +57,7 @@ $languageStrings = array(
 	'LBL_SUMMARY_FIELD' => 'kompakte Ansicht',
 	'LBL_WRONG_FIELD_TYPE' => 'falscher Feldtyp',
 	'MultiSelectCombo'=>'Multi-Auswahlliste',
+    'AutocompletedText'=>'Selbstvervollständigend',
 	'Percent'=>'Prozent',
 	'Phone'=>'Telefon',
 	'PickList'=>'Auswahlliste',

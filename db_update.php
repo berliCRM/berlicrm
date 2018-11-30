@@ -129,11 +129,14 @@ if($moduleInstance) {
 		$reasonToEdit->displaytype = '1';
 		$blockInstance->addField($reasonToEdit);
 	}
-    $adb->query("ALTER TABLE `berlicrm`.`vtiger_modcomments` ADD PRIMARY KEY ( `modcommentsid` )");
+    $adb->query("ALTER TABLE `vtiger_modcomments` ADD PRIMARY KEY ( `modcommentsid` )");
 }
 
 echo 'done<br>';
 
+echo 'Creating ws_fieldtype entry for new uitype...';
+$adb->query("INSERT INTO vtiger_ws_fieldtype (`uitype` ,`fieldtype`) VALUES ('cr16', 'autocompletedtext')");
+echo 'done<br>';
 
 echo "<br>update Tag version to 11.. ";
 $query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.11'";
