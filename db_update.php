@@ -76,7 +76,7 @@ if ($res) {
 	echo "found";
 	if ($adb->num_rows($res) < 1) {
 		echo " and update required";
-		$query = "ALTER TABLE vtiger_smsnotifier_servers ADD `countryprefix` VARCHAR (5) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '';"
+		$query = "ALTER TABLE vtiger_smsnotifier_servers ADD `countryprefix` VARCHAR (5) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT ''";
 		$res = $adb->pquery($query, array());
 		if ($res) {
 			echo "<br>Update successful";
