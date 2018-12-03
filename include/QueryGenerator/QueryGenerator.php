@@ -889,9 +889,9 @@ class QueryGenerator {
                     if($conditionInfo['operator'] == 'n' || $conditionInfo['operator'] == 'k' || $conditionInfo['operator'] == 'y') {
                        $conditionGlue = ' AND '; 
                        if($conditionInfo['operator'] == 'n') {
-                           $specialCondition = ' OR '.$field->getTableName().'.'.$field->getColumnName().' IS NULL ';
+                           $specialCondition = ' OR '.$field->getTableName().'.'.$field->getColumnName().' IS NULL OR '.$field->getTableName().'.'.$field->getColumnName()." <=> '' ";
                            if(!empty($otherField))
-                           $specialConditionForOtherField = ' OR '.$otherField->getTableName().'.'.$otherField->getColumnName().' IS NULL ';
+                           $specialConditionForOtherField = ' OR '.$otherField->getTableName().'.'.$otherField->getColumnName().' IS NULL OR '.$otherField->getTableName().'.'.$otherField->getColumnName()." <=> '' ";
                     }
                     }
                     
