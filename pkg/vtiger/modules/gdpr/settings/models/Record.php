@@ -17,11 +17,7 @@ class Settings_gdpr_Record_Model extends Settings_Vtiger_Record_Model {
     public function getName() {
         return $this->getName();
     }
-    
-    public function getModule(){
-        return new Settings_berliSoftphones_Module_Model;
-    }
-    
+
     static function getCleanInstance(){
         return new self;
     }
