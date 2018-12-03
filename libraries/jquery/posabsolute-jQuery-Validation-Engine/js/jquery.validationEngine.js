@@ -14,26 +14,24 @@
 
 	 "use strict";
 
-	 var methods = {
+	var methods = {
 
-		 /**
-		 * Kind of the constructor, called before any action
-		 * @param {Map} user options
-		 */
-		 init: function(options) {
-			 var form = this;
-			 if (!form.data('jqv') || form.data('jqv') == null ) {
-				 options = methods._saveOptions(form, options);
-				 // bind all formError elements to close on click
-				 $(".formError").on("click", function() {
-					 $(this).fadeOut(150, function() {
-						 // remove prompt once invisible
-						 $(this).parent('.formErrorOuter').remove();
-						 $(this).remove();
-					 });
-				 });
-			 }
-			 return this;
+		/**
+		* Kind of the constructor, called before any action
+		* @param {Map} user options
+		*/
+		init: function(options) {
+			var form = this;
+			if (!form.data('jqv') || form.data('jqv') == null ) {
+				options = methods._saveOptions(form, options);
+				// close formError elements on click
+				$(document).on("click", ".formError", function() {
+					$(this).fadeOut({duration:150, queue: false, complete:function() {
+                        $(this).remove();
+					}});
+				});
+			}
+			return this;
 		 },
 		/**
 		* Attachs jQuery.validationEngine to form.submit and field.blur events
