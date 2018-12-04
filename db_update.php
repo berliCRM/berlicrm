@@ -138,7 +138,7 @@ echo 'Creating ws_fieldtype entry for new uitype...';
 $adb->query("INSERT INTO vtiger_ws_fieldtype (`uitype` ,`fieldtype`) VALUES ('cr16', 'autocompletedtext')");
 echo 'done<br>';
 
-echo "<br>update Tag version to 11.. ";
-$query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.11'";
+echo "<br>update Tag version to 12.. ";
+$query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.12'";
 $adb->pquery($query, array());
 echo " Tag version done.<br>";
