@@ -90,7 +90,7 @@ class EmailTemplate {
 		$columnList = array();
 		$allColumnList = $meta->getUserAccessibleColumns();
 		$fieldList = array();
-		if (count($variableList) > 0) {
+		if (is_array($variableList) and count($variableList) > 0) {
 			foreach ($variableList as $column) {
 				if (in_array($column, $allColumnList)) {
 					$fieldList[] = array_search($column, $fieldColumnMapping);
