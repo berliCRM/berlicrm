@@ -767,7 +767,13 @@ jQuery.Class("Vtiger_List_Js",{
         var searchValue = this.getAlphabetSearchValue();
 
         if((typeof searchValue != "undefined") && (searchValue.length > 0)) {
-            params['search_key'] = this.getAlphabetSearchField();
+			//added for inactive User's navigation menu
+			if (searchValue == 'Inactive' && module == 'Users') {
+				params['search_key'] = 'status';
+			}
+			else {
+				params['search_key'] = this.getAlphabetSearchField();
+			}
             params['search_value'] = searchValue;
             params['operator'] = "s";
         }
