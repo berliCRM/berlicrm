@@ -135,8 +135,8 @@
                             {elseif $RELATED_HEADERNAME eq 'saved_toid'}
                                 {* crm-now: decode json encoded email receivers for related email *}
                                 {assign var=toemails value=$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)|html_entity_decode|json_decode:1}
-                                <span style='white-space:nowrap'>{$toemails[1]|escape}</span>
-                                {if $toemails|@count > 1}<br>(+ {$toemails|@count -1} {vtranslate("Others")}){/if}
+                                <span style='white-space:nowrap'>{$toemails|@array_shift|escape}</span>
+                                {if $toemails|@count > 0}<br>(+ {$toemails|@count} {vtranslate("Others")}){/if}
                             {else if $HEADER_FIELD->getFieldDataType() eq 'owner'}
                                 {getOwnerName($RELATED_RECORD->get($RELATED_HEADERNAME))}
                             {else}
