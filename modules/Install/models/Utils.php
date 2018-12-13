@@ -69,7 +69,7 @@ class Install_Utils_Model {
 			$directiveValues['output_buffering'] = 'Off';
 		if (ini_get('max_execution_time') < 3600)
 			$directiveValues['max_execution_time'] = ini_get('max_execution_time');
-		if (ini_get('memory_limit') < 512)
+		if (self::memoryLimitInBytes() < 536870912)
 			$directiveValues['memory_limit'] = ini_get('memory_limit');
 		if (ini_get('short_open_tag') == '1' || stripos(ini_get('short_open_tag'), 'On') > -1)
 			$directiveValues['short_open_tag'] = 'On';
@@ -78,6 +78,16 @@ class Install_Utils_Model {
 		return $directiveValues;
 	}
 
+    public static function memoryLimitInBytes() {
+        $s = ini_get('memory_limit');
+        switch (substr ($s, -1))
+        {
+            case 'M': case 'm': return (int)$s * 1048576;
+            case 'K': case 'k': return (int)$s * 1024;
+            case 'G': case 'g': return (int)$s * 1073741824;
+            default: return $s;
+        }
+    }
 	/**
 	 * Variable has the recommended php settings for production operation
 	 * @var <Array>
@@ -86,7 +96,7 @@ class Install_Utils_Model {
 		'file_uploads' => 'On',
 		'output_buffering' => 'On',
 		'max_execution_time' => '3600',
-		'memory_limit' => '512',
+		'memory_limit' => '512M',
 		'short_open_tag' => 'Off',
         'max_input_vars' => 8192
 	);
