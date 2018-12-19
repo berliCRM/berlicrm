@@ -28,16 +28,21 @@ class Google {
         if ($eventType == 'module.postinstall') {
             $adb->pquery('UPDATE vtiger_tab SET customized=0 WHERE name=?', array($moduleName));
             $this->addMapWidget($forModules);
+            $this->addWidgetforSync($syncModules);
 			//initiate settings table
 			$this->createSettingsTableContents();
 			//add settings menu
 			$this->createSettingsMenueEntry();
-			
+            //register handlers
+            require_once 'modules/WSAPP/Utils.php';
+            wsapp_RegisterHandler('Google_vtigerHandler', 'Google_Vtiger_Handler', 'modules/Google/handlers/Vtiger.php'); 
+            wsapp_RegisterHandler('Google_vtigerSyncHandler', 'Google_VtigerSync_Handler', 'modules/Google/handlers/VtigerSync.php'); 
         } else if ($eventType == 'module.disabled') {
             $this->removeMapWidget($forModules);
             $this->removeWidgetforSync($syncModules);
         } else if ($eventType == 'module.enabled') {
             $this->addMapWidget($forModules);
+            $this->addWidgetforSync($syncModules);
         } else if ($eventType == 'module.preuninstall') {
             $this->removeMapWidget($forModules);
             $this->removeWidgetforSync($syncModules);
