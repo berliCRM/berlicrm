@@ -885,7 +885,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
             } else {
                 var groupTaxValue = amount * groupTaxPercentageElement.val()/100;
             }
-			groupTaxValue = parseFloat(groupTaxValue).toFixed(numberOfDecimal);
+			groupTaxValue = (Math.round( parseFloat(groupTaxValue) * 100 ) / 100).toFixed(numberOfDecimal);
 			groupTaxRow.find('.groupTaxTotal').val(groupTaxValue);
 			groupTaxTotal += parseFloat(groupTaxValue);
 		});
