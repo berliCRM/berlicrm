@@ -6,6 +6,7 @@ $languageStrings = Array (
 	'Map' => 'Kartenansicht',
 	'GOOGLEINAVTIVE_ERROR' => 'Die Kartenansicht kann nicht aktiviert werden, da das Google Modul in Ihrem CRM entwerder nicht installiert oder deaktiviert wurde.',
 	'GOOGLEKEY_ERROR' => 'Eine Ermittlung der Geo Daten ist mit dem eingegebenen Google Schlüssel nicht möglich. Bitte einen korrekten Schlüssel eingeben, oder den Schlüssel entfernen. Ohne Schlüssel,ist die Anzahl der möglichen Geo Daten Ermittlungen entsprechend der Google Richtlinien pro Tag begrenzt.',
+	'LBL_VIEW_MAP' => 'Karte anzeigen',
 	
 );
 $jsLanguageStrings = array(
@@ -23,7 +24,7 @@ $jsLanguageStrings = array(
 	'Permission unavailable'=> 'die Funktion zur Ermittlung des eingenen Standortes steht zur Zeit nicht zur Verfügung',
 	'Permission request timeout'=> 'die Funktion zur Ermittlung des eingenen Standortes antwortet zur Zeit nicht',
 	'JS_GEODATA_LIMIT' => 'Google API Schlüssel',
-	'JS_GEODATA_LIMIT_INFO' => 'Sie haben keinen Google Schlüssel angegeben. Die Suche nach Geo Daten ist nach Google Richtlinien in der Menge pro Tag begrenzt.',
+	'JS_GEODATA_LIMIT_INFO' => 'Ihr CRM Administrator hat keinen Google Schlüssel angegeben.',
 	'JS_OVER_24H_LIMIT' => 'Geo Daten konnten nicht ermittelt werden!',
 	'JS_OVER_24H_MESSAGE1' => 'Sie haben das von Google gesetzte 24h Limit erreicht. Es konnten die Geo Daten für mindestens ',
 	'JS_OVER_24H_MESSAGE2' => ' Adressen nicht ermittelt werden.',

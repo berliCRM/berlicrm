@@ -10,8 +10,7 @@
 {strip}
 <input id="iconpath" value="modules/berlimap/icons/blueIcon.png" type="hidden">
 <input id="myiconpath" value="modules/berlimap/icons/red-dot.png" type="hidden">
-<link rel="stylesheet" href="https://openlayers.org/en/v4.2.0/css/ol.css" type="text/css">
-    <style>
+<style>
       .map {
         height: 100%;
         width: 100%;
@@ -58,8 +57,7 @@
       .ol-popup-closer:after {
         content: "✖";
       }
-    </style>
-<script src="https://openlayers.org/en/v4.2.0/build/ol.js" type="text/javascript"></script>
+</style>
 <input type="hidden" id="geoapikey" value="{$GEOAPIKEY}" />
 <div >
 <br>
@@ -79,7 +77,7 @@
 	</tr>
 <tr>
 	<td class="fieldLabel" style="width:20%">
-		<button class="btn btn-success" id='showButton'  name='showButton'><strong>Anzeigen</strong></button>
+		<button class="btn btn-success" id='showButton'  name='showButton'><strong>{vtranslate('LBL_VIEW_MAP', $MODULE)}</strong></button>
 	</td>
 </tr>
  </table>
