@@ -112,7 +112,12 @@ MailChimpCommon = {
 							callBackFunction(data);
 						}
 					});
+				},
+				function(error,err){
+					progressIndicatorElement.progressIndicator({'mode':'hide'});
+					alert(app.vtranslate('JS_SERVER_ERROR')+': '+error+' '+err)
 				}
+
 			);
 		}
 	},
@@ -127,88 +132,95 @@ MailChimpCommon = {
 		return true;
 	},
 	
-	sync : function(id) {
-		var list = document.getElementById('mcgrouplist').value;
-		if(document.getElementById('groups')!=null && document.getElementById('newgroupname_row').style.display !='none' && !isNaN(groups)) {
-			var  groups = document.getElementById('groups').value;
-			groups = listInfo[groups].name;
-		} else {
-			var  groups = "";
-			var group = document.getElementById('newGroupName').value;
-		}
-		var progressIndicatorElement = jQuery.progressIndicator({
-			'position' : 'html',
-			'blockInfo' : {
-			'enabled' : true
-			}
-		});
-		MailChimpCommon.syncstart("Mailchimp",id,"MailchimpSyncStep1",list,groups,group);
-	},
-	
-	syncstart : function getStep(module,id, step,listeid,groups,group){ 
+	sync : function(recordid) {
+		var mcgroupid =  jQuery("#mcgrouplist").val();
+		var mcgroupname = jQuery("#mcgrouplist option:selected").text();
+		
+		jQuery('#mailchimplog').children().remove();
+		
 		var progressIndicatorElement = jQuery.progressIndicator({
 				'position' : 'html',
 				'blockInfo' : {
 				'enabled' : true
 				}
 			});
-		var record			= id;
-		var module_nameurl	= module;
-		var module_name		= module;
-		if (typeof(groups) == 'undefined') {
-			groups='';
+		jQuery('#mailchimplog').append('<div>'+app.vtranslate('MC_WAIT')+'</div>');	
+		MailChimpCommon.syncstart("Mailchimp", recordid, 1, mcgroupid, mcgroupname, progressIndicatorElement);
+		
+	},
+	
+	syncstart : function getStep(module, recordid, step, mcgroupid, mcgroupname, progressIndicatorElement) { 
+		var params = {
+				'step' : step,
+				'module' : 'Mailchimp',
+				'action' : 'MailChimpStepController',
+				'recordid' : recordid,
+				'mcgroupid' : mcgroupid,
+				'mcgroupname' : mcgroupname,
+				'verbose' : document.getElementById("verbose").checked
 		}
-		if (typeof(group) == 'undefined') {
-			group='';
-		}
-		if (step == 'MailchimpSyncStep1' || step == 'MailchimpSyncStep3' ) {
-			jQuery('#mailchimplog').append('<div>'+app.vtranslate('MC_WAIT')+'</div>');
-			jQuery('#mailchimplog div:last-child').attr('style', 'color:gray');
-		}
-		var params = 'index.php?module=Mailchimp&action=MailChimpStepController&function='+step+'&ajax=true&record='+record+'&module_name='+module_name+'&module_nameurl='+module_nameurl+"&list_id="+listeid+'&groupslist='+groups+'&group='+group;
+
 		AppConnector.request(params).then(
-			function(result) {
-				if(jQuery.parseJSON(result.result) == "FAILURE"){
-						alert(app.vtranslate('JSLBL_ENTER_MC_VALUE'));
-						return false;
-					}
-					else{
-						if(result.result!="" && step=='MailchimpSyncStep1') {
-							jQuery.each( jQuery.parseJSON(result.result), function( key, value ) {
-								jQuery('#mailchimplog').append('<div>'+value.text+'</div>');
-								jQuery('#mailchimplog div:last-child').attr('style', value.style);
-							});
-							getStep(module,id,'MailchimpSyncStep2',listeid,groups,group);
-							progressIndicatorElement.progressIndicator({'mode' : 'hide'});
-						}
-						else if(result.result!="" && step=='MailchimpSyncStep2') {
-							jQuery.each( jQuery.parseJSON(result.result), function( key, value ) {
-								jQuery('#mailchimplog').append('<div>'+value.text+'</div>');
-								jQuery('#mailchimplog div:last-child').attr('style', value.style);
-							});
-							getStep(module,id,'MailchimpSyncStep3',listeid);
-							//progressIndicatorElement.progressIndicator({'mode' : 'hide'});
-						}
+			function(responseData){					
+				if(responseData.success){
 					
-						else if(result.result!="" && step=='MailchimpSyncStep3') {
-							jQuery.each( jQuery.parseJSON(result.result), function( key, value ) {
-								jQuery('#mailchimplog').append('<div>'+value.text+'</div>');
-								jQuery('#mailchimplog div:last-child').attr('style', value.style);
-							});
-							getStep(module,id,'MailchimpSyncStep4',listeid,groups,group);
-							//progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+					var nextstep = responseData.result[2];
+		
+					// "divid" set, update progress indicator
+					if (responseData.result[3]!= null) {
+					
+						var divid = responseData.result[3];
+						
+						if (!jQuery('#'+divid).length) {
+							jQuery('#mailchimplog').append('<div id="'+divid+'" style="font-size:125%;padding-top:10px"></div>');
 						}
 						
-						else if(result.result!="" && step=='MailchimpSyncStep4') {
-							jQuery.each( jQuery.parseJSON(result.result), function( key, value ) {
-								jQuery('#mailchimplog').append('<div>'+value.text+'</div>');
-								jQuery('#mailchimplog div:last-child').attr('style', value.style);
-							});
-							progressIndicatorElement.progressIndicator({'mode' : 'hide'});
-						}
+						jQuery('#'+divid).animate({color: '#aab'}).animate({color: '#000'});
+						jQuery('#'+divid).html(responseData.result[1]);
+						jQuery('#mailchimplog').scrollTop($('#mailchimplog')[0].scrollHeight);
+						MailChimpCommon.syncstart("Mailchimp", recordid, nextstep, mcgroupid, mcgroupname, progressIndicatorElement);
+						return;
 					}
+					
+					// append response message to synclog and scroll into view
+					jQuery('#mailchimplog').append('<div>'+responseData.result[1]+"</div>");
+					jQuery('#mailchimplog').scrollTop($('#mailchimplog')[0].scrollHeight);
+					
+					if (nextstep > 0 && nextstep < 5) {
+				
+						MailChimpCommon.syncstart("Mailchimp", recordid, nextstep, mcgroupid, mcgroupname, progressIndicatorElement);
+					}
+					else {
+						progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+					}
+					
+				}
+				else {
+					var mparams = {
+						title : app.vtranslate('RESPONSE_TIME_OUT'),
+						text: responseData.error.message,
+						animation: 'show',
+						type: 'error',
+                           delay: 8000
+					};
+					Vtiger_Helper_Js.showPnotify(mparams);
+					progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+					return false;
+				}
+			},
+			function(textStatus, errorThrown){
+				var mparams = {
+					title : textStatus,
+					text: errorThrown,
+					animation: 'show',
+					type: 'error'
+				};
+				Vtiger_Helper_Js.showPnotify(mparams);
+				progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+				return false;
 			}
 		);
+
 	},
 	/**
 	 * Function to empty the log field entries
