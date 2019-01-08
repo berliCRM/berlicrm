@@ -16,7 +16,7 @@
 		<thead>
 		<tr>
 			<th class="blockHeader" colspan="4">
-				{vtranslate('LBL_SYNC_HISTORY',{$MODULE_NAME})}
+				{vtranslate('LBL_SYNC_HISTORY',$MODULE_NAME)} <div style="float:right;font-weight:normal"><input type="checkbox" name="verbose" id="verbose"> {vtranslate('LBL_VERBOSE',$MODULE_NAME)}</div>
 			</th>
 		</tr>
 		<tr>
