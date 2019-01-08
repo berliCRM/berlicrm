@@ -183,6 +183,13 @@ if($moduleInstance) {
     echo "- done";
 }
 
+$moduleInstance = Vtiger_Module::getInstance("gdpr");
+if($moduleInstance) {
+    echo "<br>Updating gdpr module ";
+    updateVtlibModule("gdpr", "packages/vtiger/optional/gdpr.zip");
+    echo "- done";
+}
+
 echo "<br>update Tag version to 13.. ";
 $query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.13'";
 $adb->pquery($query, array());
