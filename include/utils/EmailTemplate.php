@@ -144,8 +144,12 @@ class EmailTemplate {
  	                         $fieldModel = Vtiger_Field_Model::getInstance($field, $moduleModel); 
  		                     $value = $row->get($fieldColumnMapping[$field]); 
  		                        if($fieldModel->isReferenceField()) { 
- 		                            $values[$field] = $value; 
- 		                        } else { 
+		                            $values[$field] = $value; 
+ 		                        } 
+								elseif($fieldModel->isOwnerField()) {
+									$values[$field] = $value;
+								}
+								else { 
  		                            $values[$field] = $fieldModel->getDisplayValue($value, $recordId); 
  		                        } 
 					}
