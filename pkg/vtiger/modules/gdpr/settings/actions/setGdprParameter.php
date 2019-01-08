@@ -10,7 +10,7 @@ class Settings_gdpr_setGdprParameter_Action extends Settings_Vtiger_Index_Action
         $value = $request->get("val");
 
         if ($picklistid == "globalMode") {
-            if ($value == "a" || $value == "m") {
+            if ($value == "a" || $value == "m" || $value == "d") {
                 $q = "UPDATE berli_dsgvo_global SET op_mode=?";
                 $db->pquery($q,array($value));
                 $response->setResult(array());

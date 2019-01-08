@@ -38,6 +38,7 @@
 					<td class="alignMiddle"><strong>{vtranslate('LBL_OPERATION_MODE', $QUALIFIED_MODULE)}</strong></td>
 					<td style="border-left: none;" class="">
 						<select name="globalMode" id="globalMode" class="globalpicklist" >
+							<option value="d" {if $GDPR_GLOBAL_SETTINGS->get('op_mode') eq "d"} selected {/if}>{vtranslate('LBL_OPERATION_DEACTIVATED', $QUALIFIED_MODULE)}</option>
 							<option value="a" {if $GDPR_GLOBAL_SETTINGS->get('op_mode') eq "a"} selected {/if}>{vtranslate('LBL_OPERATION_AUTO', $QUALIFIED_MODULE)}</option>
 							<option value="m" {if $GDPR_GLOBAL_SETTINGS->get('op_mode') eq "m"} selected {/if}>{vtranslate('LBL_OPERATION_MANUAL', $QUALIFIED_MODULE)}</option>
 						</select>
@@ -88,9 +89,6 @@
 					<th class="mediumWidthType">
 						<span class="alignMiddle">{vtranslate('LBL_ACTIVATED_DELETE_ACTION', $QUALIFIED_MODULE)}</span>
 					</th>
-					{*<th class="mediumWidthType">
-						<span class="alignMiddle">{vtranslate('LBL_DELETE_ACTION', $QUALIFIED_MODULE)}</span>
-					</th>*}
 				</tr>
 			</thead>
 			<tbody>
@@ -104,8 +102,8 @@
                         </td>
                         <td>
                             <select name="gdprRelevantModule[{$TAB_ID}]" id="gdprRelevantModule_{$TAB_ID}" class="gdprRelevantModule" style="width:100px">
-                                <option value="0" {if empty($MODULE_SETTINGS[$TAB_ID])}selected{/if}>nein</option>
-                                <option value="1" {if !empty($MODULE_SETTINGS[$TAB_ID])}selected{/if}>ja</option>
+                                <option value="0" {if empty($MODULE_SETTINGS[$TAB_ID])}selected{/if}>{vtranslate('LBL_NO')}</option>
+                                <option value="1" {if !empty($MODULE_SETTINGS[$TAB_ID])}selected{/if}>{vtranslate('LBL_YES')}</option>
                             </select>
                         </td>
                         <td>
@@ -130,7 +128,7 @@
 						<strong>{vtranslate('LBL_GDPR_HINT', $QUALIFIED_MODULE)}</strong><br>
 						{vtranslate('LBL_GDPR_HINT3', $QUALIFIED_MODULE)}
 						</div>
-                        <button class="btn btn-success pull-right" type="submit">Liste speichern</button>
+                        <button class="btn btn-success pull-right" type="submit">{vtranslate('LBL_SAVE')}</button>
 					</td>	
 				</tr>
 			</tbody>
