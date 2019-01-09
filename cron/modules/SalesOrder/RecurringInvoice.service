@@ -15,6 +15,15 @@ require_once('include/logging.php');
 
 // Get the list of Invoice for which Recurring is enabled.
 
+$svcname = "RecurringInvoice";
+$servicePIDFile = "logs/{$svcname}-service.pid";
+
+if(file_exists($servicePIDFile)) {
+	die("Service $svcname already running! Check $servicePIDFile");
+} else {
+	$servicePIDFp = fopen($servicePIDFile, 'a');
+}
+
 global $adb, $log;
 $log =& LoggerManager::getLogger('RecurringInvoice');
 $log->debug("invoked RecurringInvoice");
@@ -98,6 +107,12 @@ for($i=0; $i<$no_of_salesorder;$i++) {
 		createInvoice($salesorder_id);
 		$adb->pquery('UPDATE vtiger_invoice_recurring_info SET last_recurring_date = ? WHERE salesorderid = ?', array($currentDate, $salesorder_id));
 	}
+}
+
+/** Close and remove the PID file. */
+if($servicePIDFp) {
+	fclose($servicePIDFp);
+	unlink($servicePIDFile);
 }
 
 /* Function to create a new Invoice using the given Sales Order id */
