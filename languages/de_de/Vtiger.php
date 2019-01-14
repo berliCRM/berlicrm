@@ -834,7 +834,7 @@ $languageStrings = array(
 	'LBL_PROBLEM_UPLOAD'=>'Es gab beim Hochladen der Datei ein Problem! Bitte noch einmal versuchen.',
 	
 	'LBL_APPROVE' => 'Ansicht freischalten',
-
+	'Visibility' => 'Sichtbarkeit',
 	'Inventory' => 'Bestand',
 	
 	//ListView Excel Export
@@ -897,7 +897,7 @@ $jsLanguageStrings = array(
 	'JS_NO_RESULTS_FOUND' => 'keine Ergebnisse gefunden',
 	'JS_NO_VIEW_PERMISSION_AFTER_SAVE' => 'Nach dem Speichern können Sie den Eintrag auf Grund der Rechteeinstellungen nicht mehr sehen. Wollen Sie das wirklich?',
 	'JS_NUMBER_SHOULD_BE_LESS_THAN_32' => 'Zahl sollte weniger als 32 sein',
-	'JS_PAGE_NOT_EXIST' => 'Seite existiert nichtt',
+	'JS_PAGE_NOT_EXIST' => 'Seite existiert nicht!',
 	'JS_PBX_CALL_FROM' => 'Anrufen von',
 	'JS_PBX_FILL_ALL_FIELDS'=>'Bitte alle Felder ausfüllen',
 	'JS_PBX_INCOMING_CALL' => 'reinkommender Anruf',

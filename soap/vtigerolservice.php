@@ -284,7 +284,6 @@ function SearchContactsByEmail($username,$session,$emailaddress)
 	$namepartsquery ='';
 	$name_arr = explode(" ", $emailaddress);
 	foreach ($name_arr as $namepart) {
-		$namepart = utf8_encode ($namepart);
 		$namepartsquery .=	" OR lastname LIKE '$namepart' ";
 	}
 	$complete_query = "email LIKE '%$emailaddress%' OR lastname LIKE '%$emailaddress%' OR firstname LIKE '%$emailaddress%'".$namepartsquery;
@@ -363,10 +362,10 @@ function AddMessageToContact($username,$session,$contactid,$msgdtls)
 	        $sent_date = DateTimeField::convertToUserTimeZone($msgdtl['datesent']);
 			$date_sent = $sent_date->format("Y-m-d");
     		$sent_from = $msgdtl ['sent_from'];
-	        $email->column_fields['subject'] =  utf8_encode($email_subject);
+	        $email->column_fields['subject'] =  $email_subject;
 	        $email->column_fields['assigned_user_id'] = $user_id;
 	        $email->column_fields['date_start'] = $date_sent;
-	        $email->column_fields['description']  =  utf8_encode($email_body);
+	        $email->column_fields['description']  =  $email_body;
 	        $email->column_fields['activitytype'] = 'Emails'; 
 	        $email->column_fields['email_flag'] = 'SENT';
 	        $email->column_fields['from_email'] = $msgdtl ['sent_from'];

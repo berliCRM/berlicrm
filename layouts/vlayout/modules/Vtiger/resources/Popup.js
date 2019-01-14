@@ -152,9 +152,30 @@ jQuery.Class("Vtiger_Popup_Js",{
 			urlOrParams += '&triggerEventName=' + eventName;
 		}
 
-		var urlString = (typeof urlOrParams == 'string')? urlOrParams : jQuery.param(urlOrParams);
-		var url = 'index.php?'+urlString;
-		var popupWinRef =  window.open(url, windowName , windowSpecs);
+        if (typeof urlOrParams == 'string') {
+            var url = 'index.php?'+urlOrParams;
+            var popupWinRef =  window.open(url, windowName , windowSpecs);
+        }
+        else {
+            urlOrParams['__vtrftk'] = csrfMagicToken;
+            var form = document.createElement("form");
+            form.setAttribute("method", "post");
+            form.setAttribute("action", "index.php");
+            form.setAttribute("target",windowName);
+            jQuery.each(urlOrParams,function(i,v) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = i;
+                input.value = (typeof v == 'string') ? v : JSON.stringify(v);
+                form.appendChild(input);
+            });
+            document.body.appendChild(form);
+            var popupWinRef = window.open('', windowName,windowSpecs);
+            form.target = windowName;
+            form.submit();
+            document.body.removeChild(form);
+        }
+
 		if (typeof this.destroy == 'function') {
 			// To remove form elements that have created earlier
 			this.destroy();

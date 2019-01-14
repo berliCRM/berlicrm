@@ -37,7 +37,7 @@
 								</button>
 							</span>
 							{/foreach}
-							{if $DETAILVIEW_LINKS['DETAILVIEW']|@count gt 0}
+							{if $DETAILVIEW_LINKS['DETAILVIEW'] && $DETAILVIEW_LINKS['DETAILVIEW']|@count gt 0}
 							<span class="btn-group">
 								<button class="btn dropdown-toggle" data-toggle="dropdown">
 									<strong>{vtranslate('LBL_MORE', $MODULE_NAME)}</strong>&nbsp;&nbsp;<i class="caret"></i>
@@ -55,7 +55,7 @@
 								</ul>
 							</span>
 							{/if}
-							{if $DETAILVIEW_LINKS['DETAILVIEWSETTING']|@count gt 0}
+							{if $DETAILVIEW_LINKS['DETAILVIEWSETTING'] && $DETAILVIEW_LINKS['DETAILVIEWSETTING']|@count gt 0}
 								<span class="btn-group">
 									<button class="btn dropdown-toggle" href="#" data-toggle="dropdown"><i class="icon-wrench" alt="{vtranslate('LBL_SETTINGS', $MODULE_NAME)}" title="{vtranslate('LBL_SETTINGS', $MODULE_NAME)}"></i>&nbsp;&nbsp;<i class="caret"></i></button>
 									<ul class="listViewSetting dropdown-menu">

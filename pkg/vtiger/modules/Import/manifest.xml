@@ -44,7 +44,7 @@
 		<name>Scheduled Import</name>
 		<handler>cron/modules/Import/ScheduledImport.service</handler>
 		<frequency>900</frequency>
-		<description>Recommended frequency for MailScanner is 15 mins</description>
+		<description>The recommended frequency for Imports is 15 minutes.</description>
 		<status>1</status>
 	</cron>
 </crons>

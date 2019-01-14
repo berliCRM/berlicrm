@@ -37,7 +37,9 @@ $languageStrings = array(
 	'LBL_GET_VTIGER_ENTITY_IDS'=>'Hole CRM Dateneinträge IDs für MailChimp Abonnenten.',
 	'LBL_LIST_MAILCHIMP_USERS'=>'MailChimp Auflistung der Abonenten:',
 	'LBL_VTIGER_CAMPIN_MEMBERS'=>'Benutzer der CRM Gruppe:',
-	'LBL_REMOVE_ENTITYS_FROM_VTIGER'=>'Dateneinträge löschen aus der CRM Gruppe:',
+	'LBL_REMOVE_ENTITYS_FROM_CRM'=>'Dateneinträge löschen aus der CRM Gruppe:',
+	'LBL_NEW_LOCAL_ENTRIES_TO_EXPORT'=>'Neue lokale Einträge exportiert:',
+	'LBL_FINISHED_AFTER'=>'Synchronisation beendet nach %s Sekunden.',
 	'LBL_DELETE_LAST_SYNCDATE'=>'Letztes Synchronisationsdatum wird für eine komplete neu Synchronisation gelöscht.',
 	'LBL_GET_LAST_SYNCDATE'=>'Hole letztes Synchronisationsdatum.',
 	'LBL_START_ADD_CONTACTS'=>'Prozessstart um Personen oder Leads zu einer Gruppe hinzuzufügen. Falls ein Kontakt im CRM nicht existiert, wird dieser im CRM erstellt.....',
@@ -143,10 +145,57 @@ $languageStrings = array(
 	'LBL_MOVE_ALL_FROM_MAILCHIMP'=>'Alle Mailchimp Daten werden zum CRM gesendet.',
 	'LBL_MOVE_PARTIAL_FROM_MAILCHIMP'=>'Neue Mailchimp Daten werden zum CRM gesendet.',
 	'LBL_CRM_LIST_EMPTY'=>'Es gibt keine Daten, die vom CRM zu Mailchimp übertragen werden sollen.',
-	'LBL_FIRST_SYNC'=>'Das ist Ihre erste Synchronisation für diese Liste.',
-	'LBL_CRM_LIST_EMPTY'=>'Es gibt keine Daten, die vom CRM zu Mailchimp übertragen werden sollen.',
 	'LBL_NO_REMOVED_MEMBER_LAST_SYNC'=>'Seit der letzten Synchronisation wurde im CRM nichts der Liste gelöscht.',
 	'LBL_NO_NOTSUBSCRIBED'=>'Anzahl der Einträge in Mailchimp aus dieser Liste, die nicht auf \'subcribed\' gesetzt sind.',
+	
+	'LBL_INTERESTGROUP_FAILED'=>'In Mailchimp wurde keine Gruppe (Interessen) angelegt. Bitte dort anlegen. Eine Synchronisation ist sonst nicht möglich!',
+	
+	'LBL_EXISTING_CONTACTS_ADDED'=>'Bestehende Personen zur CRM Gruppe hinzugefügt:',
+	'LBL_EXISTING_LEADS_ADDED'=>'Bestehende Leads zur CRM Gruppe hinzugefügt:',
+	'LBL_UPDATED_ENTRIES'=>'Einträge mit geänderten Attributen aktualisiert:',
+	'LBL_NEW_CONTACTS_IMPORTED'=>'Neue Personen erstellt und zur Mailchimp-Gruppe der CRM Gruppe hinzugefügt:',
+	'LBL_NEW_LEADS_IMPORTED'=>'Neue Leads erstellt und zur Mailchimp-Gruppe der CRM Gruppe hinzugefügt:',
+	'LBL_BROKEN_CONTACTS'=>'<br><b>Folgende gewählte Personen haben keine Email-Adresse:</b> ',
+	'LBL_BROKEN_LEADS'=>'<br><b>Folgende gewählte Leads haben keine Email-Adresse:</b> ',
+
+	'LBL_VERBOSE'=>'ausführliche Ausgabe',		
+	'LBL_VERBOSELOG_DELETE'=>'CRM-Eintrag &raquo;%s&laquo; gelöscht, <b>AUF Mailchimp LÖSCHEN</b>',
+	'LBL_VERBOSELOG_NOEXPORTONOPTOUT'=>'CRM-Eintrag &raquo;%s&laquo; noch nicht auf Mailchimp, aber hat EmailOptOut gesetzt. <b>KEIN EXPORT</b>',
+	'LBL_VERBOSELOG_DELETEDREMOTELY'=>'CRM-Eintrag &raquo;%s&laquo; auf Mailchimp gelöscht. <b>AUS CRM GRUPPE ENTFERNEN</b>',
+	'LBL_VERBOSELOG_EXPORT'=>'CRM-Eintrag &raquo;%s&laquo; noch nicht in Mailchimp Gruppe. <b>EXPORTIEREN</b>',
+	'LBL_VERBOSELOG_ADDTOCRMGROUP'=>'Mailchimp-Eintrag &raquo;%s&laquo; im CRM vorhanden, aber nicht in dieser Gruppe. <b>ZUR CRM-GRUPPE HINZUFÜGEN</b>',
+	'LBL_VERBOSELOG_TEST4IMPORT'=>'Mailchimp-Eintrag &raquo;%s&laquo; nicht im CRM vorhanden.',
+	'LBL_VERBOSELOG_INACTIVE'=>'Mailchimp-Eintrag &raquo;%s&laquo; ist nicht im CRM und inaktiv. <b>Überspringe</b>',
+	'LBL_VERBOSELOG_TYPEBLOCKED'=>'Mailchimp-Eintrag &raquo;%s&laquo; ist im CRM geblockt für Typ &raquo;%s&laquo;. <b>Überspringe</b>',
+	'LBL_VERBOSELOG_INCOMPLETE'=>' Ist unvollständig!',
+	'LBL_VERBOSELOG_DOIMPORT'=>' <b>IMPORT</b>',
+	'LBL_VERBOSELOG_DONTIMPORT'=>' <b>KEIN IMPORT</b>',
+	'LBL_VERBOSELOG_HAVEENTRY'=>'Mailchimp-Eintrag &raquo;%s&laquo; bereits in der CRM-Gruppe &raquo;%s&laquo; vorhanden.',
+	'LBL_VERBOSELOG_UNSUBSCRIBED'=>' <b>ABGEMELDET am %s</b>',
+	'LBL_VERBOSELOG_BOUNCED'=>' <b>BOUNCED, gesperrt seit %s</b>',
+	'LBL_VERBOSELOG_ATTRIBCHANGED'=>' Attribute geändert!',
+	'LBL_VERBOSELOG_OPTOUT'=>' Aktiv trotz EmailOptOut!',
+	'LBL_VERBOSELOG_DOUPDATE'=>' <b>UPDATE Mailchimp</b>',
+	'LBL_VERBOSELOG_DONTUPDATE'=>' <b>KEINE ÄNDERUNG</b>',
+	
+	'LBL_UPDATEPROGRESS'=>'<b>Bitte warten</b>: %s von %s Einträgen aktualisiert...',
+	'LBL_DELETEPROGRESS'=>'<b>Bitte warten</b>: %s von %s Einträgen gelöscht...',
+	'LBL_IMPORTPROGRESS'=>'<b>Bitte warten</b>: %s von %s Einträgen importiert...',
+	'LBL_EXPORTPROGRESS'=>'<b>Bitte warten</b>: %s von %s Einträgen exportiert...',
+	
+	'LBL_API_ERROR'=>'Fehlerhafte Antwort der Mailchimp API. Bitte erneut versuchen.',
+	'LBL_API_TIMEOUT_ACT'=>'Bitte versuchen Sie es erneut.',
+	'LBL_API_AUTH_ERROR'=>'API unauthorisiert!',
+	'LBL_API_AUTH_ERROR_ACT'=>'Bitte prüfen Sie hier Ihre Mailchimp-Einstellungen.',
+	'LBL_API_CONNECTED_TO'=>'Erfolgreich verbunden mit Mailchimp API Account #%s von %s %s.',
+
+	'LBL_GOT_ALL_MEMBERS_CRM_MAILCHIMP'=>'Alle Einträge der CRM Gruppe &raquo;%s&laquo; (ID %s) geladen.',
+	'LBL_GOT_ALL_MEMBERS_MAILCHIMP_API'=>'Alle Einträge der Mailchimp Gruppe &raquo;%s&laquo; (ID %s) geladen.',
+	'LBL_MAILCHIMP_ATTRIB_CREATED'=>'Die benötigen Attribute wurden auf Mailchimp erstellt.',
+	'LBL_MAILCHIMP_ATTRIB_OK'=>'Alle benötigen Attribute auf Mailchimp vorhanden.',
+	'LBL_NO_CHANGES_TO_SYNC'=>'Keine Änderungen seit der letzten Synchronisation.',
+	'LBL_STEP'=>'Schritt',
+	
 	);
 	
 	
@@ -158,6 +207,7 @@ $languageStrings = array(
 		'of' => 'von',
 		'to' => 'bis',
 		'MC_WAIT' => 'Bitte warten Sie. In Abhängigkeit von der Größe Ihrer Liste kann die nächste Operation bis zu 15 Minuten dauern.',
+		'RESPONSE_TIME_OUT'=>'Rückgabe konnte nicht gelesen werden (time out)',
 	);
 	
 ?>

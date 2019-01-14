@@ -90,7 +90,7 @@ class EmailTemplate {
 		$columnList = array();
 		$allColumnList = $meta->getUserAccessibleColumns();
 		$fieldList = array();
-		if (count($variableList) > 0) {
+		if (is_array($variableList) and count($variableList) > 0) {
 			foreach ($variableList as $column) {
 				if (in_array($column, $allColumnList)) {
 					$fieldList[] = array_search($column, $fieldColumnMapping);
@@ -144,8 +144,12 @@ class EmailTemplate {
  	                         $fieldModel = Vtiger_Field_Model::getInstance($field, $moduleModel); 
  		                     $value = $row->get($fieldColumnMapping[$field]); 
  		                        if($fieldModel->isReferenceField()) { 
- 		                            $values[$field] = $value; 
- 		                        } else { 
+		                            $values[$field] = $value; 
+ 		                        } 
+								elseif($fieldModel->isOwnerField()) {
+									$values[$field] = $value;
+								}
+								else { 
  		                            $values[$field] = $fieldModel->getDisplayValue($value, $recordId); 
  		                        } 
 					}

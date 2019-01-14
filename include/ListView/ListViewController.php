@@ -469,7 +469,13 @@ class ListViewController {
 						$json = new Zend_Json();
 						$value = vt_suppressHTMLTags(implode(',',$json->decode($temp_val)));
 					}
-				} else {
+				} 
+				elseif($field->getUIType() == 7){
+					if(!empty($value)){
+						$value = CurrencyField::convertToUserFormat($value, null, true);
+					}
+				} 				
+				else {
 					$value = textlength_check($value);
 				}
 

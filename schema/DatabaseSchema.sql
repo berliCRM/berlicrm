@@ -14715,7 +14715,8 @@ INSERT INTO `vtiger_ws_fieldtype` (`fieldtypeid`, `uitype`, `fieldtype`) VALUES
 (36, '68', 'reference'),
 (37, '117', 'reference'),
 (38, '26', 'reference'),
-(39, '10', 'reference');
+(39, '10', 'reference'),
+(40, 'cr16', 'autocompletedtext');
 
 -- --------------------------------------------------------
 
@@ -14755,7 +14756,9 @@ INSERT INTO `vtiger_ws_operation` (`operationid`, `name`, `handler_path`, `handl
 (15, 'changePassword', 'include/Webservices/Custom/ChangePassword.php', 'vtws_changePassword', 'POST', 0),
 (16, 'deleteUser', 'include/Webservices/DeleteUser.php', 'vtws_deleteUser', 'POST', 0),
 (17, 'retrievedocattachment', 'include/Webservices/RetrieveDocAttachment.php', 'berli_retrievedocattachment', 'GET', 0),
-(18, 'retrieve_inventory', 'include/Webservices/LineItem/RetrieveInventory.php', 'vtws_retrieve_inventory', 'GET', 0);
+(18, 'retrieve_inventory', 'include/Webservices/LineItem/RetrieveInventory.php', 'vtws_retrieve_inventory', 'GET', 0),
+(19, 'update_product_relations', 'include/Webservices/Custom/ProductRelation.php', 'vtws_update_product_relations', 'POST', 0),
+(20, 'get_multi_relations', 'include/Webservices/Custom/getMultiRelations.php', 'berli_get_multi_relations', 'GET', 0);
 
 -- --------------------------------------------------------
 
@@ -14800,7 +14803,11 @@ INSERT INTO `vtiger_ws_operation_parameters` (`operationid`, `name`, `type`, `se
 (16, 'newOwnerId', 'String', 2),
 (17, 'id', 'string', 1),
 (17, 'returnfile', 'string', 2),
-(18, 'id', 'String', 1);
+(18, 'id', 'String', 1),
+(19, 'productid', 'String', 1),
+(19, 'relids', 'String', 2),
+(19, 'preserve', 'String', 3),
+(20, 'id', 'String', 1);
 
 -- --------------------------------------------------------
 
@@ -14817,7 +14824,7 @@ CREATE TABLE IF NOT EXISTS `vtiger_ws_operation_seq` (
 --
 
 INSERT INTO `vtiger_ws_operation_seq` (`id`) VALUES
-(18);
+(20);
 
 -- --------------------------------------------------------
 

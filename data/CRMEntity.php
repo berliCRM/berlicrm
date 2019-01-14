@@ -501,9 +501,15 @@ class CRMEntity {
 					} else {
 						$fldvalue = $this->column_fields[$fieldname];
 					}
-				} elseif ($uitype == 7) {
+				} 
+				elseif ($uitype == 7) {
 					//strip out the spaces and commas in numbers if given ie., in amounts there may be ,
-					$fldvalue = str_replace(",", "", $this->column_fields[$fieldname]); //trim($this->column_fields[$fieldname],",");
+					//$fldvalue = str_replace(",", "", $this->column_fields[$fieldname]); //trim($this->column_fields[$fieldname],",");
+					// crm-now: use number format as set for currency					
+					$fldvalue = trim($this->column_fields[$fieldname]);
+					if (in_array($datatype, array('N', 'NN'))) {
+						$fldvalue = NumberField::convertToDBFormat($this->column_fields[$fieldname], $current_user, true);
+					}
 				} elseif ($uitype == 26) {
 					if (empty($this->column_fields[$fieldname])) {
 						$fldvalue = 1; //the documents will stored in default folder
@@ -827,18 +833,14 @@ class CRMEntity {
 		require_once("include/events/include.inc");
 		global $adb;
 
-		//In Bulk mode stop triggering events
-		if(!self::isBulkSaveMode()) {
-			$em = new VTEventsManager($adb);
-			// Initialize Event trigger cache
-			$em->initTriggerCache();
-			$entityData = VTEntityData::fromCRMEntity($this);
+        $em = new VTEventsManager($adb);
+        // Initialize Event trigger cache
+        $em->initTriggerCache();
+        $entityData = VTEntityData::fromCRMEntity($this);
 
-			$em->triggerEvent("vtiger.entity.beforesave.modifiable", $entityData);
-			$em->triggerEvent("vtiger.entity.beforesave", $entityData);
-			$em->triggerEvent("vtiger.entity.beforesave.final", $entityData);
-		}
-		//Event triggering code ends
+        $em->triggerEvent("vtiger.entity.beforesave.modifiable", $entityData);
+        $em->triggerEvent("vtiger.entity.beforesave", $entityData);
+        $em->triggerEvent("vtiger.entity.beforesave.final", $entityData);
 
 		//GS Save entity being called with the modulename as parameter
 		$this->saveentity($module_name, $fileid);
@@ -2648,9 +2650,9 @@ class CRMEntity {
 		$list_buttons = Array();
 
 		if (isPermitted($currentModule, 'Delete', '') == 'yes')
-			$list_buttons['del'] = $app_strings[LBL_MASS_DELETE];
+			$list_buttons['del'] = $app_strings['LBL_MASS_DELETE'];
 		if (isPermitted($currentModule, 'EditView', '') == 'yes') {
-			$list_buttons['mass_edit'] = $app_strings[LBL_MASS_EDIT];
+			$list_buttons['mass_edit'] = $app_strings['LBL_MASS_EDIT'];
 			// Mass Edit could be used to change the owner as well!
 			//$list_buttons['c_owner'] = $app_strings[LBL_CHANGE_OWNER];
 		}

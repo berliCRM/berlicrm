@@ -30,6 +30,7 @@ require_once('include/FormValidationUtil.php');
 require_once('include/events/SqlResultIterator.inc');
 require_once('include/fields/DateTimeField.php');
 require_once('include/fields/CurrencyField.php');
+require_once('include/fields/NumberField.php');
 require_once('data/CRMEntity.php');
 require_once 'vtlib/Vtiger/Language.php';
 require_once("include/ListView/ListViewSession.php");
@@ -1716,7 +1717,10 @@ function updateVtlibModule($module, $packagepath) {
 			$log->debug("$module - Module instance found - Update starts here");
 			$package->update($moduleInstance, $packagepath);
 		} else {
-			$log->fatal("$module doesn't exists!");
+			//crm-now: try fallback method and install module instead
+			$log->debug("$module didn't exist!");
+			unset($_installOrUpdateVtlibModule[$module.$packagepath]);
+			installVtlibModule($module, $packagepath);
 		}
 	}
 }
@@ -1809,10 +1813,15 @@ function getValidDBInsertDateValue($value) {
 
 function getValidDBInsertDateTimeValue($value) {
 	$value = trim($value);
-	if (empty($value)) {
-		$value = array ();
+	$valueList = array();
+	if (!empty($value)) {
+		if (strpos($value, ' ') !== false) {
+			$valueList = explode(' ',$value);
+		}
+		else {
+			$valueList[] = $value;
+		}
 	}
-	$valueList = explode(' ',$value);
 	if(count($valueList) == 2) {
 		$dbDateValue = getValidDBInsertDateValue($valueList[0]);
 		$dbTimeValue = $valueList[1];

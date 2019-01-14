@@ -18,7 +18,7 @@
 	</div>
 
 	<form class="form-horizontal contentsBackground" name="massMerge" method="post" action="index.php">
-		<input type="hidden" name=module value="{$MODULE}" />
+		<input type="hidden" name="module" value="{$MODULE}" />
 		<input type="hidden" name="action" value="ProcessDuplicates" />
 		<input type="hidden" name="records" value={Zend_Json::encode($RECORDS)} />
 
@@ -31,7 +31,7 @@
 			{foreach item=RECORD from=$RECORDMODELS name=recordList}
 				<th>
 					{vtranslate('LBL_RECORD')} #{$smarty.foreach.recordList.index+1} &nbsp;
-					<input {if $smarty.foreach.recordList.index eq 0}checked{/if} type=radio value="{$RECORD->getId()}" name=primaryRecord style='bottom:1px;position:relative;'/>
+					<input {if $smarty.foreach.recordList.index eq 0}checked{/if} type='radio' value="{$RECORD->getId()}" name='primaryRecord' style='bottom:1px;position:relative;'/>
 				</th>
 			{/foreach}
 			</thead>
@@ -43,8 +43,8 @@
 					</td>
 					{foreach item=RECORD from=$RECORDMODELS name=recordList}
 						<td>
-							<input {if $smarty.foreach.recordList.index eq 0}checked{/if} type=radio name="{$FIELD->getName()}"
-							data-id="{$RECORD->getId()}" value="{$RECORD->get($FIELD->getName())}" style='bottom:1px;position:relative;'/>
+							<input {if $smarty.foreach.recordList.index eq 0}checked{/if} type='radio' name="{$FIELD->getName()}"
+							data-id="{$RECORD->getId()}" value="{$FIELD->getEditViewDisplayValue($RECORD->get($FIELD->getName()))}" style='bottom:1px;position:relative;'/>
 							 &nbsp;&nbsp;{$RECORD->getDisplayValue($FIELD->getName())}
 						</td>
 					{/foreach}

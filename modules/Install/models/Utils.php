@@ -27,10 +27,6 @@ class Install_Utils_Model {
 		'Cron Modules Directory' => './cron/modules/',
 		'Vtlib Test Directory' => './test/vtlib/',
 		'Vtlib Test HTML Directory' => './test/vtlib/HTML',
-		'Mail Merge Template Directory' => './test/wordtemplatedownload/',
-		'Product Image Directory' => './test/product/',
-		'User Image Directory' => './test/user/',
-		'Contact Image Directory' => './test/contact/',
 		'Logo Directory' => './test/logo/',
 		'Logs Directory' => './logs/',
 	);
@@ -62,57 +58,47 @@ class Install_Utils_Model {
 	}
 
 	/**
-	 * Function returns the php.ini file settings required for installing vtigerCRM
+	 * Function returns the php.ini file settings required for production operation
 	 * @return <Array>
 	 */
 	static function getCurrentDirectiveValue() {
 		$directiveValues = array();
-		if (ini_get('safe_mode') == '1' || stripos(ini_get('safe_mode'), 'On') > -1)
-			$directiveValues['safe_mode'] = 'On';
-		if (ini_get('display_errors') != '1' || stripos(ini_get('display_errors'), 'Off') > -1)
-			$directiveValues['display_errors'] = 'Off';
-		if (ini_get('file_uploads') != '1' || stripos(ini_get('file_uploads'), 'Off') > -1)
+		if (ini_get('file_uploads') != '1' && stripos(ini_get('file_uploads'), 'On') === false)
 			$directiveValues['file_uploads'] = 'Off';
-		if (ini_get('register_globals') == '1' || stripos(ini_get('register_globals'), 'On') > -1)
-			$directiveValues['register_globals'] = 'On';
 		if (ini_get(('output_buffering') < '4096' && ini_get('output_buffering') != '0') || stripos(ini_get('output_buffering'), 'Off') > -1)
 			$directiveValues['output_buffering'] = 'Off';
-		if (ini_get('max_execution_time') != 0)
+		if (ini_get('max_execution_time') < 3600)
 			$directiveValues['max_execution_time'] = ini_get('max_execution_time');
-		if (ini_get('memory_limit') < 32)
+		if (self::memoryLimitInBytes() < 536870912)
 			$directiveValues['memory_limit'] = ini_get('memory_limit');
-		$errorReportingValue = E_WARNING & ~E_NOTICE;
-                if(version_compare(PHP_VERSION, '5.5.0') >= 0){
-                    $errorReportingValue = E_WARNING & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT;
-                }
-                else if(version_compare(PHP_VERSION, '5.3.0') >= 0) {
-			$errorReportingValue = E_WARNING & ~E_NOTICE & ~E_DEPRECATED;
-		}
-		if (ini_get('error_reporting') != $errorReportingValue)
-			$directiveValues['error_reporting'] = 'NOT RECOMMENDED';
-		if (ini_get('log_errors') == '1' || stripos(ini_get('log_errors'), 'On') > -1)
-			$directiveValues['log_errors'] = 'On';
-		if (ini_get('short_open_tag') != '1' || stripos(ini_get('short_open_tag'), 'Off') > -1)
-			$directiveValues['short_open_tag'] = 'Off';
-
+		if (ini_get('short_open_tag') == '1' || stripos(ini_get('short_open_tag'), 'On') > -1)
+			$directiveValues['short_open_tag'] = 'On';
+        if (ini_get('max_input_vars') < 8192)
+			$directiveValues['max_input_vars'] = ini_get('max_input_vars');
 		return $directiveValues;
 	}
 
+    public static function memoryLimitInBytes() {
+        $s = ini_get('memory_limit');
+        switch (substr ($s, -1))
+        {
+            case 'M': case 'm': return (int)$s * 1048576;
+            case 'K': case 'k': return (int)$s * 1024;
+            case 'G': case 'g': return (int)$s * 1073741824;
+            default: return $s;
+        }
+    }
 	/**
-	 * Variable has the recommended php settings for smooth running of vtigerCRM
+	 * Variable has the recommended php settings for production operation
 	 * @var <Array>
 	 */
 	public static $recommendedDirectives = array (
-		'safe_mode' => 'Off',
-		'display_errors' => 'On',
 		'file_uploads' => 'On',
-		'register_globals' => 'On',
 		'output_buffering' => 'On',
-		'max_execution_time' => '0',
-		'memory_limit' => '32',
-		'error_reporting' => 'E_WARNING & ~E_NOTICE',
-		'log_errors' => 'Off',
-		'short_open_tag' => 'On'
+		'max_execution_time' => '3600',
+		'memory_limit' => '512M',
+		'short_open_tag' => 'Off',
+        'max_input_vars' => 8192
 	);
 
 	/**

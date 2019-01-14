@@ -1,22 +1,27 @@
 <?xml version='1.0'?>
 <module>
-<exporttime>2010-04-27 15:17:37</exporttime>
+<exporttime>2018-03-20 11:17:37</exporttime>
 <name>ModComments</name>
 <label>Comments</label>
 <parent>Tools</parent>
-<version>2.1</version>
+<version>2.11</version>
 <dependencies>
-<vtiger_version>6.0.0rc</vtiger_version>
+<vtiger_version>6.5.0</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>
 </dependencies>
 <tables>
 <table>
 <name>vtiger_modcomments</name>
 <sql><![CDATA[CREATE TABLE `vtiger_modcomments` (
-  `modcommentsid` int(11) DEFAULT NULL,
+  `modcommentsid` int(11) NOT NULL,
   `commentcontent` text,
-  `related_to` varchar(100) NOT NULL,
-  `parent_comments` varchar(100) default NULL
+  `related_to` int(19) DEFAULT NULL,
+  `parent_comments` varchar(100) default NULL,
+  `customer` varchar(100) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `reasontoedit` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`modcommentsid`),
+  KEY `relatedto_idx` (`related_to`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
 </table>
 <table>
@@ -54,6 +59,75 @@
 <entityidfield>modcommentsid</entityidfield>
 <entityidcolumn>modcommentsid</entityidcolumn>
 </entityidentifier>
+</field>
+<field>
+<fieldname>customer</fieldname>
+<uitype>10</uitype>
+<columnname>customer</columnname>
+<tablename>vtiger_modcomments</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Customer</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>5</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence></quickcreatesequence>
+<displaytype>3</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<relatedmodules>
+<relatedmodule>ModComments</relatedmodule>
+</relatedmodules>
+</field>
+<field>
+<fieldname>userid</fieldname>
+<uitype>10</uitype>
+<columnname>userid</columnname>
+<tablename>vtiger_modcomments</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>UserId</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>6</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence></quickcreatesequence>
+<displaytype>3</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<relatedmodules>
+<relatedmodule>ModComments</relatedmodule>
+</relatedmodules>
+</field>
+<field>
+<fieldname>reasontoedit</fieldname>
+<uitype>19</uitype>
+<columnname>reasontoedit</columnname>
+<tablename>vtiger_modcomments</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>ReasonToEdit</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>7</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence></quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<relatedmodules>
+<relatedmodule>ModComments</relatedmodule>
+</relatedmodules>
 </field>
 </fields>
 </block>
@@ -222,13 +296,4 @@
 <sharingaccess>
 <default>public_readwritedelete</default>
 </sharingaccess>
-<customlinks>
-<customlink>
-<linktype>HEADERSCRIPT</linktype>
-<linklabel>ModCommentsCommonHeaderScript</linklabel>
-<linkurl><![CDATA[modules/ModComments/ModCommentsCommon.js]]></linkurl>
-<linkicon><![CDATA[]]></linkicon>
-<sequence>0</sequence>
-</customlink>
-</customlinks>
 </module>

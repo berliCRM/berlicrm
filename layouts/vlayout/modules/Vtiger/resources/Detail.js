@@ -315,6 +315,9 @@ jQuery.Class("Vtiger_Detail_Js",{
 				app.changeSelectElementView(detailContentsHolder);
 				//Attach date picker event to date fields
 				app.registerEventForDatePickerFields(detailContentsHolder);
+                //register autocomplete fields
+                var editinstance = Vtiger_Edit_Js.getInstance();
+                editinstance.registerAutoCompleteFields(detailContentsHolder);
                 //Attach time picker event to time fields
                 app.registerEventForTimeFields(detailContentsHolder);
 				app.registerEventForTextAreaFields(jQuery(".commentcontent"));
@@ -1816,10 +1819,13 @@ jQuery.Class("Vtiger_Detail_Js",{
 		app.registerEventForDatePickerFields(detailContentsHolder);
 		//Attach time picker event to time fields
 		app.registerEventForTimeFields(detailContentsHolder);
-		
+        //register autocomplete fields
+        var editinstance = new Vtiger_Edit_Js();
+        editinstance.registerAutoCompleteFields(detailContentsHolder);
+
 		//register all the events for summary view container
 		this.registerSummaryViewContainerEvents(detailContentsHolder);
-                thisInstance.registerEventForPicklistDependencySetup(thisInstance.getForm()); 
+        thisInstance.registerEventForPicklistDependencySetup(thisInstance.getForm()); 
 
 		detailContentsHolder.on('click', '#detailViewNextRecordButton', function(e){
 			var selectedTabElement = thisInstance.getSelectedTab();

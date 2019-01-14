@@ -686,10 +686,24 @@ Vtiger_Integer_Validator_Js("Vtiger_Double_Validator_Js",{},{
 	validate: function(){
 		var response = this._super();
 		if(response == false){
+			var field = this.getElement();
+			var fieldData = field.data();
+			var decimalSeparator =fieldData.decimalSeparator;
 			var fieldValue = this.getFieldValue();
-			var doubleRegex= /(^[-+]?\d+)\.\d+$/ ;
-			if (!fieldValue.match(doubleRegex)) {
-				var errorInfo = app.vtranslate("JS_PLEASE_ENTER_DECIMAL_VALUE");
+			var strippedValue = fieldValue.replace(fieldData.decimalSeparator, '');
+			var spacePattern = /\s/;
+			if(spacePattern.test(fieldData.decimalSeparator) || spacePattern.test(fieldData.groupSeparator))
+				strippedValue = strippedValue.replace(/ /g, '');
+			var errorInfo;
+			var regex = new RegExp(fieldData.groupSeparator,'g');
+			strippedValue = strippedValue.replace(regex, '');
+			if(isNaN(strippedValue)){
+				errorInfo = app.vtranslate('JS_CONTAINS_ILLEGAL_CHARACTERS');
+				this.setError(errorInfo);
+				return false;
+			}
+			if(strippedValue < 0){
+				errorInfo = app.vtranslate('JS_ACCEPT_POSITIVE_NUMBER');
 				this.setError(errorInfo);
 				return false;
 			}

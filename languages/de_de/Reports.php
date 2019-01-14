@@ -10,7 +10,7 @@
  *************************************************************************************/
 $languageStrings = array(
 	'Account and Contact Reports'=>'Organisations- und Personenberichte',
-	'Accounts Email Report'=>'Organizationen E-Mail Bericht',
+	'Accounts Email Report'=>'Organisationen E-Mail Bericht',
 	'Activity Reports'=>'Aktivitätenberichte',
 	'Campaign Expectations and Actuals'=>'Kampagnenerwartungen und Aktuelles', //Added for Campaigns
 	'Campaign Reports'=>'Kampagnenberichte', //Added for Campaigns
@@ -238,7 +238,7 @@ $languageStrings = array(
 
 $jsLanguageStrings = array(
 	'JS_DUPLICATE_RECORD' => 'Bericht kopieren',
-	'JS_CALCULATION_LINE_ITEM_FIELDS_SELECTION_LIMITATION' => 'Einschränkung: die Felder für Produkt- oder Dienstleistungsangaben(Listenpreis, Rabatt & Menge) können nur verwendet werden, wenn wenn andere Felder zu Berechnung nicht ausgewählt wurden.',
+	'JS_CALCULATION_LINE_ITEM_FIELDS_SELECTION_LIMITATION' => 'Einschränkung: die Felder für Produkt- oder Dienstleistungsangaben(Listenpreis, Rabatt & Menge) können nur verwendet werden, wenn andere Felder zu Berechnung nicht ausgewählt wurden.',
 	'JS_NO_CHART_DATA_AVAILABLE' => 'Keine Daten verfügbar, bitte prüfen Sie Ihre Feldauswahl',
 	'of' => 'von',
 	'to' => 'bis',
