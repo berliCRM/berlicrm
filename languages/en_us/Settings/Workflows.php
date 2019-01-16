@@ -120,7 +120,7 @@ $languageStrings = array(
 	'LBL_TICKET_CREATE_CON_EMAIL'=>'Ticket creation from CRM: Send email to Contact',
 	'LBL_TICKET_UPDATE_OWNER_EMAIL'=>'Ticket update from CRM: Send email to record owner',
 	'LBL_TICKET_CREATE_OWNER_EMAIL'=>'Ticket creation from CRM: Send email to record owner',
-	
+    'LBL_FIELD_DELETED' => 'A field used in this workflow has been deleted since its creation. Please delete and create this task again.',
 );
 
 $jsLanguageStrings = array(
