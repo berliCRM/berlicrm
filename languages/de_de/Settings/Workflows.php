@@ -132,7 +132,7 @@ $languageStrings = array(
 	'LBL_TICKET_CREATE_CON_EMAIL'=>'Sende E-Mail an Person bei Erstellung eines Tickets',
 	'LBL_TICKET_UPDATE_OWNER_EMAIL'=>'Sende E-Mail an den Zuständigen beim Update eines Tickets',
 	'LBL_TICKET_CREATE_OWNER_EMAIL'=>'Sende E-Mail an den Zuständigen bei Erstellung eines Tickets',
-
+    'LBL_FIELD_DELETED' => 'Ein in diesem Workflow gespeichertes Feld wurde inzwischen gelöscht und deswegen auch aus dem Workflow entfernt. Bitte erstellen Sie die Aufgabe neu.',
 );
 
 $jsLanguageStrings = array(

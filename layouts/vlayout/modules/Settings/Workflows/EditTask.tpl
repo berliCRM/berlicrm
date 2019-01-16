@@ -76,6 +76,11 @@
 					<div class="taskTypeUi well">
 						{include file="{$TASK_TEMPLATE_PATH}" }
 					</div>
+                    {if $FIELD_DELETED}
+                    <div class="alert alert-danger">
+                        {vtranslate('LBL_FIELD_DELETED', $QUALIFIED_MODULE)}
+                    </div>
+                    {/if}
 				</div>
 			</div>	
 			{include file='ModalFooter.tpl'|@vtemplate_path:$MODULE}
