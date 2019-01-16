@@ -1044,22 +1044,18 @@ function insertIntoRecurringTable(& $recurObj)
 		require('user_privileges/sharing_privileges_'.$user->id.'.php');
 		$query = ' ';
 		$tabId = getTabid($module);
-		if($is_admin==false && $profileGlobalPermission[1] == 1 && $profileGlobalPermission[2]
-				== 1 && $defaultOrgSharingPermission[$tabId] == 3) {
+		if($is_admin==false && $profileGlobalPermission[1] == 1 && $profileGlobalPermission[2] == 1 && $defaultOrgSharingPermission[$tabId] == 3) {
 			$tableName = 'vt_tmp_u'.$user->id.'_t'.$tabId;
 			$sharingRuleInfoVariable = $module.'_share_read_permission';
 			$sharingRuleInfo = $$sharingRuleInfoVariable;
 			$sharedTabId = null;
-			$this->setupTemporaryTable($tableName, $sharedTabId, $user,
-					$current_user_parent_role_seq, $current_user_groups);
-
+			$this->setupTemporaryTable($tableName, $sharedTabId, $user,	$current_user_parent_role_seq, $current_user_groups);
 			$sharedUsers = $this->getListViewAccessibleUsers($user->id);
             // we need to include group id's in $sharedUsers list to get the current user's group records
             if($current_user_groups){
                 $sharedUsers = $sharedUsers.','. implode(',',$current_user_groups);
             }
-			$query = " INNER JOIN $tableName $tableName$scope ON ($tableName$scope.id = ".
-					"vtiger_crmentity$scope.smownerid and $tableName$scope.shared=0 and $tableName$scope.id IN ($sharedUsers)) ";
+			$query = " INNER JOIN $tableName $tableName$scope ON ($tableName$scope.id = vtiger_crmentity$scope.smownerid AND $tableName$scope.shared=0 AND $tableName$scope.id IN ($sharedUsers)) ";
 		}
 		return $query;
 	}
@@ -1108,18 +1104,13 @@ function insertIntoRecurringTable(& $recurObj)
 
 	protected function getListViewAccessibleUsers($sharedid) {
 		$db = PearDatabase::getInstance();;
-		$query = "SELECT vtiger_users.id as userid FROM vtiger_sharedcalendar
-					RIGHT JOIN vtiger_users ON vtiger_sharedcalendar.userid=vtiger_users.id and status= 'Active'
-					WHERE sharedid=? OR (vtiger_users.status='Active' AND vtiger_users.calendarsharedtype='public' AND vtiger_users.id <> ?);";
-			$result = $db->pquery($query, array($sharedid, $sharedid));
-			$rows = $db->num_rows($result);
-		if($db->num_rows($result)!=0)
-		{
-			for($j=0;$j<$db->num_rows($result);$j++) {
-				$userid[] = $db->query_result($result,$j,'userid');
-			}
-			$shared_ids = implode (",",$userid);
-		}
+		$query = "SELECT DISTINCT vtiger_users.id as userid FROM vtiger_sharedcalendar
+                RIGHT JOIN vtiger_users ON vtiger_sharedcalendar.userid=vtiger_users.id and status= 'Active'
+                WHERE sharedid=? OR (vtiger_users.status='Active' AND vtiger_users.calendarsharedtype='public' AND vtiger_users.id <> ?)";
+        $result = $db->pquery($query, array($sharedid, $sharedid));
+        while ($result && $row = $db->fetchByAssoc($result,-1,false)) {
+            $userid[] = $row["userid"];
+        }
 		$userid[] = $sharedid;
 		$shared_ids = implode (",",$userid);
 		return $shared_ids;
