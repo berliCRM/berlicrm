@@ -313,6 +313,8 @@ jQuery.Class("Vtiger_Detail_Js",{
 				thisInstance.registerBlockStatusCheckOnLoad();
 				//Make select box more usability
 				app.changeSelectElementView(detailContentsHolder);
+                //register all select2 Elements
+                app.showSelect2ElementView(jQuery('body').find('select.select2'));
 				//Attach date picker event to date fields
 				app.registerEventForDatePickerFields(detailContentsHolder);
                 //register autocomplete fields
