@@ -71,6 +71,10 @@ $languageStrings = array(
 );
 
 $jsLanguageStrings = array(
+	'of' => 'of',
+	'to' => 'to',
     'LBL_ACCOUNT_ADDRESS_COPIED_TITLE' => 'Address copied',
     'LBL_ACCOUNT_ADDRESS_COPIED_TEXT' => 'The account\'s address has been copied to this contact.'
+    'LBL_ADDRESS_CHANGE_TITLE' => 'Address changed',
+    'LBL_ADDRESS_CHANGE_TEXT' => 'The address has been changed.',
  );
