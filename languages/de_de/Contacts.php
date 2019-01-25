@@ -78,7 +78,7 @@ $jsLanguageStrings = array(
 	'of' => 'von',
 	'to' => 'bis',
     'LBL_ACCOUNT_ADDRESS_COPIED_TITLE' => 'Anschrift übernommen',
-    'LBL_ACCOUNT_ADDRESS_COPIED_TEXT' => 'Die Anschrift der gewählten Organisation wurde automatisch übernommen.'
+    'LBL_ACCOUNT_ADDRESS_COPIED_TEXT' => 'Die Anschrift der gewählten Organisation wurde automatisch übernommen.',
     'LBL_ADDRESS_CHANGE_TITLE' => 'Addresse geändert',
     'LBL_ADDRESS_CHANGE_TEXT' => 'Die Anschrift wurde geändert.',
 );
