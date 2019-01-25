@@ -83,7 +83,7 @@ if($adb->num_rows($result) >= 1) {
 		$activitymode = ($result_set['activitytype'] == "Task")?"Task":"Events";
 		$parent_type = $result_set['setype'];
 		$activity_sub = $result_set['subject'];
-		$to_addr='';
+		$to_addr=array();
 
 		if($parent_type!='') {
 			$parent_content = getParentInfo($parent_type)."\n";
@@ -215,10 +215,10 @@ if($adb->num_rows($result) >= 1) {
 				// crm-now: translate activity type if possible
                 $activitytype1 = trim($result_set['activitytype']);
                 switch ($activitytype1) {
-					case Call:
+					case 'Call':
 						$activitytype1 = 'geplanter Anruf -';
 						break;
-					case Meeting:
+					case 'Meeting':
 						$activitytype1 = 'geplantes Meeting -';
 						break;
 					default:
