@@ -545,7 +545,7 @@ function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false
 		while ($row = $adb->fetch_row($res)) {
 			foreach ($row AS $column => $value) {
 				if (!is_numeric($column) && $column != 'lineitem_id') {
-					$tmp_arr_li[$row['lineitem_id']][$column] = $value;
+					$tmp_arr_li[$row['lineitem_id']][$column] = decode_html($value);
 				}
 			}
 		}
