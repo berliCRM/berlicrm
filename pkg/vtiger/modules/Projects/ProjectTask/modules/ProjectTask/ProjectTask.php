@@ -45,6 +45,7 @@ class ProjectTask extends CRMEntity {
         'Start Date'=> Array('projecttask', 'startdate'),
         'End Date'=> Array('projecttask', 'enddate'),
         'Type'=>Array('projecttask','projecttasktype'),
+        'Status'=>Array('projecttask','projecttaskstatus'),
         'Progress'=>Array('projecttask','projecttaskprogress'),
         'Assigned To' => Array('crmentity','smownerid')
 
@@ -55,6 +56,7 @@ class ProjectTask extends CRMEntity {
         'Start Date'=>'startdate',
         'End Date'=> 'enddate',
         'Type'=>'projecttasktype',
+        'Status'=>'projecttaskstatus',
         'Progress'=>'projecttaskprogress',
         'Assigned To' => 'assigned_user_id'
     );

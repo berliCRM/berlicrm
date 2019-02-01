@@ -27,7 +27,7 @@ class Vtiger_LayoutImport extends Vtiger_LayoutExport {
 	 * Initialize Import
 	 * @access private
 	 */
-	function initImport($zipfile, $overwrite) {
+	function initImport($zipfile, $overwrite=true) {
 		$this->__initSchema();
 		$name = $this->getModuleNameFromZip($zipfile);
                 return $name;
