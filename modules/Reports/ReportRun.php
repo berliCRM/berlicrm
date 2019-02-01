@@ -160,6 +160,9 @@ class ReportRunQueryPlanner {
 		$oldDieOnError = $adb->dieOnError;
 		$adb->dieOnError = false; // If query planner is re-used there could be attempt for temp table...
 		foreach ($this->tempTables as $uniqueName => $tempTableInfo) {
+			//crm-now: drop table 
+			$delQuery = sprintf('DROP TABLE IF EXISTS %s', $uniqueName);
+			$adb->pquery($delQuery, array());
 			$query1 = sprintf('CREATE TEMPORARY TABLE %s AS %s', $uniqueName, $tempTableInfo['query']);
 			$adb->pquery($query1, array());
 
