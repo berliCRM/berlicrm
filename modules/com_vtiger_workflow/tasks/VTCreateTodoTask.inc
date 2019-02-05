@@ -52,7 +52,13 @@ class VTCreateTodoTask extends VTTask{
 		
 		preg_match('/\d\d\d\d-\d\d-\d\d/', $baseDate, $match);
 		$baseDate = strtotime($match[0]);
-        $date = strftime('%Y-%m-%d', $baseDate+$this->days*24*60*60*(strtolower($this->direction)=='before'?-1:1));
+		if($this->days =='') {
+			$days = 0;
+		}
+		else {
+			$days = $this->days;
+		}
+        $date = strftime('%Y-%m-%d', $baseDate+$days*24*60*60*(strtolower($this->direction)=='before'?-1:1));
 		
         if($this->time) {
             $timeWithSec = Vtiger_Time_UIType::getTimeValueWithSeconds($this->time);
