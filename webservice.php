@@ -59,6 +59,9 @@
             case WebServiceErrorCode::$DATABASEQUERYERROR:
                 header("HTTP/1.0 500 Internal Server Error");
                 break;
+            case WebServiceErrorCode::$ACCESSDENIED:
+                header("HTTP/1.0 403 Forbidden");
+                break;
             default:
                 header("HTTP/1.0 400 Bad Request");
         }
