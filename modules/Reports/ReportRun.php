@@ -1479,7 +1479,7 @@ class ReportRun extends CRMEntity
                     && ($column_info[4] != '' && $adv_filter_value != '' )) {
                     $val = Array();
                     for($x=0;$x<count($temp_val);$x++) {
-                        if($column_info[4] == 'D') {
+                        if($column_info[4] == 'D' || $column_info[1] == 'createdtime' || $column_info[1] == 'modifiedtime') {
 							$date = new DateTimeField(trim($temp_val[$x]));
 							$val[$x] = $date->getDBInsertDateValue();
 						} elseif($column_info[4] == 'DT') {
