@@ -48,7 +48,7 @@ class Settings_MailConverter_Field_Model extends Vtiger_Field_Model {
         return $this->get('datatype');
     }
     
-    public function getPickListValues() {
+    public function getPickListValues($a = false, $b = false) {
         $fieldName = $this->getName();
         $pickListValues = array();
         if($fieldName == 'searchfor') {
