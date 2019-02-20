@@ -374,7 +374,7 @@ class PearDatabase{
 	 * returns array(10, 20, 30, 40, 50, 60, 70);
 	 */
 	function flatten_array($input, $output=null) {
-		if($input == null) return null;
+		if($input == null) return array();
 		if($output == null) $output = array();
 		foreach($input as $value) {
 			if(is_array($value)) {

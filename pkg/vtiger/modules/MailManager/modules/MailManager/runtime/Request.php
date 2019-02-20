@@ -10,8 +10,8 @@
 
 class MailManager_Request extends Vtiger_Request {
 
-	public function get($key, $defvalue = '') {
-		return urldecode(parent::get($key, $defvalue));
+	public function get($key, $defvalue = '', $purify = true) {
+		return urldecode(parent::get($key, $defvalue, $purify));
 	}
 
 	public static function getInstance($request) {
