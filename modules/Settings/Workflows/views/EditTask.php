@@ -79,7 +79,7 @@ class Settings_Workflows_EditTask_View extends Settings_Vtiger_Index_View {
             $fieldMapping = json_decode($taskObject->field_value_mapping,true);
             $fieldDeleted = false;
             foreach ($fieldMapping as $key => &$fm) {
-                $fieldInstance = Vtiger_Field_Model::getInstance($fm["fieldname"]);
+                $fieldInstance = Vtiger_Field_Model::getInstance($fm["fieldname"],$moduleModel);
                 if (!$fieldInstance) {
                     unset($fieldMapping[$key]);
                     $fieldDeleted = true;
