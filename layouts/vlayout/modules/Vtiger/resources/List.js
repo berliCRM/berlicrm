@@ -768,7 +768,7 @@ jQuery.Class("Vtiger_List_Js",{
 
         if((typeof searchValue != "undefined") && (searchValue.length > 0)) {
 			//added for inactive User's navigation menu
-			if (searchValue == 'Inactive' && module == 'Users') {
+			if ((searchValue == 'Inactive' || searchValue == 'Active') && module == 'Users') {
 				params['search_key'] = 'status';
 			}
 			else {

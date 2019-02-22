@@ -48,6 +48,23 @@
 
 	function writeErrorOutput($operationManager, $error){
 
+        switch ($error->code) {
+            case WebServiceErrorCode::$AUTHREQUIRED:
+            case WebServiceErrorCode::$INVALIDUSERPWD:
+            case WebServiceErrorCode::$SESSIONIDINVALID:
+            case WebServiceErrorCode::$AUTHFAILURE:
+                header("HTTP/1.0 401 Unauthorized");
+                break;
+            case WebServiceErrorCode::$INTERNALERROR:
+            case WebServiceErrorCode::$DATABASEQUERYERROR:
+                header("HTTP/1.0 500 Internal Server Error");
+                break;
+            case WebServiceErrorCode::$ACCESSDENIED:
+                header("HTTP/1.0 403 Forbidden");
+                break;
+            default:
+                header("HTTP/1.0 400 Bad Request");
+        }
 		setResponseHeaders();
 		$state = new State();
 		$state->success = false;
@@ -79,7 +96,7 @@
 	
 	try{
 		$operationManager = new OperationManager($adb,$operation,$format,$sessionManager);
-	
+
 		if(!$sessionId || strcasecmp($sessionId,"null")===0){
 			$sessionId = null;
 		}
@@ -117,11 +134,10 @@
 		$userid = $sessionManager->get("authenticatedUserId");
 
 		if($userid){
-
 			$seed_user = new Users();
 			$current_user = $seed_user->retrieveCurrentUserInfoFromFile($userid);
-
-		}else{
+		}
+        else{
 			$current_user = null;
 		}
 
@@ -134,10 +150,11 @@
 		}
 		$rawOutput = $operationManager->runOperation($operationInput,$current_user);
 		writeOutput($operationManager, $rawOutput);
-	}catch(WebServiceException $e){
+	}
+    catch(WebServiceException $e){
 		writeErrorOutput($operationManager,$e);
-	}catch(Exception $e){
+	}
+    catch(Exception $e){
 		writeErrorOutput($operationManager,
 			new WebServiceException(WebServiceErrorCode::$INTERNALERROR,"Unknown Error while processing request"));
 	}
-?>

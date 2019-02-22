@@ -15,7 +15,7 @@ class Project_Detail_View extends Vtiger_Detail_View {
 		$this->exposeMethod('showRelatedRecords');
 	}
 
-	public function showModuleSummaryView($request) {
+	public function showModuleSummaryView(Vtiger_Request $request) {
 		$recordId = $request->get('record');
 		$moduleName = $request->getModule();
 

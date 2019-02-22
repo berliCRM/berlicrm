@@ -36,7 +36,7 @@ class Vtiger_LayoutExport extends Vtiger_Package {
      * Initialize Export
      * @access private
      */
-    function __initExport($layoutName) {
+    function __initExport($layoutName, $moduleInstance=false) {
             // Security check to ensure file is withing the web folder.
             Vtiger_Utils::checkFileAccessForInclusion("layouts/$layoutName/skins/vtiger/style.less");
 
@@ -105,7 +105,8 @@ class Vtiger_LayoutExport extends Vtiger_Package {
             $this->outputNode('layout', 'type');
 
             // Export dependency information
-            $this->export_Dependencies();
+			$moduleInstance= false;
+            $this->export_Dependencies($moduleInstance);
 
             $this->closeNode('module');
     }
@@ -114,7 +115,7 @@ class Vtiger_LayoutExport extends Vtiger_Package {
      * Export vtiger dependencies
      * @access private
      */
-    function export_Dependencies() {
+    function export_Dependencies($moduleInstance) {
             global $vtiger_current_version, $adb;
 
             $vtigerMinVersion = $vtiger_current_version;

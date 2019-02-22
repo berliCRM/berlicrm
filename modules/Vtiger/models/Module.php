@@ -1477,10 +1477,18 @@ class Vtiger_Module_Model extends Vtiger_Module {
 		}
 	}
 
+    /**
+	* Function to change owner of array of records
+	* @param <integer> new owner ID
+	* @param <array> array of record IDs to process
+    */
 	public function transferRecordsOwnership($transferOwnerId, $relatedModuleRecordIds){
-		$db = PearDatabase::getInstance();
-		$query = 'UPDATE vtiger_crmentity SET smownerid = ? WHERE crmid IN ('.  generateQuestionMarks($relatedModuleRecordIds).')';
-		$db->pquery($query, array($transferOwnerId,$relatedModuleRecordIds));
+        foreach ($relatedModuleRecordIds as $recordId) {
+            $record = Vtiger_Record_Model::getInstanceById($recordId);
+            $record->set('assigned_user_id', $transferOwnerId);
+            $record->set('mode','edit');
+            $record->save();
+        }
 	}
 
     /**

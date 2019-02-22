@@ -70,13 +70,27 @@ class Settings_Workflows_EditTask_View extends Settings_Vtiger_Index_View {
 				$taskObject->field_value_mapping = Zend_Json::encode($fieldMapping);
 			}
 		}
-                 if ($taskType === 'VTUpdateFieldsTask') { 
-                    if($moduleModel->getName() =="Documents"){ 
-                        $restrictFields=array('folderid','filename','filelocationtype'); 
-                        $viewer->assign('RESTRICTFIELDS',$restrictFields); 
-                    } 
-                } 
-		
+        if ($taskType === 'VTUpdateFieldsTask') {
+            if($moduleModel->getName() =="Documents"){
+                $restrictFields=array('folderid','filename','filelocationtype');
+                $viewer->assign('RESTRICTFIELDS',$restrictFields);
+            }
+            // iterate through fields to find deleted ones
+            $fieldMapping = json_decode($taskObject->field_value_mapping,true);
+            $fieldDeleted = false;
+            foreach ($fieldMapping as $key => &$fm) {
+                $fieldInstance = Vtiger_Field_Model::getInstance($fm["fieldname"]);
+                if (!$fieldInstance) {
+                    unset($fieldMapping[$key]);
+                    $fieldDeleted = true;
+                }
+            }
+            if ($fieldDeleted) {
+                $taskObject->field_value_mapping = json_encode($fieldMapping);
+            }
+
+        }
+        $viewer->assign('FIELD_DELETED',$fieldDeleted);
 		$viewer->assign('SOURCE_MODULE',$moduleModel->getName());
 		$viewer->assign('MODULE_MODEL', $moduleModel);
 		$viewer->assign('TASK_ID',$recordId);

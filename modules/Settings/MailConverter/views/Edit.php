@@ -24,7 +24,7 @@ class Settings_MailConverter_Edit_View extends Settings_Vtiger_Index_View {
 		    return;
 		}
     }
-	public function preProcess(Vtiger_Request $request) {
+	public function preProcess(Vtiger_Request $request, $display = true) {
 		parent::preProcess($request);
 		$recordId = $request->get('record');
 		$mode = $request->get('mode');

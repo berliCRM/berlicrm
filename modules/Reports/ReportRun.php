@@ -160,6 +160,9 @@ class ReportRunQueryPlanner {
 		$oldDieOnError = $adb->dieOnError;
 		$adb->dieOnError = false; // If query planner is re-used there could be attempt for temp table...
 		foreach ($this->tempTables as $uniqueName => $tempTableInfo) {
+			//crm-now: drop table 
+			$delQuery = sprintf('DROP TABLE IF EXISTS %s', $uniqueName);
+			$adb->pquery($delQuery, array());
 			$query1 = sprintf('CREATE TEMPORARY TABLE %s AS %s', $uniqueName, $tempTableInfo['query']);
 			$adb->pquery($query1, array());
 
@@ -1476,7 +1479,7 @@ class ReportRun extends CRMEntity
                     && ($column_info[4] != '' && $adv_filter_value != '' )) {
                     $val = Array();
                     for($x=0;$x<count($temp_val);$x++) {
-                        if($column_info[4] == 'D') {
+                        if($column_info[4] == 'D' || $column_info[1] == 'createdtime' || $column_info[1] == 'modifiedtime') {
 							$date = new DateTimeField(trim($temp_val[$x]));
 							$val[$x] = $date->getDBInsertDateValue();
 						} elseif($column_info[4] == 'DT') {
