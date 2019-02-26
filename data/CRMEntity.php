@@ -1484,6 +1484,8 @@ class CRMEntity {
 		$returninfo = Array();
 
 		if ($fieldinfo && $adb->num_rows($fieldinfo)) {
+            $log->debug("TRANS updateMissingSeqNumber starts");
+            $adb->startTransaction();
 			// TODO: We assume the following for module sequencing field
 			// 1. There will be only field per module
 			// 2. This field is linked to module base table column
@@ -1516,6 +1518,8 @@ class CRMEntity {
 			} else {
 				$log->fatal("Updating Missing Sequence Number FAILED! REASON: Field table and module table mismatching.");
 			}
+            $adb->completeTransaction();
+            $log->debug("TRANS updateMissingSeqNumber ends");
 		}
 		return $returninfo;
 	}
