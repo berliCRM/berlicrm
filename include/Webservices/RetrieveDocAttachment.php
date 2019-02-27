@@ -79,7 +79,7 @@ function berli_retrievedocattachment($all_ids, $returnfile, $user) {
 }
 
 
-function vtws_retrievedocattachment_get_attachment($fileid,$nr=false,$returnfile=true) {
+function vtws_retrievedocattachment_get_attachment($fileid,$nr=false,$returnfile=true,$base64encode = true) {
 	global $log;
 	$log->debug("Entering function vtws_retrievedocattachment_get_attachment($fileid)");
 	$db = PearDatabase::getInstance();
@@ -111,17 +111,20 @@ function vtws_retrievedocattachment_get_attachment($fileid,$nr=false,$returnfile
 			$fileContent = $returnfile ? fread(fopen($filepath.$saved_filename, "r"), $filesize) : '';
 		}
 		if($fileContent != '')	{
-			$log->debug('About to update download count');
-			$sql = "select filedownloadcount from vtiger_notes where notesid= ?";
-			$download_count = $db->query_result($db->pquery($sql,array($fileid)),0,'filedownloadcount') + 1;
-			$sql="update vtiger_notes set filedownloadcount= ? where notesid= ?";
-			$res=$db->pquery($sql,array($download_count,$fileid));
+			$log->debug('Updating download count');
+			$sql="update vtiger_notes set filedownloadcount=filedownloadcount+1 where notesid= ?";
+			$res=$db->pquery($sql,array($fileid));
 		}
 		$recordpdf["recordid"] = $fileid;
 		$recordpdf["filetype"] = $fileType;
 		$recordpdf["filename"] = $name;
 		$recordpdf["filesize"] = $filesize;
-		$recordpdf["attachment"] = base64_encode($fileContent);
+		if ($base64encode == true) {
+			$recordpdf["attachment"] = base64_encode($fileContent);
+		}
+		else {
+			$recordpdf["attachment"] = $fileContent;
+		}
 	}
 	
 	$log->debug("Leaving function vtws_retrievedocattachment_get_attachment($fileid)");
