@@ -44,7 +44,7 @@
 					{foreach item=RECORD from=$RECORDMODELS name=recordList}
 						<td>
 							<input {if $smarty.foreach.recordList.index eq 0}checked{/if} type='radio' name="{$FIELD->getName()}"
-							data-id="{$RECORD->getId()}" value="{$FIELD->getEditViewDisplayValue($RECORD->get($FIELD->getName()))}" style='bottom:1px;position:relative;'/>
+							data-id="{$RECORD->getId()}" value="{if $FIELD->uitype == 7}{$FIELD->getEditViewDisplayValue($RECORD->get($FIELD->getName()))}{else}{$RECORD->get($FIELD->getName())}{/if}" style='bottom:1px;position:relative;'/>
 							 &nbsp;&nbsp;{$RECORD->getDisplayValue($FIELD->getName())}
 						</td>
 					{/foreach}
