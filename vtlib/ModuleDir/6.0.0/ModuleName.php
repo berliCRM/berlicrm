@@ -14,6 +14,12 @@ class ModuleName extends Vtiger_CRMEntity {
 	var $table_name = 'vtiger_<modulename>';
 	var $table_index= '<modulename>id';
 
+	
+	/**
+	 * Mandatory table for supporting related module.
+	 */
+	var $related_tables = Array('vtiger_<modulename>cf', '<modulename>id');
+
 	/**
 	 * Mandatory table for supporting custom fields.
 	 */
