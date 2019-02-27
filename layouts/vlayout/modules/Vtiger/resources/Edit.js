@@ -281,7 +281,7 @@ jQuery.Class("Vtiger_Edit_Js",{
 					var reponseDataList = new Array();
 					var serverDataFormat = data.result;
 					if(!serverDataFormat || serverDataFormat.length <= 0) {
-						jQuery(inputElement).val('');
+						if (fieldname != "accountname") jQuery(inputElement).val('');
 						serverDataFormat = new Array({
 							'label' : app.vtranslate('JS_NO_RESULTS_FOUND'),
 							'type'  : 'no results'
@@ -313,7 +313,7 @@ jQuery.Class("Vtiger_Edit_Js",{
 			'change' : function(event, ui) {
 				var element = jQuery(this);
                 // if field is "autocompletedText" (uitype cr16) accept only values from ajax source, clear field otherwise
-                if (element.data("fieldname") && !ui.item){
+                if (element.data("fieldname") && !ui.item && element.data("fieldname") != "accountname"){
                     element.val("");
                 }
 				//if you dont have readonly attribute means the user didnt select the item
