@@ -190,7 +190,7 @@ if($moduleInstance) {
     echo "- done";
 }
 
-echo "<br>update Tag version to 13.. ";
-$query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.13'";
+echo "<br>update Tag version to 14.. ";
+$query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.14'";
 $adb->pquery($query, array());
 echo " Tag version done.<br>";
