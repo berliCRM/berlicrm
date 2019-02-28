@@ -57,7 +57,17 @@
 										</label>
 									</td>
 									<td class="fieldValue">
+                                        {if $FIELD_MODEL->name == 'accountname'}
+                                        <div class="row-fluid input-append">
+                                            <input id="convertLead_accountname" name="accountname" type="text" class="span7 marginLeftZero"
+ value="{$FIELD_MODEL->getEditViewDisplayValue($FIELD_MODEL->fieldvalue)}" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]">
+                                            <span class="add-on selectAccount cursorPointer">
+                                                <i class="icon-search" title="{vtranslate('LBL_SEARCH_SIMILAR', $MODULE)}" ></i>
+                                            </span>
+                                        </div>
+                                        {else}
 											{include file=$FIELD_MODEL->getUITypeModel()->getTemplateName()|@vtemplate_path}
+                                        {/if}
 									</td>
 								</tr>
 								{/foreach}

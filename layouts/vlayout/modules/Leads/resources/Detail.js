@@ -243,6 +243,21 @@ Vtiger_Detail_Js("Leads_Detail_Js",{
 			}
 			e.stopImmediatePropagation();
 		});
+        
+        container.on('click','.selectAccount',function(e) {
+            var popupInstance =Vtiger_Popup_Js.getInstance();
+            var params = {
+				'module' : 'Accounts',
+				'src_module' : 'Leads',
+                'search_key' : 'accountname',
+                'search_value' : jQuery('#convertLead_accountname').val().substr(0,5),
+				'view': 'Popup'
+			};
+			popupInstance.show(params, function(data){
+                var responseData = JSON.parse(data);
+                jQuery('#convertLead_accountname').val(responseData[Object.keys(responseData)[0]].name);
+            });
+        });
 	},
 	
 	/*

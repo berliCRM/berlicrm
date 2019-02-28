@@ -36,7 +36,7 @@
         <div class="span6">
             <form class="form-horizontal popupSearchContainer" onsubmit="return false;" method="POST">
                 <div class="control-group margin0px">
-                    <input class="span2" type="text" placeholder="{vtranslate('LBL_TYPE_SEARCH')}" id="searchvalue"/>&nbsp;&nbsp;
+                    <input class="span2" type="text" placeholder="{vtranslate('LBL_TYPE_SEARCH')}" id="searchvalue" value="{$smarty.request.search_value|escape}"/>&nbsp;&nbsp;
                     <span><strong>{vtranslate('LBL_IN')}</strong></span>&nbsp;
                     <span>
                         {assign var = defaultSearchField value = $RECORD_STRUCTURE_MODEL->getModule()->getDefaultSearchField()}
