@@ -29,25 +29,15 @@ class Vtiger_BasicAjax_Action extends Vtiger_Action_Controller {
         if ($searchModule == "Picklist") {
             $fieldname = $request->get('fieldname');
             // sanitize fieldname for use as tablename
-            if ($fieldname == "accountname") {
-                global $adb;
-                $q = "SELECT accountname as value FROM vtiger_account JOIN vtiger_crmentity ON accountid = crmid WHERE deleted = 0 AND accountname LIKE ?";
-                $res = $adb->pquery($q,array($searchValue."%"));
-                while ($res && $row=$adb->fetchByAssoc($res,-1,false)) {
-                    $result[] = array('value'=>$row['value']);
-                }
+            $ftmp = explode("_",$fieldname);
+            if ($ftmp[0]!="cf" || !is_numeric($ftmp[1])) {
+                throw new AppException(vtranslate('LBL_NO_RECORDS_FOUND'));
             }
-            else {
-                $ftmp = explode("_",$fieldname);
-                if ($ftmp[0]!="cf" || !is_numeric($ftmp[1])) {
-                    throw new AppException(vtranslate('LBL_NO_RECORDS_FOUND'));
-                }
-                global $adb;
-                $q = "SELECT $fieldname as value FROM vtiger_$fieldname WHERE presence = 1 AND $fieldname LIKE ? ORDER BY sortorderid";
-                $res = $adb->pquery($q,array($searchValue."%"));
-                while ($res && $row=$adb->fetchByAssoc($res,-1,false)) {
-                    $result[] = array('value'=>$row['value']);
-                }
+            global $adb;
+            $q = "SELECT $fieldname as value FROM vtiger_$fieldname WHERE presence = 1 AND $fieldname LIKE ? ORDER BY sortorderid";
+            $res = $adb->pquery($q,array($searchValue."%"));
+            while ($res && $row=$adb->fetchByAssoc($res,-1,false)) {
+                $result[] = array('value'=>$row['value']);
             }
         }
         else {
