@@ -14,6 +14,8 @@
  
 include_once 'vtlib/Vtiger/Cron.php';
 require_once 'config.inc.php';
+/* no dbconfig means - not installed yet */
+if(! isset($dbconfig)) { exit(0); }
 require_once('modules/Emails/mail.php');
 require_once('modules/Users/Users.php');
 require_once('includes/runtime/BaseModel.php');
