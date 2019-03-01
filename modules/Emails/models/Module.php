@@ -128,5 +128,15 @@ class Emails_Module_Model extends Vtiger_Module_Model{
 		}
 		return $emailsResult;
 	}
+	
+	/**
+	 * Function to get orderby sql from orderby field
+	 */
+	public function getOrderBySql($orderBy){
+		 if($orderBy == 'date_start'){
+			 return "CONCAT($orderBy, ' ', time_start)";
+		 }
+		 return parent::getOrderBySql($orderBy);
+	}
 }
 ?>
