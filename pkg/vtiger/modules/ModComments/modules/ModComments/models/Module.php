@@ -41,7 +41,16 @@ class ModComments_Module_Model extends Vtiger_Module_Model{
 
 		$editWorkflowsImagePath = Vtiger_Theme::getImagePath('EditWorkflows.png');
 		$settingsLinks = array();
+		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 
+		if($currentUserModel->isAdminUser()) {
+			$settingsLinks[] = array(
+					'linktype' => 'LISTVIEWSETTING',
+					'linklabel' => 'LBL_ENABLE_COMMENTS_FOR_MODULE',
+					'linkurl' => 'index.php?parent=Settings&module=ModComments&view=Edit',
+					'linkicon' => '');
+			
+		}
 
 		if(VTWorkflowUtils::checkModuleWorkflow($this->getName())) {
 			$settingsLinks[] = array(
@@ -51,7 +60,8 @@ class ModComments_Module_Model extends Vtiger_Module_Model{
 					'linkicon' => $editWorkflowsImagePath
 			);
 		}
+
 		return $settingsLinks;
 	}
 }
-?>
+
