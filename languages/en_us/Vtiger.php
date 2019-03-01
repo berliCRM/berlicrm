@@ -837,7 +837,10 @@ $languageStrings = array(
 	'LBL_CSV_FORMAT' => 'CSV Format',
 	'LBL_EXCEL_FORMAT' => 'Excel Format',
 
-
+    'LBL_ENABLE_COMMENTS_FOR_MODULE' => 'Enable/disable comments by module',
+    'LBL_MODULE' => 'Module',
+    'LBL_COMMENTS_ENABLED' => 'Comments enabled',
+    'LBL_SAVE_SUCCESS'=>'Your preference has been saved successfully.',
 );
 
 $jsLanguageStrings = array(
