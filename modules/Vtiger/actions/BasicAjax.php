@@ -28,9 +28,8 @@ class Vtiger_BasicAjax_Action extends Vtiger_Action_Controller {
         // get results for autocomplete fields (uitype cr16)
         if ($searchModule == "Picklist") {
             $fieldname = $request->get('fieldname');
-            // sanitize fieldname for use as tablename
-            $ftmp = explode("_",$fieldname);
-            if ($ftmp[0]!="cf" || !is_numeric($ftmp[1])) {
+            // validate $fieldname for $relatedModule
+            if (!Vtiger_Field_Model::getInstance($fieldname,Vtiger_Module_Model::getInstance($relatedModule))) {
                 throw new AppException(vtranslate('LBL_NO_RECORDS_FOUND'));
             }
             global $adb;
