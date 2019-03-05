@@ -253,7 +253,7 @@ class CRMEntity {
 			$description_val = from_html($this->column_fields['description'], ($insertion_mode == 'edit') ? true : false);
 
             // crm-now: optional appending in mass operations, preventing multiple appends (by save-triggered workflows f.e.)
-            if ($_REQUEST["add"]["description"]=="on" && !$_REQUEST["added"]["description"][$this->id]) { 
+            if ($_REQUEST["add"]["description"]=="on" && !$_REQUEST["added"]["description"][$this->id] && !empty($_REQUEST['description'])) { 
                 $sql = "UPDATE vtiger_crmentity SET smownerid=?,modifiedby=?,description=TRIM(LEADING '\n' FROM CONCAT(TRIM(TRAILING '\n' FROM description),'\n',?)), modifiedtime=? WHERE crmid=?";
                 $_REQUEST["added"]["description"][$this->id]=true;
             }
@@ -437,7 +437,7 @@ class CRMEntity {
 			$typeofdata = $this->resolve_query_result_value($result, $i, "typeofdata");
 
             // crm-now: flag for appending data, preventing multiple appends (by save-triggered workflows f.e.)
-            $append = $_REQUEST["add"][$fieldname]=="on" && !$_REQUEST["added"][$fieldname][$this->id];
+            $append = $_REQUEST["add"][$fieldname]=="on" && !$_REQUEST["added"][$fieldname][$this->id] && !empty($_REQUEST[$fieldname]);
             $_REQUEST["added"][$fieldname][$this->id]=true;
 
 			$typeofdata_array = explode("~", $typeofdata);
