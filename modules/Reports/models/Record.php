@@ -277,7 +277,7 @@ class Reports_Record_Model extends Vtiger_Record_Model {
 			$dbFieldLabel = trim(str_replace(array($module, '_'), " ", $moduleFieldLabel));
 			$translatedFieldLabel = vtranslate($dbFieldLabel, $module);
 			if ($fieldName == 'realprice') $fieldName = 'listprice';
-			if(CheckFieldPermission($fieldName, $module) == 'true' && $columnName != 'crmid') {
+			if(CheckFieldPermission($fieldName, $module) == 'true' && ($columnName != 'crmid' || $fieldName == 'parent_id')) {
 				$selectedColumns[$translatedFieldLabel] = $column;
 			}
 		}
