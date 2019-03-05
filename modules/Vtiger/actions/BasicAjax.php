@@ -9,7 +9,7 @@
  *************************************************************************************/
 
 // if display_errors is enabled, suppress notices and warnings for ajax calls to not break JSON responses
-error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED);
+error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED & ~E_STRICT);
 
 class Vtiger_BasicAjax_Action extends Vtiger_Action_Controller {
 
