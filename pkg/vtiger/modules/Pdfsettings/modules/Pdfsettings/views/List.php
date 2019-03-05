@@ -209,7 +209,7 @@ class Pdfsettings_List_View extends Vtiger_Index_View {
 
 			//get product description information
 			//group
-			$gproddetailarray[$fld_module] = array($pdf_details[$fld_module][gprodname],$pdf_details[$fld_module][gproddes],$pdf_details[$fld_module][gprodcom]);
+			$gproddetailarray[$fld_module] = array($pdf_details[$fld_module]['gprodname'],$pdf_details[$fld_module]['gproddes'],$pdf_details[$fld_module]['gprodcom']);
 			foreach($gproddetailarray[$fld_module] as $value){
 				if ($value=='true') {
 					$gproddetails[$fld_module][]='checked="checked"';
@@ -219,7 +219,7 @@ class Pdfsettings_List_View extends Vtiger_Index_View {
 				}
 			}
 			//individual
-			$iproddetailarray = array($pdf_details[$fld_module][iprodname],$pdf_details[$fld_module][iproddes],$pdf_details[$fld_module][iprodcom]);
+			$iproddetailarray = array($pdf_details[$fld_module]['iprodname'],$pdf_details[$fld_module]['iproddes'],$pdf_details[$fld_module]['iprodcom']);
 			foreach($iproddetailarray as $value){
 				if ($value=='true') {
 					$iproddetails[$fld_module][]='checked="checked"';
