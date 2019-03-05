@@ -899,35 +899,22 @@ class CustomView extends CRMEntity {
 			if ($noOfColumns <= 0)
 				continue;
 
-			while ($relcriteriarow = $adb->fetch_array($result)) {
+			while ($relcriteriarow = $adb->fetchByAssoc($result,-1,false)) {
 				$columnIndex = $relcriteriarow["columnindex"];
 				$criteria = array();
-				$criteria['columnname'] = html_entity_decode($relcriteriarow["columnname"], ENT_QUOTES, $default_charset);
+				$criteria['columnname'] = $relcriteriarow["columnname"];
 				$criteria['comparator'] = $relcriteriarow["comparator"];
-				$advfilterval = html_entity_decode($relcriteriarow["value"], ENT_QUOTES, $default_charset);
+				$advfilterval = $relcriteriarow["value"];
 				$col = explode(":", $relcriteriarow["columnname"]);
 				$temp_val = explode(",", $relcriteriarow["value"]);
 				if ($col[4] == 'D' || ($col[4] == 'T' && $col[1] != 'time_start' && $col[1] != 'time_end') || ($col[4] == 'DT')) {
 					$val = Array();
 					for ($x = 0; $x < count($temp_val); $x++) {
 						if ($col[4] == 'D') {
-                            /** while inserting in db for due_date it was taking date and time values also as it is
-                             * date time field. We only need to take date from that value
-                             */
-                            if($col[0] == "vtiger_activity" && $col[1] == "due_date" ){
-                                $values = explode(' ', $temp_val[$x]);
-                                $temp_val[$x] = $values[0];
-                            }
 							$date = new DateTimeField(trim($temp_val[$x]));
 							$val[$x] = $date->getDisplayDate();
 						} elseif ($col[4] == 'DT') {
-							$comparator = array('e','n','b','a');
-							if(in_array($criteria['comparator'], $comparator)) {
-								$originalValue = $temp_val[$x];
-								$dateTime = explode(' ',$originalValue);
-								$temp_val[$x] = $dateTime[0];
-							}
-							$date = new DateTimeField($originalValue);
+							$date = new DateTimeField($temp_val[$x]);
 							$val[$x] = explode(' ', $date->getDisplayDateTimeValue())[0];
 						} else {
 							$date = new DateTimeField(trim($temp_val[$x]));
