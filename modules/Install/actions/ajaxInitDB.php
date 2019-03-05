@@ -5,7 +5,7 @@ class Install_ajaxInitDB_Action extends Vtiger_BasicAjax_Action {
 		return false;
 	}
 	
-	public function checkPermission() {
+	public function checkPermission(Vtiger_Request $request) {
 		$ret = true;
 		$path = Install_Utils_Model::INSTALL_FINISHED;
 		$isInstalled = file_exists($path);
@@ -19,7 +19,7 @@ class Install_ajaxInitDB_Action extends Vtiger_BasicAjax_Action {
 	function process(Vtiger_Request $request) { 
 		$ret = array(false, 'Unknown error');
 		$mode = $request->get('mode');
-		if (!$this->checkPermission()) {
+		if (!$this->checkPermission($request)) {
 			$ret[1] = 'Already installed<br>(if this is in error, delete /test/installFinished)';
 			$mode = 'failed';
 		}
