@@ -9,7 +9,7 @@
 *
  ********************************************************************************/
 -->*}
-<script language="JavaScript" type="text/javascript" src="modules/Pdfsettings/languages/{php} echo $_SESSION['authenticated_user_language'];{/php}/{php} echo $_SESSION['authenticated_user_language'];{/php}.lang.js"></script>
+<script language="JavaScript" type="text/javascript" src="modules/Pdfsettings/languages/{$CURRENT_USER_MODEL->get('language')}/{$CURRENT_USER_MODEL->get('language')}.lang.js"></script>
 <script language="JavaScript" type="text/javascript" src="modules/Pdfsettings/third-party/js/tab-view.js"></script>
 <link rel="stylesheet" href="modules/Pdfsettings/third-party/js/tab-view.css" type="text/css">
 {strip}
@@ -28,7 +28,7 @@
 				<div align='left'>
 					<table border=0 cellspacing=0 cellpadding=5 width="100%" class="settingsSelUITopLine">
 							<tr>
-								<td colspan=2 class="blockHeader" valign=bottom><b>{vtranslate('LBL_PDF_CONFIGURATOR',$MODULE)}</b></td>
+								<td colspan=2 class="blockHeader" valign=bottom><b>{vtranslate('LBL_PDF_CONFIGURATOR',$MODULE)}hugo{$_SESSION|@debug_print_var}</b></td>
 								<td rowspan=2 class="title_label" align=right>&nbsp;</td>
 							</tr>
 							<tr>

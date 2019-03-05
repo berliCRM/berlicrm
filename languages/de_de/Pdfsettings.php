@@ -20,7 +20,7 @@ $languageStrings = Array(
 	'LBL_PDFCONFIGURATOR_DESCRIPTION' =>'formatieren Sie PDF Ausgaben für Angebote, Bestellungen und Rechnungen',
 	'LBL_PDFCONFIGURATOR_ENABLE' =>'für Nutzer sperren',
 	'LBL_PDFCONFIGURATOR_QUOTES' =>'Einstellungen für Angebote',
-	'LBL_PDFCONFIGURATOR_INVOICES' =>'Einstellungen Ffür Rechnungen',
+	'LBL_PDFCONFIGURATOR_INVOICES' =>'Einstellungen für Rechnungen',
 	'LBL_PDFCONFIGURATOR_SO' =>'Einstellungen für Bestellbestätigungen',
 	'LBL_PDFCONFIGURATOR_PO' =>'Einstellungen für Einkaufsbestellungen',
 
