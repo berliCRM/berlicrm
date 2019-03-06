@@ -1472,6 +1472,7 @@ class Vtiger_Module_Model extends Vtiger_Module {
 	public function transferRecordsOwnership($transferOwnerId, $relatedModuleRecordIds){
         foreach ($relatedModuleRecordIds as $recordId) {
             $record = Vtiger_Record_Model::getInstanceById($recordId);
+            $record->convertToUserFormat();
             $record->set('assigned_user_id', $transferOwnerId);
             $record->set('mode','edit');
             $record->save();
