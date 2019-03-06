@@ -21,10 +21,7 @@
 	<tbody>
 		<tr>
 			<td class="span5">
-				<div class="dashboardTitle textOverflowEllipsis" title="{vtranslate($WIDGET->getTitle(), $MODULE_NAME)}" style="width: 15em;"><b>&nbsp;&nbsp;{vtranslate($WIDGET->getTitle(), $MODULE_NAME)}</b></div>
-			</td>
-			<td class="refresh span2" align="right">
-				<span style="position:relative;">&nbsp;</span>
+				<div class="dashboardTitle textOverflowEllipsis" title="{vtranslate($WIDGET->getTitle(), $MODULE_NAME)}" style="width:25em;"><b>&nbsp;&nbsp;{vtranslate($WIDGET->getTitle(), $MODULE_NAME)}</b></div>
 			</td>
 			<td class="widgeticons span5" align="right">
 				<div class="box pull-right">

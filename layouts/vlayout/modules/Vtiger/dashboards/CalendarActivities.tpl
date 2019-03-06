@@ -15,18 +15,13 @@
 	<thead>
 		<tr>
 			<th class="span4">
-				<div class="dashboardTitle" title="{vtranslate($WIDGET->getTitle(), $MODULE_NAME)}"><b>&nbsp;&nbsp;{vtranslate($WIDGET->getTitle())}</b></div>
+				<div class="dashboardTitle" title="{vtranslate($WIDGET->getTitle(), $MODULE_NAME)}" style="width:16em"><b>&nbsp;&nbsp;{vtranslate($WIDGET->getTitle())}</b></div>
 			</th>
 			<th class="span2">
-				<div>
-					<select class="widgetFilter" name="type" style='width:100px;margin-bottom:0px'>
-						<option value="{$CURRENTUSER->getId()}">{vtranslate('LBL_MINE')}</option>
-						<option value="all">{vtranslate('LBL_ALL')}</option>
-					</select>
-				</div>
-			</th>
-			<th class="refresh span1" align="right">
-				<span style="position:relative;"></span>
+                <select class="widgetFilter" name="type" style='width:100px;margin-bottom:0px'>
+                    <option value="{$CURRENTUSER->getId()}">{vtranslate('LBL_MINE')}</option>
+                    <option value="all">{vtranslate('LBL_ALL')}</option>
+                </select>
 			</th>
 			<th class="widgeticons span5" align="right">
 				{include file="dashboards/DashboardHeaderIcons.tpl"|@vtemplate_path:$MODULE_NAME}
