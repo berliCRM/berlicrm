@@ -705,7 +705,7 @@ function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false
 			}
 		}
 	}
-	if(file_exists('modules/ModTracker/ModTrackerUtils.php')) {
+	if(!isset($_REQUEST['operation']) && file_exists('modules/ModTracker/ModTrackerUtils.php')) {
 		require_once 'modules/ModTracker/ModTracker.php';
 		if (ModTracker::isTrackingEnabledForModule($module)) {
 			if (isset($tmp_arr_li) && count($tmp_arr_li) > 0) {
