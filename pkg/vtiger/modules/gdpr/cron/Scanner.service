@@ -32,7 +32,7 @@ $settings = Settings_gdpr_Record_Model::getGlobalSettingsParameters();
 
 $op_mode = $settings->get('op_mode'); // "m"anual or "a"utomatic deletion, "d"eactivated
 
-if ($op_mode=="d") die();
+if ($op_mode=="d") return;
 
 $del_mode = (int) $settings->get('del_mode'); // 0 = move to recycle bin, 1 = delete immediately
 $del_note_time_days = (int) $settings->get('del_note_time_days'); // time to prepone notification of pending deletions (in days)
