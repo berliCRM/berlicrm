@@ -142,11 +142,13 @@ class VtigerCRMObject{
 		return !$error;
 	}
 	
-	public function revise($element){
+	public function revise($element, $meta){
 		global $adb;
 		$error = false;
 
 		$error = $this->read($this->getObjectId());
+		//crm-now: after read() the values will be in DB format, to save user format is expected, other functions (create(), update()) will always take values from request and sanitize those to user format
+		$this->instance->column_fields = DataTransform::sanitizeForInsert($this->instance->column_fields, $meta);
 		if($error == false){
 			return $error;
 		}

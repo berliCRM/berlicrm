@@ -127,7 +127,7 @@ class VtigerModuleOperation extends WebserviceEntityOperation {
 
 		$crmObject = new VtigerCRMObject($this->tabId, true);
 		$crmObject->setObjectId($ids[1]);
-		$error = $crmObject->revise($element);
+		$error = $crmObject->revise($element, $this->meta);
 		if(!$error){
 			throw new WebServiceException(WebServiceErrorCode::$DATABASEQUERYERROR,
 					vtws_getWebserviceTranslatedString('LBL_'.
