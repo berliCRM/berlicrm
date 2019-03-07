@@ -166,7 +166,6 @@ Vtiger_List_Js("Rss_List_Js",{},
         AppConnector.requestPjax(params).then(function(data) {
             aDeferred.resolve(data);
             container.find('#listViewContents').html(data);
-            thisInstance.setFeedContainerHeight(container);
             progressIndicatorElement.progressIndicator({
                 'mode' : 'hide'
             })
@@ -174,15 +173,6 @@ Vtiger_List_Js("Rss_List_Js",{},
         
         return aDeferred.promise();  
     }, 
-    
-    /**
-     * Function to get the height of the Feed Container 
-     * @param container
-     */
-    setFeedContainerHeight : function(container) {
-        var height = this.getDocumentHeight()/4;
-        container.find('.feedListContainer').height(height);
-    },
     
     /**
      * Function to register the click of feeds
@@ -380,6 +370,5 @@ Vtiger_List_Js("Rss_List_Js",{},
         this.registerRssUrlClickEvent();
         this.registerFeedClickEvent(container);
         this.registerMakeDefaultClickEvent(container);
-        this.setFeedContainerHeight(container);
     }
 });

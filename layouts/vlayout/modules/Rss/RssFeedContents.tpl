@@ -26,7 +26,7 @@
         {foreach item=LISTVIEW_HEADER from=$LISTVIEW_HEADERS}
             {assign var=LISTVIEW_HEADERNAME value=$LISTVIEW_HEADER->get('name')}
             <td class="listViewEntryValue {$WIDTHTYPE}" data-field-type="{$LISTVIEW_HEADER->getFieldDataType()}" nowrap>
-                <a class='feedLink' href="javascript:;" data-url="{implode(',', array($LISTVIEW_ENTRY['link'], $LISTVIEW_ENTRY['link_']))}">{$LISTVIEW_ENTRY[$LISTVIEW_HEADERNAME]|utf8_decode}</a>
+                <a class='feedLink' href="javascript:;" data-url="{implode(',', array($LISTVIEW_ENTRY['link'], $LISTVIEW_ENTRY['link_']))}">{$LISTVIEW_ENTRY[$LISTVIEW_HEADERNAME]}</a>
             {if $LISTVIEW_HEADER@last}
             </td>
                 <td nowrap class="{$WIDTHTYPE}">
@@ -42,12 +42,8 @@
     </tr>
     {/foreach}
     <tr class="listViewEntrie {$WIDTHTYPE}" nowrap>
-        <td class="listViewEntryValue">
+        <td class="listViewEntryValue" colspan=3>
             <a href="{$RECORD->get('url')}" target="_BLANK" name="history_more">{vtranslate('LBL_MORE')}...</a>
-        </td>
-        <td nowrap class="{$WIDTHTYPE}">
-        </td>
-        <td nowrap class="{$WIDTHTYPE}">
         </td>
     </tr>
 </table>

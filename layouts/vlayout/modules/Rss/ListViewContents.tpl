@@ -32,7 +32,7 @@
                     <h3> {vtranslate('LBL_FEEDS_LIST_FROM',$MODULE)} : {$RECORD->getName()} </h3>
                 </span>
             </div>
-            <div class="feedListContainer" style="overflow: auto;"> 
+            <div class="feedListContainer" style="overflow:auto"> 
                 {include file='RssFeedContents.tpl'|@vtemplate_path:$MODULE}
             </div>
             {else}
