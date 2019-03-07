@@ -31,8 +31,9 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
 					throw new WebServiceException(WebServiceErrorCode::$REFERENCEINVALID, "LineItem productid missing or invalid: ".json_encode($lineItem));
 				}
 			}
+			$handler = vtws_getModuleHandlerFromName('LineItem', $this->user);
             $element = parent::create($elementType, $element);
-            $handler = vtws_getModuleHandlerFromName('LineItem', $this->user);
+			$this->trackChanges($handler, $element['id'], $lineItems);
 			$handler->setLineItems('LineItem', $lineItems, $element);
             $parent = $handler->getParentById($element['id']);
 			$handler->updateParent($lineItems, $parent);
@@ -69,6 +70,7 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
 					throw new WebServiceException(WebServiceErrorCode::$REFERENCEINVALID, "LineItem productid missing or invalid: ".json_encode($lineItem));
 				}
 			}
+			$this->trackChanges($handler, $element['id'], $lineItemList);
 			$updatedElement = parent::update($element);
 			$handler->setLineItems('LineItem', $lineItemList, $updatedElement);
 			$parent = $handler->getParentById($element['id']);
@@ -83,7 +85,7 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
             $parentId = $components[1];
 			$updatedElement['LineItems'] = $handler->getAllLineItemForParent($parentId);
 
-      $this->executeDelayedTriggers();
+            $this->executeDelayedTriggers();
 
 		} else {
 			$updatedElement = $this->revise($element);
@@ -120,7 +122,7 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
 					throw new WebServiceException(WebServiceErrorCode::$REFERENCEINVALID, "LineItem productid missing or invalid: ".json_encode($lineItem));
 				}
 			}
-
+			$this->trackChanges($handler, $element['id'], $lineItemList);
 			$updatedElement = parent::revise($element);
 			$handler->setLineItems('LineItem', $lineItemList, $updatedElement);
 			$parent = $handler->getParentById($element['id']);
@@ -259,6 +261,93 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
 			$element['LineItems'] = $handler->getAllLineItemForParent($parentId);
 		}
 		return $output;
+	}
+	
+	private function trackChanges($handler, $parentId, $newLineItems) {
+		try {
+			$parentTypeHandler = vtws_getModuleHandlerFromId($parentId, $this->user);
+			$parentTypeMeta = $parentTypeHandler->getMeta();
+			$module = $parentTypeMeta->getEntityName();
+			
+			if(file_exists('modules/ModTracker/ModTrackerUtils.php')) {
+				require_once 'modules/ModTracker/ModTracker.php';
+				if (ModTracker::isTrackingEnabledForModule($module)) {
+					$components = vtws_getIdComponents($parentId);
+					$parentId = $components[1];
+					$oldLineItems = $handler->getAllLineItemForParent($parentId);
+					
+					// loop through old items, check for updates, unset new items that were present in old items
+					$deltaFields = array('productid', 'sequence_no', 'quantity', 'listprice', 'discount_percent', 'discount_amount', 'comment', 'description');
+					// if ($module == 'SalesOrder') {
+						// foreach (SalesOrder::$date_fields AS $date_field) {
+							// $deltaFields[] = $date_field;
+						// }
+						// foreach (SalesOrder::$vitro_fields AS $vitro_field) {
+							// $deltaFields[] = $vitro_field;
+						// }
+						// // not set by GUI
+						// foreach (SalesOrder::$add_vitro_fields AS $add_vitro_field) {
+							// $deltaFields[] = $add_vitro_field;
+						// }
+					// }
+					foreach ($oldLineItems AS $oLineItem) {
+						$oProdId = vtws_getIdComponents($oLineItem['productid'])[1];
+						$oLineItem['productid'] = $oProdId;
+						$found = false;
+						foreach ($newLineItems AS $nKey => $nLineItem) {
+							if ($oLineItem['id'] != $nLineItem['id']) continue;
+							
+							$found = true;
+							
+							$nProdId = vtws_getIdComponents($nLineItem['productid'])[1];
+							$nLineItem['productid'] = $nProdId;
+							
+							foreach ($deltaFields AS $dFieldName) {
+								if ($oLineItem[$dFieldName] != $nLineItem[$dFieldName]) {
+									if (!isset($modid)) {
+										$modid = $this->pearDB->getUniqueId('vtiger_modtracker_basic');
+										$query = "INSERT INTO vtiger_modtracker_basic(id, crmid, module, whodid, changedon, status) VALUES(?,?,?,?,?,?);";
+										$status = ModTracker::$UPDATED;
+										$this->pearDB->pquery($query, array($modid, $parentId, $module, $this->user->id, date('Y-m-d H:i:s'), $status));
+									}
+									$query = "INSERT INTO vtiger_modtracker_detail(id,fieldname,prevalue,postvalue) VALUES(?,?,?,?);";
+									$this->pearDB->pquery($query, array($modid, $dFieldName, $oLineItem[$dFieldName], $nLineItem[$dFieldName].'|#KAY#|'.$nLineItem['productid']));
+								}
+							}
+							unset($newLineItems[$nKey]);
+							break;
+						}
+						//no new item found -> deleted old item but treat it as updated to NULL for simplicity
+						if (!$found) {
+							if (!isset($modid)) {
+								// $modid = $this->pearDB->getUniqueId('vtiger_modtracker_basic');
+								$query = "INSERT INTO vtiger_modtracker_basic(id, crmid, module, whodid, changedon, status) VALUES(?,?,?,?,?,?);";
+								$status = ModTracker::$UPDATED;
+								$this->pearDB->pquery($query, array($modid, $parentId, $module, $this->user->id, date('Y-m-d H:i:s'), $status));
+							}
+							$query = "INSERT INTO vtiger_modtracker_detail(id,fieldname,prevalue,postvalue) VALUES(?,?,?,?);";
+							$this->pearDB->pquery($query, array($modid, 'productid', $oProdId, NULL));
+						}
+					}
+					// remaining new items to be added instead of updated
+					foreach ($newLineItems AS $nKey => $nLineItem) {
+						foreach ($deltaFields AS $dFieldName) {
+							if (!isset($modid)) {
+								$modid = $this->pearDB->getUniqueId('vtiger_modtracker_basic');
+								$query = "INSERT INTO vtiger_modtracker_basic(id, crmid, module, whodid, changedon, status) VALUES(?,?,?,?,?,?);";
+								$status = ModTracker::$UPDATED;
+								$this->pearDB->pquery($query, array($modid, $parentId, $module, $this->user->id, date('Y-m-d H:i:s'), $status));
+							}
+							$query = "INSERT INTO vtiger_modtracker_detail(id,fieldname,prevalue,postvalue) VALUES(?,?,?,?);";
+							$this->pearDB->pquery($query, array($modid, $dFieldName, NULL, $nLineItem[$dFieldName].'|#KAY#|'.$nLineItem['productid']));
+						}
+					}
+				}
+			}
+		} catch (Exception $e) {
+			//don't let this ruin any followup code
+			//syslog(LOG_DEBUG, __FILE__.' tracker error');
+		}
 	}
 }
 
