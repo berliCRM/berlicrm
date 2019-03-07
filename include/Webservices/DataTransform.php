@@ -134,8 +134,9 @@
 
 			$row = DataTransform::sanitizeDateFieldsForInsert($row,$meta);
 			$row = DataTransform::sanitizeCurrencyFieldsForInsert($row,$meta);
-			$row = DataTransform::sanitizeNumberFieldsForInsert($row,$meta);
-
+			if (strtolower($meta->getEntityName()) != 'lineitem') {
+				$row = DataTransform::sanitizeNumberFieldsForInsert($row,$meta);
+			}
 			return $row;
 			
 		}
