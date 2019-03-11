@@ -50,7 +50,9 @@ class Vtiger_TooltipView_Model extends Vtiger_DetailRecordStructure_Model {
 			$fieldType = $fieldModel->getFieldDataType();
 			$fieldName = $fieldModel->get('name');
 			
-			$fieldNames[] = $fieldName;
+			if ($fieldName !='filename') {
+				$fieldNames[] = $fieldName;
+			}
 			if ($fieldType == 'reference' || $fieldType == 'owner') {
 				$referenceFields[] = $fieldName;
 			}
