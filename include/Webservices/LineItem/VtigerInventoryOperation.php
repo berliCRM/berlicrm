@@ -304,6 +304,8 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
 							
 							foreach ($deltaFields AS $dFieldName) {
 								if ($oLineItem[$dFieldName] != $nLineItem[$dFieldName]) {
+									//skip entries where 0 turns to NULL or vice versa
+									if (empty($oLineItem[$dFieldName]) && empty($nLineItem[$dFieldName])) continue;
 									if (!isset($modid)) {
 										$modid = $this->pearDB->getUniqueId('vtiger_modtracker_basic');
 										$query = "INSERT INTO vtiger_modtracker_basic(id, crmid, module, whodid, changedon, status) VALUES(?,?,?,?,?,?);";

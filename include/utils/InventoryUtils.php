@@ -691,6 +691,8 @@ function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false
 				// $delta['tax3'] = array($tmp_arr_li[$lineitem_id]['tax3'], NULL);
 				foreach ($delta AS $column => $arr_vals) {
 					if ($arr_vals[0] != $arr_vals[1]) {
+						//skip entries where 0 turns to NULL or vice versa
+						if (empty($arr_vals[0]) && empty($arr_vals[1])) continue;
 						if (!isset($modid)) {
 							$modid = $adb->getUniqueId('vtiger_modtracker_basic');
 							$query = "INSERT INTO vtiger_modtracker_basic(id, crmid, module, whodid, changedon, status) VALUES(?,?,?,?,?,?);";
