@@ -56,11 +56,12 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 			// Check if the message is already linked.
 			$linkedto = MailManager_Relate_Action::associatedLink($request->get('_msguid'));
 			// If the message was not linked, lookup for matching records, using FROM address unless it is in the sent folder
-      $folder=$request->get('_folder');
-      if ($folder=="Sent"){
-        $contacts=$request->get('_msendto');
-      }else{
-			  $contacts=$request->get('_mfrom');
+            $folder=$request->get('_folder');
+            if ($folder=="Sent") {
+                $contacts=$request->get('_msendto');
+            }
+            else {
+                $contacts=$request->get('_mfrom');
 			}
 			if (empty($linkedto)) {
 				$results = array();
@@ -79,7 +80,8 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 				}
 				$viewer->assign('LOOKUPS', $results);
 				$viewer->assign('MODULES', $modules);
-			} else {
+			}
+            else {
 				$viewer->assign('LINKEDTO', $linkedto);
 			}
 
@@ -90,7 +92,8 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 
 			$response->setResult( array( 'ui' => $viewer->view( 'Relationship.tpl', 'MailManager', true ) ) );
 
-		} else if ('link' == $this->getOperationArg($request)) {
+		}
+        elseif ('link' == $this->getOperationArg($request)) {
 
 			$linkto = $request->get('_mlinkto');
 			$foldername = $request->get('_folder');
@@ -112,7 +115,8 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 			$viewer->assign('FOLDER', $foldername);
 			$response->setResult( array( 'ui' => $viewer->view( 'Relationship.tpl', 'MailManager', true ) ) );
 
-		} else if ('create_wizard' == $this->getOperationArg($request)) {
+		}
+        elseif ('create_wizard' == $this->getOperationArg($request)) {
 			$moduleName = $request->get('_mlinktotype');
 			$parent =  $request->get('_mlinkto');
 			$foldername = $request->get('_folder');
@@ -138,7 +142,8 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 			// UI already sent
 			$response = false;
 
-		} else if ('create' == $this->getOperationArg($request)) {
+		}
+        elseif ('create' == $this->getOperationArg($request)) {
 			$linkModule = $request->get('_mlinktotype');
 			$parent =  $request->get('_mlinkto');
 			$foldername = $request->get('_folder');
@@ -284,15 +289,18 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 				$response->setResult( array( 'ui' => '', 'error' => $e ));
 			}
 
-		} else if ('savedraft' == $this->getOperationArg($request)) {
+		}
+        elseif ('savedraft' == $this->getOperationArg($request)) {
 			$connector = $this->getConnector('__vt_drafts');
 			$draftResponse = $connector->saveDraft($request);
 			$response->setResult($draftResponse);
-		} else if ('saveattachment' == $this->getOperationArg($request)) {
+		}
+        elseif ('saveattachment' == $this->getOperationArg($request)) {
 			$connector = $this->getConnector('__vt_drafts');
 			$uploadResponse = $connector->saveAttachment($request);
 			$response->setResult($uploadResponse);
-		} else if ('commentwidget' == $this->getOperationArg($request)) {
+		}
+        elseif ('commentwidget' == $this->getOperationArg($request)) {
 			$viewer->assign('LINKMODULE', $request->get('_mlinktotype'));
 			$viewer->assign('PARENT', $request->get('_mlinkto'));
 			$viewer->assign('MSGNO', $request->get('_msgno'));
@@ -320,7 +328,8 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 					return $parentId[1];
 				}
 			}
-		} else {
+		}
+        else {
 			return $parent;
 		}
 	}
@@ -335,21 +344,21 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 	public function processFormData($mail) {
 		$subject = $mail->subject();
 		$from = $mail->from();
-                $body= strip_tags($mail->body()); 
+        $body = strip_tags($mail->body());
 
 		if(!empty($from)) $mail_fromAddress = implode(',', $from);
 		if(!empty($mail_fromAddress)) $name = explode('@', $mail_fromAddress);
 		if(!empty($name[1])) $companyName = explode('.', $name[1]);
 
-		$defaultFieldValueMap =  array( 
-                                'lastname'	=> $name[0],
+		$defaultFieldValueMap =  array(
+                'lastname'	=> $name[0],
 				'email'         => $mail_fromAddress,
 				'email1'	=> $mail_fromAddress,
 				'accountname'	=> $companyName[0],
 				'company'	=> $companyName[0],
 				'ticket_title'	=> $subject,
 				'subject'	=> $subject,
-                                'description'   => $body, 
+                'description'   => $body,
 		);
 		return $defaultFieldValueMap;
 	}
@@ -444,9 +453,8 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 		}
 		return $results;
 	}
-        
-       public function validateRequest(Vtiger_Request $request) { 
-            return $request->validateWriteAccess(); 
-        }
+
+    public function validateRequest(Vtiger_Request $request) {
+        return $request->validateWriteAccess();
+    }
 }
-?>
