@@ -47,9 +47,9 @@ class Vtiger_Filter {
 	 * @access private
 	 */
 	function initialize($valuemap, $moduleInstance=false) {
-		$this->id = $valuemap[cvid];
-		$this->name= $valuemap[viewname];
-		$this->module=$moduleInstance? $moduleInstance: Vtiger_Module::getInstance($valuemap[tabid]);
+		$this->id = $valuemap['cvid'];
+		$this->name= $valuemap['viewname'];
+		$this->module = $moduleInstance ? $moduleInstance : Vtiger_Module::getInstance($valuemap['tabid']);
 	}
 
 	/**
@@ -288,4 +288,3 @@ class Vtiger_Filter {
 		}
 	}
 }
-?>
