@@ -60,7 +60,7 @@ function sendPrdStckMail($product_id,$upd_qty,$prod_name,$qtyinstk,$qty,$module)
 	$log->debug("Inside sendPrdStckMail function, module=".$module);
 	$log->debug("Prd reorder level ".$reorderlevel);
 	if($upd_qty < $reorderlevel)
-	{	
+	{
 		//send mail to the handler
 		$handler = getRecordOwnerId($product_id);
 		foreach($handler as $type=>$id){
@@ -249,94 +249,63 @@ function addInventoryHistory($module, $id, $relatedname, $total, $history_fldval
 /**	Function used to get the list of Tax types as a array
  *	@param string $available - available or empty where as default is all, if available then the taxes which are available now will be returned otherwise all taxes will be returned
  *      @param string $sh - sh or empty, if sh passed then the shipping and handling related taxes will be returned
- *      @param string $mode - edit or empty, if mode is edit, then it will return taxes including desabled.
+ *      @param string $mode - edit or empty, if mode is edit, then return taxes including disabled
  *      @param string $id - crmid or empty, getting crmid to get tax values..
- *	return array $taxtypes - return all the tax types as a array
+ *	return array $taxtypes - return all tax types as array
  */
 function getAllTaxes($available='all', $sh='',$mode='',$id='')
 {
 	global $adb, $log;
 	$log->debug("Entering into the function getAllTaxes($available,$sh,$mode,$id)");
-	$taxtypes = Array();
-	if($sh != '' && $sh == 'sh') {
-		$tablename = 'vtiger_shippingtaxinfo';
-		$value_table='vtiger_inventoryshippingrel';
+	$taxtypes = array();
+	if($sh == 'sh') {
 		if($mode == 'edit' && $id != '') {
-			$sql = "SELECT * FROM $tablename WHERE deleted=0";
-			$result = $adb->pquery($sql, array());
-			$noofrows=$adb->num_rows($result);
-			for($i=0; $i<$noofrows; $i++) {
-				$taxtypes[$i]['taxid'] = $adb->query_result($result,$i,'taxid');
-				$taxname = $adb->query_result($result,$i,'taxname');
-				$taxtypes[$i]['taxname'] = $taxname;
-				$inventory_tax_val_result = $adb->pquery("SELECT $taxname FROM $value_table WHERE id=?",array($id));
-				$taxtypes[$i]['percentage'] = $adb->query_result($inventory_tax_val_result, 0, $taxname);;
-				$taxtypes[$i]['taxlabel'] = $adb->query_result($result,$i,'taxlabel');
-				$taxtypes[$i]['deleted'] = $adb->query_result($result,$i,'deleted');
+            $shtax = getAllSHTaxesPercentForId($id);
+			$q = 'SELECT taxid,taxname,taxlabel,deleted FROM vtiger_shippingtaxinfo WHERE deleted=0';
+			$res = $adb->query($q);
+			while ($row = $adb->fetchByAssoc($res,-1,false)) {
+                $row['percentage'] = $shtax[$row["taxname"]];
+				$taxtypes[] = $row;
 			}
 		} else {
-			//This where condition is added to get all products or only availble products
-			if ($available != 'all' && $available == 'available') {
-				$where = " WHERE $tablename.deleted=0";
+			if ($available == 'available') {
+                $q = 'SELECT * FROM vtiger_shippingtaxinfo WHERE vtiger_shippingtaxinfo.deleted=0';
 			}
-			$result = $adb->pquery("SELECT * FROM $tablename $where ORDER BY deleted", array());
-			$noofrows = $adb->num_rows($result);
-			for ($i = 0; $i < $noofrows; $i++) {
-				$taxtypes[$i]['taxid'] = $adb->query_result($result, $i, 'taxid');
-				$taxtypes[$i]['taxname'] = $adb->query_result($result, $i, 'taxname');
-				$taxtypes[$i]['taxlabel'] = $adb->query_result($result, $i, 'taxlabel');
-				$taxtypes[$i]['percentage'] = $adb->query_result($result, $i, 'percentage');
-				$taxtypes[$i]['deleted'] = $adb->query_result($result, $i, 'deleted');
+            else {
+                $q = 'SELECT * FROM vtiger_shippingtaxinfo ORDER BY deleted';
+            }
+			$res = $adb->query($q);
+			while ($row = $adb->fetchByAssoc($res,-1,false)) {
+				$taxtypes[] = $row;
 			}
 		}
 	} else {
-		$tablename = 'vtiger_inventorytaxinfo';
-		$value_table='vtiger_inventoryproductrel';
 		if($mode == 'edit' && $id != '' ) {
-			//Getting total no of taxes
-			$result_ids = array();
-			$result = $adb->pquery("select taxname,taxid from $tablename", array());
-			$noofrows = $adb->num_rows($result);
-			$inventory_tax_val_result = $adb->pquery("select * from $value_table where id=?", array($id));
-			//Finding which taxes are associated with this (SO,PO,Invoice,Quotes) and getting its taxid.
-			for ($i = 0; $i < $noofrows; $i++) {
-				$taxname = $adb->query_result($result, $i, 'taxname');
-				$taxid = $adb->query_result($result, $i, 'taxid');
-				$tax_val = $adb->query_result($inventory_tax_val_result, 0, $taxname);
-				if ($tax_val != '') {
-					array_push($result_ids, $taxid);
+            $invtax = getAllInventoryTaxesPercentForId($id);
+			$res = $adb->query('SELECT * FROM vtiger_inventorytaxinfo');
+			while ($row = $adb->fetchByAssoc($res,-1,false)) {
+                //only return taxes associated with this (SO,PO,Invoice,Quote)
+				if (isset($invtax[$row['taxname']])) {
+                    $taxtypes[] = $row;
 				}
 			}
-			//We are selecting taxes using that taxids. So It will get the tax even if the tax is disabled.
-			$where_ids = '';
-			if (count($result_ids) > 0) {
-				$insert_str = str_repeat("?,", count($result_ids) - 1);
-				$insert_str .= "?";
-				$where_ids = "taxid in ($insert_str) or";
-			}
-			$res = $adb->pquery("select * from $tablename  where $where_ids  deleted=0 order by taxid",$result_ids);
 		} else {
-			//This where condition is added to get all products or only availble products
-			if ($available != 'all' && $available == 'available') {
-				$where = " where $tablename.deleted=0";
+            if ($available == 'available') {
+                $q = 'SELECT * FROM vtiger_inventorytaxinfo WHERE vtiger_inventorytaxinfo.deleted=0';
 			}
-			$res = $adb->pquery("select * from $tablename $where order by deleted", array());
-		}
-
-		$noofrows = $adb->num_rows($res);
-		for ($i = 0; $i < $noofrows; $i++) {
-			$taxtypes[$i]['taxid'] = $adb->query_result($res, $i, 'taxid');
-			$taxtypes[$i]['taxname'] = $adb->query_result($res, $i, 'taxname');
-			$taxtypes[$i]['taxlabel'] = $adb->query_result($res, $i, 'taxlabel');
-			$taxtypes[$i]['percentage'] = $adb->query_result($res, $i, 'percentage');
-			$taxtypes[$i]['deleted'] = $adb->query_result($res, $i, 'deleted');
+            else {
+                $q = 'SELECT * FROM vtiger_inventorytaxinfo ORDER BY deleted';
+            }
+			$res = $adb->query($q);
+            while ($row = $adb->fetchByAssoc($res,-1,false)) {
+                $taxtypes[] = $row;
+            }
 		}
 	}
 	$log->debug("Exit from the function getAllTaxes($available,$sh,$mode,$id)");
 
 	return $taxtypes;
 }
-
 
 /**	Function used to get all the tax details which are associated to the given product
  *	@param int $productid - product id to which we want to get all the associated taxes
@@ -450,7 +419,7 @@ function updateInventoryProductRel($entity) {
 	if ($moduleName === 'Invoice') {
 		$statusFieldName = 'invoicestatus';
 		$statusFieldValue = 'Cancel';
-	} 
+	}
 	elseif ($moduleName === 'PurchaseOrder') {
 		$statusFieldName = 'postatus';
 		$statusFieldValue = 'Received Shipment';
@@ -521,11 +490,11 @@ function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false
 	//Added to get the convertid
 	if(isset($_REQUEST['convert_from']) && $_REQUEST['convert_from'] !='')
 	{
-		$id=vtlib_purify($_REQUEST['return_id']); 
+		$id=vtlib_purify($_REQUEST['return_id']);
 	}
 	else if(isset($_REQUEST['duplicate_from']) && $_REQUEST['duplicate_from'] !='')
 	{
-		$id=vtlib_purify($_REQUEST['duplicate_from']); 
+		$id=vtlib_purify($_REQUEST['duplicate_from']);
 	}
 
 	$ext_prod_arr = Array();
@@ -538,7 +507,7 @@ function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false
 		{
 			$return_old_values = 'return_old_values';
 		}
-		
+
 		$query = "SELECT * FROM vtiger_inventoryproductrel WHERE id = ?;";
 		$res = $adb->pquery($query, array($focus->id));
 		$tmp_arr_li = array();
@@ -568,19 +537,19 @@ function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false
 		if($_REQUEST["deleted".$i] == 1)
 			continue;
 
-	    $prod_id = vtlib_purify($_REQUEST['hdnProductId'.$i]); 
+	    $prod_id = vtlib_purify($_REQUEST['hdnProductId'.$i]);
 		if(isset($_REQUEST['productDescription'.$i]))
-			$description = decode_html(vtlib_purify($_REQUEST['productDescription'.$i])); 
+			$description = decode_html(vtlib_purify($_REQUEST['productDescription'.$i]));
 		/*else{
 			$desc_duery = "select vtiger_crmentity.description AS product_description from vtiger_crmentity where vtiger_crmentity.crmid=?";
 			$desc_res = $adb->pquery($desc_duery,array($prod_id));
 			$description = $adb->query_result($desc_res,0,"product_description");
 		}	*/
-        $qty = vtlib_purify($_REQUEST['qty'.$i]); 
-        $listprice = vtlib_purify($_REQUEST['listPrice'.$i]); 
-        $comment = vtlib_purify($_REQUEST['comment'.$i]); 
-        $purchaseCost = vtlib_purify($_REQUEST['purchaseCost'.$i]); 
-        $margin = vtlib_purify($_REQUEST['margin'.$i]); 
+        $qty = vtlib_purify($_REQUEST['qty'.$i]);
+        $listprice = vtlib_purify($_REQUEST['listPrice'.$i]);
+        $comment = vtlib_purify($_REQUEST['comment'.$i]);
+        $purchaseCost = vtlib_purify($_REQUEST['purchaseCost'.$i]);
+        $margin = vtlib_purify($_REQUEST['margin'.$i]);
 		$line_id = (!empty($_REQUEST['hdnLineitemId'.$i])) ? $_REQUEST['hdnLineitemId'.$i] : NULL;
 
 		//we have to update the Product stock for PurchaseOrder if $update_prod_stock is true
@@ -647,7 +616,7 @@ function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false
 				$tax_name = $all_available_taxes[$tax_count]['taxname'];
 				$request_tax_name = $tax_name."_group_percentage";
 				if(isset($_REQUEST[$request_tax_name]))
-					$tax_val =vtlib_purify($_REQUEST[$request_tax_name]); 
+					$tax_val =vtlib_purify($_REQUEST[$request_tax_name]);
 				$updatequery .= " $tax_name = ?,";
 				array_push($updateparams,$tax_val);
 			}
@@ -672,7 +641,7 @@ function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false
  		if( !preg_match( '/set\s+where/i', $updatequery)) {
  		    $adb->pquery($updatequery,$updateparams);
  		}
-		
+
 		if(file_exists('modules/ModTracker/ModTrackerUtils.php')) {
 			require_once 'modules/ModTracker/ModTracker.php';
 			if (ModTracker::isTrackingEnabledForModule($module)) {
@@ -740,36 +709,36 @@ function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false
 	//for discount percentage or discount amount
 	if($_REQUEST['discount_type_final'] == 'percentage')
 	{
-		$updatequery .= " discount_percent=?,discount_amount=?,"; 
-                array_push($updateparams, vtlib_purify($_REQUEST['discount_percentage_final'])); 
-                array_push($updateparams,null); 
+		$updatequery .= " discount_percent=?,discount_amount=?,";
+                array_push($updateparams, vtlib_purify($_REQUEST['discount_percentage_final']));
+                array_push($updateparams,null);
 	}
 	elseif($_REQUEST['discount_type_final'] == 'amount')
 	{
-		$discount_amount_final = vtlib_purify($_REQUEST['discount_amount_final']); 
-                $updatequery .= " discount_amount=?,discount_percent=?,"; 
+		$discount_amount_final = vtlib_purify($_REQUEST['discount_amount_final']);
+                $updatequery .= " discount_amount=?,discount_percent=?,";
 		array_push($updateparams, $discount_amount_final);
-                array_push($updateparams,null); 
-        } 
-        elseif($_REQUEST['discount_type_final']=='zero'){ 
-            $updatequery.="discount_amount=?,discount_percent=?,"; 
-            array_push($updateparams,null); 
-            array_push($updateparams,null); 
-        } 
-        $shipping_handling_charge = vtlib_purify($_REQUEST['shipping_handling_charge']); 
-        $updatequery .= " s_h_amount=?,";  
+                array_push($updateparams,null);
+        }
+        elseif($_REQUEST['discount_type_final']=='zero'){
+            $updatequery.="discount_amount=?,discount_percent=?,";
+            array_push($updateparams,null);
+            array_push($updateparams,null);
+        }
+        $shipping_handling_charge = vtlib_purify($_REQUEST['shipping_handling_charge']);
+        $updatequery .= " s_h_amount=?,";
 	array_push($updateparams, $shipping_handling_charge);
 
 	//if the user gave - sign in adjustment then add with the value
 	$adjustmentType = '';
 	if($_REQUEST['adjustmentType'] == '-')
-		$adjustmentType = vtlib_purify($_REQUEST['adjustmentType']); 
+		$adjustmentType = vtlib_purify($_REQUEST['adjustmentType']);
 
-	$adjustment = vtlib_purify($_REQUEST['adjustment']); 
+	$adjustment = vtlib_purify($_REQUEST['adjustment']);
 	$updatequery .= " adjustment=?,";
 	array_push($updateparams, $adjustmentType.$adjustment);
 
-	$total = vtlib_purify($_REQUEST['total']); 
+	$total = vtlib_purify($_REQUEST['total']);
 	$updatequery .= " total=?,";
 	array_push($updateparams, $total);
 
@@ -784,18 +753,18 @@ function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false
 		$tax_name = $sh_tax_details[$i]['taxname']."_sh_percent";
 		if($_REQUEST[$tax_name] != '')
 		{
-			$sh_tax_pecent = $sh_tax_pecent + vtlib_purify($_REQUEST[$tax_name]); 
+			$sh_tax_pecent = $sh_tax_pecent + vtlib_purify($_REQUEST[$tax_name]);
 			$sh_query_fields .= $sh_tax_details[$i]['taxname'].",";
 			$sh_query_values .= "?,";
-			array_push($sh_query_params, vtlib_purify($_REQUEST[$tax_name])); 
+			array_push($sh_query_params, vtlib_purify($_REQUEST[$tax_name]));
 		}
 	}
 	$sh_query_fields = trim($sh_query_fields,',');
 	$sh_query_values = trim($sh_query_values,',');
-	
+
 	$updatequery .= " s_h_percent=?,";
 	array_push($updateparams, $sh_tax_pecent);
-	
+
 	//crm-now: fix pre_tax_total mess
 	$updatequery .= " pre_tax_total =?";
 	array_push($updateparams, $_REQUEST['pre_tax_total']);
@@ -805,7 +774,7 @@ function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false
 	$updatequery .= " where ".$focus->table_index."=?";
 	array_push($updateparams, $focus->id);
 	$adb->pquery($updatequery,$updateparams);
-	
+
 	$sh_query = "insert into vtiger_inventoryshippingrel($sh_query_fields) values($sh_query_values)";
 	$adb->pquery($sh_query,$sh_query_params);
 
@@ -909,6 +878,31 @@ function getInventorySHTaxPercent($id, $taxname)
 	$log->debug("Exit from function getInventorySHTaxPercent($id, $taxname)");
 
 	return $taxpercentage;
+}
+
+/**	function used to get all inventory tax percentages for the given inventory id
+ *	@param int $id - entity id which will be PO/SO/Quotes or Invoice id
+ *  @
+ *	@returns array[taxname] float $taxpercentage
+ */
+function getAllInventoryTaxesPercentForId($id) {
+	global $adb;
+	$res=$adb->pquery("SELECT * FROM vtiger_inventoryproductrel WHERE id = ?", array($id));
+    $row=$adb->fetchByAssoc($res,-1,false);
+    unset($row["id"]);
+	return $row;
+}
+/**	function used to get all s&h tax percentages for the given inventory id
+ *	@param int $id - entity id which will be PO/SO/Quotes or Invoice id
+ *  @
+ *	@returns array[taxname] float $taxpercentage
+ */
+function getAllSHTaxesPercentForId($id) {
+	global $adb;
+	$res=$adb->pquery("SELECT * FROM vtiger_inventoryshippingrel WHERE id = ?", array($id));
+    $row=$adb->fetchByAssoc($res,-1,false);
+    unset($row["id"]);
+	return $row;
 }
 
 /**	Function used to get the list of all Currencies as a array
@@ -1449,9 +1443,9 @@ function undoLastImport($obj, $user) {
 	$owner = new Users();
 	$owner->id = $ownerId;
 	$owner->retrieve_entity_info($ownerId, 'Users');
-	
+
 	$dbTableName = Import_Utils_Helper::getDbTableName($owner);
-	
+
 	if(!is_admin($user) && $user->id != $owner->id) {
 		$viewer = new Vtiger_Viewer();
 		$viewer->view('OperationNotPermitted.tpl', 'Vtiger');
@@ -1507,7 +1501,7 @@ function getCurrencyId($fieldValue) {
  */
 function getLineItemFields(){
 	global $adb;
-	
+
 	$sql = 'SELECT DISTINCT columnname FROM vtiger_field WHERE tablename=?';
 	$result = $adb->pquery($sql, array('vtiger_inventoryproductrel'));
 	$lineItemdFields = array();
@@ -1517,5 +1511,3 @@ function getLineItemFields(){
 	}
 	return $lineItemdFields;
 }
-
-?>
