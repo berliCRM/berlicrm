@@ -1207,27 +1207,21 @@ if (typeof(MailManager) == 'undefined') {
 			var replyBody = MailManager.sprintf('<p></p><p style="margin:0;padding:0;">%s, %s, %s:</p><blockquote style="border:0;margin:0;border-left:1px solid gray;padding:0 0 0 2px;">%s</blockquote><br />', 'On ' + date, from, 'wrote', body);
 
 			function fillComposeEmailForm(win) {
-				var formValues = {
-					'#ccContainer input' : cc,
-					'[name="subject"]': replySubject
-				}
 				var rteValues = {
 					'description': replyBody
 				}
-				win['app']['setFormValues'](formValues);
 				win['app']['setRTEValues'](rteValues);
-				if (cc) {
-					win['jQuery']('#ccLink').trigger('click');
-				}
 			}
 
 			if (crmid !="") {
-				var params = {step: "step1", module: "Contacts", view: "MassActionAjax", mode: "showComposeEmailForm", selected_ids:'["'+ crmid +'"]', relatedLoad : true};
+				var params = {step: "step1", module: "Contacts", view: "MassActionAjax", mode: "showComposeEmailForm", selected_ids:'["'+ crmid +'"]', relatedLoad : true, subject : replySubject};
 			} else 
 			{
-				var params = {step: "step1", module: "MailManager", view: "MassActionAjax", mode: "showComposeEmailForm", selected_ids:'[]', excluded_ids: "[]", to:'["'+from+'"]'};
+				var params = {step: "step1", module: "MailManager", view: "MassActionAjax", mode: "showComposeEmailForm", selected_ids:'[]', excluded_ids: "[]", to:'["'+from+'"]', subject : replySubject};
 			}
-		
+            if (cc!="" && cc != null) {
+                params.cc = cc;
+            }
 			Vtiger_Index_Js.showComposeEmailPopup(params, function(win){
 				if (typeof win != 'undefined') {
 					setTimeout(function() {fillComposeEmailForm(win);}, 2000);
@@ -1320,16 +1314,12 @@ if (typeof(MailManager) == 'undefined') {
 			} else {
 				// Populate the popup window
 				function fillComposeEmailForm(win) {
-					var formValues = {
-						'[name="subject"]': fwdSubject
-					}
 					var rteValues = {
 						'description': fwdBody
 					}
-					win['app']['setFormValues'](formValues);
 					win['app']['setRTEValues'](rteValues);
 				}
-				var params = {step: "step1", module: "MailManager", view: "MassActionAjax", mode: "showComposeEmailForm", selected_ids:"[]", excluded_ids: "[]"}
+				var params = {step: "step1", module: "MailManager", view: "MassActionAjax", mode: "showComposeEmailForm", selected_ids:"[]", excluded_ids: "[]", subject : fwdSubject}
 				Vtiger_Index_Js.showComposeEmailPopup(params, function(win){
 					if (typeof win != 'undefined') {
 						setTimeout(function() {fillComposeEmailForm(win);}, 2000);
