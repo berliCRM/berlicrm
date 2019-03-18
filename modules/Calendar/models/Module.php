@@ -192,15 +192,18 @@ class Calendar_Module_Model extends Vtiger_Module_Model {
 	 * Function to set event fields for export
 	 */
 	public function setEventFieldsForExport() {
-		$moduleFields = array_flip($this->getColumnFieldMapping());
-		$userModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
+		$currentUserModel = Users_Record_Model::getCurrentUserModel();
+		
+		//crm-now: use Module's Webservice metadata to determine readability of field instead of static Vtiger_Field::getInstance() to prevent mix-up with fieldnames (vtlib/Vtiger/Functions.php getModuleFieldInfos() overwrites tabid 9 with tabid 16)
+		$handler = vtws_getModuleHandlerFromName('Events', $currentUserModel);
+		$meta = $handler->getMeta();
+		$moduleFields = array_keys($meta->getModuleFields());
 
 		$keysToReplace = array('taskpriority');
 		$keysValuesToReplace = array('taskpriority' => 'priority');
 
-		foreach($moduleFields as $fieldName => $fieldValue) {
-            $fieldModel = Vtiger_Field_Model::getInstance($fieldName, $this);
-            if($fieldName != 'id' && $fieldModel->getPermissions()) {
+		foreach($moduleFields AS $fieldName) {
+            if($fieldName != 'id') {
 				if(!in_array($fieldName, $keysToReplace)) {
 					$eventFields[$fieldName] = 'yes';
 				} else {
@@ -215,15 +218,18 @@ class Calendar_Module_Model extends Vtiger_Module_Model {
 	 * Function to set todo fields for export
 	 */
 	public function setTodoFieldsForExport() {
-		$moduleFields = array_flip($this->getColumnFieldMapping());
-		$userModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
+		$currentUserModel = Users_Record_Model::getCurrentUserModel();
+		
+		//crm-now: use Module's Webservice metadata to determine readability of field instead of static Vtiger_Field::getInstance() to prevent mix-up with fieldnames (vtlib/Vtiger/Functions.php getModuleFieldInfos() overwrites tabid 9 with tabid 16)
+		$handler = vtws_getModuleHandlerFromName($this->getName(), $currentUserModel);
+		$meta = $handler->getMeta();
+		$moduleFields = array_keys($meta->getModuleFields());
 
 		$keysToReplace = array('taskpriority', 'taskstatus');
 		$keysValuesToReplace = array('taskpriority' => 'priority', 'taskstatus' => 'status');
 
-		foreach($moduleFields as $fieldName => $fieldValue) {
-			$fieldModel = Vtiger_Field_Model::getInstance($fieldName, $this);
-            if($fieldName != 'id' && $fieldModel->getPermissions()) {
+		foreach($moduleFields AS $fieldName) {
+            if($fieldName != 'id') {
 				if(!in_array($fieldName, $keysToReplace)) {
 					$todoFields[$fieldName] = 'yes';
 				} else {
