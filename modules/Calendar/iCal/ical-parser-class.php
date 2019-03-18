@@ -18,7 +18,7 @@ class iCal {
         preg_match_all('/BEGIN:VEVENT.*?END:VEVENT/si', $ical, $eventresult, PREG_PATTERN_ORDER);
         preg_match_all('/BEGIN:VTODO.*?END:VTODO/si', $ical, $todoresult, PREG_PATTERN_ORDER);
         for ($i = 0; $i < count($eventresult[0]); $i++) {
-            $tmpbyline = explode("\r\n", $eventresult[0][$i]);
+            $tmpbyline = preg_split('/\r\n|\r|\n/', $eventresult[0][$i]);
             $begin = false;
             $key=NULL;
             foreach ($tmpbyline as $item) {
@@ -52,7 +52,7 @@ class iCal {
         }
         
         for ($i = 0; $i < count($todoresult[0]); $i++) {
-            $tmpbyline = explode("\r\n", $todoresult[0][$i]);
+            $tmpbyline = preg_split('/\r\n|\r|\n/', $todoresult[0][$i]);
             $begin = false;
             $key=NULL;
             foreach ($tmpbyline as $item) {
