@@ -205,6 +205,7 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		}
 		$this->composeMailData($request);
 		$viewer = $this->getViewer($request);
+        $viewer->assign('SUBJECT', $request->get('subject'));
 		echo $viewer->view('ComposeEmailForm.tpl', $moduleName, true);
 	}
 

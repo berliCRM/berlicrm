@@ -27,6 +27,8 @@
             <input type="hidden" name="search_params" value='{ZEND_JSON::encode($SEARCH_PARAMS)}' />
             <input type="hidden" name="fieldModule" value={$SOURCE_MODULE} />
 			<input type="hidden" name="to" value='{ZEND_JSON::encode($TO)}' />
+			<input type="hidden" name="cc" value='{$smarty.request.cc|escape}' />
+			<input type="hidden" name="subject" value='{$smarty.request.subject|escape}' />
             {if !empty($PARENT_MODULE)}
                 <input type="hidden" name="sourceModule" value="{$PARENT_MODULE}" />
                 <input type="hidden" name="sourceRecord" value="{$PARENT_RECORD}" />
