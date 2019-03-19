@@ -148,10 +148,12 @@
 function handleError(response) {
 	var imgFailPath = '{/literal}{vimage_path("Tickets.png")}{literal}';
 	var errorMsg = 'Unknown error';
-	
 	if (response.error && response.error.message) {
 		errorMsg = response.error.message;
-	} else if (response) {
+	} else if (response.result.message) {
+        errorMsg = response.result.message;
+    }
+    else if (response) {
 		errorMsg = response;
 	}
 	jQuery('#'+params.mode).html('<img src="'+imgFailPath+'">&nbsp'+errorMsg);
