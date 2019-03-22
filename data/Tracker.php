@@ -135,7 +135,7 @@ $log->info("in  track view method ".$current_module);
 
 
             // If the module was not specified or the module matches the module of the row, add the row to the list
-            if($module_name == "" || $row[module_name] == $module_name)
+            if($module_name == "" || $row['module_name'] == $module_name)
             {
 		//Adding Security check
 		require_once('include/utils/utils.php');
