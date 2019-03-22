@@ -1665,7 +1665,7 @@ class nusoap_xmlschema extends nusoap_base  {
 				}
 				// compositor wraps elements
 				if (isset($attrs['compositor']) && ($attrs['compositor'] != '')) {
-					$contentStr = "  <$schemaPrefix:$attrs[compositor]>\n".$contentStr."  </$schemaPrefix:$attrs[compositor]>\n";
+					$contentStr = "  <$schemaPrefix:{$attrs['compositor']}>\n".$contentStr."  </$schemaPrefix:{$attrs['compositor']}>\n";
 				}
 			}
 			// attributes
@@ -1918,8 +1918,8 @@ class nusoap_xmlschema extends nusoap_base  {
 				$buffer .= '<table>';
 				foreach($typeDef['elements'] as $child => $childDef){
 					$buffer .= "
-					<tr><td align='right'>$childDef[name] (type: ".$this->getLocalPart($childDef['type'])."):</td>
-					<td><input type='text' name='parameters[".$name."][$childDef[name]]'></td></tr>";
+					<tr><td align='right'>{$childDef['name']} (type: ".$this->getLocalPart($childDef['type'])."):</td>
+					<td><input type='text' name='parameters[{$name}][{$childDef['name']}]'></td></tr>";
 				}
 				$buffer .= '</table>';
 			// if array
@@ -1927,8 +1927,8 @@ class nusoap_xmlschema extends nusoap_base  {
 				$buffer .= '<table>';
 				for($i=0;$i < 3; $i++){
 					$buffer .= "
-					<tr><td align='right'>array item (type: $typeDef[arrayType]):</td>
-					<td><input type='text' name='parameters[".$name."][]'></td></tr>";
+					<tr><td align='right'>array item (type: {$typeDef['arrayType']}):</td>
+					<td><input type='text' name='parameters[{$name}][]'></td></tr>";
 				}
 				$buffer .= '</table>';
 			// if scalar
@@ -4949,11 +4949,11 @@ class wsdl extends nusoap_base {
                 case 'message':
                     if ($name == 'part') {
 			            if (isset($attrs['type'])) {
-		                    $this->debug("msg " . $this->currentMessage . ": found part (with type) $attrs[name]: " . implode(',', $attrs));
+		                    $this->debug("msg " . $this->currentMessage . ": found part (with type) {$attrs['name']}: " . implode(',', $attrs));
 		                    $this->messages[$this->currentMessage][$attrs['name']] = $attrs['type'];
             			} 
 			            if (isset($attrs['element'])) {
-		                    $this->debug("msg " . $this->currentMessage . ": found part (with element) $attrs[name]: " . implode(',', $attrs));
+		                    $this->debug("msg " . $this->currentMessage . ": found part (with element) {$attrs['name']}: " . implode(',', $attrs));
 			                $this->messages[$this->currentMessage][$attrs['name']] = $attrs['element'] . '^';
 			            } 
         			} 
@@ -6136,7 +6136,7 @@ class wsdl extends nusoap_base {
 				$rows = sizeof($value);
 				$contents = '';
 				foreach($value as $k => $v) {
-					$this->debug("serializing array element: $k, $v of type: $typeDef[arrayType]");
+					$this->debug("serializing array element: $k, $v of type: {$typeDef['arrayType']}");
 					//if (strpos($typeDef['arrayType'], ':') ) {
 					if (!in_array($typeDef['arrayType'],$this->typemap['http://www.w3.org/2001/XMLSchema'])) {
 					    $contents .= $this->serializeType('item', $typeDef['arrayType'], $v, $use);
