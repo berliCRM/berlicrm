@@ -586,7 +586,7 @@ class nusoap_xmlschema extends nusoap_base  {
 				}
 				// compositor wraps elements
 				if (isset($attrs['compositor']) && ($attrs['compositor'] != '')) {
-					$contentStr = "  <$schemaPrefix:$attrs[compositor]>\n".$contentStr."  </$schemaPrefix:$attrs[compositor]>\n";
+					$contentStr = "  <$schemaPrefix:{$attrs['compositor']}>\n".$contentStr."  </$schemaPrefix:{$attrs['compositor']}>\n";
 				}
 			}
 			// attributes
@@ -839,8 +839,8 @@ class nusoap_xmlschema extends nusoap_base  {
 				$buffer .= '<table>';
 				foreach($typeDef['elements'] as $child => $childDef){
 					$buffer .= "
-					<tr><td align='right'>$childDef[name] (type: ".$this->getLocalPart($childDef['type'])."):</td>
-					<td><input type='text' name='parameters[".$name."][$childDef[name]]'></td></tr>";
+					<tr><td align='right'>{$childDef['name']} (type: ".$this->getLocalPart($childDef['type'])."):</td>
+					<td><input type='text' name='parameters[{$name}][{$childDef['name']}]'></td></tr>";
 				}
 				$buffer .= '</table>';
 			// if array
@@ -848,8 +848,8 @@ class nusoap_xmlschema extends nusoap_base  {
 				$buffer .= '<table>';
 				for($i=0;$i < 3; $i++){
 					$buffer .= "
-					<tr><td align='right'>array item (type: $typeDef[arrayType]):</td>
-					<td><input type='text' name='parameters[".$name."][]'></td></tr>";
+					<tr><td align='right'>array item (type: {$typeDef['arrayType']}):</td>
+					<td><input type='text' name='parameters[{$name}][]'></td></tr>";
 				}
 				$buffer .= '</table>';
 			// if scalar
@@ -955,11 +955,11 @@ class nusoap_xmlschema extends nusoap_base  {
 		if (! $this->getPrefix($attrs['type'])) {
 			$attrs['type'] = $this->schemaTargetNamespace . ':' . $attrs['type'];
 		}
-		$this->elements[ $attrs['name'] ] = $attrs;
-		$this->elements[ $attrs['name'] ]['typeClass'] = 'element';
+		$this->elements[$attrs['name']] = $attrs;
+		$this->elements[$attrs['name']]['typeClass'] = 'element';
 		
 		$this->xdebug("addElement " . $attrs['name']);
-		$this->appendDebug($this->varDump($this->elements[ $attrs['name'] ]));
+		$this->appendDebug($this->varDump($this->elements[$attrs['name']]));
 	}
 }
 
@@ -968,6 +968,3 @@ class nusoap_xmlschema extends nusoap_base  {
  */
 class XMLSchema extends nusoap_xmlschema {
 }
-
-
-?>
