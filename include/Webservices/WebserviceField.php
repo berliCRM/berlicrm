@@ -370,36 +370,54 @@ class WebserviceField{
 
 		$default_charset = VTWS_PreserveGlobal::getGlobal('default_charset');
 		$options = array();
-		$sql = "select * from vtiger_picklist where name=?";
-		$result = $this->pearDB->pquery($sql,array($fieldName));
-		$numRows = $this->pearDB->num_rows($result);
-		if($numRows == 0){
-			$sql = "select * from vtiger_$fieldName order by sortorderid asc";
-			$result = $this->pearDB->pquery($sql,array());
-			$numRows = $this->pearDB->num_rows($result);
-			for($i=0;$i<$numRows;++$i){
-				$elem = array();
-				$picklistValue = $this->pearDB->query_result($result,$i,$fieldName);
-				$picklistValue = decode_html($picklistValue);
-				$moduleName = getTabModuleName($this->getTabId());
-				if($moduleName == 'Events') $moduleName = 'Calendar';
+        // return only valid, yet unused entries for uitype "autocompletesingleuse"
+        if ($this->uitype == "crs16") {
+            $moduleName = getTabModuleName($this->getTabId());
+            $fieldmodel = Vtiger_Field_Model::getInstance($fieldName,Vtiger_Module_Model::getInstance($moduleName));
+            $sql = "SELECT $fieldName FROM vtiger_$fieldName LEFT JOIN {$fieldmodel->table} USING ({$fieldmodel->column})
+                WHERE presence = 1 AND {$fieldmodel->table}.$fieldName IS NULL ORDER BY sortorderid";
+            $result = $this->pearDB->pquery($sql,array());
+            $numRows = $this->pearDB->num_rows($result);
+            for($i=0;$i<$numRows;++$i){
+                $elem = array();
+				$picklistValue = decode_html($this->pearDB->query_result($result,$i,$fieldName));
 				$elem["label"] = getTranslatedString($picklistValue,$moduleName);
 				$elem["value"] = $picklistValue;
-				array_push($options,$elem);
-			}
-		}else{
-			$user = VTWS_PreserveGlobal::getGlobal('current_user');
-			$details = getPickListValues($fieldName,$user->roleid);
-			for($i=0;$i<sizeof($details);++$i){
-				$elem = array();
-				$picklistValue = decode_html($details[$i]);
-				$moduleName = getTabModuleName($this->getTabId());
-				if($moduleName == 'Events') $moduleName = 'Calendar';
-				$elem["label"] = getTranslatedString($picklistValue,$moduleName);
-				$elem["value"] = $picklistValue;
-				array_push($options,$elem);
-			}
-		}
+                $options[]=$elem;
+            }
+        }
+        else {
+            $sql = "select * from vtiger_picklist where name=?";
+            $result = $this->pearDB->pquery($sql,array($fieldName));
+            $numRows = $this->pearDB->num_rows($result);
+            if($numRows == 0){
+                $sql = "select * from vtiger_$fieldName order by sortorderid asc";
+                $result = $this->pearDB->pquery($sql,array());
+                $numRows = $this->pearDB->num_rows($result);
+                for($i=0;$i<$numRows;++$i){
+                    $elem = array();
+                    $picklistValue = $this->pearDB->query_result($result,$i,$fieldName);
+                    $picklistValue = decode_html($picklistValue);
+                    $moduleName = getTabModuleName($this->getTabId());
+                    if($moduleName == 'Events') $moduleName = 'Calendar';
+                    $elem["label"] = getTranslatedString($picklistValue,$moduleName);
+                    $elem["value"] = $picklistValue;
+                    array_push($options,$elem);
+                }
+            }else{
+                $user = VTWS_PreserveGlobal::getGlobal('current_user');
+                $details = getPickListValues($fieldName,$user->roleid);
+                for($i=0;$i<sizeof($details);++$i){
+                    $elem = array();
+                    $picklistValue = decode_html($details[$i]);
+                    $moduleName = getTabModuleName($this->getTabId());
+                    if($moduleName == 'Events') $moduleName = 'Calendar';
+                    $elem["label"] = getTranslatedString($picklistValue,$moduleName);
+                    $elem["value"] = $picklistValue;
+                    array_push($options,$elem);
+                }
+            }
+        }
 		return $options;
 	}
 
