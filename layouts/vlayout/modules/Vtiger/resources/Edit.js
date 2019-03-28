@@ -274,9 +274,13 @@ jQuery.Class("Vtiger_Edit_Js",{
 				var inputElement = jQuery(this.element[0]);
 				var searchValue = request.term;
 				var params = thisInstance.getReferenceSearchParams(inputElement);
-                var fieldname = inputElement.data("fieldname"); // only set for "autocomplete" fields uitype cr16
+                var fieldname = inputElement.data("fieldname"); // for "autocomplete" fields uitype cr(s)16
+                var fielduitype = inputElement.data("fielduitype"); // for "autocomplete" fields uitype cr(s)16
+                var recordid = inputElement.data("recordid"); // for "single use" fields uitype crs16
 				params.search_value = searchValue;
 				params.fieldname = fieldname;
+				params.fielduitype = fielduitype;
+				params.recordid = recordid;
 				thisInstance.searchModuleNames(params).then(function(data){
 					var reponseDataList = new Array();
 					var serverDataFormat = data.result;

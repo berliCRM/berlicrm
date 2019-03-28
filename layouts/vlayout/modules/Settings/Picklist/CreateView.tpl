@@ -25,8 +25,18 @@
 		<input type="hidden" name="pickListValues" value='{Vtiger_Util_Helper::toSafeHTML(ZEND_JSON::encode($SELECTED_PICKLISTFIELD_ALL_VALUES))}' />
 		<div class="modal-body tabbable">
 			<div class="control-group">
-				<div class="control-label"><span class="redColor">*</span>{vtranslate('LBL_ITEM_VALUE',$QUALIFIED_MODULE)}</div>
-				<div class="controls"><input type="text" data-prompt-position="topLeft:70" data-validation-engine="validate[required, funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-validator='{Zend_Json::encode([['name'=>'FieldLabel']])}' name="newValue"></div>
+				<div class="control-label"><span class="redColor">*</span>{vtranslate('LBL_ITEM_VALUE',$QUALIFIED_MODULE)}<br>
+                    <button type='button' id='singlemultitoggle'>{vtranslate('LBL_SINGLE_MULTIPLE',$QUALIFIED_MODULE)}</button>
+                </div>
+				<div class="controls">
+                    <div class='newSingle'>
+                        <input type="text" data-prompt-position="topLeft:70" data-validation-engine="validate[required, funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-validator='{Zend_Json::encode([['name'=>'FieldLabel']])}' name="newValue" id="newValue">
+                    </div>
+                    <div class='newMultiple' style="display:none">
+                        <textarea id='newValues' name='newValues'></textarea>
+                        {vtranslate('LBL_EXPLAIN_MULTI',$QUALIFIED_MODULE)}
+                    </div>
+                </div>
 			</div>
 			{if $SELECTED_PICKLIST_FIELDMODEL->isRoleBased()}
 				<div class="control-group">	

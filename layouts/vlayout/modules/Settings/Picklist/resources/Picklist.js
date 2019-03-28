@@ -83,6 +83,25 @@ var Settings_Picklist_Js = {
 		});
 	},
 
+    registerToggleMultipleAddEvent : function() {
+        // toggle between adding single or multiple picklist entries
+        jQuery('#singlemultitoggle').on('click',function(e) {
+            if (jQuery('.createView .newSingle').is(":visible")) {
+                jQuery('.createView .newSingle').hide();
+                // copy value from input from input to textarea
+                jQuery('.createView .newMultiple textarea').val(jQuery('.createView .newSingle input').val()).attr('data-validation-engine','validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]');
+                jQuery('.createView .newSingle input').val('').attr('data-validation-engine','');
+                jQuery('.createView .newMultiple').show();
+            }
+            else {
+                jQuery('.createView .newMultiple').hide().attr('data-validation-engine','');
+                // copy first line of textarea to input
+                jQuery('.createView .newSingle input').val(jQuery('.createView .newMultiple textarea').val().split("\n")[0]).attr('data-validation-engine','validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]');
+                jQuery('.createView .newMultiple textarea').val('').attr('data-validation-engine','');
+                jQuery('.createView .newSingle').show();
+            }
+        });
+    },
 
 	registerAssingValueToRuleEvent : function() {
 		jQuery('#assignValue').on('click',function() {
@@ -401,29 +420,45 @@ var Settings_Picklist_Js = {
 
 				var params = jQuery(e.currentTarget).serializeFormData();
 				var newValue = params.newValue;
+				var newValues = params.newValues;
 				params.newValue = jQuery.trim(newValue);
+				params.newValues = newValues;
 				AppConnector.request(params).then(function(data) {
+                    app.hideModalWindow();
 					data = data.result;
-					var newValue = jQuery.trim(jQuery('[name="newValue"]',container).val());
-					var dragImagePath = jQuery('#dragImagePath').val();
-					var newElement = '<tr class="pickListValue cursorPointer"><td class="textOverflowEllipsis"><img class="alignMiddle" src="'+dragImagePath+'" />&nbsp;&nbsp;'+newValue+'</td></tr>';
-					var newPickListValueRow = jQuery(newElement).appendTo(jQuery('#pickListValuesTable').find('tbody'));
-					newPickListValueRow.attr('data-key',newValue);
-					newPickListValueRow.attr('data-key-id',data['id']);
-					app.hideModalWindow();
-					var params = {
-						title : app.vtranslate('JS_MESSAGE'),
-						text: app.vtranslate('JS_ITEM_ADDED_SUCCESSFULLY'),
-						animation: 'show',
-						type: 'success'
-					};
-					Vtiger_Helper_Js.showPnotify(params);
-					//update the new item in the hidden picklist values array
-					var pickListValuesEle = jQuery('[name="pickListValues"]');
-					var pickListValuesArray = JSON.parse(pickListValuesEle.val());
-					pickListValuesArray[data['id']] = newValue;
-					pickListValuesEle.val(JSON.stringify(pickListValuesArray));
-
+                    if(typeof data == 'object') {
+                        // multiple entries added? just reload ajax html instead of creating DOM nodes by JS
+                        var params = {
+                            title : app.vtranslate('JS_MESSAGE'),
+                            text: app.vtranslate('JS_ITEM_ADDED_SUCCESSFULLY'),
+                            animation: 'show',
+                            type: 'success'
+                        };
+                        Vtiger_Helper_Js.showPnotify(params);
+                        jQuery('#modulePickList').trigger("change");
+                    }
+                    else {
+                        // single entry
+                        var newValue = jQuery.trim(jQuery('[name="newValue"]',container).val());
+                        var dragImagePath = jQuery('#dragImagePath').val();
+                        var newElement = '<tr class="pickListValue cursorPointer"><td class="textOverflowEllipsis"><img class="alignMiddle" src="'+dragImagePath+'" />&nbsp;&nbsp;'+newValue+'</td></tr>';
+                        var newPickListValueRow = jQuery(newElement).appendTo(jQuery('#pickListValuesTable').find('tbody'));
+                        newPickListValueRow.attr('data-key',newValue);
+                        newPickListValueRow.attr('data-key-id',data['id']);
+                        app.hideModalWindow();
+                        var params = {
+                            title : app.vtranslate('JS_MESSAGE'),
+                            text: app.vtranslate('JS_ITEM_ADDED_SUCCESSFULLY'),
+                            animation: 'show',
+                            type: 'success'
+                        };
+                        Vtiger_Helper_Js.showPnotify(params);
+                        //update the new item in the hidden picklist values array
+                        var pickListValuesEle = jQuery('[name="pickListValues"]');
+                        var pickListValuesArray = JSON.parse(pickListValuesEle.val());
+                        pickListValuesArray[data['id']] = newValue;
+                        pickListValuesEle.val(JSON.stringify(pickListValuesArray));
+                    }
 				});
 			}
 			e.preventDefault();
@@ -680,6 +715,7 @@ var Settings_Picklist_Js = {
 
 	registerItemActions : function() {
 		Settings_Picklist_Js.registerAddItemEvent();
+		Settings_Picklist_Js.registerToggleMultipleAddEvent();
 		Settings_Picklist_Js.registerRenameItemEvent();
 		Settings_Picklist_Js.registerDeleteItemEvent();
 		Settings_Picklist_Js.registerSelectPickListValueEvent();
