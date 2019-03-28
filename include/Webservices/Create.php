@@ -62,6 +62,38 @@ function vtws_create($elementType, $element, $user) {
         }
     }
 
+    // validate entries for picklist and autocomplete fields (uitypes 15/16/cr16/crs16), only allow values from picklist or current value
+    $moduleFields = $meta->getModuleFields();
+    foreach ($moduleFields as $fieldName => $field) {
+        $uitype = $field->getUIType();
+        if ($uitype == "crs16" && $element[$fieldName] !="") {
+            // crs16 : only allow unused picklist values or current value
+            $modulemodel = Vtiger_Module_Model::getInstance($meta->getTabId());
+            $fieldmodel = Vtiger_Field_Model::getInstance($fieldName,$modulemodel);
+            $sql = "SELECT $fieldName FROM vtiger_$fieldName LEFT JOIN {$fieldmodel->table} USING ({$fieldmodel->column})
+                WHERE presence = 1 AND $fieldName = ? AND {$fieldmodel->table}.$fieldName IS NULL";
+            $res = $adb->pquery($sql,array($element[$fieldName]));
+            if ($adb->num_rows($res) == 0) {
+                $sql = "SELECT $fieldName FROM vtiger_$fieldName WHERE presence = 1 AND $fieldName = ?";
+                $res = $adb->pquery($sql,array($element[$fieldName]));
+                if ($adb->num_rows($res) == 0) {
+                    throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, "Illegal value for $fieldName");
+                }
+                else {
+                    throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, "Value given for $fieldName already in use (may only be used once)");
+                }
+            }
+        }
+        elseif (($uitype == "15" || $uitype == "16" || $uitype == "cr16") && $element[$fieldName] !="") {
+            $modulemodel = Vtiger_Module_Model::getInstance($meta->getTabId());
+            $fieldmodel = Vtiger_Field_Model::getInstance($fieldName,$modulemodel);
+            $sql = "SELECT $fieldName FROM vtiger_$fieldName WHERE presence = 1 AND $fieldName = ?";
+            $res = $adb->pquery($sql,array($element[$fieldName]));
+            if ($adb->num_rows($res) == 0) {
+                throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, "Illegal value for $fieldName");
+            }
+        }
+    }
 
     if ($meta->hasMandatoryFields($element)) {
 
@@ -82,4 +114,3 @@ function vtws_create($elementType, $element, $user) {
         return null;
     }
 }
-?>
