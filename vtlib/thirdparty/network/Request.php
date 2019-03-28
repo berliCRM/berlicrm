@@ -87,8 +87,8 @@ define('HTTP_REQUEST_ERROR_GZIP_CRC',       256);
 /**#@+
  * Constants for HTTP protocol versions
  */
-define('HTTP_REQUEST_HTTP_VER_1_0', '1.0', true);
-define('HTTP_REQUEST_HTTP_VER_1_1', '1.1', true);
+define('HTTP_REQUEST_HTTP_VER_1_0', '1.0');
+define('HTTP_REQUEST_HTTP_VER_1_1', '1.1');
 /**#@-*/
 
 if (extension_loaded('mbstring') && (2 & ini_get('mbstring.func_overload'))) {
