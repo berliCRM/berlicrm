@@ -14716,7 +14716,8 @@ INSERT INTO `vtiger_ws_fieldtype` (`fieldtypeid`, `uitype`, `fieldtype`) VALUES
 (37, '117', 'reference'),
 (38, '26', 'reference'),
 (39, '10', 'reference'),
-(40, 'cr16', 'autocompletedtext');
+(40, 'cr16', 'autocompletedtext'),
+(41, 'crs16', 'autocompletedsingleuse');
 
 -- --------------------------------------------------------
 

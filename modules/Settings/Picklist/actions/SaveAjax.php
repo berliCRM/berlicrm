@@ -60,7 +60,8 @@ class Settings_Picklist_SaveAjax_Action extends Settings_Vtiger_Basic_Action {
     }
     
     public function add(Vtiger_Request $request) {
-        $newValue = $request->getRaw('newValue');
+        $newValue = $request->getRaw('newValue'); // add single value
+        $newValues = $request->getRaw('newValues'); // add multiple values from textarea
         $pickListName = $request->get('picklistName');
         $moduleName = $request->get('source_module');
         $moduleModel = Settings_Picklist_Module_Model::getInstance($moduleName);
@@ -80,8 +81,24 @@ class Settings_Picklist_SaveAjax_Action extends Settings_Vtiger_Basic_Action {
         }
         $response = new Vtiger_Response();
         try{
-            $id = $moduleModel->addPickListValues($fieldModel, $newValue, $rolesSelected);
-            $response->setResult(array('id' => $id['id']));
+            // multiple values, skip existing entries
+            $currentvalues = Vtiger_Util_Helper::getPickListValues($pickListName);
+            if ($newValues !="") {
+                $tmp = explode("\r",$newValues);
+                foreach ($tmp as $v) {
+                    $newValue = trim($v);
+                    if ($newValue !="" and !in_array($newValue,$currentvalues)) {
+                        $id = $moduleModel->addPickListValues($fieldModel, $newValue, $rolesSelected);
+                        $resultids[] = $id['id'];
+                    }
+                }
+                $response->setResult(array('id' => $resultids));
+            }
+            // single value
+            else {
+                $id = $moduleModel->addPickListValues($fieldModel, $newValue, $rolesSelected);
+                $response->setResult(array('id' => $id['id']));
+            }
         }  catch (Exception $e) {
             $response->setError($e->getCode(), $e->getMessage());
         }
@@ -194,7 +211,7 @@ class Settings_Picklist_SaveAjax_Action extends Settings_Vtiger_Basic_Action {
         $response->emit();
     }
 
-    // ajax endpoint to save "dynamic blocks" (visibility of UI blocks in dependance of an entities picklist value)
+    // ajax endpoint to save "dynamic blocks" (visibility of UI blocks in dependency of an entity's picklist value)
     public function dynamicBlocks(Vtiger_Request $request) {
         $picklistId = $request->get('picklistId');
         $moduleId = $request->get('moduleId');

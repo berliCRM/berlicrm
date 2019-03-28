@@ -87,7 +87,7 @@ class Settings_LayoutEditor_Module_Model extends Vtiger_Module_Model {
     public function getAddSupportedFieldTypes() {
         return array(
             'Text','Decimal','Integer','Percent','Currency','Date','Email','Phone','Picklist',
-            'URL','Checkbox','TextArea','MultiSelectCombo','Skype','Time','AutocompletedText'
+            'URL','Checkbox','TextArea','MultiSelectCombo','Skype','Time','AutocompletedText','AutocompletedSingleUse'
         );
     }
 
@@ -98,7 +98,7 @@ class Settings_LayoutEditor_Module_Model extends Vtiger_Module_Model {
     public function getAddFieldTypeInfo() {
         $fieldTypesInfo = array();
         $addFieldSupportedTypes = $this->getAddSupportedFieldTypes();
-        $lengthSupportedFieldTypes = array('Text','Decimal','Integer','Currency','AutocompletedText');
+        $lengthSupportedFieldTypes = array('Text','Decimal','Integer','Currency','AutocompletedText','AutocompletedSingleUse');
         foreach($addFieldSupportedTypes as $fieldType) {
             $details = array();
             if(in_array($fieldType,$lengthSupportedFieldTypes)) {
@@ -113,7 +113,7 @@ class Settings_LayoutEditor_Module_Model extends Vtiger_Module_Model {
                 //including mantisaa and integer part
                 $details['maxLength'] = 64;
             }
-            if($fieldType == 'Picklist' || $fieldType == 'MultiSelectCombo' || $fieldType == 'AutocompletedText') {
+            if($fieldType == 'Picklist' || $fieldType == 'MultiSelectCombo' || $fieldType == 'AutocompletedText' || $fieldType == 'AutocompletedSingleUse') {
                 $details['preDefinedValueExists'] = true;
                 //text area value type , can give multiple values
                 $details['preDefinedValueType'] = 'text';
@@ -170,7 +170,7 @@ class Settings_LayoutEditor_Module_Model extends Vtiger_Module_Model {
         $blockModel = Vtiger_Block_Model::getInstance($blockId, $this);
         $blockModel->addField($fieldModel);
 
-        if($fieldType == 'Picklist' || $fieldType == 'MultiSelectCombo' || $fieldType == 'AutocompletedText') {
+        if($fieldType == 'Picklist' || $fieldType == 'MultiSelectCombo' || $fieldType == 'AutocompletedText' || $fieldType == 'AutocompletedSingleUse') {
             $pickListValues = explode(',',$params['pickListValues']);
             $fieldModel->setPicklistValues($pickListValues);
         }
@@ -274,6 +274,12 @@ class Settings_LayoutEditor_Module_Model extends Vtiger_Module_Model {
                 case 'AutocompletedText' :
                                 $fieldLength = $params['fieldLength'];
                                 $uitype = 'cr16';
+                                $type = "VARCHAR(".$fieldLength.") default ''";
+                                $uichekdata='V~O';
+                                break;
+                case 'AutocompletedSingleUse' :
+                                $fieldLength = $params['fieldLength'];
+                                $uitype = 'crs16';
                                 $type = "VARCHAR(".$fieldLength.") default ''";
                                 $uichekdata='V~O';
                                 break;

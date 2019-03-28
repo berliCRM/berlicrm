@@ -26,7 +26,7 @@ class Settings_Picklist_Index_View extends Settings_Vtiger_Index_View {
         $viewer->assign('PICKLIST_MODULES',$pickListSupportedModules);
         
         //TODO: see if you needs to optimize this , since its will gets all the fields and filter picklist fields
-        $pickListFields = $moduleModel->getFieldsByType(array('picklist','multipicklist','autocompletedtext'));
+        $pickListFields = $moduleModel->getFieldsByType(array('picklist','multipicklist','autocompletedtext','autocompletedsingleuse'));
         if(count($pickListFields) > 0) {
             $selectedPickListFieldModel = reset($pickListFields);
 

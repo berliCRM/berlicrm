@@ -190,6 +190,10 @@ if($moduleInstance) {
     echo "- done";
 }
 
+echo 'Creating ws_fieldtype entry for new uitype...';
+$adb->query("INSERT INTO vtiger_ws_fieldtype (`uitype` ,`fieldtype`) VALUES ('crs16', 'autocompletedsingleuse')");
+echo 'done<br>';
+
 echo "<br>update Tag version to 15.. ";
 $query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.15'";
 $adb->pquery($query, array());
