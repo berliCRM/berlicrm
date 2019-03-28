@@ -61,13 +61,13 @@ require_once dirname(__FILE__) . '/Net/URL.php';
 /**#@+
  * Constants for HTTP request methods
  */
-define('HTTP_REQUEST_METHOD_GET',     'GET',     true);
-define('HTTP_REQUEST_METHOD_HEAD',    'HEAD',    true);
-define('HTTP_REQUEST_METHOD_POST',    'POST',    true);
-define('HTTP_REQUEST_METHOD_PUT',     'PUT',     true);
-define('HTTP_REQUEST_METHOD_DELETE',  'DELETE',  true);
-define('HTTP_REQUEST_METHOD_OPTIONS', 'OPTIONS', true);
-define('HTTP_REQUEST_METHOD_TRACE',   'TRACE',   true);
+define('HTTP_REQUEST_METHOD_GET','GET');
+define('HTTP_REQUEST_METHOD_HEAD','HEAD');
+define('HTTP_REQUEST_METHOD_POST','POST');
+define('HTTP_REQUEST_METHOD_PUT','PUT');
+define('HTTP_REQUEST_METHOD_DELETE','DELETE');
+define('HTTP_REQUEST_METHOD_OPTIONS','OPTIONS');
+define('HTTP_REQUEST_METHOD_TRACE','TRACE');
 /**#@-*/
 
 /**#@+
