@@ -2032,6 +2032,8 @@ class CRMEntity {
 
 		if (isset($modulecftable) && $queryPlanner->requireTable($modulecftable)) {
 			$cfquery = "left join $modulecftable as $modulecftable on $modulecftable.$modulecfindex=$tablename.$tableindex";
+			//crm-now: add module table in case dependencies aren't correctly solved or defined
+			$queryPlanner->addTable($tablename);
 		} else {
 			$cfquery = '';
 		}
