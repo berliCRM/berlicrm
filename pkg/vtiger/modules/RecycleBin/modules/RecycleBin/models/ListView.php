@@ -139,9 +139,9 @@ class RecycleBin_ListView_Model extends Vtiger_ListView_Model {
 			$listQuery = 'SELECT count(*) AS count' . substr($listQuery,$pos); 
 		}
 
-		if($this->getModule()->get('name') == 'Calendar'){
-			$listQuery .= ' AND activitytype <> "Emails"';
-		}
+		// if($this->getModule()->get('name') == 'Calendar'){
+			// $listQuery .= ' AND activitytype <> "Emails"';
+		// }
 
 		$listResult = $db->pquery($listQuery, array());
 		$listViewCount = $db->query_result($listResult, 0, 'count');
