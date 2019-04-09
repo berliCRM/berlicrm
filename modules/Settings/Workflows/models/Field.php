@@ -30,7 +30,6 @@ class Settings_Workflows_Field_Model extends Vtiger_Field_Model {
 			'does not equal' => 'does not equal',
 			'less than or equal to' => 'less than or equal to',
 			'greater than or equal to' => 'greater than or equal to',
-			'has changed' => 'has changed',
 			'before' => 'before',
 			'after' => 'after',
 			'between' => 'between',
