@@ -1718,7 +1718,7 @@ function populateRelatedSharingPrivileges($enttype,$userid,$module,$relmodule,$p
 		// Lookup for the variable if not set through function argument
 		if(!$var_name_arr) $var_name_arr=$$var_name;	
 		$user_arr=Array();
-		if(sizeof($var_name_arr['ROLE']) > 0)
+		if(is_array($var_name_arr['ROLE']) AND count($var_name_arr['ROLE']) > 0)
 		{
 			foreach($var_name_arr['ROLE'] as $roleid=>$roleusers)
 			{
@@ -1734,7 +1734,7 @@ function populateRelatedSharingPrivileges($enttype,$userid,$module,$relmodule,$p
 				}
 			}
 		}
-		if(sizeof($var_name_arr['GROUP']) > 0)
+		if(is_array($var_name_arr['GROUP']) AND sizeof($var_name_arr['GROUP']) > 0)
 		{
 			foreach($var_name_arr['GROUP'] as $grpid=>$grpusers)
 			{
