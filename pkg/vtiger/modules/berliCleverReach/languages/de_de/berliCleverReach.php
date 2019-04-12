@@ -142,7 +142,9 @@ $languageStrings = array(
 		'to' => 'bis',
 		'MC_WAIT' => 'Synchronisation gestartet. Bitte haben Sie etwas Geduld...',
 		'RESPONSE_TIME_OUT'=>'Rückgabe konnte nicht gelesen werden (time out)',
-		'LBL_GOTO_DETAIL_VIEW'=>'Sie können in dieser Ansicht nichts leeren. Eine Loganzeige gibt es nur in der Details Ansicht.'
+		'LBL_GOTO_DETAIL_VIEW'=>'Sie können in dieser Ansicht nichts leeren. Eine Loganzeige gibt es nur in der Details Ansicht.',
+		'LBL_RECORDS_ADDED' => 'Die Liste wurde, ohne Duplikate zu erstellen, hinzugefügt.',
+		'LBL_ERROR_RECORDS_ADD' => 'Die Liste konnte nicht hinzugefügt werden.',
 	);
 	
 ?>

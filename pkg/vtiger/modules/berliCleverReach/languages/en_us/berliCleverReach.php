@@ -139,6 +139,8 @@ $languageStrings = array(
 		'to' => 'to',
 		'MC_WAIT' => 'Synchronization started, please wait. Depending on your list size the next operation can take up to 15 minutes.',
 		'RESPONSE_TIME_OUT'=>'Unexpected API error (time out)',
-		'LBL_GOTO_DETAIL_VIEW'=>'This view does not has a display of log data.'
+		'LBL_GOTO_DETAIL_VIEW'=>'This view does not has a display of log data.',
+		'LBL_RECORDS_ADDED' => 'The list was added without creating duplicates.',
+		'LBL_ERROR_RECORDS_ADD' => 'The list could not be added.',
 	);
 ?>
