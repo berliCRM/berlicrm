@@ -145,6 +145,8 @@ $languageStrings = array(
 	'LBL_MOVE_ALL_FROM_MAILCHIMP'=>'Alle Mailchimp Daten werden zum CRM gesendet.',
 	'LBL_MOVE_PARTIAL_FROM_MAILCHIMP'=>'Neue Mailchimp Daten werden zum CRM gesendet.',
 	'LBL_CRM_LIST_EMPTY'=>'Es gibt keine Daten, die vom CRM zu Mailchimp übertragen werden sollen.',
+	'LBL_FIRST_SYNC'=>'Das ist Ihre erste Synchronisation für diese Liste.',
+	'LBL_CRM_LIST_EMPTY'=>'Es gibt keine Daten, die vom CRM zu Mailchimp übertragen werden sollen.',
 	'LBL_NO_REMOVED_MEMBER_LAST_SYNC'=>'Seit der letzten Synchronisation wurde im CRM nichts der Liste gelöscht.',
 	'LBL_NO_NOTSUBSCRIBED'=>'Anzahl der Einträge in Mailchimp aus dieser Liste, die nicht auf \'subcribed\' gesetzt sind.',
 	
@@ -208,6 +210,8 @@ $languageStrings = array(
 		'to' => 'bis',
 		'MC_WAIT' => 'Bitte warten Sie. In Abhängigkeit von der Größe Ihrer Liste kann die nächste Operation bis zu 15 Minuten dauern.',
 		'RESPONSE_TIME_OUT'=>'Rückgabe konnte nicht gelesen werden (time out)',
+		'LBL_RECORDS_ADDED' => 'Die Liste wurde, ohne Duplikate zu erstellen, hinzugefügt.',
+		'LBL_ERROR_RECORDS_ADD' => 'Die Liste konnte nicht hinzugefügt werden.',
 	);
 	
 ?>
