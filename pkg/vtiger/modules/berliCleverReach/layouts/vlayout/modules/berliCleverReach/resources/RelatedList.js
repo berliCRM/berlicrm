@@ -90,14 +90,24 @@ Vtiger_RelatedList_Js("berliCleverReach_RelatedList_Js",{
 					progressIndicatorElement.progressIndicator({
 						'mode' : 'hide'
 					})
-					if(responseData.result == 0){
-						var message = app.vtranslate('JS_NO_RECORDS_RELATED_TO_THIS_FILTER');
-						var params = {
-							text: message,
-							type: 'info'
-						};
+					if(responseData != null){
+						if(responseData.success ==true){
+							var message = app.vtranslate('LBL_RECORDS_ADDED');
+							var params = {
+								text: message,
+								type: 'info'
+							};
+						}
+						else {
+							var message = app.vtranslate('LBL_ERROR_RECORDS_ADD');
+							var params = {
+								text: message,
+								type: 'error'
+							};
+						}
 						Vtiger_Helper_Js.showMessage(params);
-					} else {
+					} 
+					else {
 						Vtiger_Detail_Js.reloadRelatedList();
 					}
 				},
