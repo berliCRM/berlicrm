@@ -22,6 +22,7 @@ $languageStrings = array(
 	'LBL_SHOW_HIDE_RESULTS'=>'Show / Hide Results',
 	'LBL_GET_ALL_LAST_SYNC'=>'Get contacts and leads which have been added since the last synchronization.',
 	'LBL_REMOVE_DUPLICATES'=>'Removing any duplicates in the batch.',
+	'LBL_SEND_MAILCHIMP'=>'Sending to Mailchimp ...',
 	'LBL_BATCH_FAILED'=>'Batch subscribe failed!',
 	'LBL_ERROR_CODE'=>'Error Code:',
 	'LBL_ERROR_MSG'=>'Error Message:',
@@ -208,5 +209,7 @@ $languageStrings = array(
 		'to' => 'to',
 		'MC_WAIT' => 'Please wait. Depending on your list size the next operation can take up to 15 minutes.',
 		'RESPONSE_TIME_OUT'=>'Unexpected API error (time out)',
+		'LBL_RECORDS_ADDED' => 'The list was added without creating duplicates.',
+		'LBL_ERROR_RECORDS_ADD' => 'The list could not be added.',
 	);
 ?>
