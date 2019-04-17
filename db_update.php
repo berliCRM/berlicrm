@@ -194,6 +194,11 @@ echo 'Creating ws_fieldtype entry for new uitype...';
 $adb->query("INSERT INTO vtiger_ws_fieldtype (`uitype` ,`fieldtype`) VALUES ('crs16', 'autocompletedsingleuse')");
 echo 'done<br>';
 
+echo "change uitype of certain numberfields that were text until now<br>";
+$query = "UPDATE `vtiger_field` SET uitype = 7 WHERE uitype = 1 AND typeofdata LIKE 'N%';";
+$adb->pquery($query, array());
+echo "uitype change done.<br>";
+
 echo "<br>update Tag version to 15.. ";
 $query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.15'";
 $adb->pquery($query, array());
