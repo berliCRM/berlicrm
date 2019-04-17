@@ -336,7 +336,7 @@ abstract class Base_Chart extends Vtiger_Base_Model{
 		$chartSQL .= " FROM $sql[1] ";
 
 		if($groupByColumns && is_array($groupByColumns)) {
-			$chartSQL .= " GROUP BY " . implode(',', $groupByColumns);
+			$chartSQL .= " GROUP BY '" . implode(',', $groupByColumns)."'";
 		}
 		return $chartSQL;
 	}
