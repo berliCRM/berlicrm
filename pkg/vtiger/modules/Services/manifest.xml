@@ -300,7 +300,7 @@
 </field>
 <field>
 <fieldname>qty_per_unit</fieldname>
-<uitype>1</uitype>
+<uitype>7</uitype>
 <columnname>qty_per_unit</columnname>
 <tablename>vtiger_service</tablename>
 <generatedtype>1</generatedtype>
