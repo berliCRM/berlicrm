@@ -180,6 +180,10 @@ class PurchaseOrder extends CRMEntity {
 
 		// Update the currency id and the conversion rate for the purchase order
 		$update_query = "update vtiger_purchaseorder set currency_id=?, conversion_rate=? where purchaseorderid=?";
+		if ($_REQUEST['action'] == 'SaveAjax') {
+			global $current_user;
+			$this->column_fields['conversion_rate'] = NumberField::convertToDBFormat($this->column_fields['conversion_rate'], $current_user, true);
+		}
 		$update_params = array($this->column_fields['currency_id'], $this->column_fields['conversion_rate'], $this->id);
 		$adb->pquery($update_query, $update_params);
 	}
