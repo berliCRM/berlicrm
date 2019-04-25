@@ -1,13 +1,13 @@
 /**
- * @license Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or http://ckeditor.com/license
+ * @license Copyright (c) 2003-2019, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
 CKEDITOR.editorConfig = function( config ) {
 	// Define changes to default configuration here. For example:
 	// config.language = 'fr';
 	// config.uiColor = '#AADC6E';
-	config.removePlugins = 'save,maximize,language,image,flash,iframe'; 
+	config.removePlugins = 'save,language,image,flash,iframe,easyimage,cloudservices,scayt'; 
 	config.fullPage = true; 
  	config.allowedContent = true; 
  	config.scayt_autoStartup = true; 
@@ -15,11 +15,11 @@ CKEDITOR.editorConfig = function( config ) {
  	config.shiftEnterMode = CKEDITOR.ENTER_P; 
  	config.filebrowserBrowseUrl = 'kcfinder/browse.php?type=images'; 
  	config.filebrowserUploadUrl = 'kcfinder/upload.php?type=images'; 
-    config.extraPlugins = 'base64image,stylescombo';
+    config.extraPlugins = 'base64image,stylescombo,maximize';
 	config.toolbar = [
 		{ name: 'document', groups: [ 'mode', 'document', 'doctools' ], items: [ 'Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates' ] },
 		{ name: 'clipboard', groups: [ 'clipboard', 'undo' ], items: [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
-		{ name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ], items: [ 'Find', 'Replace', '-', 'SelectAll', '-', 'Scayt' ] },
+		{ name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ], items: [ 'Find', 'Replace', '-', 'SelectAll', '-' ] },
 		{ name: 'forms', items: [ 'Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton', 'HiddenField' ] },
 		'/',
 		{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ], items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat' ] },
@@ -50,6 +50,6 @@ CKEDITOR.editorConfig = function( config ) {
 		{ name: 'tools' },
 		{ name: 'others' }
 	];
-	config.disableNativeSpellChecker = false;
+	config.disableNativeSpellChecker = true;
 	config.height = 450;
 }
