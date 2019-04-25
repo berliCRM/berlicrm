@@ -11,8 +11,12 @@
 -->*}
 {strip}
 {if count($DATA) gt 0 }
-	<input class="widgetData" type=hidden value='{$DATA|@json_encode:JSON_HEX_APOS}'>
-	<div class="widgetChartContainer" style="height:{$WIDGET->getHeight()*250}px;width:85%;"></div>
+	<input class="widgetData" type='hidden' value='{$DATA|@json_encode:JSON_HEX_APOS}'>
+    {if $smarty.request.name == "LeadsByStatus" || $smarty.request.name == "LeadsByIndustry" || $smarty.request.name == "LeadsBySource" || $smarty.request.name == "FunnelAmount"}
+        <div class="widgetChartContainer" style="height:{$WIDGET->getHeight()*250-20}px;width:98%;"></div>
+    {else}
+        <div class="widgetChartContainer" style="height:{$WIDGET->getHeight()*250}px;width:98%;"></div>
+    {/if}
 {else}
 	<span class="noDataMsg">
 		{vtranslate('LBL_EQ_ZERO')} {vtranslate($MODULE_NAME, $MODULE_NAME)} {vtranslate('LBL_MATCHED_THIS_CRITERIA')}

@@ -363,9 +363,8 @@ Vtiger_Widget_Js('Vtiger_Funnel_Widget_Js',{},{
 			legend: {
 				show: true,
 				location: 'ne',
-				placement: 'outside',
-				labels:labels,
-				xoffset:20
+				placement: 'outsideGrid',
+				labels:labels
 			}
 		});
 	},
@@ -452,11 +451,13 @@ Vtiger_Widget_Js('Vtiger_Pie_Widget_Js',{},{
 
 Vtiger_Widget_Js('Vtiger_Barchat_Widget_Js',{},{
 
+    // accepts an optional third array element per row as css color for each bar
 	generateChartData : function() {
 		var container = this.getContainer();
 		var jData = container.find('.widgetData').val();
 		var data = JSON.parse(jData);
 		var chartData = [];
+        var colors = [];
 		var xLabels = new Array();
 		var yMaxValue = 0;
 		for(var index in data) {
@@ -464,13 +465,16 @@ Vtiger_Widget_Js('Vtiger_Barchat_Widget_Js',{},{
 			row[0] = parseInt(row[0]);
 			xLabels.push(app.getDecodedValue(row[1]))
 			chartData.push(row[0]);
+            if (row[3]) {
+                colors.push(row[3]);
+            }
 			if(parseInt(row[0]) > yMaxValue){
 				yMaxValue = parseInt(row[0]);
 			}
 		}
         // yMaxValue Should be 25% more than Maximum Value
 		yMaxValue = yMaxValue + 2 + (yMaxValue/100)*25;
-		return {'chartData':[chartData], 'yMaxValue':yMaxValue, 'labels':xLabels};
+		return {'chartData':[chartData], 'yMaxValue':yMaxValue, 'labels':xLabels, 'colors':colors};
 	},
     
      postLoadWidget: function() {
@@ -495,15 +499,17 @@ Vtiger_Widget_Js('Vtiger_Barchat_Widget_Js',{},{
 	loadChart : function() {
 		var data = this.generateChartData();
 
-                this.getPlotContainer(false).jqplot(data['chartData'] , {
+        this.getPlotContainer(false).jqplot(data['chartData'] , {
 			title: data['title'],
+            seriesColors: (data['colors'].length > 0 ? data['colors'] : ['#4bb2c5']),
 			animate: !$.jqplot.use_excanvas,
 			seriesDefaults:{
 				renderer:jQuery.jqplot.BarRenderer,
 				rendererOptions: {
 					showDataLabels: true,
 					dataLabels: 'value',
-					barDirection : 'vertical'
+					barDirection : 'vertical',
+                    varyBarColor: (data['colors'].length > 0)
 				},
 				pointLabels: {show: true,edgeTolerance: -15}
 			},
