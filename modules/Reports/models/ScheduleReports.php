@@ -197,6 +197,8 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		$vtigerMailer->SetFrom($HELPDESK_SUPPORT_EMAIL_ID, $HELPDESK_SUPPORT_NAME);
 
 		$baseFileName = $reportname . '_' . $currentTime;
+		//remove : for windows systems
+		$baseFileName = str_replace(':', '_', $baseFileName);
 
 		$oReportRun = ReportRun::getInstance($this->get('reportid'));
 		$reportFormat = $this->scheduledFormat;
