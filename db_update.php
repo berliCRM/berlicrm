@@ -194,6 +194,85 @@ echo 'Creating ws_fieldtype entry for new uitype...';
 $adb->query("INSERT INTO vtiger_ws_fieldtype (`uitype` ,`fieldtype`) VALUES ('crs16', 'autocompletedsingleuse')");
 echo 'done<br>';
 
+
+echo "<br>delete not needed files for new SMS Notifier version ";
+require_once('config.inc.php');
+$filePath = "modules/SMSNotifier/views/CheckStatus.php";
+$file = $root_directory.''.$filePath;
+unlink($file);
+echo "file deletion done.<br>";
+
+echo "<br>set constraint for SMS Notifier tables";
+$query = "delete vtiger_smsnotifier FROM vtiger_smsnotifier
+LEFT JOIN vtiger_crmentity ON ( vtiger_crmentity.crmid = vtiger_smsnotifier.smsnotifierid)
+WHERE vtiger_smsnotifier.smsnotifierid IS NOT NULL
+AND vtiger_crmentity.crmid IS NULL;";
+$adb->pquery($query, array());
+$query = "ALTER TABLE `vtiger_smsnotifier` ADD CONSTRAINT `fk_crmid_vtiger_smsnotifier` FOREIGN KEY (`smsnotifierid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE;";
+$adb->pquery($query, array());
+echo " set constraint done for vtiger_smsnotifier.<br>";
+
+
+$query = "delete vtiger_smsnotifiercf FROM vtiger_smsnotifiercf
+LEFT JOIN vtiger_crmentity ON ( vtiger_crmentity.crmid = vtiger_smsnotifiercf.smsnotifierid)
+WHERE vtiger_smsnotifiercf.smsnotifierid IS NOT NULL
+AND vtiger_crmentity.crmid IS NULL;";
+$adb->pquery($query, array());
+$query = "ALTER TABLE `vtiger_smsnotifiercf` ADD CONSTRAINT `fk_crmid_vtiger_smsnotifiercf` FOREIGN KEY (`smsnotifierid`) REFERENCES `vtiger_smsnotifier` (`smsnotifierid`) ON DELETE CASCADE;";
+$adb->pquery($query, array());
+echo " set constraint done for vtiger_smsnotifiercf.<br>";
+
+echo "add primary key to vtiger_smsnotifier<br>";
+$query = "ALTER TABLE vtiger_smsnotifier ADD PRIMARY KEY(smsnotifierid)";
+$adb->pquery($query, array());
+echo "add primary key done.<br>";
+
+echo "<br>delete not needed files for new CKeditor version ";
+require_once('config.inc.php');
+$filePath = "libraries/jquery/ckeditor/ckeditor_php4.php";
+$file = $root_directory.''.$filePath;
+unlink($file);
+$filePath = "libraries/jquery/ckeditor/ckeditor_php5.php";
+$file = $root_directory.''.$filePath;
+unlink($file);
+echo "file deletion done.<br>";
+
+
+echo "<br>delete old theme<br>";
+$dirPath = "libraries/jquery/ckeditor/skins/icy_orange/";
+$dir = $root_directory.''.$dirPath;
+
+if (is_dir($dir)) {
+  foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir)) as $filename) {
+    if ($filename->isDir()) continue;
+    unlink($filename);
+  }
+}
+$dirPath = "libraries/jquery/ckeditor/skins/icy_orange/images/hidpi/";
+$dir = $root_directory.''.$dirPath;
+rmdir($dir);
+$dirPath = "libraries/jquery/ckeditor/skins/icy_orange/images/";
+$dir = $root_directory.''.$dirPath;
+rmdir($dir);
+$dirPath = "libraries/jquery/ckeditor/skins/icy_orange/";
+$dir = $root_directory.''.$dirPath;
+rmdir($dir);
+echo "dir deletion done.<br>";
+
+
+echo "<br>delete not needed lang files<br>";
+$dirPath = "libraries/jquery/ckeditor/plugins/a11yhelp/lang/";
+$dir = $root_directory.''.$dirPath;
+
+if (is_dir($dir)) {
+  foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir)) as $filename) {
+    if ($filename->isDir()) continue;
+    unlink($filename);
+  }
+}
+rmdir($dir);
+echo "lang files deletion done.<br>";
+
 echo "<br>update Tag version to 15.. ";
 $query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.15'";
 $adb->pquery($query, array());
