@@ -372,7 +372,7 @@ function getAssociatedProducts($module,$focus,$seid='')
 	$product_Detail[1]['final_details']['discount_amount_final'] = $discount_amount_final;
 
 	//fix for opensource issue not saving invoice data properly
-	if(!empty($focus->column_fields['hdnDiscountPercent']))
+	if(!empty((float)$focus->column_fields['hdnDiscountPercent']))
 	{
 		$finalDiscount = ($subTotal*$discountPercent/100);
 		$product_Detail[1]['final_details']['discount_type_final'] = 'percentage';
@@ -382,7 +382,7 @@ function getAssociatedProducts($module,$focus,$seid='')
 		$product_Detail[1]['final_details']['style_discount_amount_final'] = ' style="visibility:hidden"';
 	}
 	//fix for opensource issue not saving invoice data properly
-	elseif(!empty($focus->column_fields['hdnDiscountAmount']))
+	elseif(!empty((float)$focus->column_fields['hdnDiscountAmount']))
 	{
 		$finalDiscount = $focus->column_fields['hdnDiscountAmount'];
 		$product_Detail[1]['final_details']['discount_type_final'] = 'amount';
