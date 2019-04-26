@@ -178,6 +178,30 @@
 				<span name="progressIndicator" style="height:30px;">&nbsp;</span>
 				</div>
 			</div>
+		{if $MODULE_IS_ACTIVE}
+			<div style="margin-bottom:9px;">
+				<span class="filterContainer" >
+					<input type="hidden" id="moduleFields" name="moduleFields" data-value='{ZEND_JSON::encode($TEMPLATEFIELDS)|escape}' />
+					<span class="conditionRow">
+						<select class="chzn-select" id="modulename" name="modulename" >
+							<option value="none">{vtranslate('LBL_SELECT_MODULE',$MODULE)}</option>
+							{foreach key=MODULENAME item=FILEDS from=$TEMPLATEFIELDS}
+								{if $MODULENAME eq '0'}
+									<option value="generalFields">{vtranslate('LBL_GENERAL_FIELDS', $MODULE)}</option>
+								{else}
+									<option value="{$MODULENAME}">{vtranslate($MODULENAME, $MODULENAME)}</option>
+								{/if}
+							{/foreach}
+						</select>
+					</span>&nbsp;&nbsp;
+					<span class="">
+						<select class="chzn-select span5" id="templateFields" name="templateFields">
+							<option value="">{vtranslate('LBL_NONE',$MODULE)}</option>
+						</select>
+					</span>
+				</span>
+			</div>
+		{/if}
 		</div>
 		{if $RELATED_LOAD eq true}
 			<input type="hidden" name="related_load" value={$RELATED_LOAD} />

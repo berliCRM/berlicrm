@@ -931,6 +931,61 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			);
 		});
 	},
+	
+	/*
+	 * Function which will register module change event
+	 */
+	registerChangeEventForModule : function(){
+		var thisInstance = this;
+		var filterContainer = jQuery('#modulename');
+		filterContainer.on('change', function(e){
+			thisInstance.loadFields();
+		});
+	},
+	
+	/*
+	 * Function to load condition list for the selected field
+	 * @params : fieldSelect - select element which will represents field list
+	 * @return : select element which will represent the condition element
+	 */
+	loadFields : function() {
+		var moduleName = jQuery('#modulename').val();
+		var allFields = jQuery('#moduleFields').data('value');
+		var fieldSelectElement = jQuery('#templateFields');
+		var options = '';
+		for(var key in allFields) {
+			//IE Browser consider the prototype properties also, it should consider has own properties only.
+			if(allFields.hasOwnProperty(key) && key == moduleName) {
+				var moduleSpecificFields = allFields[key];
+				var len = moduleSpecificFields.length;
+				for (var i = 0; i < len; i++) {
+					var fieldName = moduleSpecificFields[i][0].split(':');
+					options += '<option value="'+moduleSpecificFields[i][1]+'"';
+					if(fieldName[0] == moduleName) {
+						options += '>'+fieldName[1]+'</option>';
+					} else {
+						options += '>'+moduleSpecificFields[i][0]+'</option>';
+					}
+				}
+			}
+		}
+		
+		if(options == '')
+			options = '<option value="">NONE</option>';
+		
+		fieldSelectElement.empty().html(options).trigger("liszt:updated");
+		return fieldSelectElement;
+		
+	},
+
+	registerFillTemplateContentEvent : function() {
+		jQuery('#templateFields').change(function(e){
+			var textarea = CKEDITOR.instances.description;
+			var value = jQuery(e.currentTarget).val();
+			textarea.insertHtml(value);
+		});
+	},
+	
 	/*
 	 * function to get the URL response data
 	 */
@@ -1015,7 +1070,10 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			this.registerEventForRemoveCustomAttachments();
 			this.calculateUploadFileSize();
 			this.registerEventForGoToPreview();
+            this.registerProjectReferenceField();
 			this.registerEventEmailPreview();
+			this.registerChangeEventForModule();
+			this.registerFillTemplateContentEvent();
 		}
 	}
 });

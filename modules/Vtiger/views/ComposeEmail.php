@@ -206,6 +206,7 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		$this->composeMailData($request);
 		$viewer = $this->getViewer($request);
         $viewer->assign('SUBJECT', $request->get('subject'));
+		$this->assignTemplateFields($request);
 		echo $viewer->view('ComposeEmailForm.tpl', $moduleName, true);
 	}
 
@@ -385,5 +386,20 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		$result = str_replace('"', "", $s);
 		$result = str_replace("'", "", $result);
 		return $result;
+	}
+	
+	function assignTemplateFields($request) {
+		$viewer = $this->getViewer($request);
+		try {
+			//EmailTemplate module permission check
+			$userPrevilegesModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
+			if ($userPrevilegesModel->hasModulePermission(Vtiger_Module_Model::getInstance('EmailTemplates')->getId())) {
+				$templateModel = EmailTemplates_Module_Model::getInstance('EmailTemplates');
+				$templateFields = $templateModel->getAllModuleEmailTemplateFields();
+				
+				$viewer->assign("TEMPLATEFIELDS", $templateFields);
+			}
+		} catch (Exception $e) {
+		}
 	}
 }

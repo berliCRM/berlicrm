@@ -102,6 +102,8 @@ class EmailTemplates_Module_Model extends Vtiger_Module_Model {
         $allFields[] = $option;
         $option = array(vtranslate('LBL_CURRENT_TIME'), '$custom-currenttime$');
 		$allFields[] = $option;
+		$option = array('Logikblock', '[[BLOCK Ersatzfeld == Wert]] Inhalt [[/BLOCK]]');
+		$allFields[] = $option;
 		$allOptions['generalFields'] = $allFields;
 		return $allOptions;
 	}
