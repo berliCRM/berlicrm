@@ -284,7 +284,7 @@ $query = "DELETE FROM `vtiger_ws_entity` WHERE `vtiger_ws_entity`.`name` = 'berl
 $adb->pquery($query, array());
 echo "uitype change done.<br>";
 
-echo "<br>update Tag version to 15.. ";
-$query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.15'";
+echo "<br>update Tag version to 16.. ";
+$query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.16'";
 $adb->pquery($query, array());
 echo " Tag version done.<br>";
