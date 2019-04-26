@@ -646,6 +646,10 @@ class Vtiger_Functions {
 		if (is_array($fields['custom']) && count($fields['custom']) > 0) {
 			$description = self::getMergedDescriptionCustomVars($fields, $description);
 		}
+		//crm-now: handle optional blocks, skip it for Users as email send routine will call this function several times, Users first, and the description block will be gone aftre that
+		if ($parent_type != 'Users') {
+			$description = self::getMergedDescriptionBlocks($description);
+		}
 		return $description;
 	}
 
@@ -666,6 +670,36 @@ class Vtiger_Functions {
 					break;
 			}
 			$description = str_replace($token_data, $token_value, $description);
+		}
+		return $description;
+	}
+	
+	//crm-now: function to evaluate block conditions and remove block content if necessary
+	static function getMergedDescriptionBlocks($description) {
+		$pattern = '#\[\[BLOCK(.*?)\]\](.*?)\[\[/BLOCK\]\]#s';
+		$matches = array();
+		preg_match_all($pattern, $description, $matches);
+		
+		if (!empty($matches[1])) {
+			foreach ($matches[1] AS $index => $eval) {
+				//replace encoded and non-encoded non-breakable space
+				$tmp = str_replace('&nbsp;', '', $eval);
+				$tmp = str_replace("\xc2\xa0", '', $tmp);
+				$comparator = (strpos($tmp, ' != ') !== false || strpos($tmp, ' <> ') !== false) ? '!=' : '==';
+				$tmp = explode($comparator, $tmp);
+				$tmp = array_map('trim', $tmp);
+				//remove block if criteria isn't matched
+				if (count($tmp) != 2 || ($comparator == '==' && strtolower(trim($tmp[0])) != strtolower(trim($tmp[1]))) || ($comparator == '!=' && strtolower(trim($tmp[0])) == strtolower(trim($tmp[1])))) {
+					$description = str_replace($matches[0][$index]."<br>", '', $description);
+					$description = str_replace($matches[0][$index]."<br />", '', $description);
+					$description = str_replace($matches[0][$index]."<br>\n", '', $description);
+					$description = str_replace($matches[0][$index]."<br />\n", '', $description);
+					$description = str_replace($matches[0][$index], '', $description);
+				}
+			}
+			//remove block part, only keep content
+			$pattern = array('#\[\[BLOCK(.*?)\]\]#', '#\[\[/BLOCK\]\]#');
+			$description = preg_replace($pattern, '', $description);
 		}
 		return $description;
 	}
@@ -1013,7 +1047,7 @@ class Vtiger_Functions {
 		if ($mode == 'CRYPT') {
 			$salt = null;
 			if (function_exists('password_hash')) { // php 5.5+
-				return password_hash($password,CRYPT_BLOWFISH); // CRYPT_BLOWFISH!
+				$salt = password_hash();
 			} else {
 				$salt = '$2y$11$'.str_replace("+",".",substr(base64_encode(openssl_random_pseudo_bytes(17)),0,22));
 			}
@@ -1029,13 +1063,7 @@ class Vtiger_Functions {
 	static function compareEncryptedPassword($plainText, $encryptedPassword, $mode='CRYPT') {
 		$reEncryptedPassword = null;
 		switch ($mode) {
-                        case 'CRYPT': {
-                           if (function_exists('password_hash')) {
-                           	return password_verify($plainText, $encryptedPassword);
-                           } else {
-                           	$reEncryptedPassword = crypt($plainText, $encryptedPassword);
-                           }
-                        } ; break;
+			case 'CRYPT': $reEncryptedPassword = crypt($plainText, $encryptedPassword); break;
 			case 'MD5'  : $reEncryptedPassword = md5($plainText);	break;
 			default     : $reEncryptedPassword = $plainText;		break;
 		}
