@@ -73,7 +73,7 @@ class Settings_Picklist_Module_Model extends Vtiger_Module_Model {
     public function renamePickListValues($pickListFieldName, $oldValue, $newValue, $moduleName, $id) {
 		$db = PearDatabase::getInstance();
 
-		$query = 'SELECT tablename,columnname FROM vtiger_field WHERE fieldname=? and presence IN (0,2)';
+		$query = 'SELECT tablename,columnname,uitype FROM vtiger_field WHERE fieldname=? and presence IN (0,2)';
 		$result = $db->pquery($query, array($pickListFieldName));
 		$num_rows = $db->num_rows($result);
 
@@ -88,8 +88,31 @@ class Settings_Picklist_Module_Model extends Vtiger_Module_Model {
 			$row = $db->query_result_rowdata($result, $i);
 			$tableName = $row['tablename'];
 			$columnName = $row['columnname'];
-			$query = 'UPDATE ' . $tableName . ' SET ' . $columnName . '=? WHERE ' . $columnName . '=?';
-			$db->pquery($query, array($newValue, $oldValue));
+			if($row['uitype'] == 33) {
+                // select all distinct combinations of possible candidates of multipicklist entries in records to update
+                $q = "SELECT DISTINCT $columnName FROM $tableName WHERE $columnName LIKE ?";
+                $res = $db->pquery($q,array("%$oldValue%"));
+                while ($row = $db->fetchByAssoc($res,-1,false)) {
+                    // unserialize string
+                    $tmp = explode(' |##| ',$row[$columnName]);
+                    // try to find value to replace
+                    $matchidx = array_search($oldValue,$tmp);
+                    if ($matchidx === false) {
+                        continue;   // none found, next
+                    }
+                    // replace found array element with new value
+                    $tmp[$matchidx]=$newValue;
+                    // serialize string
+                    $newvalser = implode(' |##| ',$tmp);
+                    // replace this combination in records table with updated one
+                    $q = "UPDATE $tableName SET $columnName = ? WHERE $columnName = ?";
+                    $db->pquery($q,array($newvalser,$row[$columnName]));
+                }
+			} 
+			else {
+				$query = 'UPDATE ' . $tableName . ' SET ' . $columnName . '=? WHERE ' . $columnName . '=?';
+				$db->pquery($query, array($newValue, $oldValue));
+			}
 		}
 
 		$query = "UPDATE vtiger_field SET defaultvalue=? WHERE defaultvalue=? AND columnname=?";
@@ -129,14 +152,6 @@ class Settings_Picklist_Module_Model extends Vtiger_Module_Model {
 		$replaceValueQuery = $db->pquery("SELECT $pickListFieldName FROM ".$this->getPickListTableName($pickListFieldName)." WHERE $primaryKey IN (".generateQuestionMarks($replaceValueId).")",array($replaceValueId));
 		$replaceValue = decode_html($db->query_result($replaceValueQuery,0,$pickListFieldName));
 		
-		//As older look utf8 characters are pushed as html-entities,and in new utf8 characters are pushed to database
-		//so we are checking for both the values
-                $encodedValueToDelete = array(); 
-		foreach ($pickListValues as $key => $value) {
-			$encodedValueToDelete[$key]  = Vtiger_Util_Helper::toSafeHTML($value);
-		}
-		$mergedValuesToDelete = array_merge($pickListValues, $encodedValueToDelete);
-		
         $fieldModel = Settings_Picklist_Field_Model::getInstance($pickListFieldName,$this);
         //if role based then we need to delete all the values in role based picklist
         if($fieldModel->isRoleBased()) {
@@ -168,8 +183,6 @@ class Settings_Picklist_Module_Model extends Vtiger_Module_Model {
         $query='SELECT tablename,columnname,uitype FROM vtiger_field WHERE fieldname=? AND presence in (0,2)';
         $result = $db->pquery($query, array($pickListFieldName));
         $num_row = $db->num_rows($result);
-		
-		$moduleInstance = CRMEntity::getInstance($moduleName);
 
         for($i=0; $i<$num_row; $i++) {
             $row = $db->query_result_rowdata($result, $i);
@@ -179,11 +192,10 @@ class Settings_Picklist_Module_Model extends Vtiger_Module_Model {
 
             //multipicklist needs special treatment
 			if ($uitype == 33) {
-				$indexColumn = $moduleInstance->tab_name_index[$tableName];
-				$query = "SELECT $indexColumn, $columnName FROM $tableName;";
-				$multiRes = $db->pquery($query, array());
-				while ($row = $db->fetch_row($multiRes)) {
-					$multiId = $row[$indexColumn];
+                // select all distinct combinations of multipicklist entries in records
+				$query = "SELECT DISTINCT $columnName FROM $tableName;";
+				$multiRes = $db->query($query);
+				while ($row = $db->fetchByAssoc($multiRes,-1,false)) {
 					$tmpVal = explode(' |##| ', $row[$columnName]);
 					$tmpVal2 = array_diff($tmpVal, $pickListValues);
 					//skip if no value was replaced
@@ -192,9 +204,9 @@ class Settings_Picklist_Module_Model extends Vtiger_Module_Model {
 						$tmpVal2[] = $replaceValue;
 					}
 					$tmpVal2 = implode(' |##| ', array_filter($tmpVal2));
-					
-					$query = "UPDATE $tableName SET $columnName = ? WHERE $indexColumn = ?;";
-					$db->pquery($query, array($tmpVal2, $multiId));
+					// replace this combination in records table with updated one
+					$query = "UPDATE $tableName SET $columnName = ? WHERE $columnName = ?";
+					$db->pquery($query, array($tmpVal2, $row[$columnName]));
 				}
 			} else {
 				$query = 'UPDATE '.$tableName.' SET '.$columnName.'=? WHERE '.$columnName.' IN ('.  generateQuestionMarks($pickListValues).')';
