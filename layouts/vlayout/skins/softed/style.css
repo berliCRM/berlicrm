@@ -205,7 +205,7 @@ hr {
   border-top: 4px solid #ffffff;
 }
 .dropdown-menu.pull-right {
-  right: 0;
+  right: 35;
   left: auto;
   cursor: pointer;
 }
