@@ -28,7 +28,7 @@
 				<div align='left'>
 					<table border=0 cellspacing=0 cellpadding=5 width="100%" class="settingsSelUITopLine">
 							<tr>
-								<td colspan=2 class="blockHeader" valign=bottom><b>{vtranslate('LBL_PDF_CONFIGURATOR',$MODULE)}hugo{$_SESSION|@debug_print_var}</b></td>
+								<td colspan=2 class="blockHeader" valign=bottom><b>{vtranslate('LBL_PDF_CONFIGURATOR',$MODULE)}</b></td>
 								<td rowspan=2 class="title_label" align=right>&nbsp;</td>
 							</tr>
 							<tr>
