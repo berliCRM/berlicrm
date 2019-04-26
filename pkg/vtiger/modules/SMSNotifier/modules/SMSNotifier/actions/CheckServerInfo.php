@@ -25,9 +25,10 @@ class SMSNotifier_CheckServerInfo_Action extends Vtiger_Action_Controller {
 		$response = new Vtiger_Response();
 
 		$result = $db->pquery('SELECT 1 FROM vtiger_smsnotifier_servers WHERE isactive = 1', array());
-		if($db->num_rows($result)) {
+		if($db->num_rows($result) == 1) {
 			$response->setResult(true);
-		} else {
+		} 
+		else {
 			$response->setResult(false);
 		}
 		return $response;
