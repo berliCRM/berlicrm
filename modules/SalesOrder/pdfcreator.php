@@ -27,7 +27,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	//get the stored configuration values
 	$pdf_config_details = getAllPDFDetails('SalesOrder');
 	//set font
-	$default_font = getTCPDFFontsname ($pdf_config_details[fontid]);
+	$default_font = getTCPDFFontsname ($pdf_config_details['fontid']);
 	if ($default_font =='') {
 		$default_font = 'freesans';
 	}
@@ -166,7 +166,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	//display owner phone#?
 	$ownerphone = $pdf_config_details['ownerphone'];
 	//to display at product description based on tax type
-	$gproddetailarray = array($pdf_config_details[gprodname],$pdf_config_details[gproddes],$pdf_config_details[gprodcom]);
+	$gproddetailarray = array($pdf_config_details['gprodname'],$pdf_config_details['gproddes'],$pdf_config_details['gprodcom']);
 	$gproddetails = 0;
 	foreach($gproddetailarray as $key=>$value){
 		if ($value=='true') {
@@ -179,7 +179,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 		}
 	}
 	$iproddetails = 0;
-	$iproddetailarray = array($pdf_config_details[iprodname],$pdf_config_details[iproddes],$pdf_config_details[iprodcom]);
+	$iproddetailarray = array($pdf_config_details['iprodname'],$pdf_config_details['iproddes'],$pdf_config_details['iprodcom']);
 	foreach($iproddetailarray as $key=>$value){
 		if ($value=='true') {
 			if ($key==0) {
@@ -507,6 +507,10 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	elseif ($purpose=='print') {
 		// print PDF file
 		$pdf->Output($export_org.'_'.$pdf_strings['FACTURE1'].'_'.$date_issued.'.pdf','D');
+	}
+	elseif ($purpose=='printsn') {
+		// print PDF file
+		$pdf->Output($export_org.'_'.$pdf_strings['SALESNOTE'].'_'.$date_issued.'.pdf','D');
 	}
 	elseif ($purpose=='send'){
 		// send pdf with mail
