@@ -19,7 +19,7 @@
 <form enctype="multipart/form-data" action="index.php?" id="pdfsettings" name="pdfsettings" method="post" >
 	<input type="hidden" name="module" value="Pdfsettings">
 	<input type="hidden" name="parenttab" value="Tools">
-	<input type="hidden" name="fld_module" id="fld_module" value="{$MODULEVIEW }">
+	<input type="hidden" name="fld_module" id="fld_module" value="{$MODULEVIEW}">
 	<input type="hidden" name="action" id="action" value="UpdatePDFSettings">
 	<table align="center" border="0" cellpadding="0" cellspacing="0" width="98%">
 		<tr>
