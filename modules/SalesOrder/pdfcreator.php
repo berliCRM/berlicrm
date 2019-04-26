@@ -30,6 +30,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	$default_font = getTCPDFFontsname ($pdf_config_details['fontid']);
 	if ($default_font =='') {
 		$default_font = 'freesans';
+		$default_font_size = '8';
 	}
 	$font_size_header = $pdf_config_details['fontsizeheader'];
 	$font_size_address = $pdf_config_details['fontsizeaddress'];
