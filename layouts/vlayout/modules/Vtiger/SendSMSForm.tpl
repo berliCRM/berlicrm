@@ -10,16 +10,23 @@
  ********************************************************************************/
 -->*}
 {strip}
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <div id="sendSmsContainer" class='modelContainer'>
 	<div class="modal-header contentsBackground">
         <button data-dismiss="modal" class="close" title="{vtranslate('LBL_CLOSE')}">&times;</button>
-		<h3>{vtranslate('LBL_SEND_SMS_TO_SELECTED_NUMBERS', $MODULE)}</h3>
+		<h3>{vtranslate('LBL_SEND_SMS_TO_SELECTED_NUMBERS', $MODULE_NAME)}</h3>
 	</div>
-	<form class="form-horizontal" id="massSMS" method="post" action="index.php">
+	<form class="form-horizontal" id="massSMS" method="post" action="index.php" content="text/html;charset=UTF-8">
 		<input type="hidden" id="smsModuleName" name="smsModuleName" value="{$MODULE}" />
 		<input type="hidden" name="source_module" value="{$SOURCE_MODULE}" />
-		<input type="hidden" name="action" value="MassSaveAjax" />
-		<input type="hidden" name="viewname" value="{$VIEWNAME}" />
+		<input type="hidden" name="action" value="" />
+		<input type="hidden" name="module" value="{$MODULE}" />
+		{if $SINGLE_RECORD neq ''}
+			<input type="hidden" name="view" value="Detail" />
+		{else}
+			<input type="hidden" name="view" value="List" />
+		{/if}
+		<input type="hidden" name="record" value="{$RECORD}" />
 		<input type="hidden" name="selected_ids" value={ZEND_JSON::encode($SELECTED_IDS)}>
 		<input type="hidden" name="excluded_ids" value={ZEND_JSON::encode($EXCLUDED_IDS)}>
         <input type="hidden" name="search_key" value= "{$SEARCH_KEY}" />
@@ -29,11 +36,11 @@
                
 		<div class="modal-body tabbable">
 			<div>
-				<span><strong>{vtranslate('LBL_STEP_1',$MODULE)}</strong></span>
+				<span><strong>{vtranslate('LBL_STEP_1',$MODULE_NAME)}</strong></span>
 				&nbsp;:&nbsp;
-				{vtranslate('LBL_SELECT_THE_PHONE_NUMBER_FIELDS_TO_SEND',$MODULE)}
+				{vtranslate('LBL_SELECT_THE_PHONE_NUMBER_FIELDS_TO_SEND',$MODULE_NAME)}
 			</div>
-			<select name="smsFields[]" id="smsFields" data-placeholder="{vtranslate('LBL_ADD_MORE_FIELDS',$MODULE)}" multiple class="chzn-select" data-validation-engine="validate[required]">
+			<select name="smsFields[]" id="smsFields" data-placeholder="{vtranslate('LBL_ADD_MORE_FIELDS',$MODULE_NAME)}" multiple class="chzn-select" data-validation-engine="validate[required]">
 				<optgroup>
 					{foreach item=PHONE_FIELD from=$PHONE_FIELDS}
 						{assign var=PHONE_FIELD_NAME value=$PHONE_FIELD->get('name')}
@@ -48,17 +55,17 @@
 			</select>
 			<hr>
 			<div>
-				<span><strong>{vtranslate('LBL_STEP_2',$MODULE)}</strong></span>
+				<span><strong>{vtranslate('LBL_STEP_2',$MODULE_NAME)}</strong></span>
 				&nbsp;:&nbsp;
-				{vtranslate('LBL_TYPE_THE_MESSAGE',$MODULE)}&nbsp;(&nbsp;{vtranslate('LBL_SMS_MAX_CHARACTERS_ALLOWED',$MODULE)}&nbsp;)
+				{vtranslate('LBL_TYPE_THE_MESSAGE',$MODULE_NAME)}&nbsp;(&nbsp;{vtranslate('LBL_SMS_MAX_CHARACTERS_ALLOWED',$MODULE_NAME)}&nbsp;)
 			</div>
-			<textarea class="input-xxlarge" name="smsMessage" id="smsMessage" placeholder="{vtranslate('LBL_WRITE_YOUR_MESSAGE_HERE', $MODULE)}" data-validation-engine="validate[required]"></textarea>
+			<textarea class="input-xxlarge" name="smsMessage" id="smsMessage" placeholder="{vtranslate('LBL_WRITE_YOUR_MESSAGE_HERE', $MODULE_NAME)}" data-validation-engine="validate[required]"></textarea>
 		</div>
 		<div class="modal-footer">
 			<div class=" pull-right cancelLinkContainer">
-				<a class="cancelLink" type="reset" data-dismiss="modal">{vtranslate('LBL_CANCEL', $MODULE)}</a>
+				<a class="cancelLink" type="reset" data-dismiss="modal">{vtranslate('LBL_CANCEL', $MODULE_NAME)}</a>
 			</div>
-			<button class="btn btn-success" type="submit" name="saveButton"><strong>{vtranslate('LBL_SEND', $MODULE)}</strong></button>
+			<button class="btn btn-success" type="submit" name="saveButton"><strong>{vtranslate('LBL_SEND', $MODULE_NAME)}</strong></button>
 		</div>
 	</form>
 </div>

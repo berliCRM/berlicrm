@@ -269,7 +269,7 @@ class Vtiger_MassActionAjax_View extends Vtiger_IndexAjax_View {
 		$moduleName = 'SMSNotifier';
 		$selectedIds = $this->getRecordsListFromRequest($request);
 		$excludedIds = $request->get('excluded_ids');
-		$cvId = $request->get('viewname');
+		$cvId = $request->get('view');
 
 		$user = Users_Record_Model::getCurrentUserModel();
         $moduleModel = Vtiger_Module_Model::getInstance($sourceModule);
@@ -282,8 +282,9 @@ class Vtiger_MassActionAjax_View extends Vtiger_IndexAjax_View {
 			$viewer->assign('SINGLE_RECORD', $selectedRecordModel);
 		}
 		$viewer->assign('VIEWNAME', $cvId);
-		$viewer->assign('MODULE', $moduleName);
-		$viewer->assign('SOURCE_MODULE', $sourceModule);
+		$viewer->assign('RECORD', $recordId);
+		$viewer->assign('MODULE', $sourceModule);
+		$viewer->assign('MODULE_NAME', $moduleName);
 		$viewer->assign('SELECTED_IDS', $selectedIds);
 		$viewer->assign('EXCLUDED_IDS', $excludedIds);
 		$viewer->assign('USER_MODEL', $user);

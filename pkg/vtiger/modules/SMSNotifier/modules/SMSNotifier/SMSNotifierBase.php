@@ -48,11 +48,13 @@ class SMSNotifierBase extends CRMEntity {
 		/* Format: Field Label => Array(tablename, columnname) */
 		// tablename should not have prefix 'vtiger_'
 		'Message' => Array('smsnotifier', 'message'),
+		'Created Time' => Array('smsnotifier', 'createdtime'),
 		'Assigned To' => Array('crmentity','smownerid')
 	);
 	var $list_fields_name = Array (
 		/* Format: Field Label => fieldname */
 		'Message' => 'message',
+		'Created Time' => 'createdtime',
 		'Assigned To' => 'assigned_user_id'
 	);
 

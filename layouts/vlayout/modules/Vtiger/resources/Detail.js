@@ -91,15 +91,114 @@ jQuery.Class("Vtiger_Detail_Js",{
 	 * @params: send sms url , module name.
 	 */
     triggerSendSms : function(detailActionUrl, module) {
+		var thisInstance = this;
         Vtiger_Helper_Js.checkServerConfig(module).then(function(data){
 			if(data == true){
-                Vtiger_Detail_Js.triggerDetailViewAction(detailActionUrl);
-			} else {
+				var detailInstance = Vtiger_Detail_Js.getInstance();
+				var selectedIds = new Array();
+				selectedIds.push(detailInstance.getRecordId());
+				var postData = {
+				   "selected_ids": JSON.stringify(selectedIds)
+				};
+				var actionParams = {
+					"type":"POST",
+					"url":detailActionUrl,
+					"dataType":"html",
+					"data" : postData
+				};
+				var progressIndicatorElement = jQuery.progressIndicator({});
+				AppConnector.request(actionParams).then(
+					function(data) {
+						progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+						if(data) {
+							var callback = function(data) {
+								var params = app.validationEngineOptions;
+								params.onValidationComplete = function(form, valid){
+									if(valid){
+										thisInstance.sendSMS(form);
+									}
+									return false;
+								}
+								jQuery('#massSMS').validationEngine(params);
+							}
+							app.showModalWindow(data, function(data){
+								if(typeof callback == 'function'){
+									callback(data);
+								}
+							});
+						}
+						else {
+							var  params = {
+								title : app.vtranslate('JS_MESSAGE'),
+								text: app.vtranslate('JS_SMS_FAILURE'),
+								animation: 'show',
+								type: 'error'
+							}
+							Vtiger_Helper_Js.showPnotify(params);
+						}
+					},
+					function(error){
+						progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+						alert ('internal CRM problem');
+					}
+				),
+				function(error,err){
+					progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+					alert ('internal CRM problem');
+				};
+
+                //Vtiger_Detail_Js.triggerDetailViewAction(detailActionUrl);
+			} 
+			else {
 				alert(app.vtranslate('JS_SMS_SERVER_CONFIGURATION'));
 			}
 		});
     },
 	
+	sendSMS : function (form){
+		var detailInstance = Vtiger_Detail_Js.getInstance();
+        var selectedIds = new Array();
+        selectedIds.push(detailInstance.getRecordId());
+        var postData = {
+           "selected_ids": JSON.stringify(selectedIds)
+        };
+		var message = jQuery('#smsMessage').val();
+		var fields = jQuery('#smsFields').val();
+
+		var params = {
+			'module': 'SMSNotifier',
+			'action' : 'MassSaveAjax',
+			"viewname" : '',
+			"selected_ids":selectedIds,
+			"excluded_ids" : [],
+			'message' : message,
+			'fields' : fields
+		};
+		AppConnector.request(params).then(
+			function(data) {
+				if(data.success && data.result){
+					app.hideModalWindow();
+					var params = {
+						title : app.vtranslate('JS_MESSAGE'),
+						text: app.vtranslate('JS_SMS_SUCCESS'),
+						animation: 'show',
+						type: 'info'
+					};
+					Vtiger_Helper_Js.showPnotify(params);
+				}
+				else {
+					var  params = {
+						title : app.vtranslate('JS_MESSAGE'),
+						text: app.vtranslate('JS_SMS_FAILURE'),
+						animation: 'show',
+						type: 'error'
+					}
+					Vtiger_Helper_Js.showPnotify(params);
+				}
+			}
+		);
+	},
+
 	triggerTransferOwnership : function(massActionUrl){
 		var thisInstance = this;
 		thisInstance.getRelatedModulesContainer = false;
