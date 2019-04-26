@@ -30,7 +30,7 @@ $languageStrings = array(
 	'LBL_PHONE_IMPORTANT1' => 'Aktivieren Sie hier Ihr Softphone erst, nachdem Sie dieses Programm auf Ihrem Computer installiert haben.',
 	'LBL_PHONE_HINT' => 'Hinweise für die Softphone Einrichtung für Inbound Anrufe:',
 	'LBL_PHONE_HINT1' => 'Um bei reinkommenden Anrufen die Daten anzeigen zu lassen, welche zu einer Telefonummer im CRM gespeichert worden sind, müssen Sie dem CRM die Telefonnummer mitteilen. Dazu wird in den Einstellungen des Softphones eine CRM URL eingetragen. Diese muss den folgende Inhalt haben:',
-	'LBL_PHONE_INBOUND_URL' => '---CRM Mandanten URL---/index.php?module=berliSoftphones&view=List&phonenumber=---Telefonummer des Anrufers---',
+	'LBL_PHONE_INBOUND_URL' => '---CRM Mandanten URL---/index.php?module=berliSoftphones&action=ListPhone&phone&phonenumber=---Telefonummer des Anrufers---',
 	'LBL_PHONE_HINT2' => 'Für die Einrichtung Ihres Softphones konsultieren Sie bitte das entsprechende Handbuch. Z.B. kann man für das Softphone Phoner (nicht Phoner Light) im Menü Options->external application die Telefonnummer zu der URL mit %CALLERID% hinzufügen.',
 	'LBL_PHONE_HINT3' => 'Es werden nur die Telefonnummern erkannt, die im CRM in dem Format Ihres Softphones abgelegt wurden und mindestens 4 Ziffern lang sind. Beachten Sie dazu die Hinweise aus dem CRM Journal: <a href="http://blog.crm-now.de/2009/07/22/format-von-telefonnummern/"  target=_blank>Format von Telefonnummern</a>',
 	'LBL_CONFIG_SAVED'=>'Ihre Einstellung wurde gespeichert.',
