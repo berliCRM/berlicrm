@@ -18,7 +18,7 @@ class ModuleName extends Vtiger_CRMEntity {
 	/**
 	 * Mandatory table for supporting related module.
 	 */
-	var $related_tables = Array('vtiger_<modulename>cf', '<modulename>id');
+	var $related_tables = Array('vtiger_<modulename>cf' => array('<modulename>id'));
 
 	/**
 	 * Mandatory table for supporting custom fields.

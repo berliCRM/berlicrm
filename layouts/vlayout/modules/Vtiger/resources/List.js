@@ -88,14 +88,23 @@ jQuery.Class("Vtiger_List_Js",{
 		if(validationResult != true){
 			Vtiger_Helper_Js.checkServerConfig(module).then(function(data){
 				var progressIndicatorElement = jQuery.progressIndicator();
-				progressIndicatorElement.progressIndicator({'mode' : 'hide'});
 				if(data == true){
-					var progressIndicatorElement = jQuery.progressIndicator();
+					var selectedIds = listInstance.readSelectedIds(true);
+					var excludedIds = listInstance.readExcludedIds(true);
+					var cvId = listInstance.getCurrentCvId();
+					var postData = listInstance.getDefaultParams();
+
+					delete postData.module;
+					delete postData.view;
+					delete postData.parent;
+					postData.selected_ids = selectedIds;
+					postData.excluded_ids = excludedIds;
+					postData.viewname = cvId;
 					var actionParams = {
 						"type":"POST",
 						"url":massActionUrl,
 						"dataType":"html",
-						"data" : {}
+						"data" : postData
 					};
 					AppConnector.request(actionParams).then(
 						function(data) {
@@ -106,7 +115,7 @@ jQuery.Class("Vtiger_List_Js",{
 									params.onValidationComplete = function(form, valid){
 										if(valid){
 											thisInstance.sendSMS(form)
-										}
+									}
 										return false;
 									}
 									jQuery('#massSMS').validationEngine(params);
@@ -117,12 +126,27 @@ jQuery.Class("Vtiger_List_Js",{
 									}
 								});
 							}
+							else {
+								var  params = {
+									title : app.vtranslate('JS_MESSAGE'),
+									text: app.vtranslate('JS_SMS_FAILURE'),
+									animation: 'show',
+									type: 'error'
+								}
+								Vtiger_Helper_Js.showPnotify(params);
+							}
+						},
+						function(error){
+							progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+							alert ('internal CRM problem');
 						}
 					),
 					function(error,err){
 						progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+						alert ('internal CRM problem');
 					};
-				} else {
+				} 
+				else {
 					alert(app.vtranslate('JS_SMS_SERVER_CONFIGURATION'));
 				}
 			});
@@ -142,7 +166,7 @@ jQuery.Class("Vtiger_List_Js",{
 		var fields = jQuery('#smsFields').val();
 
 		var params = {
-			'module': module,
+			'module': 'SMSNotifier',
 			'action' : 'MassSaveAjax',
 			"viewname" : cvId,
 			"selected_ids":selectedIds,
@@ -168,7 +192,7 @@ jQuery.Class("Vtiger_List_Js",{
 						title : app.vtranslate('JS_MESSAGE'),
 						text: app.vtranslate('JS_SMS_FAILURE'),
 						animation: 'show',
-						type: 'info'
+						type: 'error'
 					}
 					Vtiger_Helper_Js.showPnotify(params);
 				}
