@@ -29,6 +29,7 @@ class Emails_showEmailContent_View extends Vtiger_Edit_View {
 		$firstid = key($receivers); 
 		$pmodule = getSalesEntityType($firstid);
 		$emailbody =str_replace('\n', '', $emailbody);
+		$emailbody =str_replace('<a href', '<a target="_blank" href', $emailbody);
 		$description = getMergedDescription($emailbody,$firstid,$pmodule);
 
 		$viewer->assign('MODULE', $moduleName);

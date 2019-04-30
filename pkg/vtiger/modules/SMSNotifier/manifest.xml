@@ -15,14 +15,17 @@
 <sql><![CDATA[CREATE TABLE `vtiger_smsnotifier` (
   `smsnotifierid` int(11) DEFAULT NULL,
   `message` text,
-  `status` varchar(100) DEFAULT NULL
+  `status` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`smsnotifierid`),
+  CONSTRAINT `fk_crmid_vtiger_smsnotifier` FOREIGN KEY (`smsnotifierid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
 </table>
 <table>
 <name>vtiger_smsnotifiercf</name>
 <sql><![CDATA[CREATE TABLE `vtiger_smsnotifiercf` (
   `smsnotifierid` int(11) NOT NULL,
-  PRIMARY KEY (`smsnotifierid`)
+  PRIMARY KEY (`smsnotifierid`),
+  CONSTRAINT `fk_crmid_vtiger_smsnotifiercf` FOREIGN KEY (`smsnotifierid`) REFERENCES `vtiger_smsnotifier` (`smsnotifierid`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
 </table>
 <table>

@@ -244,7 +244,7 @@ Vtiger_Field_Js('Vtiger_Boolean_Field_Js',{},{
 	 */
 	isChecked : function() {
 		var value = this.getValue();
-		if(value==1 || value == '1' || value.toLowerCase() == 'on'){
+		if(value==1 || value == '1' || (value && (value.toLowerCase() == 'on' || value.toLowerCase() == 'yes')) || value == app.vtranslate('LBL_YES')){
 			return true;
 		}
 		return false;

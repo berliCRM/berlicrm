@@ -22,7 +22,7 @@ class SMSNotifier_MassSaveAjax_Action extends Vtiger_Mass_Action {
 	}
 
 	/**
-	 * Function that saves SMS records
+	 * Function that sends and saves SMS records
 	 * @param Vtiger_Request $request
 	 */
 	public function process(Vtiger_Request $request) {
@@ -31,8 +31,11 @@ class SMSNotifier_MassSaveAjax_Action extends Vtiger_Mass_Action {
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$recordIds = $this->getRecordsListFromRequest($request);
 		$phoneFieldList = $request->get('fields');
-		if (!$phoneFieldList) $phoneFieldList = array();
-		$message = $request->get('message');
+		if (!$phoneFieldList) {
+			$phoneFieldList = array();
+		}
+		$message = utf8_decode($request->get('message'));
+	
 		$toNumbers = array();
 
 		foreach($recordIds as $recordId) {
@@ -51,13 +54,15 @@ class SMSNotifier_MassSaveAjax_Action extends Vtiger_Mass_Action {
 		}
 
 		$response = new Vtiger_Response();
-        
+     
 		if(!empty($toNumbers)) {
 			SMSNotifier_Record_Model::SendSMS($message, $toNumbers, $currentUserModel->getId(), $recordIds, $moduleName);
 			$response->setResult(true);
-		} else {
+		}
+		else {
 			$response->setResult(false);
 		}
-		return $response;
+		$response->emit();
+		
 	}
 }

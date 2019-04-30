@@ -24,7 +24,7 @@ class Settings_SMSNotifier_Edit_View extends Settings_Vtiger_IndexAjax_View {
 		$viewer->assign('RECORD_ID', $recordId);
 		$viewer->assign('RECORD_MODEL', $recordModel);
 		$viewer->assign('EDITABLE_FIELDS', $recordModel->getEditableFields());
-                $viewer->assign('PROVIDERS_FIELD_MODELS', Settings_SMSNotifier_ProviderField_Model::getAll()); 
+        $viewer->assign('PROVIDERS_FIELD_MODELS', Settings_SMSNotifier_ProviderField_Model::getAll()); 
 		$viewer->assign('QUALIFIED_MODULE_NAME', $qualifiedModuleName);
 		$viewer->assign('PROVIDERS', $recordModel->getModule()->getAllProviders());
 
