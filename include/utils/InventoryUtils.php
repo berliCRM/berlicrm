@@ -257,6 +257,90 @@ function getAllTaxes($available='all', $sh='',$mode='',$id='')
 {
 	global $adb, $log;
 	$log->debug("Entering into the function getAllTaxes($available,$sh,$mode,$id)");
+	$taxtypes = Array();
+	if($sh != '' && $sh == 'sh') {
+		$tablename = 'vtiger_shippingtaxinfo';
+		$value_table='vtiger_inventoryshippingrel';
+		if($mode == 'edit' && $id != '') {
+			$sql = "SELECT * FROM $tablename WHERE deleted=0";
+			$result = $adb->pquery($sql, array());
+			$noofrows=$adb->num_rows($result);
+			for($i=0; $i<$noofrows; $i++) {
+				$taxtypes[$i]['taxid'] = $adb->query_result($result,$i,'taxid');
+				$taxname = $adb->query_result($result,$i,'taxname');
+				$taxtypes[$i]['taxname'] = $taxname;
+				$inventory_tax_val_result = $adb->pquery("SELECT $taxname FROM $value_table WHERE id=?",array($id));
+				$taxtypes[$i]['percentage'] = $adb->query_result($inventory_tax_val_result, 0, $taxname);;
+				$taxtypes[$i]['taxlabel'] = $adb->query_result($result,$i,'taxlabel');
+				$taxtypes[$i]['deleted'] = $adb->query_result($result,$i,'deleted');
+			}
+		} else {
+			//This where condition is added to get all products or only availble products
+			if ($available != 'all' && $available == 'available') {
+				$where = " WHERE $tablename.deleted=0";
+			}
+			$result = $adb->pquery("SELECT * FROM $tablename $where ORDER BY deleted", array());
+			$noofrows = $adb->num_rows($result);
+			for ($i = 0; $i < $noofrows; $i++) {
+				$taxtypes[$i]['taxid'] = $adb->query_result($result, $i, 'taxid');
+				$taxtypes[$i]['taxname'] = $adb->query_result($result, $i, 'taxname');
+				$taxtypes[$i]['taxlabel'] = $adb->query_result($result, $i, 'taxlabel');
+				$taxtypes[$i]['percentage'] = $adb->query_result($result, $i, 'percentage');
+				$taxtypes[$i]['deleted'] = $adb->query_result($result, $i, 'deleted');
+			}
+		}
+	} else {
+		$tablename = 'vtiger_inventorytaxinfo';
+		$value_table='vtiger_inventoryproductrel';
+		if($mode == 'edit' && $id != '' ) {
+			//Getting total no of taxes
+			$result_ids = array();
+			$result = $adb->pquery("select taxname,taxid from $tablename", array());
+			$noofrows = $adb->num_rows($result);
+			$inventory_tax_val_result = $adb->pquery("select * from $value_table where id=?", array($id));
+			//Finding which taxes are associated with this (SO,PO,Invoice,Quotes) and getting its taxid.
+			for ($i = 0; $i < $noofrows; $i++) {
+				$taxname = $adb->query_result($result, $i, 'taxname');
+				$taxid = $adb->query_result($result, $i, 'taxid');
+				$tax_val = $adb->query_result($inventory_tax_val_result, 0, $taxname);
+				if ($tax_val != '') {
+					array_push($result_ids, $taxid);
+				}
+			}
+			//We are selecting taxes using that taxids. So It will get the tax even if the tax is disabled.
+			$where_ids = '';
+			if (count($result_ids) > 0) {
+				$insert_str = str_repeat("?,", count($result_ids) - 1);
+				$insert_str .= "?";
+				$where_ids = "taxid in ($insert_str) or";
+			}
+			$res = $adb->pquery("select * from $tablename  where $where_ids  deleted=0 order by taxid",$result_ids);
+		} else {
+			//This where condition is added to get all products or only availble products
+			if ($available != 'all' && $available == 'available') {
+				$where = " where $tablename.deleted=0";
+			}
+			$res = $adb->pquery("select * from $tablename $where order by deleted", array());
+		}
+
+		$noofrows = $adb->num_rows($res);
+		for ($i = 0; $i < $noofrows; $i++) {
+			$taxtypes[$i]['taxid'] = $adb->query_result($res, $i, 'taxid');
+			$taxtypes[$i]['taxname'] = $adb->query_result($res, $i, 'taxname');
+			$taxtypes[$i]['taxlabel'] = $adb->query_result($res, $i, 'taxlabel');
+			$taxtypes[$i]['percentage'] = $adb->query_result($res, $i, 'percentage');
+			$taxtypes[$i]['deleted'] = $adb->query_result($res, $i, 'deleted');
+		}
+	}
+	$log->debug("Exit from the function getAllTaxes($available,$sh,$mode,$id)");
+
+	return $taxtypes;
+}
+
+function getAllTaxes_toBeAnalyzed($available='all', $sh='',$mode='',$id='')
+{
+	global $adb, $log;
+	$log->debug("Entering into the function getAllTaxes($available,$sh,$mode,$id)");
 	$taxtypes = array();
 	if($sh == 'sh') {
 		if($mode == 'edit' && $id != '') {
