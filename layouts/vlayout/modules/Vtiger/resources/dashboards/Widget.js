@@ -501,7 +501,7 @@ Vtiger_Widget_Js('Vtiger_Barchat_Widget_Js',{},{
 
         this.getPlotContainer(false).jqplot(data['chartData'] , {
 			title: data['title'],
-            seriesColors: (data['colors'].length > 0 ? data['colors'] : ['#4bb2c5']),
+            seriesColors: (data['colors'] && data['colors'].length > 0) ? data['colors'] : ['#4bb2c5'],
 			animate: !$.jqplot.use_excanvas,
 			seriesDefaults:{
 				renderer:jQuery.jqplot.BarRenderer,
@@ -509,7 +509,7 @@ Vtiger_Widget_Js('Vtiger_Barchat_Widget_Js',{},{
 					showDataLabels: true,
 					dataLabels: 'value',
 					barDirection : 'vertical',
-                    varyBarColor: (data['colors'].length > 0)
+                    varyBarColor: (data['colors'] && data['colors'].length > 0)
 				},
 				pointLabels: {show: true,edgeTolerance: -15}
 			},
