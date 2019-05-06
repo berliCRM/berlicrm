@@ -621,18 +621,16 @@
                     {vtranslate('LBL_SELECT_FIELD_TYPE', $QUALIFIED_MODULE)}
                 </span>
                 <div class="controls">
-                    <span class="row-fluid">
-                        <select class="fieldTypesList span7" name="fieldType">
-                            {foreach item=FIELD_TYPE from=$ADD_SUPPORTED_FIELD_TYPES}
-                                <option value="{$FIELD_TYPE}"
-                                        {foreach key=TYPE_INFO item=TYPE_INFO_VALUE from=$FIELD_TYPE_INFO[$FIELD_TYPE]}
-                                            data-{$TYPE_INFO}="{$TYPE_INFO_VALUE}"
-                                        {/foreach}>
-                                    {vtranslate($FIELD_TYPE, $QUALIFIED_MODULE)}
-                                </option>
-                            {/foreach}
-                        </select>
-                    </span>
+                    <select class="fieldTypesList" name="fieldType">
+                        {foreach item=FIELD_TYPE from=$ADD_SUPPORTED_FIELD_TYPES}
+                            <option value="{$FIELD_TYPE}"
+                                {foreach key=TYPE_INFO item=TYPE_INFO_VALUE from=$FIELD_TYPE_INFO[$FIELD_TYPE]}
+                                    data-{$TYPE_INFO}="{$TYPE_INFO_VALUE}"
+                                {/foreach}>
+                                {vtranslate($FIELD_TYPE, $QUALIFIED_MODULE)}
+                            </option>
+                        {/foreach}
+                    </select>
                 </div>
             </div>
             <div class="control-group">
