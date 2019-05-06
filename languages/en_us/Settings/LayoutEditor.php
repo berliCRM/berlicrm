@@ -56,6 +56,8 @@ $languageStrings = array(
 	'LBL_SUMMARY_FIELD' => 'Summary View',
 	'LBL_WRONG_FIELD_TYPE' => 'Wrong Field Type',
 	'MultiSelectCombo'=>'Multi-Select Combo Box',
+    'AutocompletedText'=>'Autocompleted text from list',
+    'AutocompletedSingleUse'=>'Autocompleted text from list for single use',
 	'Percent'=>'Percent',
 	'Phone'=>'Phone',
 	'PickList'=>'Pick List',
@@ -66,6 +68,7 @@ $languageStrings = array(
 	'URL' => 'URL',
 	'LBL_HELPTEXT_VALUE' => 'Help Text',
     'LBL_PICKLIST_ROLE_HELP' => 'Role based picklists allow to make selected entries only available to certain user groups, and to control the display of blocks in dependence of certain values.<br>Please see the manual for details.',
+	'Picklist'=>'Picklist',
 
 );
 
