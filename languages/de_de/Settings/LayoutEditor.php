@@ -57,7 +57,8 @@ $languageStrings = array(
 	'LBL_SUMMARY_FIELD' => 'kompakte Ansicht',
 	'LBL_WRONG_FIELD_TYPE' => 'falscher Feldtyp',
 	'MultiSelectCombo'=>'Multi-Auswahlliste',
-    'AutocompletedText'=>'Selbstvervollständigend',
+    'AutocompletedText'=>'Selbstvervollständigender Text aus Liste',
+    'AutocompletedSingleUse'=>'Selbstvervollständigende Einmalwahl aus Liste',
 	'Percent'=>'Prozent',
 	'Phone'=>'Telefon',
 	'PickList'=>'Auswahlliste',
@@ -68,6 +69,7 @@ $languageStrings = array(
 	'URL' => 'URL',
 	'LBL_HELPTEXT_VALUE' => 'Hilfetext',
     'LBL_PICKLIST_ROLE_HELP' => 'Bei rollenbasierten Auswahllisten können Sie einzelne Listen-Einträge nur bestimmten Nutzergruppen zur Verfügung stellen sowie die Anzeige von Blöcken von bestimmten Einträgen abhängig machen.<br>Bitte entnehmen Sie die Details dem Handbuch.',
+	'Picklist'=>'Auswahlliste',
 
 );
 

@@ -1,3 +1,12 @@
 .clearfix {
 	clear: both;
 }
+.ui-autocomplete {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width:300px;
+}
+.fieldTypesList {
+    min-width:28em;
+}
