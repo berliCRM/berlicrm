@@ -323,28 +323,28 @@ function getAssociatedProducts($module,$focus,$seid='')
 		//First we will get all associated taxes as array
 		$tax_details = getTaxDetailsForProduct($hdnProductId,'all');
 		//Now retrieve the tax values from the current query with the name
-		for($tax_count=0;$tax_count<count($tax_details);$tax_count++)
-		{
-			$tax_name = $tax_details[$tax_count]['taxname'];
-			$tax_label = $tax_details[$tax_count]['taxlabel'];
-			$tax_value = '0';
+		if (is_array($tax_details)) {
+			for($tax_count=0;$tax_count<count($tax_details);$tax_count++) 			{
+				$tax_name = $tax_details[$tax_count]['taxname'];
+				$tax_label = $tax_details[$tax_count]['taxlabel'];
+				$tax_value = '0';
 
-			//condition to avoid this function call when create new PO/SO/Quotes/Invoice from Product module
-			if($focus->id != '')
-			{
-				if($taxtype == 'individual')//if individual then show the entered tax percentage
-					$tax_value = getInventoryProductTaxValue($focus->id, $hdnProductId, $tax_name);
-				else//if group tax then we have to show the default value when change to individual tax
+				//condition to avoid this function call when create new PO/SO/Quotes/Invoice from Product module
+				if($focus->id != '') {
+					if($taxtype == 'individual')//if individual then show the entered tax percentage
+						$tax_value = getInventoryProductTaxValue($focus->id, $hdnProductId, $tax_name);
+					else//if group tax then we have to show the default value when change to individual tax
+						$tax_value = $tax_details[$tax_count]['percentage'];
+				}
+				else {
+					//if the above function not called then assign the default associated value of the product
 					$tax_value = $tax_details[$tax_count]['percentage'];
+				}
+				$product_Detail[$i]['taxes'][$tax_count]['taxname'] = $tax_name;
+				$product_Detail[$i]['taxes'][$tax_count]['taxlabel'] = $tax_label;
+				$product_Detail[$i]['taxes'][$tax_count]['percentage'] = $tax_value;
 			}
-			else//if the above function not called then assign the default associated value of the product
-				$tax_value = $tax_details[$tax_count]['percentage'];
-
-			$product_Detail[$i]['taxes'][$tax_count]['taxname'] = $tax_name;
-			$product_Detail[$i]['taxes'][$tax_count]['taxlabel'] = $tax_label;
-			$product_Detail[$i]['taxes'][$tax_count]['percentage'] = $tax_value;
 		}
-
 	}
 
 	//set the taxtype
