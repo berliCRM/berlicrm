@@ -285,6 +285,40 @@ $query = "DELETE FROM `vtiger_ws_entity` WHERE `vtiger_ws_entity`.`name` = 'berl
 $adb->pquery($query, array());
 echo "uitype change done.<br>";
 
+
+echo 'module install Verteiler start<br>';
+//install Verteiler module
+$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
+foreach($moduleFolders as $moduleFolder) {
+	if ($handle = opendir($moduleFolder)) {
+		while (false !== ($file = readdir($handle))) {
+			$packageNameParts = explode(".",$file);
+			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
+				continue;
+			}
+			array_pop($packageNameParts);
+			$packageName = implode("",$packageNameParts);
+			if ($packageName =='Verteiler') {
+				$packagepath = "$moduleFolder/$file";
+				$package = new Vtiger_Package();
+				$module = $package->getModuleNameFromZip($packagepath);
+				if($module != null) {
+					$moduleInstance = Vtiger_Module::getInstance($module);
+					if($moduleInstance) {
+						updateVtlibModule($module, $packagepath);
+					} 
+					else {
+						installVtlibModule($module, $packagepath);
+					}
+				}
+			}
+		}
+		closedir($handle);
+	}
+}
+echo 'module install Verteiler done <br>';
+
+
 echo "<br>update Tag version to 16.. ";
 $query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.16'";
  
