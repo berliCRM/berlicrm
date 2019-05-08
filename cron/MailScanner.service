@@ -9,13 +9,13 @@
  *
  ********************************************************************************/
 
- /** Verify the script call is from cron/cli. */
+// Verify the script call is from cron/cli
 if(!empty($_REQUEST['REMOTE_ADDR'])) {
 	echo "Access denied";
     return;
 }
 
-require_once 'vtlib/Vtiger/Cron.php';   
+require_once 'vtlib/Vtiger/Cron.php';
 require_once 'config.inc.php';
 require_once 'includes/runtime/BaseModel.php';
 require_once 'includes/runtime/Globals.php';
@@ -27,22 +27,16 @@ if(!$current_user) {
 	$current_user = Users::getActiveAdminUser();
 }  
 
-/**
- * Check if instance of this service is already running?
- */
+// Check if instance of this service is already running?
 $svcname = "MailScanner";
 $servicePIDFile = "logs/{$svcname}-service.pid";
-
 $servicePIDFp = @fopen($servicePIDFile, 'x');
-
 if(!$servicePIDFp) {
 	echo "Service $svcname already running! Check $servicePIDFile";
     return;
 }
 
-/**
- * Turn-off PHP error reporting.
- */
+// Turn-off PHP error reporting.
 try { error_reporting(0); } catch (Exception $e) { }
 
 require_once 'include/logging.php';
@@ -95,13 +89,13 @@ $scannerinfos = Vtiger_MailScannerInfo::listAll();
 
 if(empty($scannerinfos)) {    
     echo "No mailbox configured for scanning!";
-} else {
+} 
+else {
     foreach($scannerinfos as $scannerinfo) {
         service_MailScanner_performScanNow($scannerinfo, $debug);
     }
 }
 
-/** Close and remove the PID file. */
-
+// Close and remove the PID file
 fclose($servicePIDFp);
 unlink($servicePIDFile);
