@@ -13,6 +13,7 @@ $languageStrings = array(
 	'LBL_ADD_ITEM_TO' => 'Eintrag hinzufügen zu',
 	'LBL_ADD_VALUE' => 'Auswahllisteneintrag hinzufügen',
 	'LBL_SINGLE_MULTIPLE' => 'einfach/mehrfach',
+	'LBL_ALL_ROLES' => 'Alle Rollen',
 	'LBL_ALL_VALUES' => 'Alle Auswahllisteneinträge',
 	'LBL_EXPLAIN_MULTI' => 'Jede Zeile wird zu einem neuen Auswahllisteneintrag, Duplikate werden übersprungen.',
 	'LBL_ASSIGN_TO_ROLE' => 'zur Rolle zuweisen',
@@ -56,6 +57,7 @@ $languageStrings = array(
     'LBL_SHOWALL' => 'zeige alle Einträge',
     'LBL_UNAVAILABLE' => 'Verstecken nicht möglich, da dieser Block die ausgewählte Picklist enthält.',
     'LBL_DYNAMIC_BLOCKS_INFO' => 'Blöcke von Datenfeldern können in dynamischer Abhängigkeit von Auswahllisten-Einträgen des selben Datensatzes eingeklappt oder gänzlich versteckt werden.<br>Wenn Sie auf Speichern klicken, werden Ihre Einstellungen für alle Einträge der gewählten Auswahlliste auf einmal gespeichert.',
+	'Picklist'=>'Auswahlliste',
 );
 
 $jsLanguageStrings = array(

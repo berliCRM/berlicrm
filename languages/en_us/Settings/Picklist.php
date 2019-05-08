@@ -6,6 +6,7 @@
  * The Initial Developer of the Original Code is vtiger.
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
+ * Reviewed by crm-now GmbH
  *************************************************************************************/
 $languageStrings = array(
 	'Calendar' => 'To Do',
@@ -41,6 +42,8 @@ $languageStrings = array(
 	'LBL_TO_DELETE_MULTIPLE_HOLD_CONTROL_KEY' => 'To Delete multiple items hold Ctrl key down while selecting items',
 	'LBL_VALUES_ASSIGNED_TO_A_ROLE' => 'Values assigned to a role',
     'NO_PICKLIST_FIELDS'=> 'do not have any picklist fields',
+	//labels missing in en_us
+	'Events' => 'Events',
     // crm-now: dynamic blocks
     'LBL_VALUES_ASSIGNED_TO_BLOCK' => 'Blocks assigned to a value',
     'LBL_SELECT_PICKLIST_ENTRY' => 'Please select a picklist value:',
@@ -54,6 +57,7 @@ $languageStrings = array(
     'LBL_SHOWALL' => 'Show settings for all values',
     'LBL_UNAVAILABLE' => 'This block cannot be hidden, because it contains the chosen picklist.',
     'LBL_DYNAMIC_BLOCKS_INFO' => 'This menu provides the option to collapse blocks in detail and edit views or to hide blocks completely depending on a chosen picklist value in another block.<br>The "Save" button will save all your selected settings at once.',
+	'Picklist'=>'Picklist',
 );
 
 $jsLanguageStrings = array(
