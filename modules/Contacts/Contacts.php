@@ -1576,6 +1576,90 @@ function get_contactsforol($user_name)
 		}
 		return $list_buttons;
 	}
+	
+	/**
+	 * function to handle the related list for the Verteiler module.
+	 * NOTE: Vtiger_Module::setRelatedList sets reference to this function in vtiger_relatedlists table
+	 * if function name is not explicitly specified.
+	 */
+	public function get_related_verteiler_list($id, $cur_tab_id, $rel_tab_id, $actions = false) {
+
+		global $currentModule, $app_strings, $singlepane_view, $current_user;
+
+		$parenttab = getParentTab();
+
+		$related_module = vtlib_getModuleNameById($rel_tab_id);
+		$other = CRMEntity::getInstance($related_module);
+		//crm-now: get custom field table name to be included in the general query
+		$cf_tablename = $other->customFieldTable[0];
+
+		// Some standard module class doesn't have required variables
+		// that are used in the query, they are defined in this generic API
+		vtlib_setup_modulevars($currentModule, $this);
+		vtlib_setup_modulevars($related_module, $other);
+
+		$singular_modname = 'SINGLE_' . $related_module;
+
+		$button = '';
+
+		if ($actions) {
+			if (is_string($actions))
+				$actions = explode(',', strtoupper($actions));
+			if (in_array('SELECT', $actions) && isPermitted($related_module, 4, '') == 'yes') {
+				$button .= "<input title='" . getTranslatedString('LBL_SELECT') . " " . getTranslatedString($related_module) . "' class='crmbutton small edit' " .
+						" type='button' onclick=\"return window.open('index.php?module=$related_module&return_module=$currentModule&action=Popup&popuptype=detailview&select=enable&form=EditView&form_submit=false&recordid=$id&parenttab=$parenttab','test','width=640,height=602,resizable=0,scrollbars=0');\"" .
+						" value='" . getTranslatedString('LBL_SELECT') . " " . getTranslatedString($related_module, $related_module) . "'>&nbsp;";
+			}
+			if (in_array('ADD', $actions) && isPermitted($related_module, 1, '') == 'yes') {
+				$button .= "<input type='hidden' name='createmode' id='createmode' value='link' />" .
+						"<input title='" . getTranslatedString('LBL_ADD_NEW') . " " . getTranslatedString($singular_modname) . "' class='crmbutton small create'" .
+						" onclick='this.form.action.value=\"EditView\";this.form.module.value=\"$related_module\"' type='submit' name='button'" .
+						" value='" . getTranslatedString('LBL_ADD_NEW') . " " . getTranslatedString($singular_modname, $related_module) . "'>&nbsp;";
+			}
+		}
+
+		// To make the edit or del link actions to return back to same view.
+		if ($singlepane_view == 'true')
+			$returnset = "&return_module=$currentModule&return_action=DetailView&return_id=$id";
+		else
+			$returnset = "&return_module=$currentModule&return_action=CallRelatedList&return_id=$id";
+
+		//crm-now: include custom table 
+		$query = "SELECT vtiger_crmentity.*, $other->table_name.*, $cf_tablename.*";
+
+		$userNameSql = getSqlForNameInDisplayFormat(array('first_name'=>'vtiger_users.first_name',
+														'last_name' => 'vtiger_users.last_name'), 'Users');
+		$query .= ", CASE WHEN (vtiger_users.user_name NOT LIKE '') THEN $userNameSql ELSE vtiger_groups.groupname END AS user_name";
+
+		$more_relation = '';
+		if (!empty($other->related_tables)) {
+			foreach ($other->related_tables as $tname => $relmap) {
+				$query .= ", $tname.*";
+
+				// Setup the default JOIN conditions if not specified
+				if (empty($relmap[1]))
+					$relmap[1] = $other->table_name;
+				if (empty($relmap[2]))
+					$relmap[2] = $relmap[0];
+				$more_relation .= " LEFT JOIN $tname ON $tname.$relmap[0] = $relmap[1].$relmap[2]";
+			}
+		}
+        // crm-now: do not join crmentityrel
+		$query .= " FROM $other->table_name";
+		$query .= " INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = $other->table_name.$other->table_index";
+		$query .= $more_relation;
+		$query .= " LEFT JOIN vtiger_users ON vtiger_users.id = vtiger_crmentity.smownerid";
+		$query .= " LEFT JOIN vtiger_groups ON vtiger_groups.groupid = vtiger_crmentity.smownerid";
+		$query .= " WHERE vtiger_crmentity.deleted = 0 AND vtiger_verteilercontrel.contactid ='".$id."' ";
+		$return_value = GetRelatedList($currentModule, $related_module, $other, $query, $button, $returnset);
+
+		if ($return_value == null)
+			$return_value = Array();
+		$return_value['CUSTOM_BUTTON'] = $button;
+
+		return $return_value;
+	}
+
 }
 
 ?>
