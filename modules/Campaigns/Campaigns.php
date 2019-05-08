@@ -168,10 +168,16 @@ class Campaigns extends CRMEntity {
 
 		$return_value = GetRelatedList($this_module, $related_module, $other, $query, $button, $returnset);
 
-		if($return_value == null)
+		if($return_value == null) {
 			$return_value = Array();
+		}
 		else if($is_CampaignStatusAllowed) {
-			$statusPos = count($return_value['header']) - 2; // Last column is for Actions, exclude that. Also the index starts from 0, so reduce one more count.
+			if (is_array($return_value['header'])) {
+				$statusPos = count($return_value['header']) - 2; // Last column is for Actions, exclude that. Also the index starts from 0, so reduce one more count.
+			}
+			else {
+				$statusPos = 0;
+			}
 			$return_value = $this->add_status_popup($return_value, $statusPos, 'Accounts');
 		}
 
@@ -271,7 +277,12 @@ class Campaigns extends CRMEntity {
 		if($return_value == null)
 			$return_value = Array();
 		else if($is_CampaignStatusAllowed) {
-			$statusPos = count($return_value['header']) - 2; // Last column is for Actions, exclude that. Also the index starts from 0, so reduce one more count.
+			if (is_array($return_value['header'])) {
+				$statusPos = count($return_value['header']) - 2; // Last column is for Actions, exclude that. Also the index starts from 0, so reduce one more count.
+			}
+			else {
+				$statusPos = 0;
+			}
 			$return_value = $this->add_status_popup($return_value, $statusPos, 'Contacts');
 		}
 
@@ -367,7 +378,12 @@ class Campaigns extends CRMEntity {
 		if($return_value == null)
 			$return_value = Array();
 		else if($is_CampaignStatusAllowed) {
-			$statusPos = count($return_value['header']) - 2; // Last column is for Actions, exclude that. Also the index starts from 0, so reduce one more count.
+			if (is_array($return_value['header'])) {
+				$statusPos = count($return_value['header']) - 2; // Last column is for Actions, exclude that. Also the index starts from 0, so reduce one more count.
+			}
+			else {
+				$statusPos = 0;
+			}
 			$return_value = $this->add_status_popup($return_value, $statusPos, 'Leads');
 		}
 
