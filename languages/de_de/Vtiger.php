@@ -845,6 +845,10 @@ $languageStrings = array(
     'LBL_MODULE' => 'Modul',
     'LBL_COMMENTS_ENABLED' => 'Kommentare erlaubt',
     'LBL_SAVE_SUCCESS'=>'Einstellung erfolgreich gespeichert.',
+
+	//Verteiler
+    'Verteiler' => 'Verteiler',
+	
 );
 
 $jsLanguageStrings = array(
@@ -1006,7 +1010,6 @@ $jsLanguageStrings = array(
     'JS_PERMISSION_DENIED' => 'Dafür haben Sie keine Berechtigung.',
     'JS_EXCEEDS_MAX_UPLOAD_SIZE' => 'Die maximale Upload Größe wurde überschritten.',
 	'JS_FUTURE_EVENT_CANNOT_BE_HELD' => 'Zukünftige Kalendereinträge können nicht als erledigt oder durchgeführt gesetzt werden.',
-
 	//User Login History menu
 	'LoginHistory' => 'Login Historie der CRM Nutzer',
 	'LBL_LOGIN_HISTORY_DETAILS' => 'Login Historie',
