@@ -221,18 +221,30 @@ $languageStrings = array(
 	'LBL_CR_SUCCESS_CONTACT'=>'Alle Ihre Personen aus diesem Bericht wurden zur ausgewählten CleverReach Liste hinzugefügt.',
 	'LBL_HS_SUCCESS_CONTACT'=>'Alle Ihre Personen aus diesem Bericht wurden zur ausgewählten HubSpot Liste hinzugefügt.',
 	'LBL_ADD_TO_CLEVERREACH_LEAD'=>'Leads zu einer CleverReach Liste hinzufügen',
-	'LBL_MC_COMENT1_LEAD'=>'In der nachfolgenden Liste finden Sie alle in Ihrem CRM vorhandenen CleverReach Listen in alphabetischer Reihenfolge. Bitte aus der Anzeige der Listen die Liste auswählen, zu welcher die Leads aus dem Bericht hinzugefügt werden sollen. Bitte beachten Sie, dass sich diese Aktion nicht mehr rückgängig machen läßt.',
-	'LBL_SELECT_MC_LEAD'=>'Leads zur CleverReach Liste hinzufügen',
-	'LBL_MC_SUCCESS_LEAD'=>'Alle Ihre Leads aus diesem Bericht wurden zur ausgewählten MailChimpListe hinzugefügt.',
-	'LBL_MC_SUCCESS_CONTACT_LESS'=>'Es gab bereits Personen aus diesem Bericht in Ihrer ausgewählten CleverReach Liste. Deshalb wurden nur',
-	'LBL_MC_SUCCESS_CONTACT_LESS1'=>'Personen zu CleverReach hinzugefügt.',
-	'LBL_MC_SUCCESS_LEAD_LESS'=>'Es gab bereits Leads aus diesem Bericht in Ihrer ausgewählten CleverReach Liste. Deshalb wurden nur',
-	'LBL_MC_SUCCESS_LEAD_LESS1'=>'Leads zu CleverReach hinzugefügt.',
+	'LBL_CR_COMENT1_LEAD'=>'In der nachfolgenden Liste finden Sie alle in Ihrem CRM vorhandenen CleverReach Listen in alphabetischer Reihenfolge. Bitte aus der Anzeige der Listen die Liste auswählen, zu welcher die Leads aus dem Bericht hinzugefügt werden sollen. Bitte beachten Sie, dass sich diese Aktion nicht mehr rückgängig machen läßt.',
+	'LBL_SELECT_CR_LEAD'=>'Leads zur CleverReach Liste hinzufügen',
+	'LBL_CR_SUCCESS_LEAD'=>'Alle Ihre Leads aus diesem Bericht wurden zur ausgewählten MailChimpListe hinzugefügt.',
+	'LBL_CR_SUCCESS_CONTACT_LESS'=>'Es gab bereits Personen aus diesem Bericht in Ihrer ausgewählten CleverReach Liste. Deshalb wurden nur',
+	'LBL_CR_SUCCESS_CONTACT_LESS1'=>'Personen zu CleverReach hinzugefügt.',
+	'LBL_CR_SUCCESS_LEAD_LESS'=>'Es gab bereits Leads aus diesem Bericht in Ihrer ausgewählten CleverReach Liste. Deshalb wurden nur',
+	'LBL_CR_SUCCESS_LEAD_LESS1'=>'Leads zu CleverReach hinzugefügt.',
 	
 	'LBL_NO_MC_LIST'=>'Keine MailChimp Liste gefunden. Bitte legen Sie zuerst eine an.',
 	'LBL_NO_CR_LIST'=>'Keine CleverReach Liste gefunden. Bitte legen Sie zuerst eine an.',
 	'LBL_NO_HS_LIST'=>'Keine HubSpot Liste gefunden. Bitte legen Sie zuerst eine an.',
 	'LBL_NO_CP_LIST'=>'Keine Kampagne gefunden. Bitte legen Sie zuerst eine an.',
+
+	// Verteiler export
+	'LBL_NO_VERTEILER_LIST'=>'Keinen Verteiler gefunden. Bitte legen Sie zuerst einen Verteiler an.',
+	
+	
+	'LBL_EXPORT_TO_VERTEILER' => 'Exportiere zu Verteiler',
+	'LBL_VERTEILER'=>'Verteiler',
+	'LBL_SELECT_VERTEILER_CONTACT'=>'Personen zu einem Verteiler hinzufügen',
+	'LBL_V_COMMENT1_CONTACT'=>'In der nachfolgenden Liste finden Sie alle in Ihrem CRM vorhandenen Verteiler in alphabetischer Reihenfolge. Bitte aus der Anzeige der Verteilernamen den Verteiler auswählen, zu welcher die Personen aus dem Bericht hinzugefügt werden sollen. Bitte beachten Sie, dass sich diese Aktion nicht mehr rückgängig machen läßt.',
+	'LBL_VE_SUCCESS_CONTACT'=>'Alle Ihre Personen aus diesem Bericht wurden zum ausgewählten Verteiler hinzugefügt.',
+	'LBL_VE_SUCCESS_CONTACT_LESS'=>'Es gab bereits Personen aus diesem Bericht in Ihrem ausgewählten Verteiler. Deshalb wurden nur',
+	'LBL_VE_SUCCESS_CONTACT_LESS1'=>'Personen zum Verteiler hinzugefügt.',
 	
 );
 
@@ -247,10 +259,12 @@ $jsLanguageStrings = array(
 	'JS_CAMP_NOT_ACTIVE'=>'Das Kampagnen Modul ist nicht aktiv.',
 	'JS_ALERT'=>'wichtiger Hinweis',
 	'JS_ERROR'=>'Fehler',
-	'JS_NO_TRANSFER'=>'Die Kontaktdaten konnten nicht übernommen werden. Bitte kontaktieren Sie crm-now.',
+	'JS_NO_TRANSFER'=>'Die Kontaktdaten konnten nicht übernommen werden. Bitte kontaktieren Sie Ihren CRM Administrator.',
 	//crm-now: added for CleverReach
 	'JS_CR_NOT_ACTIVE'=>'Das CleverReach Modul ist nicht aktiv.',
 	'JS_HS_NOT_ACTIVE'=>'Das HubSpot Modul ist nicht aktiv.',
+	//crm-now: added for Verteiler
+	'JS_VERTEILER_NOT_ACTIVE'=>'Das Verteiler Modul ist nicht aktiv.',
 	
 
 );

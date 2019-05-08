@@ -279,3 +279,96 @@ callCleverReachList = {
 	}
 	
 }
+
+callVerteilerList = {
+	//It stores the list response data
+	listResponseCache : {},
+
+	showlist: function(reportid, modulename) {
+		var aDeferred = jQuery.Deferred();
+		
+		var url = 'index.php?module=Reports&view=showVerteilerList&reportid='+reportid+'&modulename='+modulename;
+		AppConnector.request(url).then(
+			
+			function(data){
+				if(data.indexOf("NOCLEVERREACH") > -1 ) {
+					var params = {
+						title: app.vtranslate('JS_ERROR'),
+						text: app.vtranslate('JS_VERTEILER_NOT_ACTIVE'),
+						width: '35%'
+					};
+					Vtiger_Helper_Js.showPnotify(params);
+					return false;
+				}
+				else {
+					app.showScrollBar(jQuery('#transferPopupScroll'), {
+						height: '300px',
+						railVisible: true,
+						size: '6px'
+					});
+					callVerteilerList.listResponseCache = data;
+					aDeferred.resolve(callVerteilerList.listResponseCache);
+					var callbackFunction = function(data) {
+						app.showScrollBar(jQuery('#transferPopupScroll'), {
+							height: '300px',
+							railVisible: true,
+							size: '6px'
+						});
+					}
+					app.showModalWindow(data, function(data){
+						if(typeof callbackFunction == 'function' && jQuery('#transferPopupScroll').height() > 300){
+							callbackFunction(data);
+						}
+					});
+				} 
+			},
+			function(error){
+				//aDeferred.reject();
+			}
+		);
+	},
+	
+	create : function(reportid, modulename) {
+		var verteilerlist = document.getElementById('verteilerlist').value;
+		var id_list = document.getElementById('id_list').value;
+		var url = 'index.php?module=Reports&action=addContactsfromReportstoVerteiler&ajax=true&reportid='+reportid+'&verteilerid='+verteilerlist+'&contactids='+id_list+'&modulename='+modulename;
+		
+		var progressIndicatorElement = jQuery.progressIndicator({
+			'position' : 'html',
+			'blockInfo' : {
+			'enabled' : true
+			}
+		});
+	
+		AppConnector.request(url).then(
+			
+			function(data){
+				
+				progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+				
+				if(data.result.indexOf("FAILURE") > -1 ) {
+					var params = {
+						title: app.vtranslate('JS_ERROR'),
+						text: app.vtranslate('JS_NO_TRANSFER'),
+						width: '35%'
+					};
+					Vtiger_Helper_Js.showPnotify(params);
+				}
+				else {
+					var params = {
+						title: app.vtranslate('JS_ALERT'),
+						text: data.result,
+						type : 'info',
+						width: '35%'
+					};
+					Vtiger_Helper_Js.showPnotify(params);
+
+				} 
+			},
+			function(error){
+				//aDeferred.reject();
+			}
+		);
+	}
+	
+}
