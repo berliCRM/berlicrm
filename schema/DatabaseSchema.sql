@@ -1690,10 +1690,10 @@ CREATE TABLE IF NOT EXISTS `vtiger_cron_task` (
 --
 
 INSERT INTO `vtiger_cron_task` (`id`, `name`, `handler_file`, `frequency`, `laststart`, `lastend`, `status`, `module`, `sequence`, `description`) VALUES
-(1, 'Workflow', 'cron/modules/com_vtiger_workflow/com_vtiger_workflow.service', 900, 1521711172, 1521711172, 1, 'com_vtiger_workflow', 1, 'LBL_WORKFLOW_DES'),
-(2, 'RecurringInvoice', 'cron/modules/SalesOrder/RecurringInvoice.service', 86400, 1521709971, 1521709971, 1, 'SalesOrder', 2, 'LBL_REC_INVOICE_DES'),
-(3, 'SendReminder', 'cron/SendReminder.service', 900, 1521711172, 1521711172, 1, 'Calendar', 3, 'LBL_SENDREMINDER_DES'),
-(5, 'MailScanner', 'cron/MailScanner.service', 900, 1521711172, 0, 2, 'Settings', 5, 'LBL_MAILSCANNER_DES'),
+(1, 'Workflow', 'cron/modules/com_vtiger_workflow/com_vtiger_workflow.service', 900, NULL, NULL, 1, 'com_vtiger_workflow', 1, 'LBL_WORKFLOW_DES'),
+(2, 'RecurringInvoice', 'cron/modules/SalesOrder/RecurringInvoice.service', 86400, NULL, NULL, 1, 'SalesOrder', 2, 'LBL_REC_INVOICE_DES'),
+(3, 'SendReminder', 'cron/SendReminder.service', 900, NULL, NULL, 1, 'Calendar', 3, 'LBL_SENDREMINDER_DES'),
+(5, 'MailScanner', 'cron/MailScanner.service', 900, NULL, NULL, 1, 'Settings', 5, 'LBL_MAILSCANNER_DES'),
 (6, 'ScheduleReports', 'cron/modules/Reports/ScheduleReports.service', 900, NULL, NULL, 1, 'Reports', 6, 'Recommended frequency for ScheduleReports is 15 mins');
 
 -- --------------------------------------------------------
