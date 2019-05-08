@@ -11,10 +11,11 @@
 
  /** Verify the script call is from cron/cli. */
 if(!empty($_REQUEST['REMOTE_ADDR'])) {
-	die("Access denied.");
+	echo "Access denied";
+    return;
 }
 
-require_once 'vtlib/Vtiger/Cron.php';
+require_once 'vtlib/Vtiger/Cron.php';   
 require_once 'config.inc.php';
 require_once 'includes/runtime/BaseModel.php';
 require_once 'includes/runtime/Globals.php';
@@ -32,10 +33,11 @@ if(!$current_user) {
 $svcname = "MailScanner";
 $servicePIDFile = "logs/{$svcname}-service.pid";
 
-if(file_exists($servicePIDFile)) {
-	die("Service $svcname already running! Check $servicePIDFile");
-} else {
-	$servicePIDFp = fopen($servicePIDFile, 'a');
+$servicePIDFp = @fopen($servicePIDFile, 'x');
+
+if(!$servicePIDFp) {
+	echo "Service $svcname already running! Check $servicePIDFile";
+    return;
 }
 
 /**
@@ -100,8 +102,6 @@ if(empty($scannerinfos)) {
 }
 
 /** Close and remove the PID file. */
-if($servicePIDFp) {
-	fclose($servicePIDFp);
-	unlink($servicePIDFile);
-}
-?>
+
+fclose($servicePIDFp);
+unlink($servicePIDFile);
