@@ -39,6 +39,11 @@
 										<li>
 											<a href="javascript:callCleverReachList.showlist('{$RECORD_ID}','{$PRIMARY_MODULE}');">{vtranslate('LBL_EXPORT_TO_CR',$MODULE)}</a>
 										</li>
+										{if $PRIMARY_MODULE eq 'Contacts'}
+											<li>
+												<a href="javascript:callVerteilerList.showlist('{$RECORD_ID}','{$PRIMARY_MODULE}');">{vtranslate('LBL_EXPORT_TO_VERTEILER',$MODULE)}</a>
+											</li>
+										{/if}
 									<ul>
 								</span>
 							</div>

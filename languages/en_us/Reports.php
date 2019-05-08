@@ -6,6 +6,7 @@
  * The Initial Developer of the Original Code is vtiger.
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
+ * Reviewed by crm-now GmbH
  *************************************************************************************/
 $languageStrings = array(
 	'Account and Contact Reports'=>'Organization and Contact Reports',
@@ -208,10 +209,9 @@ $languageStrings = array(
 	'LBL_MC_SUCCESS_LEAD_LESS'=>'The selected MailChimp list contained already leads from this report. Only',
 	'LBL_MC_SUCCESS_LEAD_LESS1'=>'leads have been added.',
 	//crm-now: added for CleverReach
+	'LBL_ADD_TO_CLEVERREACH_CONTACT'=>'add report result to a CleverReach list',
 	'LBL_EXPORT_TO_CR' => 'Export to CleverReach',
 	'LBL_EXPORT_TO_HS' => 'Export to HubSpot',
-	'LBL_ADD_TO_CLEVERREACH_CONTACT'=>'add report result to a CleverReach list',
-	'LBL_CLEVERREACH_LIST'=>'CleverReach List',
 	'LBL_CR_LISTS'=>'CleverReach Lists',
 	'LBL_HS_LISTS'=>'HubSpot Lists',
 	'LBL_CR_COMENT1_CONTACT'=>'This is the list of your existing CleverReach lists in alphabetic order. Please select a list to which you would like to add the contacts from this report and push the button. This can not be undone.',
@@ -234,12 +234,26 @@ $languageStrings = array(
 	'LBL_NO_HS_LIST'=>'No HubSpot list found. Please create one first.',
 	'LBL_NO_CP_LIST'=>'No Campaign  found. Please create one first.',
 
+	// Verteiler export
+	'LBL_NO_VERTEILER_LIST'=>'No distribution list found. Please create one first.',
+	
+	
+	'LBL_EXPORT_TO_VERTEILER' => 'Export to Distribution List',
+	'LBL_VERTEILER'=>'Distribution List',
+	'LBL_SELECT_VERTEILER_CONTACT'=>'Add Contacts to Distribution List',
+	'LBL_V_COMMENT1_CONTACT'=>'In the list below you will find all distribution lists in in alphabetical order. Select the distribution list to which you want to add contacts from the report. Please note that this action can not be undone.',
+	'LBL_VE_SUCCESS_CONTACT'=>'All of your contacts from this report have been added to the selected distribution list.',
+	'LBL_VE_SUCCESS_CONTACT_LESS'=>'The selected distribution list contained already contacts from this report. Only',
+	'LBL_VE_SUCCESS_CONTACT_LESS1'=>'contacts have been added to the selected contribution list.',
+
 );
 
 $jsLanguageStrings = array(
 	'JS_DUPLICATE_RECORD' => 'Duplicate Report',
 	'JS_CALCULATION_LINE_ITEM_FIELDS_SELECTION_LIMITATION' => 'Limitation: Line Item fields(List Price, Discount & Quantity) can only be used when other calculation fields are not selected.',
 	'JS_NO_CHART_DATA_AVAILABLE' => 'Data not available, please check the selected fields',
+	'of' => 'of',
+	'to' => 'to',
 	//crm-now: added for Mailchimp/Campaign link
 	'JS_NOT_ACTIVE'=>'The MailChimp module is not installed or not active.',
 	'JS_CAMP_NOT_ACTIVE'=>'The Campaign module is not installed or not active.',
@@ -249,4 +263,6 @@ $jsLanguageStrings = array(
 	//crm-now: added for CleverReach
 	'JS_CR_NOT_ACTIVE'=>'The CleverReach module is not installed or not active.',
 	'JS_HS_NOT_ACTIVE'=>'The HubSpot module is not installed or not active.',
+	//crm-now: added for Verteiler
+	'JS_VERTEILER_NOT_ACTIVE'=>'The Distribution List module is not installed or not active.',
 );
