@@ -1342,11 +1342,6 @@ class Install_InitSchema_Model {
 		fwrite($fh, "[".date('Y-m-d h:i:s')."] Include Webservice Utils, get AdoDB instance\n");
 		vimport('~~include/Webservices/Utils.php');
 		$adb = PearDatabase::getInstance();
-		//crm-now: space for tag version to be filled by make_ps during installation und upgrades
-		// $adb->query("ALTER TABLE vtiger_version ADD column `tag_version` varchar(30) default 0");
-		//set tag
-		fwrite($fh, "[".date('Y-m-d h:i:s')."] Update version table\n");
-		$adb->pquery("UPDATE vtiger_version SET tag_version = ? WHERE id = ?;", array($_SESSION['installer_info']['svn_tag'], 1));
 		
 		//crm-now: new settings menu for PDF templates
 		fwrite($fh, "[".date('Y-m-d h:i:s')."] Update vtiger_field to add PDF Templates entry\n");
