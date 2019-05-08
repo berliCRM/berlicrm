@@ -79,7 +79,11 @@
 					</div>
 				{/foreach}
 				{assign var=SELECTED_SORT_FEILDS_ARRAY value=$SELECTED_SORT_FIELDS}
-				{assign var=SELECTED_SORT_FIELDS_COUNT value=count($SELECTED_SORT_FEILDS_ARRAY)}
+				{if is_array($SELECTED_SORT_FEILDS_ARRAY)}
+					{assign var=SELECTED_SORT_FIELDS_COUNT value=count($SELECTED_SORT_FEILDS_ARRAY)}
+				{else}
+					{assign var=SELECTED_SORT_FIELDS_COUNT value=0}
+				{/if}
 				{while $SELECTED_SORT_FIELDS_COUNT lt 3 }
 					<div class="row-fluid padding1per sortFieldRow">
 						{include file='RelatedFields.tpl'|@vtemplate_path:$MODULE ROW_VAL=$ROW_VAL}
