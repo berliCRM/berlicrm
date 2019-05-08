@@ -6,6 +6,7 @@
  * The Initial Developer of the Original Code is vtiger.
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
+ * Reviewed by crm-now GmbH
  * *********************************************************************************** */
 $languageStrings = array(
 	'--None--' => '--None--',
@@ -709,6 +710,7 @@ $languageStrings = array(
 	'VTLIB_LBL_MODULE_MANAGER' => 'Module Manager',
 	'LBL_PICKLIST_DESCRIPTION' => 'Customize Picklist values in each module',
 	'LBL_PICKLIST_EDITOR' => 'Picklist Editor',
+	'LBL_LIST_WORKFLOWS_DESCRIPTION' => 'create and edit Workflows',
 	'LBL_LIST_WORKFLOWS' => 'Workflows',
 	
 	//missed translations
@@ -745,6 +747,8 @@ $languageStrings = array(
 	'Support_Ending_Subject' => 'Reg: Support Ending',
 	'Support_Ending_Content' => 'This is an automatic message to bring to your attention that the support for the product <b>',
 	'kindly_renew' => '</b> ends shortly. Please contact our sales team.<br><br>Thank You<br>',
+	'Yes'=>'yes' ,
+	'No'=>'no' ,
 	//crm-now: Mail Converter settings menu
 	'LBL_MAX_LIMIT_EXCEEDED' => 'The maximum number of mailboxes is reached.',
 	//crm-now: Delivery Note
@@ -841,6 +845,10 @@ $languageStrings = array(
     'LBL_MODULE' => 'Module',
     'LBL_COMMENTS_ENABLED' => 'Comments enabled',
     'LBL_SAVE_SUCCESS'=>'Your preference has been saved successfully.',
+	
+	//Verteiler
+    'Verteiler' => 'Distribution List',
+	
 );
 
 $jsLanguageStrings = array(
