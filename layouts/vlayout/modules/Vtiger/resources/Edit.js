@@ -351,15 +351,15 @@ jQuery.Class("Vtiger_Edit_Js",{
 	},
 
 	/**
-	 * Function which will register event to prevent form submission on pressing on enter
+	 * Function which will register event to prevent form submission on pressing enter, bluring input element for visual feedback
 	 * @params - container <jQuery> - element in which auto complete fields needs to be searched
 	 */
 	registerPreventingEnterSubmitEvent : function(container) {
 		container.on('keypress', function(e){
-			//Stop the submit when enter is pressed in the form
 			var currentElement = jQuery(e.target);
-			if(e.which == 13 && (!currentElement.is('textarea'))) {
+			if(e.which == 13 && !currentElement.is('textarea')) {
 				e.preventDefault();
+                currentElement.blur();
 			}
 		})
 	},
