@@ -139,34 +139,24 @@ class VTSimpleTemplate{
 	function getMetaValue($fieldname){
 		require_once 'config.inc.php';
 		global $site_URL, $PORTAL_URL, $current_user, $HELPDESK_SUPPORT_NAME, $HELPDESK_SUPPORT_EMAIL_ID;
+		$ownerObject = NULL;
+		$referenceId = $this->parent->get('assigned_user_id');
+		if ($referenceId) {
+			$entity = $this->cache->forId($referenceId);
+			list($entityId, $ownerId) = vtws_getIdComponents($referenceId);
+			if($entity->getModuleName() === 'Groups') {
+				list($moduleId, $recordId) = vtws_getIdComponents($this->parent->getId());
+				$ownerId = Vtiger_Util_Helper::getCreator($recordId);
+			}
+			$ownerObject = new Users();
+			$ownerObject->retrieveCurrentUserInfoFromFile($ownerId);
+		}
+		$date = new DateTimeField(null);
 		switch($fieldname){
-			case 'date'					:	$referenceId = $this->parent->get('assigned_user_id');
-											if ($referenceId) {
-												$entity = $this->cache->forId($referenceId);
-												list($entityId, $ownerId) = vtws_getIdComponents($referenceId);
-												if($entity->getModuleName() === 'Groups') {
-													list($moduleId, $recordId) = vtws_getIdComponents($this->parent->getId());
-													$ownerId = Vtiger_Util_Helper::getCreator($recordId);
-												}
-											}
-											$ownerObject = new Users();
-											$ownerObject->retrieveCurrentUserInfoFromFile($ownerId);
-
-											$date = new DateTimeField(null);
-											return $date->getDisplayDate($ownerObject);
-			case 'time'					:	return Vtiger_Util_Helper::convertTimeIntoUsersDisplayFormat(date('h:i:s'));
+			case 'date'					:	return $date->getDisplayDate($ownerObject);
+			case 'time'					:	return $date->getDisplayTime($ownerObject);
 			case 'dbtimezone'			:	return DateTimeField::getDBTimeZone();
-			case 'usertimezone'			:	$referenceId = $this->parent->get('assigned_user_id');
-											if ($referenceId) {
-												$entity = $this->cache->forId($referenceId);
-												list($entityId, $ownerId) = vtws_getIdComponents($referenceId);
-												if($entity->getModuleName() === 'Groups') {
-													list($moduleId, $recordId) = vtws_getIdComponents($this->parent->getId());
-													$ownerId = Vtiger_Util_Helper::getCreator($recordId);
-												}
-											}
-
-											if ($ownerId) {
+			case 'usertimezone'			:	if ($ownerId) {
 												$ownerFocus = CRMEntity::getInstance('Users');
 												$ownerFocus->retrieve_entity_info($ownerId, 'Users');
 												return getTranslatedString($ownerFocus->column_fields['time_zone'], 'Users');
