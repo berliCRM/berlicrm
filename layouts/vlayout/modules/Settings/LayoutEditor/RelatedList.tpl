@@ -19,65 +19,61 @@
 {else}
 	<div class="relatedListContainer">
 		<div class="row-fluid">
-			<div class="span2">
-				<strong>
-					{vtranslate('LBL_ARRANGE_RELATED_LIST', $QUALIFIED_MODULE)}
-				</strong>
+			<div class="span2 fontBold">
+				{vtranslate('LBL_ARRANGE_RELATED_LIST', $QUALIFIED_MODULE)}
 			</div>
 			<div class="span10 row-fluid">
-				<span class="span5">
+				<span class="span4">
 				<ul class="relatedModulesList" style="list-style: none;">
 				{foreach item=MODULE_MODEL from=$RELATED_MODULES}
 					{if $MODULE_MODEL->isActive()}
 					<li class="relatedModule module_{$MODULE_MODEL->getId()} border1px contentsBackground" style="width: 200px; padding: 5px;" data-relation-id="{$MODULE_MODEL->getId()}">
 						<a><img src="{vimage_path('drag.png')}" title="{vtranslate('LBL_DRAG',$QUALIFIED_MODULE)}"/></a>&nbsp;&nbsp;
 						<span class="moduleLabel">{vtranslate($MODULE_MODEL->get('label'), $MODULE_MODEL->getRelationModuleName())}</span>
-						<button class="close" data-dismiss="modal" title="{vtranslate('LBL_CLOSE')}">x</button>
+						<button class="close" data-dismiss="modal" title="{vtranslate('LBL_REMOVE')}">x</button>
 					</li>
 					{/if}
 				{/foreach}
 				</ul>
 				</span>
-				<span class="span7" style="padding: 5% 0;">
-					<i class="icon-info-sign alignMiddle"></i>&nbsp;{vtranslate('LBL_RELATED_LIST_INFO', $QUALIFIED_MODULE)}.<br><br>
-					<i class="icon-info-sign alignMiddle"></i>&nbsp;{vtranslate('LBL_REMOVE_INFO', $QUALIFIED_MODULE)}.<br><br>
-					<i class="icon-info-sign alignMiddle"></i>&nbsp;{vtranslate('LBL_ADD_MODULE_INFO', $QUALIFIED_MODULE)}
-				</span>
+				<div class="span6">
+					{vtranslate('LBL_RELATED_LIST_INFO', $QUALIFIED_MODULE)}
+				</div>
 			</div>
 		</div>
 		<br>
 		<div class="row-fluid">
-			<div class="span2">
-				<strong>
-					{vtranslate('LBL_SELECT_MODULE_TO_ADD', $QUALIFIED_MODULE)}
-				</strong>
+			<div class="span2 fontBold">
+                {vtranslate('LBL_SELECT_MODULE_TO_ADD', $QUALIFIED_MODULE)}
 			</div>
-			<div class="span4">
-				{assign var=ModulesList value=[]}
-				{assign var=removedModuleIds value=array()}
-				<ul style="list-style: none; width:213px;" class="displayInlineBlock">
-					<li>
-					<div class="row-fluid"><select class="select2" multiple name="addToList" placeholder="{vtranslate('LBL_SELECT_MODULE', $QUALIFIED_MODULE)}">
-					{foreach item=MODULE_MODEL from=$RELATED_MODULES}
-						{$ModulesList[$MODULE_MODEL->getId()] = vtranslate($MODULE_MODEL->get('label'), $MODULE_MODEL->getRelationModuleName())}
-						{if !$MODULE_MODEL->isActive()}
-						{array_push($removedModuleIds, $MODULE_MODEL->getId())}
-						<option value="{$MODULE_MODEL->getId()}">
-							{vtranslate($MODULE_MODEL->get('label'), $MODULE_MODEL->getRelationModuleName())}
-						</option>
-						{/if}
-					{/foreach}
-					</select>
-					</div>
-					</li>
-				</ul>
-				<input type="hidden" class="ModulesListArray" value='{ZEND_JSON::encode($ModulesList)}' />
-				<input type="hidden" class="RemovedModulesListArray" value='{ZEND_JSON::encode($removedModuleIds)}' />
-			</div>
-			<div class="span6">
-				<button class="btn btn-success saveRelatedList" type="button" disabled="disabled"><strong>{vtranslate('LBL_SAVE', $QUALIFIED_MODULE)}</strong></button>
-				<br>
-			</div>
+            <div class="span10 row-fluid">
+                <div class="span4">
+                    {assign var=ModulesList value=[]}
+                    {assign var=removedModuleIds value=array()}
+                    <ul style="list-style: none; width:213px;" class="displayInlineBlock">
+                        <li>
+                        <div class="row-fluid"><select class="select2" multiple name="addToList" placeholder="{vtranslate('LBL_SELECT_MODULE', $QUALIFIED_MODULE)}">
+                        {foreach item=MODULE_MODEL from=$RELATED_MODULES}
+                            {$ModulesList[$MODULE_MODEL->getId()] = vtranslate($MODULE_MODEL->get('label'), $MODULE_MODEL->getRelationModuleName())}
+                            {if !$MODULE_MODEL->isActive()}
+                            {array_push($removedModuleIds, $MODULE_MODEL->getId())}
+                            <option value="{$MODULE_MODEL->getId()}">
+                                {vtranslate($MODULE_MODEL->get('label'), $MODULE_MODEL->getRelationModuleName())}
+                            </option>
+                            {/if}
+                        {/foreach}
+                        </select>
+                        </div>
+                        </li>
+                    </ul>
+                    <input type="hidden" class="ModulesListArray" value='{ZEND_JSON::encode($ModulesList)}' />
+                    <input type="hidden" class="RemovedModulesListArray" value='{ZEND_JSON::encode($removedModuleIds)}' />
+                </div>
+                <div class="span6">
+                    <button class="btn btn-success saveRelatedList fontBold" type="button" disabled="disabled">{vtranslate('LBL_SAVE', $QUALIFIED_MODULE)}</button>
+                    <br>
+                </div>
+            </div>
 		</div>
 		<li class="moduleCopy hide border1px contentsBackground" style="width: 200px; padding: 5px;">
 			<a>

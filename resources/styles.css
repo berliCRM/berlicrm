@@ -1,3 +1,4 @@
+// common basic styles
 .clearfix {
 	clear: both;
 }
@@ -9,4 +10,24 @@
 }
 .fieldTypesList {
     min-width:28em;
+}
+.opacity .actions {
+  opacity: 0.25;
+  transition:opacity 250ms ease-out;
+}
+.opacity:hover .actions {
+  opacity: 1;
+  transition:opacity 250ms ease-out;
+}
+.fontBold {
+  font-weight: bold !important;
+}
+
+.xIcon {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    text-shadow: 0 1px 0 #ffffff;
+    color:#bbb;
+    font-size: 16px;
+    font-weight: bold;
+    vertical-align: middle;
 }
