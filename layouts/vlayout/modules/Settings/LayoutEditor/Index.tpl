@@ -28,9 +28,9 @@
         <hr>
 
         <div class="contents tabbable">
-            <ul class="nav nav-tabs layoutTabs massEditTabs">
-                <li class="active"><a data-toggle="tab" href="#detailViewLayout"><strong>{vtranslate('LBL_DETAILVIEW_LAYOUT', $QUALIFIED_MODULE)}</strong></a></li>
-                <li class="relatedListTab"><a data-toggle="tab" href="#relatedTabOrder"><strong>{vtranslate('LBL_ARRANGE_RELATED_TABS', $QUALIFIED_MODULE)}</strong></a></li>
+            <ul class="nav nav-tabs fontBold massEditTabs">
+                <li class="active"><a data-toggle="tab" href="#detailViewLayout">{vtranslate('LBL_DETAILVIEW_LAYOUT', $QUALIFIED_MODULE)}</a></li>
+                <li class="relatedListTab"><a data-toggle="tab" href="#relatedTabOrder">{vtranslate('LBL_ARRANGE_RELATED_LIST', $QUALIFIED_MODULE)}</a></li>
             </ul>
             <div class="tab-content layoutContent padding20 themeTableColor overflowVisible">
                 <div class="tab-pane active" id="detailViewLayout">
@@ -79,15 +79,15 @@
                                                         <li class="blockVisibility" data-visible="{if !$BLOCK_MODEL->isHidden()}1{else}0{/if}" data-block-id="{$BLOCK_MODEL->get('id')}">
                                                             <a href="javascript:void(0)">
                                                                 <i class="icon-ok {if $BLOCK_MODEL->isHidden()} hide {/if}"></i>&nbsp;
-                                                                {vtranslate('LBL_ALWAYS_SHOW', $QUALIFIED_MODULE)}
+                                                                {vtranslate('LBL_SHOW_ACTIVE', $QUALIFIED_MODULE)}
                                                             </a>
                                                         </li>
                                                         <li class="inActiveFields">
-                                                            <a href="javascript:void(0)">{vtranslate('LBL_INACTIVE_FIELDS', $QUALIFIED_MODULE)}</a>
+                                                            <a href="javascript:void(0)">{vtranslate('LBL_SHOW_INACTIVE', $QUALIFIED_MODULE)}</a>
                                                         </li>
                                                         {if $BLOCK_MODEL->isCustomized()}
                                                             <li class="deleteCustomBlock">
-                                                                <a href="javascript:void(0)">{vtranslate('LBL_DELETE_CUSTOM_BLOCK', $QUALIFIED_MODULE)}</a>
+                                                                <a href="javascript:void(0)">{vtranslate('LBL_DELETE_BLOCK', $QUALIFIED_MODULE)}</a>
                                                             </li>
                                                         {/if}
                                                     </ul>
@@ -469,14 +469,14 @@
                     <ul class="dropdown-menu pull-right">
                         <li class="blockVisibility" data-visible="1" data-block-id="">
                             <a href="javascript:void(0)">
-                                <i class="icon-ok"></i>&nbsp;{vtranslate('LBL_ALWAYS_SHOW', $QUALIFIED_MODULE)}
+                                <i class="icon-ok"></i>&nbsp;{vtranslate('LBL_SHOW_ACTIVE', $QUALIFIED_MODULE)}
                             </a>
                         </li>
                         <li class="inActiveFields">
-                            <a href="javascript:void(0)">{vtranslate('LBL_INACTIVE_FIELDS', $QUALIFIED_MODULE)}</a>
+                            <a href="javascript:void(0)">{vtranslate('LBL_SHOW_INACTIVE', $QUALIFIED_MODULE)}</a>
                         </li>
                         <li class="deleteCustomBlock">
-                            <a href="javascript:void(0)">{vtranslate('LBL_DELETE_CUSTOM_BLOCK', $QUALIFIED_MODULE)}</a>
+                            <a href="javascript:void(0)">{vtranslate('LBL_DELETE_BLOCK', $QUALIFIED_MODULE)}</a>
                         </li>
                     </ul>
                 </div>
