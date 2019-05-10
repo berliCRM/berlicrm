@@ -319,8 +319,8 @@ foreach($moduleFolders as $moduleFolder) {
 echo 'module install Verteiler done <br>';
 
 
-echo "<br>update Tag version to 16.. ";
-$query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.16'";
+echo "<br>update Tag version to 17.. ";
+$query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.17'";
  
 $adb->pquery($query, array());
 echo " Tag version done.<br>";
