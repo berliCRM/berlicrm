@@ -382,9 +382,9 @@ jQuery.Class("Calendar_CalendarView_Js",{
         monthPos = dateFormat.search("mm");
         datePos = dateFormat.search("dd");
         if(monthPos < datePos)
-            dateFormat = "M/d";
+            dateFormat = "MM-d";
         else
-            dateFormat = "d/M";
+            dateFormat = "d-MM";
         
 		var config = {
 			header: {
