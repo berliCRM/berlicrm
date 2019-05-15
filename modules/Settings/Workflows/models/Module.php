@@ -30,7 +30,8 @@ class Settings_Workflows_Module_Model extends Settings_Vtiger_Module_Model {
 		'Record Id' => '(general : (__VtigerMeta__) recordId)',
 		'LBL_HELPDESK_SUPPORT_NAME' => '(general : (__VtigerMeta__) supportName)',
 		'LBL_HELPDESK_SUPPORT_EMAILID' => '(general : (__VtigerMeta__) supportEmailid)',
-		'Email Token' => '(general : (__VtigerMeta__) mailtoken)'
+		'Email Token' => '(general : (__VtigerMeta__) mailtoken)',
+		'LBL_BLOCK_LOGIC' => '[[BLOCK Ersatzfeld == Wert]] Inhalt [[/BLOCK]]'
 	);
 
 	static $triggerTypes = array(
