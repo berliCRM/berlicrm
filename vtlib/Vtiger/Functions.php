@@ -676,7 +676,7 @@ class Vtiger_Functions {
 	
 	//crm-now: function to evaluate block conditions and remove block content if necessary
 	static function getMergedDescriptionBlocks($description) {
-		$pattern = '#\[\[BLOCK(.*?)\]\](.*?)\[\[/BLOCK\]\]#s';
+		$pattern = '#\$?\[\[BLOCK(.*?)\]\](.*?)\[\[/BLOCK\]\]#s';
 		$matches = array();
 		preg_match_all($pattern, $description, $matches);
 		
@@ -698,7 +698,7 @@ class Vtiger_Functions {
 				}
 			}
 			//remove block part, only keep content
-			$pattern = array('#\[\[BLOCK(.*?)\]\]#', '#\[\[/BLOCK\]\]#');
+			$pattern = array('#\$?\[\[BLOCK(.*?)\]\]#', '#\[\[/BLOCK\]\]#');
 			$description = preg_replace($pattern, '', $description);
 		}
 		return $description;
