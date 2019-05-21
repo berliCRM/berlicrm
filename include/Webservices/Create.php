@@ -87,7 +87,7 @@ function vtws_create($elementType, $element, $user) {
         elseif (($uitype == "15" || $uitype == "16" || $uitype == "cr16") && $element[$fieldName] !="") {
             $modulemodel = Vtiger_Module_Model::getInstance($meta->getTabId());
             $fieldmodel = Vtiger_Field_Model::getInstance($fieldName,$modulemodel);
-            $sql = "SELECT $fieldName FROM vtiger_$fieldName WHERE presence = 1 AND $fieldName = ?";
+            $sql = "SELECT $fieldName FROM vtiger_$fieldName WHERE $fieldName = ?";
             $res = $adb->pquery($sql,array($element[$fieldName]));
             if ($adb->num_rows($res) == 0) {
                 throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, "Illegal value for $fieldName");
