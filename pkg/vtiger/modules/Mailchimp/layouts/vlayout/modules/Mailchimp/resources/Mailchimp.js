@@ -20,9 +20,13 @@ var Settings_Mailchimp_Js = {
 		var listeid = document.getElementById('mcgrouplist').value;
 		document.getElementById('groups').disabled = false;
 		var groups_name ="";
+		jQuery('button[name=saveButton]').prop("disabled",true);
+		jQuery('#loading').show();
 		var params = 'index.php?module=Mailchimp&action=LoadSyncValues&get=getGroupInfos&id='+id+'&listeid='+listeid;
 		AppConnector.request(params).then(
 			function(result) {
+				jQuery('button[name=saveButton]').prop("disabled",false);
+				jQuery('#loading').hide();
 				if(result.result =='nogroupfound') {
 					//no group found
 					groups_name= 'default';
