@@ -112,8 +112,10 @@ function vtws_revise($element,$user){
 			else {
 				$basetableid = $tab_name_index[$fieldmodel->table];
 			}
+			$column_name_rel = array($fieldmodel->name=>$fieldmodel->column);
+			$column = $column_name_rel[$fieldName];
             $sql = "SELECT $fieldName FROM vtiger_$fieldName WHERE presence = 1 AND $fieldName = ? 
-                UNION SELECT 1 FROM {$fieldmodel->table} WHERE {$basetableid} = {$idList[1]} AND $fieldName = ?";
+                UNION SELECT 1 FROM {$fieldmodel->table} WHERE {$basetableid} = {$idList[1]} AND $column = ?";
             $res = $adb->pquery($sql,array($element[$fieldName],$element[$fieldName]));
             if ($adb->num_rows($res) == 0) {
                 throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, "Illegal value for $fieldName");
