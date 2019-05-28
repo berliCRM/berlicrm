@@ -23,18 +23,17 @@ class Mailchimp_showGroupOverlay_View extends Vtiger_Edit_View {
 		$MailChimpAPIKey = Mailchimp_Module_Model::getApikey();
 		//lists
 		$api = new MailChimp($MailChimpAPIKey);
-        $batchsize=100;
-        $offset=0;
-        $lists = array();
-        do {
-            $APILists = $api->get('lists',array("count"=>$batchsize,"offset"=>$offset));
-            if (is_array($APILists['lists'])) {
-                foreach ($APILists['lists'] as $key => $value) {
-                    $lists[] = array("name"=>$value['name'],"id"=>$value['id']);
-                }
-            }
-            $offset +=$batchsize;
-        } while ($APILists["total_items"]>$offset);
+		$total_items_arr = $api->get('lists',array("fields"=>'total_items'));
+		$list_count = $total_items_arr['total_items'];
+		$lists_from_api = $api->get('lists',array('count'=>$list_count,'offset'=>'0','fields'=>'lists.name,lists.id'));
+        if (is_array($lists_from_api['lists'])) {
+            foreach ($lists_from_api['lists'] as $key => $value) {
+				$lists[] = array("name"=>$value['name'],"id"=>$value['id']);
+			}
+		}
+		else {
+			$lists = array();
+		}
 
         uasort($lists, array($this,"sorthelp"));
 

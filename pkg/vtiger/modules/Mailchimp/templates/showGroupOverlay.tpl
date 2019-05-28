@@ -43,6 +43,9 @@
 						<input type="text" value="" id="newGroupName" disabled="disabled">
 					</div>
 				</div>
+				<div id="loading" align="center"  style="display: none;">
+				  <img id="loading-image" src="{vimage_path('load.gif')}"  alt="Loading..." />
+				</div>			
 			</div>
 		</form>
 	</div>
