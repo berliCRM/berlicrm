@@ -133,7 +133,7 @@ var Vtiger_CustomView_Js = {
 		var selectedOrder = JSON.parse(jQuery('input[name="columnslist"]', contentsContainer).val());
 
 		for(var index=selectedOrder.length ; index > 0 ; index--) {
-			var selectedValue = selectedOrder[index-1];
+			var selectedValue = selectedOrder[index-1].replace( /(:|\.|\[|\]|,|=|@)/g, "\\$1" );
 			var option = selectedOptions.filter('[value="'+selectedValue+'"]');
 			choicesList.each(function(choiceListIndex,element){
 				var liElement = jQuery(element);
