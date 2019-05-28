@@ -685,7 +685,7 @@ class Vtiger_Functions {
 				//replace encoded and non-encoded non-breakable space
 				$tmp = str_replace('&nbsp;', '', $eval);
 				$tmp = str_replace("\xc2\xa0", '', $tmp);
-				$comparator = (strpos($tmp, ' != ') !== false || strpos($tmp, ' <> ') !== false) ? '!=' : '==';
+				$comparator = (strpos($tmp, '!=') !== false || strpos($tmp, '<>') !== false) ? '!=' : '==';
 				$tmp = explode($comparator, $tmp);
 				$tmp = array_map('trim', $tmp);
 				//remove block if criteria isn't matched
