@@ -28,7 +28,7 @@ class Vtiger_SaveAjax_Action extends Vtiger_Save_Action {
 			$result[$fieldName] = array('value' => $fieldValue, 'display_value' => $displayValue);
 		}
 
-		$result['_recordLabel'] = $recordModel->getName();
+		$result['_recordLabel'] = decode_html($recordModel->getName());
 		$result['_recordId'] = $recordModel->getId();
 
 		$response = new Vtiger_Response();
