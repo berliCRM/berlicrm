@@ -184,6 +184,7 @@ class VTEmailTask extends VTTask{
 
 			$ct = new VTSimpleTemplate($this->content);
 			$taskContents['content'] = $ct->render($entityCache, $entityId);
+			$taskContents['content'] = Vtiger_Functions::getMergedDescriptionBlocks($taskContents['content']);
 			$this->contents = $taskContents;
             $utils->revertUser();
 		}

@@ -105,8 +105,16 @@ function vtws_update($element,$user){
         elseif (($uitype == "15" || $uitype == "16" || $uitype == "cr16") && $element[$fieldName] !="") {
             $modulemodel = Vtiger_Module_Model::getInstance($meta->getTabId());
             $fieldmodel = Vtiger_Field_Model::getInstance($fieldName,$modulemodel);
+			$recordModel = Vtiger_Record_Model::getCleanInstance($entityName);
+			$tab_name_index = $recordModel->entity->tab_name_index;
+			if (empty($tab_name_index)) {
+				$basetableid = $fieldmodel->block->module->basetableid;
+			}
+			else {
+				$basetableid = $tab_name_index[$fieldmodel->table];
+			}
             $sql = "SELECT $fieldName FROM vtiger_$fieldName WHERE presence = 1 AND $fieldName = ? 
-                UNION SELECT 1 FROM {$fieldmodel->table} WHERE {$fieldmodel->block->module->basetableid} = {$idList[1]} AND $fieldName = ?";
+                UNION SELECT 1 FROM {$fieldmodel->table} WHERE {$basetableid} = {$idList[1]} AND $fieldName = ?";
             $res = $adb->pquery($sql,array($element[$fieldName],$element[$fieldName]));
             if ($adb->num_rows($res) == 0) {
                 throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, "Illegal value for $fieldName");
