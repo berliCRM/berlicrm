@@ -1047,7 +1047,7 @@ class Vtiger_Functions {
 		if ($mode == 'CRYPT') {
 			$salt = null;
 			if (function_exists('password_hash')) { // php 5.5+
-				$salt = password_hash();
+				return password_hash($password,CRYPT_BLOWFISH); // CRYPT_BLOWFISH!
 			} else {
 				$salt = '$2y$11$'.str_replace("+",".",substr(base64_encode(openssl_random_pseudo_bytes(17)),0,22));
 			}
@@ -1063,7 +1063,13 @@ class Vtiger_Functions {
 	static function compareEncryptedPassword($plainText, $encryptedPassword, $mode='CRYPT') {
 		$reEncryptedPassword = null;
 		switch ($mode) {
-			case 'CRYPT': $reEncryptedPassword = crypt($plainText, $encryptedPassword); break;
+                        case 'CRYPT': {
+                           if (function_exists('password_hash')) {
+                           	return password_verify($plainText, $encryptedPassword);
+                           } else {
+                           	$reEncryptedPassword = crypt($plainText, $encryptedPassword);
+                           }
+                        } ; break;
 			case 'MD5'  : $reEncryptedPassword = md5($plainText);	break;
 			default     : $reEncryptedPassword = $plainText;		break;
 		}
