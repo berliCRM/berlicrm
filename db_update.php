@@ -318,7 +318,15 @@ foreach($moduleFolders as $moduleFolder) {
 }
 echo 'module install Verteiler done <br>';
 
- 
+
+$moduleInstance = Vtiger_Module::getInstance("crmtogo");
+if($moduleInstance) {
+    echo "<br>Updating crmtogo module ";
+    updateVtlibModule("crmtogo", "packages/vtiger/mandatory/crmtogo.zip");
+    echo "- done";
+}
+
+
 echo "<br>update Tag version to 19. ";
 $query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.19'";
 

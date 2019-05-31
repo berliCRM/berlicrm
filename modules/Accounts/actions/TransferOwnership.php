@@ -8,7 +8,7 @@
  * All Rights Reserved.
  *************************************************************************************/
 
-class Accounts_TransferOwnership_Action extends Vtiger_Action_Controller {
+class Accounts_TransferOwnership_Action extends Vtiger_Mass_Action {
 	
 	function checkPermission(Vtiger_Request $request) {
 		$moduleName = $request->getModule();
@@ -26,7 +26,7 @@ class Accounts_TransferOwnership_Action extends Vtiger_Action_Controller {
 		$transferOwnerId = $request->get('transferOwnerId');
 		$record = $request->get('record');
 		if(empty($record))
-			$recordIds = $this->getBaseModuleRecordIds($request);
+			$recordIds = $this->getRecordsListFromRequest($request);
 		else
 			$recordIds[] = $record;
 		$relatedModuleRecordIds = $moduleModel->getRelatedModuleRecordIds($request, $recordIds);
@@ -40,27 +40,7 @@ class Accounts_TransferOwnership_Action extends Vtiger_Action_Controller {
 		$response->setResult(true);
 		$response->emit();
 	}
-	
-	protected function getBaseModuleRecordIds(Vtiger_Request $request) {
-		$cvId = $request->get('viewname');
-		$module = $request->getModule();
-		$selectedIds = $request->get('selected_ids');
-		$excludedIds = $request->get('excluded_ids');
-		if(!empty($selectedIds) && $selectedIds != 'all') {
-			if(!empty($selectedIds) && count($selectedIds) > 0) {
-				return $selectedIds;
-			}
-		}
 
-		if($selectedIds == 'all'){
-			$customViewModel = CustomView_Record_Model::getInstanceById($cvId);
-			if($customViewModel) {
-				return $customViewModel->getRecordIds($excludedIds, $module);
-			}
-		}
-        return array();
-	}
-    
     public function validateRequest(Vtiger_Request $request) {
         $request->validateWriteAccess();
     }

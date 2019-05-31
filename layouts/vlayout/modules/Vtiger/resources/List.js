@@ -381,6 +381,7 @@ jQuery.Class("Vtiger_List_Js",{
 		var cvId = listInstance.getCurrentCvId();
 		var transferOwner = jQuery('#transferOwnerId').val();
 		var relatedModules = jQuery('#related_modules').val();
+		var viewData = listInstance.getDefaultParams();
 
 		var params = {
 			'module': app.getModuleName(),
@@ -388,9 +389,11 @@ jQuery.Class("Vtiger_List_Js",{
 			"viewname" : cvId,
 			"selected_ids":selectedIds,
 			"excluded_ids" : excludedIds,
+			"search_params" : viewData.search_params,
 			'transferOwnerId' : transferOwner,
 			'related_modules' : relatedModules
 		}
+		var progressIndicatorElement = jQuery.progressIndicator();
 		AppConnector.request(params).then(
 			function(data) {
 				if(data.success){
@@ -404,9 +407,26 @@ jQuery.Class("Vtiger_List_Js",{
 					Vtiger_Helper_Js.showPnotify(params);
 					listInstance.getListViewRecords();
 					Vtiger_List_Js.clearList();
+					progressIndicatorElement.progressIndicator({'mode' : 'hide'});
 				}
+			},
+			function(error,err){
+				progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+				var params = {
+					title: error,
+					text: err.message,
+					type: 'error'
+				};
+				Vtiger_Helper_Js.showPnotify(params);
+				progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+
 			}
-		);
+		),
+		function(error,err){
+			alert ('internal CRM problem');
+			progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+
+		}
 	},
 
 	/*
