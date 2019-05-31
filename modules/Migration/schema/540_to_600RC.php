@@ -1500,6 +1500,8 @@ if ($moduleInstance) {
 		$reasonToEdit->displaytype = '1';
 		$blockInstance->addField($reasonToEdit);
 	}
+	//additional table entries
+	Migration_Index_View::ExecuteQuery('ALTER TABLE `vtiger_modcomments` ADD PRIMARY KEY ( `modcommentsid` )',array());
 }
 Migration_Index_View::ExecuteQuery('ALTER TABLE vtiger_invoice MODIFY balance decimal(25,8)',array());
 Migration_Index_View::ExecuteQuery('ALTER TABLE vtiger_invoice MODIFY received decimal(25,8)',array());
