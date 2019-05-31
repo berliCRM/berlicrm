@@ -109,22 +109,17 @@ Vtiger_Base_Validator_Js("Vtiger_Integer_Validator_Js",{
 },{
 
 	/**
-	 * Function to validate the Integre field data
+	 * Function to validate integer field data
 	 * @return true if validation is successfull
 	 * @return false if validation error occurs
 	 */
 	validate: function(){
 		var fieldValue = this.getFieldValue();
-		var integerRegex= /(^[-+]?\d+)$/ ;
-		var decimalIntegerRegex = /(^[-+]?\d?).\d+$/ ;
+		var integerRegex= /(^[-+]?\d+)$/;
 		if ((!fieldValue.match(integerRegex))) {
-			if(!fieldValue.match(decimalIntegerRegex)){
-				var errorInfo = app.vtranslate("JS_PLEASE_ENTER_INTEGER_VALUE");
-				this.setError(errorInfo);
-				return false;
-			} else {
-				return true;
-			}
+            var errorInfo = app.vtranslate("JS_PLEASE_ENTER_INTEGER_VALUE");
+            this.setError(errorInfo);
+            return false;
 		} else{
 			return true;
 		}
@@ -676,40 +671,55 @@ Vtiger_Base_Validator_Js("Vtiger_ReferenceField_Validator_Js",{},{
 	}
 })
 
-Vtiger_Integer_Validator_Js("Vtiger_Double_Validator_Js",{},{
+Vtiger_Base_Validator_Js("Vtiger_Double_Validator_Js",{
 
 	/**
-	 * Function to validate the Decimal field data
+	 *Function which invokes field validation
+	 *@param accepts field element as parameter
+	 * @return error if validation fails true on success
+	 */
+	invokeValidation: function(field, rules, i, options){
+		var doubleInstance = new Vtiger_Double_Validator_Js();
+		doubleInstance.setElement(field);
+		var response = doubleInstance.validate();
+		if(response != true){
+			return doubleInstance.getError();
+		}
+	}
+},{
+
+	/**
+	 * Function to validate float field data
 	 * @return true if validation is successfull
 	 * @return false if validation error occurs
 	 */
 	validate: function(){
-		var response = this._super();
-		if(response == false){
-			var field = this.getElement();
-			var fieldData = field.data();
-			var decimalSeparator =fieldData.decimalSeparator;
-			var fieldValue = this.getFieldValue();
-			var strippedValue = fieldValue.replace(fieldData.decimalSeparator, '');
-			var spacePattern = /\s/;
-			if(spacePattern.test(fieldData.decimalSeparator) || spacePattern.test(fieldData.groupSeparator))
-				strippedValue = strippedValue.replace(/ /g, '');
-			var errorInfo;
-			var regex = new RegExp(fieldData.groupSeparator,'g');
-			strippedValue = strippedValue.replace(regex, '');
-			if(isNaN(strippedValue)){
-				errorInfo = app.vtranslate('JS_CONTAINS_ILLEGAL_CHARACTERS');
-				this.setError(errorInfo);
-				return false;
-			}
-			if(strippedValue < 0){
-				errorInfo = app.vtranslate('JS_ACCEPT_POSITIVE_NUMBER');
-				this.setError(errorInfo);
-				return false;
-			}
-			return true;
-		}
-		return response;
+        var field = this.getElement();
+        var fieldValue = this.getFieldValue();
+        var fieldData = field.data();
+        var decimalSeparator = fieldData.decimalSeparator;
+        var groupSeparator = fieldData.groupSeparator;
+
+        // escape separators if dot
+        if (groupSeparator == ".") {
+            groupSeparator = "\\.";
+        }
+        if (decimalSeparator == ".") {
+            decimalSeparator = "\\.";
+        }
+
+        // construct regex pattern for float
+        // This regex matches an optional sign, either followed by zero or more digits/groupSeparators followed by a decimalSeparator and one or more digits (a float with optional integer part),
+        // or that is followed by one or more digits/groupSeparators (an integer)
+        var pattern = "^[-+]?([0-9" + groupSeparator + "]*" + decimalSeparator + "[0-9]+|[0-9" + groupSeparator + "]+)$";        
+        var regex = new RegExp(pattern);
+
+        if(regex.test(fieldValue) == false) {
+            errorInfo = app.vtranslate('JS_CONTAINS_ILLEGAL_CHARACTERS');
+            this.setError(errorInfo);
+            return false;
+        }
+        return true;
 	}
 })
 
