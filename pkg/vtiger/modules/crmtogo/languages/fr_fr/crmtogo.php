@@ -99,6 +99,10 @@ $languageStrings = Array (
 	'LBL_NAVI_SELECTION'=>'Scroll Fetch Limit:',
 	'LBL_STARTDATE'=>'Start Date',
 	'LBL_STARTTIME'=>'Start Time',
+	'LBL_LOGOUT'=>'Logout',
+	'LBL_QUICKCREATE'=>'Create',
+	'LBL_SIGNATURE'=>'Signature',	
+	'LBL_SIGNATUR_SOURCE'=>'created by mobile crmtogo',	
 );
 
 ?>

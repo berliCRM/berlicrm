@@ -8,9 +8,6 @@
  * All Rights Reserved.
  * Modified by crm-now GmbH, www.crm-now.com
  ************************************************************************************/
-ini_set('display_errors',1);
-error_reporting(E_ALL^E_NOTICE);
-error_reporting(E_ERROR | E_WARNING | E_PARSE);
 include_once dirname(__FILE__) . '/../api/ws/FetchRecordDetails.php';
 include_once dirname(__FILE__) . '/../api/ws/Utils.php';
 include_once dirname(__FILE__) . '/../api/ws/Describe.php';

@@ -13,6 +13,9 @@ include_once dirname(__FILE__) . '/../api/ws/Controller.php';
 class crmtogo_UI_ChangeSettings extends crmtogo_WS_Controller{
 
 	function process(crmtogo_API_Request $request) {
+$datei = fopen("test/request.txt","a+");
+fwrite($datei, print_r($request, TRUE));
+fclose($datei);
 		$db = PearDatabase::getInstance();
 		$response = new crmtogo_API_Response();
 		$settings_operation = vtlib_purify($request->get('operation'));
@@ -51,8 +54,20 @@ class crmtogo_UI_ChangeSettings extends crmtogo_WS_Controller{
 				$moduleactive = 0;
 			}
 			$module_info = explode("_", $moduleid);
+$datei = fopen("test/11moduleactive.txt","a+");
+fwrite($datei, print_r($moduleactive, TRUE));
+fclose($datei);
+$datei = fopen("test/11module_info.txt","a+");
+fwrite($datei, print_r($module_info, TRUE));
+fclose($datei);
+$datei = fopen("test/11current_user.txt","a+");
+fwrite($datei, print_r($current_user->id, TRUE));
+fclose($datei);
 			$query = "UPDATE berli_crmtogo_modules SET crmtogo_active = ? where crmtogo_module=? and crmtogo_user=?";
-			$db->pquery($query, array($moduleactive, $module_info[1], $current_user->id));
+			$test = $db->pquery($query, array($moduleactive, $module_info[1], $current_user->id));
+$datei = fopen("test/testsssss.txt","a+");
+fwrite($datei, print_r($test, TRUE));
+fclose($datei);
 			$response->setResult(json_encode('OK'));
 		}
 		else {

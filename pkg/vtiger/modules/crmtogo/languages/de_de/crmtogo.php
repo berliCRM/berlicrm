@@ -88,7 +88,7 @@ $languageStrings = Array (
 	'LBL_NOT_SUPPORTED'=>'Diese Funktion wird ggw. noch nicht bereitgestellt.',
 	'Faq' => 'Wissensbasis',
 	'LBL_CONFIG'=>'Einstellungen',
-	'LBL_COPYRIGHTS'=>'Programminformationen',
+	'LBL_COPYRIGHTS'=>'berliCRM Einstellungen',
 	'LBL_SETTINGS_COMMENT'=>'nach Änderungen neues Login erforderlich!',
 	'LBL_ACTIVE_MODULE'=>'Module umsortieren oder abschalten',
 	'LBL_THEME_SELECTION'=>'Theme auswählen:',
@@ -96,8 +96,12 @@ $languageStrings = Array (
 	'LBL_THEME_COLOR_B'=>'blau',
 	'LBL_THEME_COLOR_C'=>'weiß',
 	'LBL_NAVI_SELECTION'=>'Anzahl beim Scrollen:',
-    'LBL_STARTDATE'=>'Anfangsdatum',
-    'LBL_STARTTIME'=>'Anfangszeit',
+	'LBL_STARTDATE'=>'Anfangsdatum',
+	'LBL_STARTTIME'=>'Anfangszeit',
+	'LBL_LOGOUT'=>'Logout',
+	'LBL_QUICKCREATE'=>'Erstelle',
+	'LBL_SIGNATURE'=>'Unterschrift',	
+	'LBL_SIGNATUR_SOURCE'=>'erstellt durch mobile Schnittstelle crmtogo',	
 );
 
 ?>

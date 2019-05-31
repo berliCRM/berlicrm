@@ -46,7 +46,7 @@ class crmtogo_WS_Describe extends crmtogo_WS_Controller {
                 $field = array();
 				$field['name'] = $fieldname;	
 				$field['value'] = '';	
-				$field['label'] = $fieldinfo['label'];	
+				$field['label'] =  self::searcharray($fieldname, 'name', $describeInfo['fields']);
 				$field['uitype'] = $fieldinfo['uitype'];	
 				$field['typeofdata'] = $fieldinfo['typeofdata'];
 				$field['mandatory']= $fieldinfo['mandatory'];
@@ -86,6 +86,14 @@ class crmtogo_WS_Describe extends crmtogo_WS_Controller {
 			$modifiedResult['labelFields'] = $labelFields;
 		}
 		return $modifiedResult;
+	}
+	
+	static function searcharray($value, $key, $array) {
+	   foreach ($array as $k => $val) {
+		   if ($val[$key] == $value) {
+			  return $val['label'];
+		   }
+	   }
 	}
 
 }
