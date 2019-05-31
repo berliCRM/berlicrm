@@ -115,7 +115,7 @@ jQuery.Class("Vtiger_List_Js",{
 									params.onValidationComplete = function(form, valid){
 										if(valid){
 											thisInstance.sendSMS(form)
-									}
+										}
 										return false;
 									}
 									jQuery('#massSMS').validationEngine(params);
@@ -164,6 +164,7 @@ jQuery.Class("Vtiger_List_Js",{
 		var cvId = listInstance.getCurrentCvId();
 		var message = jQuery('#smsMessage').val();
 		var fields = jQuery('#smsFields').val();
+		var viewData = listInstance.getDefaultParams();
 
 		var params = {
 			'module': 'SMSNotifier',
@@ -172,6 +173,7 @@ jQuery.Class("Vtiger_List_Js",{
 			"selected_ids":selectedIds,
 			"excluded_ids" : excludedIds,
 			'message' : message,
+			"search_params" : viewData.search_params,
 			'fields' : fields
 		};
 		AppConnector.request(params).then(
@@ -187,7 +189,8 @@ jQuery.Class("Vtiger_List_Js",{
 					Vtiger_Helper_Js.showPnotify(params);
 					listInstance.getListViewRecords();
 					Vtiger_List_Js.clearList();
-				} else {
+				} 
+				else {
 					var  params = {
 						title : app.vtranslate('JS_MESSAGE'),
 						text: app.vtranslate('JS_SMS_FAILURE'),
@@ -196,6 +199,9 @@ jQuery.Class("Vtiger_List_Js",{
 					}
 					Vtiger_Helper_Js.showPnotify(params);
 				}
+			},
+			function(error,err){
+				alert ('internal CRM problem');
 			}
 		);
 	},

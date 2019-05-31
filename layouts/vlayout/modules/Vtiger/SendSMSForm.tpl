@@ -14,7 +14,7 @@
 <div id="sendSmsContainer" class='modelContainer'>
 	<div class="modal-header contentsBackground">
         <button data-dismiss="modal" class="close" title="{vtranslate('LBL_CLOSE')}">&times;</button>
-		<h3>{vtranslate('LBL_SEND_SMS_TO_SELECTED_NUMBERS', $MODULE_NAME)}</h3>
+		<h3>{vtranslate('LBL_SEND', $MODULE_NAME)}&nbsp;<font color="red">{$SELECTED_IDS|count}</font>&nbsp;{vtranslate('LBL_SMS_TO_SELECTED_NUMBERS', $MODULE_NAME)}</h3>
 	</div>
 	<form class="form-horizontal" id="massSMS" method="post" action="index.php" content="text/html;charset=UTF-8">
 		<input type="hidden" id="smsModuleName" name="smsModuleName" value="{$MODULE}" />

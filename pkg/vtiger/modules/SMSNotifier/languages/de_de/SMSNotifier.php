@@ -9,7 +9,8 @@
  ************************************************************************************/
 $languageStrings = array(
 	// Basic Strings
-	'LBL_SEND_SMS_TO_SELECTED_NUMBERS' => 'Sende SMS zu den ausgewählten Nummern',
+	'LBL_SEND' => 'Sende',
+	'LBL_SMS_TO_SELECTED_NUMBERS' => 'SMS zu den ausgewählten Nummern',
 	'LBL_STEP_1' => 'Schritt 1',
 	'LBL_STEP_2' => 'Schritt 2',
 	'LBL_SELECT_THE_PHONE_NUMBER_FIELDS_TO_SEND' => 'Wähle das Telefonnummernfeld',
@@ -29,6 +30,18 @@ $languageStrings = array(
 	//Blocks
 	'LBL_SMSNOTIFIER_INFORMATION' => 'SMS Information',
 	'SINGLE_SMSNotifier' => 'SMS Versender',
+	
+	//status messages
+	'LBL_PROVIDER_MESSAGE' => 'Nachricht des Providers',
+	'LBL_PROVIDER_ERROR_MESSAGE' => 'Fehlerachricht des Providers',
+	'LBL_OTHER_PROVIDER_MESSAGE' => 'Providerinformation',
+	'LBL_MESSAGE_SENT' => 'SMS wurde versendet',
 
 	
 );
+
+$jsLanguageStrings = array(
+	'of' => 'von',
+	'to' => 'bis',
+);
+?>
