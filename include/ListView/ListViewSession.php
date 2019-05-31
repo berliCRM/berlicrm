@@ -113,19 +113,20 @@ class ListViewSession {
 			$instance = CRMEntity::getInstance($currentModule);
 			$instance->getNonAdminAccessControlQuery($currentModule, $current_user);
 			vtlib_setup_modulevars($currentModule, $instance);
+            // carry folderid into document detail view (for prev/next navigation), inserting folderid into where conditions
 			if($currentModule=='Documents' && !empty($folderId)){
-				$list_query = preg_replace("/[\n\r\s]+/"," ",$list_query);
-				$list_query = explode('ORDER BY', $list_query);
-                $default_orderby = $list_query[1];
-				$list_query = $list_query[0];
-				$list_query .= " AND vtiger_notes.folderid=$folderId";
+                $orderpos = stripos($list_query," order by ");
+                $default_orderby = substr($list_query,$orderpos+10); // strlen(" order by ") = 10
+                $wherepos = stripos($list_query," where "); ; // strlen(" where ") = 7
+                $list_query = substr($list_query,0,$wherepos+7)." vtiger_notes.folderid=$folderId AND ".substr($list_query,$wherepos+7,$orderpos-$wherepos-7);
 				$order_by = $instance->getOrderByForFolder($folderId);
 				$sorder = $instance->getSortOrderForFolder($folderId);
 				$tablename = getTableNameForField($currentModule,$order_by);
 				$tablename = (($tablename != '')?($tablename."."):'');
-				if(!empty($order_by)){
+				if(!empty($order_by)) {
 				    $list_query .= ' ORDER BY '.$tablename.$order_by.' '.$sorder;
-				}else{
+				}
+                else {
                     $list_query .= ' ORDER BY '.$default_orderby.'';
                 }
 			}
