@@ -98,6 +98,10 @@ $languageStrings = Array (
 	'LBL_NAVI_SELECTION'=>'1画面の表示数:',
 	'LBL_STARTDATE'=>'開始日',
 	'LBL_STARTTIME'=>'開始',
+	'LBL_LOGOUT'=>'Logout',
+	'LBL_QUICKCREATE'=>'Create',
+	'LBL_SIGNATURE'=>'Signature',	
+	'LBL_SIGNATUR_SOURCE'=>'created by mobile crmtogo',	
 	
 );
 

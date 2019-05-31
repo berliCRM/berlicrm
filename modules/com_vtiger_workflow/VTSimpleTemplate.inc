@@ -68,8 +68,18 @@ class VTSimpleTemplate{
                                 $entity = $this->cache->forId($referenceId);
                                 $data = $entity->getData();
                                 if($this->useValue($data, $fieldname)) {
-                                    $parts[] = $this->transformToUserFormat($referenceModule, $fieldname, $data[$fieldname]);
-                                }
+									//crm-now: get Email of reports_to user
+									if (get_class($this) == 'VTEmailRecipientsTemplate' && $fieldname == 'reports_to_id'){
+										$entity = $this->cache->forId($data[$fieldname]);
+										$data = $entity->getData();
+										if($this->useValue($data, 'email1')){
+											$parts[] = $data['email1'];
+										}
+									}
+									else{
+									   $parts[] = $this->transformToUserFormat($referenceModule, $fieldname, $data[$fieldname]);
+									}
+								}
                             }
                             return implode(',', $parts);
                         }
@@ -104,16 +114,41 @@ class VTSimpleTemplate{
                                     $idComponents = vtws_getIdComponents($webserviceId);
                                     if($fieldname == 'currency_id' && $referenceModule == 'Users') {
                                         $result = decode_html(getCurrencyName($idComponents[1]));
-                                    } else {
+                                    } 
+                                    else if($fieldname == 'reports_to_id' && $referenceModule == 'Users') {
+										//crm-now: get Email of reports_to user
+										if (get_class($this) == 'VTEmailRecipientsTemplate' && $fieldname == 'reports_to_id'){
+											$entity = $this->cache->forId($data[$fieldname]);
+											$data = $entity->getData();
+											if($this->useValue($data, 'email1')){
+												$result = $data['email1'];
+											}
+										}
+                                    } 
+									else {
                                         $result = decode_html(Vtiger_Util_Helper::getLabel($idComponents[1]));
-                                    }
-                                }else{
+                                   }
+                               }
+								else{
                                     $result = $this->transformToUserFormat($referenceModule, $fieldname, $data[$fieldname]);
                                 }
-                            }else{
-                                $result = '';
+                           }
+							else{
+                              $result = '';
                             }
-                        }else{
+							//crm-now: get Email of reports_to user
+							if ($referenceModule==="Users" && get_class($this) == 'VTEmailRecipientsTemplate' && $fieldname == 'reports_to_id' && !empty($result)){
+								$entity = $this->cache->forId($result);
+								$data = $entity->user->column_fields;
+								if($this->useValue($data, 'email1')){
+									$result = $data['email1'];
+								}
+								else{
+									$result = '';
+								}
+							}
+						}
+						else{
                             $result = '';
                         }
                     }

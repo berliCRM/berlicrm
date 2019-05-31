@@ -8,10 +8,6 @@
  * All Rights Reserved.
  * Modified by crm-now GmbH, www.crm-now.com
  ************************************************************************************/
-ini_set('display_errors',1);
-error_reporting(E_ALL^E_NOTICE);
-error_reporting(E_ERROR | E_WARNING | E_PARSE);
-
 header('Content-Type: text/html;charset=utf-8');
 chdir (dirname(__FILE__) . '/../../');
 
@@ -57,6 +53,7 @@ class crmtogo_Index_Controller {
 	    'getRelatedFieldAjax'  	  => array('file' => '/actions/getRelatedFieldAjax.php', 'class' => 'crmtogo_UI_getRelatedFieldAjax' ), 
 		'getScrollcontent'        => array('file' => '/actions/getScrollContent.php', 'class' => 'crmtogo_UI_GetScrollRecords' ),
 		'changeGUISettings'         => array('file' => '/actions/changeGUISettings.php', 'class' => 'crmtogo_UI_ChangeSettings' ),
+		'saveSignature'			  => array('file' => '/views/saveSignature.php', 'class' => 'crmtogo_UI_saveSignature'),
 	);
 
 	static function process(crmtogo_API_Request $request) {
@@ -106,7 +103,7 @@ class crmtogo_Index_Controller {
 			$response->setError(1404, 'Operation not found: ' . $operation);
 		}
 
-		if($response !== false) {
+		if(is_object($response)) {
 
 			if ($response->hasError()) {
 				include_once dirname(__FILE__) . '/views/Error.php';

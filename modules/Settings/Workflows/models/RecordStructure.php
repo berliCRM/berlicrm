@@ -106,7 +106,7 @@ class Settings_Workflows_RecordStructure_Model extends Vtiger_RecordStructure_Mo
 	 * @return type
 	 */
 	public function getAllEmailFields() {
-		return $this->getFieldsByType('email');
+		return $this->getFieldsByType(array('email','userReference'));
 	}
 
 	/**
