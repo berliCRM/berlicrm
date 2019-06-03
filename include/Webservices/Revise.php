@@ -90,7 +90,7 @@ function vtws_revise($element,$user){
             $sql = "SELECT $fieldName FROM vtiger_$fieldName LEFT JOIN {$fieldmodel->table} USING ({$fieldmodel->column})
                 WHERE presence = 1 AND $fieldName = ? AND ({$fieldmodel->table}.$fieldName IS NULL OR {$fieldmodel->block->module->basetableid} = {$idList[1]})";
             $res = $adb->pquery($sql,array($element[$fieldName]));
-            if ($adb->num_rows($res) == 0) {
+            if ($res && $adb->num_rows($res) == 0) {
                 $sql = "SELECT $fieldName FROM vtiger_$fieldName WHERE presence = 1 AND $fieldName = ?";
                 $res = $adb->pquery($sql,array($element[$fieldName]));
                 if ($adb->num_rows($res) == 0) {
@@ -117,7 +117,7 @@ function vtws_revise($element,$user){
             $sql = "SELECT $fieldName FROM vtiger_$fieldName WHERE presence = 1 AND $fieldName = ? 
                 UNION SELECT 1 FROM {$fieldmodel->table} WHERE {$basetableid} = {$idList[1]} AND $column = ?";
             $res = $adb->pquery($sql,array($element[$fieldName],$element[$fieldName]));
-            if ($adb->num_rows($res) == 0) {
+            if ($res && $adb->num_rows($res) == 0) {
                 throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, "Illegal value for $fieldName");
             }
         }
