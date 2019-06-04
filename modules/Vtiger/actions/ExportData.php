@@ -375,7 +375,7 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 						}
 					}
 					if(!empty($parent_module) && !empty($displayValue)){
-						$value = $parent_module."::::".$displayValue;
+						$value = html_entity_decode($parent_module."::::".$displayValue);
 					}else{
 						$value = "";
 					}
