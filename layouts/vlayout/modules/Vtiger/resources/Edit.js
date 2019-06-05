@@ -308,7 +308,7 @@ jQuery.Class("Vtiger_Edit_Js",{
 				var element = jQuery(this);
 				var tdElement = element.closest('td');
 				thisInstance.setReferenceFieldValue(tdElement, selectedItemData);
-                
+                element.blur();
                 var sourceField = tdElement.find('input[class="sourceField"]').attr('name');
                 var fieldElement = tdElement.find('input[name="'+sourceField+'"]');
 
