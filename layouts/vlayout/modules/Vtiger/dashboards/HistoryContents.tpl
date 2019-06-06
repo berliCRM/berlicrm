@@ -45,9 +45,10 @@
 							</div>
 							{foreach from=$FIELDS key=INDEX item=FIELD}
 							{if $INDEX lt 2}
+								{assign var=LINEITEM_PRODUCT value=$FIELD->getLineItemProduct()}
 								{if $FIELD && $FIELD->getFieldInstance() && $FIELD->getFieldInstance()->isViewableInDetailView()}
 								<div class='font-x-small'>
-									<i>{vtranslate($FIELD->getName(), $FIELD->getModuleName())}</i>
+									<i>{if $LINEITEM_PRODUCT}{$LINEITEM_PRODUCT}&nbsp;{/if}{vtranslate($FIELD->getName(), $FIELD->getModuleName())}</i>
 									{if $FIELD->get('prevalue') neq '' && $FIELD->get('postvalue') neq '' && !($FIELD->getFieldInstance()->getFieldDataType() eq 'reference' && ($FIELD->get('postvalue') eq '0' || $FIELD->get('prevalue') eq '0'))}
 										&nbsp;{vtranslate('LBL_FROM')} <b>{Vtiger_Util_Helper::toVtiger6SafeHTML($FIELD->getDisplayValue(decode_html($FIELD->get('prevalue'))))}</b>
 									{else if $FIELD->get('postvalue') eq '' || ($FIELD->getFieldInstance()->getFieldDataType() eq 'reference' && $FIELD->get('postvalue') eq '0')}
