@@ -1070,7 +1070,6 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			this.registerEventForRemoveCustomAttachments();
 			this.calculateUploadFileSize();
 			this.registerEventForGoToPreview();
-            this.registerProjectReferenceField();
 			this.registerEventEmailPreview();
 			this.registerChangeEventForModule();
 			this.registerFillTemplateContentEvent();
