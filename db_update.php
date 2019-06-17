@@ -327,8 +327,17 @@ if($moduleInstance) {
 }
 
 
-echo "<br>update Tag version to 19. ";
-$query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.19'";
+$module = Vtiger_Module::getInstance('Vendors');
+if($module) {
+    echo "<br>Add Documents related list to Vendor";
+    // avoid duplicates
+    $module->unsetRelatedList(Vtiger_Module::getInstance('Documents'), 'Documents','get_attachments');
+    $module->setRelatedList(Vtiger_Module::getInstance('Documents'), 'Documents',Array('ADD','SELECT'),'get_attachments');
+    echo "Related List added<br>";
+}
+
+echo "<br>update Tag version to 20. ";
+$query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.20'";
 
 $adb->pquery($query, array());
 echo " Tag version done.<br>";
