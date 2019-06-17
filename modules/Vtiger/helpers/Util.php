@@ -97,7 +97,12 @@ class Vtiger_Util_Helper {
 	 */
 	public static function toSafeHTML($input) {
 		global $default_charset;
-		return htmlentities($input, ENT_QUOTES, $default_charset);
+		if (is_array ($input )) {
+			return $input;
+		}
+		else {
+			return htmlentities($input, ENT_QUOTES, $default_charset);
+		}
 	}
 
 	/**
