@@ -189,7 +189,7 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		$description = $recordModel->get('description');
 		$attachmentDetails = $recordModel->getAttachmentDetails();
 
-        $viewer->assign('SUBJECT', $subject);
+        $viewer->assign('SUBJECT', decode_html($subject));
         $viewer->assign('DESCRIPTION', $description);
 		$viewer->assign('ATTACHMENTS', $attachmentDetails);
         $viewer->assign('PARENT_EMAIL_ID', $recordId);
@@ -205,7 +205,10 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		}
 		$this->composeMailData($request);
 		$viewer = $this->getViewer($request);
-        $viewer->assign('SUBJECT', $request->get('subject'));
+		// check whether subject is already set by others, like composeMailData
+		if ($viewer->get_template_vars('SUBJECT') === null) {
+			$viewer->assign('SUBJECT', decode_html($request->get('subject')));
+		}
 		$this->assignTemplateFields($request);
 		echo $viewer->view('ComposeEmailForm.tpl', $moduleName, true);
 	}
