@@ -17,7 +17,7 @@ $languageStrings = array(
 	'LBL_ENTER_BERLIMAP_APP_KEY' => 'enter your key for the geo data data acquisition',
 	'LBL_GOOGLE_HINT' => 'Hint:',
 	'LBL_GOOGLE_HINT1' => 'The keys for a standard API user are provided by Google. In addition, you have to activate the Static Maps API and the Google Maps Embedded API, see: <a href="https://developers.google.com/maps/documentation/javascript/get-api-key?hl=en" target="_blank">Link to Google</a>',
-	'LBL_GOOGLE_HINT2' => 'For the Map module function, currently you do not necessarily need a key. However, without a key, Google sets a limit for the number of geo data requests per day.',
+	'LBL_GOOGLE_HINT2' => 'For the Map module function, currently you need a key. Google sets a limit for the number of geo data requests per day as long you have no premium plan account.',
 	'LBL_SAVE_SUCCESS'=>'Your settings has been saved successfully.',
 	'LBL_CHECK_KEY' => 'Check Key Function',
 	
