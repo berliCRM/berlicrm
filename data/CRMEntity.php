@@ -813,7 +813,7 @@ class CRMEntity {
 					if (isset($resultrow[$fieldkey])) {
 						$fieldvalue = $resultrow[$fieldkey];
 					}
-					$this->column_fields[$fieldinfo['fieldname']] = $fieldvalue;
+					$this->column_fields[$fieldinfo['fieldname']] = decode_html($fieldvalue);
 				}
 			}
 		}
