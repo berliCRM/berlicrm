@@ -508,7 +508,7 @@ class Vtiger_Field_Model extends Vtiger_Field {
 			$this->fieldInfo['time-format'] = $currentUser->get('hour_format');
 		}
 
-		if($this->getFieldDataType() == 'currency') {
+		if($this->getFieldDataType() == 'currency' ) {
 			$currentUser = Users_Record_Model::getCurrentUserModel();
 			$this->fieldInfo['currency_symbol'] = $currentUser->get('currency_symbol');
 			$this->fieldInfo['decimal_separator'] = $currentUser->get('currency_decimal_separator');
@@ -522,6 +522,12 @@ class Vtiger_Field_Model extends Vtiger_Field {
 			$pickListValues[vtranslate('LBL_USERS', $this->getModuleName())] = $userList;
 			$pickListValues[vtranslate('LBL_GROUPS', $this->getModuleName())] = $groupList;
 			$this->fieldInfo['picklistvalues'] = $pickListValues;
+		}
+
+		if($this->getFieldDataType() == 'double' ) {
+			$currentUser = Users_Record_Model::getCurrentUserModel();
+			$this->fieldInfo['decimalSeparator'] = $currentUser->get('currency_decimal_separator');
+			$this->fieldInfo['groupSeparator'] = $currentUser->get('currency_grouping_separator');
 		}
 
 		return $this->fieldInfo;
@@ -933,7 +939,7 @@ class Vtiger_Field_Model extends Vtiger_Field {
 			case 'hours':
 			case 'days':
 								$funcName = array('name'=>'PositiveNumber');
-							  array_push($validator, $funcName);
+								array_push($validator, $funcName);
 								break;
 			case 'employees':
 								$funcName = array('name'=>'WholeNumber');
