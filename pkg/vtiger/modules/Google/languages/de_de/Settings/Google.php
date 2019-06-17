@@ -17,7 +17,7 @@ $languageStrings = array(
 	'LBL_ENTER_BERLIMAP_APP_KEY' => 'Schlüssel für Geo-Datenermittlung eingeben',
 	'LBL_GOOGLE_HINT' => 'Bitte beachten:',
 	'LBL_GOOGLE_HINT1' => 'Die Schlüssel für einen Standard-API-Nutzer erhalten Sie von Google. Zusätzlich müssen Sie bei Google auch die Benutzung der Static Maps API und der Google Maps Embedded API aktivieren, siehe: <a href="https://developers.google.com/maps/documentation/javascript/get-api-key?hl=de" target="_blank">Link zu Google</a>',
-	'LBL_GOOGLE_HINT2' => 'Für die Geo Datenermittlung brauchen Sie z.Zt. nicht unbedingt einen Schlüssel. Allerdings ist ohne Angabe eines Schlüssels, genauso wie beim Standard-API-Nutzer, die Menge der zu ermittelnden GeoDaten pro Tag gemäß den Google Vorgaben begrenzt. Als Google Premium Plan-Nutzer Nutzer können Sie diese Begrenzung aufheben.',
+	'LBL_GOOGLE_HINT2' => 'Für die Geo Datenermittlung brauchen Sie unbedingt einen Schlüssel. Allerdings ist wie beim Standard-API-Nutzer, die Menge der zu ermittelnden GeoDaten pro Tag gemäß den Google Vorgaben begrenzt. Als Google Premium Plan-Nutzer Nutzer können Sie diese Begrenzung aufheben.',
 	'LBL_SAVE_SUCCESS'=>'Einstellung erfolgreich gespeichert.',
 	'LBL_CHECK_KEY' => 'Prüfe Schlüssel Funktion',
 	
