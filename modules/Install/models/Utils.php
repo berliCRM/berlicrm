@@ -15,7 +15,6 @@ class Install_Utils_Model {
 	 * @var <Array>
 	 */
 	public static $writableFilesAndFolders = array (
-		'Configuration File' => './config.inc.php',
 		'Tabdata File' => './tabdata.php',
 		'Parent Tabdata File' => './parent_tabdata.php',
 		'Cache Directory' => './cache/',
