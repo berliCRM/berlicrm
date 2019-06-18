@@ -573,9 +573,9 @@ function vtlib_isWriteable($path) {
 }
 
 /**
- * Check if given directory is writeable (PHP5+)
+ * Check if given path is writeable (PHP5+)
  */
-function vtlib_isDirWriteable($dirpath) {
+function vtlib_isDirWriteable($path) {
     return is_writable($path);
 }
 
