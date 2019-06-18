@@ -569,33 +569,14 @@ function vtlib_getModuleTemplate($module, $templateName) {
  * Check if give path is writeable.
  */
 function vtlib_isWriteable($path) {
-	if(is_dir($path)) {
-		return vtlib_isDirWriteable($path);
-	} else {
-		return is_writable($path);
-	}
+    return is_writable($path);
 }
 
 /**
- * Check if given directory is writeable.
- * NOTE: The check is made by trying to create a random file in the directory.
+ * Check if given directory is writeable (PHP5+)
  */
 function vtlib_isDirWriteable($dirpath) {
-	if(is_dir($dirpath)) {
-		do {
-			$tmpfile = 'vtiger' . time() . '-' . rand(1,1000) . '.tmp';
-			// Continue the loop unless we find a name that does not exists already.
-			$usefilename = "$dirpath/$tmpfile";
-			if(!file_exists($usefilename)) break;
-		} while(true);
-		$fh = @fopen($usefilename,'a');
-		if($fh) {
-			fclose($fh);
-			unlink($usefilename);
-			return true;
-		}
-	}
-	return false;
+    return is_writable($path);
 }
 
 /** HTML Purifier global instance */
