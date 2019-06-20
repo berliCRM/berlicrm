@@ -336,6 +336,10 @@ if($module) {
     echo "Related List added<br>";
 }
 
+// recreate tabdata files
+create_tab_data_file();
+create_parenttab_data_file();
+
 echo "<br>update Tag version to 20. ";
 $query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.20'";
 
