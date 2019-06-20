@@ -21,11 +21,11 @@ class Inventory_ProductsPopupAjax_View extends Inventory_ProductsPopup_View {
 	 * Function returns module name for which Popup will be initialized
 	 * @param type $request
 	 */
-	public function getModule($request) {
+	public function getModule(Vtiger_Request $request) {
 		return 'Products';
 	}
 	
-	function preProcess(Vtiger_Request $request) {
+	function preProcess(Vtiger_Request $request, $display = true) {
 		return true;
 	}
 
