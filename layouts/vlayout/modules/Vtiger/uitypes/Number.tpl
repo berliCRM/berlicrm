@@ -10,14 +10,18 @@
  ********************************************************************************/
 -->*}
 {strip}
-{assign var="FIELD_INFO" value=Vtiger_Util_Helper::toSafeHTML(Zend_Json::encode($FIELD_MODEL->getFieldInfo()))}
 {assign var="SPECIAL_VALIDATOR" value=$FIELD_MODEL->getValidator()}
-{if $MODULE eq 'HelpDesk' && ($FIELD_MODEL->get('name') eq 'days' || $FIELD_MODEL->get('name') eq 'hours')}
-	{assign var="FIELD_VALUE" value=$FIELD_MODEL->getDisplayValue($FIELD_MODEL->get('fieldvalue'))}
-{else}
-	{assign var="FIELD_VALUE" value=$FIELD_MODEL->get('fieldvalue')}
-{/if}
-<input id="{$MODULE}_editView_fieldName_{$FIELD_NAME}" type="text" class="input-medium numberField" data-validation-engine="validate[{if $FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" name="{$FIELD_MODEL->getFieldName()}"
- data-fieldinfo="{$FIELD_INFO}" value="{$FIELD_MODEL->getEditViewDisplayValue($FIELD_MODEL->get('fieldvalue'))}" {if !empty($SPECIAL_VALIDATOR)}data-validator="{Zend_Json::encode($SPECIAL_VALIDATOR)}"{/if} 
-	data-decimal-separator="{$USER_MODEL->get('currency_decimal_separator')}" data-group-separator="{$USER_MODEL->get('currency_grouping_separator')}" data-number-of-decimal-places="{$USER_MODEL->get('no_of_currency_decimals')}"/>
+<input id="{$MODULE}_editView_fieldName_{$FIELD_NAME}" 
+	type="text" 
+	class="input-medium numberField" 
+	data-validation-engine="validate[{if $FIELD_MODEL->isMandatory()} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" 
+	name="{$FIELD_MODEL->getFieldName()}"
+	data-fieldinfo='{$FIELD_MODEL->getFieldInfo()|@json_encode:JSON_HEX_APOS}' 
+	value="{$FIELD_MODEL->getEditViewDisplayValue($FIELD_MODEL->get('fieldvalue'))}" 
+	{if !empty($SPECIAL_VALIDATOR)}
+		data-validator='{$SPECIAL_VALIDATOR|@json_encode:JSON_HEX_APOS}'
+	{/if} 
+	data-decimal-separator="{$USER_MODEL->get('currency_decimal_separator')}" 
+	data-group-separator="{$USER_MODEL->get('currency_grouping_separator')}" 
+	data-number-of-decimal-places="{$USER_MODEL->get('no_of_currency_decimals')}">
 {/strip}
