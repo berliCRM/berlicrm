@@ -508,7 +508,7 @@ class Vtiger_Field_Model extends Vtiger_Field {
 			$this->fieldInfo['time-format'] = $currentUser->get('hour_format');
 		}
 
-		if($this->getFieldDataType() == 'currency' ) {
+		if($this->getFieldDataType() == 'currency') {
 			$currentUser = Users_Record_Model::getCurrentUserModel();
 			$this->fieldInfo['currency_symbol'] = $currentUser->get('currency_symbol');
 			$this->fieldInfo['decimal_separator'] = $currentUser->get('currency_decimal_separator');
@@ -889,76 +889,75 @@ class Vtiger_Field_Model extends Vtiger_Field {
 		$validator = array();
 		$fieldName = $this->getName();
 		switch($fieldName) {
-			case 'birthday' : $funcName = array('name'=>'lessThanToday');
-							  array_push($validator, $funcName);
-								break;
-			case 'support_end_date' : $funcName = array('name' => 'greaterThanDependentField',
-														'params' => array('support_start_date'));
-									array_push($validator, $funcName);
-									break;
-            case 'support_start_date' : $funcName = array('name' => 'lessThanDependentField',
-														'params' => array('support_end_date'));
-									array_push($validator, $funcName);
-									break;
+			case 'birthday' : 	
+					$funcName = array('name'=>'lessThanToday');
+					array_push($validator, $funcName);
+					break;
+			case 'support_end_date' : 
+					$funcName = array('name' => 'greaterThanDependentField', 'params' => array('support_start_date'));
+					array_push($validator, $funcName);
+					break;
+            case 'support_start_date' : 
+					$funcName = array('name' => 'lessThanDependentField', 'params' => array('support_end_date'));
+					array_push($validator, $funcName);
+					break;
 			case 'targetenddate' :
 			case 'actualenddate':
 			case 'enddate':
-							$funcName = array('name' => 'greaterThanDependentField',
-								'params' => array('startdate'));
-							array_push($validator, $funcName);
-							break;
+					$funcName = array('name' => 'greaterThanDependentField', 'params' => array('startdate'));
+					array_push($validator, $funcName);
+					break;
             case 'startdate':
-                            if($this->getModule()->get('name') == 'Project') {
-                                $params = array('targetenddate');
-                            }else{
-                                //for project task
-                                $params = array('enddate');
-                            }
-                            $funcName = array('name' => 'lessThanDependentField',
-								'params' => $params);
-							array_push($validator, $funcName);
-							break;
+					if($this->getModule()->get('name') == 'Project') {
+						$params = array('targetenddate');
+					}
+					else {
+						//for project task
+						$params = array('enddate');
+					}
+					$funcName = array('name' => 'lessThanDependentField', 'params' => $params);
+					array_push($validator, $funcName);
+					break;
 			case 'expiry_date':
 			case 'due_date':
-								$funcName = array('name' => 'greaterThanDependentField',
-									'params' => array('start_date'));
-								array_push($validator, $funcName);
-								break;
+					$funcName = array('name' => 'greaterThanDependentField', 'params' => array('start_date'));
+					array_push($validator, $funcName);
+					break;
 			case 'sales_end_date':
-								$funcName = array('name' => 'greaterThanDependentField',
-									'params' => array('sales_start_date'));
-								array_push($validator, $funcName);
-								break;
+					$funcName = array('name' => 'greaterThanDependentField', 'params' => array('sales_start_date'));
+					array_push($validator, $funcName);
+					break;
             case 'sales_start_date':
-								$funcName = array('name' => 'lessThanDependentField',
-									'params' => array('sales_end_date'));
-								array_push($validator, $funcName);
-								break;
+					$funcName = array('name' => 'lessThanDependentField', 'params' => array('sales_end_date'));
+					array_push($validator, $funcName);
+					break;
 			case 'qty_per_unit' :
 			case 'qtyindemand' :
+					$funcName = array('name'=>'PositiveNumber');
+					array_push($validator, $funcName);
+					break;
 			case 'hours':
 			case 'days':
-								$funcName = array('name'=>'PositiveNumber');
-								array_push($validator, $funcName);
-								break;
+					$funcName = array('name'=>'PositiveDouble');
+					array_push($validator, $funcName);
+					break;
 			case 'employees':
-								$funcName = array('name'=>'WholeNumber');
-							  array_push($validator, $funcName);
-								break;
+					$funcName = array('name'=>'WholeNumber');
+					array_push($validator, $funcName);
+					break;
 			case 'related_to':
-								$funcName = array('name'=>'ReferenceField');
-							  array_push($validator, $funcName);
-								break;
+					$funcName = array('name'=>'ReferenceField');
+					array_push($validator, $funcName);
+					break;
             //SalesOrder field sepecial validators
-            case 'end_period' : $funcName1 = array('name' => 'greaterThanDependentField',
-													'params' => array('start_period'));
-												array_push($validator, $funcName1);
-
-		   case 'start_period' :
-								$funcName = array('name' => 'lessThanDependentField',
-													'params' => array('end_period'));
-								array_push($validator, $funcName);
-								break;
+            case 'end_period' : 
+					$funcName1 = array('name' => 'greaterThanDependentField', 'params' => array('start_period'));
+					array_push($validator, $funcName1);
+					break;
+			case 'start_period' :
+					$funcName = array('name' => 'lessThanDependentField', 'params' => array('end_period'));
+					array_push($validator, $funcName);
+					break;
 		}
 		return $validator;
 	}

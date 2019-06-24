@@ -340,8 +340,8 @@ if($module) {
 create_tab_data_file();
 create_parenttab_data_file();
 
-echo "<br>update Tag version to 20. ";
-$query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.20'";
+echo "<br>update Tag version to 21. ";
+$query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.21'";
 
 $adb->pquery($query, array());
 echo " Tag version done.<br>";

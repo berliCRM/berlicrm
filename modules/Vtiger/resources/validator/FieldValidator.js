@@ -75,16 +75,20 @@ Vtiger_Base_Validator_Js("Vtiger_PositiveNumber_Validator_Js",{
 },{
 
 	/**
-	 * Function to validate the Positive Numbers
+	 * Function to validate the positive numbers
 	 * @return true if validation is successfull
-	 * @return false if validation error occurs
+	 * for backward-compatibility only english number format supported atm
 	 */
 	validate: function(){
 		var fieldValue = this.getFieldValue();
 		var negativeRegex= /(^[-]+\d+)$/ ;
-		if(isNaN(fieldValue) || fieldValue < 0 || fieldValue.match(negativeRegex)){
-			var errorInfo = app.vtranslate('JS_ACCEPT_POSITIVE_NUMBER');
-			this.setError(errorInfo);
+
+		if(isNaN(fieldValue)) {
+			this.setError(app.vtranslate('JS_CONTAINS_ILLEGAL_CHARACTERS'));
+			return false;			
+		}
+		if(fieldValue < 0 || fieldValue.match(negativeRegex)){
+			this.setError(app.vtranslate('JS_ACCEPT_POSITIVE_NUMBER'));
 			return false;
 		}
 		return true;
@@ -228,7 +232,7 @@ Vtiger_Email_Validator_Js ("Vtiger_MultiEmails_Validator_Js",{
 	}
 },{
 	/**
-	 * Function to validate the Multi select
+	 * Function to validate multi email fields
 	 * @return true if validation is successfull
 	 * @return false if validation error occurs
 	 */
@@ -687,9 +691,9 @@ Vtiger_Base_Validator_Js("Vtiger_Double_Validator_Js",{
 		}
 	}
 },{
-
+	positiveonly: false,
 	/**
-	 * Function to validate float field data
+	 * Function to validate signed float field data
 	 * @return true if validation is successfull
 	 * @return false if validation error occurs
 	 */
@@ -708,7 +712,12 @@ Vtiger_Base_Validator_Js("Vtiger_Double_Validator_Js",{
             decimalSeparator = "\\.";
         }
 
-        // construct regex pattern for float
+		// simple test for positive numbers if called by PositiveDouble Validator
+		if (this.positiveonly && fieldValue.toString().trim().substr(0,1) == "-") {
+			this.setError(app.vtranslate('JS_ACCEPT_POSITIVE_NUMBER'));
+			return false;			
+		}
+        // construct regex pattern for signed float
         // This regex matches an optional sign, either followed by zero or more digits/groupSeparators followed by a decimalSeparator and one or more digits (a float with optional integer part),
         // or that is followed by one or more digits/groupSeparators (an integer)
         var pattern = "^[-+]?([0-9" + groupSeparator + "]*" + decimalSeparator + "[0-9]+|[0-9" + groupSeparator + "]+)$";        
@@ -722,6 +731,19 @@ Vtiger_Base_Validator_Js("Vtiger_Double_Validator_Js",{
         return true;
 	}
 })
+
+// reuse Double-Validator for positive values
+Vtiger_Double_Validator_Js("Vtiger_PositiveDouble_Validator_Js", {
+	invokeValidation: function(field, rules, i, options){
+		var doubleInstance = new Vtiger_Double_Validator_Js();
+		doubleInstance.setElement(field);
+		var response = doubleInstance.validate();
+		if(response != true){
+			return doubleInstance.getError();
+		}
+	}
+},{positiveonly: true});
+
 
 Vtiger_Base_Validator_Js("Vtiger_Date_Validator_Js",{
 
@@ -743,7 +765,7 @@ Vtiger_Base_Validator_Js("Vtiger_Date_Validator_Js",{
 },{
 
 	/**
-	 * Function to validate the Positive Numbers and whole Number
+	 * Function to validate dates fields
 	 * @return true if validation is successfull
 	 * @return false if validation error occurs
 	 */
@@ -959,7 +981,7 @@ Vtiger_Base_Validator_Js("Vtiger_AlphaNumeric_Validator_Js",{
 },{
 
 	/**
-	 * Function to validate the Positive Numbers
+	 * Function to validate alphanumeric fields
 	 * @return true if validation is successfull
 	 * @return false if validation error occurs
 	 */
