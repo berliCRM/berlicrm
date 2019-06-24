@@ -1502,21 +1502,12 @@ function getCombinedUserTabsPermissions($userId)
 
 			foreach($userTabPerrArr as $tabId=>$tabPermission)
 			{
-				if($tabPermission == 1)
+				if($tabPermission == 1 && isset($tempUserTabPerrArr[$tabId]) && $tempUserTabPerrArr[$tabId] == 0)
 				{
-					$now_permission = $tempUserTabPerrArr[$tabId];
-					if($now_permission == 0)
-					{
-						$userTabPerrArr[$tabId]=$now_permission;
-					}
-
-
+                    $userTabPerrArr[$tabId]="0";
 				}
-
 			}
-
 		}
-
 	}
 
     $homeTabid = getTabid('Home');
