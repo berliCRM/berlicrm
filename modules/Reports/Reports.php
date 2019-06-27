@@ -533,6 +533,9 @@ class Reports extends CRMEntity{
 				$report_details['reportname'] = $report["reportname"];
                 $report_details['reporttype'] = $report["reporttype"];
 				$report_details['sharingtype'] = $report["sharingtype"];
+				$owner = getOwnerName($report["owner"]);
+				if (empty($owner)) $owner = 'LBL_DELETED';
+				$report_details['owner'] = $owner;
 				if($is_admin==true || in_array($report["owner"],$subordinate_users) || $report["owner"]==$current_user->id)
 					$report_details ['editable'] = 'true';
 				else
