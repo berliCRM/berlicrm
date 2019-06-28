@@ -349,7 +349,7 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 			}
 		}
 
-		if ($totalFileSize > vglobal('upload_maxsize')) {
+		if ($totalFileSize > Vtiger_Util_Helper::getMaxUploadSizeInBytes()) {
 			return false;
 		}
 		return true;
