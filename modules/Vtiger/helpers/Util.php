@@ -63,9 +63,9 @@ class Vtiger_Util_Helper {
 		}
 
 		$minutes = floor($seconds/60);
-		$hours = floor($minutes/60);
-		$days = floor($hours/24);
-		$months = floor($days/30);
+		$hours = floor($seconds/3600);
+		$days = floor($seconds/86400);
+		$months = floor($seconds/2635200);
 
 		if ($seconds < 60)	return $prefix . self::pluralize($seconds,	"LBL_SECOND") . $suffix;
 		if ($minutes < 60)	return $prefix . self::pluralize($minutes,	"LBL_MINUTE") . $suffix;
@@ -78,8 +78,8 @@ class Vtiger_Util_Helper {
 				return $prefix . $days ." ".vtranslate('LBL_DAYS_N');
 			}
 		}
-		if ($months < 12)	return $prefix . self::pluralize($months,	"LBL_MONTH") . $suffix;
-		if ($months > 11)	return $prefix . self::pluralize(floor($days/365), "LBL_YEAR") . $suffix;
+		if ($months < 12) return $prefix . self::pluralize($months,	"LBL_MONTH") . $suffix;
+		if ($months > 11) return $prefix . self::pluralize(floor($days/365), "LBL_YEAR") . $suffix;
 	}
 
 	/**

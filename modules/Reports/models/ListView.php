@@ -104,7 +104,8 @@ class Reports_ListView_Model extends Vtiger_ListView_Model {
 	public function getListViewHeaders() {
 		return array(
 				'reportname'=>'Report Name',
-				'description'=>'Description'
+				'description'=>'Description',
+				'owner'=>'Owner'
 		);
 	}
 
