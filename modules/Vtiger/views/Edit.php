@@ -114,7 +114,7 @@ Class Vtiger_Edit_View extends Vtiger_Index_View {
 		}
 		
 		$viewer->assign('MAX_UPLOAD_LIMIT_MB', Vtiger_Util_Helper::getMaxUploadSize());
-		$viewer->assign('MAX_UPLOAD_LIMIT', vglobal('upload_maxsize'));
+		$viewer->assign('MAX_UPLOAD_LIMIT', Vtiger_Util_Helper::getMaxUploadSizeInBytes());
 		$viewer->view('EditView.tpl', $moduleName);
 	}
 }
