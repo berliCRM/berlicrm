@@ -69,7 +69,6 @@ abstract class WebserviceEntityOperation{
 	}
 	
 	function getFieldTypeDetails($webserviceField){
-		global $upload_maxsize;
 		$typeDetails = array();
 		switch($webserviceField->getFieldDataType()){
 			case 'reference': $typeDetails['refersTo'] = $webserviceField->getReferenceList();
@@ -80,19 +79,8 @@ abstract class WebserviceEntityOperation{
 			case 'picklist': $typeDetails["picklistValues"] = $webserviceField->getPicklistDetails($webserviceField);
 				$typeDetails['defaultValue'] = $typeDetails["picklistValues"][0]['value'];
 				break;
-			case 'file': $maxUploadSize = 0;
-				$maxUploadSize = ini_get('upload_max_filesize');
-				$maxUploadSize = strtolower($maxUploadSize);
-				$maxUploadSize = explode('m',$maxUploadSize);
-				$maxUploadSize = $maxUploadSize[0];
-				if(!is_numeric($maxUploadSize)){
-					$maxUploadSize = 0;
-				}
-				$maxUploadSize = $maxUploadSize * 1000000;
-				if($upload_maxsize > $maxUploadSize){
-					$maxUploadSize = $upload_maxsize;
-				}
-				$typeDetails['maxUploadFileSize'] = $maxUploadSize;
+			case 'file':
+				$typeDetails['maxUploadFileSize'] = Vtiger_Util_Helper::getMaxUploadSizeInBytes();
 				break;
 			case 'date': $typeDetails['format'] = $this->user->date_format;
 		}
@@ -122,8 +110,6 @@ abstract class WebserviceEntityOperation{
 	 *
 	 */
 	abstract public function getMeta();
-	abstract protected  function getMetaInstance();
+	abstract protected function getMetaInstance();
 	
 }
-
-?>
