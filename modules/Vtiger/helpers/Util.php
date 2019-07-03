@@ -63,9 +63,9 @@ class Vtiger_Util_Helper {
 		}
 
 		$minutes = floor($seconds/60);
-		$hours = floor($minutes/60);
-		$days = floor($hours/24);
-		$months = floor($days/30);
+		$hours = floor($seconds/3600);
+		$days = floor($seconds/86400);
+		$months = floor($seconds/2635200);
 
 		if ($seconds < 60)	return $prefix . self::pluralize($seconds,	"LBL_SECOND") . $suffix;
 		if ($minutes < 60)	return $prefix . self::pluralize($minutes,	"LBL_MINUTE") . $suffix;
@@ -78,8 +78,8 @@ class Vtiger_Util_Helper {
 				return $prefix . $days ." ".vtranslate('LBL_DAYS_N');
 			}
 		}
-		if ($months < 12)	return $prefix . self::pluralize($months,	"LBL_MONTH") . $suffix;
-		if ($months > 11)	return $prefix . self::pluralize(floor($days/365), "LBL_YEAR") . $suffix;
+		if ($months < 12) return $prefix . self::pluralize($months,	"LBL_MONTH") . $suffix;
+		if ($months > 11) return $prefix . self::pluralize(floor($days/365), "LBL_YEAR") . $suffix;
 	}
 
 	/**
@@ -369,11 +369,28 @@ class Vtiger_Util_Helper {
 	}
 
 	/**
-	 * Function to get maximum upload size
-	 * @return <Float> maximum upload size
+	 * Function to get maximum upload size in MB
 	 */
 	public static function getMaxUploadSize() {
-		return ceil(vglobal('upload_maxsize') / (1024 * 1024)); 
+		return ceil(self::getMaxUploadSizeInBytes() / (1024 * 1024)); 
+	}
+	
+	// returns upload size limit in bytes, imposed by php.ini or config.inc.php, depending on which is lower
+	public static function getMaxUploadSizeInBytes() {
+		$s = ini_get('upload_max_filesize');
+		$phpLimit = self::phpIniStringToBytes($s);
+		return $phpLimit < vglobal('upload_maxsize') ? $phpLimit : vglobal('upload_maxsize');
+	}
+
+	// convert PHP.INI string ("3M", "1G") to bytes
+	public static function phpIniStringToBytes($s) {
+		switch (substr ($s, -1))
+        {
+            case 'M': case 'm': return (int)$s * 1048576;
+            case 'K': case 'k': return (int)$s * 1024;
+            case 'G': case 'g': return (int)$s * 1073741824;
+            default: return $s;
+        }
 	}
 
 	/**

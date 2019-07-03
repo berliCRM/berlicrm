@@ -50,7 +50,7 @@ class Vtiger_QuickCreateAjax_View extends Vtiger_IndexAjax_View {
 		$viewer->assign('SCRIPTS', $this->getHeaderScripts($request));
         
         $viewer->assign('MAX_UPLOAD_LIMIT_MB', Vtiger_Util_Helper::getMaxUploadSize());
-		$viewer->assign('MAX_UPLOAD_LIMIT', vglobal('upload_maxsize'));
+		$viewer->assign('MAX_UPLOAD_LIMIT', Vtiger_Util_Helper::getMaxUploadSizeInBytes());
 		echo $viewer->view('QuickCreate.tpl',$moduleName,true);
 
 	}
