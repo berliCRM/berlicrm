@@ -303,9 +303,9 @@ function setMailServerProperties($mail)
 	if($smtp_auth){
 		$mail->SMTPAuth = true;	// turn on SMTP authentication
 	}
-    $mail->Host = $server;		// specify main and backup server
-	$mail->Username = $username ;	// SMTP username
-    $mail->Password = $password ;	// SMTP password
+    $mail->Host = html_entity_decode($server);		// specify main and backup server
+	$mail->Username = html_entity_decode($username);	// SMTP username
+    $mail->Password = html_entity_decode($password);	// SMTP password
     
     // To Support TLS
     $serverinfo = explode("://", $server);
