@@ -96,12 +96,11 @@ class Vtiger_Util_Helper {
 	 * Function to make the input safe to be used as HTML
 	 */
 	public static function toSafeHTML($input) {
-		global $default_charset;
-		if (is_array ($input )) {
+		if (is_array($input)) {
 			return $input;
 		}
 		else {
-			return htmlentities($input, ENT_QUOTES, $default_charset);
+			return htmlspecialchars($input, ENT_HTML5 | ENT_QUOTES, false);
 		}
 	}
 
