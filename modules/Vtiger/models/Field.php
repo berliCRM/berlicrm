@@ -931,11 +931,11 @@ class Vtiger_Field_Model extends Vtiger_Field {
 					$funcName = array('name' => 'lessThanDependentField', 'params' => array('sales_end_date'));
 					array_push($validator, $funcName);
 					break;
-			case 'qty_per_unit' :
 			case 'qtyindemand' :
 					$funcName = array('name'=>'PositiveNumber');
 					array_push($validator, $funcName);
 					break;
+			case 'qty_per_unit':
 			case 'hours':
 			case 'days':
 					$funcName = array('name'=>'PositiveDouble');
