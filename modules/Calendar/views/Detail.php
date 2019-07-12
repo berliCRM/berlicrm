@@ -166,5 +166,25 @@ class Calendar_Detail_View extends Vtiger_Detail_View {
 	function isAjaxEnabled($recordModel) {
 		return false;
 	}
+	
+	/**
+	 * Function returns recent changes made on the record
+	 * @param Vtiger_Request $request
+	 */
+	function showRecentActivities(Vtiger_Request $request) {
+		//crm-now: cache fields as Vtiger_Field::getInstance() uses Vtiger_Functions::getModuleFieldInfo() which gets fields for tabid 9 AND 16 where 16 overwrites fields of same name in Calendar module
+		$recordId = $request->get('record');
+		$moduleName = $request->getModule();
+        if (!empty($recordId)){
+            $recordModel = Vtiger_Record_Model::getInstanceById($recordId);
+            $activityType = $recordModel->getType();
+            if($activityType == 'Events')
+                $moduleName = 'Events';
+			$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
+			Vtiger_Field_Model::getAllForModule($moduleModel);
+        }
+		
+		parent::showRecentActivities($request);
+	}
 
 }

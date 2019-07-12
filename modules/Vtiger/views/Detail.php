@@ -358,10 +358,7 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
         	$pagingModel->set('nextPageExists', false);
         }
 
-		$recordModel = $this->record->getRecord();
-
 		$viewer = $this->getViewer($request);
-		$viewer->assign('RECORD', $recordModel);
 		$viewer->assign('RECENT_ACTIVITIES', $recentActivities);
 		$viewer->assign('MODULE_NAME', $moduleName);
 		$viewer->assign('PAGING_MODEL', $pagingModel);
