@@ -16,7 +16,7 @@ class Vtiger_Text_UIType extends Vtiger_Base_UIType {
 	 * @return <Object>
 	 */
 	public function getDisplayValue($value, $record = false, $recordInstance = false) {
-		return nl2br($value);
+		return nl2br(htmlspecialchars($value, ENT_HTML5 | ENT_QUOTES, false));
 	}
     
     /**
