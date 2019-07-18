@@ -422,7 +422,7 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
         $starttime = microtime(true);
 		if ($module == false) {
 			//get all tabid settings for search
-			$searchdata = 'SELECT * FROM berli_globalsearch_settings LEFT JOIN vtiger_tab ON gstabid=tabid WHERE turn_off = 1';
+			$searchdata = 'SELECT * FROM berli_globalsearch_settings LEFT JOIN vtiger_tab ON gstabid=tabid WHERE turn_off = 1 order by sequence ASC';
 			$searchdata_result = $db->pquery($searchdata, array());
             while($bgsrow = $db->fetchByAssoc($searchdata_result)) {
 				if ($bgsrow["searchall"]==1) {
