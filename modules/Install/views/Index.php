@@ -140,11 +140,18 @@ class Install_Index_view extends Vtiger_View_Controller {
 			$request->get('db_username'), $request->get('db_password'), $request->get('db_name'),
 			$createDataBase, true, $rootUser, $rootPassword);
 
-		$webRoot = ($_SERVER["HTTP_HOST"]) ? $_SERVER["HTTP_HOST"]:$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'];
+		if (isset($_SERVER['HTTP_X_FORWARDED_HOST']) && ($_SERVER['HTTP_X_FORWARDED_HOST'] != '')) {
+			$webRoot = $_SERVER['HTTP_X_FORWARDED_HOST'];
+		} elseif (isset($_SERVER['HTTP_HOST']) && ($_SERVER['HTTP_HOST'] != '')) {
+			$webRoot = $_SERVER['HTTP_HOST'];
+		} else {
+			$webRoot = $_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'];
+		}
+		
 		$webRoot .= $_SERVER["REQUEST_URI"];
 
 		$webRoot = str_replace( "index.php", "", $webRoot);
-		$webRoot = (isset($_SERVER['HTTPS']) && !empty($_SERVER['HTTPS']) ? "https://":"http://").$webRoot;
+		$webRoot = ((isset($_SERVER['HTTPS']) && !empty($_SERVER['HTTPS'])) || (isset($_SERVER['HTTP_X_FORWARDED_HOST']) && $_SERVER['HTTP_X_FORWARDED_HOST'] != '')) ? "https://" : "http://".$webRoot;
 
 		$_SESSION['config_file_info']['site_URL'] = $webRoot;
 		$viewer->assign('SITE_URL', $webRoot);
