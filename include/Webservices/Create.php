@@ -64,6 +64,7 @@ function vtws_create($elementType, $element, $user) {
 
     // validate entries for picklist and autocomplete fields (uitypes 15/16/cr16/crs16), only allow values from picklist or current value
     $moduleFields = $meta->getModuleFields();
+    unset($moduleFields["activitytype"]);
     foreach ($moduleFields as $fieldName => $field) {
         $uitype = $field->getUIType();
         if ($uitype == "crs16" && $element[$fieldName] !="") {
