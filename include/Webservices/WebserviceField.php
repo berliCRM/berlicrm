@@ -344,7 +344,6 @@ class WebserviceField{
 		if($cache->getPicklistDetails($this->getTabId(),$this->getFieldName())){
 			return $cache->getPicklistDetails($this->getTabId(),$this->getFieldName());
 		} else {
-		$hardCodedPickListNames = array("hdntaxtype","email_flag");
 		$hardCodedPickListValues = array(
 				"hdntaxtype"=>array(
 					array("label"=>"Individual","value"=>"individual"),
@@ -356,7 +355,7 @@ class WebserviceField{
 					array('label'=>'MAILSCANNER','value' => 'MAILSCANNER')
 				)
 			);
-		if(in_array(strtolower($this->getFieldName()),$hardCodedPickListNames)){
+		if (isset($hardCodedPickListValues[strtolower($this->getFieldName())])) {
 			return $hardCodedPickListValues[strtolower($this->getFieldName())];
 		}
 			$picklistDetails = $this->getPickListOptions($this->getFieldName());
@@ -418,6 +417,9 @@ class WebserviceField{
                 }
             }
         }
+        if ($fieldName == 'activitytype' && $moduleName == 'Calendar') {
+                $options[] = array('label' => getTranslatedString('Task','Calendar'), 'value' => 'Task');
+        }
 		return $options;
 	}
 
@@ -433,5 +435,3 @@ class WebserviceField{
 	}
 
 }
-
-?>
