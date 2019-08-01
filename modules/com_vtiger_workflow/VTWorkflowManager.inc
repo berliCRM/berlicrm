@@ -657,8 +657,12 @@
 				if(!empty($nextTriggerDay)) {
 					$nextTime = date('Y:m:d H:i:s', strtotime($nextTriggerDay.' '.$scheduledTime));
 				} else {
+					//crm-now: if no date was found, just take day and month of next year (instead of adding only 1 year to the date the workflow/report was initially set up)
 					$nextTriggerDay = $annualDates[0];
-					$nextTime = date('Y:m:d H:i:s', strtotime($nextTriggerDay.' '.$scheduledTime.'+1 year'));
+					$nYear = date('Y', strtotime('+1 year'));
+					$arr_date = explode('-', $nextTriggerDay);
+					$arr_date[0] = $nYear;
+					$nextTime = implode('-', $arr_date).' '.$scheduledTime;
 				}
 			}
 			return $nextTime;
