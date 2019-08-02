@@ -171,8 +171,7 @@ class Vtiger_PackageExport {
 
 		if($directDownload) {
 			$zip->forceDownload($zipfilename);
-			//crm-now: remove the unlink for package export in order to have the exported zip file available for manual download from test/vtlib/ (package export is not available for customers)
-			//unlink($zipfilename);
+			unlink($zipfilename);
 		}
 		$this->__cleanupExport();
 	}
@@ -377,7 +376,7 @@ class Vtiger_PackageExport {
 		$this->openNode('blocks');
 		for($index = 0; $index < $resultrows; ++$index) {
 			$blockid    = $adb->query_result($sqlresult, $index, 'blockid');
-			$blocklabel = $adb->query_result($sqlresult, $index, 'blocklabel');
+			$blocklabel = html_entity_decode($adb->query_result($sqlresult, $index, 'blocklabel'));
 
 			$this->openNode('block');
 			$this->outputNode($blocklabel, 'label');
@@ -406,7 +405,7 @@ class Vtiger_PackageExport {
 		$this->openNode('fields');
 		for($index = 0; $index < $fieldcount; ++$index) {
 			$this->openNode('field');
-			$fieldresultrow = $adb->fetch_row($fieldresult);
+			$fieldresultrow = $adb->fetchByAssoc($fieldresult,-1,false);
 
 			$fieldname = $fieldresultrow['fieldname'];
 			$uitype = $fieldresultrow['uitype'];
@@ -444,7 +443,7 @@ class Vtiger_PackageExport {
 			}
 
 			// Export picklist values for picklist fields
-			if($uitype == '15' || $uitype == '16' || $uitype == '111' || $uitype == '33' || $uitype == '55') {
+			if($uitype == '15' || $uitype == '16' || $uitype == '111' || $uitype == '33' || $uitype == '55' || $uitype == 'cr16' || $uitype == 'crs16') {
 
 				if($uitype == '16') {
 					$picklistvalues = vtlib_getPicklistValues($fieldname);
@@ -453,7 +452,7 @@ class Vtiger_PackageExport {
 				}
 				$this->openNode('picklistvalues');
 				foreach($picklistvalues as $picklistvalue) {
-					$this->outputNode($picklistvalue, 'picklistvalue');
+					$this->outputNode(html_entity_decode($picklistvalue), 'picklistvalue');
 				}
 				$this->closeNode('picklistvalues');
 			}
@@ -505,7 +504,7 @@ class Vtiger_PackageExport {
 			$setmetrics = $adb->query_result($customviewres, $cvindex, 'setmetrics');
 			$setmetrics = ($setmetrics == 1)? 'true' : 'false';
 
-			$this->outputNode($adb->query_result($customviewres, $cvindex, 'viewname'),   'viewname');
+			$this->outputNode(html_entity_decode($adb->query_result($customviewres, $cvindex, 'viewname')),   'viewname');
 			$this->outputNode($setdefault, 'setdefault');
 			$this->outputNode($setmetrics, 'setmetrics');
 
