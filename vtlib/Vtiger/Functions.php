@@ -812,15 +812,12 @@ class Vtiger_Functions {
 		return $commentlist;
 	}
 
-	static function generateRandomPassword() {
-		$salt = "abcdefghijklmnopqrstuvwxyz0123456789";
-		srand((double) microtime() * 1000000);
-		$i = 0;
-		while ($i <= 7) {
-			$num = rand() % 33;
-			$tmp = substr($salt, $num, 1);
-			$pass = $pass . $tmp;
-			$i++;
+	static function generateRandomPassword($length = 12) {
+		$salt = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+		$sLength = strlen($salt) -1;
+		$pass = '';
+		for ($i = 0; $i < $length; $i++) {
+			$pass .= substr($salt, rand(0, $sLength), 1);
 		}
 		return $pass;
 	}
