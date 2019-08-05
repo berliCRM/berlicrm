@@ -489,7 +489,6 @@ jQuery.Class("Vtiger_List_Js",{
 					);
 				},
 				function(error, err){
-				Vtiger_List_Js.clearList();
 				})
 		} else {
 			listInstance.noRecordSelectedAlert();
