@@ -1179,7 +1179,8 @@ function send_mail_for_password($mailid)
 
 	$mail->IsHTML(true);
 
-	$mail->AltBody = $mod_strings['LBL_ALTBODY'];
+	// provide text-only version of mail
+	$mail->AltBody = decode_html(strip_tags(preg_replace(array("/<p>/i","/<br>/i","/<br \/>/i"),array("\n","\n","\n"),$contents)));
 	if($mailid == '')
 	{
 		$ret_msg = "false@@@<b>".$mod_strings['LBL_GIVE_MAILID']."</b>";
