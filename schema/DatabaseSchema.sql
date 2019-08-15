@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS `com_vtiger_workflowtasks` (
   `task_id` int(11) NOT NULL AUTO_INCREMENT,
   `workflow_id` int(11) DEFAULT NULL,
   `summary` varchar(400) COLLATE utf8_unicode_ci NOT NULL,
-  `task` text COLLATE utf8_unicode_ci,
+  `task` mediumtext COLLATE utf8_unicode_ci,
   PRIMARY KEY (`task_id`),
   UNIQUE KEY `com_vtiger_workflowtasks_idx` (`task_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=29 ;
