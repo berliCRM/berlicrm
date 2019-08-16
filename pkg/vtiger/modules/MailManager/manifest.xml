@@ -28,7 +28,7 @@
   `mbcc` varchar(500) DEFAULT NULL,
   `mdate` varchar(20) DEFAULT NULL,
   `msubject` varchar(500) DEFAULT NULL,
-  `mbody` text,
+  `mbody` mediumtext,
   `mcharset` varchar(10) DEFAULT NULL,
   `misbodyhtml` int(1) DEFAULT NULL,
   `mplainmessage` int(1) DEFAULT NULL,
