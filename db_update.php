@@ -339,6 +339,9 @@ if($module) {
 echo "<br>Alter com_vtiger_workflowtasks.task to MEDIUMTEXT if applicable..";
 $adb->pquery("ALTER TABLE `com_vtiger_workflowtasks` CHANGE `task` `task` MEDIUMTEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL");
 
+echo "<br>Alter vtiger_mailmanager_mailrecord.mbody to MEDIUMTEXT if applicable..";
+$adb->pquery("ALTER TABLE `vtiger_mailmanager_mailrecord` CHANGE `mbody` `mbody` MEDIUMTEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL");
+
 // recreate tabdata files
 create_tab_data_file();
 create_parenttab_data_file();
