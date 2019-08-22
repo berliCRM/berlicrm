@@ -342,6 +342,10 @@ $adb->pquery("ALTER TABLE `com_vtiger_workflowtasks` CHANGE `task` `task` MEDIUM
 echo "<br>Alter vtiger_mailmanager_mailrecord.mbody to MEDIUMTEXT if applicable..";
 $adb->pquery("ALTER TABLE `vtiger_mailmanager_mailrecord` CHANGE `mbody` `mbody` MEDIUMTEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL");
 
+echo "<br>Alter vtiger_berlicleverreach_settings.accesstoken to VARCHAR(600) if applicable..";
+$adb->pquery("ALTER TABLE `vtiger_berlicleverreach_settings` CHANGE `accesstoken` `accesstoken` VARCHAR( 600 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL");
+
+
 // recreate tabdata files
 create_tab_data_file();
 create_parenttab_data_file();
