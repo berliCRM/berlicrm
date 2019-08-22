@@ -37,7 +37,7 @@
   `id` int(11) NOT NULL,
   `customerid` varchar(16) NOT NULL,
   `customername` varchar(128) NOT NULL,
-  `accesstoken` varchar(400) NOT NULL,
+  `accesstoken` varchar(600) NOT NULL,
   `newsubscribertype` varchar(50) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
