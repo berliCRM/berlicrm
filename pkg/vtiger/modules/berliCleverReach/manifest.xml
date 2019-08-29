@@ -244,6 +244,26 @@
 <masseditable>1</masseditable>
 <summaryfield>0</summaryfield>
 </field>
+<field>
+<fieldname>modifiedby</fieldname>
+<uitype>52</uitype>
+<columnname>modifiedby</columnname>
+<tablename>vtiger_crmentity</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Last Modified By</fieldlabel>
+<readonly>1</readonly>
+<presence>0</presence>
+<defaultvalue></defaultvalue>
+<sequence>9</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O</typeofdata>
+<quickcreate>3</quickcreate>
+<quickcreatesequence></quickcreatesequence>
+<displaytype>3</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>0</masseditable>
+</field>
 </fields>
 </block>
 <block>
