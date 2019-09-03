@@ -345,13 +345,17 @@ $adb->pquery("ALTER TABLE `vtiger_mailmanager_mailrecord` CHANGE `mbody` `mbody`
 echo "<br>Alter vtiger_berlicleverreach_settings.accesstoken to VARCHAR(600) if applicable..";
 $adb->pquery("ALTER TABLE `vtiger_berlicleverreach_settings` CHANGE `accesstoken` `accesstoken` VARCHAR( 600 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL");
 
+$moduleInstance = Vtiger_Module::getInstance("berliCleverReach");
+if($moduleInstance) {
+	updateVtlibModule("berliCleverReach", "packages/vtiger/optional/berliCleverReach.zip");
+} 
 
 // recreate tabdata files
 create_tab_data_file();
 create_parenttab_data_file();
 
-echo "<br>update Tag version to 21. ";
-$query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.21'";
+echo "<br>update Tag version to 22. ";
+$query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.22'";
 
 $adb->pquery($query, array());
 echo " Tag version done.<br>";
