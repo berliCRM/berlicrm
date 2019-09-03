@@ -820,8 +820,13 @@ class QueryGenerator {
                         $concatSql = getSqlForNameInDisplayFormat(array('first_name'=>"vtiger_users$fieldName.first_name",'last_name'=>"vtiger_users$fieldName.last_name"), 'Users');
                         $fieldSql .= "$fieldGlue (trim($concatSql) $valueSql)";
                     }else{
-						$concatSql = getSqlForNameInDisplayFormat(array('first_name'=>"vtiger_users.first_name",'last_name'=>"vtiger_users.last_name"), 'Users');
-						$fieldSql .= "$fieldGlue (trim($concatSql) $valueSql or "."vtiger_groups.groupname $valueSql)";
+						//crm-now: Workflow filters use ID values instead of name values, try to mitigate it here (and possibly fix not unique firstname - lastname filters in CustomViews etc. later)
+						if (!is_numeric($conditionInfo['value'])) {
+							$concatSql = getSqlForNameInDisplayFormat(array('first_name'=>"vtiger_users.first_name",'last_name'=>"vtiger_users.last_name"), 'Users');
+							$fieldSql .= "$fieldGlue (trim($concatSql) $valueSql or "."vtiger_groups.groupname $valueSql)";
+						} else {
+							$fieldSql .= "$fieldGlue (vtiger_users.id $valueSql OR vtiger_groups.groupid $valueSql)";
+						}
                     }
 				} elseif($field->getFieldDataType() == 'date' && ($baseModule == 'Events' || $baseModule == 'Calendar') && ($fieldName == 'date_start' || $fieldName == 'due_date')) {
 					$value = $conditionInfo['value'];
