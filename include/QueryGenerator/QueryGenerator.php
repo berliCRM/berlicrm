@@ -1073,11 +1073,11 @@ class QueryGenerator {
 				$value = trim($value);
 			}
 			if ($operator == 'empty' || $operator == 'y') {
-				$sql[] = sprintf("IS NULL OR %s.%s = ''", $field->getTableName(), $field->getFieldName());
+				$sql[] = sprintf("IS NULL OR %s.%s = ''", $field->getTableName(), $field->getColumnName());
 				continue;
 			}
             if($operator == 'ny'){
-                $sql[] = sprintf("IS NOT NULL AND %s.%s != ''", $field->getTableName(), $field->getFieldName());
+                $sql[] = sprintf("IS NOT NULL AND %s.%s != ''", $field->getTableName(), $field->getColumnName());
 				continue;
             }
 			if((strtolower(trim($value)) == 'null') ||
