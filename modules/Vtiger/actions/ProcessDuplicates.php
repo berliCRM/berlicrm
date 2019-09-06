@@ -28,12 +28,15 @@ class Vtiger_ProcessDuplicates_Action extends Vtiger_Action_Controller {
 		$records = $request->get('records');
 		$primaryRecord = $request->get('primaryRecord');
 		$primaryRecordModel = Vtiger_Record_Model::getInstanceById($primaryRecord, $moduleName);
+		$primaryRecordModel->convertToUserFormat();
 
 		$fields = $moduleModel->getFields();
 		foreach($fields as $field) {
-			$fieldValue = $request->get($field->getName());
+			$fieldName = $field->getName();
+			$uiTypeModel = $field->getUITypeModel();
+			$fieldValue = $uiTypeModel->getUserRequestValue($request->get($fieldName));
 			if($field->isEditable()) {
-				$primaryRecordModel->set($field->getName(), $fieldValue);
+				$primaryRecordModel->set($fieldName, $fieldValue);
 			}
 		}
 		$primaryRecordModel->set('mode', 'edit');
