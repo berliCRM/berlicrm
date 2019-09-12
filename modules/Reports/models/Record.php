@@ -472,9 +472,11 @@ class Reports_Record_Model extends Vtiger_Record_Model {
 		$db = PearDatabase::getInstance();
 
 		$calculationFields = $this->get('calculationFields');
-		for ($i=0; $i<count($calculationFields); $i++) {
-			$db->pquery('INSERT INTO vtiger_reportsummary (reportsummaryid, summarytype, columnname) VALUES (?,?,?)',
-					array($this->getId(), $i, $calculationFields[$i]));
+		if (is_array($calculationFields)) {
+			for ($i=0; $i<count($calculationFields); $i++) {
+				$db->pquery('INSERT INTO vtiger_reportsummary (reportsummaryid, summarytype, columnname) VALUES (?,?,?)',
+						array($this->getId(), $i, $calculationFields[$i]));
+			}
 		}
 	}
 
