@@ -281,8 +281,6 @@ jQuery.Class("Vtiger_DashBoard_Js", {
 
 		this.registerRefreshWidget();
 
-		this.showWidgetIcons();
-		this.hideWidgetIcons();
 		this.removeWidget();
 		this.registerFilterInitiater();
 
@@ -304,24 +302,6 @@ jQuery.Class("Vtiger_DashBoard_Js", {
 			var widgetInstnace = thisInstance.getWidgetInstance(parent);
 			widgetInstnace.refreshWidget();
 			return;
-		});
-	},
-
-	showWidgetIcons : function() {
-		this.getContainer().on('mouseover', 'li', function(e) {
-			var element = $(e.currentTarget);
-			var widgetIcons = element.find('.widgeticons');
-			widgetIcons.fadeIn('slow', function() {
-				widgetIcons.css('visibility', 'visible');
-			});
-		});
-	},
-
-	hideWidgetIcons : function() {
-		this.getContainer().on('mouseout', 'li', function(e) {
-			var element = $(e.currentTarget);
-			var widgetIcons = element.find('.widgeticons');
-			widgetIcons.css('visibility', 'hidden');
 		});
 	},
 
