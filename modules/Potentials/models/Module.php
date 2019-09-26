@@ -297,23 +297,16 @@ class Potentials_Module_Model extends Vtiger_Module_Model {
 		//$currentUser = Users_Record_Model::getCurrentUserModel();
 		$db = PearDatabase::getInstance();
 
-		$picklistValues = Vtiger_Util_Helper::getPickListValues('sales_stage');
 		$data = array();
-		foreach ($picklistValues as $key => $picklistValue) {
-			$result = $db->pquery('SELECT SUM(amount) AS amount FROM vtiger_potential
-								   INNER JOIN vtiger_crmentity ON vtiger_potential.potentialid = vtiger_crmentity.crmid
-								   AND deleted = 0 '.Users_Privileges_Model::getNonAdminAccessControlQuery($this->getName()).' WHERE sales_stage = ?', array($picklistValue));
-			$num_rows = $db->num_rows($result);
-			for($i=0; $i<$num_rows; $i++) {
-				$values = array();
-				$amount = $db->query_result($result, $i, 'amount');
-				if(!empty($amount)){
-					$values[0] = $db->query_result($result, $i, 'amount');
-					$values[1] = vtranslate($picklistValue, $this->getName());
-					$values[2] = $picklistValue;
-					$data[] = $values;
-				}
-				
+		$result = $db->pquery('SELECT SUM(amount) AS amount,sales_stage FROM vtiger_potential
+							   INNER JOIN vtiger_crmentity ON vtiger_potential.potentialid = vtiger_crmentity.crmid
+							   JOIN vtiger_sales_stage USING (sales_stage)
+							   WHERE deleted = 0 '.Users_Privileges_Model::getNonAdminAccessControlQuery($this->getName()).' GROUP BY sales_stage ORDER BY sortorderid', array());
+
+		while ($row = $db->fetchByAssoc($result,-1,false)) {
+			if(!empty($row['amount'])){
+				// collect data, 0 => value, 1 => label, 2 => condition for linked listview
+				$data[] = array($row['amount'], vtranslate($row['sales_stage'], $this->getName()), $row['sales_stage']);
 			}
 		}
 		return $data;
