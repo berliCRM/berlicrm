@@ -12,19 +12,9 @@
 {strip}
 	<div class="container-fluid" id="moduleManagerContents">
 		<div class="widget_header row-fluid">
-			<div class="span6"><h3>{vtranslate('LBL_MODULE_MANAGER', $QUALIFIED_MODULE)}</h3></div>
-			<div class="span6">
-				<span class="btn-toolbar pull-right">
-					<span class="btn-group">
-                                            <button class="btn" type="button" onclick='window.location.href="index.php?module=ExtensionStore&parent=Settings&view=ExtensionStore"'>
-                                                    <strong>{vtranslate('LBL_EXTENSION_STORE', $QUALIFIED_MODULE)}</strong>
-                                            </button>
-					</span>
-				</span>
-			</div>
+			<div class="span12"><h3>{vtranslate('LBL_MODULE_MANAGER', $QUALIFIED_MODULE)}</h3></div>
 		</div>
 		<hr>
-		
 		<div class="contents">
 			{assign var=COUNTER value=0}
 			<table class="table table-bordered equalSplit">
@@ -79,8 +69,8 @@
 				</tr>
 			</table>
 		</div>
-                <div class="row-fluid" style="padding: 20px 0px;">
-                    <a href="{$IMPORT_USER_MODULE_FROM_FILE_URL}">{vtranslate('LBL_INSTALL_FROM_ZIP', $QUALIFIED_MODULE)}</a>
-                </div>
+		<div class="row-fluid" style="padding: 20px 0px;">
+			<a href="index.php?module=ModuleManager&parent=Settings&view=ModuleImport&mode=importUserModuleStep1">{vtranslate('LBL_INSTALL_FROM_ZIP', $QUALIFIED_MODULE)}</a>
+		</div>
 	</div>
 {/strip}
