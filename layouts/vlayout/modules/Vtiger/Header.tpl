@@ -8,8 +8,7 @@
  * All Rights Reserved.
 *
  ********************************************************************************/
--->*}
-{strip}
+-->*}{strip}
 <!DOCTYPE html>
 <html>
 	<head>
@@ -23,7 +22,6 @@
 		<link rel="stylesheet" href="libraries/jquery/jquery-ui/css/custom-theme/jquery-ui-1.8.16.custom.css" media="screen">
 		<link rel="stylesheet" href="libraries/jquery/select2/select2.css" media="screen">
 		<link rel="stylesheet" href="libraries/bootstrap/css/bootstrap.css" media="screen">
-        <link rel="stylesheet" href="libraries/bootstrap/css/jqueryBxslider.css" media="screen">
 		<link rel="stylesheet" href="resources/styles.css" type="text/css" media="screen">
 		<link rel="stylesheet" href="libraries/jquery/posabsolute-jQuery-Validation-Engine/css/validationEngine.jquery.css">
 		<link rel="stylesheet" href="libraries/jquery/select2/select2.css">
@@ -54,7 +52,7 @@
 	</head>
 
 	<body data-skinpath="{$SKIN_PATH}" data-language="{$LANGUAGE}">
-		<div id="js_strings" class="hide noprint">{Zend_Json::encode($LANGUAGE_STRINGS)}</div>
+		<div id="js_strings" class="hide noprint">{$LANGUAGE_STRINGS|@json_encode:JSON_UNESCAPED_UNICODE}</div>
 		{assign var=CURRENT_USER_MODEL value=Users_Record_Model::getCurrentUserModel()}
 		<input type="hidden" id="start_day" value="{$CURRENT_USER_MODEL->get('dayoftheweek')}">
 		<input type="hidden" id="row_type" value="{$CURRENT_USER_MODEL->get('rowheight')}">

@@ -10,16 +10,4 @@
 
 class Home_DashBoard_View extends Vtiger_DashBoard_View {
 
-	public function getHeaderScripts(Vtiger_Request $request) {
-		$headerScriptInstances = parent::getHeaderScripts($request);
-		$moduleName = $request->getModule();
-
-		$jsFileNames = array(
-			'~/libraries/jquery/boxslider/jqueryBxslider.js'
-		);
-
-		$jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
-		$headerScriptInstances = array_merge($headerScriptInstances, $jsScriptInstances);
-		return $headerScriptInstances;
-	}
 }
