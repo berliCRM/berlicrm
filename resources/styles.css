@@ -156,6 +156,9 @@
 .widgetChartContainer {
   margin-left: 10px;
 }
+.jqplot-point-label {
+  cursor: default;
+}
 .clearfix:before,
 .clearfix:after {
   display: table;
