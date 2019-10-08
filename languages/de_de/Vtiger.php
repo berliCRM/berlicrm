@@ -779,6 +779,7 @@ $languageStrings = array(
 	//Hubspot
 	'LBL_HUBSPOT' => 'HubSpot',
 	'berliHubSpot' => 'HubSpot',
+	'LBL_WIDGET_HUBSPOT_EVENTS' => 'HubSpot Ereignisse',
 
 	//language grammar fix
 	'LBL_HISTORY_TO' => 'zu',
@@ -949,7 +950,7 @@ $jsLanguageStrings = array(
 	'JS_SHOULD_BE_LESS_THAN_CURRENT_DATE' => 'sollte weniger als das heutige Datum sein', //Duplicated key-value pairs
 	'JS_SHOULD_BE_LESS_THAN_OR_EQUAL_TO' => 'sollte weniger oder gleich sein zu',
 	'JS_SMS_SERVER_CONFIGURATION' => 'Bitte legen Sie Ihren SMS Lieferanten im Einstellungsmenü für SMS Nachrichten fest.',
-	'JS_SMS_SUCCESS' => 'SMS erfolgreich versandt',
+	'JS_SMS_SUCCESS' => 'SMS erfolgreich an den Provider übergeben',
 	'JS_SMS_FAILURE' => 'Fehler beim SMS-Versand',
 	'JS_START_DATE_TIME' => 'Start Datum & Zeit',
 	'JS_SUCCESSFULLY_PINNED' => 'Shortcut erfolgreich hinzugefügt',
@@ -969,7 +970,7 @@ $jsLanguageStrings = array(
 	'LBL_DELETE_CONFIRMATION' => 'Sind Sie sicher?', // This is added as duplicate as we need to show different message for different modules. Ex:Accounts has different message
 	'LBL_DELETE_USER_CONFIRMATION' => 'Wenn ein Nutzer gelöscht wird, so wird dieser als "Inaktiv" gekennzeichnet. Dem Nutzer können keine Daten mehr zugewiesen werden und der Nutzer kann sich nicht mehr in das CRM einloggen. Sind Sie sicher, dass Sie den Nutzer inaktiv setzen wollen?',
 	'LBL_RESTORE_CONFIRMATION' => 'Datensätze die diesem CRM Nutzer zugeordnet waren, werden nicht wieder hergestellt. Sind Sie sicher, dass Sie diesen Nutzer wiederherstellen wollen?',
-    'LBL_DELETE_USER_PERMANENT_CONFIRMATION' => 'Haben Sie diesen Nutzer gelöscht, so können Sie den nicht wiederherstellen. SInd Sie sicher, dass Sie diesen Nutzer permanent löschen wollen?',
+    'LBL_DELETE_USER_PERMANENT_CONFIRMATION' => 'Haben Sie diesen Nutzer gelöscht, so können Sie den nicht wiederherstellen. Sind Sie sicher, dass Sie diesen Nutzer permanent löschen wollen?',
 	'LBL_IMAGE_DELETED_SUCCESSFULLY' => 'Bild wurde gelöscht',
 	'LBL_IMAGE_NOT_DELETED' => 'Bild wurde nicht gelöscht',
 	'LBL_MASS_DELETE_CONFIRMATION' => 'Sind Sie sicher, dass Sie die ausgewählten Daten löschen wollen?',
