@@ -302,6 +302,8 @@ $languageStrings = array(
 	'Search'=>'Globale Suche',
 	'LBL_SEARCH_SETUP' => 'Global Search',
 	
+	'LBL_INACTIVE_USERS' => 'inaktive Nutzer',
+	
 	
 );
 
