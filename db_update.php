@@ -9,7 +9,13 @@ require_once 'vtigerversion.php';
 ini_set('display_errors','on'); error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 global $adb;
 
-echo "<h1>Updating to $current_release_tag..</h1>";
+$res = $adb->query("SELECT tag_version FROM vtiger_version");
+$installedtag = $adb->query_result($res,0,'tag_version');
+if ($installedtag == $current_release_tag) {
+	die("This installation of berliCRM is up to date.");
+}
+
+echo "<h1>Updating from $installedtag to $current_release_tag..</h1>";
 
 echo "Remove special UI types of salutation and name fields in leads and contacts...";
 $query = "UPDATE vtiger_field SET uitype = '15', displaytype = 1, summaryfield = 1 WHERE columnname = 'salutation'";
