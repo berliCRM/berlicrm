@@ -1,14 +1,31 @@
 <?xml version='1.0'?>
 <module>
-<exporttime>2018-30-12 12:26:43</exporttime>
+<exporttime>2019-10-08 16:37:11</exporttime>
 <name>Mailchimp</name>
 <label>Mailchimp</label>
 <parent>Marketing</parent>
-<version>4.0</version>
+<version>4.02</version>
 <dependencies>
 <vtiger_version>6.5.0</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>
 </dependencies>
+<migrations>
+	<migration version='4.02'>
+		<tables>
+			<table>
+				<name>vtiger_mailchimp_synced_entities</name>
+				<sql><![CDATA[CREATE TABLE IF NOT EXISTS `vtiger_mailchimp_synced_entities` (
+				  `crmid` int(11) NOT NULL,
+				  `mcgroupid` int(11) NOT NULL,
+				  `recordid` int(11) NOT NULL,
+				  KEY `recordidx` (`recordid`),
+				  KEY `crmid` (`crmid`),
+				  CONSTRAINT FOREIGN KEY (`crmid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+			</table>
+		</tables>
+	</migration>
+</migrations>
 <tables>
 <table>
 <name>vtiger_mailchimp</name>
@@ -32,8 +49,8 @@
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
 </table>
 <table>
-<name>vtiger_mailchimpsyncdiff</name>
-<sql><![CDATA[CREATE TABLE IF NOT EXISTS `vtiger_mailchimp_synced_entities` (
+<name>vtiger_mailchimp_synced_entities</name>
+<sql><![CDATA[CREATE TABLE `vtiger_mailchimp_synced_entities` (
   `crmid` int(11) NOT NULL,
   `mcgroupid` int(11) NOT NULL,
   `recordid` int(11) NOT NULL,
