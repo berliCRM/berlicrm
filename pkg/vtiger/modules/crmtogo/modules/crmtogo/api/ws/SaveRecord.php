@@ -33,10 +33,6 @@ class crmtogo_WS_SaveRecord extends crmtogo_WS_FetchRecord {
 		else {
 			$values = $valueArray;
 		}
-		ob_start();
-		print_r($values);
-		$var = ob_get_contents();
-		ob_end_clean();
 		//catch error
 		$response = new crmtogo_API_Response();
 		if (empty($values)) {
@@ -108,8 +104,9 @@ class crmtogo_WS_SaveRecord extends crmtogo_WS_FetchRecord {
 					}
 					// make sure visibility is not NULL
 					if (empty($this->recordValues['visibility'])) {
-						$this->recordValues['visibility'] = 'all';
+						$this->recordValues['visibility'] = 'Public';
 					}
+					unset (	$this->recordValues['time_end']);
 				}
 				$this->recordValues = vtws_create($module, $this->recordValues, $current_user);
 			}

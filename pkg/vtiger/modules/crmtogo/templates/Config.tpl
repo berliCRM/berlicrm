@@ -18,6 +18,31 @@
 <link rel="stylesheet" href="../../layouts/vlayout/modules/crmtogo/resources/css/theme.css" >
 <link rel="stylesheet" href="../../layouts/vlayout/modules/crmtogo/resources/css/jquery-ui.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<style>
+  /* !important is needed sometimes */
+ ::-webkit-scrollbar {
+    width: 12px !important;
+ }
+
+ /* Track */
+::-webkit-scrollbar-track {
+   -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3) !important;
+   -webkit-border-radius: 10px !important;
+   border-radius: 10px !important;
+ }
+
+ /* Handle */
+ ::-webkit-scrollbar-thumb {
+   -webkit-border-radius: 10px !important;
+   border-radius: 10px !important;
+   background: #41617D !important; 
+   -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5) !important; 
+
+ }
+ ::-webkit-scrollbar-thumb:window-inactive {
+   background: #41617D !important; 
+ }
+</style>
 </head>
 <body>
 <div data-role="page" data-theme="b" id="settings_page" >

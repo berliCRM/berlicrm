@@ -462,6 +462,7 @@ var crmtogo_Index_Js = {
 		var d2 = dv2_arr[2];
 
 		var date1 = new Date(y1, m1, d1, starthour, startmin, 0);
+		var date2 = new Date(y2, m2, d2, starthour, startmin, 0);
 		if (origmodule == 'Events') {
 			if (mode == 'edit') {
 				var date2 = new Date(y1, m1, d1, endhour, endmin, 0);
@@ -473,7 +474,6 @@ var crmtogo_Index_Js = {
 				}
 			}		
 			else {
-				var date2 = date1;
 				//add 60 minutes for create mode for events
 				date2.setMinutes(date2.getMinutes() + 60);
 				var fiveminutes = date2.getHours() + ":" + date2.getMinutes();
@@ -499,9 +499,13 @@ var crmtogo_Index_Js = {
 			var diff_ms = Math.abs(date2.getTime()-date1.getTime())/(1000*60);
 			var hour = Math.floor(diff_ms / 60);
 			var minute = Math.floor(diff_ms % 60);
+
 			//set minimum duration
 			if (hour == 0 && minute == 0) {
-				minute = 5;
+				minute = 15;
+			}
+			if (minute <15) {
+				minute = 15;
 			}
 			$("#duration_hours").val(hour);
 			$("#duration_minutes").val(minute);
