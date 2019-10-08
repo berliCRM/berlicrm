@@ -15,25 +15,26 @@ Settings_Vtiger_List_Js("Settings_Users_List_Js",{
 	 */
     deleteRecord : function(deleteRecordActionUrl) {
 		var message = app.vtranslate('LBL_DELETE_USER_CONFIRMATION');
-		Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(function(data) {
+		Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(
+			function(data) {
 				AppConnector.request(deleteRecordActionUrl).then(
 				function(data){
 					if(data){
 						var callback = function(data) {
-						var params = app.validationEngineOptions;
-						params.onValidationComplete = function(form, valid){
-							if(valid){
-								Settings_Users_List_Js.deleteUser(form)
+							var params = app.validationEngineOptions;
+							params.onValidationComplete = function(form, valid){
+								if(valid){
+									Settings_Users_List_Js.deleteUser(form)
+								}
+								return false;
 							}
-							return false;
+							jQuery('#deleteUser').validationEngine(app.validationEngineOptions);
 						}
-						jQuery('#deleteUser').validationEngine(app.validationEngineOptions);
-					}
-					app.showModalWindow(data, function(data){
-						if(typeof callback == 'function'){
-							callback(data);
-						}
-					});
+						app.showModalWindow(data, function(data){
+							if(typeof callback == 'function'){
+								callback(data);
+							}
+						});
 					}
 				});
 			},
@@ -47,10 +48,10 @@ Settings_Vtiger_List_Js("Settings_Users_List_Js",{
 		var userid = form.find('[name="userid"]').val();
 		var transferUserId = form.find('[name="tranfer_owner_id"]').val();
         var progressInstance = jQuery.progressIndicator({
-                'position' : 'html',
-                'blockInfo' : {
-                        'enabled' : true
-                }
+			'position' : 'html',
+			'blockInfo' : {
+				'enabled' : true
+			}
         });
 		var params = {
 			'module': app.getModuleName(),
@@ -63,150 +64,170 @@ Settings_Vtiger_List_Js("Settings_Users_List_Js",{
 			function(data) {
 				if(data.success){
 					app.hideModalWindow();
-                                        progressInstance.progressIndicator({
-                                                'mode' : 'hide'
-                                        });
-                                        var orderBy = jQuery('#orderBy').val();
-                                        var sortOrder = jQuery("#sortOrder").val();
-                                        var urlParams = {
-                                            "viewname": data.result.viewname,
-                                            "orderby": orderBy,
-                                            "sortorder": sortOrder
-                                        };
-                                        jQuery('#recordsCount').val('');
-                                        jQuery('#totalPageCount').text('');
-                                        listInstance.getListViewRecords(urlParams).then(function(){
-                                            listInstance.updatePagination();
-                                        });
-                    params = {
-                        title : app.vtranslate('JS_MESSAGE'),
-                        text : data.result.message,
-                        animation: 'show',
-						type: 'error'
-                    };
+					progressInstance.progressIndicator({
+						'mode' : 'hide'
+					});
+					var orderBy = jQuery('#orderBy').val();
+					var sortOrder = jQuery("#sortOrder").val();
+					var urlParams = {
+						"viewname": data.result.viewname,
+						"orderby": orderBy,
+						"sortorder": sortOrder
+					};
+					jQuery('#recordsCount').val('');
+					jQuery('#totalPageCount').text('');
+					listInstance.getListViewRecords(urlParams).then(function(){
+						listInstance.updatePagination();
+					});
+					if (data.result.success) {
+						params = {
+							title : app.vtranslate('JS_MESSAGE'),
+							text : data.result.message,
+							animation: 'show',
+							type: 'notice'
+						};
+					}
+					else {
+						params = {
+							title : app.vtranslate('JS_MESSAGE'),
+							text : data.result.message,
+							animation: 'show',
+							type: 'error'
+						};
+					}
 					Vtiger_Helper_Js.showPnotify(params);
-              }
+				}
 			}
 		);
 	},
                 
-        /*
-         *Function to delete a user permanently
-         *@param userId, event
-         */
-        deleteUserPermanently : function(userId, e) {
-                e.stopPropagation();
-                var message = app.vtranslate('LBL_DELETE_USER_PERMANENT_CONFIRMATION');
-                var deleteRecordActionUrl = 'index.php?module='+app.getModuleName()+'&parent='+app.getParentModuleName()+'&view=DeleteUser&mode=permanent&record='+userId;
-                Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(
-                    function(data) {
-                        AppConnector.request(deleteRecordActionUrl).then(
-                        function(data) {
-                                if(data){
-                                    var callback = function(data) {
-                                        var params = app.validationEngineOptions;
-                                        params.onValidationComplete = function(form, valid){
-                                                if(valid){
-                                                        var progressInstance = jQuery.progressIndicator({
-                                                                'position' : 'html',
-                                                                'blockInfo' : {
-                                                                        'enabled' : true
-                                                                }
-                                                        });
-                                                        var params = {
-                                                                'module': app.getModuleName(),
-                                                                'action' : "DeleteAjax",
-                                                                'userid' : userId,
-                                                                'transfer_user_id' : form.find('[name="tranfer_owner_id"]').val(),
-                                                                'mode' : 'permanent'
-                                                        }
-                                                        app.hideModalWindow();
-                                                        AppConnector.request(params).then(
-                                                                function(response) {
-                                                                        if(response.success){
-                                                                                progressInstance.progressIndicator({
-                                                                                        'mode' : 'hide'
-                                                                                });
-                                                                                params = {
-                                                                                    title : app.vtranslate('JS_MESSAGE'),
-                                                                                    text : response.result.message,
-                                                                                    animation: 'show',
-                                                                                    type: 'error'
-                                                                                };
-                                                                                Vtiger_Helper_Js.showPnotify(params);
-                                                                                jQuery('[data-id='+userId+"]").hide();
-                                                                        }
-                                                                }
-                                                        );
-                                                }
-                                                return false;
-                                        }
-                                        jQuery('#deleteUser').validationEngine(app.validationEngineOptions);
-                                    }
-                                    app.showModalWindow(data, function(data){
-                                            if(typeof callback == 'function'){
-                                                    callback(data);
-                                            }
-                                    });
-                                }
-                        });
-                    }
+	/*
+	*Function to delete a user permanently
+	*@param userId, event
+	*/
+	deleteUserPermanently : function(userId, e) {
+		e.stopPropagation();
+		var message = app.vtranslate('LBL_DELETE_USER_PERMANENT_CONFIRMATION');
+		var deleteRecordActionUrl = 'index.php?module='+app.getModuleName()+'&parent='+app.getParentModuleName()+'&view=DeleteUser&mode=permanent&record='+userId;
+		Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(
+			function(data) {
+				AppConnector.request(deleteRecordActionUrl).then(
+					function(data) {
+						if(data){
+							var callback = function(data) {
+								var params = app.validationEngineOptions;
+								params.onValidationComplete = function(form, valid){
+									if(valid){
+										var progressInstance = jQuery.progressIndicator({
+											'position' : 'html',
+											'blockInfo' : {
+												'enabled' : true
+											}
+										});
+										var params = {
+											'module': app.getModuleName(),
+											'action' : "DeleteAjax",
+											'userid' : userId,
+											'transfer_user_id' : form.find('[name="tranfer_owner_id"]').val(),
+											'mode' : 'permanent'
+										}
+										app.hideModalWindow();
+										AppConnector.request(params).then(
+											function(response) {
+												if(response.success){
+													progressInstance.progressIndicator({
+														'mode' : 'hide'
+													});
+													if (response.result.success) {
+														params = {
+															title : app.vtranslate('JS_MESSAGE'),
+															text : response.result.message,
+															animation: 'show',
+															type: 'notice'
+														};
+														jQuery('[data-id='+userId+"]").hide();
+													}
+													else {
+														params = {
+															title : app.vtranslate('JS_MESSAGE'),
+															text : response.result.message,
+															animation: 'show',
+															type: 'error'
+														};
+													}
+													Vtiger_Helper_Js.showPnotify(params);
+												}
+											}
+										);
+									}
+									return false;
+								}
+								jQuery('#deleteUser').validationEngine(app.validationEngineOptions);
+							}
+							app.showModalWindow(data, function(data){
+								if(typeof callback == 'function'){
+									callback(data);
+								}
+							});
+						}
+					}
+				);
+			}
 		);
-        },
-        
-        /*
-         *Function to restore Inactive User
-         *@param userId, event
-         */
-        restoreUser : function(userId, e) {
-                e.stopPropagation();
-                Vtiger_Helper_Js.showConfirmationBox({
+	},
+       
+	/*
+	*Function to restore Inactive User
+	*@param userId, event
+	*/
+	restoreUser : function(userId, e) {
+		e.stopPropagation();
+		Vtiger_Helper_Js.showConfirmationBox({
 			'message' : app.vtranslate('LBL_RESTORE_CONFIRMATION')
 		}).then( function() {
-                        var progressInstance = jQuery.progressIndicator({
-                                'position' : 'html',
-                                'blockInfo' : {
-                                        'enabled' : true
-                                }
-                        });
-                        var params = {
-                                'module': app.getModuleName(),
-                                'action' : "SaveAjax",
-                                'userid' : userId,
-                                'mode' : 'restoreUser'
-                        }
-                        AppConnector.request(params).then(
-                                function(response) {
-                                        if(response.success){
-                                                progressInstance.progressIndicator({
-                                                        'mode' : 'hide'
-                                                });
-                                                Vtiger_Helper_Js.showPnotify(response.result.message);
-                                                var url = response.result.listViewUrl;
-                                                window.location.href=url;
-                                        }
-                                }
-                        );
-                });
-        },
+			var progressInstance = jQuery.progressIndicator({
+				'position' : 'html',
+				'blockInfo' : {
+					'enabled' : true
+				}
+			});
+			var params = {
+				'module': app.getModuleName(),
+				'action' : "SaveAjax",
+				'userid' : userId,
+				'mode' : 'restoreUser'
+			}
+			AppConnector.request(params).then(
+				function(response) {
+					if(response.success){
+						progressInstance.progressIndicator({
+							'mode' : 'hide'
+						});
+						Vtiger_Helper_Js.showPnotify(response.result.message);
+						var url = response.result.listViewUrl;
+						window.location.href=url;
+					}
+				}
+			);
+		});
+	},
 
-        triggerExportAction: function() {
-            var url = window.location.href;
-            var siteUrl = url.split('?');
-            var newForm = jQuery('<form>', {
-                'method': 'post',
-                'action': siteUrl[0] + '?module=Users&source_module=Users&action=ExportData',
-            }).append(jQuery('<input>', {
-                'name': csrfMagicName,
-                'value': csrfMagicToken,
-                'type': 'hidden'
-            }));
-           jQuery(newForm).appendTo('body')[0].submit();
-    }
-	
+	triggerExportAction: function() {
+		var url = window.location.href;
+		var siteUrl = url.split('?');
+		var newForm = jQuery('<form>', {
+			'method': 'post',
+			'action': siteUrl[0] + '?module=Users&source_module=Users&action=ExportData',
+		}).append(jQuery('<input>', {
+			'name': csrfMagicName,
+			'value': csrfMagicToken,
+			'type': 'hidden'
+		}));
+		jQuery(newForm).appendTo('body')[0].submit();
+	}
 },{
 
-	
+
 	/*
 	 * Function to get Page Jump Params
 	 */
@@ -237,53 +258,53 @@ Settings_Vtiger_List_Js("Settings_Users_List_Js",{
 		});
 	},
         
-        /*
-         *Function to filter Active and Inactive users from Users List View
-         */
-          usersFilter : function() {
-                var thisInstance = this;
-                jQuery('#usersFilter').change(function() {
-                        var progressInstance = jQuery.progressIndicator({
-                                'position' : 'html',
-                                'blockInfo' : {
-                                        'enabled' : true
-                                }
-                        });
-                        var params = {
-                            'module' : app.getModuleName(),
-                            'view' : 'List',
-                            'parent' : app.getParentModuleName(),
-                            'search_key' : 'status',
-                            'operator' : 'e',
-                            'search_value' : jQuery('#usersFilter').val()
-                        };
-                        AppConnector.request(params).then(
-                            function(data){
-                                        progressInstance.progressIndicator({
-                                                'mode' : 'hide'
-                                        });
-                                        jQuery('#listViewContents').html(data);
-                                        thisInstance.getPageCount().then(function(data){
-                                            var pageCount = data['result']['page'];
-                                            jQuery('#totalCount').val(data['result']['numberOfRecords']);
-                                            if(pageCount == 0){
-                                                pageCount = 1;
-                                            }
-                                            jQuery('#totalPageCount').text(pageCount);
-                                            thisInstance.updatePagination();
-                                        });
-                         }
-                        );
-                });
-        },
+	/*
+	*Function to filter Active and Inactive users from Users List View
+	*/
+	usersFilter : function() {
+		var thisInstance = this;
+		jQuery('#usersFilter').change(function() {
+			var progressInstance = jQuery.progressIndicator({
+				'position' : 'html',
+				'blockInfo' : {
+					'enabled' : true
+				}
+			});
+			var params = {
+				'module' : app.getModuleName(),
+				'view' : 'List',
+				'parent' : app.getParentModuleName(),
+				'search_key' : 'status',
+				'operator' : 'e',
+				'search_value' : jQuery('#usersFilter').val()
+			};
+			AppConnector.request(params).then(
+				function(data){
+					progressInstance.progressIndicator({
+						'mode' : 'hide'
+					});
+					jQuery('#listViewContents').html(data);
+					thisInstance.getPageCount().then(function(data){
+						var pageCount = data['result']['page'];
+						jQuery('#totalCount').val(data['result']['numberOfRecords']);
+						if(pageCount == 0){
+							pageCount = 1;
+						}
+						jQuery('#totalPageCount').text(pageCount);
+						thisInstance.updatePagination();
+					});
+				}
+			);
+		});
+	},
 
         
 	registerEvents : function() {
 		this._super();
 		this.registerEventForAlphabetSearch();
-                this.registerEmailFieldClickEvent();
+		this.registerEmailFieldClickEvent();
 		this.registerUrlFieldClickEvent();
 		this.registerDeleteRecordClickEvent();
-                this.usersFilter();
+		this.usersFilter();
 	}
 });
