@@ -321,6 +321,23 @@ $adb->pquery("ALTER TABLE `vtiger_mailmanager_mailrecord` CHANGE `mbody` `mbody`
 echo "<br>Alter vtiger_berlicleverreach_settings.accesstoken to VARCHAR(600) if applicable..";
 $adb->pquery("ALTER TABLE `vtiger_berlicleverreach_settings` CHANGE `accesstoken` `accesstoken` VARCHAR( 600 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL");
 
+echo "<br>update crmtogo settings if applicable..";
+$result = $adb->pquery("Select crmtogo_user  from berli_crmtogo_modules group by crmtogo_user", array());
+$num_rows=$adb->num_rows($result);
+for($i=0;$i<$num_rows;$i++) {
+	$userid=$adb->query_result($result,$i,'crmtogo_user');
+	$checkresult = $adb->pquery("Select * from berli_crmtogo_modules where crmtogo_module = 'Events' and crmtogo_user =?", array($userid));
+	$checknum_rows=$adb->num_rows($checkresult);
+	if ($checknum_rows==0) {
+		if(vtlib_isModuleActive('Calendar') === true) {
+			$seq_result = $adb->pquery("SELECT `order_num` FROM `berli_crmtogo_modules` WHERE `crmtogo_user` = ? ORDER BY order_num DESC LIMIT 1", array($userid));
+			$seq=$adb->query_result($seq_result,0,'order_num');		
+			$adb->pquery("INSERT INTO `berli_crmtogo_modules` (`crmtogo_user`, `crmtogo_module`, `crmtogo_active`, `order_num`) VALUES (?, ?, ?, ?)", array($userid,'Events', '1', $seq+1));
+		}
+		
+	}
+}
+
 // recreate tabdata files
 create_tab_data_file();
 create_parenttab_data_file();
