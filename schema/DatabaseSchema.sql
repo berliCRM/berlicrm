@@ -14371,7 +14371,7 @@ CREATE TABLE IF NOT EXISTS `vtiger_version` (
 --
 
 INSERT INTO `vtiger_version` (`id`, `old_version`, `current_version`, `tag_version`) VALUES
-(1, '6.5.0', '6.5.0', 'berlicrm-1.0.0.21');
+(1, '6.5.0', '6.5.0', '');
 
 -- --------------------------------------------------------
 

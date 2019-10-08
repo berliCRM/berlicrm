@@ -422,7 +422,7 @@
 			   itemIndex = event[plugin.settings.itemIndex],
 					   beginTime  = (( event[plugin.settings.begin] > begin ) ? event[plugin.settings.begin] : begin ).toTimeString().substr(0,5),
 					   endTime    = (( event[plugin.settings.end] < end ) ? event[plugin.settings.end] : end ).toTimeString().substr(0,5),
-					   timeString = beginTime + "-" + endTime,
+					   timeString = beginTime,
 					   $listItem  = $("<li></li>").appendTo($listview);
 				   plugin.settings.listItemFormatter( $listItem, timeString, summary, event );
 				}

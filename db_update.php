@@ -1,19 +1,24 @@
-<!DOCTYPE html><html><?php
-require_once("includes/main/WebUI.php");
-require_once('include/utils/utils.php');
-include_once('vtlib/Vtiger/Module.php');
-include_once('include/Webservices/Utils.php');
-require_once('vtlib/Vtiger/Package.php');
+<!DOCTYPE html><html><head><title>BerliCRM updater</title><style>body { font-family: Open sans,sans-serif;}</style>
+<?php
+require_once 'includes/main/WebUI.php';
+require_once 'include/utils/utils.php';
+include_once 'vtlib/Vtiger/Module.php';
+include_once 'include/Webservices/Utils.php';
+require_once 'vtlib/Vtiger/Package.php';
+require_once 'vtigerversion.php';
+ini_set('display_errors','on'); error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 global $adb;
 
-echo "<br>Remove special UI types of salutation and name fields in leads and contacts...";
+echo "<h1>Updating to $current_release_tag..</h1>";
+
+echo "Remove special UI types of salutation and name fields in leads and contacts...";
 $query = "UPDATE vtiger_field SET uitype = '15', displaytype = 1, summaryfield = 1 WHERE columnname = 'salutation'";
 $adb->pquery($query, array());
 $query = "UPDATE vtiger_field SET uitype = '1' WHERE columnname = 'firstname'";
 $adb->pquery($query, array());
 $query = "UPDATE vtiger_field SET uitype = '2' WHERE columnname = 'lastname'";
 $adb->pquery($query, array());
-echo " done";
+echo " done<br>";
 
 
 //  Import Cron correction
@@ -27,7 +32,7 @@ if ($res) {
 }
 
 // add new Webservices
-echo "add new web services ";
+echo "New web services:<br>";
 // check existance (for migrated clients)
 $query = "SELECT * FROM `vtiger_ws_operation` WHERE `name` = 'retrievedocattachment'";
 $res = $adb->pquery($query, array());
@@ -36,10 +41,10 @@ if ($adb->num_rows($res) > 0) {
 	$operationId = vtws_addWebserviceOperation('retrievedocattachment','include/Webservices/RetrieveDocAttachment.php','berli_retrievedocattachment','Get','0');
 	vtws_addWebserviceOperationParam($operationId,'id','string','1');
 	vtws_addWebserviceOperationParam($operationId,'returnfile','string','2');
-	echo "retrievedocattachment added";
+	echo "retrievedocattachment added<br>";
 }
 else {
-	echo "retrievedocattachment already exists";
+	echo "retrievedocattachment already exists<br>";
 }
 // check existance (for migrated clients)
 $query = "SELECT * FROM `vtiger_ws_operation` WHERE `name` = 'update_product_relations'";
@@ -50,10 +55,10 @@ if ($adb->num_rows($res) > 0) {
 	vtws_addWebserviceOperationParam($operationId,'productid','string','1');
 	vtws_addWebserviceOperationParam($operationId,'relids','string','2');
 	vtws_addWebserviceOperationParam($operationId,'preserve','string','3');
-	echo "update_product_relations added";
+	echo "update_product_relations added<br>";
 }
 else {
-	echo "update_product_relations already exists";
+	echo "update_product_relations already exists<br>";
 }
 // check existance (for migrated clients)
 $query = "SELECT * FROM `vtiger_ws_operation` WHERE `name` = 'get_multi_relations'";
@@ -62,10 +67,10 @@ if ($adb->num_rows($res) > 0) {
 	// add web service: get_multi_relations
 	$operationId = vtws_addWebserviceOperation('get_multi_relations','include/Webservices/Custom/getMultiRelations.php','berli_get_multi_relations','Get','0');
 	vtws_addWebserviceOperationParam($operationId,'id','string','1');
-	echo "get_multi_relations added";
+	echo "get_multi_relations added<br>";
 }
 else {
-	echo "get_multi_relations already exists";
+	echo "get_multi_relations already exists<br>";
 }
 
 // update vtiger_smsnotifier_servers structure (if required)
@@ -92,7 +97,7 @@ if ($res) {
 
 //// adding fields and index missing from modcomments manifest before v1.0.11
 
-echo 'Alter missing modcomments fields... ';
+echo '<br>Alter missing modcomments fields... ';
 
 $moduleInstance = Vtiger_Module::getInstance('ModComments');
 if($moduleInstance) {
@@ -140,22 +145,6 @@ echo 'done<br>';
 
 $moduleInstance = Vtiger_Module::getInstance("Mailchimp");
 if($moduleInstance) {
-    echo "<br>Updating Mailchimp module ";
-    updateVtlibModule("Mailchimp", "packages/vtiger/mandatory/Mailchimp.zip");
-    echo "- done";
-    
-    echo "<br>create table for new Mailchimp version ";
-    $query = "CREATE TABLE IF NOT EXISTS `vtiger_mailchimp_synced_entities` (
-      `crmid` int(11) NOT NULL,
-      `mcgroupid` int(11) NOT NULL,
-      `recordid` int(11) NOT NULL,
-      KEY `recordidx` (`recordid`),
-      KEY `crmid` (`crmid`),
-      CONSTRAINT `fk_1_vtiger_mailchimp_synced_entities` FOREIGN KEY (`crmid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
-    $adb->pquery($query, array());
-    echo "create table done.<br>";
-
     echo "<br>delete not needed files for new Mailchimp version ";
     require_once('config.inc.php');
     $filePath = "modules/Mailchimp/actions/logfileWriter.php";
@@ -176,43 +165,28 @@ if($moduleInstance) {
     echo "file deletion done.<br>";
 }
 
-$moduleInstance = Vtiger_Module::getInstance("berlimap");
-if($moduleInstance) {
-    echo "<br>Updating berlimap module ";
-    updateVtlibModule("berlimap", "packages/vtiger/optional/berlimap.zip");
-    echo "- done";
-}
 
-$moduleInstance = Vtiger_Module::getInstance("gdpr");
-if($moduleInstance) {
-    echo "<br>Updating gdpr module ";
-    updateVtlibModule("gdpr", "packages/vtiger/optional/gdpr.zip");
-    echo "- done";
-}
-
-echo 'Creating ws_fieldtype entry for new uitype...';
+echo '<br>Creating ws_fieldtype entry for new uitype...';
 $adb->query("INSERT INTO vtiger_ws_fieldtype (`uitype` ,`fieldtype`) VALUES ('crs16', 'autocompletedsingleuse')");
 echo 'done<br>';
 
-echo "change uitype of certain numberfields that were text until now<br>";
+echo "<br>Change uitype of certain numberfields that were text until now... ";
 $query = "UPDATE `vtiger_field` SET uitype = 7 WHERE uitype = 1 AND typeofdata LIKE 'N%';";
 $adb->pquery($query, array());
 echo "uitype change done.<br>";
 
-  
-
-echo "<br>delete not needed files for new SMS Notifier version ";
+echo "<br>Delete files not needed for new SMS Notifier version ";
 require_once('config.inc.php');
 $filePath = "modules/SMSNotifier/views/CheckStatus.php";
 $file = $root_directory.''.$filePath;
 unlink($file);
 echo "file deletion done.<br>";
 
-echo "<br>set constraint for SMS Notifier tables";
+echo "<br>Set constraint for SMS Notifier tables";
 $query = "delete vtiger_smsnotifier FROM vtiger_smsnotifier
-LEFT JOIN vtiger_crmentity ON ( vtiger_crmentity.crmid = vtiger_smsnotifier.smsnotifierid)
-WHERE vtiger_smsnotifier.smsnotifierid IS NOT NULL
-AND vtiger_crmentity.crmid IS NULL;";
+	LEFT JOIN vtiger_crmentity ON ( vtiger_crmentity.crmid = vtiger_smsnotifier.smsnotifierid)
+	WHERE vtiger_smsnotifier.smsnotifierid IS NOT NULL
+	AND vtiger_crmentity.crmid IS NULL;";
 $adb->pquery($query, array());
 $query = "ALTER TABLE `vtiger_smsnotifier` ADD CONSTRAINT `fk_crmid_vtiger_smsnotifier` FOREIGN KEY (`smsnotifierid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE;";
 $adb->pquery($query, array());
@@ -220,9 +194,9 @@ echo " set constraint done for vtiger_smsnotifier.<br>";
 
 
 $query = "delete vtiger_smsnotifiercf FROM vtiger_smsnotifiercf
-LEFT JOIN vtiger_crmentity ON ( vtiger_crmentity.crmid = vtiger_smsnotifiercf.smsnotifierid)
-WHERE vtiger_smsnotifiercf.smsnotifierid IS NOT NULL
-AND vtiger_crmentity.crmid IS NULL;";
+	LEFT JOIN vtiger_crmentity ON ( vtiger_crmentity.crmid = vtiger_smsnotifiercf.smsnotifierid)
+	WHERE vtiger_smsnotifiercf.smsnotifierid IS NOT NULL
+	AND vtiger_crmentity.crmid IS NULL;";
 $adb->pquery($query, array());
 $query = "ALTER TABLE `vtiger_smsnotifiercf` ADD CONSTRAINT `fk_crmid_vtiger_smsnotifiercf` FOREIGN KEY (`smsnotifierid`) REFERENCES `vtiger_smsnotifier` (`smsnotifierid`) ON DELETE CASCADE;";
 $adb->pquery($query, array());
@@ -233,7 +207,7 @@ $query = "ALTER TABLE vtiger_smsnotifier ADD PRIMARY KEY(smsnotifierid)";
 $adb->pquery($query, array());
 echo "add primary key done.<br>";
 
-echo "<br>delete not needed files for new CKeditor version ";
+echo "<br>Delete files not needed for new CKeditor version... ";
 require_once('config.inc.php');
 $filePath = "libraries/jquery/ckeditor/ckeditor_php4.php";
 $file = $root_directory.''.$filePath;
@@ -241,7 +215,7 @@ unlink($file);
 $filePath = "libraries/jquery/ckeditor/ckeditor_php5.php";
 $file = $root_directory.''.$filePath;
 unlink($file);
-echo "file deletion done.<br>";
+echo "done.<br>";
 
 
 echo "<br>delete old theme<br>";
@@ -266,7 +240,7 @@ rmdir($dir);
 echo "dir deletion done.<br>";
 
 
-echo "<br>delete not needed lang files<br>";
+echo "<br>delete not needed lang files... ";
 $dirPath = "libraries/jquery/ckeditor/plugins/a11yhelp/lang/";
 $dir = $root_directory.''.$dirPath;
 
@@ -280,14 +254,13 @@ rmdir($dir);
 echo "lang files deletion done.<br>";
 
 
-echo "remove berliSoftphone as entity <br>";
+echo "Remove berliSoftphone as entity... ";
 $query = "DELETE FROM `vtiger_ws_entity` WHERE `vtiger_ws_entity`.`name` = 'berliSoftphones';";
 $adb->pquery($query, array());
 echo "uitype change done.<br>";
 
-
-echo 'module install Verteiler start<br>';
-//install Verteiler module
+//Update modules
+echo 'Updating modules where applicable...<ul>';
 $moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
 foreach($moduleFolders as $moduleFolder) {
 	if ($handle = opendir($moduleFolder)) {
@@ -298,33 +271,36 @@ foreach($moduleFolders as $moduleFolder) {
 			}
 			array_pop($packageNameParts);
 			$packageName = implode("",$packageNameParts);
-			if ($packageName =='Verteiler') {
-				$packagepath = "$moduleFolder/$file";
-				$package = new Vtiger_Package();
-				$module = $package->getModuleNameFromZip($packagepath);
-				if($module != null) {
-					$moduleInstance = Vtiger_Module::getInstance($module);
+			$packagepath = "$moduleFolder/$file";
+			$package = new Vtiger_Package();
+			$module = $package->getModuleNameFromZip($packagepath);
+			if($module != null) {
+				$moduleInstance = Vtiger_Module::getInstance($module);
+				$oldver = $moduleInstance->version;
+				if ($oldver) {
+					echo "<li>Found v{$moduleInstance->version} of $module... ";
 					if($moduleInstance) {
-						updateVtlibModule($module, $packagepath);
-					} 
-					else {
-						installVtlibModule($module, $packagepath);
+						try {
+							updateVtlibModule($module, $packagepath);
+							$moduleInstance = Vtiger_Module::getInstance($module);
+							if ($moduleInstance->version != $oldver) {
+								echo "<b>successfully updated to v{$moduleInstance->version}</b>.";
+							}
+							else {
+								echo "no update required";
+							}
+						} catch (Exception $e) {
+							echo "Exception while updating: ",  $e->getMessage();
+						}
 					}
+					echo "</li>";
 				}
 			}
 		}
 		closedir($handle);
 	}
 }
-echo 'module install Verteiler done <br>';
-
-
-$moduleInstance = Vtiger_Module::getInstance("crmtogo");
-if($moduleInstance) {
-    echo "<br>Updating crmtogo module ";
-    updateVtlibModule("crmtogo", "packages/vtiger/mandatory/crmtogo.zip");
-    echo "- done";
-}
+echo '</ul>Finished updating modules.<br>';
 
 
 $module = Vtiger_Module::getInstance('Vendors');
@@ -345,17 +321,10 @@ $adb->pquery("ALTER TABLE `vtiger_mailmanager_mailrecord` CHANGE `mbody` `mbody`
 echo "<br>Alter vtiger_berlicleverreach_settings.accesstoken to VARCHAR(600) if applicable..";
 $adb->pquery("ALTER TABLE `vtiger_berlicleverreach_settings` CHANGE `accesstoken` `accesstoken` VARCHAR( 600 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL");
 
-$moduleInstance = Vtiger_Module::getInstance("berliCleverReach");
-if($moduleInstance) {
-	updateVtlibModule("berliCleverReach", "packages/vtiger/optional/berliCleverReach.zip");
-} 
-
 // recreate tabdata files
 create_tab_data_file();
 create_parenttab_data_file();
 
-echo "<br>update Tag version to 22. ";
-$query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.0.0.22'";
-
-$adb->pquery($query, array());
-echo " Tag version done.<br>";
+$query = "UPDATE `vtiger_version` SET `tag_version` = ?";
+$adb->pquery($query, array($current_release_tag));
+echo "<h2>Finished updating to $current_release_tag!</h2>";
