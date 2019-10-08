@@ -124,7 +124,7 @@ class Vtiger_PackageUpdate extends Vtiger_PackageImport {
 				}
 				if(version_compare($moduleInstance->version, $this->_modulexml->version, '>=')) {
 					self::log('Not newer!');
-                    return false;
+					return false;
 				}
                 $module = $this->initUpdate($moduleInstance, $zipfile, $overwrite);
                 // Call module update function
