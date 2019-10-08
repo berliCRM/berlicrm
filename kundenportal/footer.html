@@ -106,102 +106,14 @@
 				
 				});
 				
-				jQuery(".invoice_owner li a").click(function(){
-				
-					$(".invoice_owner_button:first-child").text($(this).text());
-					
-					$("#invoice_form").find('input[name="module"]').val("Invoice");
-					
-					$("#invoice_form").find('input[name="action"]').val("index");
-					
-					$("#invoice_form").find('input[name="fun"]').val("home");
-					
-					window.location.href = "index.php?module=Invoice&action=index&showstatus="+$(".invoice_owner_button:first-child").text()+"&onlymine="+$(this).text();
-					
-				});
-
-				jQuery(".quote_owner li a").click(function(){
-					
-					$(".quote_owner_button:first-child").text($(this).text());
-					
-					$("#quote_form").find('input[name="module"]').val("Quotes");
-					
-					$("#quote_form").find('input[name="action"]').val("index");
-					
-					$("#quote_form").find('input[name="fun"]').val("home");
-					
-					window.location.href = "index.php?module=Quotes&action=index&showstatus="+$(".quote_owner_button:first-child").text()+"&onlymine="+$(this).text();
-					
-				});
-
-				jQuery(".product_owner li a").click(function(){
-					
-					$(".product_owner_button:first-child").text($(this).text());
-					
-					$("#product_form").find('input[name="module"]').val("Products");
-					
-					$("#product_form").find('input[name="action"]').val("index");
-					
-					$("#product_form").find('input[name="fun"]').val("home");
-					
-					window.location.href = "index.php?module=Products&action=index&showstatus="+$(".invoice_owner_button:first-child").text()+"&onlymine="+$(this).text();
-					
-				});
-
-				jQuery(".service_owner li a").click(function(){
-					
-					$(".service_owner_button:first-child").text($(this).text());
-					
-					$("#service_form").find('input[name="module"]').val("Services");
-					
-					$("#service_form").find('input[name="action"]').val("index");
-					
-					$("#service_form").find('input[name="fun"]').val("home");
-					
-					window.location.href = "index.php?module=Services&action=index&showstatus="+$(".invoice_owner_button:first-child").text()+"&onlymine="+$(this).text();
-					
-				});
-
-				jQuery(".document_owner li a").click(function(){
-					
-					$(".document_owner_button:first-child").text($(this).text());
-					
-					$("#document_form").find('input[name="module"]').val("Documents");
-					
-					$("#document_form").find('input[name="action"]').val("index");
-					
-					$("#document_form").find('input[name="fun"]').val("home");
-					
-					window.location.href = "index.php?module=Documents&action=index&showstatus="+$(".invoice_owner_button:first-child").text()+"&onlymine="+$(this).text();
-					
-				});
-
-				jQuery(".contact_owner li a").click(function(){
-					
-					$(".contact_owner_button:first-child").text($(this).text());
-					
-					$("#contact_form").find('input[name="module"]').val("Contacts");
-					
-					$("#contact_form").find('input[name="action"]').val("index");
-					
-					$("#contact_form").find('input[name="fun"]').val("home");
-					
-					window.location.href = "index.php?module=Contacts&action=index&showstatus="+$(".invoice_owner_button:first-child").text()+"&onlymine="+$(this).text();
-					
-				});
-
-				jQuery(".project_owner li a").click(function(){
-					
-					$(".project_owner_button:first-child").text($(this).text());
-					
-					$("#project_form").find('input[name="module"]').val("Project");
-					
-					$("#project_form").find('input[name="action"]').val("index");
-					
-					$("#project_form").find('input[name="fun"]').val("home");
-					
-					window.location.href = "index.php?module=Project&action=index&showstatus="+$(".invoice_owner_button:first-child").text()+"&onlymine="+$(this).text();
-					
+				jQuery("#onlymine_dropdown li").click(function() {
+					console.log(this.id);
+					var onlymine = false;
+					if (this.id == 'onlymine_true') {
+						onlymine = true;
+					}
+					var geturl = window.location.href;
+					window.location.href = geturl.substr(0, geturl.indexOf('&onlymine='))+'&onlymine='+onlymine;
 				});
 				
 				jQuery("#navigation").treeview({

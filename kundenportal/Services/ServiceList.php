@@ -36,14 +36,14 @@ $allow_all = $client->call('show_all',array('module'=>$module),$Server_Path, $Se
 	
 if($allow_all == 'true'){
 	      		 echo '<div class="col-sm-1 search-form"><div class="btn-group">
-	    	<button type="button" class="btn btn-default dropdown-toggle service_owner_btn" data-toggle="dropdown">
-	    		'.getTranslatedString('SHOW').'<span class="caret"></span> 
-	    	</button>
-	    	<ul class="dropdown-menu service_owner">
-	 		<li><a href="#">'.getTranslatedString('MINE').'</a></li>
-			<li><a herf="#">'.getTranslatedString('ALL').'</a></li>
-			</ul></div></div></section>';
-	    		}
+				<button type="button" class="btn btn-default dropdown-toggle contact_owner_btn" data-toggle="dropdown">
+					'.getTranslatedString('SHOW').'<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu" id="onlymine_dropdown">
+					<li id="onlymine_true"><a>'.getTranslatedString('MINE').'</a></li>
+					<li id="onlymine_false"><a>'.getTranslatedString('ALL').'</a></li>
+				</ul>
+			</div></div></div></section>';
 	      		
 	      		echo '<section class="content"><div class="row">';
 	    		echo '<div class="col-xs-12">';
