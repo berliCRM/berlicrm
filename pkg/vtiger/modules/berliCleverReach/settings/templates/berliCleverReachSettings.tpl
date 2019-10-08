@@ -28,7 +28,12 @@
 			<input class="btn" id="deletecleverreachconfig" name="deletecleverreachconfig" type="button" title="{vtranslate('LBL_DELETE',$MODULE)}" style="float:right;margin-top:20px;display:none;" value="{vtranslate('LBL_DELETE',$MODULE)}">
 			<h4 id='berliCleverReachApiState' class="padding20" style="display:none;">&nbsp;</h4>
 		{/if}
-				
+
+		{if $INVALIDTOKEN}
+		<div class="alert alert-error">
+			{vtranslate('LBL_TOKENREJECTED',$MODULE)}
+		</div>
+		{/if}
 		
 		<div class="contents row-fluid">
 
@@ -39,7 +44,7 @@
 					</tr>
 					
 					<tr class="opacity" >
-						<td class="textAlignLeft medium span4" style="border-left: block;">
+						<td class="textAlignLeft medium span4">
 						
 							<label class="menuItemLabel">{vtranslate('LBL_ENTER_CLEVERREACH_ID',$MODULE)}</label>
 						</td>
@@ -48,7 +53,7 @@
 						</td>
 					</tr>
 					<tr class="opacity" >
-						<td class="textAlignLeft medium span4" style="border-left: block;">
+						<td class="textAlignLeft medium span4">
 							<label class="menuItemLabel">{vtranslate('LBL_ENTER_CLEVERREACH_USERNAME',$MODULE)}</label>
 						</td>
 						<td class="textAlignLeft medium" >
@@ -56,7 +61,7 @@
 						</td>
 					</tr>
 					<tr class="opacity" >
-						<td class="textAlignLeft medium span4" style="border-left: block;">
+						<td class="textAlignLeft medium span4">
 							<label class="menuItemLabel">{vtranslate('LBL_ENTER_CLEVERREACH_PASSWORD',$MODULE)}</label>
 						</td>
 						<td class="textAlignLeft medium" >

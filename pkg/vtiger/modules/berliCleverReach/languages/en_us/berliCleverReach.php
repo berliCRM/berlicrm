@@ -127,7 +127,7 @@ $languageStrings = array(
 	'LBL_CRM_LIST_EMPTY'=>'Your related contacts and leads lists are empty.',
 	'LBL_NO_REMOVED_MEMBER_LAST_SYNC'=>'Since the last synchronization nothing was removed from the CRM list.',
 	'LBL_NO_NOTSUBSCRIBED'=>'Number of entries on CleverReach list which are not subscribed:',
-
+	'LBL_TOKENREJECTED' => 'Your access token has been rejected. Please try to login again.',
 	);
 	
 		
