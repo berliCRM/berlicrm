@@ -295,6 +295,8 @@ $languageStrings = array(
 	//ADDED FOR GLOBAL SEARCH MENU
 	'Search'=>'Search Setup',
 	'LBL_SEARCH_SETUP' => 'Search Setup',
+	
+	'LBL_INACTIVE_USERS' => 'inactive Users',
 		
 );
 

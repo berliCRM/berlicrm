@@ -633,6 +633,25 @@ class Users_Record_Model extends Vtiger_Record_Model {
         return $numOfUsers;
     }
 	
+    /**
+     * Function to get the inactive users count
+     * @param <Boolean> $onlyActive - If true it returns count of only acive users else only inactive users
+     * @return <Integer> number of users
+     */
+    public static function getInactiveCount() {
+        $db = PearDatabase::getInstance();
+        $query = 'SELECT 1 FROM vtiger_users WHERE status != ?';
+        $params = array('active');
+
+        $result = $db->pquery($query,$params);
+        
+        $numOfUsers = $db->num_rows($result);
+ 		if (empty($numOfUsers)) {
+			$numOfUsers = 0;
+		}
+       return $numOfUsers;
+    }
+	
 	/**
 	 * Funtion to get Duplicate Record Url
 	 * @return <String>
