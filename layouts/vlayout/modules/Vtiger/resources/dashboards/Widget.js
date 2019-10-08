@@ -360,6 +360,9 @@ Vtiger_Widget_Js('Vtiger_Funnel_Widget_Js',{},{
 					dataLabels: 'value'
 				}
 			},
+            grid: {
+                background : '#ffffff'
+            },
 			legend: {
 				show: true,
 				location: 'ne',
@@ -430,6 +433,9 @@ Vtiger_Widget_Js('Vtiger_Pie_Widget_Js',{},{
 					dataLabels: 'value'
 				}
 			},
+            grid: {
+                background : '#ffffff'
+            },
 			legend: {
 				show: true,
 				location: 'e'
@@ -463,7 +469,7 @@ Vtiger_Widget_Js('Vtiger_Barchat_Widget_Js',{},{
 		for(var index in data) {
 			var row = data[index];
 			row[0] = parseInt(row[0]);
-			xLabels.push(app.getDecodedValue(row[1]))
+			xLabels.push(app.getDecodedValue(row[1]));
 			chartData.push(row[0]);
             if (row[3]) {
                 colors.push(row[3]);
@@ -513,7 +519,10 @@ Vtiger_Widget_Js('Vtiger_Barchat_Widget_Js',{},{
 				},
 				pointLabels: {show: true,edgeTolerance: -15}
 			},
-			 axes: {
+            grid: {
+                background : '#ffffff'
+            },
+			axes: {
 				xaxis: {
 					  tickRenderer: jQuery.jqplot.CanvasAxisTickRenderer,
 					  renderer: jQuery.jqplot.CategoryAxisRenderer,
@@ -540,15 +549,7 @@ Vtiger_Widget_Js('Vtiger_Barchat_Widget_Js',{},{
 				labels		: data['data_labels']
             }
 		});
-//		this.getPlotContainer(false).on('jqPlotDataClick', function(){
-//			console.log('here');
-//		});
-//		jQuery.jqplot.eventListenerHooks.push(['jqPlotDataClick', myClickHandler]);
 	}
-
-//	registerSectionClick : function() {
-//		this.getPlotContainer(false);
-//	}
 });
 
 Vtiger_Widget_Js('Vtiger_MultiBarchat_Widget_Js',{
@@ -605,10 +606,7 @@ Vtiger_Widget_Js('Vtiger_MultiBarchat_Widget_Js',{
 			seriesDefaults:{
 				renderer:$.jqplot.BarRenderer,
 				rendererOptions: {
-					// Put a 30 pixel margin between bars.
 					barMargin: 10,
-					// Highlight bars when mouse button pressed.
-					// Disables default highlighting on mouse over.
 					highlightMouseDown: true,
                     highlightMouseOver : true
 			},
@@ -638,7 +636,7 @@ Vtiger_Widget_Js('Vtiger_MultiBarchat_Widget_Js',{
 				placement: 'outside',
 				labels:labels
 			}
-	  });
+		});
 	},
     
      postLoadWidget: function() {
@@ -657,7 +655,7 @@ Vtiger_Widget_Js('Vtiger_MultiBarchat_Widget_Js',{
 			$('.jqplot-event-canvas').css( 'cursor', 'pointer' );
 		});
 		this.getContainer().on("jqplotDataUnhighlight", function(evt, seriesIndex, pointIndex, neighbor) {
-			$('.jqplot-event-canvas').css( 'cursor', 'auto' );
+			$('.jqplot-event-canvas').css( 'cursor', 'default' );
 		});
     }
 
