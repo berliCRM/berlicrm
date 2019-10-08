@@ -866,6 +866,22 @@ function vtws_transferComments($sourceRecordId, $destinationRecordId) {
 function vtws_transferOwnership($ownerId, $newOwnerId, $delete=true) {
 	$db = PearDatabase::getInstance();
 	//Updating the smcreatorid,smownerid, modifiedby in vtiger_crmentity
+	
+	//prepare for modTracker
+	$sql = "Select crmid, setype from vtiger_crmentity  WHERE smownerid=? ";
+	$result = $db->pquery($sql, array($ownerId));
+    if($db->num_rows($result) > 0) {
+		$data_array = array();
+		while($resultrow = $db->fetch_array($result)) {
+			$data_array[] = array('crmid'=>$resultrow['crmid'],'setype'=>$resultrow['setype']);
+		}
+	}
+	foreach ($data_array as $ownerData) {
+		if ( $ownerData['setype'] != 'ModComments') {
+			createModTrackerEntry($ownerId,$newOwnerId, $ownerData['crmid'], $ownerData['setype'], 'assigned_user_id');
+		}
+	}
+
 	$sql = "UPDATE vtiger_crmentity SET smcreatorid=? WHERE smcreatorid=? AND setype<>?";
 	$db->pquery($sql, array($newOwnerId, $ownerId,'ModComments'));
 
@@ -1318,6 +1334,24 @@ function vtws_getCompanyId() {
 function vtws_recordExists($recordId) {
 	$ids = vtws_getIdComponents($recordId);
 	return !Vtiger_Util_Helper::CheckRecordExistance($ids[1]);
+}
+
+// create a new modtracker entry
+//
+function createModTrackerEntry($oldvalue,$newvalue, $recordid, $module, $fieldname) {
+	global $current_user, $log;
+	$adb = PearDatabase::getInstance();
+	if(file_exists('modules/ModTracker/ModTrackerUtils.php')) {
+		require_once 'modules/ModTracker/ModTracker.php';
+		if (ModTracker::isTrackingEnabledForModule('Contacts')) {
+			$modid = $adb->getUniqueId('vtiger_modtracker_basic');
+			$query = "INSERT INTO vtiger_modtracker_basic(id, crmid, module, whodid, changedon, status) VALUES(?,?,?,?,?,?)";
+			$status = ModTracker::$UPDATED;
+			$adb->pquery($query, array($modid, $recordid, $module, $current_user->id, date('Y-m-d H:i:s'), $status));
+			$query = "INSERT INTO vtiger_modtracker_detail(id,fieldname,prevalue,postvalue) VALUES(?,?,?,?);";
+			$adb->pquery($query, array($modid,$fieldname,$oldvalue,$newvalue));
+		}
+	}
 }
 
 ?>

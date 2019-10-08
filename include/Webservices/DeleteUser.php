@@ -29,7 +29,7 @@
 	}
 	$idComponents = vtws_getIdComponents($id);
 	if (!$meta->exists($idComponents[1])) {
-		throw new WebServiceException(WebServiceErrorCode::$RECORDNOTFOUND, 'Record you are trying to access is not found, idComponent='.$idComponents);
+		throw new WebServiceException(WebServiceErrorCode::$RECORDNOTFOUND, 'Record you are trying to access is not found, idComponent='.$idComponents[1]);
 	}
 	if ($meta->hasWriteAccess()!==true) {
 		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, 'Permission to write is denied');
@@ -37,11 +37,11 @@
 	$newIdComponents = vtws_getIdComponents($newOwnerId);
 	if (empty($newIdComponents[1])) {
 		//force the default user to be the default admin user.
-		$newIdComponents[1] = 1;
+		$newIdComponents[1] = Users::getActiveAdminId();
 	}
 	vtws_transferOwnership($idComponents[1], $newIdComponents[1]);
 	//delete from user vtiger_table;
-	vtws_runQueryAsTransaction('delete from vtiger_users where id=?', array($idComponents[1]), $result);
+	//vtws_runQueryAsTransaction('delete from vtiger_users where id=?', array($idComponents[1]), $result);
 	VTWS_PreserveGlobal::flush();
 	return  array('status'=>'successful');
 }
