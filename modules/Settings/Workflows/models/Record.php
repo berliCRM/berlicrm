@@ -98,7 +98,6 @@ class Settings_Workflows_Record_Model extends Settings_Vtiger_Record_Model {
 		$wf->schdayofmonth = $this->get('schdayofmonth');
 		$wf->schdayofweek = $this->get('schdayofweek');
 		$wf->schmonth = $this->get('schmonth');
-		$wf->schmonth = $this->get('schmonth');
 		$wf->schannualdates = $this->get('schannualdates');
 		$wf->nexttrigger_time = $this->get('nexttrigger_time');
 		$wm->save($wf);
