@@ -268,29 +268,24 @@ class Contacts extends CRMEntity {
           $result =& $this->db->query($query,true,"Error retrieving $this->object_name list: ");
           $list = Array();
           $rows_found =  $this->db->getRowCount($result);
-          if($rows_found != 0)
-          {
-              for($index = 0 , $row = $this->db->fetchByAssoc($result, $index); $row && $index <$rows_found;$index++, $row = $this->db->fetchByAssoc($result, $index))
-              {
-                  $contact = Array();
+          if($rows_found != 0) {
+			for($index = 0 , $row = $this->db->fetchByAssoc($result, $index); $row && $index <$rows_found;$index++, $row = $this->db->fetchByAssoc($result, $index)) {
+				$contact = Array();
+				$contact['lastname'] = in_array("lastname",$permitted_field_lists) ? $row['lastname'] : "";
+				$contact['firstname'] = in_array("firstname",$permitted_field_lists)? $row['firstname'] : "";
+				$contact['email'] = in_array("email",$permitted_field_lists) ? $row['email'] : "";
 
-		  $contact[lastname] = in_array("lastname",$permitted_field_lists) ? $row[lastname] : "";
-		  $contact[firstname] = in_array("firstname",$permitted_field_lists)? $row[firstname] : "";
-		  $contact[email] = in_array("email",$permitted_field_lists) ? $row[email] : "";
-
-
-                  if(in_array("accountid",$permitted_field_lists))
-                  {
-                      $contact[accountname] = $row[accountname];
-                      $contact[account_id] = $row[accountid];
-                  }else
-		  {
-                      $contact[accountname] = "";
-                      $contact[account_id] = "";
-		  }
-                  $contact[contactid] =  $row[contactid];
-                  $list[] = $contact;
-              }
+				if(in_array("accountid",$permitted_field_lists)) {
+					$contact['accountname'] = $row['accountname'];
+					$contact['account_id'] = $row['accountid'];
+				}
+				else {
+                     $contact['accountname'] = "";
+                     $contact['account_id'] = "";
+				}
+				$contact['contactid'] =  $row['contactid'];
+				$list[] = $contact;
+			}
           }
 
           $response = Array();
