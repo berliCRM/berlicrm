@@ -131,6 +131,7 @@ $languageStrings = array(
 	'LBL_CRM_LIST_EMPTY'=>'Es gibt keine Daten, die vom CRM zu CleverReach übertragen werden sollen.',
 	'LBL_NO_REMOVED_MEMBER_LAST_SYNC'=>'Seit der letzten Synchronisation wurde im CRM nichts der Liste gelöscht.',
 	'LBL_NO_NOTSUBSCRIBED'=>'Anzahl der Einträge in CleverReach aus dieser Liste, die nicht auf \'subscribed\' gesetzt sind.',
+	'LBL_TOKENREJECTED' => 'Der gespeicherte Zugangsschlüssel wurde zurückgewiesen. Bitte versuchen Sie sich erneut anzumelden.',
 	);
 	
 	
