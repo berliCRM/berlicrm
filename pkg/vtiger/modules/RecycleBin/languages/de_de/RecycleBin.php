@@ -18,6 +18,7 @@ $languageStrings = array(
 	'Recycle Bin' => 'Papierkorb',
 	//crm-now: missing in en_us file
 	'RecycleBin' => 'Papierkorb',
+    'LBL_DELETEDBY' => 'gelöscht von',
 );
 
 $jsLanguageStrings = array(

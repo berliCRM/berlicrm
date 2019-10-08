@@ -28,6 +28,9 @@ class RecycleBin_ListView_Model extends Vtiger_ListView_Model {
 		$cvidObj = CustomView_Record_Model::getAllFilterByModule($sourceModuleModel->get('name')); 
         $cvid = $cvidObj->getId('cvid'); 
         $queryGenerator->initForCustomViewById($cvid);
+		
+		// force modifiedby field into list
+		$queryGenerator->setFields(array_unique(array_merge($queryGenerator->getFields(), array('modifiedby'))));
 
 		$controller = new ListViewController($db, $currentUser, $queryGenerator);
 
@@ -120,6 +123,13 @@ class RecycleBin_ListView_Model extends Vtiger_ListView_Model {
 		}
 		return $listViewRecordModels;
 	}
+
+    // switch "modified by" label for "deleted by"
+	public function getListViewHeaders() {
+        $headerFieldModels = parent::getListViewHeaders();
+        $headerFieldModels["modifiedby"]->label=vtranslate("LBL_DELETEDBY","RecycleBin");
+        return $headerFieldModels;
+    }
 
 	/**
 	 * Function to get the list view entries
