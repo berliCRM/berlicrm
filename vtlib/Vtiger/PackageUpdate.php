@@ -118,10 +118,10 @@ class Vtiger_PackageUpdate extends Vtiger_PackageImport {
                     }
                 }
             } else {
-                if(!$moduleInstance || $moduleInstance->name != $module) {
-                    self::log('Module name mismatch!');
-                    return false;
-                }
+				if(!$moduleInstance || $moduleInstance->name != $module) {
+					self::log('Module name mismatch!');
+					return false;
+				}
 				if(version_compare($moduleInstance->version, $this->_modulexml->version, '>=')) {
 					self::log('Not newer!');
                     return false;
