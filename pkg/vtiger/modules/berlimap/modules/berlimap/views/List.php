@@ -64,12 +64,26 @@ class berlimap_List_View extends Vtiger_Index_View {
 			$jsFileNames = array(
 				'modules.Vtiger.resources.List',
 				"modules.$moduleName.resources.List",
+				"modules.$moduleName.resources.ol",
 			);
 
 			$jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
 			$headerScriptInstances = array_merge($headerScriptInstances, $jsScriptInstances);
 		}
 		return $headerScriptInstances;
+	}
+	
+	public function getHeaderCss(Vtiger_Request $request) {
+		$headerCssInstances = parent::getHeaderCss($request);
+		$moduleName = $request->getModule();
+
+		$cssFileNames = array(
+			"~/layouts/vlayout/modules/$moduleName/resources/css/ol.css",
+		);
+		$cssInstances = $this->checkAndConvertCssStyles($cssFileNames);
+		$headerCssInstances = array_merge($headerCssInstances, $cssInstances);
+
+		return $headerCssInstances;
 	}
 
 

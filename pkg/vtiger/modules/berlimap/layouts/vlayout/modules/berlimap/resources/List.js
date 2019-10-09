@@ -38,6 +38,8 @@ Vtiger_List_Js('berlimap_List_Js', {
 					type: 'slideStop'
 				};
 				Vtiger_Helper_Js.showPnotify(mparams);
+				$('#showButton').prop('disabled', false);
+				return;
 			}
 			//get the own location from browser
 			if (navigator.geolocation) {
@@ -120,12 +122,21 @@ Vtiger_List_Js('berlimap_List_Js', {
 					if(responseData.success){
 						var mparams = {
 							title : app.vtranslate('JS_GEODATA_RESULT_NUMBER'),
-							text: app.vtranslate('JS_GEODATA_RESULT_NUMBER_TXT1')+Object.keys(responseData.result).length+app.vtranslate('JS_GEODATA_RESULT_NUMBER_TXT2'),
+							text: app.vtranslate('JS_GEODATA_RESULT_NUMBER_TXT1')+Object.keys(responseData.result.locations).length+app.vtranslate('JS_GEODATA_RESULT_NUMBER_TXT2'),
 							animation: 'show',
 							type: 'info'
 							};
 						Vtiger_Helper_Js.showPnotify(mparams);
-						var geodata = responseData.result;
+						var geodata = responseData.result.locations;
+						if(responseData.result.limitwarning > 0){
+							var mparams = {
+								title : app.vtranslate('JS_OVER_24H_LIMIT'),
+								text: app.vtranslate('JS_OVER_24H_MESSAGE1')+responseData.result.limitwarning+app.vtranslate('JS_OVER_24H_MESSAGE2'),
+								animation: 'show',
+								type: 'error'
+								};
+							Vtiger_Helper_Js.showPnotify(mparams);
+						}
 						thisInstance.showMapOverlay(geodata);
 					}
 					else {
