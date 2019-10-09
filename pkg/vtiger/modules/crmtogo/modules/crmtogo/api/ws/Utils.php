@@ -646,6 +646,12 @@ class crmtogo_WS_Utils {
 			$sql = "SELECT * FROM berli_crmtogo_config where crmtogouser = 1";
 			$result = $db->pquery($sql, array());
 			$noofrows = $db->num_rows($result);
+			if ($noofrows == 0) {
+				// admin with ID 1 has been removed for whatever reason, try another user
+				$sql = "SELECT * FROM berli_crmtogo_config limit 1";
+				$result = $db->pquery($sql, array());
+				$noofrows = $db->num_rows($result);
+			}
 			$config = array();
 			for($i=0; $i<$noofrows; $i++){
 				$navi_limit = $db->query_result($result, $i, 'navi_limit');
@@ -682,6 +688,15 @@ class crmtogo_WS_Utils {
 			$sql = "SELECT * FROM berli_crmtogo_modules where crmtogo_user = 1 order by order_num";
 			$result = $db->pquery($sql, array());
 			$noofrows = $db->num_rows($result);
+			if ($noofrows == 0) {
+				// admin with ID 1 has been removed for whatever reason, try another user
+				$sql = "SELECT crmtogo_user FROM berli_crmtogo_modules limit 1";
+				$result = $db->pquery($sql, array());
+				$existing_user = $db->query_result($result, 0, 'crmtogo_user');
+				$sql = "SELECT * FROM berli_crmtogo_modules where crmtogo_user = ? order by order_num";
+				$result = $db->pquery($sql, array($existing_user));
+				$noofrows = $db->num_rows($result);
+			}
 			$module = array();
 			for($i=0; $i<$noofrows; $i++){
 				$module = $db->query_result($result, $i, 'crmtogo_module');
