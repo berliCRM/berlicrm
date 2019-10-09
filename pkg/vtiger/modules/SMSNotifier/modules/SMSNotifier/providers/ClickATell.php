@@ -13,9 +13,35 @@ class SMSNotifier_ClickATell_Provider implements SMSNotifier_ISMSProvider_Model 
 	private $userName;
 	private $password;
 	private $parameters = array();
-
-	const SERVICE_URI = 'http://api.clickatell.com';
-	private static $REQUIRED_PARAMETERS = array('api_id', 'from', 'mo');
+	
+	public $provider = 'ClickATell';
+	public $provider_status = array(
+		'001'=>'Message unknown',
+		'002'=>'Message queued',
+		'003'=>'Delivered to gateway',
+		'004'=>'Received by recipient',
+		'005'=>'Error with message',
+		'006'=>'User cancelled message delivery',
+		'007'=>'Error delivering message',
+		'009'=>'Routing error',
+		'010'=>'Message expired',
+		'011'=>'Message scheduled for later delivery',
+		'012'=>'Out of credit',
+		'013'=>'Clickatell cancelled message delivery',
+		'014'=>'Maximum MT limit exceeded',
+	); 
+	
+	public $provider_ip_addresses = array (
+		'0'=>'34.249.228.79',
+		'1'=>'34.252.24.144',
+		'2'=>'34.252.100.242',
+		'3'=>'34.250.34.25',
+		'4'=>'34.252.234.174',
+	);
+	
+	const SERVICE_URI = 'https://platform.clickatell.com';
+	// you may add 'from' if communications is two way
+	private static $REQUIRED_PARAMETERS = array('apiKey');
 
 	/**
 	 * Function to get provider name
@@ -26,7 +52,7 @@ class SMSNotifier_ClickATell_Provider implements SMSNotifier_ISMSProvider_Model 
 	}
 
 	/**
-	 * Function to get required parameters other than (userName, password)
+	 * Function to get required parameters other than (userName)
 	 * @return <array> required parameters list
 	 */
 	public function getRequiredParams() {
@@ -41,7 +67,7 @@ class SMSNotifier_ClickATell_Provider implements SMSNotifier_ISMSProvider_Model 
 		if($type) {
 			switch(strtoupper($type)) {
 				case self::SERVICE_AUTH:	return self::SERVICE_URI . '/http/auth';
-				case self::SERVICE_SEND:	return self::SERVICE_URI . '/http/sendmsg';
+				case self::SERVICE_SEND:	return self::SERVICE_URI . '/messages/http/send';
 				case self::SERVICE_QUERY:	return self::SERVICE_URI . '/http/querymsg';
 			}
 		}
@@ -55,7 +81,6 @@ class SMSNotifier_ClickATell_Provider implements SMSNotifier_ISMSProvider_Model 
 	 */
 	public function setAuthParameters($userName, $password) {
 		$this->userName = $userName;
-		$this->password = $password;
 	}
 
 	/**
@@ -85,7 +110,7 @@ class SMSNotifier_ClickATell_Provider implements SMSNotifier_ISMSProvider_Model 
 	 * @return <Array> parameters
 	 */
 	protected function prepareParameters() {
-		$params = array('user' => $this->userName, 'password' => $this->password);
+		$params = array('user' => $this->userName);
 		foreach (self::$REQUIRED_PARAMETERS as $key) {
 			$params[$key] = $this->getParameter($key);
 		}
@@ -103,36 +128,44 @@ class SMSNotifier_ClickATell_Provider implements SMSNotifier_ISMSProvider_Model 
 		}
 
 		$params = $this->prepareParameters();
-		$params['text'] = $message;
+		$message = utf8_encode($message);
+		// switch on call back
+		$params['callback'] = '3';
+		$params['content'] = $message;
 		$params['to'] = implode(',', $toNumbers);
 
 		$serviceURL = $this->getServiceURL(self::SERVICE_SEND);
-
 		$httpClient = new Vtiger_Net_Client($serviceURL);
-		$response = $httpClient->doPost($params);
-		$responseLines = split("\n", $response);
+		$response = $httpClient->doGet($params);
+		$response = json_decode($response);
 
 		$results = array();
 		$i=0;
-		foreach($responseLines as $responseLine) {
-			$responseLine = trim($responseLine);
-			if(empty($responseLine)) continue;
+		if (isset($response->messages) && !empty ($response->messages)) {
+			foreach($response->messages as $responseObject) {
+				if(empty($responseObject)) continue;
+				$status = $responseObject->accepted;
+				if ($status == 1) {
+					$status = self::MSG_STATUS_PROCESSING;
+				}
 
-			$result = array( 'error' => false, 'statusmessage' => '' );
-			if(preg_match("/ERR:(.*)/", trim($responseLine), $matches)) {
-				$result['error'] = true;
-				$result['to'] = $toNumbers[$i++];
-				$result['statusmessage'] = $matches[0]; // Complete error message
-			} else if(preg_match("/ID: ([^ ]+)TO:(.*)/", $responseLine, $matches)) {
-				$result['id'] = trim($matches[1]);
-				$result['to'] = trim($matches[2]);
-				$result['status'] = self::MSG_STATUS_PROCESSING;
-			} else if(preg_match("/ID: (.*)/", $responseLine, $matches)) {
-				$result['id'] = trim($matches[1]);
-				$result['to'] = $toNumbers[0];
-				$result['status'] = self::MSG_STATUS_PROCESSING;
+				$result = array( 
+					'id' => $responseObject->apiMessageId, 
+					'status' =>$status, 
+					'to' => $responseObject->to, 
+					'errorCode' => $responseObject->errorCode, 
+					'error' => $responseObject->error, 
+					'errorDescription' => $responseObject->errorDescription, 
+				);
+				
+				$results[] = $result;
 			}
-			$results[] = $result;
+		}
+		else {
+			$results[]   = array( 
+				'error' => $response->errorCode, 
+				'statusmessage' => $response->error,
+			);
 		}
 		return $results;
 	}

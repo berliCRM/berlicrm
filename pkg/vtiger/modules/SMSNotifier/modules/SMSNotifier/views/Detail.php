@@ -32,11 +32,11 @@ class SMSNotifier_Detail_View extends Vtiger_Detail_View {
 		$viewer->assign('MODULE_NAME', $moduleName);
 		$viewer->assign('RECORD', $notifierRecordModel);
 		$viewer->assign('view', 'Detail');
-		$viewer->view('StatusWidget.tpl', $moduleName);
 		
-		//$request->set('mode', 'showDetailViewByMode');
-		//$request->set('requestMode', 'full');
-		//$request->set('tab_label', 'SMS Notifier Details');
+		if ($request->get('mode') =='showRecentActivities') {
+			$viewer->view('StatusWidget.tpl', $moduleName);
+		}
+		
 		$request->set('view', 'Detail');
 		$request->set('record', $request->get('record'));
 		return parent::process($request);
