@@ -168,6 +168,7 @@ jQuery.Class("Vtiger_List_Js",{
 
 		var params = {
 			'module': 'SMSNotifier',
+			'relmodule': module,
 			'action' : 'MassSaveAjax',
 			"viewname" : cvId,
 			"selected_ids":selectedIds,
@@ -489,6 +490,7 @@ jQuery.Class("Vtiger_List_Js",{
 					);
 				},
 				function(error, err){
+				Vtiger_List_Js.clearList();
 				})
 		} else {
 			listInstance.noRecordSelectedAlert();

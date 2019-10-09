@@ -32,8 +32,9 @@ class SMSNotifier extends SMSNotifierBase {
 	 * @param mixed $linktoids List of CRM record id to link SMS record
 	 * @param String $linktoModule Modulename of CRM record to link with (if not provided lookup it will be calculated)
 	 */
-	static function sendsms($message, $tonumbers, $ownerid = false, $linktoids = false, $linktoModule = false) {
-		global $current_user, $adb;
+	static function sendsms($message, $tonumbers, $ownerid = false, $linktoids = false, $linktoModule = '') {
+		global $current_user, $adb, $log;
+		$log->debug("Entering sendsms (Message: ".$message."|"." To Numbers: ".implode(",", $tonumbers)."|"." Owner ID: ".$ownerid."|"." Link to Ids: ".implode(",", $linktoids)."|"." Link to Module: ".$linktoModule.") method  of SMSNotifier.php ...");
 
 		if($ownerid === false) {
 			if(isset($current_user) && !empty($current_user)) {
@@ -53,7 +54,7 @@ class SMSNotifier extends SMSNotifierBase {
 
 		if($linktoids !== false) {
 
-			if($linktoModule !== false) {
+			if(!empty($linktoModule)) {
 				relateEntities($focus, $moduleName, $focus->id, $linktoModule, $linktoids);
 			} 
 			else {
@@ -68,14 +69,16 @@ class SMSNotifier extends SMSNotifierBase {
 		}
 		$responses = self::fireSendSMS($message, $tonumbers);
 		$focus->processFireSendSMSResponse($responses);
+		$log->debug("Exiting sendsms method of SMSNotifier.php ...");
+ 
 	}
 
 	/**
 	 * Detect the related modules based on the entity relation information for this instance.
 	 */
 	function detectRelatedModules() {
-
-		global $adb, $current_user;
+		global $current_user, $adb, $log;
+		$log->debug("Entering detectRelatedModules method of SMSNotifier.php ...");
 
 		// Pick the distinct modulenames based on related records.
 		$result = $adb->pquery("SELECT distinct setype FROM vtiger_crmentity WHERE crmid in (
@@ -106,6 +109,7 @@ class SMSNotifier extends SMSNotifierBase {
 				}
 			}
 		}
+		$log->debug("Exiting detectRelatedModules method of SMSNotifier.php ...");
 
 		return $relatedModules;
 
@@ -158,7 +162,6 @@ class SMSNotifier extends SMSNotifierBase {
 	}
 
 	private function processFireSendSMSResponse($responses) {
-
 		if(empty($responses)) return;
 
 		global $adb;
@@ -222,6 +225,7 @@ class SMSNotifier extends SMSNotifierBase {
 
 	static function fireSendSMS($message, $tonumbers) {
 		global $log;
+		$log->debug("Entering fireSendSMS (".$message.",".implode(",", $tonumbers).") method ...");
 		$provider = SMSNotifierManager::getActiveProviderInstance();
 		if($provider) {
 			return $provider->send($message, $tonumbers);
@@ -243,22 +247,30 @@ class SMSNotifier extends SMSNotifierBase {
 	
 	//crm-now: added for proper phone number formating
 	static function formatPhoneNumber($ph_number) {
-		global $adb;
+		global $adb, $log;
+		$log->debug("Entering formatPhoneNumber (".$ph_number.") method ...");
 		//crm-now: check whether a country prefix from settings must get added
 		$resultprefix = $adb->pquery("SELECT countryprefix FROM vtiger_smsnotifier_servers WHERE isactive = ? LIMIT 1", array(1));
-		if (!$resultprefix || $adb->num_rows($resultprefix) < 1) return false;
+		if (!$resultprefix || $adb->num_rows($resultprefix) < 1) {
+			return false;
+		}
 		$prefix = trim($adb->query_result($resultprefix,0,"countryprefix"));
 		//remove all char which are not numbers, except + sign if any
 		$smsGoesTo = preg_replace('/[^\d+]/i', '', trim($ph_number));
 		if ($smsGoesTo =='') {
 			return $smsGoesTo;
 		}
+		$prefix_long = str_replace('+','00',$prefix) ;
+		$prefix_long_length = strlen($prefix_long);
 		//do not add country prefix if phone number starts with + char
 		if (substr($smsGoesTo, 0, 1) !='+') {
-			if (substr($smsGoesTo, 0, 2) =='00') {
+			if (substr($smsGoesTo, 0, $prefix_long_length) ==$prefix_long) {
 				//replace 00 country prefix with + char
-				$smsGoesTo = substr($smsGoesTo, 2);
+				$smsGoesTo = substr($smsGoesTo, $prefix_long_length);
 				$smsGoesTo = $prefix.$smsGoesTo;
+			}
+			elseif (substr($smsGoesTo, 0, 2) =='00') {
+				//do nothing, probably another country prefix
 			}
 			elseif (substr($smsGoesTo, 0, 1) =='0') {
 				//replace leading 0 by prefix
@@ -270,18 +282,27 @@ class SMSNotifier extends SMSNotifierBase {
 				$smsGoesTo = $prefix.$smsGoesTo;
 			}
 		}	
+		$log->debug("Exiting formatPhoneNumber method, formatted phone number: ".$smsGoesTo);
 		return $smsGoesTo;
 	}
+	
+	static function setSMSStatusInfo($messageId, $status ,$errcode){
+		global $adb;
+		$results = array();
+		$qresult = $adb->pquery("update vtiger_smsnotifier_status set status=?, statusmessage =?  WHERE smsmessageid=?", array($status,$errcode,$messageId));
+		return $qresult;
+	}
+	
 }
 
-class SMSNotifierManager {
+class SMSNotifierManager extends SMSNotifierBase {
 
 	/** Server configuration management */
 	static function listAvailableProviders() {
 		return SMSNotifier_Provider_Model::listAll();
 	}
 
-	static function getActiveProviderInstance() {
+	public static function getActiveProviderInstance() {
 		global $adb;
 		$result = $adb->pquery("SELECT * FROM vtiger_smsnotifier_servers WHERE isactive = 1 LIMIT 1", array());
 		if($result && $adb->num_rows($result)) {

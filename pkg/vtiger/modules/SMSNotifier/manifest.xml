@@ -1,10 +1,10 @@
 <?xml version='1.0'?>
 <module>
-<exporttime>2013-11-12 11:34:54</exporttime>
+<exporttime>2019-09-10 10:54:22</exporttime>
 <name>SMSNotifier</name>
 <label>SMSNotifier</label>
 <parent>Tools</parent>
-<version>1.9</version>
+<version>1.91</version>
 <dependencies>
 <vtiger_version>6.0.0rc</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>

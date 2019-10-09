@@ -13,9 +13,36 @@ class SMSNotifier_Nexmo_Provider implements SMSNotifier_ISMSProvider_Model {
 	private $_username;
 	private $_password;
 	private $_parameters = array();
+
+	public $provider = 'Nexmo';
+	public $provider_status = array(
+		'0'=>'Dispatched',
+		'1'=>'Unknown',
+		'2'=>'Absent Subscriber - Temporary',
+		'3'=>'Absent Subscriber - Permanent',
+		'4'=>'Call Barred by User',
+		'5'=>'Portability Error',
+		'6'=>'Anti-Spam Rejection',
+		'7'=>'Handset Busy',
+		'8'=>'Network Error',
+		'9'=>'Network Error',
+		'10'=>'Illegal Number',
+		'11'=>'Unroutable',
+		'12'=>'Destination Unreachable',
+		'13'=>'Subscriber Age Restrictio',
+		'14'=>'Number Blocked by Carrier',
+		'15'=>'Prepaid Insufficient Funds',
+		'99'=>'General Error',
+	); 
+	
+	public $provider_ip_addresses = array (
+		'0'=>'169.50.200.64/28',
+		'1'=>'169.63.86.160/28',
+		'2'=>'119.81.44.0/28',
+	);
 	
 	const SERVICE_URI = 'https://rest.nexmo.com';
-	private static $REQUIRED_PARAMETERS = array('api_key', 'api_secret','from');
+	private static $REQUIRED_PARAMETERS = array('password','api_key', 'api_secret','from');
 	
 	/**
 	 * Function to get provider name
@@ -76,6 +103,7 @@ class SMSNotifier_Nexmo_Provider implements SMSNotifier_ISMSProvider_Model {
 		}
 		
 		$params = $this->prepareParameters();
+		$message = utf8_encode($message);
 		$params['text'] = $message;
 		//Nexmo's SMS API can only accept one message per request.
 		foreach ($tonumbers	as $to_key => $to_number) {
@@ -84,7 +112,9 @@ class SMSNotifier_Nexmo_Provider implements SMSNotifier_ISMSProvider_Model {
 				$url = 'https://rest.nexmo.com/sms/json?' . http_build_query($params);
 				$ch = curl_init($url);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_ENCODING, "");
 				$response = curl_exec($ch);
+				//$response = '{"a":1,"b":2,"c":3,"d":4,"e":5}';
 				$response_arr[] = get_object_vars(json_decode( $response ));
 			}
 		}	
@@ -102,7 +132,7 @@ class SMSNotifier_Nexmo_Provider implements SMSNotifier_ISMSProvider_Model {
 			else {
 				$result['id'] = $message_content['message-id'];
 				$result['to'] = $message_content['to'];
-				$result['status'] = 'Dispatched';
+				$result['status'] = $this->provider_status[$message_content['status']];
 			}
 			$results[] = $result;
 		}		

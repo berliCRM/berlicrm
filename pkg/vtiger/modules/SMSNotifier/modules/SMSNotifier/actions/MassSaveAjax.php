@@ -26,7 +26,7 @@ class SMSNotifier_MassSaveAjax_Action extends Vtiger_Mass_Action {
 	 * @param Vtiger_Request $request
 	 */
 	public function process(Vtiger_Request $request) {
-		$moduleName = $request->getModule();
+		$relModule = $request->get('relmodule');
 
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$recordIds = $this->getRecordsListFromRequest($request);
@@ -49,14 +49,14 @@ class SMSNotifier_MassSaveAjax_Action extends Vtiger_Mass_Action {
 				}
 			}
 			if($numberSelected) {
-				$recordIds[] = $recordId;
+				$valid_recordIds[] = $recordId;
 			}
 		}
 
 		$response = new Vtiger_Response();
      
 		if(!empty($toNumbers)) {
-			SMSNotifier_Record_Model::SendSMS($message, $toNumbers, $currentUserModel->getId(), $recordIds, $moduleName);
+			SMSNotifier_Record_Model::SendSMS($message, $toNumbers, $currentUserModel->getId(), $valid_recordIds, $relModule);
 			$response->setResult(true);
 		}
 		else {
