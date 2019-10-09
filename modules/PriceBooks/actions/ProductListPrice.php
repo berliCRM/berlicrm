@@ -16,7 +16,7 @@ class PriceBooks_ProductListPrice_Action extends Vtiger_Action_Controller {
 
 		$currentUserPriviligesModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
 		if(!$currentUserPriviligesModel->hasModulePermission($moduleModel->getId())) {
-			throw new AppException(vtranslate($moduleName).' '.vtranslate('LBL_NOT_ACCESSIBLE'));
+			throw new AppException(vtranslate($moduleName, $moduleName).' '.vtranslate('LBL_NOT_ACCESSIBLE'));
 		}
 	}
 
@@ -25,6 +25,10 @@ class PriceBooks_ProductListPrice_Action extends Vtiger_Action_Controller {
 		$moduleModel = $request->getModule();
 		$priceBookModel = Vtiger_Record_Model::getInstanceById($recordId, $moduleModel);
 		$listPrice = $priceBookModel->getProductsListPrice($request->get('itemId'));
+		if (empty($listPrice)) {
+			// Selected product not in pricebook
+			$listPrice = 0; 
+		}
 
 		$response = new Vtiger_Response();
 		$response->setResult(array($listPrice));
