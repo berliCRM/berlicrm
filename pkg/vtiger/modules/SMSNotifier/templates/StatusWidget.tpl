@@ -37,7 +37,10 @@
 			{elseif $RESULT.status == 'Dispatched'}
 				{*  green - ok  *}
 				{assign var="_TDBGCOLOR" value="#BDF97D"}			
-			{elseif $RESULT.status eq 'Failed'}
+			{elseif $RESULT.status == 'delivered'}
+				{*  green - ok  *}
+				{assign var="_TDBGCOLOR" value="#BDF97D"}			
+			{elseif $RESULT.status neq 'Dispatched'}
 				{*  Error = red colored *}
 				{assign var="_TDBGCOLOR" value="#FF3322"}
 				{assign var="ERROR" value="true"}
@@ -46,11 +49,10 @@
 				{assign var="_TDBGCOLOR" value="#99FFEE"}
 				{assign var="OTHER" value="true"}
 			{/if}
-			
 			{if $PROCESS == 'true'}
-				<td nowrap="nowrap" bgcolor="{$_TDBGCOLOR}" width="25%">{$RESULT.tonumber}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{vtranslate('LBL_PROVIDER_MESSAGE',$MODULE_NAME)}&nbsp;&nbsp;{$RESULT.status}</td>
+				<td nowrap="nowrap" bgcolor="{$_TDBGCOLOR}" width="25%">{$RESULT.tonumber}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{vtranslate('LBL_PROVIDER_MESSAGE',$MODULE_NAME)}:&nbsp;&nbsp;{$RESULT.status}</td>
 			{elseif $ERROR == 'true'}
-				<td nowrap="nowrap" bgcolor="{$_TDBGCOLOR}" width="25%">{$RESULT.tonumber}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{vtranslate('LBL_PROVIDER_ERROR_MESSAGE',$MODULE_NAME)}&nbsp;&nbsp;{$RESULT.status}</td>
+				<td nowrap="nowrap" bgcolor="{$_TDBGCOLOR}" width="25%">{$RESULT.tonumber}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{vtranslate('LBL_PROVIDER_ERROR_MESSAGE',$MODULE_NAME)}:&nbsp;&nbsp;{$RESULT.status}&nbsp;{$RESULT.statusmessage}</td>
 			{elseif $OTHER == 'true'}
 				<td nowrap="nowrap" bgcolor="{$_TDBGCOLOR}" width="25%">{$RESULT.tonumber}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{$RESULT.status}&nbsp;&nbsp;{$CMOD.LBL_OTHER_PROVIDER_MESSAGE}</td>
 			{else}
