@@ -148,8 +148,12 @@
 		<tbody>
 			<tr>
 				<td>
-					{assign var=SINGLE_MODULE value="SINGLE_$MODULE"}
-					{vtranslate('LBL_EQ_ZERO')} {vtranslate($SINGLE_MODULE, $MODULE)} {vtranslate('LBL_FOUND')}.{if $IS_RECORD_CREATABLE} {vtranslate('LBL_CREATE')} <a href="{$MODULE_MODEL->getCreateRecordUrl()}">{vtranslate($SINGLE_MODULE, $MODULE)}</a>{/if}
+					{if $MODULE eq 'SMSNotifier'}
+						{vtranslate('LBL_NO_SMS_FROM_THIS_VIEW', $MODULE)}
+					{else}
+						{assign var=SINGLE_MODULE value="SINGLE_$MODULE"}
+						{vtranslate('LBL_EQ_ZERO')} {vtranslate($SINGLE_MODULE, $MODULE)} {vtranslate('LBL_FOUND')}.{if $IS_RECORD_CREATABLE} {vtranslate('LBL_CREATE')} <a href="{$MODULE_MODEL->getCreateRecordUrl()}">{vtranslate($SINGLE_MODULE, $MODULE)}</a>{/if}
+					{/if}
 				</td>
 			</tr>
 		</tbody>
