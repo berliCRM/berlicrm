@@ -36,6 +36,8 @@ $languageStrings = array(
 	'LBL_PROVIDER_ERROR_MESSAGE' => 'Error message from provider',
 	'LBL_OTHER_PROVIDER_MESSAGE' => 'Provider information',
 	'LBL_MESSAGE_SENT' => 'SMS has been send',
+	'LBL_NO_SMS_FROM_THIS_VIEW' => 'You cannot send any short messages from this view.',
+
 );
 
 $jsLanguageStrings = array(

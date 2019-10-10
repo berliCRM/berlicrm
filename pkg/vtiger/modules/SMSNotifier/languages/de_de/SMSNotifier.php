@@ -36,6 +36,7 @@ $languageStrings = array(
 	'LBL_PROVIDER_ERROR_MESSAGE' => 'Fehlerachricht des Providers',
 	'LBL_OTHER_PROVIDER_MESSAGE' => 'Providerinformation',
 	'LBL_MESSAGE_SENT' => 'SMS wurde versendet',
+	'LBL_NO_SMS_FROM_THIS_VIEW' => 'Aus dieser Ansicht können keine SMS versendet werden.',
 
 	
 );
