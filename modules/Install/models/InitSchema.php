@@ -34,7 +34,7 @@ class Install_InitSchema_Model {
 		if ($adb->database->_failedQuery) {
 			return $adb->database->_failedQuery;
 		} else {
-			require_once 'vtigerversion.php';
+			require 'vtigerversion.php';
 			$query = "UPDATE `vtiger_version` SET `tag_version` = ?";
 			$adb->pquery($query, array($current_release_tag));
 			return true;
