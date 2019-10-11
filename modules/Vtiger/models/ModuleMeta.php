@@ -68,7 +68,7 @@ class Vtiger_ModuleMeta_Model extends Vtiger_Base_Model {
 		$moduleFields = $meta->getModuleFields();
 		$accessibleFields = array();
 		foreach($moduleFields as $fieldName => $fieldInstance) {
-			if($fieldInstance->getPresence() === 1) {
+			if($fieldInstance->getPresence() == 1) {
 				continue;
 			}
 			$accessibleFields[$fieldName] = $fieldInstance;
@@ -84,7 +84,7 @@ class Vtiger_ModuleMeta_Model extends Vtiger_Base_Model {
 		$accessibleFields = $this->getAccessibleFields($this->moduleName);
 		$mergableFields = array();
 		foreach($accessibleFields as $fieldName => $fieldInstance) {
-			if($fieldInstance->getPresence() === 1) {
+			if($fieldInstance->getPresence() == 1) {
 				continue;
 			}
 			// We need to avoid Last Modified by or any such User reference field
