@@ -68,7 +68,7 @@ class Vtiger_ModuleMeta_Model extends Vtiger_Base_Model {
 		$moduleFields = $meta->getModuleFields();
 		$accessibleFields = array();
 		foreach($moduleFields as $fieldName => $fieldInstance) {
-			if($fieldInstance->getPresence() === 1) {
+			if($fieldInstance->getPresence() == 1) {
 				continue;
 			}
 			$accessibleFields[$fieldName] = $fieldInstance;
