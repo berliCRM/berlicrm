@@ -82,13 +82,9 @@ class Vtiger_Widget_Model extends Vtiger_Base_Model {
 	public function getName() {
 		$widgetName = $this->get('name');
 		if(empty($widgetName)){
-			//since the html entitites will be encoded
-			//TODO : See if you need to push decode_html to base model
-			$linkUrl = decode_html($this->getUrl());
-			preg_match('/name=[a-zA-Z]+/', $linkUrl, $matches);
-			$matches = explode('=', $matches[0]);
-			$widgetName = $matches[1];
-			$this->set('name', $widgetName);
+			parse_str(decode_html($this->get('linkurl')),$tmp);
+			$this->set('name', $tmp['name']);
+			return $tmp['name'];
 		}
 		return $widgetName;
 	}
