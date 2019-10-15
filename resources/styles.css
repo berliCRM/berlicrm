@@ -129,6 +129,9 @@
   border-radius: 0 0 5px 5px;
   box-shadow: 0 5px 8px -5px #888888;
 }
+.dashboardWidget table.jqplot-table-legend {
+  min-width:100px;
+}
 .dashboardWidget .filterContainer div span {
   margin-top: 6px;
 }
@@ -137,7 +140,6 @@
 }
 .dashboardWidget .dashboardWidgetContent {
   padding: 10px 0;
-  line-height: 20px;
 }
 .dashboardWidget .dashboardWidgetContent .dashboard_notebookWidget_viewarea { 
   height: 200px; 
