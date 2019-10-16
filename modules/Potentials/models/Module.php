@@ -301,7 +301,7 @@ class Potentials_Module_Model extends Vtiger_Module_Model {
 		$result = $db->pquery('SELECT SUM(amount) AS amount,sales_stage FROM vtiger_potential
 							   INNER JOIN vtiger_crmentity ON vtiger_potential.potentialid = vtiger_crmentity.crmid
 							   JOIN vtiger_sales_stage USING (sales_stage)
-							   WHERE deleted = 0 '.Users_Privileges_Model::getNonAdminAccessControlQuery($this->getName()).' GROUP BY sales_stage ORDER BY sortorderid', array());
+							   '.Users_Privileges_Model::getNonAdminAccessControlQuery($this->getName()).' WHERE deleted = 0 GROUP BY sales_stage ORDER BY sortorderid', array());
 
 		while ($row = $db->fetchByAssoc($result,-1,false)) {
 			if(!empty($row['amount'])){
