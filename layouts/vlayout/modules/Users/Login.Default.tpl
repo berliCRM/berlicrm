@@ -15,7 +15,7 @@
     <table>
         <tr>
             <td>
-                <img src="test/logo/start_main.jpg?changed={$LASTCHANGED}" style="float:left;margin:3px:width:440px;">
+                <img src="test/logo/start_main.jpg" style="float:left;margin:3px;width:440px;">
             <td>
                 <form class="login-form" style="margin:0;" action="index.php?module=Users&action=Login" method="POST">
                     {if $LOGIN_ERROR neq ''}
