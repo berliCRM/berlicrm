@@ -42,7 +42,8 @@ class Vtiger_Base_UIType extends Vtiger_Base_Model {
 	 * @return <Object>
 	 */
 	public function getDisplayValue($value, $record=false, $recordInstance=false) {
-		return htmlspecialchars($value, ENT_HTML5 | ENT_QUOTES, false);
+		global $default_charset;
+		return htmlspecialchars($value, ENT_HTML5 | ENT_QUOTES, $default_charset, false);
 	}
 
 	/**
