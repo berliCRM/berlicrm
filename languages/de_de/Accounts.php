@@ -24,7 +24,7 @@ $languageStrings = array(
 	'LBL_ADD_RECORD' => 'Organisation hinzufügen',
 	'LBL_COPY_BILLING_ADDRESS' => 'Kopiere Rechnungsadresse',
 	'LBL_COPY_SHIPPING_ADDRESS' => 'Kopiere Lieferadresse',
-    'LBL_COPY_ADDRESS_TO_RELATED_CONTACTS' => 'Übernehme Anschrift für bezogene Kontakte',
+    'LBL_COPY_ADDRESS_TO_RELATED_CONTACTS' => 'Anschrift für bezogene Kontakte übernehmen',
 	'LBL_DUPLICATES_EXIST' => 'diesen Organisationsnamen gibt es bereits',
 	'LBL_END_DATE' => 'Endedatum',
 	'LBL_RECORDS_LIST' => 'Organisationsliste',
@@ -63,4 +63,3 @@ $jsLanguageStrings = array(
     'LBL_ACCOUNT_ADDRESS_COPIED_TITLE' => 'Anschrift übernommen',
     'LBL_ACCOUNT_ADDRESS_COPIED_TEXT' => 'Die Anschrift der gewählten Organisation wurde automatisch übernommen.'
 );
-?>
