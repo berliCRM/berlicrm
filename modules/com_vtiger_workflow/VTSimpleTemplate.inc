@@ -25,134 +25,100 @@ class VTSimpleTemplate{
 			return $this->getMetaValue($match[1]);
 		}
         // If parent is empty then we can't do any thing here
-        if(!empty($this->parent)){
-            if(count($matches)==0){
-                $fieldname = $match[1];
+        if(!empty($this->parent)) {
+			if(count($matches)==0) {
+				$fieldname = $match[1];
 
-                //To handle comments for this module
-                if (in_array($fieldname, array('lastComment', 'last5Comments', 'allComments'))) {
-                    return $this->getComments($this->parent->getModuleName(), $fieldname, $this->parent->getId());
-                }
+				//To handle comments for this module
+				if (in_array($fieldname, array('lastComment', 'last5Comments', 'allComments'))) {
+					return $this->getComments($this->parent->getModuleName(), $fieldname, $this->parent->getId());
+				}
 
-                $data = $this->parent->getData();
+				$data = $this->parent->getData();
 
-                if(isset($data[$fieldname]) || $fieldname === '_DATE_FORMAT_') {
-                    if($this->useValue($data, $fieldname)){
-                        $result = $this->transformToUserFormat($this->parent->getModuleName(), $fieldname, $data[$fieldname]);
-                    } else {
-                        $result ='';
-                    }
-                } else {
-                    $result ='$'.$fieldname;
-                }
-            }else{
-                list($full, $referenceField, $referenceModule, $fieldname) = $matches;
-                if($referenceModule === '__VtigerMeta__' || $fieldname === 'dbLabel') {
-                    $result = $this->getMetaValue($fieldname);
-                } else if ('__VtigerCompany__' == $referenceModule) { 
-                    $result = $this->getCompanySetting($fieldname); 
-                }else{
-                    $referenceId = $this->parent->get($referenceField);
-                    if($referenceId==null){
-                        $result="";
-                    }else{
-                        //To handle comments for this reference module
-                        if (in_array($fieldname, array('lastComment', 'last5Comments', 'allComments'))) {
-                            return $this->getComments($referenceModule, $fieldname, $referenceId);
-                        }
+				if(isset($data[$fieldname]) || $fieldname === '_DATE_FORMAT_') {
+					if($this->useValue($data, $fieldname)) {
+						$result = $this->transformToUserFormat($this->parent->getModuleName(), $fieldname, $data[$fieldname]);
+					} else {
+						$result ='';
+					}
+				} else {
+					$result ='$'.$fieldname;
+				}
+            } else {
+				list($full, $referenceField, $referenceModule, $fieldname) = $matches;
+				if($referenceModule === '__VtigerMeta__' || $fieldname === 'dbLabel') {
+					$result = $this->getMetaValue($fieldname);
+				} elseif ('__VtigerCompany__' == $referenceModule) { 
+					$result = $this->getCompanySetting($fieldname); 
+				} else {
+					$referenceId = $this->parent->get($referenceField);
+					if($referenceId==null) {
+						$result="";
+					} else {
+						//To handle comments for this reference module
+						if (in_array($fieldname, array('lastComment', 'last5Comments', 'allComments'))) {
+							return $this->getComments($referenceModule, $fieldname, $referenceId);
+						}
 
-                        if ($referenceField === 'contact_id') {
-                            $referenceIdsList = explode(',', $referenceId);
-                            $parts = array();
-                            foreach ($referenceIdsList as $referenceId) {
-                                $entity = $this->cache->forId($referenceId);
-                                $data = $entity->getData();
-                                if($this->useValue($data, $fieldname)) {
-									//crm-now: get Email of reports_to user
-									if (get_class($this) == 'VTEmailRecipientsTemplate' && $fieldname == 'reports_to_id'){
-										$entity = $this->cache->forId($data[$fieldname]);
-										$data = $entity->getData();
-										if($this->useValue($data, 'email1')){
-											$parts[] = $data['email1'];
-										}
-									}
-									else{
-									   $parts[] = $this->transformToUserFormat($referenceModule, $fieldname, $data[$fieldname]);
-									}
-								}
-                            }
-                            return implode(',', $parts);
-                        }
-                        $entity = $this->cache->forId($referenceId);
-                        if($referenceModule==="Users" && $entity->getModuleName()=="Groups"){
-                            list($groupEntityId, $groupId) = vtws_getIdComponents($referenceId);
-
-                            require_once('include/utils/GetGroupUsers.php');
-                            $ggu = new GetGroupUsers();
-                            $ggu->getAllUsersInGroup($groupId);
-
-                            $users = $ggu->group_users;
-                            $parts = Array();
-                            foreach($users as $userId){
-                                $refId = vtws_getWebserviceEntityId("Users", $userId);
-                                $entity = $this->cache->forId($refId);
-                                $data = $entity->getData();
-                                if($this->useValue($data, $fieldname)){
-                                    $parts[] = $this->transformToUserFormat($referenceModule, $fieldname, $data[$fieldname]);
-                                }
-                            }
-                            $result = implode(", ", $parts);
-
-                        } elseif($entity->getModuleName()===$referenceModule){
-                            $data = $entity->getData();
-                            if($this->useValue($data, $fieldname)){
-                                $handler = vtws_getModuleHandlerFromName($referenceModule, $this->cache->user);
-                                $meta = $handler->getMeta();
-                                $referenceFieldList = $meta->getReferenceFieldDetails();
-                                if(array_key_exists($fieldname,$referenceFieldList)) {
-                                    $webserviceId = $data[$fieldname];
-                                    $idComponents = vtws_getIdComponents($webserviceId);
-                                    if($fieldname == 'currency_id' && $referenceModule == 'Users') {
-                                        $result = decode_html(getCurrencyName($idComponents[1]));
-                                    } 
-                                    else if($fieldname == 'reports_to_id' && $referenceModule == 'Users') {
-										//crm-now: get Email of reports_to user
-										if (get_class($this) == 'VTEmailRecipientsTemplate' && $fieldname == 'reports_to_id'){
-											$entity = $this->cache->forId($data[$fieldname]);
-											$data = $entity->getData();
-											if($this->useValue($data, 'email1')){
-												$result = $data['email1'];
-											}
-										}
-                                    } 
-									else {
-                                        $result = decode_html(Vtiger_Util_Helper::getLabel($idComponents[1]));
-                                   }
-                               }
-								else{
-                                    $result = $this->transformToUserFormat($referenceModule, $fieldname, $data[$fieldname]);
-                                }
-                           }
-							else{
-                              $result = '';
-                            }
-							//crm-now: get Email of reports_to user
-							if ($referenceModule==="Users" && get_class($this) == 'VTEmailRecipientsTemplate' && $fieldname == 'reports_to_id' && !empty($result)){
-								$entity = $this->cache->forId($result);
-								$data = $entity->user->column_fields;
-								if($this->useValue($data, 'email1')){
-									$result = $data['email1'];
-								}
-								else{
-									$result = '';
+						if ($referenceField === 'contact_id') {
+							$referenceIdsList = explode(',', $referenceId);
+							$parts = array();
+							foreach ($referenceIdsList as $referenceId) {
+								$entity = $this->cache->forId($referenceId);
+								$data = $entity->getData();
+								if($this->useValue($data, $fieldname)) {
+									$parts[] = $this->transformToUserFormat($referenceModule, $fieldname, $data[$fieldname]);
 								}
 							}
+							return implode(',', $parts);
 						}
-						else{
-                            $result = '';
-                        }
-                    }
-                }
+						
+						$entity = $this->cache->forId($referenceId);
+						if($referenceModule==="Users" && $entity->getModuleName()=="Groups") {
+							list($groupEntityId, $groupId) = vtws_getIdComponents($referenceId);
+
+							require_once('include/utils/GetGroupUsers.php');
+							$ggu = new GetGroupUsers();
+							$ggu->getAllUsersInGroup($groupId);
+
+							$users = $ggu->group_users;
+							$parts = Array();
+							foreach($users as $userId) {
+								$refId = vtws_getWebserviceEntityId("Users", $userId);
+								$entity = $this->cache->forId($refId);
+								$data = $entity->getData();
+								if($this->useValue($data, $fieldname)) {
+									$parts[] = $this->transformToUserFormat($referenceModule, $fieldname, $data[$fieldname]);
+								}
+							}
+							$result = implode(", ", $parts);
+
+						} elseif($entity->getModuleName()===$referenceModule) {
+							$data = $entity->getData();
+							if($this->useValue($data, $fieldname)) {
+								$handler = vtws_getModuleHandlerFromName($referenceModule, $this->cache->user);
+								$meta = $handler->getMeta();
+								$referenceFieldList = $meta->getReferenceFieldDetails();
+								if(array_key_exists($fieldname,$referenceFieldList)) {
+									$webserviceId = $data[$fieldname];
+									$idComponents = vtws_getIdComponents($webserviceId);
+									if($fieldname == 'currency_id' && $referenceModule == 'Users') {
+										$result = decode_html(getCurrencyName($idComponents[1]));
+									} else {
+										$result = decode_html(Vtiger_Util_Helper::getLabel($idComponents[1]));
+									}
+								} else {
+									$result = $this->transformToUserFormat($referenceModule, $fieldname, $data[$fieldname]);
+								}
+							} else {
+								$result = '';
+							}
+						} else {
+							$result = '';
+						}
+					}
+				}
             }
         }
 		return $result;
