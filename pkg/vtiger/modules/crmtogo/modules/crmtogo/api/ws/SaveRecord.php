@@ -106,7 +106,7 @@ class crmtogo_WS_SaveRecord extends crmtogo_WS_FetchRecord {
 					if (empty($this->recordValues['visibility'])) {
 						$this->recordValues['visibility'] = 'Public';
 					}
-					unset (	$this->recordValues['time_end']);
+					//unset (	$this->recordValues['time_end']);
 				}
 				$this->recordValues = vtws_create($module, $this->recordValues, $current_user);
 			}

@@ -102,6 +102,7 @@ $languageStrings = Array (
 	'LBL_QUICKCREATE'=>'Create',
 	'LBL_SIGNATURE'=>'Signature',	
 	'LBL_SIGNATUR_SOURCE'=>'created by mobile crmtogo',	
+	'Description Details'=>'Description Details',
 	
 );
 
