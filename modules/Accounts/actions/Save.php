@@ -10,36 +10,46 @@
 
 class Accounts_Save_Action extends Vtiger_Save_Action {
 
-	/**
-	 * Function to save record - and to copy addresses to related contacts on request
-	 * @param <Vtiger_Request> $request - values of the record
-	 * @return <RecordModel> - record Model of saved record
-	 */
-	public function saveRecord($request) {
+    /**
+     * Function to save record - and to copy addresses to related contacts on request
+     * @param <Vtiger_Request> $request - values of the record
+     * @return <RecordModel> - record Model of saved record
+     */
+    public function saveRecord($request) {
 
         $recordModel = parent::saveRecord($request);
 
         if ($request->get("copytorelatedcontacts") == "on") {
             $record = (int) $request->get("record");
             if ($record>0) {
-                $q = "UPDATE vtiger_contactdetails, vtiger_contactaddress as a, vtiger_accountshipads as b, vtiger_accountbillads as c SET
-                a.mailingcity = c.bill_city,
-                a.mailingstreet = c.bill_street,
-                a.mailingcountry = c.bill_country,
-                a.mailingstate = c.bill_state,
-                a.mailingpobox = c.bill_pobox,
-                a.mailingzip = c.bill_code,
-                a.othercity = b.ship_city,
-                a.otherstreet = b.ship_street,
-                a.othercountry = b.ship_country,
-                a.otherstate = b.ship_state,
-                a.otherpobox = b.ship_pobox,
-                a.otherzip = b.ship_code
-                WHERE contactid = contactaddressid AND b.accountaddressid = accountid AND c.accountaddressid = accountid AND accountid = ?";
                 $db = PearDatabase::getInstance();
-                $db->pquery($q,array($record));
+                $query = "SELECT contactid FROM vtiger_contactdetails
+                    INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_contactdetails.contactid
+                    WHERE vtiger_crmentity.deleted = 0 AND vtiger_contactdetails.accountid = ?";
+                $result = $db->pquery($query,array($record));
+                if ($db->num_rows($result) > 0) {
+                    for ($i=0; $i<$db->num_rows($result); $i++) {
+                        $contactid = $db->query_result($result, $i, "contactid");
+                        $ContactRecordModel = Vtiger_Record_Model::getInstanceById($contactid, 'Contacts');
+                        $ContactRecordModel->set('mode', 'edit');
+                        $ContactRecordModel->set('mailingcity', $recordModel->get('bill_city'));
+                        $ContactRecordModel->set('mailingstreet',$recordModel->get('bill_street'));
+                        $ContactRecordModel->set('mailingcountry',$recordModel->get('bill_country'));
+                        $ContactRecordModel->set('mailingstate',$recordModel->get('bill_state'));
+                        $ContactRecordModel->set('mailingpobox',$recordModel->get('bill_pobox'));
+                        $ContactRecordModel->set('mailingzip',$recordModel->get('bill_code'));
+                        $ContactRecordModel->set('othercity',$recordModel->get('ship_city'));
+                        $ContactRecordModel->set('otherstreet',$recordModel->get('ship_street'));
+                        $ContactRecordModel->set('othercountry',$recordModel->get('ship_country'));
+                        $ContactRecordModel->set('otherstate',$recordModel->get('ship_state'));
+                        $ContactRecordModel->set('otherpobox',$recordModel->get('ship_pobox'));
+                        $ContactRecordModel->set('otherzip',$recordModel->get('ship_code'));
+                        $ContactRecordModel->convertToUserFormat();
+                        $ContactRecordModel->save();
+                    }
+                }
             }
         }
-		return $recordModel;
-	}
+        return $recordModel;
+    }
 }
