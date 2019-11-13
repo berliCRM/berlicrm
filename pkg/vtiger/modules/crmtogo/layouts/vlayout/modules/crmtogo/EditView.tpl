@@ -80,7 +80,7 @@
 			{foreach item=_BLOCK key=_BLOCKLABEL from=$_RECORD->blocks()}
 			{assign var=_FIELDS value=$_BLOCK->fields()}
 				<div data-role="collapsible" data-collapsed="false" data-mini="true"  >
-					<h3>{$_BLOCKLABEL}</h3>
+					<h3>{vtranslate($_BLOCKLABEL,'crmtogo')}</h3> 
 					<p>
 					{foreach item=_FIELD from=$_FIELDS}
 							<div>   

@@ -101,7 +101,9 @@ $languageStrings = Array (
 	'LBL_LOGOUT'=>'Logout',
 	'LBL_QUICKCREATE'=>'Erstelle',
 	'LBL_SIGNATURE'=>'Unterschrift',	
-	'LBL_SIGNATUR_SOURCE'=>'erstellt durch mobile Schnittstelle crmtogo',	
+	'LBL_SIGNATUR_SOURCE'=>'erstellt durch mobile Schnittstelle crmtogo',
+	'Description Details'=>'Beschreibungsinformationen',
+
 );
 
 ?>
