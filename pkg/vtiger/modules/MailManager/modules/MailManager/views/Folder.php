@@ -92,10 +92,14 @@ class MailManager_Folder_View extends MailManager_Abstract_View {
 			if ($this->hasMailboxModel()) {
 				$connector = $this->getConnector();
 
-				if (!$connector->hasError()) {
+				if ($connector->isConnected()) {
 					$folders = $connector->folders();
 					$connector->updateFolders();
 					$viewer->assign('FOLDERS', $folders);
+				} else if($connector->hasError()) {
+					$error = $connector->lastError();
+					$response->isJSON(true);
+					$response->setError(101, $error);
 				}
 				$this->closeConnector();
 			}
