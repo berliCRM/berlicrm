@@ -10,7 +10,11 @@
  ********************************************************************************/
 
 
-require_once("modules/Emails/class.phpmailer.php");
+require_once("modules/Emails/PHPMailer/src/PHPMailer.php");
+require_once("modules/Emails/PHPMailer/src/SMTP.php");
+require_once("modules/Emails/PHPMailer/src/Exception.php");
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
 require_once 'include/utils/CommonUtils.php';
 require_once 'include/utils/VTCacheUtils.php';
 
@@ -190,17 +194,16 @@ function setMailerProperties($mail,$subject,$contents,$from_email,$from_name,$to
 
 	$mail->Subject = $subject;
 	//Added back as we have changed php mailer library, older library was using html_entity_decode before sending mail
-	$mail->Body = decode_html($contents);
+	$mail->msgHTML($contents);
 	//$mail->Body = html_entity_decode(nl2br($contents));	//if we get html tags in mail then we will use this line
 	$mail->AltBody = decode_html(strip_tags(preg_replace(array("/<p>/i","/<br>/i","/<br \/>/i"),array("\n","\n","\n"),$contents)));
 
-	$mail->IsSMTP();		//set mailer to use SMTP
+	$mail->isSMTP();		//set mailer to use SMTP
 	//$mail->Host = "smtp1.example.com;smtp2.example.com";  // specify main and backup server
 
 	setMailServerProperties($mail);
 
 	//Handle the from name and email for HelpDesk
-    $mail->From = $from_email;
     $userFullName = trim(VTCacheUtils::getUserFullName($from_name));
     if(empty($userFullName)) {
         $rs = $adb->pquery("select first_name,last_name from vtiger_users where user_name=?", array($from_name));
@@ -212,8 +215,7 @@ function setMailerProperties($mail,$subject,$contents,$from_email,$from_name,$to
     } else {
         $from_name = $userFullName;
     }
-	$mail->FromName = decode_html($from_name);
-
+	$mail->setFrom($from_email, decode_html($from_name));
 
 	if($to_email != '')
 	{
@@ -231,7 +233,7 @@ function setMailerProperties($mail,$subject,$contents,$from_email,$from_name,$to
 
 	//commented so that it does not add from_email in reply to
 	//$mail->AddReplyTo($from_email);
-	$mail->WordWrap = 50;
+	// $mail->WordWrap = 50;
 
 	//If we want to add the currently selected file only then we will use the following function
 	if($attachment == 'current' && $emailid != '')
@@ -250,7 +252,7 @@ function setMailerProperties($mail,$subject,$contents,$from_email,$from_name,$to
 		addAllAttachments($mail,$emailid);
 	}
 
-	$mail->IsHTML(true);		// set email format to HTML
+	// $mail->IsHTML(true);		// set email format to HTML
 
 	return;
 }
