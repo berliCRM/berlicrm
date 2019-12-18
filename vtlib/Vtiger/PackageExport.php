@@ -445,7 +445,7 @@ class Vtiger_PackageExport {
 			// Export picklist values for picklist fields
 			if($uitype == '15' || $uitype == '16' || $uitype == '111' || $uitype == '33' || $uitype == '55' || $uitype == 'cr16' || $uitype == 'crs16') {
 
-				if($uitype == '16') {
+				if($uitype == '16' || $uitype == 'crs16') {
 					$picklistvalues = vtlib_getPicklistValues($fieldname);
 				} else {
 					$picklistvalues = vtlib_getPicklistValues_AccessibleToAll($fieldname);
