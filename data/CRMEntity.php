@@ -1751,6 +1751,10 @@ class CRMEntity {
 		$query .= ", CASE WHEN (vtiger_users.user_name NOT LIKE '') THEN $userNameSql ELSE vtiger_groups.groupname END AS user_name";
 
 		$more_relation = '';
+		//we query CF table so make sure it will be joined
+		if (empty($other->related_tables)) {
+			$other->related_tables = array($cf_tablename => array($other->customFieldTable[1]));
+		}
 		if (!empty($other->related_tables)) {
 			foreach ($other->related_tables as $tname => $relmap) {
 				$query .= ", $tname.*";
@@ -1845,6 +1849,10 @@ class CRMEntity {
 			$query .= ", CASE WHEN (vtiger_users.user_name NOT LIKE '') THEN $userNameSql ELSE vtiger_groups.groupname END AS user_name";
 
 			$more_relation = '';
+			//we query CF table so make sure it will be joined
+			if (empty($other->related_tables)) {
+				$other->related_tables = array($cf_tablename => array($other->customFieldTable[1]));
+			}
 			if (!empty($other->related_tables)) {
 				foreach ($other->related_tables as $tname => $relmap) {
 					$query .= ", $tname.*";
