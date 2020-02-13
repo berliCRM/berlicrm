@@ -1117,6 +1117,9 @@ jQuery.Class("Vtiger_Detail_Js",{
 						currentTdElement.progressIndicator({'mode':'hide'});
                         detailViewValue.removeClass('hide');
 						actionElement.show();
+						if (typeof postSaveRecordDetails[fieldName].value == 'object' && postSaveRecordDetails[fieldName].display_value == null) {
+							postSaveRecordDetails[fieldName].display_value = JSON.stringify(postSaveRecordDetails[fieldName].value);
+						}
                         detailViewValue.html(postSaveRecordDetails[fieldName].display_value);
                         fieldElement.trigger(thisInstance.fieldUpdatedEvent,{'old':previousValue,'new':fieldValue});
                         fieldnameElement.data('prevValue', ajaxEditNewValue);
