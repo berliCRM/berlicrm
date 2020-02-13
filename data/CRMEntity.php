@@ -251,6 +251,8 @@ class CRMEntity {
 		}
 		if ($this->mode == 'edit') {
 			$description_val = from_html($this->column_fields['description'], ($insertion_mode == 'edit') ? true : false);
+			//crm-now: should an array still be present, assume JSON input and re-encode it (was probably decoded by Vtiger_Request class)
+			if (is_array($description_val)) $description_val = json_encode($description_val);
 
             // crm-now: optional appending in mass operations, preventing multiple appends (by save-triggered workflows f.e.)
             if ($_REQUEST["add"]["description"]=="on" && !$_REQUEST["added"]["description"][$this->id] && !empty($_REQUEST['description'])) { 
@@ -306,6 +308,8 @@ class CRMEntity {
 			// END
 
 			$description_val = from_html($this->column_fields['description'], ($insertion_mode == 'edit') ? true : false);
+			//crm-now: should an array still be present, assume JSON input and re-encode it (was probably decoded by Vtiger_Request class)
+			if (is_array($description_val)) $description_val = json_encode($description_val);
 			$sql = "insert into vtiger_crmentity (crmid,smcreatorid,smownerid,setype,description,modifiedby,createdtime,modifiedtime) values(?,?,?,?,?,?,?,?)";
 			$params = array($current_id, $current_user->id, $ownerid, $module, $description_val, $current_user->id, $created_date_var, $modified_date_var);
 			$adb->pquery($sql, $params);
@@ -565,6 +569,8 @@ class CRMEntity {
 			if ($fldvalue == '') {
 				$fldvalue = $this->get_column_value($columname, $fldvalue, $fieldname, $uitype, $datatype);
 			}
+			//crm-now: should an array still be present, assume JSON input and re-encode it (was probably decoded by Vtiger_Request class)
+			if (is_array($fldvalue)) $fldvalue = json_encode($fldvalue);
 
 			if ($insertion_mode == 'edit') {
 				if ($table_name != 'vtiger_ticketcomments' && $uitype != 4) {
