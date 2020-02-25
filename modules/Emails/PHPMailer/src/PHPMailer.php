@@ -73,7 +73,7 @@ class PHPMailer
      *
      * @var string
      */
-    public $CharSet = self::CHARSET_ISO88591;
+    public $CharSet = self::CHARSET_UTF8;
 
     /**
      * The MIME Content-type of the message.
