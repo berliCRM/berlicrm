@@ -114,17 +114,17 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 			}
 
 			foreach($emails as $email) {
-				$mailer->Body = '';
+				$mailer->msgHTML('');
 				// if ($parentModule) {
 					// $mailer->Body = $this->getTrackImageDetails($id, $this->isEmailTrackEnabled());
 				// }
-				$mailer->Body .= $description;
+				$mailer->msgHTML($mailer->Body.$description);
 
                 // add signature unless nosignature-checkbox is checked
                 if ($_REQUEST["nosignature"]!="on") {
                     $mailer->Signature = str_replace(array('\r\n', '\n'),'<br>',$currentUserModel->get('signature'));
                     if($mailer->Signature != '') {
-                        $mailer->Body.= '<br><br>'.decode_html($mailer->Signature);
+                        $mailer->msgHTML($mailer->Body.'<br><br>'.$mailer->Signature);
                     }
 				}
                 // create non-html alternative body

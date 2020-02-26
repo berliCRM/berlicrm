@@ -7,7 +7,11 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-require_once('modules/Emails/class.phpmailer.php');
+require_once("modules/Emails/PHPMailer/src/PHPMailer.php");
+require_once("modules/Emails/PHPMailer/src/SMTP.php");
+require_once("modules/Emails/PHPMailer/src/Exception.php");
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
 include_once('include/utils/CommonUtils.php');
 include_once('config.inc.php');
 include_once('include/database/PearDatabase.php');
@@ -43,7 +47,7 @@ class Vtiger_Mailer extends PHPMailer {
 	 * @access private
 	 */
 	function initialize() {
-		$this->IsSMTP();
+		$this->isSMTP();
 
 		global $adb;
 		$result = $adb->pquery("SELECT * FROM vtiger_systems WHERE server_type=?", Array('email'));
@@ -78,7 +82,7 @@ class Vtiger_Mailer extends PHPMailer {
 	function reinitialize() {
 		$this->ClearAllRecipients();
 		$this->ClearReplyTos();
-		$this->Body = '';
+		$this->msgHTML('');
 		$this->Subject ='';
 		$this->ClearAttachments();
 	}
@@ -94,10 +98,10 @@ class Vtiger_Mailer extends PHPMailer {
 		if($adb->num_rows($result)) {
 			$this->IsHTML(true);
 			$usesubject = $adb->query_result($result, 0, 'subject');
-			$usebody = decode_html($adb->query_result($result, 0, 'body'));
+			$usebody = $adb->query_result($result, 0, 'body');
 
 			$this->Subject = $usesubject;
-			$this->Body    = $usebody;
+			$this->msgHTML($usebody);
 			return true;
 		}
 		return false;
@@ -243,7 +247,7 @@ class Vtiger_Mailer extends PHPMailer {
 				$mailer->From = $queue_record['fromemail'];
 				$mailer->FromName = decode_html($queue_record['fromname']);
 				$mailer->Subject= decode_html($queue_record['subject']);
-				$mailer->Body = decode_html($queue_record['body']);
+				$mailer->msgHTML($queue_record['body']);
 				$mailer->Mailer=$queue_record['mailer'];
 				$mailer->ContentType = $queue_record['content_type'];
 
