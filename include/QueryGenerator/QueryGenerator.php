@@ -424,7 +424,6 @@ class QueryGenerator {
             $tablename = $field->getTableName();
             if ($tablename == "vtiger_crmentity") {
                 $tablename = "Accounts_crmentity";
-                $this->crmEntityDoubleJoin = true;
             }
             return $tablename.'.'.$column." AS $alias";
         }
@@ -482,6 +481,9 @@ class QueryGenerator {
 			if ($fieldName == 'id') {
 				continue;
 			}
+			if (strlen($fieldName) >= 9 && substr($fieldName, 0, 9) == 'Accounts.') {
+				$this->crmEntityDoubleJoin = true;
+			}
 
 			$field = $moduleFields[$fieldName];
 			$baseTable = $field->getTableName();
@@ -529,6 +531,9 @@ class QueryGenerator {
 			if(empty($field)) {
 				// not accessible field.
 				continue;
+			}
+			if (strlen($fieldName) >= 9 && substr($fieldName, 0, 9) == 'Accounts.') {
+				$this->crmEntityDoubleJoin = true;
 			}
 			$baseTable = $field->getTableName();
 			// When a field is included in Where Clause, but not is Select Clause, and the field table is not base table,
@@ -700,7 +705,12 @@ class QueryGenerator {
 
         // crm-now: double join aliased crmentity table for combined customview
         if ($this->crmEntityDoubleJoin) {
-            $sql .= " INNER JOIN vtiger_crmentity AS Accounts_crmentity ON Accounts_crmentity.crmid = vtiger_account.accountid";
+			if (!in_array('vtiger_account', $tableList)) {
+				$sql .= " LEFT JOIN vtiger_account ON vtiger_account.accountid = vtiger_contactdetails.accountid";
+			}
+            $sql .= " LEFT JOIN vtiger_crmentity AS Accounts_crmentity ON Accounts_crmentity.crmid = vtiger_account.accountid
+					  LEFT JOIN vtiger_users AS Accounts_users ON Accounts_users.id = Accounts_crmentity.smownerid
+					  LEFT JOIN vtiger_groups AS Accounts_groups ON Accounts_groups.groupid = Accounts_crmentity.smownerid";
         }
 		return $sql;
 	}
@@ -916,6 +926,14 @@ class QueryGenerator {
 							$conditionInfo['operator'])) {
 						$fieldSql .= "$fieldGlue DATE_FORMAT(".$field->getTableName().'.'.
 						$field->getColumnName().",'%m%d') ".$valueSql;
+					} elseif ($fieldName == 'Accounts.assigned_user_id') {
+						//crm-now: Workflow filters use ID values instead of name values, try to mitigate it here (and possibly fix not unique firstname - lastname filters in CustomViews etc. later)
+						if (!is_numeric($conditionInfo['value'])) {
+							$concatSql = getSqlForNameInDisplayFormat(array('first_name'=>"Accounts_users.first_name",'last_name'=>"Accounts_users.last_name"), 'Users');
+							$fieldSql .= "$fieldGlue (TRIM($concatSql) $valueSql OR "."Accounts_groups.groupname $valueSql)";
+						} else {
+							$fieldSql .= "$fieldGlue (Accounts_users.id $valueSql OR Accounts_groups.groupid $valueSql)";
+						}
 					} else {
 						$fieldSql .= "$fieldGlue ".$field->getTableName().'.'.
 						$field->getColumnName().' '.$valueSql;
