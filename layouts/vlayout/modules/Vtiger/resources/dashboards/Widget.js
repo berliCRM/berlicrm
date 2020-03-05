@@ -366,7 +366,7 @@ Vtiger_Widget_Js('Vtiger_Funnel_Widget_Js',{},{
 			legend: {
 				show: true,
 				location: 'ne',
-				placement: 'outside',
+				placement: 'outsideGrid',
 				labels:labels
 			}
 		});
@@ -634,7 +634,7 @@ Vtiger_Widget_Js('Vtiger_MultiBarchat_Widget_Js',{
 			legend: {
 				show: true,
 				location: 'e',
-				placement: 'outside',
+				placement: 'outsideGrid',
 				labels:labels
 			}
 		});
