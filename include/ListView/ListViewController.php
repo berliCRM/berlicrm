@@ -421,7 +421,8 @@ class ListViewController {
 				} elseif ($field->getUIType() == 11) {
 					$SoftphonePrefix = berliSoftphones_Record_Model:: getSoftphonePrefix();
 					if($SoftphonePrefix && !empty($value)) {
-						$value = '<a class="phoneField" data-value="'.$phoneNumber.'" record="'.$recordId.'" href="'.$SoftphonePrefix.($value).'">'.textlength_check($value).'</a>';
+						$replaced = preg_replace('/[-()\s]/', '', $value);
+						$value = '<a class="phoneField" data-value="'.$replaced.'" record="'.$recordId.'" href="'.$SoftphonePrefix.($value).'">'.textlength_check($value).'</a>';
 					}
  					
                     else if($outgoingCallPermission && !empty($value)) {
