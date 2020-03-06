@@ -63,7 +63,7 @@
 					<label class="muted control-label">{vtranslate('LBL_PORTAL_URL', $QUALIFIED_MODULE)}</label>
 					<div class="controls">
 						<span class="row-fluid">
-							<span class="span4 pushDownHalfper"><a class="alignBottom" href="{$PORTAL_URL}">{$PORTAL_URL}</a></span>
+							<span class="span4 pushDownHalfper"><a class="alignBottom" href="{$PORTAL_URL}/">{$PORTAL_URL}/</a></span>
 							<span class="span7"><i class="icon-info-sign alignMiddle"></i>&nbsp;{vtranslate('LBL_PORTAL_URL_MESSAGE', $QUALIFIED_MODULE)}</span>
 							<span class="span1">&nbsp;</span>
 						</span>
