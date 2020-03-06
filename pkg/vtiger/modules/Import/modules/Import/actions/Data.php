@@ -532,7 +532,7 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 		if($fillDefault) {
 			foreach($defaultFieldValues as $fieldName => $fieldValue) {
 				if (!isset($fieldData[$fieldName])) {
-					$fieldData[$fieldName] = $defaultFieldValues[$fieldName];
+					$fieldData[$fieldName] = decode_html($defaultFieldValues[$fieldName]);
 				}
 			}
 		}
