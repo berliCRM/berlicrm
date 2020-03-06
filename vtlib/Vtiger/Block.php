@@ -217,12 +217,12 @@ class Vtiger_Block {
                 $fieldname = $row["name"];
                 $q2 = "SELECT $fieldname FROM vtiger_$fieldname WHERE picklist_valueid =?";
                 $res2 = $adb->pquery($q2,array($row["picklistvalueid"]));
-                $picklistvalue = decode_html($adb->query_result($res2,0,$fieldname));
+                $picklistvalue = $adb->query_result($res2,0,$fieldname);
                 if ($row["initialstatus"]>0 && (!empty($picklistvalue))) {
-                    $instance->hideWhenPickListHasValue[$fieldname][]=$picklistvalue;
+                    $instance->hideWhenPickListHasValue[$fieldname][]=decode_html($picklistvalue);
                 }
                 if ($row['blocked']>0 && (!empty($picklistvalue))) {
-                    $instance->blockWhenPickListHasValue[$fieldname][]=$picklistvalue;
+                    $instance->blockWhenPickListHasValue[$fieldname][]=decode_html($picklistvalue);
                 }
             }
 			$instances[] = $instance;
