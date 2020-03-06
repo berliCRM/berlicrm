@@ -15,10 +15,12 @@ class Calendar_Export_View extends Vtiger_Export_View {
 
 	public function process(Vtiger_Request $request) {
 		$moduleName = $request->getModule();
+		$selected_ids = $request->get('selected_ids');
 
 		$viewer = $this->getViewer($request);
 		$viewer->assign('MODULE', $moduleName);
 		$viewer->assign('ACTION', 'ExportData');
+		$viewer->assign('SELECTED_IDS', $selected_ids);
 		
 		$viewer->view('Export.tpl', $moduleName);
 	}

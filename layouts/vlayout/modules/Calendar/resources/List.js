@@ -36,9 +36,12 @@ Vtiger_List_Js("Calendar_List_Js",{
 		);
 	},
 
-	triggerExportAction : function (importUrl) {
+	triggerExportAction : function (exportUrl) {
+		var listInstance = Vtiger_List_Js.getInstance();
+		var selectedIds = listInstance.readSelectedIds();
+		exportUrl = exportUrl+'&selected_ids='+selectedIds;
 		var progressIndicatorElement = jQuery.progressIndicator();
-		AppConnector.request(importUrl).then(
+		AppConnector.request(exportUrl).then(
 			function(data) {
 				progressIndicatorElement.progressIndicator({'mode' : 'hide'});
 				if(data) {
