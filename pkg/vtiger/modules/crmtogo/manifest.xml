@@ -5,7 +5,7 @@
 <label>crmtogo</label>
 <parent></parent>
 <type>extension</type>
-<version>4.12</version>
+<version>4.13</version>
 <dependencies>
 <vtiger_version>6.5.0</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>
