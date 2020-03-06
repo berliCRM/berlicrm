@@ -117,7 +117,7 @@
 								{if $SOFTPHONE and $RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}
 										{assign var=PHONE_FIELD_VALUE value=$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}
 										{assign var=PHONE_NUMBER value=$PHONE_FIELD_VALUE|regex_replace:"/[-()\s]/":""}
-										<a class="phoneField" data-value="{$PHONE_NUMBER}" record="{$RELATED_RECORD->getId()}" href="{$SOFTPHONE}{$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}">{$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}</a>
+										<a class="phoneField" data-value="{$PHONE_NUMBER}" record="{$RELATED_RECORD->getId()}" href="{$SOFTPHONE}{$PHONE_NUMBER}">{$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}</a>
                                  {else}
                                     {$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}   
  								{/if}
