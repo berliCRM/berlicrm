@@ -422,7 +422,7 @@ class ListViewController {
 					$SoftphonePrefix = berliSoftphones_Record_Model:: getSoftphonePrefix();
 					if($SoftphonePrefix && !empty($value)) {
 						$replaced = preg_replace('/[-()\s]/', '', $value);
-						$value = '<a class="phoneField" data-value="'.$replaced.'" record="'.$recordId.'" href="'.$SoftphonePrefix.($value).'">'.textlength_check($value).'</a>';
+						$value = '<a class="phoneField" data-value="'.$replaced.'" record="'.$recordId.'" href="'.$SoftphonePrefix.($replaced).'">'.textlength_check($value).'</a>';
 					}
  					
                     else if($outgoingCallPermission && !empty($value)) {
