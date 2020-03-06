@@ -4,7 +4,7 @@
 <name>Mailchimp</name>
 <label>Mailchimp</label>
 <parent>Marketing</parent>
-<version>4.02</version>
+<version>4.03</version>
 <dependencies>
 <vtiger_version>6.5.0</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>
