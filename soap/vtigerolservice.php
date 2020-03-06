@@ -380,9 +380,9 @@ function AddMessageToContact($username,$session,$contactid,$msgdtls)
 				$event->column_fields["visibility"] = 'Private';
 				$event->column_fields["activitytype"]	= 'Call';	
 				$event->column_fields["time_start"]	= '09:00';
-				$event->column_fields["time_end"] = '09:05';
+				$event->column_fields["time_end"] = '09:15';
 				$event->column_fields["duration_hours"]	= '0';	
-				$event->column_fields["duration_minutes"]= '5';	
+				$event->column_fields["duration_minutes"]= '15';	
 				$event->column_fields["sendnotification"] = '0';
 				$event->column_fields["eventstatus"] = 'Planned';
 				$event->column_fields["taskpriority"] = 'Medium';
