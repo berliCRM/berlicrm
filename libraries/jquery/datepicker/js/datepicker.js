@@ -747,7 +747,7 @@
 						var id = 'datepicker_' + parseInt(Math.random() * 1000), cnt;
 						options.id = id;
 						$(this).data('datepickerId', options.id);
-						var cal = $(tpl.wrapper).attr('id', id).bind('click', click).data('datepicker', options);
+						var cal = $(tpl.wrapper).attr('id', id).bind('click', click).data('datepicker', options).addClass("noprint");
 						if (options.className) {
 							cal.addClass(options.className);
 						}
