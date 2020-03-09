@@ -523,10 +523,11 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			var element = jQuery(this);
 			var fileSize = element.data('fileSize');
 			var fileType = element.data('fileType');
+			var documentId = element.data('documentId');
 			if(fileType == "file"){
 				thisInstance.setAttachmentsFileSizeBySize(fileSize);
 			} else if(fileType == "document"){
-				fileSize = fileSize.replace('KB','');
+				jQuery('#documentIds').val(documentId);
 				thisInstance.setDocumentsFileSize(fileSize);
 			}
 		})
