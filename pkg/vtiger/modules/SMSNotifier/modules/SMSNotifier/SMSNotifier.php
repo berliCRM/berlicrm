@@ -221,8 +221,6 @@ class SMSNotifier extends SMSNotifierBase {
 		}
 	}
 
-
-
 	static function fireSendSMS($message, $tonumbers) {
 		global $log;
 		$log->debug("Entering fireSendSMS (".$message.",".implode(",", $tonumbers).") method ...");
@@ -286,11 +284,10 @@ class SMSNotifier extends SMSNotifierBase {
 		return $smsGoesTo;
 	}
 	
-	static function setSMSStatusInfo($messageId, $status ,$errcode){
+	static function setSMSStatusInfo($messageId, $status ,$errcode, $timestamp=''){
 		global $adb;
-		$results = array();
-		$qresult = $adb->pquery("update vtiger_smsnotifier_status set status=?, statusmessage =?  WHERE smsmessageid=?", array($status,$errcode,$messageId));
-		return $qresult;
+		$adb->pquery("update vtiger_smsnotifier_status set status=?, statusmessage =?, timestamp =?  WHERE smsmessageid=?", array($status,$errcode,$timestamp, $messageId));
+		return;
 	}
 	
 }

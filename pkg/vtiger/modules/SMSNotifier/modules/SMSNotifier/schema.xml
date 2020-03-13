@@ -1,4 +1,4 @@
-<?xml version='1.0'?>
+<?xml version='1.0' encoding='UTF-8'?>
 <schema>
 	<tables>
 		<table>
@@ -18,15 +18,16 @@
 		</table>
 		<table>
 			<name>vtiger_smsnotifier_servers</name>
-			<sql><![CDATA[CREATE TABLE `vtiger_smsnotifier_servers` (
+			<sql><![CDATA[CREATE TABLE IF NOT EXISTS `vtiger_smsnotifier_servers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `password` varchar(255) DEFAULT NULL,
   `isactive` int(1) DEFAULT NULL,
   `providertype` varchar(50) DEFAULT NULL,
   `username` varchar(255) DEFAULT NULL,
   `parameters` text,
+  `countryprefix` varchar(5) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1]]></sql>
 		</table>
 		<table>
 			<name>vtiger_smsnotifier_status</name>

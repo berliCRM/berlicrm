@@ -42,7 +42,7 @@ class SMSNotifier_Nexmo_Provider implements SMSNotifier_ISMSProvider_Model {
 	);
 	
 	const SERVICE_URI = 'https://rest.nexmo.com';
-	private static $REQUIRED_PARAMETERS = array('password','api_key', 'api_secret','from');
+	private static $REQUIRED_PARAMETERS = array('api_key', 'api_secret','from');
 	
 	/**
 	 * Function to get provider name
@@ -115,19 +115,20 @@ class SMSNotifier_Nexmo_Provider implements SMSNotifier_ISMSProvider_Model {
 				curl_setopt($ch, CURLOPT_ENCODING, "");
 				$response = curl_exec($ch);
 				//$response = '{"a":1,"b":2,"c":3,"d":4,"e":5}';
-				$response_arr[] = get_object_vars(json_decode( $response ));
+				$response_arr[$to_number] = get_object_vars(json_decode( $response ));
 			}
 		}	
 		$results = array();
 
-		foreach($response_arr as $message_response) {
+		foreach($response_arr as $tonumber => $message_response) {
 			$message_content = get_object_vars($message_response['messages'][0]);
 			//if(empty($message_response)) continue;
 			$result = array( 'error' => false, 'statusmessage' => '' );
 			if(isset ($message_content['error-text'])) {
 				$result['error'] = true; 
-				$result['to'] =  $message_content['to'];
-				$result['statusmessage'] = $message_content['messages'][0]['error-text'];
+				$result['status'] =  $message_content['status'];
+				$result['to'] =  $tonumber;
+				$result['statusmessage'] = $message_content['error-text'];
 			} 
 			else {
 				$result['id'] = $message_content['message-id'];
@@ -140,7 +141,6 @@ class SMSNotifier_Nexmo_Provider implements SMSNotifier_ISMSProvider_Model {
 	}
 	
 	public function query($messageid) {
-		
 		$params = $this->prepareParameters();
 		$url = 'https://rest.nexmo.com/search/message/'.$params['api_key'].'/'.$params['api_secret'].'/'.$messageid;
 		$ch = curl_init($url);
