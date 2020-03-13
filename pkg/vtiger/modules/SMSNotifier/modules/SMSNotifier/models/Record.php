@@ -26,17 +26,20 @@ class SMSNotifier_Record_Model extends Vtiger_Record_Model {
 	}
 
 	public function getCheckStatusUrl() {
-		return "index.php?module=".$this->getModuleName()."&view=Detail&record=".$this->getId();
+		return "index.php?module=".$this->getModuleName()."&view=Detail&mode=showRecentActivities&record=".$this->getId();
 	}
 
 	public function getColorForStatus($smsStatus) {
 		if ($smsStatus == 'Processing') {
 			$statusColor = '#FFFCDF';
-		} elseif ($smsStatus == 'Dispatched') {
+		} 
+		elseif ($smsStatus == 'Delivered') {
 			$statusColor = '#E8FFCF';
-		} elseif ($smsStatus == 'Failed') {
+		} 
+		elseif ($smsStatus == 'Failed') {
 			$statusColor = '#FFE2AF';
-		} else {
+		} 
+		else {
 			$statusColor = '#FFFFFF';
 		}
 		return $statusColor;
