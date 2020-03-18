@@ -16,7 +16,7 @@
   `mailuid` varchar(999) DEFAULT NULL,
   `crmid` int(11) DEFAULT NULL,
   `emailid` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_mailmanager_mailrecord</name>
@@ -39,7 +39,7 @@
   `lastsavedtime` int(11) DEFAULT NULL,
   KEY `userid_lastsavedtime_idx` (`userid`,`lastsavedtime`),
   KEY `userid_muid_idx` (`userid`,`muid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_mailmanager_mailattachments</name>
@@ -52,7 +52,7 @@
   `path` varchar(200) NOT NULL,
   `cid` varchar(50) DEFAULT NULL,
   KEY `userid_muid_idx` (`userid`,`muid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 </tables>
 <crons>

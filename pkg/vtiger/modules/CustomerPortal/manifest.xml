@@ -23,7 +23,7 @@
 	  `tabid` int(19) NOT NULL,
 	  `fieldid` int(19) default NULL,
 	  `visible` int(1) default NULL
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 	</table>
 </tables>
 </module>

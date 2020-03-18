@@ -30,14 +30,14 @@
   PRIMARY KEY (`pbxmanagerid`),
   KEY `index_sourceuuid` (`sourceuuid`),
   KEY `index_pbxmanager_id` (`pbxmanagerid`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_pbxmanagercf</name>
 <sql><![CDATA[CREATE TABLE `vtiger_pbxmanagercf` (
   `pbxmanagerid` int(11) NOT NULL,
   PRIMARY KEY (`pbxmanagerid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_pbxmanager_gateway</name>
@@ -46,7 +46,7 @@
   `gateway` varchar(20) DEFAULT NULL,
   `parameters` text,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_pbxmanager_phonelookup</name>
@@ -59,7 +59,7 @@
   UNIQUE KEY `unique_key` (`crmid`,`setype`,`fieldname`),
   KEY `index_phone_number` (`fnumber`,`rnumber`),
   CONSTRAINT `vtiger_pbxmanager_phonelookup_ibfk_1` FOREIGN KEY (`crmid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 </tables>
 <blocks>

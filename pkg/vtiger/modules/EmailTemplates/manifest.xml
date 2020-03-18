@@ -22,14 +22,14 @@
 					`templateid` int(19) NOT NULL AUTO_INCREMENT,
 					PRIMARY KEY (`templateid`),
 					KEY `emailtemplates_foldernamd_templatename_subject_idx` (`foldername`,`templatename`,`subject`
-				) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8]]>
+				) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]>
             </sql>
 		</table>
 		<table>
 			<name>vtiger_emailtemplates_seq</name>
 			<sql><![CDATA[CREATE TABLE  `vtiger_emailtemplates_seq` (
 					`id` int(11) NOT NULL
-					) ENGINE=InnoDB DEFAULT CHARSET=utf8]]>
+					) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]>
 			</sql>
 		</table>
 	</tables>	

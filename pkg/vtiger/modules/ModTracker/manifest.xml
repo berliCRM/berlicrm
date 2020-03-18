@@ -20,7 +20,7 @@
   `changedon` datetime default NULL,
   `status` int(1) default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_modtracker_tabs</name>
@@ -28,7 +28,7 @@
   `tabid` int(11) NOT NULL,
   `visible` int(11) default '0',
   PRIMARY KEY  (`tabid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_modtracker_detail</name>
@@ -46,7 +46,7 @@
 	targetmodule VARCHAR(100) NOT NULL,
     targetid INT(19) NOT NULL, 
 	changedon DATETIME
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 		</table>
 	</tables>
 	<events>

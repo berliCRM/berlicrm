@@ -20,7 +20,7 @@
 				tabid INT NOT NULL,
 				importid INT NOT NULL,
 				locked_since DATETIME)
-			ENGINE=InnoDB DEFAULT CHARSET=utf8]]>
+			ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]>
 		</sql>
 	</table>
 	<table>
@@ -35,7 +35,7 @@
 				merge_type INT,
 				merge_fields TEXT,
 				status INT default 0)
-			ENGINE=InnoDB DEFAULT CHARSET=utf8]]>
+			ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]>
 		</sql>
 	</table>
 </tables>

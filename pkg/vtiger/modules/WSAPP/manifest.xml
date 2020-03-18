@@ -41,7 +41,7 @@
   `appkey` varchar(255) default NULL,
   `type` varchar(100) default NULL,
   PRIMARY KEY  (`appid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_wsapp_recordmapping</name>
@@ -54,7 +54,7 @@
   `servermodifiedtime` datetime default NULL,
   `serverappid` int(11) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_wsapp_handlerdetails</name>
@@ -62,7 +62,7 @@
   `type` varchar(200) NOT NULL,
   `handlerclass` varchar(100) default NULL,
   `handlerpath` varchar(300) default NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_wsapp_queuerecords</name>
@@ -71,7 +71,7 @@
   `details` varchar(300) default NULL,
   `flag` varchar(100) default NULL,
   `appid` int(19) default NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_wsapp_sync_state</name>
@@ -81,7 +81,7 @@
 	`stateencodedvalues` varchar(300) NOT NULL,
 	`userid` int(19) default NULL,
 	PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 </tables>
 </module>
