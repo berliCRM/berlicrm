@@ -25,14 +25,14 @@
   `projecttasknumber` int(11) default NULL,
   `projecttaskstatus` varchar(100) default NULL,
   PRIMARY KEY  (`projecttaskid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_projecttaskcf</name>
 <sql><![CDATA[CREATE TABLE `vtiger_projecttaskcf` (
   `projecttaskid` int(11) NOT NULL default '0',
   PRIMARY KEY  (`projecttaskid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 </tables>
 <blocks>

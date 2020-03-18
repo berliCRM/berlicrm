@@ -38,7 +38,7 @@
   `lastsynchronization` datetime DEFAULT NULL,
   PRIMARY KEY (`mailchimpid`),
   CONSTRAINT `fk_1_vtiger_mailchimp` FOREIGN KEY (`mailchimpid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_mailchimpcf</name>
@@ -46,7 +46,7 @@
   `mailchimpid` int(11) NOT NULL,
   PRIMARY KEY (`mailchimpid`),
   CONSTRAINT `fk_1_vtiger_mailchimpcf` FOREIGN KEY (`mailchimpid`) REFERENCES `vtiger_mailchimp` (`mailchimpid`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_mailchimp_synced_entities</name>
@@ -68,7 +68,7 @@
   `newsubscribertype` varchar(50) NOT NULL,
   `lastsyncdate` varchar(25) NOT NULL DEFAULT '1970-01-01 09:30:00',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 </tables>
 <blocks>
