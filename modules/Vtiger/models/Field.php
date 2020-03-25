@@ -861,7 +861,7 @@ class Vtiger_Field_Model extends Vtiger_Field {
 	 */
 	function getDocumentFolders() {
 		$db = PearDatabase::getInstance();
-		$result = $db->pquery('SELECT * FROM vtiger_attachmentsfolder', array());
+		$result = $db->pquery('SELECT * FROM vtiger_attachmentsfolder ORDER BY foldername = "Default" DESC,foldername', array());
 		$rows = $db->num_rows($result);
 		$folders = array();
 		for($i=0; $i<$rows; $i++){
