@@ -19,7 +19,7 @@
 			<tr>
 				<td valign="top" width="5%">   </td>
 				<td class="showPanelBg" width="95%" valign="top">
-					<div class="small" style="padding-top:20px">
+					<div class="small" style="padding:0 10px">
 						<span class="lvtHeaderText">{vtranslate('LBL_HEADLINE_CONTACTSEL2','MailManager')}</span>
 						<br>
 						<hr size="1" noshade="">
@@ -31,10 +31,10 @@
 							</div>
 						</form>
 					</div>
-					<div class="small" style="padding-top:10px">
+					<div class="small" style="padding:10px 10px 0 10px">
 						<p>{vtranslate('LBL_SHOW_LASTNAME','MailManager')}</p>
 						<form name="ContactOptions" id="ContactOptions">
-							<select id="selectedcontact" class="contactdrop" style="width:650px;line-height:18px">
+							<select id="selectedcontact" class="contactdrop" size=4 style="width:650px;line-height:18px">
 							{foreach item=contactdata key=contactid from=$CONTACTS}
 								<option value="{$contactid}">{$contactdata.lastname}, {$contactdata.firstname}, {$contactdata.email}, {$contactdata.contact_no}</option>		
 							{/foreach}
