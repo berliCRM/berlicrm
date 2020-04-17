@@ -1471,10 +1471,10 @@ class QueryGenerator {
 			} elseif(trim(strtolower($value)) == 'null'){
 				$operator = 'e';
 			} else {
-				if(!$this->isNumericType($type) && !$this->isDateType($type)) {
+				if(!$this->isNumericType($type)) {
 					$operator = 'c';
 				} else {
-					$operator = 'h';
+					$operator = 'e';
 				}
 			}
 			$this->addCondition($fieldName, $value, $operator);
