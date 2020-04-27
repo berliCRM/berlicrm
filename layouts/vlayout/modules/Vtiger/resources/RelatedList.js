@@ -57,6 +57,16 @@ jQuery.Class("Vtiger_RelatedList_Js",{},{
 				jQuery('.pageNumbers',thisInstance.relatedContentContainer).tooltip();
 				aDeferred.resolve(responseData);
 				jQuery('input[name="currentPageNum"]', thisInstance.relatedContentContainer).val(completeParams.page);
+				//update relatedList count after an action, only do so if value is provided by enabled LISTVIEW_COMPUTE_PAGE_COUNT in config.performance.php
+				var newAmount = jQuery('#totalCount', thisInstance.relatedContentContainer).val();
+				if (newAmount != '') {
+					var relatedModuleName = jQuery('.relatedModuleName', thisInstance.relatedContentContainer).val();
+					var relListEle = jQuery("li[data-label-key='"+relatedModuleName+"']").find("strong");
+					if (relListEle.length != 0) {
+						var displayVal = relListEle.html().split("&nbsp");
+						relListEle.html(displayVal[0]+"&nbsp;("+newAmount+")");
+					}
+				}
 				// Let listeners know about page state change.
 				app.notifyPostAjaxReady();
 			},
