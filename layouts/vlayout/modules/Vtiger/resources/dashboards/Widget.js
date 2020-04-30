@@ -439,7 +439,7 @@ Vtiger_Widget_Js('Vtiger_Pie_Widget_Js',{},{
 			legend: {
 				show: true,
 				location: 'ne',
-				placement: 'outside'
+				placement: 'outsideGrid'
 			},
 			title : chartData['title']
 		});
