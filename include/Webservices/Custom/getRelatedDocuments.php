@@ -13,6 +13,7 @@ All Rights Reserved.
 ************************************************************************************************************************************************************ */
 
 function berli_get_document_relations($id, $user) {
+	include_once ('include/Webservices/Retrieve.php');
 	global $log;
 	$log->debug("Entering berli_get_document_relations(".$id.") method ...");
 	$db = PearDatabase::getInstance();
@@ -59,25 +60,31 @@ function berli_get_document_relations($id, $user) {
 	for($i = 0; $i < $rowCount; ++$i) {
 		$doc_id = $db->query_result($result,$i,'notesid');
 		$ws_doc_id = vtws_getWebserviceEntityId('Documents', $doc_id);
-		$doc_webserviceObject = VtigerWebserviceObject::fromId($db,$ws_doc_id);
-		$doc_handlerPath = $doc_webserviceObject->getHandlerPath();
-		$doc_handlerClass = $doc_webserviceObject->getHandlerClass();
-		require_once $doc_handlerPath;
+		// $doc_webserviceObject = VtigerWebserviceObject::fromId($db,$ws_doc_id);
+		// $doc_handlerPath = $doc_webserviceObject->getHandlerPath();
+		// $doc_handlerClass = $doc_webserviceObject->getHandlerClass();
+		// require_once $doc_handlerPath;
 			
-		$doc_handler = new $doc_handlerClass($doc_webserviceObject,$user,$db,$log);
-		$doc_meta = $doc_handler->getMeta();
-		$doc_entityName = $doc_meta->getObjectEntityName($ws_doc_id);
-		$types = vtws_listtypes(null, $user);
+		// $doc_handler = new $doc_handlerClass($doc_webserviceObject,$user,$db,$log);
+		// $doc_meta = $doc_handler->getMeta();
+		// $doc_entityName = $doc_meta->getObjectEntityName($ws_doc_id);
+		// $types = vtws_listtypes(null, $user);
 		
-		//validate access
-		if(in_array($doc_entityName,$types['types']) && $doc_meta->hasReadAccess()==true && $doc_entityName == $doc_webserviceObject->getEntityName() && $doc_meta->hasPermission(EntityMeta::$RETRIEVE,$id) && $doc_meta->exists($doc_id)){
-			$relID[$i]['id']  = $doc_id;
-			$relID [$i]['title']  = $db->query_result($result,$i,'title');
-			$relID[$i]['note_no']  = $db->query_result($result,$i,'note_no');
-			$relID [$i]['filename'] = $db->query_result($result,$i,'filename');
-			$relID [$i]['smownerid'] = $db->query_result($result,$i,'smownerid');
-			$relID [$i]['folderid']= $db->query_result($result,$i,'folderid');
-			$relID [$i]['modifiedtime'] = $db->query_result($result,$i,'modifiedtime');
+		// //validate access
+		// if(in_array($doc_entityName,$types['types']) && $doc_meta->hasReadAccess()==true && $doc_entityName == $doc_webserviceObject->getEntityName() && $doc_meta->hasPermission(EntityMeta::$RETRIEVE,$doc_id) && $doc_meta->exists($doc_id)){
+			// $relID[$i]['id']  = $doc_id;
+			// $relID [$i]['title']  = $db->query_result($result,$i,'title');
+			// $relID[$i]['note_no']  = $db->query_result($result,$i,'note_no');
+			// $relID [$i]['filename'] = $db->query_result($result,$i,'filename');
+			// $relID [$i]['smownerid'] = $db->query_result($result,$i,'smownerid');
+			// $relID [$i]['folderid']= $db->query_result($result,$i,'folderid');
+			// $relID [$i]['modifiedtime'] = $db->query_result($result,$i,'modifiedtime');
+		// }
+		try {
+			$ele = vtws_retrieve($ws_doc_id, $user);
+			$relID[] = $ele;
+		} catch (Exception $e) {
+			
 		}
 	}
 	 
