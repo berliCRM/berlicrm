@@ -96,7 +96,7 @@ class Import_FileReader_Reader {
 		$tableName = Import_Utils_Helper::getDbTableName($this->user);
 		$fieldMapping = $this->request->get('field_mapping');
         $moduleFields = $this->moduleModel->getFields();
-        $columnsListQuery = 'id INT PRIMARY KEY AUTO_INCREMENT, status INT DEFAULT 0, recordid INT';
+        $columnsListQuery = 'id INT PRIMARY KEY AUTO_INCREMENT, status INT DEFAULT 0, recordid INT, ifailmessage VARCHAR(255)';
 		// $fieldTypes = $this->getModuleFieldDBColumnType();
 		foreach($fieldMapping as $fieldName => $index) {
             $fieldObject = $moduleFields[$fieldName];

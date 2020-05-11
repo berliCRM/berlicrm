@@ -158,8 +158,8 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 			$entityIdComponents = vtws_getIdComponents($entityInfo['id']);
 			$recordId = $entityIdComponents[1];
 		}
-		$adb->pquery('UPDATE ' . Import_Utils_Helper::getDbTableName($this->user) . ' SET status=?, recordid=? WHERE id=?',
-				array($entityInfo['status'], $recordId, $entryId));
+		$adb->pquery('UPDATE ' . Import_Utils_Helper::getDbTableName($this->user) . ' SET status=?, recordid=?, ifailmessage=? WHERE id=?',
+				array($entityInfo['status'], $recordId, $entityInfo['message'], $entryId));
 	}
 
 	public function createRecords() {
@@ -320,13 +320,14 @@ class Import_Data_Action extends Vtiger_Action_Controller {
                         try{
                             $entityInfo = vtws_create($moduleName, $fieldData, $this->user);
                         } catch (Exception $e){
-
+							$failMessage = $e->getMessage();
                         }
 					}
 				}
 			}
 			if ($entityInfo == null) {
-                $entityInfo = array('id' => null, 'status' => self::$IMPORT_RECORD_FAILED);
+                $entityInfo = array('id' => null, 'status' => self::$IMPORT_RECORD_FAILED, 'message' => $failMessage);
+				$failMessage = '';
             } else if($createRecord){
                 $entityInfo['status'] = self::$IMPORT_RECORD_CREATED;
             }
@@ -711,8 +712,8 @@ class Import_Data_Action extends Vtiger_Action_Controller {
         if($result) {
             $headers = $adb->getColumnNames($tableName);
 			$numOfHeaders = count($headers);
-            for($i=0;$i<10;$i++){
-                if($i>=3 && $i<$numOfHeaders){
+            for($i=0; $i < $numOfHeaders; $i++){
+                if($i != 1 && $i != 2){
                     $importRecords['headers'][] = $headers[$i];
                 }
             }
