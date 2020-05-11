@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-
+require_once 'includes/Loader.php';
 vimport('~~/vtlib/Vtiger/Net/Client.php');
 
 interface SMSNotifier_ISMSProvider_Model {

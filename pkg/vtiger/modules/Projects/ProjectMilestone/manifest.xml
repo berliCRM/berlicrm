@@ -20,14 +20,14 @@
   `projectid` varchar(100) default NULL,
   `projectmilestonetype` varchar(100) default NULL,
   PRIMARY KEY  (`projectmilestoneid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_projectmilestonecf</name>
 <sql><![CDATA[CREATE TABLE `vtiger_projectmilestonecf` (
   `projectmilestoneid` int(11) NOT NULL default '0',
   PRIMARY KEY  (`projectmilestoneid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 </tables>
 <blocks>

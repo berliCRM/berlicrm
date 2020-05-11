@@ -29,7 +29,8 @@ class Mailchimp_LoadSyncValues_Action extends Vtiger_Action_Controller{
         $crmid = $request->get('id');
 		$response = new Vtiger_Response();
 		if($actions=="getGroupInfos") {
-			$MailChimpAPIKey = Settings_Mailchimp_Module_Model::getApikey();
+			$Settings_Mailchimp_Module_Model = new Settings_Mailchimp_Module_Model();
+			$MailChimpAPIKey = $Settings_Mailchimp_Module_Model -> getApikey();
 			$mailchimpname = Mailchimp_Module_Model::getMailchimpName($crmid);
 			$api = new MailChimp($MailChimpAPIKey);
 			$GroupsArray = $api->get('lists');

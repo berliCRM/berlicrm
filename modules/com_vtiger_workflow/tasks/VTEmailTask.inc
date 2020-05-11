@@ -180,7 +180,7 @@ class VTEmailTask extends VTTask{
 			$taskContents['bccEmail'] = $bccEmail;
 
 			$st = new VTSimpleTemplate($this->subject);
-			$taskContents['subject'] = $st->render($entityCache, $entityId);
+			$taskContents['subject'] = decode_html($st->render($entityCache, $entityId));
 
 			$ct = new VTSimpleTemplate($this->content);
 			$taskContents['content'] = $ct->render($entityCache, $entityId);

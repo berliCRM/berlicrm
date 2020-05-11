@@ -341,6 +341,7 @@ $languageStrings = array(
 	'LBL_Mon' => 'Mon',
 	'LBL_MONTH' => 'month',
 	'LBL_MONTHS' => 'months',
+	'LBL_MONTHS2' => 'months',
 	'LBL_MORE' => 'More',
 	'LBL_MORE_CURRENCIES' => 'more currencies',
 	'LBL_MUTIPLE_EMAIL_SELECT_ONE' => 'Please select one of the options below',
@@ -848,6 +849,11 @@ $languageStrings = array(
 	
 	//Verteiler
     'Verteiler' => 'Distribution List',
+	
+	//Account Widgets
+	'LBL_LAST_ACTIVITY' => 'last contacted for more as',
+	'LBL_LAST_INVOICE' => 'last invocie for more as',
+	'LBL_NO_RECORDS_RELATED_TO_THIS_FILTER' => 'there are no data which match the filter',
 	
 );
 

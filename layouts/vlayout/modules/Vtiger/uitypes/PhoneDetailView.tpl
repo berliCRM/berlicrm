@@ -20,7 +20,7 @@
         {assign var=PHONE_FIELD_VALUE value=$FIELD_VALUE}
         {assign var=PHONE_NUMBER value=$PHONE_FIELD_VALUE|regex_replace:"/[-()\s]/":""}
 	
-		<a class="phoneField" data-value="{$PHONE_NUMBER}" record="{$RECORD->getId()}" href="{$SOFTPHONE}{$FIELD_MODEL->get('fieldvalue')}">{$FIELD_MODEL->get('fieldvalue')}</a>
+		<a class="phoneField" data-value="{$PHONE_NUMBER}" record="{$RECORD->getId()}" href="{$SOFTPHONE}{$PHONE_NUMBER}">{$FIELD_MODEL->get('fieldvalue')}</a>
 
 		
 {else if $MODULEMODEL and $MODULEMODEL->isActive() and $FIELD_VALUE}

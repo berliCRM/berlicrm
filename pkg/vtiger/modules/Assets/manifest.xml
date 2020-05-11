@@ -28,7 +28,7 @@
   `assetname` varchar(100) default NULL,
   PRIMARY KEY  (`assetsid`),
   CONSTRAINT `fk_1_vtiger_assets` FOREIGN KEY (`assetsid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]>
             </sql>
         </table>
         <table>
@@ -36,7 +36,7 @@
             <sql><![CDATA[CREATE TABLE `vtiger_assetscf` (
   `assetsid` int(19) NOT NULL,
   PRIMARY KEY  (`assetsid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]>
             </sql>
         </table>
     </tables>

@@ -1,11 +1,11 @@
 <?xml version='1.0'?>
 <module>
-<exporttime>2011-12-27 08:34:59</exporttime>
+<exporttime>2020-02-27 08:34:59</exporttime>
 <name>Import</name>
 <label>Import</label>
 <parent></parent>
 <type>extension</type>
-<version>1.7</version>
+<version>1.8</version>
 <dependencies>
 <vtiger_version>6.0.0rc</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>
@@ -20,7 +20,7 @@
 				tabid INT NOT NULL,
 				importid INT NOT NULL,
 				locked_since DATETIME)
-			ENGINE=InnoDB DEFAULT CHARSET=utf8]]>
+			ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]>
 		</sql>
 	</table>
 	<table>
@@ -35,7 +35,7 @@
 				merge_type INT,
 				merge_fields TEXT,
 				status INT default 0)
-			ENGINE=InnoDB DEFAULT CHARSET=utf8]]>
+			ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]>
 		</sql>
 	</table>
 </tables>

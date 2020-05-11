@@ -1,11 +1,11 @@
 <?xml version='1.0'?>
 <module>
-<exporttime>2019-02-14 13:49:45</exporttime>
+<exporttime>2020-03-05 16:15:00</exporttime>
 <name>MailManager</name>
 <label>MailManager</label>
 <parent>Tools</parent>
 <type>extension</type>
-<version>1.91</version>
+<version>1.93</version>
 <dependencies>
 <vtiger_version>6.0.0RC</vtiger_version>
 </dependencies>
@@ -16,7 +16,7 @@
   `mailuid` varchar(999) DEFAULT NULL,
   `crmid` int(11) DEFAULT NULL,
   `emailid` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_mailmanager_mailrecord</name>
@@ -39,7 +39,7 @@
   `lastsavedtime` int(11) DEFAULT NULL,
   KEY `userid_lastsavedtime_idx` (`userid`,`lastsavedtime`),
   KEY `userid_muid_idx` (`userid`,`muid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_mailmanager_mailattachments</name>
@@ -52,7 +52,7 @@
   `path` varchar(200) NOT NULL,
   `cid` varchar(50) DEFAULT NULL,
   KEY `userid_muid_idx` (`userid`,`muid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 </tables>
 <crons>

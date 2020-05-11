@@ -29,7 +29,7 @@ $languageStrings = array(
 
 	//Blocks
 	'LBL_SMSNOTIFIER_INFORMATION' => 'SMS Information',
-	'SINGLE_SMSNotifier' => 'SMS Notifier',
+	'SINGLE_SMSNotifier' => 'SMS',
 	
 	//status messages
 	'LBL_PROVIDER_MESSAGE' => 'Provider message',

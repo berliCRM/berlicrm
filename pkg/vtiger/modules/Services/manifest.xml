@@ -35,14 +35,14 @@
   `commissionrate` decimal(7,3) default NULL,
   PRIMARY KEY  (`serviceid`),
   CONSTRAINT `fk_1_vtiger_service` FOREIGN KEY (`serviceid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_servicecf</name>
 <sql><![CDATA[CREATE TABLE `vtiger_servicecf` (
   `serviceid` int(19) NOT NULL default '0',
   PRIMARY KEY  (`serviceid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 </tables>
 <blocks>

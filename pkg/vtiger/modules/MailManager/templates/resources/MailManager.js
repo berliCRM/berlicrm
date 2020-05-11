@@ -13,7 +13,7 @@ Vtiger_Header_Js.extend('MailManager_QuickCreate_Js', {
 
 	registerQuickCreatePostLoadEvents: function(form, params) {
 		var thisInstance = this;
-		form.find('#goToFullForm').remove();
+		form.find('.goToFullForm').remove();
 
 		form.on('click','.cancelLink',function() {
 			MailManager.resetLinkToDropDown();
@@ -875,18 +875,20 @@ if (typeof(MailManager) == 'undefined') {
 						jQuery("#selectedcontact").attr('selectedIndex', '-1').children("option:selected").removeAttr("selected");
 						//no search
 						if(jQuery(this).val() === "") {
-							jQuery(".contactdrop option").show();
+							jQuery(".contactdrop option").show().css("display","block");
 							jQuery(".contactdrop option").removeAttr('disabled');
 						} else {
 							//search
-							var filter = jQuery(this).val();
-							jQuery(".contactdrop option:contains('" + filter + "')").show();
-							//the following applies to IE because hide() does not work
-							jQuery(".contactdrop option:contains('" + filter + "')").removeAttr('disabled');
-							jQuery(".contactdrop option:contains('" + filter + "')").attr('background-color','Green');
-							//the following applies to IE because hide() does not work
-							jQuery(".contactdrop option:not(:contains('" + filter + "'))").attr('disabled','disabled');
-							jQuery(".contactdrop option:not(:contains('" + filter + "'))").hide();
+							var filter = jQuery(this).val().toLowerCase();
+							var options = jQuery(".contactdrop option");
+							options.each(function(i,e) {
+								if (e.text.toLowerCase().indexOf(filter)>-1) {
+									jQuery(e).show().removeAttr('disabled').attr('background-color','Green');
+								}
+								else {
+									jQuery(e).attr('disabled','disabled').hide();
+								}
+							})
 						}
 						//test whether there are still trees in list
 						var optionsArr = jQuery("select.contactdrop").map(function() {

@@ -28,7 +28,7 @@
   `sequence` int(11) DEFAULT NULL,
   `deleted` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 </tables>
 </module>

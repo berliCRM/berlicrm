@@ -22,14 +22,14 @@
   `reasontoedit` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`modcommentsid`),
   KEY `relatedto_idx` (`related_to`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
 <name>vtiger_modcommentscf</name>
 <sql><![CDATA[CREATE TABLE `vtiger_modcommentscf` (
   `modcommentsid` int(11) NOT NULL,
   PRIMARY KEY (`modcommentsid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 </tables>
 <blocks>

@@ -22,9 +22,14 @@ class Calendar_ExportData_Action extends Vtiger_ExportData_Action {
 	 */
 	public function getExportQuery(Vtiger_Request $request) {
 		$moduleName = $request->getModule();
-		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
+		$selected_ids = $request->get('selected_ids');
 
-		return $moduleModel->getExportQuery('','');
+		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
+		$ExportQuery = $moduleModel->getExportQuery('','');
+		if (!empty($selected_ids) AND $selected_ids !='all') {
+			$ExportQuery = $ExportQuery .' AND vtiger_activity.activityid in ('.$selected_ids.')';
+		}
+		return $ExportQuery;
 	}
 
 	/**
