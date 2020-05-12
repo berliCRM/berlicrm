@@ -33,7 +33,8 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 	var $importedRecordInfo = array();
     protected $allPicklistValues = array();
 	var $batchImport = true;
-        public $entitydata = array();
+    public $entitydata = array();
+	private $failedReason = '';
 
 	static $IMPORT_RECORD_NONE = 0;
 	static $IMPORT_RECORD_CREATED = 1;
@@ -320,14 +321,14 @@ class Import_Data_Action extends Vtiger_Action_Controller {
                         try{
                             $entityInfo = vtws_create($moduleName, $fieldData, $this->user);
                         } catch (Exception $e){
-							$failMessage = $e->getMessage();
+							$this->failedReason = $e->getMessage();
                         }
 					}
 				}
 			}
 			if ($entityInfo == null) {
-                $entityInfo = array('id' => null, 'status' => self::$IMPORT_RECORD_FAILED, 'message' => $failMessage);
-				$failMessage = '';
+                $entityInfo = array('id' => null, 'status' => self::$IMPORT_RECORD_FAILED, 'message' => $this->failedReason);
+				$this->failedReason = '';
             } else if($createRecord){
                 $entityInfo['status'] = self::$IMPORT_RECORD_CREATED;
             }
@@ -533,7 +534,7 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 		if($fillDefault) {
 			foreach($defaultFieldValues as $fieldName => $fieldValue) {
 				if (!isset($fieldData[$fieldName])) {
-					$fieldData[$fieldName] = decode_html($defaultFieldValues[$fieldName]);
+					$fieldData[$fieldName] = $defaultFieldValues[$fieldName];
 				}
 			}
 		}
@@ -544,6 +545,7 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 		if ($fieldData != null && $checkMandatoryFieldValues) {
 			foreach ($moduleFields as $fieldName => $fieldInstance) {
 				if(empty($fieldData[$fieldName]) && $fieldInstance->isMandatory()) {
+					$this->failedReason = "Missing mandatory field: ".$fieldName;
 					return null;
 				}
 			}
