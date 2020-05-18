@@ -3606,7 +3606,8 @@ CREATE TABLE IF NOT EXISTS `vtiger_email_track` (
   `crmid` int(11) DEFAULT NULL,
   `mailid` int(11) DEFAULT NULL,
   `access_count` int(11) DEFAULT NULL,
-  UNIQUE KEY `link_tabidtype_idx` (`crmid`,`mailid`)
+  UNIQUE KEY `link_tabidtype_idx` (`crmid`,`mailid`),
+  KEY `mailid` (`mailid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
