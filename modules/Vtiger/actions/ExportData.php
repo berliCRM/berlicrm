@@ -363,7 +363,7 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 					$value = '';
 				}
 			} elseif($uitype == 52 || $type == 'owner') {
-				$value = Vtiger_Util_Helper::getOwnerName($value);
+				$value = html_entity_decode(Vtiger_Util_Helper::getOwnerName($value));
 			}elseif($type == 'reference'){
 				$value = trim($value);
 				if(!empty($value)) {
