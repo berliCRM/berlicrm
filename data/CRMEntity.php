@@ -2208,10 +2208,21 @@ class CRMEntity {
 
 		$query = '';
 		if ($pritablename == 'vtiger_crmentityrel') {
-			$condition = "($table_name.$column_name={$tmpname}.{$secfieldname} " .
-					"OR $table_name.$column_name={$tmpname}.{$prifieldname})";
-			$query = " left join vtiger_crmentityrel as $tmpname ON ($condvalue={$tmpname}.{$secfieldname} " .
-					"OR $condvalue={$tmpname}.{$prifieldname}) ";
+			global $adb;
+			$mod = $adb->sql_escape_string($module);
+			$relMod = $adb->sql_escape_string($secmodule);
+			$relTmpQuery = "(SELECT vtiger_crmentityrel.crmid, vtiger_crmentityrel.relcrmid FROM vtiger_crmentityrel
+							INNER JOIN vtiger_crmentity AS ent1 ON ent1.crmid = vtiger_crmentityrel.crmid
+							INNER JOIN vtiger_crmentity AS ent2 ON ent2.crmid = vtiger_crmentityrel.relcrmid
+							WHERE ent1.deleted = 0 AND ent1.setype = '$mod' AND ent2.deleted = 0 AND ent2.setype = '$relMod')
+							UNION
+							(SELECT vtiger_crmentityrel.relcrmid, vtiger_crmentityrel.crmid FROM vtiger_crmentityrel
+							INNER JOIN vtiger_crmentity AS ent1 ON ent1.crmid = vtiger_crmentityrel.crmid
+							INNER JOIN vtiger_crmentity AS ent2 ON ent2.crmid = vtiger_crmentityrel.relcrmid
+							WHERE ent1.deleted = 0 AND ent1.setype = '$relMod' AND ent2.deleted = 0 AND ent2.setype = '$mod');";
+			$relTmpQuery = $queryPlanner->registerTempTable($relTmpQuery, array('crmid', 'relcrmid'));
+			$query = " LEFT JOIN $relTmpQuery AS $tmpname ON {$tmpname}.{$prifieldname} = $condvalue";
+			$condition = "{$tmpname}.{$secfieldname} = $table_name.$column_name";
 		} elseif (strripos($pritablename, 'rel') === (strlen($pritablename) - 3)) {
 			$instance = self::getInstance($module);
 			$sectableindex = $instance->tab_name_index[$sectablename];
