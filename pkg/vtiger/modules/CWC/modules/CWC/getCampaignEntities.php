@@ -61,92 +61,45 @@ function vtws_get_campaign_entities($campaignid, $returnresults='Both') {
   }
   
   // Process petition
-  $leadsWsObject = VtigerWebserviceObject::fromName($adb, 'Leads');
+  // $leadsWsObject = VtigerWebserviceObject::fromName($adb, 'Leads');
   $contactsWsObject = VtigerWebserviceObject::fromName($adb, 'Contacts');
-  $accountsWsObject = VtigerWebserviceObject::fromName($adb, 'Accounts');
-  $leadsEntityId = $leadsWsObject->getEntityId();
+  // $accountsWsObject = VtigerWebserviceObject::fromName($adb, 'Accounts');
+  // $leadsEntityId = $leadsWsObject->getEntityId();
   $contactsEntityId = $contactsWsObject->getEntityId();
-  $accountsEntityId = $accountsWsObject->getEntityId();
-  $nodes = array($idComponents[1]);
-  $leads = array();
-  $contacts = array();
-  $accounts = array();
-  while (!empty($nodes)) {
-    $currentNodeId = array_shift($nodes);
-    // Add all children items to the result list
-    if ($returnresults=='Both') {
-      $query = "SELECT crm.crmid, crm.setype
-      FROM vtiger_crmentity crm
-      LEFT JOIN vtiger_campaignleadrel rtl on rtl.leadid=crm.crmid
-	  LEFT JOIN vtiger_campaigncontrel rtc on rtc.contactid=crm.crmid
-	  LEFT JOIN vtiger_campaignaccountrel rtc2 on rtc2.accountid=crm.crmid
-      WHERE crm.deleted=0 AND (rtl.campaignid={$currentNodeId} OR rtc.campaignid={$currentNodeId} OR rtc2.campaignid={$currentNodeId})";
-    }
-    else {
-	  switch ($returnresults)
-	  {
-	    case 'Leads':
-		  $rel_table = "vtiger_campaignleadrel";
-		  $id_field = "leadid";
-		  break;
-		case 'Contacts':
-		  $rel_table = "vtiger_campaigncontrel";
-		  $id_field = "contactid";
-		  break;
-		case 'Accounts':
-		  $rel_table = "vtiger_campaignaccountrel";
-		  $id_field = "accountid";
-		  break;
-	  }
-      $query = "SELECT crm.crmid, crm.setype
-      FROM vtiger_crmentity crm
-      INNER JOIN {$rel_table} rt ON rt.{$id_field}=crm.crmid
-      WHERE crm.deleted=0 AND rt.campaignid='{$currentNodeId}'";
-    }
-    $res = $adb->query($query);
-    while ($row=$adb->getNextRow($res)) {
-      switch ($row['setype']) {
-      case 'Leads':
-        $leads[] = $row['crmid'];
-        break;
-      case 'Contacts':
-        $contacts[] = $row['crmid'];
-        break;
-	  case 'Accounts':
-			$accounts[] = $row['crmid'];
-        break;
-      }
-    }
-  }
+  // $accountsEntityId = $accountsWsObject->getEntityId();
+  // $nodes = array($idComponents[1]);
+  // $leads = array();
+  $contacts = Verteiler_Relation_Model::getContactIdsFromVerteiler($idComponents[1]);
+  // $accounts = array();
   
   // Check access permissions
-  $leadsHandler = new $handlerClass($leadsWsObject, $current_user, $adb, $log);
+  // $leadsHandler = new $handlerClass($leadsWsObject, $current_user, $adb, $log);
   $contactsHandler = new $handlerClass($contactsWsObject, $current_user, $adb, $log);
-  $accountsHandler = new $handlerClass($accountsWsObject, $current_user, $adb, $log);
-  $leadsMeta = $leadsHandler->getMeta();
+  // $accountsHandler = new $handlerClass($accountsWsObject, $current_user, $adb, $log);
+  // $leadsMeta = $leadsHandler->getMeta();
   $contactsMeta = $contactsHandler->getMeta();
-  $accountsMeta = $accountsHandler->getMeta();
-  $allowedLeads = array();
-  foreach($leads as $leadId) {
-    if ($leadsMeta->hasPermission(EntityMeta::$RETRIEVE, $leadId)) {
-      $allowedLeads[] = vtws_getId($leadsEntityId, $leadId);
-    }
-  }
+  // $accountsMeta = $accountsHandler->getMeta();
+  // $allowedLeads = array();
+  // foreach($leads as $leadId) {
+    // if ($leadsMeta->hasPermission(EntityMeta::$RETRIEVE, $leadId)) {
+      // $allowedLeads[] = vtws_getId($leadsEntityId, $leadId);
+    // }
+  // }
   $allowedContacts = array();
   foreach($contacts as $contactId) {
     if ($contactsMeta->hasPermission(EntityMeta::$RETRIEVE, $contactId)) {
       $allowedContacts[] = vtws_getId($contactsEntityId, $contactId);
     }
   }
-  $allowedAccounts = array();
-  foreach($accounts as $accountsId) {
-    if ($accountsMeta->hasPermission(EntityMeta::$RETRIEVE, $accountsId)) {
-		$allowedAccounts[] = vtws_getId($accountsEntityId, $accountsId);
-    }
-  }
+  // $allowedAccounts = array();
+  // foreach($accounts as $accountsId) {
+    // if ($accountsMeta->hasPermission(EntityMeta::$RETRIEVE, $accountsId)) {
+		// $allowedAccounts[] = vtws_getId($accountsEntityId, $accountsId);
+    // }
+  // }
   
   // Format return array
-  $results = array( 'Leads' => implode(',', $allowedLeads), 'Contacts' => implode(',', $allowedContacts) , 'Accounts' => implode(',', $allowedAccounts) );
+  $results = array('Contacts' => implode(',', $allowedContacts));
   
   VTWS_PreserveGlobal::flush();
   return $results;
