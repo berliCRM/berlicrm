@@ -132,6 +132,7 @@ class Faq extends CRMEntity {
 
 	 			$query = "from $moduletable
 					inner join vtiger_crmentity on vtiger_crmentity.crmid=$moduletable.$moduleindex
+					INNER JOIN vtiger_faqcf ON vtiger_faqcf.faqid = $moduletable.$moduleindex
 					left join vtiger_products as vtiger_products$module on vtiger_products$module.productid = vtiger_faq.product_id
 					left join vtiger_groups as vtiger_groups$module on vtiger_groups$module.groupid = vtiger_crmentity.smownerid
 					left join vtiger_users as vtiger_users$module on vtiger_users$module.id = vtiger_crmentity.smownerid
