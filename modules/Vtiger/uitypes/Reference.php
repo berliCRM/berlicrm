@@ -50,7 +50,7 @@ class Vtiger_Reference_UIType extends Vtiger_Base_UIType {
 				if($db->num_rows($nameResult)) {
 					return $db->query_result($nameResult, 0, 'first_name').' '.$db->query_result($nameResult, 0, 'last_name');
 				}
-			} else {
+			} elseif (isRecordExists($value)) {
 				$entityNames = getEntityName($referenceModuleName, array($value));
 				$linkValue = "<a href='index.php?module=$referenceModuleName&view=".$referenceModule->getDetailViewName()."&record=$value'
 							title='".vtranslate($referenceModuleName, $referenceModuleName)."'>$entityNames[$value]</a>";

@@ -439,7 +439,7 @@ class ListViewController {
 					} else {
 						$parentModule = $this->typeList[$value];
 					}
-					if(!empty($value) && !empty($this->nameList[$fieldName]) && !empty($parentModule)) {
+					if(!empty($value) && !empty($this->nameList[$fieldName]) && !empty($parentModule) && isRecordExists($value)) {
 						$parentMeta = $this->queryGenerator->getMeta($parentModule);
 						$value = textlength_check($this->nameList[$fieldName][$value]);
 						if ($module == 'Documents' && $fieldName == 'folderid') {
