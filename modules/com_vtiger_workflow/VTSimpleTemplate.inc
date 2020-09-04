@@ -334,7 +334,7 @@ class VTSimpleTemplate{
 			default				:	$fieldValue;
 
 		}
-		return nl2br($fieldValue);
+		return nl2br(htmlentities($fieldValue));
 	}
 
 	/**
