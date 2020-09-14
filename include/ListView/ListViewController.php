@@ -33,6 +33,7 @@ class ListViewController {
 	private $picklistValueMap;
 	private $picklistRoleMap;
 	private $headerSortingEnabled;
+	private $fieldColorMap = array();
 	public function __construct($db, $user, $generator) {
 		$this->queryGenerator = $generator;
 		$this->db = $db;
@@ -486,7 +487,10 @@ class ListViewController {
 //				// END
 				$row[$fieldName] = $value;
 				if (in_array($uitype, Settings_ListViewColors_IndexAjax_View::getSupportedUITypes())) {
-					$row ['fieldcolor'] = self::getListViewColor($fieldName,$rawValue);
+					if (!isset($this->fieldColorMap[$fieldName]) || !isset($this->fieldColorMap[$fieldName][$rawValue])) {
+						$this->getListViewColor($fieldName,$rawValue);
+					}
+					$row['fieldcolor'][] = $this->fieldColorMap[$fieldName][$rawValue];
 				}
 			}
 			$data[$recordId] = $row;
@@ -502,10 +506,8 @@ class ListViewController {
 		$query = 'SELECT listcolor FROM berli_listview_colors WHERE listfieldid = ? AND fieldcontent =?';
 		$result = $db->pquery($query,array($FieldId, decode_html($fieldValue)));
 		$rowlistcolor = $db->query_result($result,0,'listcolor');
-		if (!empty ($rowlistcolor)) {
-			$listcolor = $rowlistcolor;
-		}
-		return ($listcolor);
+		
+		$this->fieldColorMap[$fieldName][$fieldValue] = $rowlistcolor;
 	}
 	
 }
