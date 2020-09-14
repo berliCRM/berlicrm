@@ -690,6 +690,25 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 	 * @return <String> Color of the list field row
 	 */
 	public function getListViewColor() {
-		return $this->get('fieldcolor');
+		$colors = array_values(array_filter($this->get('fieldcolor')));
+		$noOfColors = count($colors);
+		$range = 100;
+		if ($noOfColors > 0) {
+			$range = $range / $noOfColors;
+		}
+		$style = array();
+		for ($i = 1; $i <= $noOfColors; $i++) {
+			$range1 = ($range*$i)-$range;
+			$style[] = $colors[$i-1].' '.$range1.'%, '.$colors[$i-1].' '.$range*$i.'%';
+		}
+		$style = '135deg, '.implode(',', $style);
+		
+		// $style2 = array();
+		// foreach ($colors AS $color) {
+			// $style2[] = $color;
+		// }
+		// $style2 = implode(',', $style2);
+		
+		return $style;
 	}
 }
