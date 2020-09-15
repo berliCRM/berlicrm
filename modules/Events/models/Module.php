@@ -26,16 +26,25 @@ class Events_Module_Model extends Calendar_Module_Model {
 	 * @param Vtiger_Record_Model $recordModel
 	 */
 	public function saveRecord($recordModel) {
+		$recordId = $recordModel->getId();
         $recordModel = parent::saveRecord($recordModel);
         
         //code added to send mail to the vtiger_invitees
         $selectUsers = $recordModel->get('selectedusers');
-        if(!empty($selectUsers))
+        if(!empty($selectUsers) && empty($recordId))
         {
-            $invities = implode(';',$selectUsers);
+            // $invities = implode(';',$selectUsers);
             $mail_contents = $recordModel->getInviteUserMailData();
             $activityMode = ($recordModel->getModuleName()=='Calendar') ? 'Task' : 'Events';
-            sendInvitation($invities,$activityMode,$recordModel->get('subject'),$mail_contents,$recordModel->get('id'));
+			foreach ($selectUsers AS $selUserId) {
+				$recordModel->set('mode', '');
+				$recordModel->set('assigned_user_id', $selUserId);
+				$recordModel->set('selectedusers', '');
+				$recordModel->convertToUserFormat();
+				$recordModel->save();
+				
+				sendInvitation(array($selUserId),$activityMode,$recordModel->get('subject'),$mail_contents,$recordModel->get('id'));
+			}
         }
     }
 
