@@ -104,7 +104,7 @@
 				{assign var=EDIT_VIEW_URL value=''}
 				{assign var=IS_DELETE value=false}
 			{/if}
-		<tr class="listViewEntries" data-id='{$LISTVIEW_ENTRY->getId()}' 
+		<tr style="background: linear-gradient({$LISTVIEW_ENTRY->getListViewColor()});" class="listViewEntries" data-id='{$LISTVIEW_ENTRY->getId()}' 
 			{if $DETAIL_VIEW_URL} data-recordUrl='{$DETAIL_VIEW_URL}' {/if} id="{$MODULE}_listView_row_{$smarty.foreach.listview.index+1}">
             <td  width="5%" class="{$WIDTHTYPE}">
 				<input type="checkbox" value="{$LISTVIEW_ENTRY->getId()}" class="listViewEntriesCheckBox"/>

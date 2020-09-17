@@ -34,6 +34,7 @@ class ListViewController {
 	private $picklistRoleMap;
 	private $headerSortingEnabled;
 	private $fieldColorMap = array();
+	private $moduleFieldInstances;
 	public function __construct($db, $user, $generator) {
 		$this->queryGenerator = $generator;
 		$this->db = $db;
@@ -488,7 +489,7 @@ class ListViewController {
 				$row[$fieldName] = $value;
 				if (in_array($uitype, Settings_ListViewColors_IndexAjax_View::getSupportedUITypes())) {
 					if (!isset($this->fieldColorMap[$fieldName]) || !isset($this->fieldColorMap[$fieldName][$rawValue])) {
-						$this->getListViewColor($fieldName,$rawValue);
+						$this->getListViewColor($fieldName,$rawValue,$module);
 					}
 					$row['fieldcolor'][] = $this->fieldColorMap[$fieldName][$rawValue];
 				}
@@ -497,15 +498,21 @@ class ListViewController {
 		}
 		return $data;
 	}
-	public function getListViewColor($fieldName,$fieldValue) {
+	public function getListViewColor($fieldName,$fieldValue, $moduleName) {
 		$db = PearDatabase::getInstance();
-		$listcolor = '#FFFFFF';
-		$moduleFields = $this->queryGenerator->getModuleFields();
-		$field = $moduleFields[$fieldName];
-		$FieldId = $field->getFieldId();
+		
+		// do it the same way as ListViewColor does to prevent ID issues with Calendar
+		if (!isset($this->moduleFieldInstances)) {
+			$moduleInstance = Vtiger_Module_Model::getInstance($moduleName);
+			$this->moduleFieldInstances = $moduleInstance->getFields();
+		}
+		$field = $this->moduleFieldInstances[$fieldName];
+		$FieldId = $field->get('id');
+		
 		$query = 'SELECT listcolor FROM berli_listview_colors WHERE listfieldid = ? AND fieldcontent =?';
 		$result = $db->pquery($query,array($FieldId, decode_html($fieldValue)));
 		$rowlistcolor = $db->query_result($result,0,'listcolor');
+		if (!isset($rowlistcolor)) $rowlistcolor = '';
 		
 		$this->fieldColorMap[$fieldName][$fieldValue] = $rowlistcolor;
 	}
