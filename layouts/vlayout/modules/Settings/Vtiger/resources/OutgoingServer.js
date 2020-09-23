@@ -45,6 +45,9 @@ jQuery.Class("Settings_Vtiger_OutgoingServer_Js",{},{
 					);
 				} else {
 					progressIndicatorElement.progressIndicator({'mode':'hide'});
+					if (data['error'] && typeof data['error'].message != 'undefined') {
+						jQuery('#error-thrown').text(data['error'].message);
+					}
 					jQuery('.errorMessage', form).removeClass('hide');
 				}
 			},
