@@ -32,6 +32,8 @@
 				<div class="alert alert-error">
 				  {vtranslate('LBL_TESTMAILSTATUS', $QUALIFIED_MODULE)}<strong>{vtranslate('LBL_MAILSENDERROR', $QUALIFIED_MODULE)}</strong>  
 				</div>
+				<div class="alert alert-error" id="error-thrown">
+				</div>
 			</div>
 			<table class="table table-bordered table-condensed themeTableColor">
 				<thead>

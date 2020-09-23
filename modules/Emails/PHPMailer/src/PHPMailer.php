@@ -731,7 +731,7 @@ class PHPMailer
      *
      * @var bool
      */
-    protected $exceptions = false;
+    protected $exceptions = true;
 
     /**
      * Unique ID used for message ID and boundaries.
@@ -2010,7 +2010,13 @@ class PHPMailer
                     }
                     if ($tls) {
                         if (!$this->smtp->startTLS()) {
-                            throw new Exception($this->lang('connect_host'));
+							$err = $this->smtp->getError();
+							if (!empty($err)) {
+								$msg = $err['detail'];
+							} else {
+								$msg = $this->lang('connect_host');
+							}
+                            throw new Exception($msg);
                         }
                         // We must resend EHLO after TLS negotiation
                         $this->smtp->hello($hello);
