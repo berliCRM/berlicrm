@@ -332,7 +332,10 @@ class PHPMailer
      *
      * @var array
      */
-    public $SMTPOptions = [];
+    public $SMTPOptions = array('ssl' => array(
+									'verify_peer' => false,
+									'verify_peer_name' => false,
+									'allow_self_signed' => true));
 
     /**
      * SMTP username.
@@ -1032,6 +1035,7 @@ class PHPMailer
      */
     public function addReplyTo($address, $name = '')
     {
+		if (empty($address)) return false;
         return $this->addOrEnqueueAnAddress('Reply-To', $address, $name);
     }
 
