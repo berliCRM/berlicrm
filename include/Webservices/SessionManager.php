@@ -31,8 +31,10 @@
 			// $now = time();
 			// $this->maxLife = $now + $this->maxWebServiceSessionLifeSpan;
 			// $this->idleLife = $now + $this->maxWebServiceSessionIdleTime;
-			
-			HTTP_Session2::useCookies(false); //disable cookie usage. may this could be moved out constructor?
+			//crm-now: don't try to alter session settings when session is already active
+			if (session_status() !== PHP_SESSION_ACTIVE) {
+				HTTP_Session2::useCookies(false); //disable cookie usage. may this could be moved out constructor?
+			}
 			// only first invocation of following method, which is setExpire 
 			//have an effect and any further invocation will be have no effect.
 			// HTTP_Session2::setExpire($this->maxLife);
