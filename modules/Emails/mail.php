@@ -154,7 +154,7 @@ function addSignature($contents, $fromname)
     $sign = VTCacheUtils::getUserSignature($fromname);
     if($sign === null) {
         $result = $adb->pquery("select signature, first_name, last_name from vtiger_users where user_name=?", array($fromname));
-        $sign = $adb->query_result($result,0,"signature");
+        $sign = html_entity_decode($adb->query_result($result,0,"signature"));
         VTCacheUtils::setUserSignature($fromname, $sign);
         VTCacheUtils::setUserFullName($fromname, $adb->query_result($result,0,"first_name").' '.$adb->query_result($result,0,"last_name"));
     }
