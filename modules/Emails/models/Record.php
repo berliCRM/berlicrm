@@ -124,7 +124,7 @@ class Emails_Record_Model extends Vtiger_Record_Model {
                 if ($_REQUEST["nosignature"]!="on") {
                     $mailer->Signature = str_replace(array('\r\n', '\n'),'<br>',$currentUserModel->get('signature'));
                     if($mailer->Signature != '') {
-                        $mailer->msgHTML($mailer->Body.'<br><br>'.$mailer->Signature);
+                        $mailer->msgHTML($mailer->Body.'<br><br>'.html_entity_decode($mailer->Signature));
                     }
 				}
                 // create non-html alternative body
