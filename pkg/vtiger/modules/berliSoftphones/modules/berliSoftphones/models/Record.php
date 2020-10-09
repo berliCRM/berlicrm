@@ -40,7 +40,7 @@ class berliSoftphones_Record_Model extends Vtiger_Record_Model{
 				$fieldname = $db->query_result($entityresult, 0, 'fieldname');
 				$entryquery = "SELECT $entityidfield FROM $tablename 
 					inner join vtiger_crmentity on vtiger_crmentity.crmid = $tablename.$entityidfield
-					WHERE vtiger_crmentity.deleted=0 and (REPLACE(REPLACE(phone , ' ', ''), '-', ''))  LIKE '%".$callerid."'";
+					WHERE vtiger_crmentity.deleted=0 and (REPLACE(REPLACE(" . $columnname . " , ' ', ''), '-', ''))  LIKE '%".$callerid."'";
 				$entryresult = $db->pquery($entryquery, array());
 				$entrycount = $db->num_rows($entryresult);
 				$entityModuleName = $modulename;
