@@ -800,9 +800,15 @@ class CRMEntity {
 						$tablename, $tablename, $tableindex, 'vtiger_crmentity', 'crmid');
 				}
 			}
-
-			$where_clause .= ' vtiger_crmentity.crmid=?';
-			$params[] = $record;
+			if ($module == 'Documents Attachment' || $module == 'Emails Attachment' || $module == 'Users Attachment' || $module == 'Contacts Image' || $module == 'MailManager Attachment' || $module == 'Products Image' || $module == 'Quotes Attachment' ) {
+				$where_clause .= ' vtiger_crmentity.crmid=?';
+				$params[] = $record;
+			}
+			else {
+				$where_clause .= ' vtiger_crmentity.crmid=? AND vtiger_crmentity.setype=? ';
+				$params[] = $record;
+				$params[] = $module;
+			}
 
 			$sql = sprintf('SELECT %s FROM %s WHERE %s %s', $column_clause, $from_clause, $where_clause, $limit_clause);
 
