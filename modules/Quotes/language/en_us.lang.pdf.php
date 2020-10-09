@@ -26,7 +26,7 @@ $pdf_strings = Array(
 	'Discount' =>  'Dis',	
 	'VAR_TAXID' =>  'Tax ID#:',
 	'VAR_ADJUSTMENT' =>  'Adjustment',
-	'Tax_NAME' =>  '% Tax" => ',
+	'Tax_NAME' =>  '% VAT => ',
 	'INCLUDE_NAME' =>  ' included',
 	'Unit' =>  'Unit',
 	'ORG_POSITION' =>  'CEO',
