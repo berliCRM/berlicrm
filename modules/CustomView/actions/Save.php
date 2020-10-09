@@ -33,7 +33,7 @@ class CustomView_Save_Action extends Vtiger_Action_Controller {
 	 */
 	private function getCVModelFromRequest(Vtiger_Request $request) {
 		$cvId = $request->get('record');
-
+		$viewUsersSelect = $request->get('viewUsersSelect');
 		if(!empty($cvId)) {
 			$customViewModel = CustomView_Record_Model::getInstanceById($cvId);
 		} else {
@@ -41,13 +41,26 @@ class CustomView_Save_Action extends Vtiger_Action_Controller {
 			$customViewModel->setModule($request->get('source_module'));
 		}
 
-		$customViewData = array(
-					'cvid' => $cvId,
-					'viewname' => $request->get('viewname'),
-					'setdefault' => $request->get('setdefault'),
-					'setmetrics' => $request->get('setmetrics'),
-					'status' => $request->get('status')
-		);
+		if (!empty($viewUsersSelect) && $viewUsersSelect >0 ) {
+			//different user selected
+			$customViewData = array(
+						'cvid' => $cvId,
+						'viewname' => $request->get('viewname'),
+						'setdefault' => $request->get('setdefault'),
+						'setmetrics' => $request->get('setmetrics'),
+						'status' => $request->get('status'),
+						'newuserid' => $viewUsersSelect
+			);
+		}
+		else {
+			$customViewData = array(
+						'cvid' => $cvId,
+						'viewname' => $request->get('viewname'),
+						'setdefault' => $request->get('setdefault'),
+						'setmetrics' => $request->get('setmetrics'),
+						'status' => $request->get('status')
+			);
+		}
 		$selectedColumnsList = $request->get('columnslist');
 		if(!empty($selectedColumnsList)) {
 			$customViewData['columnslist'] = $selectedColumnsList;

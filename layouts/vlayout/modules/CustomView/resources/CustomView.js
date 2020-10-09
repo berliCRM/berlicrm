@@ -216,6 +216,25 @@ var Vtiger_CustomView_Js = {
 		jQuery("#standardDateFilter").change(function(){
 			Vtiger_CustomView_Js.loadDateFilterValues();
 		});
+		
+		jQuery("#copy").change(function(e){
+			//e.preventDefault();
+			var element = jQuery(e.currentTarget);
+			
+			if(element.is(':checked')) {
+				$("label#userlist_label").show();
+				$('select#viewUsersSelect').removeClass('chzn-done');
+				$('select#viewUsersSelect').chosen();
+				$("div#viewUsersSelect").show();
+			} 
+			else {
+				$('#viewUsersSelect').chosen('destroy');
+				$("#viewUsersSelect_chzn").remove();	
+				$("div#viewUsersSelect").hide();
+				$("label#userlist_label").hide();
+			}
+			
+		});
 
 		Vtiger_CustomView_Js.makeColumnListSortable();
 

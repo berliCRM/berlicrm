@@ -43,7 +43,7 @@
                         &nbsp;&nbsp;&nbsp;<label class="checkbox"><input id='copy' name='copy' type='checkbox' onChange='toggleCopy(this.checked);'> {vtranslate('LBL_SAVE_AS_COPY')}</label>
                         <script type="text/javascript">
                         var record = {$RECORD_ID};
-                        var filtername = "{$CUSTOMVIEW_MODEL->get('viewname')}";
+                        var filtername = "{$CUSTOMVIEW_MODEL->getCustomViewName()}";
                         var namechanged = false;
                         var nameappendix = " {vtranslate('LBL_COPY_APPENDIX')}";
                         {literal}
@@ -51,14 +51,18 @@
                             if (x) {
                                 jQuery("#record").val(""); 
                                 if (jQuery("#viewname").val() == filtername) {
-                                    jQuery("#viewname").val(function() {return this.value + nameappendix;});
+                                    jQuery("#viewname").val(function() {
+										return this.value + nameappendix;
+									});
                                     namechanged = true;
                                 }
                             }
                             else {
                                 jQuery("#record").val(record);
                                 if (namechanged) {
-                                    jQuery("#viewname").val(function() {return this.value.replace(nameappendix,"");});
+                                    jQuery("#viewname").val(function() {
+										return this.value.replace(nameappendix,"");
+									});
                                     namechanged = false;
                                 }
                             }
@@ -66,8 +70,16 @@
                         {/literal}
                         </script>
                     {/if}
-                    {* end optional filter copy *}
-                </div>
+                    &nbsp;&nbsp;&nbsp;<select data-placeholder="{vtranslate('LBL_SELECTOTHER',$MODULE)}"  class="chosen-selecttag"  id="viewUsersSelect" name="viewUsersSelect" style="width:250px;display:none;">
+ 						<option value="0"></option>
+						{assign var=USERS_LIST value=$CUSTOMVIEW_MODEL->getCustomViewUsersList()}
+						{foreach item=USERS_NAME key=USERS_ID from=$USERS_LIST}
+							<option value="{$USERS_ID}"  >{$USERS_NAME}</option>
+ 						{/foreach}
+					</select>
+					&nbsp;&nbsp;&nbsp;<label id='userlist_label' style="display:none">{vtranslate('LBL_OTHER_USER_ASSIGN',$MODULE)}&nbsp;</label>
+                     {* end optional filter copy *}
+				</div>
                 <br>
                 <h4 class="filterHeaders">{vtranslate('LBL_CHOOSE_COLUMNS',$MODULE)} ({vtranslate('LBL_MAX_NUMBER_FILTER_COLUMNS')}) :</h4>
                 <br>

@@ -218,7 +218,14 @@ class CustomView_Record_Model extends Vtiger_Base_Model {
 	 */
 	public function save() {
 		$db = PearDatabase::getInstance();
-		$currentUserModel = Users_Record_Model::getCurrentUserModel();
+		$newuserid = $this->get('newuserid');
+		if (!empty($newuserid) && $newuserid > 0) {
+			// assign view to different user
+			$currentUserModel = Users_Record_Model::getInstanceById($newuserid, 'Users');
+		}
+		else {
+			$currentUserModel = Users_Record_Model::getCurrentUserModel();
+		}
 
 		$cvId = $this->getId();
 		$moduleModel = $this->getModule();
@@ -1085,4 +1092,32 @@ class CustomView_Record_Model extends Vtiger_Base_Model {
 		}
 		return self::getInstanceById($viewId);
 	}
+
+	/**
+	 * Function to get Users list
+	 * @return <Array> list of user ids and names
+	 */
+	public function getCustomViewUsersList() {
+	   $db = PearDatabase::getInstance();
+	   $params = array('0');
+	   $result = $db->pquery('SELECT id,first_name,last_name FROM vtiger_users WHERE deleted = ?', array($params));
+	   $numOfRows = $db->num_rows($result);
+
+	   $usersList = array();
+	   for($i=0; $i<$numOfRows; $i++) {
+		   $userId = $db->query_result($result, $i, 'id');
+		   $firstname = $db->query_result($result, $i, 'first_name');
+		   $lastname = $db->query_result($result, $i, 'last_name');
+		   $usersList[$userId] = $firstname.' '.$lastname;
+	   }
+		return $usersList;
+	}
+	/**
+	 * Function to get the CustomViewName
+	 * @return <Number> Id of the User who created the Custom View
+	 */
+	public function getCustomViewName() {
+		return decode_html($this->get('viewname'));
+	}
+
 }
