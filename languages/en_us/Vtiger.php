@@ -759,9 +759,6 @@ $languageStrings = array(
 	
 	//crm-now: missing label used in CustomView
 	'COMBO_ALL' => 'Alle',
-
-    //No Tax exist 
-    'JS_LBL_NO_TAXES'=>'no taxes assigned',
 	
 	// softphones
 	'LBL_SOFTPHONES' => 'Softphones',
@@ -801,6 +798,8 @@ $languageStrings = array(
     //Copy CustomView
     'LBL_SAVE_AS_COPY'=>'Save as New View',
     'LBL_COPY_APPENDIX'=>'(copy)',
+    'LBL_OTHER_USER_ASSIGN'=>'copy for other user',
+    'LBL_SELECTOTHER'=>'select other user',
     
      //Dynamic Blocks
     'LBL_FIELD_HIDDEN_NOTICE' => 'A field has been hidden in dependency of a picklist value.',
@@ -854,6 +853,8 @@ $languageStrings = array(
 	'LBL_LAST_ACTIVITY' => 'last contacted for more as',
 	'LBL_LAST_INVOICE' => 'last invocie for more as',
 	'LBL_NO_RECORDS_RELATED_TO_THIS_FILTER' => 'there are no data which match the filter',
+
+    'LBL_MANDATORY_FIELD_MISSING'=>'mandatory fields missing.',
 	
 );
 
@@ -1071,7 +1072,9 @@ $jsLanguageStrings = array(
 	'JS_NEW_INFO' => 'New Info!',
 	'JS_MM_TITLE' => 'New mails',
 	'JS_MM_TEXT' => 'You received %d new %s',
-	
-	'SINGLE_Vendors' => 'Vendor',
+
+    //No Tax exist 
+    'JS_LBL_NO_TAXES'=>'no taxes assigned',
+    'JS_LBL_SET_TAX_FOR'=>'set tax for', 
 	
 );
