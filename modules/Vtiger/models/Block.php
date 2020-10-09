@@ -19,7 +19,7 @@ class Vtiger_Block_Model extends Vtiger_Block {
             $this->fields = array();
             
             // if block does not contains any fields 
-            if(!is_array($moduleFields[$this->id])){
+            if(!array_key_exists($this->id, $moduleFields) or !is_array($moduleFields[$this->id])){
                 $moduleFields[$this->id] = array();
             }
             

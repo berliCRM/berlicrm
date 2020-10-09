@@ -298,6 +298,7 @@ class Vtiger_Deprecated {
 		$sql = " select * from vtiger_announcement inner join vtiger_users on vtiger_announcement.creatorid=vtiger_users.id";
 		$sql.=" AND vtiger_users.is_admin='on' AND vtiger_users.status='Active' AND vtiger_users.deleted = 0";
 		$result = $adb->pquery($sql, array());
+		$announcement = '';
 		for ($i = 0; $i < $adb->num_rows($result); $i++) {
 			$announce = getUserFullName($adb->query_result($result, $i, 'creatorid')) . ' :  ' . $adb->query_result($result, $i, 'announcement') . '   ';
 			if ($adb->query_result($result, $i, 'announcement') != '')
