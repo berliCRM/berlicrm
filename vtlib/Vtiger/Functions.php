@@ -591,9 +591,10 @@ class Vtiger_Functions {
 
 	static function validateImage($file_details) {
 		global $app_strings;
-		$allowedImageFormats = array('jpeg', 'png', 'jpg', 'pjpeg', 'x-png', 'gif', 'bmp');
+		$allowedImageFormats = array('jpeg', 'png', 'jpg', 'pjpeg', 'x-png', 'gif', 'bmp', 'xcf');
 		
 		$mimeTypesList = array_merge($allowedImageFormats, array('x-ms-bmp'));//bmp another format
+		$mimeTypesList = array_merge($mimeTypesList, array('x-xcf'));//xcf another GIMP format
 		$file_type_details = explode("/", $file_details['type']);
 		$filetype = $file_type_details['1'];
 		if ($filetype) {
@@ -614,7 +615,7 @@ class Vtiger_Functions {
 
 		//metadata check
 		$shortTagSupported = ini_get('short_open_tag') ? true : false;
-		if ($saveimage == 'true' && in_array($filetype, array('jpeg', 'jpg', 'pjpeg'))) {
+		if ($saveimage == 'true' && in_array($filetype, array('jpeg', 'jpg', 'pjpeg', 'xcf'))) {
 			$exifdata = exif_read_data($file_details['tmp_name']);
 			if ($exifdata && !self::validateImageMetadata($exifdata, $shortTagSupported)) {
 				$saveimage = 'false';

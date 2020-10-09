@@ -117,7 +117,7 @@ class CRMEntity {
 	 *      @param array $file_details  - array which contains the file information(name, type, size, tmp_name and error)
 	 *      return void
 	 */
-	function uploadAndSaveFile($id, $module, $file_details) {
+	function uploadAndSaveFile($id, $module, $file_details, $attachmentType='Attachment') {
 		global $log;
 		$log->debug("Entering into uploadAndSaveFile($id,$module,$file_details) method.");
 
@@ -142,6 +142,10 @@ class CRMEntity {
                 //only images are allowed for Image Attachmenttype 
                 $mimeType = vtlib_mime_content_type($file_details['tmp_name']); 
                 $mimeTypeContents = explode('/', $mimeType); 
+				if ( $mimeTypeContents[0] == 'image' and  $mimeTypeContents[1] == 'x-xcf') {
+					$file_details['type'] = 'image/xcf';
+				}
+
                 // For contacts and products we are sending attachmentType as value 
                 if ($attachmentType == 'Image' || ($file_details['size'] && $mimeTypeContents[0] == 'image')) { 
                         $save_file = validateImageFile($file_details); 
