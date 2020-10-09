@@ -107,13 +107,16 @@
                             {elseif $RELATED_HEADERNAME eq 'access_count'}
                                 {$RELATED_RECORD->getAccessCountValue($PARENT_RECORD->getId())}
                               {elseif $RELATED_HEADERNAME eq 'date_start'}
-                                {if $EMAIL_FLAG neq 'SAVED'}
+                                {if $RELATED_RECORD->isSentMail() eq 'true'}
                                     {$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}
-                                {elseif $RELATED_RECORD->isFromMailManager()} 
+								{else}
+									<span class="label label-warning">{vtranslate('LBL_DRAFT',$RELATED_MODULE_NAME)}&nbsp;{vtranslate('LBL_ATTACHED',$RELATED_MODULE_NAME)}</span>
+								{/if}
+                                {if $RELATED_RECORD->isFromMailManager()} 
                                     <span class="label label-warning">{vtranslate('LBL_ATTACHED',$RELATED_MODULE_NAME)}</span>
 				{/if}
                             {else if $RELATED_HEADERNAME eq 'time_start'}
-                                {if $EMAIL_FLAG neq 'SAVED'}  
+                                {if $RELATED_RECORD->isSentMail() eq 'true'}  
                                     {$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}
                                 {elseif $RELATED_RECORD->isFromMailManager()} 
                                     <span class="label label-warning">{vtranslate('LBL_ATTACHED',$RELATED_MODULE_NAME)}</span>

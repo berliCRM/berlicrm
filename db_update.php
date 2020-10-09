@@ -348,6 +348,38 @@ for($i=0;$i<$num_rows;$i++) {
 create_tab_data_file();
 create_parenttab_data_file();
 
+echo 'module berliSoftphones update start<br>';
+//update berliSoftphones module
+$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
+foreach($moduleFolders as $moduleFolder) {
+	if ($handle = opendir($moduleFolder)) {
+		while (false !== ($file = readdir($handle))) {
+			$packageNameParts = explode(".",$file);
+			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
+				continue;
+			}
+			array_pop($packageNameParts);
+			$packageName = implode("",$packageNameParts);
+			if ($packageName =='berliSoftphones') {
+				$packagepath = "$moduleFolder/$file";
+				$package = new Vtiger_Package();
+				$module = $package->getModuleNameFromZip($packagepath);
+				if($module != null) {
+					$moduleInstance = Vtiger_Module::getInstance($module);
+					if($moduleInstance) {
+						updateVtlibModule($module, $packagepath);
+					} 
+					else {
+						installVtlibModule($module, $packagepath);
+					}
+				}
+			}
+		}
+		closedir($handle);
+	}
+}
+echo 'module update berliSoftphones done <br>';
+
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
 $adb->pquery($query, array($current_release_tag));
 echo "<h2>Finished updating to $current_release_tag!</h2>";

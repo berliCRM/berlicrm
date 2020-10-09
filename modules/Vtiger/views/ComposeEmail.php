@@ -13,6 +13,7 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 	function __construct() {
 		parent::__construct();
 		$this->exposeMethod('emailPreview');
+		$this->exposeMethod('emailAnswer');
         $this->exposeMethod('previewPrint');
 		$this->exposeMethod('emailForward');
 		$this->exposeMethod('emailEdit');
@@ -188,6 +189,13 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		$subject = $recordModel->get('subject');
 		$description = $recordModel->get('description');
 		$attachmentDetails = $recordModel->getAttachmentDetails();
+
+		if ($request->get('mode') == 'emailAnswer') {
+			$subject = vtranslate('LBL_ANSWERSUBJECTPREFIX',$moduleName).$subject;
+			$fromdatetime= Vtiger_Date_UIType::getDisplayValue($recordModel->get('date_start')). " " . Vtiger_Time_UIType::getDisplayValue($recordModel->get('time_start'));
+			$bodyprefix = sprintf(vtranslate('LBL_ANSWERBODYPREFIX',$moduleName),$fromdatetime,$recordModel->get('from_email'));
+			$description=$bodyprefix."<br />| ".str_replace("<br />","<br />| ",$description);
+		}
 
         $viewer->assign('SUBJECT', decode_html($subject));
         $viewer->assign('DESCRIPTION', $description);
@@ -380,6 +388,22 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		echo $viewer->view('ComposeEmailForm.tpl', $moduleName, true);
 	}
 
+	function emailAnswer($request){
+		$viewer = $this->getViewer($request);
+		$moduleName = $request->getModule();
+		$recordId = $request->get('record');
+		$this->record = Vtiger_DetailView_Model::getInstance($moduleName, $recordId);
+		$recordModel = $this->record->getRecord();
+		$TO = array(html_entity_decode($recordModel->get('from_email')));
+
+		$this->emailActionsData($request);
+		$viewer->assign('TO', $TO);
+		$viewer->assign('TOMAIL_INFO', array());
+        $viewer->assign('RELATED_LOAD', true);
+		$viewer->assign('EMAIL_MODE', 'forward');
+		echo $viewer->view('ComposeEmailForm.tpl', $moduleName, true);
+	}
+	
     public function previewPrint($request) {
         $this->emailPreview($request);
     }
@@ -395,14 +419,22 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		$viewer = $this->getViewer($request);
 		try {
 			//EmailTemplate module permission check
+			$moduleName = $request->getModule();
 			$userPrevilegesModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
 			if ($userPrevilegesModel->hasModulePermission(Vtiger_Module_Model::getInstance('EmailTemplates')->getId())) {
 				$templateModel = EmailTemplates_Module_Model::getInstance('EmailTemplates');
-				$templateFields = $templateModel->getAllModuleEmailTemplateFields();
-				
+				if ($moduleName =='Emails') {
+					$fieldModule = $request->get('fieldModule');
+					$templateFields = $templateModel->getAllModuleEmailTemplateFields($fieldModule);
+				}
+				else {
+					$templateFields = $templateModel->getAllModuleEmailTemplateFields();
+				}
 				$viewer->assign("TEMPLATEFIELDS", $templateFields);
 			}
-		} catch (Exception $e) {
+		} 
+		catch (Exception $e) {
+			// still to do
 		}
 	}
 }

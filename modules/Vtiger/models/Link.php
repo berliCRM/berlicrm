@@ -297,6 +297,11 @@ class Vtiger_Link_Model extends Vtiger_Link {
 	 * @return <String>
 	 */
 	public function getRecordCount() {
-		return $this->recordcount;
+		if (isset($this->recordcount)) {
+			return $this->recordcount;
+		}
+		else {
+			return 0;
+		}
 	}
 }

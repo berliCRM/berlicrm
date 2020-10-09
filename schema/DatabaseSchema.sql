@@ -832,22 +832,6 @@ INSERT INTO `vtiger_attachmentsfolder_seq` (`id`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `vtiger_audit_trial`
---
-
-CREATE TABLE IF NOT EXISTS `vtiger_audit_trial` (
-  `auditid` int(19) NOT NULL,
-  `userid` int(19) DEFAULT NULL,
-  `module` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `action` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `recordid` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `actiondate` datetime DEFAULT NULL,
-  PRIMARY KEY (`auditid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `vtiger_blocks`
 --
 

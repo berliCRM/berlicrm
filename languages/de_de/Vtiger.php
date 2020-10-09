@@ -341,6 +341,7 @@ $languageStrings = array(
 	'LBL_Mon' => 'Mo.',
 	'LBL_MONTH' => 'Monat',
 	'LBL_MONTHS' => 'Monate',
+	'LBL_MONTHS2' => 'Monaten',
 	'LBL_MORE' => 'mehr',
 	'LBL_MORE_CURRENCIES' => 'weitere Währungen',
 	'LBL_MUTIPLE_EMAIL_SELECT_ONE' => 'Bitte eine Option auswählen',
@@ -758,9 +759,6 @@ $languageStrings = array(
 	
 	//crm-now: missing label used in CustomView
 	'COMBO_ALL' => 'Alle',
-
-    //No Tax exist 
-    'JS_LBL_NO_TAXES'=>'Keine Steuern festgelegt', 
 	
 	// softphones
 	'LBL_SOFTPHONES' => 'Softphones',
@@ -801,6 +799,8 @@ $languageStrings = array(
     //Copy CustomView
     'LBL_SAVE_AS_COPY'=>'als neue Ansicht speichern',
     'LBL_COPY_APPENDIX'=>'(Kopie)',
+    'LBL_OTHER_USER_ASSIGN'=>'für anderen Nutzer kopieren',
+    'LBL_SELECTOTHER'=>'anderen CRM Nutzer auswählen',
     
     //Dynamic Blocks
     'LBL_FIELD_HIDDEN_NOTICE' => 'Ein Feld wurde in Abhängigkeit eines Auswahllisteneintrags versteckt.',
@@ -850,6 +850,13 @@ $languageStrings = array(
 	//Verteiler
     'Verteiler' => 'Verteiler',
 	
+	//Account Widgets
+	'LBL_LAST_ACTIVITY' => 'letzter Kontakt vor mehr als',
+	'LBL_LAST_INVOICE' => 'letzte Rechnung vor mehr als',
+	'LBL_NO_RECORDS_RELATED_TO_THIS_FILTER' => 'es existieren keine Daten, welche den Filterkriterien entsprechen',
+
+    'LBL_MANDATORY_FIELD_MISSING'=>'Pflichtfeldangabe fehlt.',
+
 );
 
 $jsLanguageStrings = array(
@@ -1066,8 +1073,10 @@ $jsLanguageStrings = array(
 	'JS_NEW_INFO' => 'Neue Nachrichten!',
 	'JS_MM_TITLE' => 'Neue Emails',
 	'JS_MM_TEXT' => 'Sie haben %d neue %s erhalten',
-	
-	'SINGLE_Vendors' => 'Lieferant',
+
+    //No Tax exist 
+    'JS_LBL_NO_TAXES'=>'Keine Steuern festgelegt', 
+    'JS_LBL_SET_TAX_FOR'=>'setze Steuer für', 
 	
 );
 ?>

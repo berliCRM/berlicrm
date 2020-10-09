@@ -69,9 +69,16 @@ class EmailTemplates_Module_Model extends Vtiger_Module_Model {
 	 * Function to get Email template fields from modules
 	 * @return <array> template fields
 	 */
-	public function getAllModuleEmailTemplateFields() {
+	public function getAllModuleEmailTemplateFields($fieldModule='') {
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
-		$allModuleList = $this->getAllModuleList();
+		$allModuleList= array();
+		if ($fieldModule !='') {
+			$allModuleList[] = $fieldModule;
+		}
+		else {
+			$allModuleList = $this->getAllModuleList();
+		}
+
 		$allRelFields = array();
         $allFields = array();
 		foreach ($allModuleList as $index => $module) {

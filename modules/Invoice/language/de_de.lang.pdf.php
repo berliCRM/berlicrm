@@ -30,7 +30,7 @@ $pdf_strings = Array(
 	'Discount' =>  'Rabatt',
 	'VAR_TAXID' =>  'USt-IdNr.:',
 	'VAR_ADJUSTMENT' =>  'Anpassung',
-	'Tax_NAME' =>  '% Mwst." => ',
+	'Tax_NAME' =>  '% Mwst. => ',
 	'INCLUDE_NAME' =>  'enthalten',
 	'Unit' =>  'Einheit',
 	'ORG_POSITION' =>  'Geschäftsführer',

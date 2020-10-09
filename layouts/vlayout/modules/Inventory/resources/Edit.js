@@ -524,7 +524,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 		var taxDiv = '<div class="taxUI validCheck hide" id="tax_div'+rowNumber+'">'+
 			'<table width="100%" border="0" cellpadding="5" cellspacing="0" class="table table-nobordered popupTable" id="tax_table'+rowNumber+'">'+
 			   '<tr>'+
-					'<th id="tax_div_title'+rowNumber+'" align="left" ><b>Set Tax for :</b></th>'+
+					'<th id="tax_div_title'+rowNumber+'" align="left" ><b>'+app.vtranslate("JS_LBL_SET_TAX_FOR")+' </b></th>'+
 					'<th colspan="2"><button aria-hidden="true" data-dismiss="modal" class="close closeDiv" type="button">x</button>'+
 						'</th>'+
 			   '</tr>';

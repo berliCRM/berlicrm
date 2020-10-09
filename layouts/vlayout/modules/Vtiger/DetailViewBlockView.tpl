@@ -16,9 +16,8 @@
 	{assign var=IS_HIDDEN value=$BLOCK->isHidden()}
 
     {* crm now: dynamic blocks *}
-    {if $BLOCKED_BLOCKS[$BLOCK->id]}{ASSIGN var=blockedblocks value=$blockedblocks+1}{continue}{/if}
-    {if $HIDDEN_BLOCKS[$BLOCK->id]}{ASSIGN var=IS_HIDDEN value=true}{/if}
-
+    {if isset($BLOCKED_BLOCKS[$BLOCK->id])}{ASSIGN var=blockedblocks value=$blockedblocks+1}{continue}{/if}
+    {if isset($HIDDEN_BLOCKS[$BLOCK->id])} {ASSIGN var=IS_HIDDEN value=true}{/if}
 	{assign var=WIDTHTYPE value=$USER_MODEL->get('rowheight')}
 	<input type=hidden name="timeFormatOptions" data-value='{$DAY_STARTS}' />
     {if $MODULE eq 'Documents'}
@@ -138,9 +137,9 @@
 	<br>
 	{/foreach}
 {if $USER_MODEL->isAdminUser()}
-    {if $blockedblocks ==1}
+    {if isset ($blockedblocks) and $blockedblocks ==1}
     <div class="alert alert-warning" role="alert">{vtranslate('LBL_BLOCK_HIDDEN_NOTICE')} <a href='{$smarty.server.REQUEST_URI}&overridedynblocks=1'>{vtranslate('LBL_SHOW_HIDDEN_ONCE')}</a></div>
-    {elseif $blockedblocks >1}
+    {elseif isset ($blockedblocks) and $blockedblocks >1}
     <div class="alert alert-warning" role="alert">{vtranslate('LBL_BLOCKS_HIDDEN_NOTICE')|sprintf:$blockedblocks} <a href='{$smarty.server.REQUEST_URI}&overridedynblocks=1'>{vtranslate('LBL_SHOW_HIDDEN_ONCE')}</a></div>
     {/if}
 {/if}

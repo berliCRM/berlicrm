@@ -76,7 +76,7 @@ class Vtiger_Field_Model extends Vtiger_Field {
 	}
 
 	public function getModule() {
-		if(!$this->module) {
+		if(!isset($this->module)) {
 			$moduleObj = $this->block->module;
                         //fix for opensource emailTemplate listview break
                         if(empty($moduleObj)){ 

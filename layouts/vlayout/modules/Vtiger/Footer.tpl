@@ -13,7 +13,7 @@
 
 		<input id='activityReminder' class='hide noprint' type="hidden" value="{$ACTIVITY_REMINDER}"/>
 
-		{if !$MAIN_PRODUCT_WHITELABEL && isset($CURRENT_USER_MODEL)}
+		{if isset($CURRENT_USER_MODEL)}
 		<footer class="noprint">
             <div class="vtFooter">
 			<p>

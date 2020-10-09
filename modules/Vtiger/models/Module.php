@@ -1254,7 +1254,7 @@ class Vtiger_Module_Model extends Vtiger_Module {
 	 * @return <Array> list of field models <Vtiger_Field_Model>
 	 */
 	public function getSummaryViewFieldsList() {
-		if (!$this->summaryFields) {
+		if (!isset($this->summaryFields)) {
 			$summaryFields = array();
 			$fields = $this->getFields();
 			foreach ($fields as $fieldName => $fieldModel) {
