@@ -55,8 +55,6 @@
                             {/if}
 
                             <div class="btn-group cursorPointer" id="guiderHandler">
-                                {if !$MAIN_PRODUCT_WHITELABEL}
-                                {/if}
                             </div>&nbsp;
 
                             <div class="btn-group cursorPointer">

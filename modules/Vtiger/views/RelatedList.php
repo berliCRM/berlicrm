@@ -67,6 +67,10 @@ class Vtiger_RelatedList_View extends Vtiger_Index_View {
 			$viewer->assign('TOTAL_ENTRIES', $totalCount);
 			$viewer->assign('PERFORMANCE', true);
 		}
+		else {
+			$viewer->assign('PAGE_COUNT', '1');
+			$viewer->assign('PERFORMANCE', false);
+		}
 
 		$viewer->assign('MODULE', $moduleName);
 		$viewer->assign('PAGING', $pagingModel);
