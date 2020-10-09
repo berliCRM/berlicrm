@@ -137,7 +137,7 @@
 				<span class="row-fluid">
 					<span class="span2">{vtranslate('LBL_ATTACHMENT',$MODULE)}</span>
 					<span class="span10">
-						<input type="file" id="multiFile" name="file[]"/>&nbsp;
+						<input type="file" multiple="multiple" name="file[]"  id="multiFile" class="multi" maxlength="10"/>&nbsp;
 						<button type="button" class="btn btn-small" id="browseCrm" data-url="{$DOCUMENTS_URL}" title="{vtranslate('LBL_BROWSE_CRM',$MODULE)}">{vtranslate('LBL_BROWSE_CRM',$MODULE)}</button>
 						<div id="attachments" class="row-fluid">
 							{foreach item=ATTACHMENT from=$ATTACHMENTS}
@@ -160,6 +160,35 @@
 			</span>
 			<span class="span4"></span>
 		</div>
+		{if $MODULE_IS_ACTIVE}
+		<div class="row-fluid padding10">
+			<span class="span8">
+				<span class="row-fluid">
+					<span class="span2">{vtranslate('LBL_SELECT_SUBSTITUTE_TYPE',$MODULE)}</span>
+					<span class="span10">
+						<input type="hidden" id="moduleFields" name="moduleFields" data-value='{ZEND_JSON::encode($TEMPLATEFIELDS)|escape}' />
+						<span class="conditionRow">
+							<select class="chzn-select" id="modulename" name="modulename" >
+								<option value="none">{vtranslate('LBL_SELECT_MODULE',$MODULE)}</option>
+								{foreach key=MODULENAME item=FILEDS from=$TEMPLATEFIELDS}
+									{if $MODULENAME eq '0'}
+										<option value="generalFields">{vtranslate('LBL_GENERAL_FIELDS', $MODULE)}</option>
+									{else}
+										<option value="{$MODULENAME}">{vtranslate($MODULENAME, $MODULENAME)}</option>
+									{/if}
+								{/foreach}
+							</select>
+						</span>&nbsp;&nbsp;
+						<span class="" >
+							<select class="chzn-select " id="templateFields" name="templateFields">
+								<option value="">{vtranslate('LBL_NONE',$MODULE)}</option>
+							</select>
+						</span>				
+					</span>
+				</span>
+			</span>
+		</div>
+		{/if}
 		<div class="paddingTop20 row-fluid boxSizingBorderBox">
 			<div class="span9">
 				<div class="btn-toolbar">
@@ -178,30 +207,6 @@
 				<span name="progressIndicator" style="height:30px;">&nbsp;</span>
 				</div>
 			</div>
-		{if $MODULE_IS_ACTIVE}
-			<div style="margin-bottom:9px;">
-				<span class="filterContainer" >
-					<input type="hidden" id="moduleFields" name="moduleFields" data-value='{ZEND_JSON::encode($TEMPLATEFIELDS)|escape}' />
-					<span class="conditionRow">
-						<select class="chzn-select" id="modulename" name="modulename" >
-							<option value="none">{vtranslate('LBL_SELECT_MODULE',$MODULE)}</option>
-							{foreach key=MODULENAME item=FILEDS from=$TEMPLATEFIELDS}
-								{if $MODULENAME eq '0'}
-									<option value="generalFields">{vtranslate('LBL_GENERAL_FIELDS', $MODULE)}</option>
-								{else}
-									<option value="{$MODULENAME}">{vtranslate($MODULENAME, $MODULENAME)}</option>
-								{/if}
-							{/foreach}
-						</select>
-					</span>&nbsp;&nbsp;
-					<span class="">
-						<select class="chzn-select span5" id="templateFields" name="templateFields">
-							<option value="">{vtranslate('LBL_NONE',$MODULE)}</option>
-						</select>
-					</span>
-				</span>
-			</div>
-		{/if}
 		</div>
 		{if $RELATED_LOAD eq true}
 			<input type="hidden" name="related_load" value={$RELATED_LOAD} />

@@ -27,6 +27,7 @@ $languageStrings = array(
 	'LBL_EMAIL_INFORMATION' => 'Email Information',
 	'LBL_EXCEEDED' => 'Exceeded',
 	'LBL_FORWARD' => 'Forward',
+	'LBL_ANSWER' => 'Answer',
 	'LBL_FROM' => 'From',
 	'LBL_GO_TO_PREVIEW' => 'Print View',
 	'LBL_INFO' => 'Info',
@@ -50,11 +51,13 @@ $languageStrings = array(
     'Access Count'=>'Access Count',
     'Parent ID'=>'related to',
 	'LBL_EMAIL_PREVIEW' => 'Email Preview',
-
+	'LBL_ANSWERSUBJECTPREFIX'=>'Re: ',
+	'LBL_ANSWERBODYPREFIX'=>'<br />On %s %s wrote:',
 	//added for email HTML preview
 	'LBL_SHOW_EMAIL'=>'Email in HTML format',
 	'LBL_EMAILHTML_COMMENT'=>'With this preview, you can check whether the replacement fields for the first contact from your recipient list have been correctly filled out.<br>Please note that the final presentation will be determined by the recipients e-mail programs. If necessary, send yourself an e-mail to check.',
 	'LBL_FAILED_ON' => 'delivery failed on',
+	'LBL_SELECT_SUBSTITUTE_TYPE' => 'Replacement Fields',
 );
 
 $jsLanguageStrings = array(
