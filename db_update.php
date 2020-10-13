@@ -380,6 +380,11 @@ foreach($moduleFolders as $moduleFolder) {
 }
 echo 'module update berliSoftphones done <br>';
 
+echo 'Add INDEX to vtiger_email_track<br>';
+$query = "ALTER TABLE `vtiger_email_track` ADD INDEX (`mailid`);";
+$adb->pquery($query, array());
+echo 'Adding INDEX done<br>';
+
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
 $adb->pquery($query, array($current_release_tag));
 echo "<h2>Finished updating to $current_release_tag!</h2>";
