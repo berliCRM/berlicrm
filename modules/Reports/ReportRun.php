@@ -47,7 +47,6 @@ class ReportRunQueryDependencyMatrix {
 	}
 
 	protected function computeDependencies() {
-		if ($this->computedMatrix !== null) return;
 
 		$this->computedMatrix = array();
 		foreach ($this->matrix as $key => $values) {
