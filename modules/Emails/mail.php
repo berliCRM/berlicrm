@@ -98,16 +98,7 @@ function send_mail($module,$to_email,$from_name,$from_email,$subject,$contents,$
 
 	$mail_status = MailSend($mail);
 
-	if($mail_status != 1)
-	{
-		$mail_error = getMailError($mail,$mail_status,$mailto);
-	}
-	else
-	{
-		$mail_error = $mail_status;
-	}
-
-	return $mail_error;
+	return $mail_status;
 }
 
 /**	Function to get the user Email id based on column name and column value
