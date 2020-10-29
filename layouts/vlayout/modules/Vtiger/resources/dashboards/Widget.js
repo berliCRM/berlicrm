@@ -308,7 +308,7 @@ Vtiger_Widget_Js('Vtiger_History_Widget_Js', {}, {
 			});
 			AppConnector.request(params).then(function(data){
 				refreshContainer.progressIndicator({'mode': 'hide'});
-				loadMoreHandler.replaceWith(data);
+				loadMoreHandler.parent().parent().replaceWith(data);
 				thisInstance.registerLoadMore();
 			}, function(){
 				refreshContainer.progressIndicator({'mode': 'hide'});
