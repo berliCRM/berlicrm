@@ -387,6 +387,13 @@ if (version_compare($installedtag, $current_release_tag) < 0) {
 	echo 'Adding INDEX done<br>';
 }
 
+echo 'module update berliWidgets start<br>';
+$moduleInstance = Vtiger_Module::getInstance("berliWidgets");
+if($moduleInstance) {
+	updateVtlibModule("berliWidgets", "packages/vtiger/mandatory/berliCleverReach.zip");
+}
+echo 'module update berliWidgets done<br>';
+
 echo 'module update berliCleverReach start<br>';
 $moduleInstance = Vtiger_Module::getInstance("berliCleverReach");
 if($moduleInstance) {

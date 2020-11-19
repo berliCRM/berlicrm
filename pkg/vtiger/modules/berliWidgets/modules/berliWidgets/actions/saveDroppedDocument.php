@@ -19,6 +19,7 @@ class berliWidgets_saveDroppedDocument_Action extends Vtiger_Action_Controller {
 	}
 
 	public function process(Vtiger_Request $request) {
+		global $currentModule;
 		$db = PearDatabase::getInstance();
 		$current_user = Users_Record_Model::getCurrentUserModel();
 		$parentid = $request->get('recordid');
