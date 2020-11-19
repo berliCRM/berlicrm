@@ -10,7 +10,9 @@
  ********************************************************************************/
 -->*}
 
+{if $PAGE eq 1}
 <div style='padding:5px;'>
+{/if}
 {if $HISTORIES neq false}
 	{foreach key=$index item=HISTORY from=$HISTORIES}
 		{assign var=MODELNAME value=get_class($HISTORY)}
@@ -156,4 +158,6 @@
 		{vtranslate('LBL_NO_UPDATES_OR_COMMENTS', $MODULE_NAME)}
 	</span>
 {/if}
+{if $PAGE eq 1}
 </div>
+{/if}

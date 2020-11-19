@@ -100,8 +100,8 @@ class cleverreachAPI
         // creating attributes for the first time can take MINUTES after an successful API request
         foreach ($fieldsneeded as $fieldname => $fieldtype)	{
             if (isset($tmpfields[$fieldname]) && $tmpfields[$fieldname] != $fieldtype) {
-                throw new Exception('{"status":"error","message":"Cannot change type of attribute $fieldname to $fieldtype"}');
-            }
+               throw new Exception('{"status":"error","message":"Cannot change type of attribute '.$fieldname.' to '.$fieldtype.'"}');
+             }
             else {
                 $newfield = array("name"=>$fieldname, "type"=>$fieldtype);
                 $this->rest->post("/attributes", $newfield);

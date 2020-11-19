@@ -291,6 +291,16 @@ class Vtiger_Tools_Console_ModuleController extends Vtiger_Tools_Console_Control
 		$field4->displaytype= 2;
 		$block->addField($field4);
 
+		$field5 = new Vtiger_Field();
+		$field5->name = 'modifiedby';
+		$field5->label= 'Last Modified By';
+		$field5->table = 'vtiger_crmentity';
+		$field5->column = 'modifiedby';
+		$field5->uitype = 52;
+		$field5->typeofdata = 'V~O';
+		$field5->displaytype= 3;
+		$block->addField($field5);
+
 		// Create default custom filter (mandatory)
 		$filter1 = new Vtiger_Filter();
 		$filter1->name = 'All';
