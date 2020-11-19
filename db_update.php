@@ -378,14 +378,21 @@ foreach($moduleFolders as $moduleFolder) {
 		closedir($handle);
 	}
 }
-if (version_compare($installedtag, $current_release_tag) < 0) {
-	echo 'module update berliSoftphones done <br>';
+echo 'module update berliSoftphones done <br>';
 
+if (version_compare($installedtag, $current_release_tag) < 0) {
 	echo 'Add INDEX to vtiger_email_track<br>';
 	$query = "ALTER TABLE `vtiger_email_track` ADD INDEX (`mailid`);";
 	$adb->pquery($query, array());
 	echo 'Adding INDEX done<br>';
 }
+
+echo 'module update berliCleverReach start<br>';
+$moduleInstance = Vtiger_Module::getInstance("berliCleverReach");
+if($moduleInstance) {
+	updateVtlibModule("berliCleverReach", "packages/vtiger/optional/berliCleverReach.zip");
+}
+echo 'module update berliCleverReach done<br>';
 
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
 $adb->pquery($query, array($current_release_tag));
