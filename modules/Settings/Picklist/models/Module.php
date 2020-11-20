@@ -332,6 +332,8 @@ class Settings_Picklist_Module_Model extends Vtiger_Module_Model {
             $instance->label = $moduleLabel;
             $modulesModelsList[] = $instance;
         }
+		Vtiger_Functions::sortByLabel($modulesModelsList, 'Settings:Picklist');
+		
         return $modulesModelsList;
     }
 

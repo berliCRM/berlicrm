@@ -55,7 +55,6 @@ class Settings_PickListDependency_Module_Model extends Settings_Vtiger_Module_Mo
 		while($row = $adb->fetch_array($result)) {
 			$modules[$row['tablabel']] = $row['tabname'];
 		}
-		ksort($modules);
 		
         $modulesModelsList = array();
         foreach($modules as $moduleLabel => $moduleName) {
@@ -64,6 +63,7 @@ class Settings_PickListDependency_Module_Model extends Settings_Vtiger_Module_Mo
             $instance->label = $moduleLabel;
             $modulesModelsList[] = $instance;
         }
+		Vtiger_Functions::sortByLabel($modulesModelsList, 'Settings:PickListDependency');
         return $modulesModelsList;
     }
 }
