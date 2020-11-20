@@ -86,6 +86,7 @@ class Settings_Picklist_IndexAjax_View extends Settings_Vtiger_IndexAjax_View {
         $moduleModel = Settings_Picklist_Module_Model::getInstance($sourceModule);
         //TODO: see if you needs to optimize this , since its will gets all the fields and filter picklist fields
         $pickListFields = $moduleModel->getFieldsByType(array('picklist','multipicklist','autocompletedtext','autocompletedsingleuse'));
+		Vtiger_Functions::sortByLabel($pickListFields, $sourceModule);
 
         $qualifiedName = $request->getModule(false);
 

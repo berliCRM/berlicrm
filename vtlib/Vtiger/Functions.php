@@ -1073,4 +1073,27 @@ class Vtiger_Functions {
 		}
 		return ($reEncryptedPassword == $encryptedPassword);
 	}
+	
+	/*
+	 * Function to sort arrays (mostly picklist) by translated label values
+	 */
+	static function sortByLabel(&$toSort, $moduleName = '') {
+		uasort($toSort, function($a, $b) use ($moduleName) {
+			if (method_exists($a, 'get')) {
+				$aLabel = $a->get('label');
+				$bLabel = $b->get('label');
+			} elseif (property_exists($a, 'label')) {
+				$aLabel = $a->label;
+				$bLabel = $b->label;
+			} else {
+				$aLabel = $a;
+				$bLabel = $b;
+			}
+			
+			$aLabel = vtranslate($aLabel, $moduleName);
+			$bLabel = vtranslate($bLabel, $moduleName);
+			
+			return strcasecmp($aLabel, $bLabel);
+		});
+	}
 }
