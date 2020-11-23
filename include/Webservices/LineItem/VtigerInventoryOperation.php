@@ -108,7 +108,7 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
 		$handler = vtws_getModuleHandlerFromName('LineItem', $this->user);
 		$components = vtws_getIdComponents($element['id']);
 		$parentId = $components[1];
-
+		
 		if (!empty($element['LineItems'])) {
 			$lineItemList = $element['LineItems'];
 			unset($element['LineItems']);
@@ -123,30 +123,23 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
 				}
 			}
 			$this->trackChanges($handler, $element['id'], $lineItemList);
-			$updatedElement = parent::revise($element);
-			$handler->setLineItems('LineItem', $lineItemList, $updatedElement);
-			$parent = $handler->getParentById($element['id']);
-			$handler->updateParent($lineItemList, $parent);
-			$updatedParent = $handler->getParentById($element['id']);
-			//since subtotal and grand total is updated in the update parent api
-			$parent['hdnSubTotal'] = $updatedParent['hdnSubTotal'];
-			$parent['hdnGrandTotal'] = $updatedParent['hdnGrandTotal'];
-			$parent['pre_tax_total'] = $updatedParent['pre_tax_total'];
-			$parent['LineItems'] = $handler->getAllLineItemForParent($parentId);
-
-            $this->executeDelayedTriggers();
-		} 
-        else {
-			$prevAction = $_REQUEST['action'];
-			// This is added as we are passing data in user format, so in the crmentity insertIntoEntity API
-			// should convert to database format, we have added a check based on the action name there. But 
-			// while saving Invoice and Purchase Order we are also depending on the same action file names to
-			// not to update stock if its an ajax save. In this case also we do not want line items to change.
-			$_REQUEST['action'] = 'FROM_WS';
-
-			$parent = parent::revise($element);
-			$_REQUEST['action'] = $prevAction;
+		} else {
+			$lineItemList = $handler->getAllLineItemForParent($parentId);
 		}
+
+		$updatedElement = parent::revise($element);
+		$handler->setLineItems('LineItem', $lineItemList, $updatedElement);
+		$parent = $handler->getParentById($element['id']);
+		$handler->updateParent($lineItemList, $parent);
+		$updatedParent = $handler->getParentById($element['id']);
+		//since subtotal and grand total is updated in the update parent api
+		$parent['hdnSubTotal'] = $updatedParent['hdnSubTotal'];
+		$parent['hdnGrandTotal'] = $updatedParent['hdnGrandTotal'];
+		$parent['pre_tax_total'] = $updatedParent['pre_tax_total'];
+		$parent['LineItems'] = $handler->getAllLineItemForParent($parentId);
+
+		$this->executeDelayedTriggers();
+       
 		return array_merge($element,$parent);
 	}
 
