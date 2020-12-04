@@ -807,7 +807,8 @@ class CRMEntity {
 			else {
 				$where_clause .= ' vtiger_crmentity.crmid=? AND vtiger_crmentity.setype=? ';
 				$params[] = $record;
-				$params[] = $module;
+				$tmpModule = ($module == 'Events') ? 'Calendar' : $module;
+				$params[] = $tmpModule;
 			}
 
 			$sql = sprintf('SELECT %s FROM %s WHERE %s %s', $column_clause, $from_clause, $where_clause, $limit_clause);
