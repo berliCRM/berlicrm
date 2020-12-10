@@ -183,7 +183,7 @@ class Vtiger_Link {
 				$multitype = true;
 				if($tabid === self::IGNORE_MODULE) {
 					$sql = 'SELECT * FROM vtiger_links WHERE linktype IN ('.
-						Vtiger_Utils::implodestr('?', count($type), ',') .') ';
+						Vtiger_Utils::implodestr('?', count($type), ',') .') ORDER BY sequence';
 					$params = $type;
 					$permittedTabIdList = getPermittedModuleIdList();
 					if(count($permittedTabIdList) > 0 && $current_user->is_admin !== 'on') {
@@ -195,7 +195,7 @@ class Vtiger_Link {
 					$result = $adb->pquery($sql, Array($adb->flatten_array($params)));
 				} else {
 					$result = $adb->pquery('SELECT * FROM vtiger_links WHERE (tabid=? OR tabid=0) AND linktype IN ('.
-						Vtiger_Utils::implodestr('?', count($type), ',') .')',
+						Vtiger_Utils::implodestr('?', count($type), ',') .') ORDER BY sequence',
 							Array($tabid, $adb->flatten_array($type)));
 				}			
 			} else {
@@ -203,11 +203,11 @@ class Vtiger_Link {
 				if($tabid === self::IGNORE_MODULE) {
 					$result = $adb->pquery('SELECT * FROM vtiger_links WHERE linktype=?', Array($type));
 				} else {
-					$result = $adb->pquery('SELECT * FROM vtiger_links WHERE (tabid=? OR tabid=0) AND linktype=?', Array($tabid, $type));				
+					$result = $adb->pquery('SELECT * FROM vtiger_links WHERE (tabid=? OR tabid=0) AND linktype=? ORDER BY sequence', Array($tabid, $type));				
 				}
 			}
 		} else {
-			$result = $adb->pquery('SELECT * FROM vtiger_links WHERE tabid=?', Array($tabid));
+			$result = $adb->pquery('SELECT * FROM vtiger_links WHERE tabid=? ORDER BY sequence', Array($tabid));
 		}
 
 		$strtemplate = new Vtiger_StringTemplate();
