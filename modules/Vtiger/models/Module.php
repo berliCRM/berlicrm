@@ -1525,4 +1525,56 @@ class Vtiger_Module_Model extends Vtiger_Module {
     public function isListViewNameFieldNavigationEnabled() {
         return true;
     }
+	
+	/**
+	 * Function to get list view query for popup window
+	 * @param <String> $sourceModule Parent module
+	 * @param <String> $field parent fieldname
+	 * @param <Integer> $record parent id
+	 * @param <String> $listQuery
+	 * @return <String> Listview Query
+	 */
+	public function getQueryByModuleField($sourceModule, $field, $record, $listQuery) {
+		$db = PearDatabase::getInstance();
+		
+		$tabId = Vtiger_Functions::getModuleId($sourceModule);
+		$relatedTabId = $this->getId();
+		
+		$query = "SELECT label FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
+		$res = $db->pquery($query, array($tabId, $relatedTabId));
+		
+		if ($res && $db->num_rows($res) > 0) {
+			$label = $db->query_result($res, 0, 'label');
+			
+			$parentRecordModel = Vtiger_Record_Model::getInstanceById($record, $sourceModule);
+			$relationListView = Vtiger_RelationListView_Model::getInstance($parentRecordModel, $this->getName(), $label);
+			$query = $relationListView->getRelationQuery();
+			$res = $db->pquery($query, array());
+			
+			$arrIds = array();
+			if ($res && $db->num_rows($res) > 0) {
+				$arrIds = array();
+				
+				while ($row = $db->fetch_row($res)) {
+					$arrIds[] = $row['crmid'];
+				}
+				
+				if (!empty($arrIds)) {
+					$tableName = $this->basetable;
+					$tableId = $this->basetableid;
+					
+					$condition = "$tableName.$tableId NOT IN (".implode(',', $arrIds).")";
+					
+					$pos = stripos($listQuery, 'where');
+					if($pos) {
+						$listQuery .= " AND $condition";
+					} else {
+						$listQuery .= " WHERE $condition";
+					}
+				}
+			}
+		}
+		
+        return $listQuery;
+	}
 }
