@@ -856,6 +856,9 @@ $languageStrings = array(
 
     'LBL_MANDATORY_FIELD_MISSING'=>'mandatory fields missing.',
 	
+	// RelatedList Count fail
+	'LBL_QUERY_FAILED' => 'Query failed',
+	
 );
 
 $jsLanguageStrings = array(

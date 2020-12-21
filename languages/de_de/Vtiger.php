@@ -856,6 +856,9 @@ $languageStrings = array(
 	'LBL_NO_RECORDS_RELATED_TO_THIS_FILTER' => 'es existieren keine Daten, welche den Filterkriterien entsprechen',
 
     'LBL_MANDATORY_FIELD_MISSING'=>'Pflichtfeldangabe fehlt.',
+	
+	// RelatedList Count fail
+	'LBL_QUERY_FAILED' => 'fehlerhafte Query',
 
 );
 

@@ -446,7 +446,11 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
             $relationQuery = substr($relationQuery,0,$pos);
         }   
 		$result = $db->pquery($relationQuery, array());
-		return $db->query_result($result, 0, 'count');
+		if (!$result) {
+			return vtranslate('LBL_QUERY_FAILED');
+		} else {
+			return $db->query_result($result, 0, 'count');
+		}
 	}
 
 	/**
