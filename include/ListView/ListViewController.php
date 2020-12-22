@@ -507,14 +507,30 @@ class ListViewController {
 			$this->moduleFieldInstances = $moduleInstance->getFields();
 		}
 		$field = $this->moduleFieldInstances[$fieldName];
-		$FieldId = $field->get('id');
+		// Contacts got Account fields merged in... work around, uncached
+		if (!isset($field) && strpos($fieldName, '.') !== false) {
+			list($tmpModule, $tmpFieldName) = explode('.', $fieldName);
+			if ($tmpModule != $moduleName) {
+				$tmpModuleInstance = Vtiger_Module_Model::getInstance($tmpModule);
+				$tmpModuleFieldInstances = $tmpModuleInstance->getFields();
+				
+				$field = $tmpModuleFieldInstances[$tmpFieldName];
+			}
+		}
 		
-		$query = 'SELECT listcolor FROM berli_listview_colors WHERE listfieldid = ? AND fieldcontent =?';
-		$result = $db->pquery($query,array($FieldId, decode_html($fieldValue)));
-		$rowlistcolor = $db->query_result($result,0,'listcolor');
-		if (!isset($rowlistcolor)) $rowlistcolor = '';
+		if (isset($field)) {
+			$fieldId = $field->get('id');
 		
-		$this->fieldColorMap[$fieldName][$fieldValue] = $rowlistcolor;
+			$query = 'SELECT listcolor FROM berli_listview_colors WHERE listfieldid = ? AND fieldcontent =?';
+			$result = $db->pquery($query,array($fieldId, decode_html($fieldValue)));
+			if ($result && $db->num_rows($result) > 0) {
+				$rowListColor = $db->query_result($result,0,'listcolor');
+			}
+		}
+		
+		if (!isset($rowListColor)) $rowListColor = '';
+		
+		$this->fieldColorMap[$fieldName][$fieldValue] = $rowListColor;
 	}
 	
 }
