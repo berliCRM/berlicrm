@@ -184,7 +184,7 @@ function getReportFieldValue ($report, $picklistArray, $dbField, $valueArray, $f
 		if (!is_array($picklistArray[1]) || !is_array($picklistArray[1][$dbField->name])) {
 			$fieldvalue = str_replace(' |##| ', ', ', $value);
 		} else {
-			implode(', ', $translatedValueList);
+			$fieldvalue = implode(', ', $translatedValueList);
 		}
 	} 
 	elseif ($fieldType == 'double') {
