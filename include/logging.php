@@ -41,4 +41,19 @@ if(isset($PERFORMANCE_CONFIG) && isset($PERFORMANCE_CONFIG['LOG4PHP_DEBUG']) && 
     $config->configure('log4php.properties');
 }
 
+// For ADODB Debug Output
+define('ADODB_OUTP', 'writeSQLDebugToFile');
+
+function writeSQLDebugToFile($msg, $newline) {
+	$path = 'logs/SQL_'.date('Ymd').'.log';
+	
+	$msg = strip_tags(html_entity_decode($msg));
+	if ($newline) $msg .= "\n";
+	
+	if (!empty($msg)) {
+		$msg = date('H:i:s').' -> '.$msg;
+		file_put_contents($path, $msg, FILE_APPEND);
+	}
+}
+
 ?>
