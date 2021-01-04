@@ -475,7 +475,11 @@ class ListViewController {
 				} 
 				elseif($field->getUIType() == 7){
 					if(!empty($value)){
-						$value = CurrencyField::convertToUserFormat($value, null, true);
+						$currencyFieldObject = new CurrencyField($value);
+						$currencyFieldObject->initialize();
+						$separator = $currencyFieldObject->decimalSeparator;
+						$value = $currencyFieldObject->convertToUserFormat($value, null, true);
+						$value = substr($value, 0, strpos($value, $separator));
 					}
 				} 				
 				else {
