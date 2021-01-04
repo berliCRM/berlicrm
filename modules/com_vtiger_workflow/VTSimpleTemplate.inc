@@ -319,7 +319,7 @@ class VTSimpleTemplate{
                                             $webServiceObject = VtigerWebserviceObject::fromId($adb,$id[0]);
                                             if($webServiceObject){
                                                 $Value = getEntityName($webServiceObject->getEntityName(), $id);
-                                                $fieldValue = $Value[$id[1]];
+                                                $fieldValue = html_entity_decode($Value[$id[1]]);
                                             }
                                         }
                                     }
