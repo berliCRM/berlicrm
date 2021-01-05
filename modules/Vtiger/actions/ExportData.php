@@ -304,7 +304,7 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 				}
 				$rowcount++;
 			}
-			$workbookWriter = PHPExcel_IOFactory::createWriter($workbook, 'Excel5');
+			$workbookWriter = PHPExcel_IOFactory::createWriter($workbook, 'Excel2007');
 			$workbookWriter->save('php://output');
 		}
 	}
