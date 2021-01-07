@@ -63,14 +63,14 @@ abstract class Vtiger_Header_View extends Vtiger_View_Controller {
 						array (
 							'linktype' => 'HEADERLINK',
 							'linklabel' => 'LBL_HELP',
-							'linkurl' => 'http://blog.crm-now.de/doc/berliCRM/help/v1.0/index.html',
+							'linkurl' => 'https://blog.crm-now.de/doc/berliCRM/help/v1.0/index.html',
 							'linkicon' => '',
 							'target' => '_blank'
 						),
 						array (
 							'linktype' => 'HEADERLINK',
 							'linklabel' => 'CRM Journal',
-							'linkurl' => 'http://blog.crm-now.de/?lang=de',
+							'linkurl' => 'https://blog.crm-now.de/?lang=de',
 							'linkicon' => '',
 							'target' => '_blank'
 						)
@@ -89,14 +89,14 @@ abstract class Vtiger_Header_View extends Vtiger_View_Controller {
 						array (
 							'linktype' => 'HEADERLINK',
 							'linklabel' => 'LBL_HELP',
-							'linkurl' => 'http://blog.crm-now.de/doc/help2540/index-en.html',
+							'linkurl' => 'https://blog.crm-now.de/doc/help2540/index-en.html',
 							'linkicon' => '',
 							'target' => '_blank'
 						),
 						array (
 							'linktype' => 'HEADERLINK',
 							'linklabel' => 'CRM Journal',
-							'linkurl' => 'http://blog.crm-now.de/?lang=en',
+							'linkurl' => 'https://blog.crm-now.de/?lang=en',
 							'linkicon' => '',
 							'target' => '_blank'
 						)
