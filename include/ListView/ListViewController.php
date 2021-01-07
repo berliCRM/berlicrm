@@ -478,8 +478,11 @@ class ListViewController {
 						$currencyFieldObject = new CurrencyField($value);
 						$currencyFieldObject->initialize();
 						$separator = $currencyFieldObject->decimalSeparator;
-						$value = $currencyFieldObject->convertToUserFormat($value, null, true);
-						$value = substr($value, 0, strpos($value, $separator));
+						$sepPos = strpos($value, $separator);
+						if ($sepPos !== false) {
+							$value = $currencyFieldObject->convertToUserFormat($value, null, true);
+							$value = substr($value, 0, strpos($value, $separator));
+						}
 					}
 				} 				
 				else {

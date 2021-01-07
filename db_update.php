@@ -401,6 +401,30 @@ if($moduleInstance) {
 }
 echo 'module update berliCleverReach done<br>';
 
+$moduleName = 'Users';
+$moduleInstance = Vtiger_Module::getInstance($moduleName);
+
+if($moduleInstance) {
+	// use vtlib to add new block
+	$blockInstance = Vtiger_Block::getInstance('LBL_USERSIGNATUR', $moduleInstance);
+	if (!$blockInstance) {
+		echo 'adding LBL_USERSIGNATUR Block ... <br>';
+		$blockcf = new Vtiger_Block();
+		$blockcf->label = 'LBL_USERSIGNATUR';
+		$moduleInstance->addBlock($blockcf);
+		echo 'adding LBL_USERSIGNATUR Block done<br>';
+		
+		$blockInstance = Vtiger_Block::getInstance('LBL_USERSIGNATUR', $moduleInstance);
+		$newblockid = $blockInstance->id;
+		
+		if ($newblockid) {
+			// move signature field
+			$updateQuery = "UPDATE `vtiger_field` SET block = ? WHERE tablename = 'vtiger_users' AND columnname = 'signature' AND fieldname = 'signature'";
+			$adb->pquery($updateQuery, array($newblockid));
+		}
+	}
+}
+
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
 $adb->pquery($query, array($current_release_tag));
 echo "<h2>Finished updating to $current_release_tag!</h2>";

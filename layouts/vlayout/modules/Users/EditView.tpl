@@ -11,7 +11,7 @@
 -->*}
 {strip}
 <div class="container-fluid editViewContainer">
-	<form class="form-horizontal recordEditView equalSplit" id="EditView" name="EditView" method="post" enctype="multipart/form-data" action="index.php">
+	<form class="form-horizontal recordEditView" id="EditView" name="EditView" method="post" enctype="multipart/form-data" action="index.php">
 		<input type="hidden" name="module" value="{$MODULE}" />
 		<input type="hidden" name="action" value="Save" />
 		<input type="hidden" name="record" value="{if $smarty.get.saveascopy!=1}{$RECORD_ID}{/if}" />
@@ -77,7 +77,13 @@
 					{/if}
 					{if $FIELD_MODEL->isMandatory() eq true} <span class="redColor">*</span> {/if}
 					</td>
-					<td class="fieldValue {$WIDTHTYPE}" {if $FIELD_MODEL->get('uitype') eq '19'} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
+					<td class="fieldValue {$WIDTHTYPE}" 
+					{if $FIELD_MODEL->get('uitype') eq '19' or ($FIELD_MODEL->get('uitype') eq '21' &&  $FIELD_MODEL->get('name') eq 'signature')} 
+						colspan="3" {assign var=COUNTER value=$COUNTER+1} 
+						
+					{/if}>
+
+
 						{include file=$FIELD_MODEL->getUITypeModel()->getTemplateName()|@vtemplate_path:$MODULE}
 					</td>
 				{/foreach}

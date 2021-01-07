@@ -23,7 +23,16 @@
     {if $MODULE eq 'Documents'}
 		<table class="table table-bordered detailview-table">
 	{else}
-		<table class="table table-bordered equalSplit detailview-table">
+		{if $MODULE eq 'Users'}
+			<!--$FIELD_MODEL_LIST.imagename|@debug_print_var -->
+
+			<table class="table table-bordered equalSplit detailview-table">
+			{if $FIELD_MODEL_LIST.signature or $FIELD_MODEL_LIST.imagename}
+				<table class="table table-bordered detailview-table">
+			{/if}
+		{else}
+			<table class="table table-bordered equalSplit detailview-table">
+		{/if}
 	{/if}
 		<thead>
 		<tr>
@@ -106,11 +115,22 @@
                         {/if}
 					 </label>
 				 </td>
-				 <td class="fieldValue {$WIDTHTYPE}" id="{$MODULE_NAME}_detailView_fieldValue_{$FIELD_MODEL->getName()}" {if $FIELD_MODEL->get('uitype') eq '19' or $FIELD_MODEL->get('uitype') eq '20'} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
-					 <span class="value" data-field-type="{$FIELD_MODEL->getFieldDataType()}" {if $FIELD_MODEL->get('uitype') eq '19' or $FIELD_MODEL->get('uitype') eq '20' or $FIELD_MODEL->get('uitype') eq '21'} style="white-space:normal;" {/if}>
-                        {include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getDetailViewTemplateName(),$MODULE_NAME) FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME RECORD=$RECORD}
-					 </span>
-					 {if $IS_AJAX_ENABLED && $FIELD_MODEL->isEditable() eq 'true' && ($FIELD_MODEL->getFieldDataType()!=Vtiger_Field_Model::REFERENCE_TYPE) && $FIELD_MODEL->isAjaxEditable() eq 'true'}
+				 <td class="fieldValue {$WIDTHTYPE}" id="{$MODULE_NAME}_detailView_fieldValue_{$FIELD_MODEL->getName()}" {if $FIELD_MODEL->get('uitype') eq '19' or $FIELD_MODEL->get('uitype') eq '20' or ($FIELD_MODEL->get('uitype') eq '21' &&  $FIELD_MODEL->get('name') eq 'signature')} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
+					<span class="value" data-field-type="{$FIELD_MODEL->getFieldDataType()}" 
+					{if $FIELD_MODEL->get('uitype') eq '19' or $FIELD_MODEL->get('uitype') eq '20' or $FIELD_MODEL->get('uitype') eq '21'} 
+						style="white-space:normal;" 
+					{/if} 
+					> 
+					
+					{if $FIELD_MODEL->get('uitype') eq '21' &&  $FIELD_MODEL->get('name') eq 'signature'}  
+						
+						{decode_html($FIELD_MODEL->get('fieldvalue')|unescape:'html')}
+					{else}
+						{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getDetailViewTemplateName(),$MODULE_NAME) FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME RECORD=$RECORD}
+					{/if}
+
+					</span>
+					 {if $IS_AJAX_ENABLED && $FIELD_MODEL->isEditable() eq 'true' && ($FIELD_MODEL->getFieldDataType()!=Vtiger_Field_Model::REFERENCE_TYPE) && $FIELD_MODEL->isAjaxEditable() eq 'true' && $FIELD_MODEL->get('name') neq 'signature'}
 						 <span class="hide edit">
 							 {include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE_NAME) FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME}
                              {if $FIELD_MODEL->getFieldDataType() eq 'multipicklist'}
@@ -124,7 +144,11 @@
 			 {/if}
 
 		{if $FIELD_MODEL_LIST|@count eq 1 and $FIELD_MODEL->get('uitype') neq "19" and $FIELD_MODEL->get('uitype') neq "20" and $FIELD_MODEL->get('uitype') neq "30" and $FIELD_MODEL->get('name') neq "recurringtype" and $FIELD_MODEL->get('uitype') neq "69" and $FIELD_MODEL->get('uitype') neq "105"}
-			<td class="fieldLabel {$WIDTHTYPE}"></td><td class="{$WIDTHTYPE}"></td>
+			{if $FIELD_MODEL->get('uitype') eq "21" &&  $FIELD_MODEL->get('name') eq 'signature'}
+				<table class="table table-bordered detailview-table">
+			{else}
+				<td class="fieldLabel {$WIDTHTYPE}"></td><td class="{$WIDTHTYPE}"></td>
+			{/if}
 		{/if}
 		{/foreach}
 		{* adding additional column for odd number of fields in a block *}

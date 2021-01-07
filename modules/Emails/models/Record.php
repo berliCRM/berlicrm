@@ -15,7 +15,8 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 	 * @return <String> - Record Detail View Url
 	 */
 	public function getDetailViewUrl() {
-		list($parentId, $status) = explode('@', reset(array_filter(explode('|', $this->get('parent_id')))));
+		$parent_infos = array_filter(explode('|', $this->get('parent_id')));
+		list($parentId, $status) = explode('@', reset($parent_infos));
 		return 'Javascript:Vtiger_Index_Js.showEmailPreview("'.$this->getId().'","'.$parentId.'")';
 	}
 
@@ -122,7 +123,7 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 
                 // add signature unless nosignature-checkbox is checked
                 if ($_REQUEST["nosignature"]!="on") {
-                    $mailer->Signature = str_replace(array('\r\n', '\n'),'<br>',$currentUserModel->get('signature'));
+                    $mailer->Signature = str_replace(array('\r\n', '\n'),'',$currentUserModel->get('signature'));
                     if($mailer->Signature != '') {
                         $mailer->msgHTML($mailer->Body.'<br><br>'.html_entity_decode($mailer->Signature));
                     }
