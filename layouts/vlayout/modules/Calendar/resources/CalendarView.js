@@ -35,13 +35,16 @@ jQuery.Class("Calendar_CalendarView_Js",{
 	hourFormatConditionMapping : false,
 
 	//Hold the saved values of calendar settings
-	calendarSavedSettings : false,
-
 	CalendarSettingsContainer : false,
 
 	weekDaysArray : {Sunday : 0,Monday : 1, Tuesday : 2, Wednesday : 3,Thursday : 4, Friday : 5, Saturday : 6},
 
-	calendarfeedDS : {},
+    // hold selected feeds
+    feedtypes : [],
+    feedfields : [],
+    feedcolors : [],
+    feedtextcolors : [],
+    feeduserids : [],
 
 	getCalendarView : function() {
 		if(this.calendarView == false) {
@@ -97,68 +100,46 @@ jQuery.Class("Calendar_CalendarView_Js",{
 		return aDeferred.promise();
 	},
 
-	fetchCalendarFeed : function(feedcheckbox) {
-		function toDateString(date) {
-			var d = date.getDate();
-			var m = date.getMonth() +1;
-			var y = date.getFullYear();
-
-			d = (d <= 9)? ("0"+d) : d;
-			m = (m <= 9)? ("0"+m) : m;
-			return y + "-" + m + "-" + d;
-		}
-
-		var type = feedcheckbox.data('calendar-sourcekey');
-		this.calendarfeedDS[type] = function(start, end, callback) {
-			if(feedcheckbox.not(':checked').length > 0) {
-				callback([]);
-				return;
-			}
-			feedcheckbox.prop('disabled', true);
-			var params = {
-				module: 'Calendar',
-				action: 'Feed',
-				start: toDateString(start),
-				end: toDateString(end),
-				type: feedcheckbox.data('calendar-feed'),
-				fieldname: feedcheckbox.data('calendar-fieldname'),
-				userid : feedcheckbox.data('calendar-userid'),
-				color : feedcheckbox.data('calendar-feed-color'),
-				textColor : feedcheckbox.data('calendar-feed-textcolor')
-			}
-			var customData = feedcheckbox.data('customData');
-			if( customData != undefined) {
-				params = jQuery.extend(params, customData);
-			}
-
-			AppConnector.request(params).then(function(events){
-				callback(events);
-				feedcheckbox.prop('disabled', false).prop('checked', true);
-			},
-            function(error){
-                //To send empty events if error occurs
-                callback([]);
-            });
-		}
-
-		this.getCalendarView().fullCalendar('addEventSource', this.calendarfeedDS[type]);
-	},
-
-	fetchAllCalendarFeeds : function(calendarfeedidx) {
+	initCalendarFeeds : function() {
 		var thisInstance = this;
 		var calendarfeeds = jQuery('[data-calendar-feed]');
-
-		//TODO : see if you get all the feeds in one request
+        thisInstance.feedtypes = [];
+        thisInstance.feedfields = [];
+        thisInstance.feedcolors = [];
+        thisInstance.feedtextcolors = [];
 		calendarfeeds.each(function(index,element){
 			var feedcheckbox = jQuery(element);
 			var	disabledOnes = app.cacheGet('calendar.feeds.disabled',[]);
 			if (disabledOnes.indexOf(feedcheckbox.data('calendar-sourcekey')) == -1) {
 				feedcheckbox.prop('checked',true);
 			}
-			thisInstance.fetchCalendarFeed(feedcheckbox);
+            thisInstance.feedtypes.push(feedcheckbox.data('calendar-feed'));
+            thisInstance.feedfields.push(feedcheckbox.data('calendar-fieldname'));
+            thisInstance.feedcolors.push(feedcheckbox.data('calendar-feed-color'));
+            thisInstance.feedtextcolors.push(feedcheckbox.data('calendar-feed-textcolor'));
 		});
+
+        // function to fetch enabled feeds
+        this.fetchFeeds = function(start, end, timezone, callback) {
+            var params = {
+				module: 'Calendar',
+				action: 'Feed',
+				start: start.format("YYYY-MM-DD"),
+				end: end.format("YYYY-MM-DD"),
+				type: thisInstance.feedtypes,
+				fieldname: thisInstance.feedfields,
+				color : thisInstance.feedcolors,
+				textColor : thisInstance.feedtextcolors
+			}
+            AppConnector.request(params).then(function(events){
+                callback(events);
+            });
+        }
+
+        // add function as event source
+        this.getCalendarView().fullCalendar('addEventSource', this.fetchFeeds);
 	},
-	
+
 	allocateColorsForAllActivityTypes : function() {
 		var calendarfeeds = jQuery('[data-calendar-feed]');
 		calendarfeeds.each(function(index,element){
@@ -189,43 +170,48 @@ jQuery.Class("Calendar_CalendarView_Js",{
 		});
 
 	},
-	
+
 	performCalendarFeedIntiate : function() {
 		this.allocateColorsForAllActivityTypes();
 		this.registerCalendarFeedChange();
-		this.fetchAllCalendarFeeds();
+		this.initCalendarFeeds();
 		this.registerEventForEditUserCalendar();
 		this.registerEventForDeleteUserCalendar();
+		this.collectFeeds();
+        this.getCalendarView().fullCalendar('refetchEvents');
+
 	},
+
+    // assemble arrays of activated feed's parameters
+    collectFeeds : function() {
+        var thisInstance = this;
+        var calendarfeeds = jQuery('[data-calendar-feed]');
+        thisInstance.feedtypes = [];
+        thisInstance.feedfields = [];
+        thisInstance.feedcolors = [];
+        thisInstance.feedtextcolors = [];
+        thisInstance.feeduserids = [];
+        calendarfeeds.each(function(index,element){
+            var feedcheckbox = jQuery(element);
+            if (feedcheckbox.prop("checked") == true) {
+                thisInstance.feedtypes.push(feedcheckbox.data('calendar-feed'));
+                thisInstance.feedfields.push(feedcheckbox.data('calendar-fieldname'));
+                thisInstance.feedcolors.push(feedcheckbox.data('calendar-feed-color'));
+                thisInstance.feedtextcolors.push(feedcheckbox.data('calendar-feed-textcolor'));
+                thisInstance.feeduserids.push(feedcheckbox.data('calendar-userid'));
+            }
+        })
+    },
 
 	registerCalendarFeedChange : function() {
 		var thisInstance = this;
 		jQuery('#calendarview-feeds').on('change', '[data-calendar-feed]', function(e){
-			var currentTarget = $(e.currentTarget);
-			var type = currentTarget.data('calendar-sourcekey');
-			if(currentTarget.is(':checked')) {
-				// NOTE: We are getting cache data fresh - as it shared between browser tabs
-				var disabledOnes = app.cacheGet('calendar.feeds.disabled',[]);
-				// http://stackoverflow.com/a/3596096
-				disabledOnes = jQuery.grep(disabledOnes, function(value){return value != type;});
-				app.cacheSet('calendar.feeds.disabled', disabledOnes);
-
-				if(!thisInstance.calendarfeedDS[type]){
-                	thisInstance.fetchAllCalendarFeeds();
-				}
-				thisInstance.getCalendarView().fullCalendar('addEventSource', thisInstance.calendarfeedDS[type]);
-			} else {
-				// NOTE: We are getting cache data fresh - as it shared between browser tabs
-				var disabledOnes = app.cacheGet('calendar.feeds.disabled',[]);
-				if (disabledOnes.indexOf(type) == -1) disabledOnes.push(type);
-				app.cacheSet('calendar.feeds.disabled', disabledOnes);
-
-				thisInstance.getCalendarView().fullCalendar('removeEventSource', thisInstance.calendarfeedDS[type]);
-			}
+            thisInstance.collectFeeds();
+            thisInstance.getCalendarView().fullCalendar('refetchEvents');
 		});
 	},
 
-	dayClick : function(date, allDay, jsEvent, view){
+	dayClick : function(date, jsEvent, view){
 		var thisInstance = this;
 		this.getCalendarCreateView().then(function(data){
 			if(data.length <= 0) {
@@ -233,20 +219,21 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			}
 			var dateFormat = data.find('[name="date_start"]').data('dateFormat');
 
-			var startDateInstance = Date.parse(date);
-			var startDateString = app.getDateInVtigerFormat(dateFormat,startDateInstance);
-			var startTimeString = startDateInstance.toString('hh:mm tt');
+			// var startDateInstance = Date.parse(date);
+			// var startDateString = app.getDateInVtigerFormat(dateFormat,startDateInstance);
+			var startDateString = date.format("DD-MM-YYYY");
+			var startTimeString = date.format("hh:mm a");
 
-			var endDateInstance = Date.parse(date);
+            var enddate = date;
 			if(data.find('[name="activitytype"]').val() == 'Call'){
 				var defaulCallDuration = data.find('[name="defaultCallDuration"]').val();
-				endDateInstance.addMinutes(defaulCallDuration);
+				enddate.add(defaulCallDuration, "m");
 			} else {
 				var defaultOtherEventDuration = data.find('[name="defaultOtherEventDuration"]').val();
-				endDateInstance.addMinutes(defaultOtherEventDuration);
+				enddate.add(defaultOtherEventDuration, "m");
 			}
-			var endDateString = app.getDateInVtigerFormat(dateFormat,endDateInstance);
-			var endTimeString = endDateInstance.toString('hh:mm tt');
+			var endDateString = enddate.format("DD-MM-YYYY");
+			var endTimeString = enddate.format("hh:mm a");
 
 			data.find('[name="date_start"]').val(startDateString);
 			data.find('[name="due_date"]').val(endDateString);
@@ -259,14 +246,12 @@ jQuery.Class("Calendar_CalendarView_Js",{
 					thisInstance.addCalendarEvent(data.result);
 			}});
 		});
-
 	},
 
     addCallMeetingIcons : function(event,element) {
         var activityType = event.activitytype;
-        if(activityType == 'undefined') return;
-        //imgContainer is event time div in week and day view and fc-event-inner in month view
-        var imgContainer = element.find('.fc-event-head').length ? element.find('.fc-event-time') : element.find('div.fc-event-inner');
+        if(typeof(activityType) == 'undefined') return;
+        var imgContainer = element.find('.fc-time');
         var actTypeTranslated = app.vtranslate(activityType);
         if(activityType == 'Call') {
             imgContainer.prepend('&nbsp<img width="13px" title="'+actTypeTranslated+'" alt="'+actTypeTranslated+'" src="layouts/vlayout/skins/images/Call_white.png">&nbsp');
@@ -275,7 +260,6 @@ jQuery.Class("Calendar_CalendarView_Js",{
             imgContainer.prepend('&nbsp<img width="14px" title="'+actTypeTranslated+'" alt="'+actTypeTranslated+'" src="layouts/vlayout/skins/images/Meeting_white.png">&nbsp');
         }
     },
-
 
     /**
      *Function : strikes out events and tasks with status Held and Completed
@@ -288,7 +272,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
             if(status === 'Completed') {
                 title = event.title;
                 titleStriked = title.strike();
-                target = element.find('.fc-event-title');
+                target = element.find('.fc-title');
                 target.html(titleStriked);
             }
         }
@@ -296,15 +280,15 @@ jQuery.Class("Calendar_CalendarView_Js",{
             //Item redered is an event
             if(status === 'Held') {
                 //Full calendar places title along with time for small duration events
-                if(!element.find('.fc-event-title').length) {
-                    target = element.find('.fc-event-time');
+                if(!element.find('.fc-title').length) {
+                    target = element.find('.fc-time');
                     title = target.html();
                     titleStriked = title.strike();
                 }
                 else {
                     title = event.title;
                     titleStriked = title.strike();
-                    target = element.find('.fc-event-title');
+                    target = element.find('.fc-title');
                 }
                 target.html(titleStriked);
             }
@@ -319,11 +303,11 @@ jQuery.Class("Calendar_CalendarView_Js",{
             Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(
 			function(e) {
 				//Confirmed to delete
-                 var params = {
-                        "module": "Calendar",
-                        "action": "DeleteAjax",
-                        "record": recordId
-                    }
+                var params = {
+                    "module": "Calendar",
+                    "action": "DeleteAjax",
+                    "record": recordId
+                }
                 AppConnector.request(params).then(function(data){
                    if(data.success) {
                         thisInstance.getCalendarView().fullCalendar('removeEvents', calEvent.id);
@@ -335,13 +319,12 @@ jQuery.Class("Calendar_CalendarView_Js",{
                         }
                         Vtiger_Helper_Js.showPnotify(params);
                     }
-                    
                 });
 			},
 			function(error, err){
                 e.preventDefault();
                 return false;
-			});  
+			});
         });
     },
 
@@ -362,9 +345,9 @@ jQuery.Class("Calendar_CalendarView_Js",{
 		//Default time format
 		var userDefaultTimeFormat = jQuery('#time_format').val();
 		if(userDefaultTimeFormat == 24){
-			userDefaultTimeFormat = 'H(:mm)';
+			userDefaultTimeFormat = 'H:mm';
 		} else {
-			userDefaultTimeFormat = 'h(:mm)tt';
+			userDefaultTimeFormat = 'h(:mm)a';
 		}
 
 		//Default first day of the week
@@ -372,40 +355,51 @@ jQuery.Class("Calendar_CalendarView_Js",{
 		var convertedFirstDay = thisInstance.weekDaysArray[defaultFirstDay];
 
 		//Default first hour of the day
-		var defaultFirstHour = jQuery('#start_hour').val();
-		var explodedTime = defaultFirstHour.split(':');
-		defaultFirstHour = explodedTime['0'];
-        
+		var defaultFirstHour = jQuery('#start_hour').val()+":00";
+
         //Date format in agenda view must respect user preference
         var dateFormat = jQuery('#date_format').val();
         //Converting to fullcalendar accepting date format
         monthPos = dateFormat.search("mm");
         datePos = dateFormat.search("dd");
         if(monthPos < datePos)
-            dateFormat = "MM-d";
+            dateFormat = "M/D";
         else
-            dateFormat = "d-MM";
-        
+            dateFormat = "D/M";
+
 		var config = {
 			header: {
-				left: 'month,agendaWeek,agendaDay',
-				center: 'title today',
+				left: 'month,agendaWeek,agendaDay,today',
+				center: 'title',
 				right: 'prev,next'
 			},
-            columnFormat: {
-                month: 'ddd',
-                week: 'ddd '+dateFormat,
-                day: 'dddd '+dateFormat
+            views: {
+                month: {columnHeaderFormat: 'ddd'},
+                week: {columnHeaderFormat: 'ddd '+dateFormat},
+                day: {columnHeaderFormat: 'dddd '+dateFormat}
             },
-			height: 600,
-            timeFormat:userDefaultTimeFormat+'{ - '+userDefaultTimeFormat+'}',
+			height: function() {return parseInt(jQuery(".vtFooter").position().top)-parseInt(jQuery(".mainContainer").css('margin-top'))-10;},  // function for dynamic height
+            timeFormat: userDefaultTimeFormat,
 			axisFormat: userDefaultTimeFormat,
-			firstHour : defaultFirstHour,
+			slotLabelFormat: userDefaultTimeFormat,
+			scrollTime : defaultFirstHour,      // time to scroll into view ("start_hour")
 			firstDay : convertedFirstDay,
 			defaultView: userDefaultActivityView,
             editable: true,
-			slotMinutes : 15,
-            defaultEventMinutes : 0,
+			slotDuration : '00:30:00',
+            agendaEventMinHeight: 36,           // minimum display height of event in pixels
+            eventLimit: true,                   // limits display of events that won't fit their cell, display "more" popover instead
+            nextDayThreshold : '00:00:00',
+            nowIndicator: true,
+            viewRender : function(view,element) {
+                if (view.type != "month") {
+                    window.location.hash= view.type + ":"+ view.start;
+                }
+                else {
+                    // advance start date in month view because view.start is set to somewhere within the previous week for months that don't start on first weekday
+                    window.location.hash= view.type + ":"+ view.start.add(6,"d");
+                }
+            },
 
 			monthNames: [app.vtranslate('LBL_JANUARY'),app.vtranslate('LBL_FEBRUARY'),app.vtranslate('LBL_MARCH'),
 				app.vtranslate('LBL_APRIL'),app.vtranslate('LBL_MAY'),app.vtranslate('LBL_JUNE'),app.vtranslate('LBL_JULY'),
@@ -433,101 +427,85 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			},
 			allDayText : app.vtranslate('LBL_ALL_DAY'),
 
-			dayClick : function(date, allDay, jsEvent, view){thisInstance.dayClick(date, allDay, jsEvent, view);},
+			dayClick : function(date, jsEvent, view){thisInstance.dayClick(date, jsEvent, view);},
 
-           eventAfterRender : function(event,element,view){
-                                        thisInstance.addCallMeetingIcons(event,element);
-                                        thisInstance.strikeoutCompletedEventsTasks(event,element,view);
-                                        /*
-                                         *Setting calendar view height to large value for week and day view to
-                                         *avoid loss of display when more number of allday tasks are available
-                                         **/
-                                        if(view.name === 'agendaWeek' || view.name === 'agendaDay') {
-                                            var allDayDiv = jQuery('.fc-view-'+view.name).find('.fc-agenda-divider').prev();
-                                            if(allDayDiv.height() > 350) view.setHeight(600000);
-                                        }
-           },
+            eventAfterRender : function(event,element,view){
+                thisInstance.addCallMeetingIcons(event,element);
+                thisInstance.strikeoutCompletedEventsTasks(event,element,view);
+            },
 
-           eventResize : function(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view){
-               if(event.module != 'Calendar' && event.module != 'Events'){
-                   revertFunc();
-                   return;
-               }
+            eventResize : function(event, delta, revertFunc, jsEvent, ui, view){
+                if(event.module != 'Calendar' && event.module != 'Events'){
+                    revertFunc();
+                    return;
+                }
+
                 var params = {
                     module : 'Calendar',
                     action : 'DragDropAjax',
                     mode : 'updateDeltaOnResize',
                     id : event.id,
                     activitytype : event.activitytype,
-                    dayDelta : dayDelta,
-                    minuteDelta : minuteDelta
+                    secDelta : delta.asSeconds()
                 }
                 AppConnector.request(params).then(function(data){
                     if (!data || !data.result) {
-							var err = app.vtranslate('JS_ERROR');
-							if (data.error && data.error.message) err = err+ ': '+data.error.message;
-							Vtiger_Helper_Js.showPnotify(err);
-                            revertFunc();
-						} else if(!data.result.ispermitted){
-                            Vtiger_Helper_Js.showPnotify(app.vtranslate('JS_NO_EDIT_PERMISSION'));
-                            revertFunc();
-                        }
+                        var err = app.vtranslate('JS_ERROR');
+                        if (data.error && data.error.message) err = err+ ': '+data.error.message;
+                        Vtiger_Helper_Js.showPnotify(err);
+                        revertFunc();
+                    } else if(!data.result.ispermitted){
+                        Vtiger_Helper_Js.showPnotify(app.vtranslate('JS_NO_EDIT_PERMISSION'));
+                        revertFunc();
+                    }
                     }, function() {
 						var err = app.vtranslate('JS_ERROR')+': Internal Server Error';
 						Vtiger_Helper_Js.showPnotify(err);
 						revertFunc();
 				});
-           },
-
-           eventDrop : function( event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view ) {
-                    if(event.module != 'Calendar' && event.module != 'Events'){
-                        revertFunc();
-                        return;
-                    }
-                    if((allDay && event.activitytype != 'Task') || (!allDay && event.activitytype === 'Task')){
-                        revertFunc();
-                        return;
-                    }
-                    var params = {
-                        module : 'Calendar',
-                        action : 'DragDropAjax',
-                        mode : 'updateDeltaOnDrop',
-                        id : event.id,
-                        activitytype : event.activitytype,
-                        dayDelta : dayDelta,
-                        minuteDelta : minuteDelta
-                    }
-                    AppConnector.request(params).then(function(data){
-						if (!data || !data.result) {
-							var err = app.vtranslate('JS_ERROR');
-							if (data.error && data.error.message) err = err+ ': '+data.error.message;
-							Vtiger_Helper_Js.showPnotify(err);
-                            revertFunc();
-						} else if(!data.result.ispermitted){
-                            Vtiger_Helper_Js.showPnotify(app.vtranslate('JS_NO_EDIT_PERMISSION'));
-                            revertFunc();
-                        }
-                    }, function() {
-						var err = app.vtranslate('JS_ERROR')+': Internal Server Error';
-						Vtiger_Helper_Js.showPnotify(err);
-						revertFunc();
-					});
             },
-			
+
+            eventDrop : function( event, delta, revertFunc, jsEvent, ui, view ) {
+                if(event.module != 'Calendar' && event.module != 'Events'){
+                    revertFunc();
+                    return;
+                }
+                if((event.allDay && event.activitytype != 'Task') || (!event.allDay && event.activitytype === 'Task')){
+                    revertFunc();
+                    return;
+                }
+                var params = {
+                    module : 'Calendar',
+                    action : 'DragDropAjax',
+                    mode : 'updateDeltaOnDrop',
+                    id : event.id,
+                    activitytype : event.activitytype,
+                    secDelta : delta.asSeconds()
+                }
+                AppConnector.request(params).then(function(data){
+                    if (!data || !data.result) {
+                        var err = app.vtranslate('JS_ERROR');
+                        if (data.error && data.error.message) err = err+ ': '+data.error.message;
+                        Vtiger_Helper_Js.showPnotify(err);
+                        revertFunc();
+                    } else if(!data.result.ispermitted){
+                        Vtiger_Helper_Js.showPnotify(app.vtranslate('JS_NO_EDIT_PERMISSION'));
+                        revertFunc();
+                    }
+                }, function() {
+                    var err = app.vtranslate('JS_ERROR')+': Internal Server Error';
+                    Vtiger_Helper_Js.showPnotify(err);
+                    revertFunc();
+                });
+            },
+
 			eventMouseover : function(calEvent, jsEvent, view) {
 				jQuery(this).css('z-index', '10');
-                var targetElement = jQuery(this).find('.fc-event-time');
+                var targetElement = jQuery(this).find('.fc-title');
                 var trashElement = jQuery(this).find('a.delete');
                 if(!trashElement.length) {
 					if (jQuery('.isModuleDeletable').val()) {
-						if(!targetElement.length) {
-							targetElement = jQuery(this).find('.fc-event-title');
-							targetElement.append('<a class="delete" style="position:absolute;right:1px;" href="javascript:void(0)"><i class="icon-trash icon-white"></i></a>'); 
-						}
-						else {
-							if(view.name == 'month') targetElement = jQuery(this).find('.fc-event-inner');
-							targetElement.append('<a class="delete" style="position:absolute;right:1px;" href="javascript:void(0)"><i class="icon-trash icon-white"></i></a>');                    
-						}
+                        targetElement.append('<a class="delete" style="position:absolute;right:1px;" href="javascript:void(0)"><i class="icon-trash icon-white"></i></a>');
 						thisInstance.registerEventDelete(targetElement,calEvent);
 					}
                 }
@@ -542,6 +520,22 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			}
 		}
 
+        // evaluate url-hash for view and startdate (in unix millis) on page load
+        var hash = window.location.hash.substring(1);
+        var hashparts = hash.split(":");
+        if (hashparts[0] == "month" || hashparts[0] == "agendaWeek" || hashparts[0] == "agendaDay" ) {
+            config['defaultView'] = hashparts[0];
+            config['defaultDate'] = parseInt(hashparts[1]);
+        }
+
+        // handler for hash changes without page reloading
+        window.onhashchange = function() {
+            var hash = window.location.hash.substring(1);
+            var hashparts = hash.split(":");
+            if (hashparts[0] == "month" || hashparts[0] == "agendaWeek" || hashparts[0] == "agendaDay" ) {
+                calendarview.fullCalendar("changeView",hashparts[0],parseInt(hashparts[1]));
+            }
+        };
 		if (!jQuery('.isModuleEditable').val()) {
 			config['editable'] = false;
 		}
@@ -553,8 +547,8 @@ jQuery.Class("Calendar_CalendarView_Js",{
 
 		if (jQuery('.isRecordCreatable').val()) {
 			//To create custom button to create event or task
-			jQuery('<span class="pull-left"><button class="btn addButton">'+ app.vtranslate('LBL_ADD_EVENT_TASK') +'</button></span>')
-			.prependTo(calendarview.find('.fc-header .fc-header-right')).on('click', 'button', function(e){
+			jQuery('<button class="fc-button fc-state-default">'+ app.vtranslate('LBL_ADD_EVENT_TASK') +'</button>')
+			.prependTo(calendarview.find('.fc-toolbar .fc-right')).on('click', function(e){
 				thisInstance.getCalendarCreateView().then(function(data){
 					var headerInstance = new Vtiger_Header_Js();
 					headerInstance.handleQuickCreateData(data,{callbackFunction:function(data){
@@ -564,15 +558,14 @@ jQuery.Class("Calendar_CalendarView_Js",{
 
 			})
 		}
-		jQuery('<span class="pull-right marginLeft5px"><button class="btn"><i id="calendarSettings" class="icon-cog"></i></button></span>')
-		.prependTo(calendarview.find('.fc-header .fc-header-right')).on('click', 'button', function(e){
+		jQuery('<button class="fc-button fc-state-default"><i id="calendarSettings" class="icon-cog"></i></button>')
+		.appendTo(calendarview.find('.fc-toolbar .fc-right')).on('click', function(e){
 			var params = {
 				module : 'Calendar',
 				view : 'Calendar',
 				mode : 'Settings'
 			}
-			var progressIndicatorInstance = jQuery.progressIndicator({
-				});
+			var progressIndicatorInstance = jQuery.progressIndicator({});
 			AppConnector.request(params).then(function(data){
 				var callBack = function(data){
 					thisInstance.CalendarSettingsContainer = jQuery(data);
@@ -587,9 +580,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 				}
 				app.showModalWindow({'data':data,'cb':callBack});
 			});
-
 		})
-
 	},
 
 	changeCalendarSharingType : function(data) {
@@ -631,8 +622,6 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			}
 			startHourElement.html(options).trigger("change");
 		});
-
-
 	},
 
 	isAllowedToAddCalendarEvent : function (calendarDetails) {
@@ -645,6 +634,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			return false;
 		}
 	},
+
 	addCalendarEvent : function(calendarDetails) {
 		//If type is not shown then dont render the created event
 		var isAllowed = this.isAllowedToAddCalendarEvent(calendarDetails);
@@ -654,10 +644,10 @@ jQuery.Class("Calendar_CalendarView_Js",{
 		eventObject.id = calendarDetails._recordId;
 		eventObject.title = calendarDetails.subject.display_value;
 		var startDate = Date.parse(calendarDetails.date_start.calendar_display_value);
-		eventObject.start = startDate.toString();
+		eventObject.start = moment(startDate);
 		var endDate = Date.parse(calendarDetails.due_date.calendar_display_value);
 		var assignedUserId = calendarDetails.assigned_user_id.value;
-		eventObject.end = endDate.toString();
+		eventObject.end = moment(endDate);
 		eventObject.url = 'index.php?module=Calendar&view=Detail&record='+calendarDetails._recordId;
 		if(calendarDetails.activitytype.value == 'Task'){
 			var color = jQuery('[data-calendar-feed="Calendar"]').data('calendar-feed-color');
@@ -665,6 +655,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			eventObject.allDay = true;
             eventObject.activitytype = calendarDetails.activitytype.value;
             eventObject.status = calendarDetails.taskstatus.value;
+            eventObject.module = 'Calendar';
 		}else{
 			var userElement = jQuery('[data-calendar-userid='+assignedUserId+']');
 			if(userElement.length > 0) {
@@ -674,10 +665,11 @@ jQuery.Class("Calendar_CalendarView_Js",{
 				var color = jQuery('[data-calendar-feed="Events"]').data('calendar-feed-color');
 				var textColor = jQuery('[data-calendar-feed="Events"]').data('calendar-feed-textcolor');
 			}
-			
+
             eventObject.activitytype = calendarDetails.activitytype.value;
             eventObject.status = calendarDetails.eventstatus.value;
 			eventObject.allDay = false;
+			eventObject.module = 'Events';
 		}
 		eventObject.color = color;
 		eventObject.textColor = textColor;
@@ -695,7 +687,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			Vtiger_Index_Js.loadWidgets(widgetContainer);
 		}
 	},
-	
+
 	/**
 	 * Function to register event for add calendar view
 	 */
@@ -712,7 +704,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			}
 		});
 	},
-	
+
 	/**
 	 * Function to register event for delete user calendar
 	 */
@@ -738,7 +730,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			);
 		})
 	},
-	
+
 	/**
 	 * Function used to delete calendar view
 	 */
@@ -753,39 +745,40 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			viewfieldname : feedcheckbox.data('calendar-fieldname'),
 			viewfieldlabel : feedcheckbox.data('calendar-fieldlabel')
 		}
-		
+
 		AppConnector.request(params).then(function(response) {
 			var result = response['result'];
-			
+
 			feedcheckbox.closest('.addedCalendars').remove();
 			//After delete user reset accodion height to auto
 			thisInstance.resetAccordionHeight();
 			//Remove the events of deleted user in shared calendar feed
-			thisInstance.getCalendarView().fullCalendar('removeEventSource', thisInstance.calendarfeedDS[feedcheckbox.data('calendar-sourcekey')]);
-			
+			thisInstance.collectFeeds();
+            thisInstance.getCalendarView().fullCalendar('refetchEvents');
+
 			//Update the adding and editing users list in hidden modal
 			var userSelectElement = jQuery('#calendarview-feeds').find('[name="usersCalendarList"]');
 			userSelectElement.append('<option value="'+result['viewfieldname']+'" data-viewmodule="'+result['viewmodule']+'">'+result['viewfieldlabel']+'</option>');
 			var editUserSelectElement = jQuery('#calendarview-feeds').find('[name="editingUsersList"]');
 			editUserSelectElement.find('option[value="'+result['viewfieldname']+'"]').remove();
 			jQuery('#calendarview-feeds').find('.invisibleCalendarViews').val('true');
-			
+
 			aDeferred.resolve();
 		},
 		function(error){
 			aDeferred.reject();
 		});
-		
+
 		return aDeferred.promise();
 	},
-	
+
 	resetAccordionHeight : function() {
 		var accordionContainer = jQuery('[name="calendarViewTypes"]').parent();
 		if(accordionContainer.hasClass('in')) {
 			accordionContainer.css('height', 'auto');
 		}
 	},
-	
+
 	/**
 	 * Function to register event for edit user calendar color
 	 */
@@ -804,7 +797,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			thisInstance.showAddUserCalendarModal(currentTarget);
 		})
 	},
-	
+
 	/**
 	 * Function to show add calendar modal
 	 */
@@ -820,7 +813,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			var selectedViewModule = data.find('.selectedViewModule');
 			var addCalendarViewsList = data.find('.addCalendarViewsList');
 			var editCalendarViewsList = data.find('.editCalendarViewsList');
-			
+
 			//check its edit mode or add mode, show modal respective to that mode
 			if(currentEle.hasClass('editCalendarColor')) {
 				addCalendarViewsList.addClass('hide');
@@ -829,7 +822,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 				data.find('.userCalendarMode').val('edit');
 				//on change of calendar view, color picker should update with that calendar view color
 				thisInstance.registerViewsListChangeEvent(data);
-				
+
 				var addedCalendarEle = currentEle.closest('.addedCalendars');
 				var feedUserEle = addedCalendarEle.find('[data-calendar-feed]');
 				selectedUserColor.val(feedUserEle.data('calendar-feed-color'));
@@ -849,7 +842,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 					color : randomColor
 				};
 			}
-			
+
 			//register color picker
 			var params = {
 				flat : true,
@@ -862,7 +855,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 				params = jQuery.extend(params,customParams);
 			}
 			data.find('.calendarColorPicker').ColorPicker(params);
-			
+
 			//save the user calendar with color
 			data.find('[name="saveButton"]').click(function(e) {
 				if(currentEle.hasClass('addCalendarView')) {
@@ -873,17 +866,16 @@ jQuery.Class("Calendar_CalendarView_Js",{
 				selectedUser.val(selectElement.val()).data('username', selectElement.find('option:selected').text());
 				selectedViewModule.val(selectElement.find('option:selected').data('viewmodule'));
 				thisInstance.saveUserCalendar(data, currentEle);
-				
 			});
 		}
-		
+
 		app.showModalWindow(clonedContainer,function(data) {
 			if(typeof callBackFunction == 'function') {
 				callBackFunction(data);
 			}
 		}, {'width':'1000px'});
 	},
-	
+
 	/**
 	 * Function to register change event for users list select element in edit user calendar modal
 	 */
@@ -892,7 +884,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 		var selectElement = data.find('[name="editingUsersList"]');
 		var selectedUserColor = data.find('.selectedUserColor');
 		var selectedViewModule = data.find('.selectedViewModule');
-		
+
 		//on change of edit user, update color picker with the selected user color
 		selectElement.on('change', function() {
 			var selectedOption = selectElement.find('option:selected');
@@ -903,7 +895,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			data.find('.calendarColorPicker').ColorPickerSetColor(userColor);
 		});
 	},
-	
+
 	/**
 	 * Function to save added user calendar
 	 */
@@ -921,10 +913,10 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			viewfieldname : fieldName,
 			viewColor : userColor
 		};
-		
+
 		AppConnector.request(params).then(function() {
 			app.hideModalWindow();
-			
+
 			var parentElement = jQuery('#calendarview-feeds');
 			var colorContrast = app.getColorContrast(userColor.slice(1));
 			if(colorContrast == 'light') {
@@ -932,16 +924,13 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			} else {
 				textColor = 'white'
 			}
-			
+
 			if(data.find('.userCalendarMode').val() == 'edit') {
 				var feedUserEle = jQuery('[data-calendar-fieldname="'+fieldName+'"]', parentElement);
-				
+
 				feedUserEle.data('calendar-feed-color',userColor).data('calendar-feed-textcolor',textColor);
 				feedUserEle.closest('.addedCalendars').find('.label').css({'background-color':userColor,'color':textColor});
-				
-				thisInstance.getCalendarView().fullCalendar('removeEventSource', thisInstance.calendarfeedDS[feedUserEle.data('calendar-sourcekey')]);
-				thisInstance.fetchCalendarFeed(feedUserEle);
-				
+
 				//notification message
 				var message = app.vtranslate('JS_CALENDAR_VIEW_COLOR_UPDATED_SUCCESSFULLY');
 			} else {
@@ -954,27 +943,26 @@ jQuery.Class("Calendar_CalendarView_Js",{
 						.data('calendar-feed-textcolor',textColor).data('calendar-fieldname',fieldName).data('calendar-fieldlabel', userName);
 				feedUserEle.closest('.addedCalendars').find('.label').css({'background-color':userColor,'color':textColor}).text(userName);
 				parentElement.append(labelView);
-				
+
 				//After add activityType reset accodion height to auto
 				thisInstance.resetAccordionHeight();
-				
-				thisInstance.fetchCalendarFeed(feedUserEle);
-				
+
 				//Update the adding and editing users list in hidden modal
 				var userSelectElement = jQuery('#calendarview-feeds').find('[name="usersCalendarList"]');
 				userSelectElement.find('option[value="'+fieldName+'"]').remove();
-				
+
 				if(userSelectElement.find('option').length <= 0) {
 					jQuery('#calendarview-feeds').find('.invisibleCalendarViews').val('false');
 				}
-				
+
 				var editUserSelectElement = jQuery('#calendarview-feeds').find('[name="editingUsersList"]');
 				editUserSelectElement.append('<option value="'+fieldName+'" data-viewmodule="'+moduleName+'">'+userName+'</option>');
-				
+
 				//notification message
 				var message = app.vtranslate('JS_CALENDAR_VIEW_ADDED_SUCCESSFULLY');
 			}
-			
+            thisInstance.collectFeeds();
+            thisInstance.getCalendarView().fullCalendar('refetchEvents');
 			//show notification after add or edit user
 			var params = {
 				text: message,
@@ -983,22 +971,21 @@ jQuery.Class("Calendar_CalendarView_Js",{
 			Vtiger_Helper_Js.showPnotify(params);
 		},
 		function(error){
-			
+
 		});
-		
+
 	},
-	
+
 	registerEvents : function() {
 		this.registerCalendar();
         this.restoreActivityTypesWidgetState();
 		//register event for add calendar view
 		this.registerEventForAddCalendarView();
-		return this;
 	}
 });
 
 jQuery(document).ready(function() {
 	var instance = Calendar_CalendarView_Js.getInstanceByView();
-	instance.registerEvents()
+	instance.registerEvents();
 	Calendar_CalendarView_Js.currentInstance = instance;
 })
