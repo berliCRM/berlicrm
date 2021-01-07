@@ -9,7 +9,7 @@
   *
  ********************************************************************************/
 -->*}
-{if $SETTING_EXIST}
+{if isset ($SETTING_EXIST) && $SETTING_EXIST eq true}
 <a name="dfilter">
 	<i class='icon-cog' border='0' align="absmiddle" title="{vtranslate('LBL_FILTER')}" alt="{vtranslate('LBL_FILTER')}"/>
 </a>

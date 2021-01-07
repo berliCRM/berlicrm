@@ -41,7 +41,7 @@ class DateTimeField {
 		}
 
 		$insert_time = '';
-		if ($value[1] != '') {
+		if (isset($value[1]) && $value[1] != '') {
 			$date = self::convertToDBTimeZone($this->datetime, $user);
 			$insert_date = $date->format('Y-m-d');
 		} else {
@@ -167,7 +167,7 @@ class DateTimeField {
 		} elseif ($format == 'yyyy-mm-dd') {
 			$date[0] = $y . '-' . $m . '-' . $d;
 		}
-		if (isset ($date[1]) AND $date[1] != '') {
+		if (isset($date[1]) && $date[1] != '') {
 			$userDate = $date[0] . ' ' . $date[1];
 		} else {
 			$userDate = $date[0];
@@ -254,7 +254,7 @@ class DateTimeField {
 		$log->debug("Entering getDisplayDate(" . $this->datetime . ") method ...");
 
 		$date_value = explode(' ',$this->datetime);
-		if ($date_value[1] != '') {
+		if (isset ($date_value[1]) && $date_value[1] != '') {
 			$date = self::convertToUserTimeZone($this->datetime, $user);
 			$date_value = $date->format('Y-m-d');
 		}
