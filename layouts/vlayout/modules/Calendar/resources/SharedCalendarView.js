@@ -9,97 +9,100 @@
 
 
 Calendar_CalendarView_Js("SharedCalendar_SharedCalendarView_Js",{
-		
+
 	currentInstance : false,
-	
+
 	initiateCalendarFeeds : function() {
 		Calendar_CalendarView_Js.currentInstance.performCalendarFeedIntiate();
 	}
 },{
-	
-	multipleEvents : {},
-	
+
 	getAllUserColors : function() {
 		var result = {};
 		var calendarfeeds = jQuery('[data-calendar-feed]');
-		
+
 		calendarfeeds.each(function(index,element){
 			var feedcheckbox = jQuery(element);
-			var disabledOnes = app.cacheGet('calendar.feeds.disabled',[]); 
-			if (disabledOnes.indexOf(feedcheckbox.data('calendar-sourcekey')) == -1) { 
-				feedcheckbox.attr('checked',true); 
-				var id = feedcheckbox.data('calendar-userid'); 
-				result[id] = feedcheckbox.data('calendar-feed-color')+','+feedcheckbox.data('calendar-feed-textcolor'); 
+			var disabledOnes = app.cacheGet('calendar.feeds.disabled',[]);
+			if (disabledOnes.indexOf(feedcheckbox.data('calendar-sourcekey')) == -1) {
+				feedcheckbox.attr('checked',true);
+				var id = feedcheckbox.data('calendar-userid');
+				result[id] = feedcheckbox.data('calendar-feed-color')+','+feedcheckbox.data('calendar-feed-textcolor');
 			}
 		});
-		
+
 		return result;
 	},
-	
-	fetchAllCalendarFeeds : function() {
+
+    initCalendarFeeds : function() {
 		var thisInstance = this;
 		var calendarfeeds = jQuery('[data-calendar-feed]');
-		
+        thisInstance.feedtypes = [];
+        thisInstance.feedcolors = [];
+        thisInstance.feeduserids = [];
+        thisInstance.feedtextcolors = [];
+
 		calendarfeeds.each(function(index,element){
 			var feedcheckbox = jQuery(element);
-			thisInstance.fetchCalendarFeed(feedcheckbox);
+			var	disabledOnes = app.cacheGet('calendar.feeds.disabled',[]);
+			if (disabledOnes.indexOf(feedcheckbox.data('calendar-sourcekey')) == -1) {
+				feedcheckbox.prop('checked',true);
+			}
+            thisInstance.feedtypes.push("Events");
+            thisInstance.feeduserids.push(feedcheckbox.data('calendar-userid'));
+            thisInstance.feedcolors.push(feedcheckbox.data('calendar-feed-color'));
+            thisInstance.feedtextcolors.push(feedcheckbox.data('calendar-feed-textcolor'));
+            // thisInstance.feedtypes.push("Calendar");
+            // thisInstance.feeduserids.push(feedcheckbox.data('calendar-userid'));
+            // thisInstance.feedcolors.push(feedcheckbox.data('calendar-feed-color'));
+            // thisInstance.feedtextcolors.push(feedcheckbox.data('calendar-feed-textcolor'));
 		});
-		
-		this.multipleEvents = false;
-	},
-	
-	toDateString : function(date) {
-		var d = date.getDate();
-		var m = date.getMonth() +1;
-		var y = date.getFullYear();
-		
-		d = (d <= 9)? ("0"+d) : d;
-		m = (m <= 9)? ("0"+m) : m;
-		return y + "-" + m + "-" + d;
-	},
-	fetchCalendarFeed : function(feedcheckbox) {
-		var thisInstance = this;
-		
-		//var type = feedcheckbox.data('calendar-sourcekey');
-		this.calendarfeedDS[feedcheckbox.data('calendar-sourcekey')] = function(start, end, callback) {
-			if(typeof thisInstance.multipleEvents != 'undefined' && thisInstance.multipleEvents != false){
-				var events = thisInstance.multipleEvents[feedcheckbox.data('calendar-userid')];
-				if(events !== false) {
-					callback(events);
-					return;
-				}
-			}
-			
-			if(feedcheckbox.not(':checked').length > 0) {
-				callback([]);
-				return;
-			}
-			feedcheckbox.attr('disabled', true);
-			
-			var params = {
+
+        // function to fetch enabled feeds
+        this.fetchFeeds = function(start, end, timezone, callback) {
+            var params = {
 				module: 'Calendar',
 				action: 'Feed',
-				start: thisInstance.toDateString(start),
-				end: thisInstance.toDateString(end),
-				type: feedcheckbox.data('calendar-feed'),
-				userid : feedcheckbox.data('calendar-userid'),
-				color : feedcheckbox.data('calendar-feed-color'),
-				textColor : feedcheckbox.data('calendar-feed-textcolor')
+				start: start.format("YYYY-MM-DD"),
+				end: end.format("YYYY-MM-DD"),
+				type: thisInstance.feedtypes,
+				userid: thisInstance.feeduserids,
+				color : thisInstance.feedcolors,
+				textColor : thisInstance.feedtextcolors
 			}
-
-			AppConnector.request(params).then(function(events){
-				callback(events);
-				feedcheckbox.attr('disabled', false).attr('checked', true);
-			},
-            function(error){
-                //To send empty events if error occurs
-                callback([]);
+            AppConnector.request(params).then(function(events){
+                callback(events);
             });
-		}
-		this.getCalendarView().fullCalendar('addEventSource', this.calendarfeedDS[feedcheckbox.data('calendar-sourcekey')]);
-		
+        }
+
+        // add function as event source
+        this.getCalendarView().fullCalendar('addEventSource', this.fetchFeeds);
 	},
-	
+
+    // assemble arrays of activated feed's parameters
+    // collectFeeds : function() {
+        // var thisInstance = this;
+        // var calendarfeeds = jQuery('[data-calendar-feed]');
+        // thisInstance.feedtypes = [];
+        // thisInstance.feedcolors = [];
+        // thisInstance.feedtextcolors = [];
+        // thisInstance.feeduserids = [];
+        // calendarfeeds.each(function(index,element){
+            // var feedcheckbox = jQuery(element);
+            // if (feedcheckbox.prop("checked")) {
+                // thisInstance.feedtypes.push("Events");
+                // thisInstance.feedcolors.push(feedcheckbox.data('calendar-feed-color'));
+                // thisInstance.feedtextcolors.push(feedcheckbox.data('calendar-feed-textcolor'));
+                // thisInstance.feeduserids.push(feedcheckbox.data('calendar-userid'));
+                // thisInstance.feedtypes.push("Calendar");
+                // thisInstance.feedcolors.push(feedcheckbox.data('calendar-feed-color'));
+                // thisInstance.feedtextcolors.push(feedcheckbox.data('calendar-feed-textcolor'));
+                // thisInstance.feeduserids.push(feedcheckbox.data('calendar-userid'));
+            // }
+            // console.log( thisInstance.feeduserids);
+        // })
+    // },
+    
 	allocateColorsForAllUsers : function() {
 		var calendarfeeds = jQuery('[data-calendar-feed]');
 		calendarfeeds.each(function(index,element){
@@ -128,29 +131,7 @@ Calendar_CalendarView_Js("SharedCalendar_SharedCalendarView_Js",{
 		});
 
 	},
-	
-	fetchAllEvents : function() {
-		var thisInstance = this;
-		var result = this.getAllUserColors();
-		var params = {
-			module: 'Calendar',
-			action: 'Feed',
-			start: thisInstance.toDateString(thisInstance.getCalendarView().fullCalendar('getView').visStart),
-			end: thisInstance.toDateString(thisInstance.getCalendarView().fullCalendar('getView').visEnd),
-			type: 'MultipleEvents',
-			mapping : result
-		}
 
-		AppConnector.request(params).then(function(multipleEvents){
-				thisInstance.multipleEvents = multipleEvents;
-				thisInstance.fetchAllCalendarFeeds();
-		},
-		function(error){
-			
-		});
-		
-		
-	},
 	isAllowedToAddCalendarEvent : function(calendarDetails){
 		var assignedUserId = calendarDetails.assigned_user_id.value;
 		if(jQuery('[data-calendar-userid='+assignedUserId+']').is(':checked')) {
@@ -158,8 +139,8 @@ Calendar_CalendarView_Js("SharedCalendar_SharedCalendarView_Js",{
 		} else {
 			return false;
 		}
-		
 	},
+
 	addCalendarEvent : function(calendarDetails) {
 		if(calendarDetails.activitytype.value == 'Task'){
 			var msg = app.vtranslate('JS_TASK_IS_SUCCESSFULLY_ADDED_TO_YOUR_CALENDAR');
@@ -173,7 +154,7 @@ Calendar_CalendarView_Js("SharedCalendar_SharedCalendarView_Js",{
 			this._super(calendarDetails);
 		}
 	},
-	
+
 	/**
 	 * Function used to delete user calendar
 	 */
@@ -186,32 +167,33 @@ Calendar_CalendarView_Js("SharedCalendar_SharedCalendarView_Js",{
 			mode : 'deleteUserCalendar',
 			userid : feedcheckbox.data('calendar-userid')
 		}
-		
+
 		AppConnector.request(params).then(function(response) {
 			var result = response['result'];
-			
+
 			feedcheckbox.closest('.addedCalendars').remove();
 			//After delete user reset accodion height to auto
 			thisInstance.resetAccordionHeight();
 			//Remove the events of deleted user in shared calendar feed
-			thisInstance.getCalendarView().fullCalendar('removeEventSource', thisInstance.calendarfeedDS[feedcheckbox.data('calendar-sourcekey')]);
-			
+            thisInstance.collectFeeds();
+            thisInstance.getCalendarView().fullCalendar('refetchEvents');
+
 			//Update the adding and editing users list in hidden modal
 			var userSelectElement = jQuery('#calendarview-feeds').find('[name="usersCalendarList"]');
 			userSelectElement.append('<option value="'+result['sharedid']+'">'+result['username']+'</option>');
 			var editUserSelectElement = jQuery('#calendarview-feeds').find('[name="editingUsersList"]');
 			editUserSelectElement.find('option[value="'+result['sharedid']+'"]').remove();
 			jQuery('#calendarview-feeds').find('.invisibleCalendarViews').val('true');
-			
+
 			aDeferred.resolve();
 		},
 		function(error){
 			aDeferred.reject();
 		});
-		
+
 		return aDeferred.promise();
 	},
-	
+
 	/**
 	 * Function to register event for edit user calendar color
 	 */
@@ -230,7 +212,7 @@ Calendar_CalendarView_Js("SharedCalendar_SharedCalendarView_Js",{
 			thisInstance.showAddUserCalendarModal(currentTarget);
 		})
 	},
-	
+
 	/**
 	 * Function to register change event for users list select element in edit user calendar modal
 	 */
@@ -246,7 +228,7 @@ Calendar_CalendarView_Js("SharedCalendar_SharedCalendarView_Js",{
 			data.find('.calendarColorPicker').ColorPickerSetColor(userColor)
 		});
 	},
-	
+
 	/**
 	 * Function to save added user calendar
 	 */
@@ -262,10 +244,10 @@ Calendar_CalendarView_Js("SharedCalendar_SharedCalendarView_Js",{
 			selectedUser : userId,
 			selectedColor : userColor
 		};
-		
+
 		AppConnector.request(params).then(function() {
 			app.hideModalWindow();
-			
+
 			var parentElement = jQuery('#calendarview-feeds');
 			var colorContrast = app.getColorContrast(userColor.slice(1));
 			if(colorContrast == 'light') {
@@ -277,10 +259,7 @@ Calendar_CalendarView_Js("SharedCalendar_SharedCalendarView_Js",{
 				var feedUserEle = jQuery('[data-calendar-userid="'+userId+'"]', parentElement);
 				feedUserEle.data('calendar-feed-color',userColor).data('calendar-feed-textcolor',textColor);
 				feedUserEle.closest('.addedCalendars').find('.label').css({'background-color':userColor,'color':textColor});
-				
-				thisInstance.getCalendarView().fullCalendar('removeEventSource', thisInstance.calendarfeedDS[feedUserEle.data('calendar-sourcekey')]);
-				thisInstance.fetchCalendarFeed(feedUserEle);
-				
+
 				//notification message
 				var message = app.vtranslate('JS_CALENDAR_VIEW_COLOR_UPDATED_SUCCESSFULLY');
 			} else {
@@ -293,27 +272,26 @@ Calendar_CalendarView_Js("SharedCalendar_SharedCalendarView_Js",{
 						.attr('data-calendar-sourcekey', 'Events33_'+userId).attr('data-calendar-feed-textcolor',textColor);
 				feedUserEle.closest('.addedCalendars').find('.label').css({'background-color':userColor,'color':textColor}).text(userName);
 				parentElement.append(labelView);
-				
+
 				//After add user reset accodion height to auto
 				thisInstance.resetAccordionHeight();
-				
-				thisInstance.fetchCalendarFeed(feedUserEle);
-				
+
 				//Update the adding and editing users list in hidden modal
 				var userSelectElement = jQuery('#calendarview-feeds').find('[name="usersCalendarList"]');
 				userSelectElement.find('option[value="'+userId+'"]').remove();
-				
+
 				if(userSelectElement.find('option').length <= 0) {
 					jQuery('#calendarview-feeds').find('.invisibleCalendarViews').val('false');
 				}
-				
+
 				var editUserSelectElement = jQuery('#calendarview-feeds').find('[name="editingUsersList"]');
 				editUserSelectElement.append('<option value="'+userId+'">'+userName+'</option>');
-				
+
 				//notification message
 				var message = app.vtranslate('JS_CALENDAR_VIEW_ADDED_SUCCESSFULLY');
 			}
-			
+            thisInstance.collectFeeds();
+            thisInstance.getCalendarView().fullCalendar('refetchEvents');
 			//show notification after add or edit user
 			var params = {
 				text: message,
@@ -322,32 +300,32 @@ Calendar_CalendarView_Js("SharedCalendar_SharedCalendarView_Js",{
 			Vtiger_Helper_Js.showPnotify(params);
 		},
 		function(error){
-			
+
 		});
-		
+
 	},
-	
+
 	performCalendarFeedIntiate : function() {
 		this.allocateColorsForAllUsers();
-		this.fetchAllEvents();
 		this.registerCalendarFeedChange();
+		this.initCalendarFeeds();
 		this.registerEventForDeleteUserCalendar();
 		this.registerEventForEditUserCalendar();
 		this.resetAccordionHeight();
 	},
-	
+
 	restoreAddCalendarWidgetState : function() {
-		var key = 'Calendar_sideBar_LBL_ADDED_CALENDARS'; 
+		var key = 'Calendar_sideBar_LBL_ADDED_CALENDARS';
 		var value = app.cacheGet(key);
 		var widgetContainer = jQuery("#Calendar_sideBar_LBL_ADDED_CALENDARS");
-		if(value == 0){ 
+		if(value == 0){
 			Vtiger_Index_Js.loadWidgets(widgetContainer,false);
-		} 
-		else{ 
+		}
+		else{
 			Vtiger_Index_Js.loadWidgets(widgetContainer);
 		}
 	},
-	
+
 	registerEvents : function() {
 		this._super();
 		this.restoreAddCalendarWidgetState();

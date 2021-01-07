@@ -28,8 +28,7 @@ class Calendar_DragDropAjax_Action extends Calendar_SaveAjax_Action {
         $moduleName = $request->getModule();
         $activityType = $request->get('activitytype');
         $recordId = $request->get('id');
-        $dayDelta = $request->get('dayDelta');
-        $minuteDelta = $request->get('minuteDelta');
+        $secDelta = $request->get('secDelta');
         $actionname = 'EditView';
         
         $response = new Vtiger_Response();
@@ -46,7 +45,7 @@ class Calendar_DragDropAjax_Action extends Calendar_SaveAjax_Action {
             $oldDateTime[] = $record->get('due_date');
             $oldDateTime[] = $record->get('time_end');
             $oldDateTime = implode(' ',$oldDateTime);
-            $resultDateTime = $this->changeDateTime($oldDateTime,$dayDelta,$minuteDelta);
+            $resultDateTime = $this->changeDateTime($oldDateTime,$secDelta);
             $parts = explode(' ',$resultDateTime);
             $record->set('due_date',$parts[0]);
             if(activitytype != 'Task')
@@ -76,8 +75,7 @@ class Calendar_DragDropAjax_Action extends Calendar_SaveAjax_Action {
         $moduleName = $request->getModule();
         $activityType = $request->get('activitytype');
         $recordId = $request->get('id');
-        $dayDelta = $request->get('dayDelta');
-        $minuteDelta = $request->get('minuteDelta');
+        $secDelta = $request->get('secDelta');
         $actionname = 'EditView';
         
         $response = new Vtiger_Response();
@@ -94,7 +92,7 @@ class Calendar_DragDropAjax_Action extends Calendar_SaveAjax_Action {
             $oldStartDateTime[] = $record->get('date_start');
             $oldStartDateTime[] = $record->get('time_start');
             $oldStartDateTime = implode(' ',$oldStartDateTime);
-            $resultDateTime = $this->changeDateTime($oldStartDateTime,$dayDelta,$minuteDelta);
+            $resultDateTime = $this->changeDateTime($oldStartDateTime,$secDelta);
             $parts = explode(' ',$resultDateTime);
             $record->set('date_start',$parts[0]);
             $record->set('time_start',$parts[1]);
@@ -102,7 +100,7 @@ class Calendar_DragDropAjax_Action extends Calendar_SaveAjax_Action {
             $oldEndDateTime[] = $record->get('due_date');
             $oldEndDateTime[] = $record->get('time_end');
             $oldEndDateTime = implode(' ',$oldEndDateTime);
-            $resultDateTime = $this->changeDateTime($oldEndDateTime,$dayDelta,$minuteDelta);
+            $resultDateTime = $this->changeDateTime($oldEndDateTime,$secDelta);
             $parts = explode(' ',$resultDateTime);
             $record->set('due_date',$parts[0]);
             if(activitytype != 'Task')
@@ -116,9 +114,9 @@ class Calendar_DragDropAjax_Action extends Calendar_SaveAjax_Action {
     /* *
      * Function adds days and minutes to datetime string
      */
-    public function changeDateTime($datetime,$daysToAdd,$minutesToAdd){
+    public function changeDateTime($datetime,$secsToAdd){
         $datetime = strtotime($datetime);
-        $futureDate = $datetime+(60*$minutesToAdd)+(24*60*60*$daysToAdd);
+        $futureDate = $datetime+$secsToAdd;
         $formatDate = date("Y-m-d H:i:s", $futureDate);
         return $formatDate;
     }

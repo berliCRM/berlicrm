@@ -64,7 +64,6 @@
     <br />
     <br />
 {/if}
-<script type="text/javascript" src="libraries/bootstrap/js/less.min.js"></script>
 	<!-- crm-now added for tool tip (display of activity description contents -->
 <script>
 	jQuery().ready(function(){

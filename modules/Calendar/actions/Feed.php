@@ -23,29 +23,56 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 			$color = $request->get('color');
 			$textColor = $request->get('textColor');
 			
-			switch ($type) {
-				case 'Events': $this->pullEvents($start, $end, $result,$userid,$color,$textColor); break;
-				case 'Calendar': $this->pullTasks($start, $end, $result,$color,$textColor); break;
-				case 'Potentials': $this->pullPotentials($start, $end, $result, $color, $textColor); break;
-				case 'Contacts':
-							if($request->get('fieldname') == 'support_end_date') {
-								$this->pullContactsBySupportEndDate($start, $end, $result, $color, $textColor);
-							}else{
-								$this->pullContactsByBirthday($start, $end, $result, $color, $textColor);
-							}
-							break;
+            if (is_array($type)) {
+                $this->pullBatch($start,$end,$result,$userid,$type,$color,$textColor,$request->get('fieldname'));
+            }
+            else {
+                switch ($type) {
+                    case 'Events': $this->pullEvents($start, $end, $result,$userid,$color,$textColor); break;
+                    case 'Calendar': $this->pullTasks($start, $end, $result,$color,$textColor); break;
+                    case 'Potentials': $this->pullPotentials($start, $end, $result, $color, $textColor); break;
+                    case 'Contacts':
+                                if($request->get('fieldname') == 'support_end_date') {
+                                    $this->pullContactsBySupportEndDate($start, $end, $result, $color, $textColor);
+                                }else{
+                                    $this->pullContactsByBirthday($start, $end, $result, $color, $textColor);
+                                }
+                                break;
 
-				case 'Invoice': $this->pullInvoice($start, $end, $result, $color, $textColor); break;
-				case 'MultipleEvents' : $this->pullMultipleEvents($start,$end, $result,$request->get('mapping'));break;
-				case 'Project': $this->pullProjects($start, $end, $result, $color, $textColor); break;
-				case 'ProjectTask': $this->pullProjectTasks($start, $end, $result, $color, $textColor); break;
-			}
+                    case 'Invoice': $this->pullInvoice($start, $end, $result, $color, $textColor); break;
+                    case 'MultipleEvents' : $this->pullMultipleEvents($start,$end, $result,$request->get('mapping'));break;
+                    case 'Project': $this->pullProjects($start, $end, $result, $color, $textColor); break;
+                    case 'ProjectTask': $this->pullProjectTasks($start, $end, $result, $color, $textColor); break;
+                }
+            }
 			echo json_encode($result);
 		} catch (Exception $ex) {
 			echo $ex->getMessage();
 		}
 	}
     
+    private function pullBatch($start, $end, &$result, $userids, $types, $colors, $textColors, $fieldnames) {
+        foreach ($types as $key => $type) {
+            switch ($type) {
+                    case 'Events': $this->pullEvents($start, $end, $result,$userids[$key],$colors[$key],$textColors[$key]); break;
+                    case 'Calendar': $this->pullTasks($start, $end, $result,$colors[$key],$textColors[$key]); break;
+                    case 'Potentials': $this->pullPotentials($start, $end, $result, $colors[$key], $textColors[$key]); break;
+                    case 'Contacts':
+                                if($fieldnames[$key] == 'support_end_date') {
+                                    $this->pullContactsBySupportEndDate($start, $end, $result, $colors[$key], $textColors[$key]);
+                                }else{
+                                    $this->pullContactsByBirthday($start, $end, $result, $colors[$key], $textColors[$key]);
+                                }
+                                break;
+
+                    case 'Invoice': $this->pullInvoice($start, $end, $result, $color, $textColors[$key]); break;
+                    case 'Project': $this->pullProjects($start, $end, $result, $colors[$key], $textColors[$key]); break;
+                    case 'ProjectTask': $this->pullProjectTasks($start, $end, $result, $colors[$key], $textColors[$key]); break;
+                }
+        }
+        
+    }
+
     protected function getGroupsIdsForUsers($userId) {
         vimport('~~/include/utils/GetUserGroups.php');
         
@@ -136,22 +163,23 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 			$userDateTimeString = $dateTimeFieldInstance->getFullcalenderDateTimevalue($currentUser);
 			$dateTimeComponents = explode(' ',$userDateTimeString);
 			$dateComponent = $dateTimeComponents[0];
-			//Conveting the date format in to Y-m-d . since full calendar expects in the same format
+			//Conveting the date format to ISO 8601 since full calendar expects this format
 			$dataBaseDateFormatedString = DateTimeField::__convertToDBFormat($dateComponent, $currentUser->get('date_format'));
-			$item['start'] = $dataBaseDateFormatedString.' '. $dateTimeComponents[1];
+			$item['start'] = $dataBaseDateFormatedString.'T'. $dateTimeComponents[1];
 
 			$dateTimeFieldInstance = new DateTimeField($record['due_date'] . ' ' . $record['time_end']);
 			$userDateTimeString = $dateTimeFieldInstance->getFullcalenderDateTimevalue($currentUser);
 			$dateTimeComponents = explode(' ',$userDateTimeString);
 			$dateComponent = $dateTimeComponents[0];
-			//Conveting the date format in to Y-m-d . since full calendar expects in the same format
+			//Conveting the date format to ISO 8601 since full calendar expects this format
 			$dataBaseDateFormatedString = DateTimeField::__convertToDBFormat($dateComponent, $currentUser->get('date_format'));
-			$item['end']   =  $dataBaseDateFormatedString.' '. $dateTimeComponents[1];
+			$item['end']   =  $dataBaseDateFormatedString.'T'. $dateTimeComponents[1];
 
 
 			$item['className'] = $cssClass;
 			$item['allDay'] = false;
 			$item['color'] = $color;
+			$item['backgroundColor'] = $color;
 			$item['textColor'] = $textColor;
             $item['module'] = $moduleModel->getName();
 			$result[] = $item;
@@ -206,9 +234,11 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 			$dataBaseDateFormatedString = DateTimeField::__convertToDBFormat($dateComponent, $user->get('date_format'));
 			$item['start'] = $dataBaseDateFormatedString.' '. $dateTimeComponents[1];
 
-			$item['end']   = $record['due_date'];
+			$item['end']   = date("Y-m-d H:i:s",strtotime($record['due_date'])+86400);  // add 1 day to end date because fullcalendar's enddates are exclusive now
 			$item['url']   = sprintf('index.php?module=Calendar&view=Detail&record=%s', $crmid);
 			$item['color'] = $color;
+            $item['allDay'] = true;
+            $item['backgroundColor'] = $color;
 			$item['textColor'] = $textColor;
             $item['module'] = $moduleModel->getName();
 			$result[] = $item;
