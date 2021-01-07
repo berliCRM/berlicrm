@@ -337,7 +337,8 @@ $languageStrings = array(
 	'LBL_NEXT'=>'Next',
 	//user's setup
 	'LBL_PREFERENCES'=>'Preferences',
-
+	'LBL_USERSIGNATUR' => 'Signature',
+	
 );
 
 $jsLanguageStrings = array(

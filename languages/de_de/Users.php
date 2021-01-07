@@ -337,6 +337,7 @@ $languageStrings = array(
 	'LBL_NEXT'=>'Weiter',
 	//user's setup
 	'LBL_PREFERENCES'=>'Voreinstellungen',
+	'LBL_USERSIGNATUR' => 'Signatur',
 	
 );
 

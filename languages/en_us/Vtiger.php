@@ -777,6 +777,7 @@ $languageStrings = array(
 	//Hubspot
 	'LBL_HUBSPOT' => 'HubSpot',
 	'berliHubSpot' => 'HubSpot',
+	'LBL_WIDGET_HUBSPOT_EVENTS' => 'HubSpot events',
 	
 	//language grammar fix
 	'LBL_HISTORY_TO' => 'to',
@@ -855,6 +856,8 @@ $languageStrings = array(
 	'LBL_NO_RECORDS_RELATED_TO_THIS_FILTER' => 'there are no data which match the filter',
 
     'LBL_MANDATORY_FIELD_MISSING'=>'mandatory fields missing.',
+	// signatur block translation
+	'LBL_USERSIGNATUR' => 'Signature',
 	
 	// RelatedList Count fail
 	'LBL_QUERY_FAILED' => 'Query failed',
