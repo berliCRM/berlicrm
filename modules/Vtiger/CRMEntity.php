@@ -25,9 +25,13 @@ class Vtiger_CRMEntity extends CRMEntity {
 	var $special_functions = Array('set_import_assigned_user');
 
 	function __construct() {
-		global $log;
+		global $log, $adb;
 		$this->column_fields = getColumnFields(get_class($this));
-		$this->db = new PearDatabase();
+		//try to prevent transaction issues when more than 1 DB object is used for queries
+		if (!isset($adb)) {
+			$adb = new PearDatabase();
+		}
+		$this->db = $adb;
 		$this->log = $log;
 	}
 
