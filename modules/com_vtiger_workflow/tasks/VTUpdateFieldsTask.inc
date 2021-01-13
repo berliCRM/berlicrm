@@ -49,7 +49,6 @@ class VTUpdateFieldsTask extends VTTask {
 			$util->loggedInUser();
 			$focus->column_fields = DataTransform::sanitizeDateFieldsForInsert($focus->column_fields,$handlerMeta);
 			$focus->column_fields = DataTransform::sanitizeCurrencyFieldsForInsert($focus->column_fields,$handlerMeta);
-			$focus->column_fields = DataTransform::sanitizeNumberFieldsForInsert($focus->column_fields,$handlerMeta);
 			foreach ($fieldValueMapping as $fieldInfo) {
 				$fieldName = $fieldInfo['fieldname'];
 				$fieldValueType = $fieldInfo['valuetype'];
