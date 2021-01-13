@@ -679,13 +679,9 @@ class PearDatabase{
 		$rowdata = $this->change_key_case($result->FetchRow());
 		//$this->println($rowdata);
 		//Commented strip_selected_tags and added to_html function for HTML tags vulnerability
-		$coldata = '';
-		if($col!=0 && $col == 'fieldlabel') {
-			$coldata = $rowdata[$col];
-		}
-		else if (!empty($rowdata[$col])) {
-			$coldata = to_html($rowdata[$col]);
-		}
+		if($col == 'fieldlabel') $coldata = $rowdata[$col];
+		else $coldata = to_html($rowdata[$col]);
+		
 		return $coldata;
     }
 
