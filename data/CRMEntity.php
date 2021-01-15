@@ -1431,7 +1431,7 @@ class CRMEntity {
 			}
 		} else if ($mode == "increment") {
 			//when we save new invoice we will increment the invoice id and write
-			$check = $adb->pquery("select cur_id,prefix from vtiger_modentity_num where semodule=? and active = 1", array($module));
+			$check = $adb->pquery("SELECT cur_id,prefix FROM vtiger_modentity_num WHERE semodule=? AND active = 1 FOR UPDATE", array($module));
 			$prefix = $adb->query_result($check, 0, 'prefix');
 			$curid = $adb->query_result($check, 0, 'cur_id');
 			$prev_inv_no = $prefix . $curid;
@@ -1461,7 +1461,7 @@ class CRMEntity {
 
 	function getModuleSeqInfo($module) {
 		global $adb;
-		$check = $adb->pquery("select cur_id,prefix from vtiger_modentity_num where semodule=? and active = 1", array($module));
+		$check = $adb->pquery("SELECT cur_id,prefix FROM vtiger_modentity_num WHERE semodule=? AND active = 1 FOR UPDATE", array($module));
 		$prefix = $adb->query_result($check, 0, 'prefix');
 		$curid = $adb->query_result($check, 0, 'cur_id');
 		return array($prefix, $curid);
