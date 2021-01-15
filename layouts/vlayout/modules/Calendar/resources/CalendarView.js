@@ -206,6 +206,20 @@ jQuery.Class("Calendar_CalendarView_Js",{
 	registerCalendarFeedChange : function() {
 		var thisInstance = this;
 		jQuery('#calendarview-feeds').on('change', '[data-calendar-feed]', function(e){
+			var currentTarget = $(e.currentTarget);
+			var type = currentTarget.data('calendar-sourcekey');
+			if(currentTarget.is(':checked')) {
+				// NOTE: We are getting cache data fresh - as it shared between browser tabs
+				var disabledOnes = app.cacheGet('calendar.feeds.disabled',[]);
+				// http://stackoverflow.com/a/3596096
+				disabledOnes = jQuery.grep(disabledOnes, function(value){return value != type;});
+				app.cacheSet('calendar.feeds.disabled', disabledOnes);
+			} else {
+				// NOTE: We are getting cache data fresh - as it shared between browser tabs
+				var disabledOnes = app.cacheGet('calendar.feeds.disabled',[]);
+				if (disabledOnes.indexOf(type) == -1) disabledOnes.push(type);
+				app.cacheSet('calendar.feeds.disabled', disabledOnes);
+			}
             thisInstance.collectFeeds();
             thisInstance.getCalendarView().fullCalendar('refetchEvents');
 		});
