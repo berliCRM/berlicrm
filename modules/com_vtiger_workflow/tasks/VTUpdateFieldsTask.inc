@@ -179,6 +179,7 @@ class VTUpdateFieldsTask extends VTTask {
 			foreach ($focus->column_fields as $fieldName => $fieldValue) {
 				$focus->column_fields[$fieldName] = html_entity_decode($fieldValue, ENT_QUOTES, $default_charset);
 			}
+			$focus->column_fields = DataTransform::sanitizeNumberFieldsForInsert($focus->column_fields,$handlerMeta);
 			$_REQUEST['file'] = '';
 			$_REQUEST['ajxaction'] = '';
 
