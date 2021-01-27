@@ -65,6 +65,18 @@ class Vtiger_Time_UIType extends Vtiger_Base_UIType {
 		if($time){
 			$timeDetails = explode(' ', $time);
 			list($hours, $minutes, $seconds) = explode(':', $timeDetails[0]);
+			
+			// current 12h format example: 09:30 AM
+			// old 12h format example: 09:30am -> will lead to 09:30am:00 -> error
+			
+			//assume old format
+			if (is_numeric($minutes) === false && strlen($minutes) >= 2) {
+				$timeDetails[] = strtoupper(substr($minutes, -2));
+				$minutes = substr($minutes, 0, 2);
+			} elseif (!empty($seconds) && is_numeric($seconds) === false && strlen($seconds) >= 2) {
+				$timeDetails[] = strtoupper(substr($seconds, -2));
+				$seconds = substr($seconds, 0, 2);
+			}
 
 			//If pm exists and if it not 12 then we need to make it to 24 hour format
 			if ($timeDetails[1] === 'PM' && $hours != '12') {
