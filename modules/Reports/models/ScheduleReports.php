@@ -164,9 +164,9 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		}
 		}
 		//Added for specific email address.
-		$specificemails = explode(',', Zend_Json::decode($this->get('specificemails')));
+		$specificemails = Zend_Json::decode($this->get('specificemails'));
 		if (!empty($specificemails)) {
-			$recipientsEmails = array_merge($recipientsEmails, $specificemails);
+			$recipientsEmails = array_merge($recipientsEmails, explode(',', $specificemails));
 		}
 
 		return $recipientsEmails;
