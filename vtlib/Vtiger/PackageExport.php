@@ -256,6 +256,11 @@ class Vtiger_PackageExport {
 
 		$sqlresult = $adb->pquery("SELECT * FROM vtiger_tab WHERE tabid = ?", array($moduleid));
 		$tabresultrow = $adb->fetch_array($sqlresult);
+		//xml hates ampersands
+		foreach ($tabresultrow AS $key => &$value) {
+			$value = html_entity_decode($value);
+			$value = str_replace('&', '&amp;', $value);
+		}
 
 		$tabname = $tabresultrow['name'];
 		$tablabel= $tabresultrow['tablabel'];
@@ -376,7 +381,9 @@ class Vtiger_PackageExport {
 		$this->openNode('blocks');
 		for($index = 0; $index < $resultrows; ++$index) {
 			$blockid    = $adb->query_result($sqlresult, $index, 'blockid');
-			$blocklabel = html_entity_decode($adb->query_result($sqlresult, $index, 'blocklabel'));
+			$blocklabel = $adb->query_result($sqlresult, $index, 'blocklabel');
+			$blocklabel = html_entity_decode($blocklabel);
+			$blocklabel = str_replace('&', '&amp;', $blocklabel);
 
 			$this->openNode('block');
 			$this->outputNode($blocklabel, 'label');
@@ -405,7 +412,12 @@ class Vtiger_PackageExport {
 		$this->openNode('fields');
 		for($index = 0; $index < $fieldcount; ++$index) {
 			$this->openNode('field');
-			$fieldresultrow = $adb->fetchByAssoc($fieldresult,-1,false);
+			$fieldresultrow = $adb->fetch_row($fieldresult);
+			//xml hates ampersands
+			foreach ($fieldresultrow AS $key => &$value) {
+				$value = html_entity_decode($value);
+				$value = str_replace('&', '&amp;', $value);
+			}
 
 			$fieldname = $fieldresultrow['fieldname'];
 			$uitype = $fieldresultrow['uitype'];
@@ -452,7 +464,9 @@ class Vtiger_PackageExport {
 				}
 				$this->openNode('picklistvalues');
 				foreach($picklistvalues as $picklistvalue) {
-					$this->outputNode(html_entity_decode($picklistvalue), 'picklistvalue');
+					$picklistvalue = html_entity_decode($picklistvalue);
+					$picklistvalue = str_replace('&', '&amp;', $picklistvalue);
+					$this->outputNode($picklistvalue, 'picklistvalue');
 				}
 				$this->closeNode('picklistvalues');
 			}
@@ -503,8 +517,12 @@ class Vtiger_PackageExport {
 
 			$setmetrics = $adb->query_result($customviewres, $cvindex, 'setmetrics');
 			$setmetrics = ($setmetrics == 1)? 'true' : 'false';
+			
+			$viewname = $adb->query_result($customviewres, $cvindex, 'viewname');
+			$viewname = html_entity_decode($viewname);
+			$viewname = str_replace('&', '&amp;', $viewname);
 
-			$this->outputNode(html_entity_decode($adb->query_result($customviewres, $cvindex, 'viewname')),   'viewname');
+			$this->outputNode($viewname, 'viewname');
 			$this->outputNode($setdefault, 'setdefault');
 			$this->outputNode($setmetrics, 'setmetrics');
 
@@ -528,7 +546,8 @@ class Vtiger_PackageExport {
 					for($rindex = 0; $rindex < $cvcolumnrulecount; ++$rindex) {
 						$cvcolumnruleindex = $adb->query_result($cvcolumnruleres, $rindex, 'columnindex');
 						$cvcolumnrulecomp  = $adb->query_result($cvcolumnruleres, $rindex, 'comparator');
-						$cvcolumnrulevalue = $adb->query_result($cvcolumnruleres, $rindex, 'value');
+						$cvcolumnrulevalue = html_entity_decode($adb->query_result($cvcolumnruleres, $rindex, 'value'));
+						$cvcolumnrulevalue = str_replace('&', '&amp;', $cvcolumnrulevalue);
 						$cvcolumnrulecomp  = Vtiger_Filter::translateComparator($cvcolumnrulecomp, true);
 
 						$this->openNode('rule');
@@ -638,6 +657,11 @@ class Vtiger_PackageExport {
 
 			for($index = 0; $index < $adb->num_rows($result); ++$index) {
 				$row = $adb->fetch_array($result);
+				//xml hates ampersands
+				foreach ($row AS $key => &$value) {
+					$value = html_entity_decode($value);
+					$value = str_replace('&', '&amp;', $value);
+				}
 				$this->openNode('relatedlist');
 
 				$this->outputNode($row['name'], 'function');
@@ -674,9 +698,13 @@ class Vtiger_PackageExport {
 		if(!empty($customlinks)) {
 			$this->openNode('customlinks');
 			foreach($customlinks as $customlink) {
+				
+				$label = html_entity_decode($customlink->linklabel);
+				$label = str_replace('&', '&amp;', $label);
+				
 				$this->openNode('customlink');
 				$this->outputNode($customlink->linktype, 'linktype');
-				$this->outputNode($customlink->linklabel, 'linklabel');
+				$this->outputNode($label, 'linklabel');
 				$this->outputNode("<![CDATA[$customlink->linkurl]]>", 'linkurl');
 				$this->outputNode("<![CDATA[$customlink->linkicon]]>", 'linkicon');
 				$this->outputNode($customlink->sequence, 'sequence');
