@@ -358,6 +358,8 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 
 			$this->importedRecordInfo[$rowId] = $entityInfo;
 			$this->updateImportStatus($rowId, $entityInfo);
+			
+			set_time_limit(0);
 		}
         if($this->entityData) {
             $entity = new VTEventsManager($adb);
@@ -526,14 +528,17 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 					}
 					$fieldData[$fieldName] = $fieldValue;
 				}
-				if (empty($fieldValue) && isset($defaultFieldValues[$fieldName])) {
+				if ( (!isset($fieldValue) || trim($fieldValue) == "" || trim($fieldValue) == NULL) && isset($defaultFieldValues[$fieldName])) {
 					$fieldData[$fieldName] = $fieldValue = $defaultFieldValues[$fieldName];
+				}
+				else{ // here can be only a Var, that not "" or NULL is. So maybe 0 or 0.0
+					$fieldData[$fieldName] = $fieldValue; 
 				}
 			}
 		}
 		if($fillDefault) {
 			foreach($defaultFieldValues as $fieldName => $fieldValue) {
-				if (!isset($fieldData[$fieldName])) {
+				if (!isset($fieldData[$fieldName]) || trim($fieldValue) == NULL || trim($fieldValue) == "" ) { 
 					$fieldData[$fieldName] = $defaultFieldValues[$fieldName];
 				}
 			}
@@ -544,7 +549,7 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 
 		if ($fieldData != null && $checkMandatoryFieldValues) {
 			foreach ($moduleFields as $fieldName => $fieldInstance) {
-				if(empty($fieldData[$fieldName]) && $fieldInstance->isMandatory()) {
+				if((!isset($fieldData[$fieldName]) || trim($fieldValue) == NULL || trim($fieldValue) == "") && $fieldInstance->isMandatory()) {
 					$this->failedReason = "Missing mandatory field: ".$fieldName;
 					return null;
 				}
@@ -651,7 +656,7 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 	}
 
 	public static function runScheduledImport() {
-		global $current_user;
+		global $current_user, $HELPDESK_SUPPORT_EMAIL_ID, $HELPDESK_SUPPORT_NAME;
 		$scheduledImports = self::getScheduledImport();
 		$vtigerMailer = new Vtiger_Mailer();
 		$vtigerMailer->IsHTML(true);
@@ -675,7 +680,8 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 			$emailData = getTranslatedString('LBL_POST_IMPORT_MAIL_INTRO','Import').'<br/><br/>'.$importResult;
 			$userName = decode_html(getFullNameFromArray('Users', $importDataController->user->column_fields));
 			$userEmail = $importDataController->user->email1;
-			$vtigerMailer->to = array( array($userEmail, $userName));
+			$vtigerMailer->addAddress($userEmail, $userName);
+			$vtigerMailer->setFrom($HELPDESK_SUPPORT_EMAIL_ID, $HELPDESK_SUPPORT_NAME);
 			$vtigerMailer->Subject = $emailSubject;
 			$vtigerMailer->Body    = $emailData;
 			$vtigerMailer->Send();
