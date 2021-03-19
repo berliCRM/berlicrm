@@ -80,10 +80,6 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 				$fieldInstance = $moduleFields[$mandatoryFieldName];
 				if($fieldInstance->getFieldDataType() == 'owner') {
 					$defaultValues[$mandatoryFieldName] = $this->user->id;
-				} elseif($fieldInstance->getFieldDataType() != 'datetime'
-						&& $fieldInstance->getFieldDataType() != 'date'
-						&& $fieldInstance->getFieldDataType() != 'time' && $fieldInstance->getFieldDataType() != 'reference') {
-					$defaultValues[$mandatoryFieldName] = '????';
 				}
 			}
 		}
@@ -267,9 +263,13 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 
 							if ($mergeType == Import_Utils_Helper::$AUTO_MERGE_OVERWRITE) {
 								$fieldData = $this->transformForImport($fieldData, $moduleMeta);
-								$fieldData['id'] = $baseEntityId;
-								$entityInfo = vtws_update($fieldData, $this->user);
-								$entityInfo['status'] = self::$IMPORT_RECORD_UPDATED;
+								if ($fieldData == null) {
+									$entityInfo = null;
+								} else {
+									$fieldData['id'] = $baseEntityId;
+									$entityInfo = vtws_update($fieldData, $this->user);
+									$entityInfo['status'] = self::$IMPORT_RECORD_UPDATED;
+								}
 							}
 
 							if ($mergeType == Import_Utils_Helper::$AUTO_MERGE_MERGEFIELDS) {
@@ -299,10 +299,14 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 								}
 
 								$filteredFieldData = $this->transformForImport($filteredFieldData, $moduleMeta, $fillDefault, $mandatoryValueChecks);
-								$filteredFieldData['id'] = $baseEntityId;
-								$entityInfo = vtws_revise($filteredFieldData, $this->user);
-								$entityInfo['status'] = self::$IMPORT_RECORD_MERGED;
-                                $fieldData = $filteredFieldData;
+								if ($filteredFieldData == null) {
+									$entityInfo = null;
+								} else {
+									$filteredFieldData['id'] = $baseEntityId;
+									$entityInfo = vtws_revise($filteredFieldData, $this->user);
+									$entityInfo['status'] = self::$IMPORT_RECORD_MERGED;
+									$fieldData = $filteredFieldData;
+								}
 							}
 						} else {
 							$createRecord = true;
@@ -549,9 +553,13 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 
 		if ($fieldData != null && $checkMandatoryFieldValues) {
 			foreach ($moduleFields as $fieldName => $fieldInstance) {
-				if((!isset($fieldData[$fieldName]) || trim($fieldValue) == NULL || trim($fieldValue) == "") && $fieldInstance->isMandatory()) {
-					$this->failedReason = "Missing mandatory field: ".$fieldName;
-					return null;
+				if ($fieldInstance->isMandatory()) {
+					$fieldValue = $fieldData[$fieldName];
+					
+					if (!isset($fieldData[$fieldName]) || trim($fieldValue) == NULL || trim($fieldValue) == "") {
+						$this->failedReason = "Missing mandatory field: ".$fieldName;
+						return null;
+					}
 				}
 			}
 		}
