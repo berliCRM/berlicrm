@@ -76,5 +76,11 @@
             <input type="text" name="save_map_as" id="save_map_as"/>
 		</td>
 	</tr>
+	<tr>
+		<td>&nbsp;</td>
+        <td align="right" colspan="2">
+            <input type="checkbox" name="checkMandatory" id="checkMandatory"/>&nbsp;{'LBL_REJECT_WHOLE_IMPORT'|@vtranslate:$MODULE}
+		</td>
+	</tr>
 </table>
 {include file="Import_Default_Values_Widget.tpl"|@vtemplate_path:'Import'}

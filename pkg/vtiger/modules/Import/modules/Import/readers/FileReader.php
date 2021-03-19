@@ -102,7 +102,7 @@ class Import_FileReader_Reader {
             $fieldObject = $moduleFields[$fieldName];
             $columnsListQuery .= $this->getDBColumnType($fieldObject, $fieldTypes);
 		}
-		$createTableQuery = 'CREATE TABLE '. $tableName . ' ('.$columnsListQuery.') ENGINE=MyISAM ';
+		$createTableQuery = 'CREATE TABLE '. $tableName . ' ('.$columnsListQuery.') ENGINE=InnoDB ';
 		$db->query($createTableQuery);
 		return true;
 	}
