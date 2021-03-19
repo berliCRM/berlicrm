@@ -71,4 +71,8 @@ $languageStrings = array(
     //post import email
     'LBL_POST_IMPORT_MAIL_SUBJECT' => 'CRM - Scheduled Import Report for ',
     'LBL_POST_IMPORT_MAIL_INTRO' => 'The CRM has just completed your import process with the following result:',
+	
+	//reject whole import if any mandatory field is missing
+	'LBL_REJECT_WHOLE_IMPORT' => 'reject entire import if any mandatory field is missing',
+	'LBL_IMPORT_MISSING_MANDATORY' => 'Missing mandatory field(s) in line',
 );

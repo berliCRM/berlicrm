@@ -67,7 +67,7 @@ class Import_CSVReader_Reader extends Import_FileReader_Reader {
 	}
 
 	public function read() {
-		global $default_charset;
+		global $default_charset, $current_user;
 
 		$fileHandler = $this->getFileHandler();
 		$status = $this->createTable();
@@ -76,6 +76,11 @@ class Import_CSVReader_Reader extends Import_FileReader_Reader {
 		}
 
 		$fieldMapping = $this->request->get('field_mapping');
+		
+		$moduleMeta = $this->moduleModel->getModuleMeta();
+		$mandatoryFields = $moduleMeta->getMandatoryFields();
+		$bCheckMandatory = $this->request->get('checkMandatory');
+		$errMsg = '';
 
 		$i=-1;
 		while($data = fgetcsv($fileHandler, 0, $this->request->get('delimiter'))) {
@@ -83,6 +88,7 @@ class Import_CSVReader_Reader extends Import_FileReader_Reader {
 			if($this->request->get('has_header') && $i == 0) continue;
 			$mappedData = array();
 			$allValuesEmpty = true;
+			$arrMandatory = $mandatoryFields;
 			foreach($fieldMapping as $fieldName => $index) {
 				$fieldValue = $data[$index];
 				$mappedData[$fieldName] = $fieldValue;
@@ -90,13 +96,30 @@ class Import_CSVReader_Reader extends Import_FileReader_Reader {
 					$mappedData[$fieldName] = $this->convertCharacterEncoding($fieldValue, $this->request->get('file_encoding'), $default_charset);
 				}
 				if(!empty($fieldValue)) $allValuesEmpty = false;
+				
+				if (isset($arrMandatory[$fieldName]) && isset($fieldValue) && $fieldValue != '') {
+					unset($arrMandatory[$fieldName]);
+				}
 			}
+			// needs to be empty to have all mandatory fields set
+			if ($bCheckMandatory && !empty($arrMandatory)) {
+				$j = $i+1;
+				$errMsg .= "<br>".vtranslate('LBL_IMPORT_MISSING_MANDATORY', 'Import')." $j:<br>";
+				foreach ($arrMandatory AS $iName => $label) {
+					$errMsg .= '"'.vtranslate($label, $this->moduleModel->getName()). "\" ($iName)<br>";
+				}
+			}
+			
 			if($allValuesEmpty) continue;
 			$fieldNames = array_keys($mappedData);
 			$fieldValues = array_values($mappedData);
 			$this->addRecordToDB($fieldNames, $fieldValues);
 		}
 		unset($fileHandler);
+		if (!empty($errMsg)) {
+			Import_Utils_Helper::clearUserImportInfo($current_user);
+			throw new Exception($errMsg);
+		}
 	}
 }
 ?>
