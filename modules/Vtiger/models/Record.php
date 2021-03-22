@@ -452,10 +452,13 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
                                     if ($row[$columnName] > 0) {
                                         $setype = 'SELECT setype FROM vtiger_crmentity WHERE crmid = ?';
                                         $setype_result = $db->pquery($setype, array($row[$columnName]));
+										if (!$setype_result || $db->num_rows($setype_result) == 0) continue;
                                         $entityinfo = 'SELECT tablename, fieldname, entityidfield FROM vtiger_entityname WHERE modulename = ?';
                                         $entityinfo_result = $db->pquery($entityinfo, array($db->query_result($setype_result, 0, "setype")));
+										if (!$entityinfo_result || $db->num_rows($entityinfo_result) == 0) continue;
                                         $label_query = "Select ".$db->query_result($entityinfo_result, 0, "fieldname")." from ".$db->query_result($entityinfo_result, 0, "tablename")." where ".$db->query_result($entityinfo_result, 0, "entityidfield")." =?";
                                         $label_result = $db->pquery($label_query, array($row[$columnName]));
+										if (!$label_result || $db->num_rows($label_result) == 0) continue;
                                         $label_name[$columnName] = $db->query_result($label_result, 0, $db->query_result($entityinfo_result, 0, "fieldname"));
                                     }
                                     else {
