@@ -4316,7 +4316,7 @@ class ReportRun extends CRMEntity
 			
 			$currencyId = (isset($current_user)) ? $current_user->currency_id : 1;
 			$currencyRateAndSymbol = getCurrencySymbolandCRate($currencyId);
-			$currencySymbol = $currencyRateAndSymbol['symbol'];
+			$currencySymbol = html_entity_decode($currencyRateAndSymbol['symbol']);
 			$currencySymbolPlacement = (isset($current_user)) ? $current_user->currency_symbol_placement : '$';
 			$currencyFormat = '#,##0.00_-';
 			$tmpCurrencySymbol = '"'.$currencySymbol.'"';
