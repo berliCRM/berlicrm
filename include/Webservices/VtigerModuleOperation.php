@@ -187,7 +187,8 @@ class VtigerModuleOperation extends WebserviceEntityOperation {
 		$output = array();
 		for($i=0; $i<$noofrows; $i++){
 			$row = $this->pearDB->fetchByAssoc($result,$i);
-			if(!$meta->hasPermission(EntityMeta::$RETRIEVE,$row["crmid"])){
+			$crmid = $meta->getTabId().'x'.$row[$meta->getObectIndexColumn()];
+			if(!$meta->hasPermission(EntityMeta::$RETRIEVE,$crmid)){
 				continue;
 			}
 			$output[] = DataTransform::sanitizeDataWithColumn($row,$meta);
@@ -255,7 +256,10 @@ class VtigerModuleOperation extends WebserviceEntityOperation {
 		
 		$describeArray = array('name'=>$webserviceField->getFieldName(),'label'=>$fieldLabel,'mandatory'=>
 			$webserviceField->isMandatory(),'type'=>$typeDetails,'nullable'=>$webserviceField->isNullable(),
-			"editable"=>$editable,"fieldsize"=>$webserviceField->getMaxLength());
+			"editable"=>$editable,"fieldsize"=>$webserviceField->getMaxLength(),
+			"block"=>getTranslatedString($webserviceField->getBlockName(), $this->meta->getTabName()),"helpinfo"=>$webserviceField->gethelpinfo(),
+			"blockid"=>$webserviceField->getBlockId()
+			);
 		if($webserviceField->hasDefault()){
 			$describeArray['default'] = $webserviceField->getDefault();
 		}
