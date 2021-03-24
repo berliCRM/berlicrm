@@ -54,21 +54,21 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
     private function pullBatch($start, $end, &$result, $userids, $types, $colors, $textColors, $fieldnames) {
         foreach ($types as $key => $type) {
             switch ($type) {
-                    case 'Events': $this->pullEvents($start, $end, $result,$userids[$key],$colors[$key],$textColors[$key]); break;
-                    case 'Calendar': $this->pullTasks($start, $end, $result,$colors[$key],$textColors[$key]); break;
-                    case 'Potentials': $this->pullPotentials($start, $end, $result, $colors[$key], $textColors[$key]); break;
-                    case 'Contacts':
-                                if($fieldnames[$key] == 'support_end_date') {
-                                    $this->pullContactsBySupportEndDate($start, $end, $result, $colors[$key], $textColors[$key]);
-                                }else{
-                                    $this->pullContactsByBirthday($start, $end, $result, $colors[$key], $textColors[$key]);
-                                }
-                                break;
+				case 'Events': $this->pullEvents($start, $end, $result,$userids[$key],$colors[$key],$textColors[$key]); break;
+				case 'Calendar': $this->pullTasks($start, $end, $result,$colors[$key],$textColors[$key]); break;
+				case 'Potentials': $this->pullPotentials($start, $end, $result, $colors[$key], $textColors[$key]); break;
+				case 'Contacts':
+							if($fieldnames[$key] == 'support_end_date') {
+								$this->pullContactsBySupportEndDate($start, $end, $result, $colors[$key], $textColors[$key]);
+							}else{
+								$this->pullContactsByBirthday($start, $end, $result, $colors[$key], $textColors[$key]);
+							}
+							break;
 
-                    case 'Invoice': $this->pullInvoice($start, $end, $result, $color, $textColors[$key]); break;
-                    case 'Project': $this->pullProjects($start, $end, $result, $colors[$key], $textColors[$key]); break;
-                    case 'ProjectTask': $this->pullProjectTasks($start, $end, $result, $colors[$key], $textColors[$key]); break;
-                }
+				case 'Invoice': $this->pullInvoice($start, $end, $result, $color, $textColors[$key]); break;
+				case 'Project': $this->pullProjects($start, $end, $result, $colors[$key], $textColors[$key]); break;
+				case 'ProjectTask': $this->pullProjectTasks($start, $end, $result, $colors[$key], $textColors[$key]); break;
+			}
         }
         
     }
@@ -94,7 +94,12 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 			$query .= " AND assigned_user_id IN ('".implode("','",$userAndGroupIds)."')";
 		}
 		// TODO take care of pulling 100+ records
-		return vtws_query($query.';', $user);
+		try {
+			return vtws_query($query.';', $user);
+		} catch (Exception $e) {
+			// module probably blocked but don't let that hinder fetch of everything else
+			return array();
+		}
 	}
 
 	protected function pullEvents($start, $end, &$result, $userid = false,$color = null,$textColor = 'white') {
