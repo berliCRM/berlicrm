@@ -21,6 +21,7 @@ class WebserviceField{
 	private $fieldLabel;
 	private $editable;
 	private $fieldType;
+	private $helpinfo;
 	private $displayType;
 	private $mandatory;
 	private $massEditable;
@@ -54,6 +55,7 @@ class WebserviceField{
 		$this->fieldName = $row['fieldname'];
 		$this->fieldLabel = $row['fieldlabel'];
 		$this->displayType = $row['displaytype'];
+		$this->helpinfo = decode_html($row['helpinfo']);
 		$this->massEditable = ($row['masseditable'] === '1')? true: false;
 		$typeOfData = $row['typeofdata'];
 		$this->presence = $row['presence'];
@@ -102,6 +104,9 @@ class WebserviceField{
 
 	public function getFieldType(){
 		return $this->fieldType;
+	}
+	public function gethelpinfo(){
+		return $this->helpinfo;
 	}
 
 	public function isMandatory(){
