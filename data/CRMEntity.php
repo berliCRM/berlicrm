@@ -1787,12 +1787,12 @@ class CRMEntity {
         // crm-now: double joined crmentityrel (instead of OR in join-condition) yielding *huge* performance boost
 		$query .= " FROM $other->table_name";
 		$query .= " INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = $other->table_name.$other->table_index";
-		$query .= " LEFT JOIN vtiger_crmentityrel as entrel1 ON entrel1.relcrmid = vtiger_crmentity.crmid";
-		$query .= " LEFT JOIN vtiger_crmentityrel as entrel2 ON entrel2.crmid = vtiger_crmentity.crmid";
+		$query .= " LEFT JOIN vtiger_crmentityrel AS entrel1 ON (entrel1.relcrmid = vtiger_crmentity.crmid AND entrel1.crmid = $id)";
+		$query .= " LEFT JOIN vtiger_crmentityrel AS entrel2 ON (entrel2.crmid = vtiger_crmentity.crmid AND entrel2.relcrmid = $id)";
 		$query .= $more_relation;
 		$query .= " LEFT JOIN vtiger_users ON vtiger_users.id = vtiger_crmentity.smownerid";
 		$query .= " LEFT JOIN vtiger_groups ON vtiger_groups.groupid = vtiger_crmentity.smownerid";
-		$query .= " WHERE vtiger_crmentity.deleted = 0 AND (entrel2.relcrmid = $id OR entrel1.crmid = $id)";
+		$query .= " WHERE vtiger_crmentity.deleted = 0 AND (entrel1.crmid = $id OR entrel2.relcrmid = $id)";
 		$return_value = GetRelatedList($currentModule, $related_module, $other, $query, $button, $returnset);
 
 		if ($return_value == null)
