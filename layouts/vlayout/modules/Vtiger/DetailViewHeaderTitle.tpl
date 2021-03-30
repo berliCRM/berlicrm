@@ -10,6 +10,12 @@
  ********************************************************************************/
 -->*}
 {strip}
+	{assign var=FILENAME value="summary_"|cat:$MODULE_MODEL->getName()|cat:'.png'}
+	{if file_exists(vimage_path($FILENAME))}
+		<span class="span2">
+			<img src="{vimage_path($FILENAME)}" class="summaryImg" />
+		</span>
+	{/if}
 	<span class="span10 margin0px">
 		<span class="row-fluid">
 			<span class="recordLabel font-x-x-large textOverflowEllipsis span pushDown" title="{$RECORD->getName()}">
