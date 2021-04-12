@@ -666,7 +666,12 @@ class Reports_Record_Model extends Vtiger_Record_Model {
         $from = explode(' from ' , $query);
         //If we select the same field in select and grouping/soring then it will include order by and query failure will happen
         $fromAndWhereQuery = explode(' order by ', $from[1]);
-        $sql = "SELECT count(*) AS count FROM ".$fromAndWhereQuery[0];
+		// replace aliases and use columnlist that may include distinct to get the real count
+		$pattern1 = '/ AS ["\'](.*?)["\']/';
+		$pattern2 = '/ AS (.*?),/';
+		$columnList = preg_replace($pattern1, '', str_ireplace('select ', '', $from[0]));
+		$columnList = preg_replace($pattern2, ',', $columnList);
+        $sql = "SELECT COUNT($columnList) AS count FROM ".$fromAndWhereQuery[0];
         return $sql;
     }
 	/**
