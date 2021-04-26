@@ -283,9 +283,13 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 					$currencyFormat = (strpos($currencySymbolPlacement, '$') === 0) ? $tmpCurrencySymbol.$currencyFormat : $currencyFormat.$tmpCurrencySymbol;
 					
 					if ($type == 'date' || $type == 'datetime') {
-						list($date, $time) = explode(' ', $value);
-						$date = DateTimeField::convertToDBFormat($date).' '.$time;
-						$value = PHPExcel_Shared_Date::PHPToExcel(strtotime($date));
+						if ($value != '--') {
+							list($date, $time) = explode(' ', $value);
+							$date = DateTimeField::convertToDBFormat($date).' '.$time;
+							$value = PHPExcel_Shared_Date::PHPToExcel(strtotime($date));
+						} else {
+							$value = '';
+						}
 						
 						$worksheet->setCellValueByColumnAndRow($count, $rowcount, $value);
 						$worksheet->getStyleByColumnAndRow($count, $rowcount)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_XLSX14);
