@@ -47,14 +47,16 @@ class Vtiger_TooltipView_Model extends Vtiger_DetailRecordStructure_Model {
 		// Preparation to pull required tool-tip field values.
 		$referenceFields = array(); $fieldNames = array();
 		foreach ($this->fields as $fieldModel) {
-			$fieldType = $fieldModel->getFieldDataType();
-			$fieldName = $fieldModel->get('name');
-			
-			if ($fieldName !='filename') {
-				$fieldNames[] = $fieldName;
-			}
-			if ($fieldType == 'reference' || $fieldType == 'owner') {
-				$referenceFields[] = $fieldName;
+			if($fieldModel->isViewableInDetailView()) {
+				$fieldType = $fieldModel->getFieldDataType();
+				$fieldName = $fieldModel->get('name');
+				
+				if ($fieldName !='filename') {
+					$fieldNames[] = $fieldName;
+				}
+				if ($fieldType == 'reference' || $fieldType == 'owner') {
+					$referenceFields[] = $fieldName;
+				}
 			}
 		}
 		$wsid = vtws_getWebserviceEntityId($moduleName, $recordId);
