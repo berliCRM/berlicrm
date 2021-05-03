@@ -1013,6 +1013,10 @@ jQuery.Class("Vtiger_List_Js",{
                 'enabled' : true
             }
         });
+		var moduleName = app.getModuleName();
+		if (moduleName == 'Documents') {
+			massActionUrl['folder_value'] = jQuery('#customFilter').find('option:selected').data('foldername');
+		}
 		AppConnector.request(massActionUrl).then(
 			function(data) {
                 progressIndicatorElement.progressIndicator({
