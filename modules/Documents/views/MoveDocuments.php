@@ -37,6 +37,7 @@ class Documents_MoveDocuments_View extends Vtiger_Index_View {
 			$viewer->assign('ALPHABET_VALUE',$searchValue);
             $viewer->assign('SEARCH_KEY',$searchKey);
 		}
+		$viewer->assign('FOLDER_VALUE', $request->get('folder_value'));
 
 		$viewer->view('MoveDocuments.tpl', $moduleName);
 	}

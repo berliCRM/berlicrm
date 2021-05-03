@@ -70,7 +70,9 @@ Vtiger_List_Js("Documents_List_Js", {
 			var postData = {
 				"selected_ids":selectedIds,
 				"excluded_ids" : excludedIds,
-				"viewname" : cvId
+				"viewname" : cvId,
+				'folder_id' : 'folderid',
+				'folder_value' : jQuery('#customFilter').find('option:selected').data('foldername')
 			};
 
             var searchValue = listInstance.getAlphabetSearchValue();
@@ -273,7 +275,52 @@ Vtiger_List_Js("Documents_List_Js", {
 		if(approve != '1'){
 			liElement.find('.denyFilter').remove();
 		}
-	}
+	},
+	
+	getRecordsCount : function(){
+		var aDeferred = jQuery.Deferred();
+		var recordCountVal = jQuery("#recordsCount").val();
+		if(recordCountVal != ''){
+			aDeferred.resolve(recordCountVal);
+		} else {
+			var count = '';
+			var cvId = this.getCurrentCvId();
+			var module = app.getModuleName();
+			var parent = app.getParentModuleName();
+			var postData = {
+				"module": module,
+				"parent": parent,
+				"view": "ListAjax",
+				"viewname": cvId,
+				"mode": "getRecordsCount"
+			}
+
+            var searchValue = this.getAlphabetSearchValue();
+            if((typeof searchValue != "undefined") && (searchValue.length > 0)) {
+                postData['search_key'] = this.getAlphabetSearchField();
+                postData['search_value'] = this.getAlphabetSearchValue();
+                postData['operator'] = "s";
+            }
+
+            postData.search_params = JSON.stringify(this.getListSearchParams());
+			postData.folder_id = 'folderid';
+			postData.folder_value = jQuery('#customFilter').find('option:selected').data('foldername');
+
+			AppConnector.request(postData).then(
+				function(data) {
+					var response = JSON.parse(data);
+					jQuery("#recordsCount").val(response['result']['count']);
+					count =  response['result']['count'];
+					aDeferred.resolve(count);
+				},
+				function(error,err){
+
+				}
+			);
+		}
+
+		return aDeferred.promise();
+	},
 
 });
 
