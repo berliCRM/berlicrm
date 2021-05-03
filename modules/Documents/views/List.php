@@ -150,4 +150,35 @@ class Documents_List_View extends Vtiger_List_View {
 		$viewer->assign('IS_MODULE_DELETABLE', $listViewModel->getModule()->isPermitted('Delete'));
         $viewer->assign('SEARCH_DETAILS', $searchParmams);
 	}
+	
+	/**
+	 * Function to get listView count
+	 * @param Vtiger_Request $request
+	 */
+	function getListViewCount(Vtiger_Request $request){
+		$moduleName = $request->getModule();
+		$cvId = $request->get('viewname');
+		if(empty($cvId)) {
+			$cvId = '0';
+		}
+
+		$searchKey = $request->get('search_key');
+		$searchValue = $request->get('search_value');
+
+		$listViewModel = Vtiger_ListView_Model::getInstance($moduleName, $cvId);
+
+        $searchParmams = $request->get('search_params');
+        $listViewModel->set('search_params',$this->transferListSearchParamsToFilterCondition($searchParmams, $listViewModel->getModule()));
+
+		$listViewModel->set('search_key', $searchKey);
+		$listViewModel->set('search_value', $searchValue);
+		$listViewModel->set('operator', $request->get('operator'));
+		
+		$listViewModel->set('folder_id', $request->get('folder_id'));
+        $listViewModel->set('folder_value' ,$request->get('folder_value'));
+
+		$count = $listViewModel->getListViewCount();
+
+		return $count;
+	}
 }
