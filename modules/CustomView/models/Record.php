@@ -195,6 +195,13 @@ class CustomView_Record_Model extends Vtiger_Base_Model {
 			$glue = QueryGenerator::$AND;
 		}
         $queryGenerator->parseAdvFilterList($transformedSearchParams, $glue);
+		
+		if ($moduleName == 'Documents') {
+			$folderValue = $this->get('folder_value');
+			if(!empty($folderValue)) {
+				$queryGenerator->addCondition('folderid', $folderValue, 'e');
+			}
+		}
 
 		$listQuery = $queryGenerator->getQuery();
 		if($module == 'RecycleBin'){

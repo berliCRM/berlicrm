@@ -473,6 +473,10 @@ jQuery.Class("Vtiger_List_Js",{
 							'enabled' : true
 						}
 					});
+					var moduleName = app.getModuleName();
+					if (moduleName == 'Documents') {
+						deleteURL += '&folder_value='+jQuery('#customFilter').find('option:selected').data('foldername');
+					}
 					AppConnector.request(deleteURL).then(
 						function(data){ 
 							progressIndicatorElement.progressIndicator({
