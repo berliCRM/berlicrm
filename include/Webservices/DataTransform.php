@@ -218,7 +218,10 @@
 						$handler = new $handlerClass($webserviceObject,$meta->getUser(),$adb,$log);
 						$entityMeta = $handler->getMeta();
 						if($entityMeta->exists($row[$field])){
+							$tmpId = $row[$field];
 							$row[$field] = vtws_getId($webserviceObject->getEntityId(),$row[$field]);
+							$tmpName = getEntityName($entity, $tmpId);
+							$row[$field.'_nameValue'] = $tmpName[$tmpId];
 							$found = true;
 							break;
 						}
