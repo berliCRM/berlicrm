@@ -521,6 +521,7 @@ class Reports extends CRMEntity{
 		$report = $adb->fetch_array($result);
 		if(count($report)>0)
 		{
+			$tQuery = "SELECT * FROM berli_track_report_usage WHERE reportid = ?;";
 			do
 			{
 				$report_details = Array();
@@ -544,6 +545,24 @@ class Reports extends CRMEntity{
 				if(isPermitted($report["primarymodule"],'index') != "yes") {
                     $report_details["reportname"] = sprintf(getTranslatedString('LBL_REPORT_MODULE_UNAVAILABLE',"Reports"),getTranslatedString($report["primarymodule"]));
                 }
+				
+				if ($is_admin) {
+					$res = $adb->pquery($tQuery, array($report["reportid"]));
+					$lInfo = '';
+					if ($res && $adb->num_rows($res) > 0) {
+						$userId = $adb->query_result($res, 0, 'userid');
+						$userName = getOwnerName($userId);
+						if (empty($userName)) $userName = 'LBL_DELETED';
+						
+						$dateTime = new DateTimeField($adb->query_result($res, 0, 'date_used'));
+						
+						$dateTimeUsed = $dateTime->getDisplayDateTimeValue();
+						
+						$lInfo = "$dateTimeUsed ($userName)";
+					}
+					$report_details['last_used'] = $lInfo;
+				}
+				
 				$returndata[$report["folderid"]][] = $report_details;
 			}while($report = $adb->fetch_array($result));
 		}

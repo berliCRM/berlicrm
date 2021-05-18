@@ -142,6 +142,13 @@ class Reports_List_View extends Vtiger_Index_View {
 		if(!$this->listViewHeaders){
 			$this->listViewHeaders = $listViewModel->getListViewHeaders();
 		}
+		
+		$currentUserModel = Users_Record_Model::getCurrentUserModel();
+		
+		if ($currentUserModel->isAdminUser()) {
+			$this->listViewHeaders['last_used'] = 'LAST_USED_AT_BY';
+		}
+		
 		if($folderId == 'All'){
 			$this->listViewHeaders['foldername']= 'LBL_FOLDER_NAME';
 		}
@@ -165,7 +172,7 @@ class Reports_List_View extends Vtiger_Index_View {
 		$viewer->assign('NEXT_SORT_ORDER',$nextSortOrder);
 		$viewer->assign('SORT_IMAGE',$sortImage);
 		$viewer->assign('COLUMN_NAME',$orderBy);
-		$viewer->assign('CURRENT_USER_MODEL', Users_Record_Model::getCurrentUserModel());
+		$viewer->assign('CURRENT_USER_MODEL', $currentUserModel);
 
 		if (PerformancePrefs::getBoolean('LISTVIEW_COMPUTE_PAGE_COUNT', false)) {
 			if(!$this->listViewCount){

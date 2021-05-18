@@ -245,6 +245,8 @@ $languageStrings = array(
 	'LBL_VE_SUCCESS_CONTACT'=>'All of your contacts from this report have been added to the selected distribution list.',
 	'LBL_VE_SUCCESS_CONTACT_LESS'=>'The selected distribution list contained already contacts from this report. Only',
 	'LBL_VE_SUCCESS_CONTACT_LESS1'=>'contacts have been added to the selected contribution list.',
+	
+	'LAST_USED_AT_BY' => 'last used at',
 
 );
 

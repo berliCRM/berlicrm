@@ -246,6 +246,8 @@ $languageStrings = array(
 	'LBL_VE_SUCCESS_CONTACT_LESS'=>'Es gab bereits Personen aus diesem Bericht in Ihrem ausgewählten Verteiler. Deshalb wurden nur',
 	'LBL_VE_SUCCESS_CONTACT_LESS1'=>'Personen zum Verteiler hinzugefügt.',
 	
+	'LAST_USED_AT_BY' => 'zuletzt benutzt am',
+	
 );
 
 $jsLanguageStrings = array(
