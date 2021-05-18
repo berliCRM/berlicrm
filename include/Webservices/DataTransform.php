@@ -220,8 +220,10 @@
 						if($entityMeta->exists($row[$field])){
 							$tmpId = $row[$field];
 							$row[$field] = vtws_getId($webserviceObject->getEntityId(),$row[$field]);
-							$tmpName = getEntityName($entity, $tmpId);
-							$row[$field.'_nameValue'] = $tmpName[$tmpId];
+							if ($entityMeta->isModuleEntity()) {
+								$tmpName = getEntityName($entity, $tmpId);
+								$row[$field.'_nameValue'] = html_entity_decode($tmpName[$tmpId]);
+							}
 							$found = true;
 							break;
 						}
