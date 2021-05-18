@@ -2955,6 +2955,22 @@ class ReportRun extends CRMEntity
 		}
 		//crm-now added for transfer of report ids zu Mailchimp or Campaigns
 		$contactidlist = '';
+		
+		// track usage of report for admin-user display
+		$trackQuery = "CREATE TABLE IF NOT EXISTS `berli_track_report_usage` (
+						`reportid` int(11) NOT NULL,
+						`userid` int(11) NOT NULL,
+						`date_used` datetime NOT NULL,
+						PRIMARY KEY (`reportid`),
+						KEY `userid` (`userid`)
+						) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
+		$adb->pquery($trackQuery, array());
+		
+		$reportId = $this->reportid;
+		$userId = $current_user->id;
+		$cDate = date('Y-m-d H:i:s');
+		$tInsertQuery = "INSERT INTO berli_track_report_usage VALUES (?,?,?) ON DUPLICATE KEY UPDATE userid = ?, date_used = ?;";
+		$adb->pquery($tInsertQuery, array($reportId, $userId, $cDate, $userId, $cDate));
 
 		if($outputformat == "HTML")
 		{
