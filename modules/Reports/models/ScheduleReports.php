@@ -179,6 +179,7 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 
 		$recipientEmails = $this->getRecipientEmails();
         Vtiger_Utils::ModuleLog('ScheduleReprots', $recipientEmails);
+		if (empty($recipientEmails)) return false;
 		foreach ($recipientEmails as $name => $email) {
 			$vtigerMailer->AddAddress($email, $name);
 		}
