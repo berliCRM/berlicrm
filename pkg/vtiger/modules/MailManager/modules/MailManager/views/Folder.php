@@ -106,6 +106,11 @@ class MailManager_Folder_View extends MailManager_Abstract_View {
 			$viewer->assign('MODULE', $request->getModule());
 			$response->setResult($viewer->view('FolderList.tpl', $moduleName, true));
 		}
+		if(isset($connector) && $connector->hasError()) {
+			$error = $connector->lastError();
+			$response->isJSON(true);
+			$response->setError(101, $error);
+		}
 		return $response;
 	}
 

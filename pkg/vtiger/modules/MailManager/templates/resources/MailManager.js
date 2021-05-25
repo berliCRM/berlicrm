@@ -525,9 +525,15 @@ if (typeof(MailManager) == 'undefined') {
 					'enabled' : true
 				}
 			});
-                        AppConnector.request(MailManager._baseurl() + "_operation=folder&_operationarg=open&_folder=" + encodeURIComponent(name)  +
-				"&_page=" + encodeURIComponent(page) + query).then(function(response) { 
-                                        response = JSON.parse(response);
+			AppConnector.request(MailManager._baseurl() + "_operation=folder&_operationarg=open&_folder=" + encodeURIComponent(name)  +
+				"&_page=" + encodeURIComponent(page) + query).then(function(response) {
+					
+					response = JSON.parse(response);
+					if (response.success == false) {
+						var eParams = {text: response.error.message, delay: 7000}
+						Vtiger_Helper_Js.showPnotify(eParams);
+						return;
+					}
 					progressIndicatorElement.progressIndicator({
 						'mode' : 'hide'
 					})
@@ -571,8 +577,7 @@ if (typeof(MailManager) == 'undefined') {
 						jQuery('#jscal_trigger_fval').hide();
 					}
 					MailManager.triggerUI5Resize();
-				}
-				);
+			});
 		},
 
 		updateSelectedFolder : function(currentSelectedFolder) {
