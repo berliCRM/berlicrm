@@ -794,7 +794,7 @@ class Vtiger_Field_Model extends Vtiger_Field {
 			'N' => array('e','n','l','g','m','h', 'y','ny'),
 			'T' => array('e','n','l','g','m','h','bw','b','a','y','ny'),
 			'I' => array('e','n','l','g','m','h','y','ny'),
-			'C' => array('e','n','y','ny'),
+			'C' => array('e'),
 			'D' => array('e','n','bw','b','a','y','ny'),
 			'DT' => array('e','n','bw','b','a','y','ny'),
 			'NN' => array('e','n','l','g','m','h','y','ny'),
