@@ -349,8 +349,8 @@ jQuery.Class("Vtiger_AdvanceFilter_Js",{
 		//if it is check box then we need hide the comprator
 		if(fieldModel.getType().toLowerCase() == 'boolean') {
 			//making the compator as equal for check box
-			conditionSelectElement.find('option[value="e"]').attr('selected','selected');
-			comparatorContainer.hide();
+			// conditionSelectElement.find('option[value="e"]').attr('selected','selected');
+			// comparatorContainer.hide();
 		}else{
 			comparatorContainer.show();
 		}
