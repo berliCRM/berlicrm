@@ -45,58 +45,63 @@ function send_mail($module,$to_email,$from_name,$from_email,$subject,$contents,$
 	//$to_email = getUserEmailId('id',$assigned_user_id);
 
 	//if module is HelpDesk then from_email will come based on support email id
-	if($from_email == '') {
-			//if from email is not defined, then use the useremailid as the from address
-			$from_email = getUserEmailId('user_name',$from_name);
+	try {
+		if($from_email == '') {
+				//if from email is not defined, then use the useremailid as the from address
+				$from_email = getUserEmailId('user_name',$from_name);
+		}
+
+		//if the newly defined from email field is set, then use this email address as the from address
+		//and use the username as the reply-to address
+		$cachedFromEmail = VTCacheUtils::getOutgoingMailFromEmailAddress();
+		if($cachedFromEmail === null) {
+			$query = "select from_email_field from vtiger_systems where server_type=?";
+			$params = array('email');
+			$result = $adb->pquery($query,$params);
+			$from_email_field = $adb->query_result($result,0,'from_email_field');
+			VTCacheUtils::setOutgoingMailFromEmailAddress($from_email_field);
+		}
+
+		if(isUserInitiated()) {
+			$replyToEmail = $from_email;
+		} else {
+			$replyToEmail = $from_email_field;
+		}
+		if(isset($from_email_field) && $from_email_field!='' && !$useGivenFromEmailAddress){
+			//setting from _email to the defined email address in the outgoing server configuration
+			$from_email = $from_email_field;
+		}
+
+		if($module != "Calendar")
+			$contents = addSignature($contents,$from_name);
+
+		$mail = new PHPMailer();
+
+		setMailerProperties($mail,$subject,$contents,$from_email,$from_name,trim($to_email,","),$attachment,$emailid,$module,$logo);
+		setCCAddress($mail,'cc',$cc);
+		setCCAddress($mail,'bcc',$bcc);
+		if(!empty($replyToEmail)) {
+			$mail->AddReplyTo($replyToEmail);
+		}
+
+		// vtmailscanner customization: If Support Reply to is defined use it.
+		global $HELPDESK_SUPPORT_EMAIL_REPLY_ID;
+		if($HELPDESK_SUPPORT_EMAIL_REPLY_ID && $HELPDESK_SUPPORT_EMAIL_ID != $HELPDESK_SUPPORT_EMAIL_REPLY_ID) {
+			$mail->AddReplyTo($HELPDESK_SUPPORT_EMAIL_REPLY_ID);
+		}
+		// END
+
+		// Fix: Return immediately if Outgoing server not configured
+		if(empty($mail->Host)) {
+			return 0;
+		}
+		// END
+		
+		$mail_status = MailSend($mail);
+	
+	} catch (Exception $e) {
+		$mail_status = $e->getMessage();
 	}
-
-	//if the newly defined from email field is set, then use this email address as the from address
-	//and use the username as the reply-to address
-    $cachedFromEmail = VTCacheUtils::getOutgoingMailFromEmailAddress();
-    if($cachedFromEmail === null) {
-        $query = "select from_email_field from vtiger_systems where server_type=?";
-        $params = array('email');
-        $result = $adb->pquery($query,$params);
-        $from_email_field = $adb->query_result($result,0,'from_email_field');
-        VTCacheUtils::setOutgoingMailFromEmailAddress($from_email_field);
-    }
-
-	if(isUserInitiated()) {
-		$replyToEmail = $from_email;
-	} else {
-		$replyToEmail = $from_email_field;
-	}
-	if(isset($from_email_field) && $from_email_field!='' && !$useGivenFromEmailAddress){
-		//setting from _email to the defined email address in the outgoing server configuration
-		$from_email = $from_email_field;
-	}
-
-	if($module != "Calendar")
-		$contents = addSignature($contents,$from_name);
-
-	$mail = new PHPMailer();
-
-	setMailerProperties($mail,$subject,$contents,$from_email,$from_name,trim($to_email,","),$attachment,$emailid,$module,$logo);
-	setCCAddress($mail,'cc',$cc);
-	setCCAddress($mail,'bcc',$bcc);
-	if(!empty($replyToEmail)) {
-		$mail->AddReplyTo($replyToEmail);
-	}
-
-	// vtmailscanner customization: If Support Reply to is defined use it.
-	global $HELPDESK_SUPPORT_EMAIL_REPLY_ID;
-	if($HELPDESK_SUPPORT_EMAIL_REPLY_ID && $HELPDESK_SUPPORT_EMAIL_ID != $HELPDESK_SUPPORT_EMAIL_REPLY_ID) {
-		$mail->AddReplyTo($HELPDESK_SUPPORT_EMAIL_REPLY_ID);
-	}
-	// END
-
-	// Fix: Return immediately if Outgoing server not configured
-    if(empty($mail->Host)) {
-		return 0;
-    }
-    // END
-
-	$mail_status = MailSend($mail);
 
 	return $mail_status;
 }
