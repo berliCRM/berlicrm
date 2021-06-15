@@ -248,44 +248,6 @@ class Contacts_Module_Model extends Vtiger_Module_Model {
 
 		return $query;
 	}
-
-	/**
-	 * Function to get list view query for popup window
-	 * @param <String> $sourceModule Parent module
-	 * @param <String> $field parent fieldname
-	 * @param <Integer> $record parent id
-	 * @param <String> $listQuery
-	 * @return <String> Listview Query
-	 */
-	public function getQueryByModuleField($sourceModule, $field, $record, $listQuery) {
-		if (in_array($sourceModule, array('Campaigns', 'Potentials', 'Vendors', 'Products', 'Services', 'Emails'))
-				|| ($sourceModule === 'Contacts' && $field === 'contact_id' && $record)) {
-			switch ($sourceModule) {
-				case 'Campaigns'	: $tableName = 'vtiger_campaigncontrel';	$fieldName = 'contactid';	$relatedFieldName ='campaignid';	break;
-				case 'Potentials'	: $tableName = 'vtiger_contpotentialrel';	$fieldName = 'contactid';	$relatedFieldName ='potentialid';	break;
-				case 'Vendors'		: $tableName = 'vtiger_vendorcontactrel';	$fieldName = 'contactid';	$relatedFieldName ='vendorid';		break;
-				case 'Products'		: $tableName = 'vtiger_seproductsrel';		$fieldName = 'crmid';		$relatedFieldName ='productid';		break;
-			}
-
-			if ($sourceModule === 'Services') {
-				$condition = " vtiger_contactdetails.contactid NOT IN (SELECT relcrmid FROM vtiger_crmentityrel WHERE crmid = '$record' UNION SELECT crmid FROM vtiger_crmentityrel WHERE relcrmid = '$record') ";
-			} elseif ($sourceModule === 'Emails') {
-				$condition = ' vtiger_contactdetails.emailoptout = 0';
-			} elseif ($sourceModule === 'Contacts' && $field === 'contact_id') {
-				$condition = " vtiger_contactdetails.contactid != '$record'";
-			} else {
-				$condition = " vtiger_contactdetails.contactid NOT IN (SELECT $fieldName FROM $tableName WHERE $relatedFieldName = '$record')";
-			}
-
-			$pos = stripos($listQuery, 'where');
-            if($pos) {
-                $listQuery .= ' AND ' . $condition;
-            } else {
-                $listQuery .= ' WHERE ' . $condition;
-            }
-            return $listQuery;
-		}
-	}
     
     public function getDefaultSearchField(){
         return "lastname";

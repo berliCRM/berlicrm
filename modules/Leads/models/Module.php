@@ -306,38 +306,6 @@ class Leads_Module_Model extends Vtiger_Module_Model {
 		return $convertedInfo;
 	}
 
-	/**
-	 * Function to get list view query for popup window
-	 * @param <String> $sourceModule Parent module
-	 * @param <String> $field parent fieldname
-	 * @param <Integer> $record parent id
-	 * @param <String> $listQuery
-	 * @return <String> Listview Query
-	 */
-	public function getQueryByModuleField($sourceModule, $field, $record, $listQuery) {
-		if (in_array($sourceModule, array('Campaigns', 'Products', 'Services', 'Emails'))) {
-			switch ($sourceModule) {
-				case 'Campaigns'	: $tableName = 'vtiger_campaignleadrel';	$fieldName = 'leadid';	$relatedFieldName ='campaignid';	break;
-				case 'Products'		: $tableName = 'vtiger_seproductsrel';		$fieldName = 'crmid';		$relatedFieldName ='productid';		break;
-			}
-
-			if ($sourceModule === 'Services') {
-				$condition = " vtiger_leaddetails.leadid NOT IN (SELECT relcrmid FROM vtiger_crmentityrel WHERE crmid = '$record' UNION SELECT crmid FROM vtiger_crmentityrel WHERE relcrmid = '$record') ";
-			} elseif ($sourceModule === 'Emails') {
-				$condition = ' vtiger_leaddetails.emailoptout = 0';
-			} else {
-				$condition = " vtiger_leaddetails.leadid NOT IN (SELECT $fieldName FROM $tableName WHERE $relatedFieldName = '$record')";
-			}
-
-			$position = stripos($listQuery, 'where');
-			if($position) {
-                $listQuery .= ' AND ' . $condition;
-            } else {
-                $listQuery .= ' WHERE ' . $condition;
-            }
-            return $listQuery;
-		}
-	}
      public function getDefaultSearchField(){
         return "lastname";
     }

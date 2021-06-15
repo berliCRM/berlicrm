@@ -11,38 +11,6 @@
 class Services_Module_Model extends Products_Module_Model {
 	
 	/**
-	 * Function to get list view query for popup window
-	 * @param <String> $sourceModule Parent module
-	 * @param <String> $field parent fieldname
-	 * @param <Integer> $record parent id
-	 * @param <String> $listQuery
-	 * @return <String> Listview Query
-	 */
-	public function getQueryByModuleField($sourceModule, $field, $record, $listQuery) {
-		$supportedModulesList = array('Leads', 'Accounts', 'HelpDesk', 'Potentials');
-		if (($sourceModule == 'PriceBooks' && $field == 'priceBookRelatedList')
-				|| in_array($sourceModule, $supportedModulesList)
-				|| in_array($sourceModule, getInventoryModules())) {
-
-			$condition = " vtiger_service.discontinued = 1 ";
-
-			if ($sourceModule == 'PriceBooks' && $field == 'priceBookRelatedList') {
-				$condition .= " AND vtiger_service.serviceid NOT IN (SELECT productid FROM vtiger_pricebookproductrel WHERE pricebookid = '$record') ";
-			} elseif (in_array($sourceModule, $supportedModulesList)) {
-				$condition .= " AND vtiger_service.serviceid NOT IN (SELECT relcrmid FROM vtiger_crmentityrel WHERE crmid = '$record' UNION SELECT crmid FROM vtiger_crmentityrel WHERE relcrmid = '$record') ";
-			}
-
-			$pos = stripos($listQuery, 'where');
-            if($pos) {
-                $listQuery .= ' AND ' . $condition;
-            } else {
-                $listQuery .= ' WHERE ' . $condition;
-            }
-            return $listQuery;
-		}
-	}
-	
-	/**
 	 * Function returns query for Services-PriceBooks Relationship
 	 * @param <Vtiger_Record_Model> $recordModel
 	 * @param <Vtiger_Record_Model> $relatedModuleModel

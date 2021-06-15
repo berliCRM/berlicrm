@@ -313,32 +313,6 @@ class Potentials_Module_Model extends Vtiger_Module_Model {
 	}
 
 	/**
-	 * Function to get list view query for popup window
-	 * @param <String> $sourceModule Parent module
-	 * @param <String> $field parent fieldname
-	 * @param <Integer> $record parent id
-	 * @param <String> $listQuery
-	 * @return <String> Listview Query
-	 */
-	public function getQueryByModuleField($sourceModule, $field, $record, $listQuery) {
-		if (in_array($sourceModule, array('Products', 'Services'))) {
-			if ($sourceModule === 'Products') {
-				$condition = " vtiger_potential.potentialid NOT IN (SELECT crmid FROM vtiger_seproductsrel WHERE productid = '$record')";
-			} elseif ($sourceModule === 'Services') {
-				$condition = " vtiger_potential.potentialid NOT IN (SELECT relcrmid FROM vtiger_crmentityrel WHERE crmid = '$record' UNION SELECT crmid FROM vtiger_crmentityrel WHERE relcrmid = '$record') ";
-			}
-
-			$position = stripos($listQuery, 'where');
-			if($position) {
-				$listQuery .= ' AND ' . $condition;
-			} else {
-				$listQuery .= ' WHERE ' . $condition;
-			}
-			return $listQuery;
-		}
-	}
-
-	/**
 	 * Function returns query for module record's search
 	 * @param <String> $searchValue - part of record name (label column of crmentity table)
 	 * @param <Integer> $parentId - parent record id

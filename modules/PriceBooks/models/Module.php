@@ -64,6 +64,8 @@ class PriceBooks_Module_Model extends Vtiger_Module_Model {
 	 * @return <String> Listview Query
 	 */
 	public function getQueryByModuleField($sourceModule, $field, $record, $listQuery, $currencyId = false) {
+		$record = (int) $record;
+		$currencyId = (int) $currencyId;
 		$relatedModulesList = array('Products', 'Services');
 		if (in_array($sourceModule, $relatedModulesList)) {
 			if ($currencyId && in_array($field, array('productid', 'serviceid'))) {
