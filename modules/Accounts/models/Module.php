@@ -37,40 +37,6 @@ class Accounts_Module_Model extends Vtiger_Module_Model {
 	}
 
 	/**
-	 * Function to get list view query for popup window
-	 * @param <String> $sourceModule Parent module
-	 * @param <String> $field parent fieldname
-	 * @param <Integer> $record parent id
-	 * @param <String> $listQuery
-	 * @return <String> Listview Query
-	 */
-	public function getQueryByModuleField($sourceModule, $field, $record, $listQuery) {
-		if (($sourceModule == 'Accounts' && $field == 'account_id' && $record)
-				|| in_array($sourceModule, array('Campaigns', 'Products', 'Services', 'Emails'))) {
-
-			if ($sourceModule === 'Campaigns') {
-				$condition = " vtiger_account.accountid NOT IN (SELECT accountid FROM vtiger_campaignaccountrel WHERE campaignid = '$record')";
-			} elseif ($sourceModule === 'Products') {
-				$condition = " vtiger_account.accountid NOT IN (SELECT crmid FROM vtiger_seproductsrel WHERE productid = '$record')";
-			} elseif ($sourceModule === 'Services') {
-				$condition = " vtiger_account.accountid NOT IN (SELECT relcrmid FROM vtiger_crmentityrel WHERE crmid = '$record' UNION SELECT crmid FROM vtiger_crmentityrel WHERE relcrmid = '$record') ";
-			} elseif ($sourceModule === 'Emails') {
-				$condition = ' vtiger_account.emailoptout = 0';
-			} else {
-				$condition = " vtiger_account.accountid != '$record'";
-			}
-
-			$position = stripos($listQuery, 'where');
-			if($position) {
-				$listQuery .= ' AND ' . $condition;
-			} else {
-				$listQuery .= ' WHERE ' . $condition;
-			}
-			return $listQuery;
-		}
-	}
-
-	/**
 	 * Function to get relation query for particular module with function name
 	 * @param <record> $recordId
 	 * @param <String> $functionName

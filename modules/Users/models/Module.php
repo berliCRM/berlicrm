@@ -18,6 +18,7 @@ class Users_Module_Model extends Vtiger_Module_Model {
 	 * @return <String> Listview Query
 	 */
 	public function getQueryByModuleField($sourceModule, $field, $record, $listQuery) {
+		$record = (int) $record;
 		if($sourceModule == 'Users' && $field == 'reports_to_id') {
 			$overRideQuery = $listQuery;
 			if(!empty($record)){

@@ -59,6 +59,7 @@ class Documents_Module_Model extends Vtiger_Module_Model {
 	 * @return <String> Listview Query
 	 */
 	public function getQueryByModuleField($sourceModule, $field, $record, $listQuery) {
+		$record = (int) $record;
 		if($sourceModule === 'Emails' && $field === 'composeEmail') {
 			$condition = ' (( vtiger_notes.filelocationtype LIKE "%I%")) AND vtiger_notes.filename != "" AND vtiger_notes.filestatus = 1';
 		} else {

@@ -11,41 +11,6 @@
 class Products_Module_Model extends Vtiger_Module_Model {
 
 	/**
-	 * Function to get list view query for popup window
-	 * @param <String> $sourceModule Parent module
-	 * @param <String> $field parent fieldname
-	 * @param <Integer> $record parent id
-	 * @param <String> $listQuery
-	 * @return <String> Listview Query
-	 */
-	public function getQueryByModuleField($sourceModule, $field, $record, $listQuery) {
-		$supportedModulesList = array($this->getName(), 'Vendors', 'Leads', 'Accounts', 'Contacts', 'Potentials');
-		if (($sourceModule == 'PriceBooks' && $field == 'priceBookRelatedList')
-				|| in_array($sourceModule, $supportedModulesList)
-				|| in_array($sourceModule, getInventoryModules())) {
-
-			$condition = " vtiger_products.discontinued = 1 ";
-			if ($sourceModule === $this->getName()) {
-				$condition .= " AND vtiger_products.productid NOT IN (SELECT productid FROM vtiger_seproductsrel WHERE crmid = '$record' UNION SELECT crmid FROM vtiger_seproductsrel WHERE productid = '$record') AND vtiger_products.productid <> '$record' ";
-			} elseif ($sourceModule === 'PriceBooks') {
-				$condition .= " AND vtiger_products.productid NOT IN (SELECT productid FROM vtiger_pricebookproductrel WHERE pricebookid = '$record') ";
-			} elseif ($sourceModule === 'Vendors') {
-				$condition .= " AND vtiger_products.vendor_id != '$record' ";
-			} elseif (in_array($sourceModule, $supportedModulesList)) {
-				$condition .= " AND vtiger_products.productid NOT IN (SELECT productid FROM vtiger_seproductsrel WHERE crmid = '$record')";
-			}
-
-			$pos = stripos($listQuery, 'where');
-            if($pos) {
-                $listQuery .= ' AND ' . $condition;
-            } else {
-                $listQuery .= ' WHERE ' . $condition;
-            }
-            return $listQuery;
-		}
-	}
-
-	/**
 	 * Function to get Specific Relation Query for this Module
 	 * @param <type> $relatedModule
 	 * @return <type>
