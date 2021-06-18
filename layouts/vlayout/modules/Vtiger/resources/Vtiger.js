@@ -149,6 +149,18 @@ var Vtiger_Index_Js = {
 
 	showComposeEmailPopup : function(params, cb){
 		var currentModule = "Emails";
+		var replySubject = "";
+		var replyBody = "";
+		var ccc = '';
+		if(params.replySubject != undefined ){
+			replySubject = params.replySubject;
+		}
+		if(params.replyBody != undefined ){
+			replyBody=params.replyBody;
+		}
+		if(params.cc != undefined ){
+			ccc=params.cc;
+		}
 		Vtiger_Helper_Js.checkServerConfig(currentModule).then(function(data){
 			if(data == true){
 				var css = jQuery.extend({'text-align' : 'left'},css);
@@ -162,8 +174,8 @@ var Vtiger_Index_Js = {
 							var length = emailFields.length;
 							var emailEditInstance = new Emails_MassEdit_Js();
 							if(length > 1) {
-								app.showModalWindow(data,function(data){
-									emailEditInstance.registerEmailFieldSelectionEvent();
+								app.showModalWindow(data,function(){
+									emailEditInstance.registerEmailFieldSelectionEvent(replySubject, replyBody, ccc);
 									if( jQuery('#multiEmailContainer').height() > 300 ){
 										jQuery('#multiEmailContainer').slimScroll({
 											height: '300px',
@@ -413,6 +425,50 @@ var Vtiger_Index_Js = {
             AppConnector.request(params);
 		});
 	},
+	
+	checkMailManagerForNewMails : function() {
+		var activityReminder = jQuery('#activityReminder').val();
+		activityReminder = activityReminder * 1000;
+		if (jQuery('#module').val() != 'MailManager' && activityReminder != '') {
+			var url = 'index.php?module=MailManager&action=MailReminder&mode=checkForNewMails';
+			AppConnector.request(url).then(function(data){
+				if(data.success) {
+					if (data.result) {
+						var params = {
+							title: app.vtranslate('JS_MM_TITLE'),
+							text: data.result,
+							hide:false,
+							closer:true,
+							type:'info'
+						};
+						if (typeof mailNotification == 'undefined') {
+							mailNotification = Vtiger_Helper_Js.showPnotify(params);
+						} else {
+							mailNotification.text_container.text(data.result);
+							mailNotification.pnotify_display();
+						}
+						Vtiger_Index_Js.flashTabUntilFocused();
+					}
+					setTimeout('Vtiger_Index_Js.checkMailManagerForNewMails()', 60000);
+				}
+			});
+		}
+	},
+	
+	flashTabUntilFocused : function() {
+		var old_title = document.title;
+		var old_icon = jQuery('#favicon').prop('href');
+		
+		if (old_title != app.vtranslate('JS_NEW_INFO')) {
+			document.title =app.vtranslate('JS_NEW_INFO');
+			jQuery('#favicon').prop('href', 'layouts/vlayout/skins/images/Emails.png');
+			setTimeout(function() {document.title = old_title; jQuery('#favicon').prop('href', old_icon);}, 1000, old_title, old_icon);
+			
+			if (!document.hasFocus()) {
+				setTimeout('Vtiger_Index_Js.flashTabUntilFocused()', 2000);
+			}
+		}
+	},
 
 	registerEvents : function(){
 		Vtiger_Index_Js.registerWidgetsEvents();
@@ -423,6 +479,7 @@ var Vtiger_Index_Js = {
 		Vtiger_Index_Js.changeSkin();
 		Vtiger_Index_Js.registerShowHideLeftPanelEvent();
 		Vtiger_Index_Js.registerResizeEvent();
+		Vtiger_Index_Js.checkMailManagerForNewMails();
 	},
 
 	registerPostAjaxEvents: function() {

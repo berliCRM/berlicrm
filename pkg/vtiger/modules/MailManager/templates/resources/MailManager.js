@@ -1203,15 +1203,15 @@ if (typeof(MailManager) == 'undefined') {
 			var subject = jQuery('#_mailopen_subject').html();
 			var body = jQuery('#_mailopen_body').html();
 			var date = jQuery('#_mailopen_date').html();
-			
+			var toMails = all ? jQuery('#_mailopen_to').html() : '';
 			var crmid = jQuery('#_mailopen_fromcrmid').html();
-
+			from = all ? (from+","+toMails) : from;
 			var replySubject = (subject.toUpperCase().indexOf('RE:') == 0) ? subject : 'Re: ' + subject;
 			var replyBody = MailManager.sprintf('<p></p><p style="margin:0;padding:0;">%s, %s, %s:</p><blockquote style="border:0;margin:0;border-left:1px solid gray;padding:0 0 0 2px;">%s</blockquote><br />', 'On ' + date, from, 'wrote', body);
 
 			function fillComposeEmailForm(win) {
 				var formValues = {
-					'#ccContainer input' : cc,
+					//'#ccContainer input' : cc, 
 					'[name="subject"]': replySubject
 				}
 				var rteValues = {
@@ -1225,10 +1225,10 @@ if (typeof(MailManager) == 'undefined') {
 			}
 
 			if (crmid !="") {
-				var params = {step: "step1", module: "Contacts", view: "MassActionAjax", mode: "showComposeEmailForm", selected_ids:'["'+ crmid +'"]', relatedLoad : true};
+				var params = {step: "step1", module: "Contacts", view: "MassActionAjax", mode: "showComposeEmailForm", selected_ids:'["'+ crmid +'"]', relatedLoad : true , replySubject : replySubject, replyBody : replyBody, cc:'["'+cc+'"]'};
 			} else 
-			{
-				var params = {step: "step1", module: "MailManager", view: "MassActionAjax", mode: "showComposeEmailForm", selected_ids:'[]', excluded_ids: "[]", to:'["'+from+'"]'};
+			{ //, cc:'["'+cc+'"]' // or cc: cc
+				var params = {step: "step1", module: "MailManager", view: "MassActionAjax", mode: "showComposeEmailForm", selected_ids:'[]', excluded_ids: "[]", to:'["'+from+'"]', cc:'["'+cc+'"]'};
 			}
 		
 			Vtiger_Index_Js.showComposeEmailPopup(params, function(win){
