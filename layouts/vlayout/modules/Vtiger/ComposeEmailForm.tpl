@@ -16,16 +16,16 @@
 		<hr style='margin:5px 0;width:100%'>
 	</div>
 	<form class="form-horizontal" id="massEmailForm" method="post" action="index.php" enctype="multipart/form-data" name="massEmailForm">
-		<input type="hidden" name="selected_ids" value='{ZEND_JSON::encode($SELECTED_IDS)}' />
-		<input type="hidden" name="excluded_ids" value='{ZEND_JSON::encode($EXCLUDED_IDS)}' />
+		<input type="hidden" name="selected_ids" value='{if !empty($SELECTED_IDS)}{ZEND_JSON::encode($SELECTED_IDS)}{/if}' />
+		<input type="hidden" name="excluded_ids" value='{if !empty($EXCLUDED_IDS)}{ZEND_JSON::encode($EXCLUDED_IDS)}{/if}' />
 		<input type="hidden" name="viewname" value="{$VIEWNAME}" />
 		<input type="hidden" name="module" value="{$MODULE}"/>
-		<input type="hidden" name="selectedFields" value='{ZEND_JSON::encode($SELECTED_FIELDS)}'/>
+		<input type="hidden" name="selectedFields" value='{if !empty($SELECTED_FIELDS)}{ZEND_JSON::encode($SELECTED_FIELDS)}{/if}'/>
 		<input type="hidden" name="mode" value="massSave" />
-		<input type="hidden" name="toemailinfo" value='{ZEND_JSON::encode($TOMAIL_INFO)}' />
+		<input type="hidden" name="toemailinfo" value='{if !empty($TOMAIL_INFO)}{ZEND_JSON::encode($TOMAIL_INFO)}{/if}' />
 		<input type="hidden" name="view" value="MassSaveAjax" />
-		<input type="hidden" name="to" value='{ZEND_JSON::encode($TO)}' />
-		<input type="hidden" name="toMailNamesList" value='{ZEND_JSON::encode($TOMAIL_NAMES_LIST)}' />
+		<input type="hidden" name="to" value='{if !empty($TO)}{ZEND_JSON::encode($TO)}{/if}' />
+		<input type="hidden" name="toMailNamesList" value='{if !empty($TOMAIL_NAMES_LIST)}{ZEND_JSON::encode($TOMAIL_NAMES_LIST)}{/if}' />
 		<input type="hidden" id="flag" name="flag" value="" />
 		<input type="hidden" id="maxUploadSize" value="{$MAX_UPLOAD_SIZE}" />
 		<input type="hidden" id="documentIds" name="documentids" value="" />
@@ -40,7 +40,8 @@
 		<input type="hidden" name="search_key" value= "{$SEARCH_KEY}" />
 		<input type="hidden" name="operator" value="{$OPERATOR}" />
 		<input type="hidden" name="search_value" value="{$ALPHABET_VALUE}" />
-		<input type="hidden" name="search_params" value='{ZEND_JSON::encode($SEARCH_PARAMS)}' />
+		<input type="hidden" name="search_params" value='{if !empty($SEARCH_PARAMS)}{ZEND_JSON::encode($SEARCH_PARAMS)}{/if}' />
+		<input type="hidden" name="cc" value='{if !empty($CC)}{ZEND_JSON::encode($CC)}{/if}' />
 
 		<div class="row-fluid toEmailField padding10">
 			<span class="span8">
