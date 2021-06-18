@@ -466,13 +466,13 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
                                     }
                                 }
                                 else {
-                                    $label_name[$columnName] = $row[$columnName];
+                                    $label_name[$columnName] = $row[$columnName]; 
                                 }
                             }
                             $row['label'] ='';
                             foreach ($serachcol_arr as $displaylabel) {
                                 if ($row['label'] =='') {
-                                    $row['label'] = $label_name[$displaylabel];
+                                    $row['label'] = $label_name[$displaylabel]; 
                                 }
                                 else {
                                     $row['label'] .= ' |'.$label_name[$displaylabel];
@@ -483,18 +483,42 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
                         }
                     }
 				}
-				else {
-					//"search all" is not activated
-					$moduleModels = $leadIdsList = $convertedInfo = array();
+
+				//"search all" is not activated
+				else if( isset($bgsrow["searchcolumn"]) && trim($bgsrow["searchcolumn"]) != '' ) {
+					
 					$tabid = $bgsrow["gstabid"];
-					$searchModule = $bgsrow["name"];
-					$query = 'SELECT searchlabel, crmid, setype, createdtime FROM berli_globalsearch_data inner join vtiger_crmentity on vtiger_crmentity.crmid = berli_globalsearch_data.gscrmid WHERE searchlabel like ? AND vtiger_crmentity.deleted = 0 and setype=?';
-					$params = array("%$searchKey%", $searchModule);
+					$searchall = 0; // because: $bgsrow["searchall"]== 0 
+					$module = $bgsrow["name"];
+					$searchColumns = $bgsrow["searchcolumn"];
+					$searchColums_arr = explode(",",$searchColumns);
+					$searchColumns= '"'.implode('","' ,$searchColums_arr).'"';
+					require_once 'modules/'.$module.'/'.$module.'.php';
+					$obj = new $module;
+					$tab_name_index = $obj->tab_name_index;
+					$keys = array_keys($tab_name_index);
+
+					$hitIDs_arr = Vtiger_Record_Model::getHitIDs_arr($db, $searchall, $searchColumns, $tabid, $tab_name_index, $keys, $module, $searchKey); 
+					$hitIDs_str = implode(",", $hitIDs_arr); 
+					$id_Label_arr = Vtiger_Record_Model::getId_Label_arr($db, $tabid, $hitIDs_arr, $tab_name_index ); 
+
+					$query = 
+						"SELECT crmid, setype, createdtime 
+						FROM berli_globalsearch_data 
+						inner join vtiger_crmentity on vtiger_crmentity.crmid = berli_globalsearch_data.gscrmid 
+						WHERE berli_globalsearch_data.gscrmid IN ( $hitIDs_str ) AND vtiger_crmentity.deleted = 0 and setype = ?" ;
+					$params = array($module);
 					$result = $db->pquery($query, $params);
 					$noOfRows = $db->num_rows($result);
-					$serachcol_arr = Vtiger_Record_Model::getDisplayLabelsArray($tabid);
+					$moduleModels = $leadIdsList = $convertedInfo = array();
 					for($i=0, $recordsCount = 0; $i<$noOfRows && $recordsCount<100; ++$i) {
 						$row = $db->query_result_rowdata($result, $i);
+						for( $b = 0; $b < sizeof($id_Label_arr); $b++){
+							if($row['crmid'] == $id_Label_arr[$b][0]){
+								$row['label'] = $id_Label_arr[$b][1];
+								break;
+							}
+						}
 						if ($row['setype'] == 'Leads') {
 							//exclude converted Leads from search results
 							$leadresult = $db->pquery("SELECT converted FROM vtiger_leaddetails WHERE leadid =? ", array($row['crmid']));
@@ -516,24 +540,49 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 						}
 					}
 				}
-                //echo "<br>$moduleName &Delta;t = ",microtime(true)-$starttime;
 			}
 		}
 		else {
-			//individual module search
-			$moduleModels = $matchingRecords = $leadIdsList = array();
-			$query = 'SELECT label, searchlabel, crmid, setype, createdtime, smownerid FROM vtiger_crmentity crm 
-				INNER JOIN vtiger_entityname e ON crm.setype = e.modulename 
-				INNER JOIN berli_globalsearch_settings gs ON e.tabid = gs.gstabid 
-				LEFT JOIN berli_globalsearch_data ON crm.crmid = berli_globalsearch_data.gscrmid WHERE searchlabel LIKE ? AND crm.deleted = 0 and gs.turn_off=1';
-			$params = array("%$searchKey%");
-			$query .= ' AND setype = ?';
-			$params[] = $module;
-			$result = $db->pquery($query, $params);
-			$noOfRows = $db->num_rows($result);
+			// individual module search
+			$query = 'SELECT gstabid, displayfield, searchcolumn, searchall FROM berli_globalsearch_settings LEFT JOIN vtiger_entityname ON gstabid = tabid 
+						WHERE berli_globalsearch_settings.turn_off = 1 AND vtiger_entityname.modulename  = ? ';
 
+			$result = $db->pquery($query, array($module));
+			$row = $db->query_result_rowdata($result, 0);
+			$searchall = $row["searchall"]; // 0 or 1
+			$tabid = $row['gstabid'];
+			$searchColumns = $row["searchcolumn"];
+			$searchColums_arr = explode(",",$searchColumns);
+			$searchColumns= '"'.implode('","' ,$searchColums_arr).'"';
+			require_once 'modules/'.$module.'/'.$module.'.php';
+			$obj = new $module;
+			$tab_name_index = $obj->tab_name_index;
+			$keys = array_keys($tab_name_index);
+
+			$hitIDs_arr = Vtiger_Record_Model::getHitIDs_arr($db, $searchall, $searchColumns, $tabid, $tab_name_index, $keys, $module, $searchKey); 
+			$hitIDs_str = implode(",", $hitIDs_arr); 
+			$id_Label_arr = Vtiger_Record_Model::getId_Label_arr($db, $tabid, $hitIDs_arr, $tab_name_index ); 
+			
+			$query = "SELECT label, searchlabel, crmid, setype, createdtime, smownerid FROM vtiger_crmentity crm 
+			INNER JOIN vtiger_entityname e ON crm.setype = e.modulename 
+			INNER JOIN berli_globalsearch_settings gs ON e.tabid = gs.gstabid 
+			LEFT JOIN berli_globalsearch_data ON crm.crmid = berli_globalsearch_data.gscrmid 
+			WHERE berli_globalsearch_data.gscrmid IN ( $hitIDs_str ) AND crm.deleted = 0 and gs.turn_off=1  AND setype = ?" ;
+
+			$params = array( $module);
+			$result = $db->pquery($query, $params);
+			$moduleModels = $matchingRecords = $leadIdsList = array();
+			$noOfRows = $db->num_rows($result); 
 			for($i=0, $recordsCount = 0; $i<$noOfRows && $recordsCount<100; ++$i) {
 				$row = $db->query_result_rowdata($result, $i);
+
+				for( $b = 0; $b < sizeof($id_Label_arr); $b++){
+					if($row['crmid'] == $id_Label_arr[$b][0]){
+						$row['label'] = $id_Label_arr[$b][1];
+						break;
+					}
+				}
+
 				if ($row['setype'] == 'Leads') {
 					//exclude converted Leads from search results
 					$leadresult = $db->pquery("SELECT converted FROM vtiger_leaddetails WHERE leadid =? ", array($row['crmid']));
@@ -714,4 +763,105 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 		
 		return $style;
 	}
+
+
+	/**
+	 * Function for search result to get the hitsIDs from specified table (or all tables of this module), with specified IDfield, 
+	 * where specified column (or all columns) have a string like the SearchKey.
+	 */
+	public static function getHitIDs_arr($db, $searchall, $searchColumns, $tabid, $tab_name_index, $keys, $module, $searchKey){
+		$hitIDs_arr = [];
+		for($a = 0; $a < count($keys); $a++){
+			$query = "";
+			if($searchall == 1){
+				$query = 'SELECT columnname, tablename FROM vtiger_field WHERE vtiger_field.tabid  = ? 
+				AND tablename ='.'"'.$keys[$a].'"';
+			}else{
+				$query = 'SELECT columnname, tablename FROM vtiger_field WHERE vtiger_field.tabid  = ? 
+				AND tablename ='.'"'.$keys[$a].'"'." AND vtiger_field.columnname IN (".$searchColumns.")";
+			}
+			
+			$result = $db->pquery($query, array($tabid));
+			$rows = $db->num_rows($result); 
+			if($rows !=0){
+				$columnnames_search_str = "";
+				for($b=0; $b < $rows ; ++$b){
+					$row = $db->query_result_rowdata($result, $b); 
+					$columnname = $row['columnname']; 
+					if($b==0){
+						$columnnames_search_str = $columnnames_search_str.$columnname." LIKE "."'%".$searchKey."%'";
+					}else{
+						$columnnames_search_str = $columnnames_search_str." OR ".$columnname." LIKE "."'%".$searchKey."%'";
+					}
+				}
+				$id = $tab_name_index[$keys[$a]];
+				if($keys[$a] == "vtiger_crmentity"){
+					$query = "SELECT DISTINCT $id FROM vtiger_crmentity WHERE vtiger_crmentity.deleted = 0 
+					AND vtiger_crmentity.setype = "."'".$module."'"." AND ($columnnames_search_str)";
+				}else{
+					$query = "SELECT DISTINCT $id FROM $keys[$a] INNER JOIN vtiger_crmentity 
+					ON vtiger_crmentity.crmid = $keys[$a].$id WHERE vtiger_crmentity.deleted = 0 
+					AND vtiger_crmentity.setype = "."'".$module."'"." AND ($columnnames_search_str)";
+				}
+				$result = $db->pquery($query);
+				$rows = $db->num_rows($result);
+				for($b = 0; $b < $rows ; ++$b){
+					$row = $db->query_result_rowdata($result, $b);
+					$hitIDs_arr[] = $row[$id];
+				}
+			}
+		}
+		return $hitIDs_arr;
+	}
+	/**
+	 * Function to get a array with IDs and associated labels for Search result. 
+	 */
+	public static function getId_Label_arr($db, $tabid, $hitIDs_arr, $tab_name_index ){
+		$id_Label_arr;
+		$displayFields_arr = Vtiger_Record_Model::getDisplayLabelsArray($tabid);
+		$displayFields_str = '"'.implode('","' ,$displayFields_arr).'"';
+		$displayTables_arr = [];
+		$displayTablesIDs_arr = [];
+		$query = "SELECT DISTINCT tablename FROM vtiger_field WHERE tabid = ? AND columnname IN (".$displayFields_str.")";
+		$result = $db->pquery($query, array($tabid));
+		$rows = $db->num_rows($result);
+		for($a = 0; $a < $rows ; ++$a){
+			$row = $db->query_result_rowdata($result, $a);
+			$hit = $row['tablename'];
+			$displayTables_arr[] = $hit;
+			$displayTablesIDs_arr[] = $tab_name_index[$hit];
+		}
+		$displayTables_str = implode(',' ,$displayTables_arr);
+		$displayFields_str = implode(',' ,$displayFields_arr);
+
+		for($a = 0; $a < count($hitIDs_arr); $a++){
+			$searchNumID_str = "";
+			for($b = 0; $b < count($displayTablesIDs_arr); $b++){
+				if($b==0){
+					$searchNumID_str = $displayTables_arr[$b].".".$displayTablesIDs_arr[$b]." = ".$hitIDs_arr[$a];
+				}else{
+					$searchNumID_str = $searchNumID_str." AND ".$displayTables_arr[$b].".".$displayTablesIDs_arr[$b]." = ".$hitIDs_arr[$a];
+				}
+			}
+			$query = 'SELECT DISTINCT '.$displayFields_str.' FROM '.$displayTables_str.' WHERE ('.$searchNumID_str.')';
+			$result = $db->pquery($query);
+			$row = $db->query_result_rowdata($result, 0);
+			$label = "";
+			for($b = 0; $b < count($displayFields_arr); $b++){
+				if($b == 0){
+					$label = trim($label.$row[$displayFields_arr[$b]]);
+				}else{
+					if (trim($label) !=''){
+						$label = trim($label." |".$row[$displayFields_arr[$b]]);
+					}else{
+						$label = trim($label.$row[$displayFields_arr[$b]]);
+					}
+				}
+			}
+			$id_Label_arr[$a][0] = $hitIDs_arr[$a];
+			$id_Label_arr[$a][1] = $label;
+		}
+		return $id_Label_arr;
+	}
+
 }
