@@ -115,11 +115,13 @@ class VTJsonCondition {
 
 	function checkCondition($entityData, $cond, $referredEntityData=null) {
 		$data = $entityData->getData();
-
+		$entityDelta = new VTEntityDelta();
+		$idParts = vtws_getIdComponents($entityData->getId());
+		$delta = $entityDelta->getEntityDelta($entityData->getModuleName(), $idParts[1], true); 
+		$rawFieldValue = $delta["modifiedtime"]["oldValue"];
 		$condition = $cond['operation'];
 		if(empty($condition)) return false;
-
-          if($cond['fieldname'] == 'date_start' || $cond['fieldname'] == 'due_date') {
+        if($cond['fieldname'] == 'date_start' || $cond['fieldname'] == 'due_date') {
             $fieldName = $cond['fieldname'];
             $dateTimePair = array('date_start' => 'time_start', 'due_date' => 'time_end');
             if(array_key_exists($dateTimePair[$fieldName], $data)) {
@@ -131,7 +133,6 @@ class VTJsonCondition {
         } else {
             $fieldValue = $data[$cond['fieldname']];
         }
-  
         $fieldValue = $data[$cond['fieldname']];
 		$value = trim(html_entity_decode($cond['value']));
 		$expressionType = $cond['valuetype'];
@@ -155,7 +156,6 @@ class VTJsonCondition {
 				$value = $exprEvaluater->evaluate($entityData);
 			}
 		}
-
 		global $current_user;
 		$handler = vtws_getModuleHandlerFromName($entityData->getModuleName(), $current_user);
 		$moduleFields = $handler->getMeta()->getModuleFields();
@@ -163,7 +163,7 @@ class VTJsonCondition {
 
 		if($fieldInstance && $fieldInstance->getFieldDataType() == 'datetime') {
 			//Convert the DB Date Time Format to User Date Time Format
-            $rawFieldValue = $fieldValue;
+			
 			$date = new DateTimeField($fieldValue);
 			$fieldValue = $date->getDisplayDateTimeValue();
 			$valueArray = explode(' ', $value);
@@ -192,7 +192,6 @@ class VTJsonCondition {
                 $condition = ($condition == 'is') ? 'contains' : 'does not contain';
             } 
         }
-
 		switch ($condition) {
 			case "equal to":
 				return $fieldValue == $value;
@@ -247,8 +246,6 @@ class VTJsonCondition {
 				return preg_match($value, $fieldValue);
 
 			case "has changed" :
-				$entityDelta = new VTEntityDelta();
-				$idParts = vtws_getIdComponents($entityData->getId());
 				$hasChanged = $entityDelta->hasChanged($entityData->getModuleName(), $idParts[1], $cond['fieldname']);
 				if (empty($value)) {
 					return $hasChanged;
@@ -354,7 +351,6 @@ class VTJsonCondition {
 					return true;
 				}
 				return false;
-
 			case 'less than hours before':
 				if(empty($rawFieldValue) || empty($value)) {
 					return false;
@@ -365,7 +361,6 @@ class VTJsonCondition {
 					return true;
 				}
 				return false;
-
 			case 'less than hours later':
 				if(empty($rawFieldValue) || empty($value)) {
 					return false;
