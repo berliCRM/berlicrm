@@ -786,15 +786,35 @@ class Vtiger_Module_Model extends Vtiger_Module {
 	public static function getSearchableModules() {
 		$userPrivModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
 
-		$entityModules = self::getEntityModules();
+		$entityModules = self::getEntityModules(); 
+
+		$db = PearDatabase::getInstance();
+		$notDisplayModuleNames_arr = array("Users","Emails","Events");// not display, or it is turn_off = 0
+		$query = 'SELECT DISTINCT modulename FROM vtiger_entityname LEFT JOIN berli_globalsearch_settings ON tabid=gstabid WHERE turn_off = 0';
+		$result = $db->pquery($query, array());
+		$rows = $db->num_rows($result);
+		for($a = 0; $a < $rows ; ++$a){
+			$row = $db->query_result_rowdata($result, $a);
+			$hit = $row['modulename'];
+			$notDisplayModuleNames_arr[] = $hit;
+		}
+		$notDisplayModuleNames_arr = array_unique($notDisplayModuleNames_arr);// because it can be double 
 
 		$searchableModules = array();
 		foreach ($entityModules as $tabid => $moduleModel) {
-				$moduleName = $moduleModel->getName();
-				if ($moduleName == 'Users' || $moduleName == 'Emails' || $moduleName == 'Events' ) continue;
-				if($userPrivModel->hasModuleActionPermission($moduleModel->getId(), 'DetailView')) {
-						$searchableModules[$moduleName] = $moduleModel;
+			$moduleName = $moduleModel->getName();
+			$showIt = true;
+			for($b = 0; $b < count($notDisplayModuleNames_arr) ; ++$b){
+				if($moduleName == $notDisplayModuleNames_arr[$b]){
+					$showIt = false;
+					break;
 				}
+			}
+			if($showIt){
+				if($userPrivModel->hasModuleActionPermission($moduleModel->getId(), 'DetailView')) {
+					$searchableModules[$moduleName] = $moduleModel;
+				}
+			}
 		}
 		return $searchableModules;
 	}
@@ -1525,7 +1545,7 @@ class Vtiger_Module_Model extends Vtiger_Module {
     public function isListViewNameFieldNavigationEnabled() {
         return true;
     }
-	
+
 	/**
 	 * Function to get list view query for popup window
 	 * @param <String> $sourceModule Parent module
@@ -1539,69 +1559,43 @@ class Vtiger_Module_Model extends Vtiger_Module {
 		
 		$tabId = Vtiger_Functions::getModuleId($sourceModule);
 		$relatedTabId = $this->getId();
-		$relModuleName = $this->getName();
 		
-		$condition = '';
+		$query = "SELECT label FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
+		$res = $db->pquery($query, array($tabId, $relatedTabId));
 		
-		if (!empty($record)) {
-			$query = "SELECT label FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
-			$res = $db->pquery($query, array($tabId, $relatedTabId));
+		if ($res && $db->num_rows($res) > 0) {
+			$label = $db->query_result($res, 0, 'label');
 			
+			$parentRecordModel = Vtiger_Record_Model::getInstanceById($record, $sourceModule);
+			$relationListView = Vtiger_RelationListView_Model::getInstance($parentRecordModel, $this->getName(), $label);
+			$query = $relationListView->getRelationQuery();
+			$res = $db->pquery($query, array());
+			
+			$arrIds = array();
 			if ($res && $db->num_rows($res) > 0) {
-				$label = $db->query_result($res, 0, 'label');
-				
-				$parentRecordModel = Vtiger_Record_Model::getInstanceById($record, $sourceModule);
-				
-				$relationListView = Vtiger_RelationListView_Model::getInstance($parentRecordModel, $relModuleName, $label);
-				$query = $relationListView->getRelationQuery();
-				$res = $db->pquery($query, array());
-				
 				$arrIds = array();
 				
-				if ($res && $db->num_rows($res) > 0) {
-					$arrIds = array();
+				while ($row = $db->fetch_row($res)) {
+					$arrIds[] = $row['crmid'];
+				}
+				
+				if (!empty($arrIds)) {
+					$tableName = $this->basetable;
+					$tableId = $this->basetableid;
 					
-					while ($row = $db->fetch_row($res)) {
-						$arrIds[] = $row['crmid'];
-					}
+					$condition = "$tableName.$tableId NOT IN (".implode(',', $arrIds).")";
 					
-					if (!empty($arrIds)) {
-						$tableName = $this->basetable;
-						$tableId = $this->basetableid;
-						
-						$condition = "$tableName.$tableId NOT IN (".implode(',', $arrIds).")";
+					$pos = stripos($listQuery, 'where');
+					if($pos) {
+						$listQuery .= " AND $condition";
+					} else {
+						$listQuery .= " WHERE $condition";
 					}
 				}
 			}
 		}
 		
-		// module specific exceptions
-		if ($relModuleName == 'Products') {
-			if (!empty($condition)) {
-				$condition .= ' AND ';
-			}
-			$condition .= 'vtiger_products.discontinued = 1';
-		} elseif ($relModuleName == 'Services') {
-			if (!empty($condition)) {
-				$condition .= ' AND ';
-			}
-			$condition .= 'vtiger_service.discontinued = 1';
-		} elseif ($sourceModule == 'Emails' && $relModuleName == 'Contacts') {
-			if (!empty($condition)) {
-				$condition .= ' AND ';
-			}
-			$condition .= 'vtiger_contactdetails.emailoptout = 0';
-		}
-		
-		if (!empty($condition)) {
-			$pos = stripos($listQuery, ' where ');
-			if($pos) {
-				$listQuery .= " AND $condition";
-			} else {
-				$listQuery .= " WHERE $condition";
-			}
-		}
-		
         return $listQuery;
 	}
+
 }
