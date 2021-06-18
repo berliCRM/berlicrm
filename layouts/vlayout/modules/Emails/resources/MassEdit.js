@@ -82,12 +82,15 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 	/**
 	 * function to call the registerevents of send Email step1
 	 */
-	registerEmailFieldSelectionEvent : function(){
+	registerEmailFieldSelectionEvent : function(replySubject, replyBody, ccc){
 		var thisInstance = this;
 		var selectEmailForm = jQuery("#SendEmailFormStep1");
 		selectEmailForm.on('submit',function(e){
 			var form = jQuery(e.currentTarget);
-			var params = form.serializeFormData();
+			var params = form.serializeFormData();	
+			params.subject = replySubject;
+			params.description = replyBody;
+			params.cc = ccc;
 			thisInstance.showComposeEmailForm(params,"","composeEmail");
 			e.preventDefault();
 		});
@@ -713,8 +716,8 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			if (typeof removedElement != 'undefined') {
 				var data = {
 					'id' : removedElement.recordId,
-					'name' : removedElement.text,
-					'emailid' : removedElement.id
+					'name' : (removedElement.text).trim(),
+					'emailid' : (removedElement.id).trim()
 				}
 				thisInstance.removeFromEmails(data);
 				if (typeof removedElement.recordId != 'undefined') {
@@ -796,7 +799,13 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		}
 
 		var ccValues = container.find('[name="cc"]').val();
-		if(ccValues) {
+		
+		if(ccValues.length > 0 && ccValues != "null") { // ["m@w.e"]   it can be ["null"]   if(ccValues.length > 8)
+			ccValues = ccValues.replace('"','');
+			ccValues = ccValues.replace("[","");
+			ccValues = ccValues.replace("]","");
+			ccValues = ccValues.replace('"','');
+			ccValues = ccValues.trim();
 			ccValues = ccValues.split(",");
 			var emailData = [];
 			for(var i in ccValues) {
@@ -834,8 +843,8 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		var mailInfoElement = this.getMassEmailForm().find('[name="toemailinfo"]');
 		var previousValue = JSON.parse(mailInfoElement.val());
 		var elementSize = previousValue[mailInfo.id].length;
-		var emailAddress = mailInfo.emailid;
-		var selectedId = mailInfo.id;
+		var emailAddress = (mailInfo.emailid).trim();
+		var selectedId = (mailInfo.id).trim();
 		//If element length is not more than two delete existing record.
 		if(elementSize < 2){
 			delete previousValue[selectedId];
@@ -877,16 +886,21 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			selectedIdElement.val(JSON.stringify(updatedValue));
 		}
 	},
-
 	removeFromEmails : function(mailInfo){
-		var toEmails = this.getMassEmailForm().find('[name="to"]');
-		var previousValue = JSON.parse(toEmails.val());
-
+		var toEmails = this.getMassEmailForm().find('[name="to"]'); /*first it is a string, second a array? yes it is */ 
+		var previousValue0 = JSON.parse(toEmails.val());
+		var previousValue = [];//previousValue0=Array [ "alfa@gmx.de,beta@aol.com,ceta@web.de,dora@gmx.net" ] // only one element in array
+		if(previousValue0.length == 1){
+			previousValue = (previousValue0[0].split(',')).map(function(item){ return item.trim(); } ); // i splite and remove the whitespace from items.
+		} // now it is like: previousValue =Array[ "alfa@gmx.de","beta@aol.com","ceta@web.de","dora@gmx.net"]; // 4 elements
+		else if(previousValue0.length > 1){
+			previousValue = previousValue0;
+		}
 		var updatedValue = [];
 		for (var i in previousValue) {
 			var email = previousValue[i];
 			var skip = false;
-			if (email == mailInfo.emailid) {
+			if (email.trim() == (mailInfo.emailid).trim() ) {
 				skip = true;
 			}
 			if (skip == false) {
@@ -1082,4 +1096,3 @@ jQuery(document).ready(function() {
 	var emailMassEditInstance = new Emails_MassEdit_Js();
 	emailMassEditInstance.registerEvents();
 });
-

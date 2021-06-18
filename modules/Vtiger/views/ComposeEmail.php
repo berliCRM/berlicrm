@@ -47,7 +47,7 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		$selectedFields = $request->get('selectedFields');
 		$relatedLoad = $request->get('relatedLoad');
 		$documentIds = $request->get('documentIds');
-
+		$description = $request->get('description');
 		$viewer = $this->getViewer($request);
 		$viewer->assign('MODULE', $moduleName);
         $viewer->assign('FIELD_MODULE',$fieldModule);
@@ -58,7 +58,7 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		$viewer->assign('USER_MODEL', $userRecordModel);
 		$viewer->assign('MAX_UPLOAD_SIZE', Vtiger_Util_Helper::getMaxUploadSizeInBytes());
 		$viewer->assign('RELATED_MODULES', $moduleModel->getEmailRelatedModules());
-
+		$viewer->assign('DESCRIPTION',$description);
 		if ($documentIds) {
 			$attachements = array();
 			foreach ($documentIds as $documentId) {
@@ -144,9 +144,12 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 
 		$requestTo = $request->get('to');
 		if (!$to && is_array($requestTo)) {
-			$to = $requestTo;
+			$to = $requestTo; // here todo // because array or string //
 		}
-
+		$requestCc = $request->get('cc');
+		if ( count($requestCc) > 0 && is_array($requestCc) && $requestCc[0] != "null" ) {
+			$getCc = implode(',',$requestCc); // $requestCc is a array // $getCc = implode(',',$requestCc); // if i need a string
+		}
 		$documentsModel = Vtiger_Module_Model::getInstance('Documents');
 		$documentsURL = $documentsModel->getInternalDocumentsURL();
 
@@ -159,7 +162,7 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		$viewer->assign('TO', $to);
 		$viewer->assign('TOMAIL_INFO', $toMailInfo);
 		$viewer->assign('TOMAIL_NAMES_LIST', $toMailNamesList);
-		$viewer->assign('CC', $request->get('cc'));
+		$viewer->assign('CC', $getCc);
 		$viewer->assign('CCMAIL_INFO', $ccMailInfo);
 		$viewer->assign('BCC', $request->get('bcc'));
 		$viewer->assign('BCCMAIL_INFO', $bccMailInfo);
