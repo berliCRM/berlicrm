@@ -353,7 +353,7 @@ $jsLanguageStrings = array(
 	'JS_PASSWORD_INCORRECT_OLD'=>'Das alte Passwort ist nicht korrekt eingegeben worden.',
 	'JS_REENTER_PASSWORDS'=>'Bitte Passwörter noch einmal eingeben.  Das neue Passwort und die Bestätigung sind nicht identisch.',
 	'JS_NEW_ACCESS_KEY_REQUESTED' => 'Neuen Zugangsschlüssel angefordert', 
- 	'JS_CHANGE_ACCESS_KEY_CONFIRMATION' => 'Sie haben einen neuen Zugangsschlüssel angefordert.&lt;br&gt;&lt;br&gt;Auf Grund dieses Schritts müssen Sie den alten Zugangsschlüssel in allen installierten Erweiterungen ersetzen.&lt;br&gt;&lt;br&gt;WOllen Sie fortfahren?',
+ 	'JS_CHANGE_ACCESS_KEY_CONFIRMATION' => 'Sie haben einen neuen Zugangsschlüssel angefordert.&lt;br&gt;&lt;br&gt;Auf Grund dieses Schritts müssen Sie den alten Zugangsschlüssel in allen installierten Erweiterungen ersetzen.&lt;br&gt;&lt;br&gt;Wollen Sie fortfahren?',
 	'of' => 'von',
 );
 ?>
