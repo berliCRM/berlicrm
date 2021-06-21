@@ -94,7 +94,9 @@ class Vtiger_Save_Action extends Vtiger_Action_Controller {
 			$fieldValue = $request->get($fieldName, null);
 			$fieldDataType = $fieldModel->getFieldDataType();
 			if($fieldDataType == 'time'){
-				$fieldValue = Vtiger_Time_UIType::getTimeValueWithSeconds($fieldValue);
+				$DateTimeValueObj = DateTimeField::convertToDBTimeZone($fieldValue);
+				$Time = $DateTimeValueObj->format('H:i');
+				$fieldValue = Vtiger_Time_UIType::getTimeValueWithSeconds($Time);
 			}
 			if($fieldValue !== null) {
 				if(!is_array($fieldValue)) {
