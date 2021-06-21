@@ -77,21 +77,48 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 				$fileName = html_entity_decode($fileName, ENT_QUOTES, vglobal('default_charset'));
 				$savedFile = $fileDetails['attachmentsid']."_".$fileName;
 
-				$fileSize = filesize($filePath.$savedFile);
-				$fileSize = $fileSize + ($fileSize % 1024);
+				$FN = $filePath.$savedFile;
+				$size=filesize($FN);
+	            syslog(LOG_DEBUG,"FN=$FN,size=$size");	
+				//Begin writing headers
+				header("Cache-Control:");
+				header("Cache-Control: public");
+				header("Accept-Ranges: bytes");
+				header("Content-disposition: filename=\"".basename($FN)."\"");
+				header("Content-type: application/octet-stream");
+				header("Connection: close");
 
-				if (fopen($filePath.$savedFile, "r")) {
-					$fileContent = fread(fopen($filePath.$savedFile, "r"), $fileSize);
-
-					header("Content-type: ".$fileDetails['type']);
-					header("Pragma: public");
-					header("Cache-Control: private");
-					header('Content-Disposition: attachment; filename="'.$fileName.'";');
-					header("Content-Description: PHP Generated Data");
+				//check if http_range is sent by browser (or download manager)
+				if(isset($_SERVER['HTTP_RANGE'])) {
+					list($a, $range)=explode("=",$_SERVER['HTTP_RANGE']);
+					//if yes, download missing part
+					str_replace($range, "-", $range);
+					$size2=$size-1;
+					$new_length=$size2-$range;
+					header("HTTP/1.1 206 Partial Content");
+					header("Content-Length: $new_length");
+					header("Content-Range: bytes $range$size2/$size");
+				} 
+				else {
+					$range=0;
+					$size2=$size-1;
+					header("Content-Range: bytes 0-$size2/$size");
+					header("Content-Length: ".$size);
 				}
+
+				$fd=fopen($FN,"rb");
+				fseek($fd,$range);
+
+				$bytes=0;
+				while(!feof($fd)) {
+					$fileContent=fread($fd, 4096);
+					$bytes+=strlen($fileContent);
+					print $fileContent;
+					flush();
+				}
+				fclose($fd);
 			}
 		}
-		echo $fileContent;
 	}
 
 	function updateFileStatus($status) {
