@@ -331,13 +331,17 @@ class Calendar_Module_Model extends Vtiger_Module_Model {
 			WHERE vtiger_calendar_user_activitytypes.userid=?";
         $result = $db->pquery($query, array($id));
         $rows = $db->num_rows($result);
-
+				
+		// special fields are to find in 'vtiger_field' table (fieldname)
+		$specialCalendarFields = array('support_end_date','birthday');
+		
 		$calendarViewTypes = Array();
         for($i=0; $i<$rows; $i++){
 			$activityTypes = $db->query_result_rowdata($result, $i);
 			$moduleInstance = Vtiger_Module::getInstance($activityTypes['module']);
-            // skip disabled or missing modules
-            if (empty($moduleInstance) || $moduleInstance->presence == 1) {
+
+			// skip disabled or missing modules
+            if (empty($moduleInstance) || $moduleInstance->presence == 1  ) {
                 continue;
             }
 			$fieldInstance = Vtiger_Field::getInstance($activityTypes['fieldname'], $moduleInstance);
@@ -346,10 +350,36 @@ class Calendar_Module_Model extends Vtiger_Module_Model {
 			} else {
 				$fieldLabel = $activityTypes['fieldname'];
 			}
-			if($activityTypes['visible'] == '1') {
-				$calendarViewTypes['visible'][] = array('module'=>$activityTypes['module'], 'fieldname'=>$activityTypes['fieldname'], 'fieldlabel'=>$fieldLabel, 'visible' => $activityTypes['visible'] , 'color' => $activityTypes['color']);
-			} else {
-				$calendarViewTypes['invisible'][] = array('module'=>$activityTypes['module'], 'fieldname'=>$activityTypes['fieldname'], 'fieldlabel'=>$fieldLabel, 'visible' => $activityTypes['visible'] , 'color' => $activityTypes['color']);
+
+			// here check, if we have active or inactive fields.
+			$haveActiveSpecialCalendarFields = false;
+			for($b=0; $b < count($specialCalendarFields); $b++ ){
+				if($activityTypes['fieldname'] == $specialCalendarFields[$b]){
+					$haveActiveSpecialCalendarFields = true;
+				}
+			}
+			// check specialfield presence.
+			$fieldPresence = true;
+			if($haveActiveSpecialCalendarFields){		
+				$fieldPresence = isFieldActive($activityTypes['module'], $activityTypes['fieldname']);
+			}
+			// check visible. 
+			if($fieldPresence){
+				if($activityTypes['visible'] == '1') {
+					$calendarViewTypes['visible'][] = array(
+						'module'=>$activityTypes['module'], 
+						'fieldname'=>$activityTypes['fieldname'], 
+						'fieldlabel'=>$fieldLabel, 
+						'visible' => $activityTypes['visible'] , 
+						'color' => $activityTypes['color']);
+				} else {
+					$calendarViewTypes['invisible'][] = array(
+						'module'=>$activityTypes['module'], 
+						'fieldname'=>$activityTypes['fieldname'], 
+						'fieldlabel'=>$fieldLabel, 
+						'visible' => $activityTypes['visible'] , 
+						'color' => $activityTypes['color']);
+				}
 			}
         }
 		return $calendarViewTypes;
