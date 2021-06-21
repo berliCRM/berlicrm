@@ -10,9 +10,6 @@
  ********************************************************************************/
 -->*}
 {strip}
-	<div id="toggleButton" class="toggleButton" title="{vtranslate('LBL_LEFT_PANEL_SHOW_HIDE', 'Vtiger')}">
-		<i id="tButtonImage" class="{if $LEFTPANELHIDE neq '1'}icon-chevron-left{else}icon-chevron-right{/if}"></i>
-	</div>
     <div class="container-fluid">
         <div class="row-fluid reportsDetailHeader">
 			<input type="hidden" name="date_filters" data-value='{ZEND_JSON::encode($DATE_FILTERS)}' />
