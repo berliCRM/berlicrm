@@ -127,9 +127,9 @@ function createInvoice($salesorder_id) {
 
 	// Payment duration in days
 	$payment_duration_values = Array(
-        'net 01 day' => '1',
-        'net 05 days' => '5',
-        'net 07 days' => '7',
+        'net 1 day' => '1',
+        'net 5 days' => '5',
+        'net 7 days' => '7',
         'net 10 days' => '10',
         'net 15 days' => '15',
 		'net 30 days' => '30',
