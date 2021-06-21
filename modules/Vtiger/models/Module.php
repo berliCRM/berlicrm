@@ -1545,7 +1545,7 @@ class Vtiger_Module_Model extends Vtiger_Module {
     public function isListViewNameFieldNavigationEnabled() {
         return true;
     }
-
+	
 	/**
 	 * Function to get list view query for popup window
 	 * @param <String> $sourceModule Parent module
@@ -1559,43 +1559,69 @@ class Vtiger_Module_Model extends Vtiger_Module {
 		
 		$tabId = Vtiger_Functions::getModuleId($sourceModule);
 		$relatedTabId = $this->getId();
+		$relModuleName = $this->getName();
 		
-		$query = "SELECT label FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
-		$res = $db->pquery($query, array($tabId, $relatedTabId));
+		$condition = '';
 		
-		if ($res && $db->num_rows($res) > 0) {
-			$label = $db->query_result($res, 0, 'label');
+		if (!empty($record)) {
+			$query = "SELECT label FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
+			$res = $db->pquery($query, array($tabId, $relatedTabId));
 			
-			$parentRecordModel = Vtiger_Record_Model::getInstanceById($record, $sourceModule);
-			$relationListView = Vtiger_RelationListView_Model::getInstance($parentRecordModel, $this->getName(), $label);
-			$query = $relationListView->getRelationQuery();
-			$res = $db->pquery($query, array());
-			
-			$arrIds = array();
 			if ($res && $db->num_rows($res) > 0) {
+				$label = $db->query_result($res, 0, 'label');
+				
+				$parentRecordModel = Vtiger_Record_Model::getInstanceById($record, $sourceModule);
+				
+				$relationListView = Vtiger_RelationListView_Model::getInstance($parentRecordModel, $relModuleName, $label);
+				$query = $relationListView->getRelationQuery();
+				$res = $db->pquery($query, array());
+				
 				$arrIds = array();
 				
-				while ($row = $db->fetch_row($res)) {
-					$arrIds[] = $row['crmid'];
-				}
-				
-				if (!empty($arrIds)) {
-					$tableName = $this->basetable;
-					$tableId = $this->basetableid;
+				if ($res && $db->num_rows($res) > 0) {
+					$arrIds = array();
 					
-					$condition = "$tableName.$tableId NOT IN (".implode(',', $arrIds).")";
+					while ($row = $db->fetch_row($res)) {
+						$arrIds[] = $row['crmid'];
+					}
 					
-					$pos = stripos($listQuery, 'where');
-					if($pos) {
-						$listQuery .= " AND $condition";
-					} else {
-						$listQuery .= " WHERE $condition";
+					if (!empty($arrIds)) {
+						$tableName = $this->basetable;
+						$tableId = $this->basetableid;
+						
+						$condition = "$tableName.$tableId NOT IN (".implode(',', $arrIds).")";
 					}
 				}
 			}
 		}
 		
+		// module specific exceptions
+		if ($relModuleName == 'Products') {
+			if (!empty($condition)) {
+				$condition .= ' AND ';
+			}
+			$condition .= 'vtiger_products.discontinued = 1';
+		} elseif ($relModuleName == 'Services') {
+			if (!empty($condition)) {
+				$condition .= ' AND ';
+			}
+			$condition .= 'vtiger_service.discontinued = 1';
+		} elseif ($sourceModule == 'Emails' && $relModuleName == 'Contacts') {
+			if (!empty($condition)) {
+				$condition .= ' AND ';
+			}
+			$condition .= 'vtiger_contactdetails.emailoptout = 0';
+		}
+		
+		if (!empty($condition)) {
+			$pos = stripos($listQuery, ' where ');
+			if($pos) {
+				$listQuery .= " AND $condition";
+			} else {
+				$listQuery .= " WHERE $condition";
+			}
+		}
+		
         return $listQuery;
 	}
-
 }
