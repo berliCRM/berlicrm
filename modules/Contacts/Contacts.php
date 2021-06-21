@@ -1550,7 +1550,16 @@ function get_contactsforol($user_name)
 			}
             else if($with_module == 'Vendors'){
         		$adb->pquery("insert into vtiger_vendorcontactrel values (?,?)", array($with_crmid,$crmid));
-            }else {
+            }
+            else if($with_module == 'Calendar'){
+				$checkpresence = $adb->pquery("SELECT contactid FROM vtiger_cntactivityrel WHERE contactid = ? AND activityid = ?", Array($crmid, $with_crmid));
+				// Does the relation already exists? Do not add it again
+				if ($checkpresence && $adb->num_rows($checkpresence)) {
+					continue;
+				}
+        		$adb->pquery("insert into vtiger_cntactivityrel values (?,?)", array($crmid,$with_crmid));
+            }
+			else {
 				parent::save_related_module($module, $crmid, $with_module, $with_crmid);
 			}
 		}
