@@ -48,7 +48,9 @@ function berli_get_multi_relations($id, $user) {
 		
 	// Process petition
 	if ($entityName != 'Products') {
-		$result = $db->pquery("select * from vtiger_crmentityrel where crmid=? and module = ?", array($idComponents[1], $entityName));
+		$result = $db->pquery("select * from vtiger_crmentityrel 
+		Inner join vtiger_crmentity on vtiger_crmentity.crmid = vtiger_crmentityrel.relcrmid 
+		where vtiger_crmentity.deleted = 0 AND vtiger_crmentityrel.crmid= ? and vtiger_crmentityrel.module = ?", array($idComponents[1], $entityName));
 		if($result === false){
 			throw new WebServiceException(WebServiceErrorCode::$RECORDNOTFOUND,"Record you are trying to access is not found");
 		}
@@ -62,7 +64,9 @@ function berli_get_multi_relations($id, $user) {
 			}
 		}
 		
-		$result = $db->pquery("select * from vtiger_crmentityrel where relcrmid=? and relmodule = ?", array($idComponents[1], $entityName));
+		$result = $db->pquery("select * from vtiger_crmentityrel 
+		Inner join vtiger_crmentity on vtiger_crmentity.crmid = vtiger_crmentityrel.relcrmid 
+		where  vtiger_crmentity.deleted = 0 AND vtiger_crmentityrel.relcrmid=? and vtiger_crmentityrel.relmodule = ?", array($idComponents[1], $entityName));
 		if($result === false){
 			throw new WebServiceException(WebServiceErrorCode::$RECORDNOTFOUND,"Record you are trying to access is not found");
 		}
@@ -74,6 +78,39 @@ function berli_get_multi_relations($id, $user) {
 				$relID[$relatedModule][$i] = $ws_rel_id;
 			}
 		}
+		
+		$result = $db->pquery("select * from vtiger_crmentityrel 
+		Inner join vtiger_crmentity on vtiger_crmentity.crmid = vtiger_crmentityrel.relcrmid 
+		where  vtiger_crmentity.deleted = 0 AND vtiger_crmentityrel.relcrmid=? and vtiger_crmentityrel.relmodule = ?", array($idComponents[1], $entityName));
+		if($result === false){
+			throw new WebServiceException(WebServiceErrorCode::$RECORDNOTFOUND,"Record you are trying to access is not found");
+		}
+		$rowCount = $db->num_rows($result);
+		for($i = 0; $i < $rowCount; ++$i) {
+			$relatedModule = $db->query_result($result,$i,'module');
+			$ws_rel_id = vtws_getWebserviceEntityId($relatedModule, $db->query_result($result,$i,'crmid'));
+			if (multi_relations_check_permissions($ws_rel_id, $user) == true) {
+				$relID[$relatedModule][$i] = $ws_rel_id;
+			}
+		}
+		
+		$result = $db->pquery("select * from vtiger_notes
+					inner join vtiger_senotesrel on vtiger_senotesrel.notesid= vtiger_notes.notesid
+					inner join vtiger_crmentity on vtiger_crmentity.crmid= vtiger_notes.notesid and vtiger_crmentity.deleted=0
+					inner join vtiger_crmentity crm2 on crm2.crmid=vtiger_senotesrel.crmid
+					LEFT join vtiger_notescf on vtiger_notescf.notesid=vtiger_notes.notesid 
+					left join vtiger_seattachmentsrel  on vtiger_seattachmentsrel.crmid =vtiger_notes.notesid
+					left join vtiger_attachments on vtiger_seattachmentsrel.attachmentsid = vtiger_attachments.attachmentsid
+					 where crm2.crmid=?", array($idComponents[1] ));
+		$rowCount = $db->num_rows($result);
+		for($i = 0; $i < $rowCount; ++$i) {
+			$relatedModule = 'Documents';
+			$ws_rel_id = vtws_getWebserviceEntityId($relatedModule, $db->query_result($result,$i,'notesid'));
+			if (multi_relations_check_permissions($ws_rel_id, $user) == true) {
+				$relID[$relatedModule][$i] = $ws_rel_id;
+			}
+		}
+
 	}
 	else {
 	// special for products
