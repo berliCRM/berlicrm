@@ -862,6 +862,9 @@ $languageStrings = array(
 	// RelatedList Count fail
 	'LBL_QUERY_FAILED' => 'Query failed',
 	
+	// Workflow
+	'LBL_WORKFLOW_TOO_MANY_SUBJECT' => 'Issues with Workflow',
+	'LBL_WORKFLOW_TOO_MANY_CONTENT' => '<html>This email has been generated because one of your <a href="%s">Workflows</a> with %d affected data sets would exceed the limitation of %d and thus was reduced to %d.<br><br>Should you recieve this email multiple times with an unaltered amount of affected data sets then you should consider to change the Workflow conditions, otherwise not all data will be processed.<html>',
 );
 
 $jsLanguageStrings = array(

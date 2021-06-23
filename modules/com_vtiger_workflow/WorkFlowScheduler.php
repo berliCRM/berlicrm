@@ -89,6 +89,23 @@ class WorkFlowScheduler {
 			if ($tasks) {
 				$records = $this->getEligibleWorkflowRecords($workflow);
 				$noOfRecords = count($records);
+				// limit data to process to avoid out of memory crash, inform admin
+				$maxLimit = 5000;
+				if ($noOfRecords > $maxLimit) {
+					global $site_URL, $HELPDESK_SUPPORT_NAME, $HELPDESK_SUPPORT_EMAIL_ID;
+					$subject = vtranslate('LBL_WORKFLOW_TOO_MANY_SUBJECT');
+					$content = vtranslate('LBL_WORKFLOW_TOO_MANY_CONTENT');
+					$workflowURL = $site_URL.'index.php?module=Workflows&parent=Settings&view=Edit&record='.$workflow->id;
+					$content = sprintf($content, $workflowURL, $noOfRecords, $maxLimit, $maxLimit);
+					
+					require_once('modules/Emails/mail.php');
+					$to = $admin->email1;
+					if (!empty($to)) {
+						send_mail('com_vtiger_workflow', $to, $HELPDESK_SUPPORT_NAME, $HELPDESK_SUPPORT_EMAIL_ID, $subject, $content);
+					}
+					
+					$noOfRecords = $maxLimit;
+				}
 				for ($j = 0; $j < $noOfRecords; ++$j) {
 					$recordId = $records[$j];
                     // We need to pass proper module name to get the webservice 
@@ -115,6 +132,7 @@ class WorkFlowScheduler {
 							}
 						}
 					}
+					set_time_limit(0);
 				}
 			}
 			$vtWorflowManager->updateNexTriggerTime($workflow);
