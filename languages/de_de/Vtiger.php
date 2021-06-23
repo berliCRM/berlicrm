@@ -575,7 +575,7 @@ $languageStrings = array(
 	'Reviewed' => 'bewertet',
 	'Rss' => 'RSS',
 	'S&H Amount' => 'Versandkosten Betrag',
-	'Sales End Date' => 'Vertriebsenddatum',
+	'Sales End Date' => 'Abschlussdatum',
 	'Sales Order' => 'Verkaufsbestellung',
 	'Sales Start Date' => 'Vertriebsstartdatum',
 	'SalesOrder' => 'Verkaufsbestellung',
@@ -997,7 +997,7 @@ $jsLanguageStrings = array(
 	'PM' => 'PM',
 	'SHOULD_BE_LESS_THAN_TODAY' => 'muss vor heute liegen',
 	'SINGLE_Accounts' => 'Organisation',
-	'SINGLE_Contacts' => 'Kunde',
+	'SINGLE_Contacts' => 'Person',
     
         //Promotion translations
         'JS_HIDE_PROMOTION' => 'Promotion verbergen',
