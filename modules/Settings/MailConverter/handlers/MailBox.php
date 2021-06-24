@@ -73,12 +73,20 @@ class Vtiger_MailBox {
 		$imap = false;
 		$mailboxsettings = $this->_mailboxsettings;
 		$isconnected = false;
+		
+		$server = $mailboxsettings['server'];
+		$port = $mailboxsettings['port'];
+		$protocol = $mailboxsettings['protocol'];
+		$sslType = $mailboxsettings['ssltype'];
+		$sslMethod = $mailboxsettings['sslmethod'];
+		$userName = $mailboxsettings['username'];
+		$password = $mailboxsettings['password'];
 
 		// Connect using last successful url
 		if($mailboxsettings['connecturl']) {
 			$connecturl = $mailboxsettings['connecturl'];
 			$this->log("Trying to connect using connecturl $connecturl$folder", true);
-			$imap = @imap_open("$connecturl$folder", $mailboxsettings['username'], $mailboxsettings['password']);
+			$imap = @imap_open("$connecturl$folder", $userName, $password);
 			if($imap) {
 				$this->_imapurl = $connecturl;
 				$this->_imapfolder = $folder;
@@ -89,13 +97,27 @@ class Vtiger_MailBox {
 		}
 
 		if(!$imap) {
-			$connectString = '{'. "$mailboxsettings[server]:$mailboxsettings[port]/$mailboxsettings[protocol]/$mailboxsettings[ssltype]/$mailboxsettings[sslmethod]" ."}";
-			$connectStringShort = '{'. "$mailboxsettings[server]/$mailboxsettings[protocol]:$mailboxsettings[port]" ."}";
+			$connectString = '{'."$server:$port/$protocol/$sslType/$sslMethod".'}';
+			$connectStringShort = '{'."$server/$protocol:$port".'}';
+			// Microsoft shared
+			if (strpos($userName, '\\') !== false) {
+				$tmp = explode('\\', $userName);
+				// strange things happen with double backslash
+				$auth = array_shift($tmp);
+				$user = array_pop($tmp);
+				$userName = $auth.'\\'.$user;
+				$sharedConnectString = '{'."$server:$port/$protocol/$sslType/$sslMethod/authuser=$auth/user=$user".'}';
+			}
 
 			$this->log("Trying to connect using $connectString$folder", true);
-			if(!$imap = @imap_open("$connectString$folder", $mailboxsettings[username], $mailboxsettings[password])) {
+			if(!$imap = @imap_open("$connectString$folder", $userName, $password)) {
 				$this->log("Connect failed using $connectString$folder, trying with $connectStringShort$folder...", true);
-				$imap = @imap_open("$connectStringShort$folder", $mailboxsettings[username], $mailboxsettings[password]);
+				if (isset($sharedConnectString)) {
+					$imap = @imap_open("$sharedConnectString$folder", $userName, $password);
+				}
+				if (!$imap) {
+					$imap = @imap_open("$connectStringShort$folder", $userName, $password);
+				}
 				if($imap) {
 					$this->_imapurl = $connectStringShort;
 					$this->_imapfolder = $folder;
