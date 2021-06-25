@@ -15,6 +15,13 @@ require_once 'modules/HelpDesk/HelpDesk.php';
 class ModCommentsHandler extends VTEventHandler {
 
 	function handleEvent($eventName, $data) {
+		
+		$moduleName = $data->getModuleName();
+
+        // Validate the event target
+        if ($moduleName != 'ModComments') {
+            return;
+        }
 
 		if($eventName == 'vtiger.entity.beforesave') {
 			// Entity is about to be saved, take required action
