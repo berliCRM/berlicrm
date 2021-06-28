@@ -79,7 +79,6 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 
 				$FN = $filePath.$savedFile;
 				$size=filesize($FN);
-	            syslog(LOG_DEBUG,"FN=$FN,size=$size");	
 				//Begin writing headers
 				header("Cache-Control:");
 				header("Cache-Control: public");
