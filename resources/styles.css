@@ -183,9 +183,14 @@
 @font-face {
   font-family: 'Open Sans';
   font-style: normal;
-  font-weight: 400;
-  src: url('../../../../resources/fonts/OpenSans-Regular-webfont.eot');
-  src: url('../../../../resources/fonts/OpenSans-Regular-webfont.eot?#iefix') format('embedded-opentype'), url('../../../../resources/fonts/OpenSans-Regular-webfont.woff') format('woff'), url('../../../../resources/fonts/OpenSans-Regular-webfont.ttf') format('truetype'), url('../../../../resources/fonts/OpenSans-Regular-webfont.svg#open_sansregular') format('svg');
+  font-weight: 400; 
+  src: url('./fonts/OpenSans-Regular-webfont.eot'); /* IE9 Compat Modes */
+  src: local(''),
+       url('./fonts/OpenSans-Regular-webfont.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       /* url('./fontsOpenSans-Regular-webfont.woff2') format('woff2'), /* Super Modern Browsers */
+       url('./fonts/OpenSans-Regular-webfont.woff') format('woff'), /* Modern Browsers */
+       url('./fonts/OpenSans-Regular-webfont.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('./fonts/OpenSans-Regular-webfont.svg#OpenSans') format('svg'); /* Legacy iOS */
 }
 body {
   width: 100%;
@@ -448,7 +453,7 @@ textarea {
   list-style: none outside none;
 }
 .icon-plus.icon-white {
-  background-image: url("../../../../libraries/bootstrap/img/glyphicons-halflings.png") !important;
+  background-image: url("../libraries/bootstrap/img/glyphicons-halflings.png") !important;
   opacity: 0.8;
 }
 .livesupport_tab,
@@ -818,7 +823,7 @@ td.fieldValue .input-append {
 }
 .listViewEntriesTable .listViewHeaders a.listViewHeaderValues .icon-chevron-down.icon-white,
 .listViewEntriesTable .listViewHeaders a.listViewHeaderValues .icon-chevron-up.icon-white {
-  background-image: url("../../../../libraries/bootstrap/img/glyphicons-halflings.png");
+  background-image: url("../libraries/bootstrap/img/glyphicons-halflings.png");
   opacity: 0.7;
   margin-top: 1px;
 }
