@@ -148,9 +148,9 @@ var Vtiger_Index_Js = {
 	 */
 
 	showComposeEmailPopup : function(params, cb){
-		var currentModule = "Emails";
-		var replySubject = "";
-		var replyBody = "";
+		var currentModule = 'Emails';
+		var replySubject = '';
+		var replyBody = '';
 		var ccc = '';
 		if(params.replySubject != undefined ){
 			replySubject = params.replySubject;
@@ -186,10 +186,16 @@ var Vtiger_Index_Js = {
 									}
 								},css);
 							} else {
+								//// it go here if it is only one email adress.
 								emailFields.attr('checked','checked');
 								var params = form.serializeFormData();
 								// http://stackoverflow.com/questions/13953321/how-can-i-call-a-window-child-function-in-javascript
 								// This could be useful for the caller to invoke child window methods post load.
+								
+								params.subject = replySubject;
+								params.description = replyBody;
+								params.cc = ccc;
+								
 								var win = emailEditInstance.showComposeEmailForm(params);
 								cbargs.push(win);
 							}
@@ -315,12 +321,13 @@ var Vtiger_Index_Js = {
 			jQuery("#topMenus").css({'overflow':'visible'});
 		});
 	},
-
+	
 	/**
 	 * Function to trigger tooltip feature.
 	 */
 	registerTooltipEvents: function() {
 		var references = jQuery('[data-field-type="reference"] > a,[data-field-type="multireference"] > a');
+		//var betreff = jQuery('[data-field-type="string"] > span > a '); //// example for another PopoverTooltip window
 		var lastPopovers = [];
 
 		// Fetching reference fields often is not a good idea on a given page.
@@ -369,7 +376,17 @@ var Vtiger_Index_Js = {
 				placement:  the_placement,
 				template: '<div class="popover popover-tooltip"><div class="arrow"></div><div class="popover-inner"><button name="vtTooltipClose" class="close" style="color:white;opacity:1;font-weight:lighter;position:relative;top:3px;right:3px;">x</button><h3 class="popover-title"></h3><div class="popover-content"><div></div></div></div></div>'
 			});
-			lastPopovers.push(el.popover('show'));
+
+			//// first i hide all popover's, that are open. ("hideAllTooltipViews()" not real working ?.)
+			jQuery('.popover').css( "display", "none", "important");
+			//console.log(el[0].dataset['originalTitle']); //// example: Leads
+			if( el[0].dataset['originalTitle'] == undefined || el[0].dataset['originalTitle'] == '' ){
+				el[0].dataset['originalTitle'] = 'Details';
+			}
+			//// here was a problem with variable "lastPopovers.push(el.popover('show'));", is was not defined so. But if 
+			//// first defined a variable and then push this variable to lastPopovers, so it work! No idea whu?
+			var popoverToShow = el.popover('show');
+			lastPopovers.push(popoverToShow);
 			registerToolTipDestroy();
 		}
 
@@ -389,16 +406,32 @@ var Vtiger_Index_Js = {
 				out: hideAllTooltipViews
 		});
 
+		/*
+		betreff.hoverIntent({
+			interval: 100,
+			sensitivity: 7,
+			timeout: 10,
+			over: prepareAndShowTooltipView,
+			out: hideAllTooltipViews
+		});
+		*/
+
 		function registerToolTipDestroy() {
+			// i define it here, because in "on.click" anonyme funktion it can not defined so (only if final).
+			// if we have only one tooltip, we not need a array?
+			var lastPopover = lastPopovers.pop();
 			jQuery('button[name="vtTooltipClose"]').on('click', function(e){
-				var lastPopover = lastPopovers.pop();
+				// var lastPopover = lastPopovers.pop(); // here it was not defined because "it is in function"
 				lastPopover.popover('hide');
 				// Fix suggested http://code.vtiger.com/vtiger/vtigercrm/issues/43
 				jQuery('.popover').css( "display", "none", "important");
 			});
+
+
 		}
 	},
 
+	
 	registerShowHideLeftPanelEvent : function() {
 		jQuery('#toggleButton').click(function(e){
 			e.preventDefault();

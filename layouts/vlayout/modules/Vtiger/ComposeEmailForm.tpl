@@ -22,10 +22,10 @@
 		<input type="hidden" name="module" value="{$MODULE}"/>
 		<input type="hidden" name="selectedFields" value='{if !empty($SELECTED_FIELDS)}{ZEND_JSON::encode($SELECTED_FIELDS)}{/if}'/>
 		<input type="hidden" name="mode" value="massSave" />
-		<input type="hidden" name="toemailinfo" value='{if !empty($TOMAIL_INFO)}{ZEND_JSON::encode($TOMAIL_INFO)}{/if}' />
+		<input type="hidden" name="toemailinfo" value='{ZEND_JSON::encode($TOMAIL_INFO)}' />
 		<input type="hidden" name="view" value="MassSaveAjax" />
 		<input type="hidden" name="to" value='{if !empty($TO)}{ZEND_JSON::encode($TO)}{/if}' />
-		<input type="hidden" name="toMailNamesList" value='{if !empty($TOMAIL_NAMES_LIST)}{ZEND_JSON::encode($TOMAIL_NAMES_LIST)}{/if}' />
+		<input type="hidden" name="toMailNamesList" value='{ZEND_JSON::encode($TOMAIL_NAMES_LIST)}' />
 		<input type="hidden" id="flag" name="flag" value="" />
 		<input type="hidden" id="maxUploadSize" value="{$MAX_UPLOAD_SIZE}" />
 		<input type="hidden" id="documentIds" name="documentids" value="" />
@@ -42,7 +42,6 @@
 		<input type="hidden" name="search_value" value="{$ALPHABET_VALUE}" />
 		<input type="hidden" name="search_params" value='{if !empty($SEARCH_PARAMS)}{ZEND_JSON::encode($SEARCH_PARAMS)}{/if}' />
 		<input type="hidden" name="cc" value='{if !empty($CC)}{ZEND_JSON::encode($CC)}{/if}' />
-
 		<div class="row-fluid toEmailField padding10">
 			<span class="span8">
 				<span class="row-fluid">
