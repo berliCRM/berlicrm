@@ -16,16 +16,16 @@
 		<hr style='margin:5px 0;width:100%'>
 	</div>
 	<form class="form-horizontal" id="massEmailForm" method="post" action="index.php" enctype="multipart/form-data" name="massEmailForm">
-		<input type="hidden" name="selected_ids" value='{if !empty($SELECTED_IDS)}{ZEND_JSON::encode($SELECTED_IDS)}{/if}' />
-		<input type="hidden" name="excluded_ids" value='{if !empty($EXCLUDED_IDS)}{ZEND_JSON::encode($EXCLUDED_IDS)}{/if}' />
+		<input type="hidden" name="selected_ids" value='{json_encode($SELECTED_IDS)}' />
+		<input type="hidden" name="excluded_ids" value='{json_encode($EXCLUDED_IDS)}' />
 		<input type="hidden" name="viewname" value="{$VIEWNAME}" />
 		<input type="hidden" name="module" value="{$MODULE}"/>
-		<input type="hidden" name="selectedFields" value='{if !empty($SELECTED_FIELDS)}{ZEND_JSON::encode($SELECTED_FIELDS)}{/if}'/>
+		<input type="hidden" name="selectedFields" value='{json_encode($SELECTED_FIELDS)}'/>
 		<input type="hidden" name="mode" value="massSave" />
-		<input type="hidden" name="toemailinfo" value='{ZEND_JSON::encode($TOMAIL_INFO)}' />
+		<input type="hidden" name="toemailinfo" value='{json_encode($TOMAIL_INFO)}' />
 		<input type="hidden" name="view" value="MassSaveAjax" />
-		<input type="hidden" name="to" value='{if !empty($TO)}{ZEND_JSON::encode($TO)}{/if}' />
-		<input type="hidden" name="toMailNamesList" value='{ZEND_JSON::encode($TOMAIL_NAMES_LIST)}' />
+		<input type="hidden" name="to" value='{json_encode($TO)}' />
+		<input type="hidden" name="toMailNamesList" value='{json_encode($TOMAIL_NAMES_LIST)}' />
 		<input type="hidden" id="flag" name="flag" value="" />
 		<input type="hidden" id="maxUploadSize" value="{$MAX_UPLOAD_SIZE}" />
 		<input type="hidden" id="documentIds" name="documentids" value="" />
@@ -40,8 +40,8 @@
 		<input type="hidden" name="search_key" value= "{$SEARCH_KEY}" />
 		<input type="hidden" name="operator" value="{$OPERATOR}" />
 		<input type="hidden" name="search_value" value="{$ALPHABET_VALUE}" />
-		<input type="hidden" name="search_params" value='{if !empty($SEARCH_PARAMS)}{ZEND_JSON::encode($SEARCH_PARAMS)}{/if}' />
-		<input type="hidden" name="cc" value='{if !empty($CC)}{ZEND_JSON::encode($CC)}{/if}' />
+		<input type="hidden" name="search_params" value='{json_encode($SEARCH_PARAMS)}' />
+		<input type="hidden" name="cc" value='{if !empty($CC)}{json_encode($CC)}{/if}' />
 		<div class="row-fluid toEmailField padding10">
 			<span class="span8">
 				<span class="row-fluid">
@@ -58,12 +58,12 @@
                         <input id="toEmail" name="toEmail" type="hidden" class="row-fluid"
 					value="{$TO_EMAILS}" data-validation-engine="validate[required, funcCall[Vtiger_To_Email_Validator_Js.invokeValidation]]"
 					data-fieldinfo='{$FIELD_INFO}'
-					{if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if}/>
+					{if !empty($SPECIAL_VALIDATOR)}data-validator='{json_encode($SPECIAL_VALIDATOR)}'{/if}/>
                     {else}
                     <input id="toEmail" name="toEmail" type="text" class="row-fluid autoComplete emailField select2"
 					value="{$TO_EMAILS}" data-validation-engine="validate[required, funcCall[Vtiger_To_Email_Validator_Js.invokeValidation]]"
 					data-fieldinfo='{$FIELD_INFO}'
-					{if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if}/>
+					{if !empty($SPECIAL_VALIDATOR)}data-validator='{json_encode($SPECIAL_VALIDATOR)}'{/if}/>
                     {/if}
 
 				</span>
@@ -166,7 +166,7 @@
 				<span class="row-fluid">
 					<span class="span2">{vtranslate('LBL_SELECT_SUBSTITUTE_TYPE',$MODULE)}</span>
 					<span class="span10">
-						<input type="hidden" id="moduleFields" name="moduleFields" data-value='{ZEND_JSON::encode($TEMPLATEFIELDS)|escape}' />
+						<input type="hidden" id="moduleFields" name="moduleFields" data-value='{json_encode($TEMPLATEFIELDS)|escape}' />
 						<span class="conditionRow">
 							<select class="chzn-select" id="modulename" name="modulename" >
 								<option value="none">{vtranslate('LBL_SELECT_MODULE',$MODULE)}</option>
@@ -212,7 +212,7 @@
 			<input type="hidden" name="related_load" value={$RELATED_LOAD} />
 		{/if}
 		<textarea id="description" name="description">{$DESCRIPTION}</textarea>
-		<input type="hidden" name="attachments" value='{ZEND_JSON::encode($ATTACHMENTS)}' />
+		<input type="hidden" name="attachments" value='{json_encode($ATTACHMENTS)}' />
 	</form>
 </div>
 
