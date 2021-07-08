@@ -404,7 +404,7 @@ class Vtiger_MailScannerInfo {
 		$scanners = array();
 
 		global $adb;
-		$result = $adb->pquery("SELECT scannername FROM vtiger_mailscanner", array());
+		$result = $adb->pquery("SELECT scannername FROM vtiger_mailscanner WHERE isvalid != 0", array());
 		if($result && $adb->num_rows($result)) {
 			while($resultrow = $adb->fetch_array($result)) {
 				$scanners[] = new self( decode_html($resultrow['scannername'] ));
