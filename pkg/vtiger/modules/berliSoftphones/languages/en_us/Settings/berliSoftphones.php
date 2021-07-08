@@ -25,14 +25,14 @@ $languageStrings = array(
 	'LBL_PHONE_PHONER' => '<a href="http://www.phoner.de" target=_blank >www.phoner.de</a>',
 	'LBL_PHONE_EFFTEL' => '<a href="http://www.efftel.com" target=_blank >www.efftel.com</a>',
 	'LBL_PHONE_ZOIPER' => '<a href="www.zoiper.com" target=_blank >www.zoiper.com</a> for Inbound and Outbound calls',
-	'LBL_PHONE_NFON' => '<a href="http://www.nfon.com" target=_blank >www.nfon.com</a> (Nsoftphone premium for Windows or iSoftPhone for Mac)',
+	'LBL_PHONE_NFON' => '<a href="https://www.nfon.com" target=_blank >www.nfon.com</a> (Nsoftphone premium for Windows or iSoftPhone for Mac)',
 	'LBL_PHONE_IMPORTANT' => 'Important:',
 	'LBL_PHONE_IMPORTANT1' => 'Do not activate a softphone option unless you have a softphone installed on your computer.',
 	'LBL_PHONE_HINT' => 'Hints for inbound calls:',
 	'LBL_PHONE_HINT1' => 'In order to initiate a contact display by an incoming call at the CRM you have to transmit the phone number of the caller to the CRM. If your softphone has such an option you may set it up that each incoming call initiates an URL call to the following URL:',
 	'LBL_PHONE_INBOUND_URL' => '---CRM Client URL---/index.php?module=berliSoftphones&action=ListPhone&phone&phonenumber=---Callers Phone#---',
 	'LBL_PHONE_HINT2' => 'Please consult the manual for a proper softphone setup. For the softphone Phoner (not Phoner light) you may enter %CALLERID%  at the Options->external application menu as a phone number substitute.',
-	'LBL_PHONE_HINT3' => 'The CRM identifies phone numbers which are entered in the same format as the format used by your softphone. They must have at least 4 digits. You may consult the CRM Journal for general hints: <a href="http://blog.crm-now.de/2009/07/22/format-von-telefonnummern/?lang=en" target=_blank>phone number formats</a>',
+	'LBL_PHONE_HINT3' => 'The CRM identifies phone numbers which are entered in the same format as the format used by your softphone. They must have at least 4 digits. You may consult the CRM Journal for general hints: <a href="https://blog.crm-now.de/2009/07/22/format-von-telefonnummern/?lang=en" target=_blank>phone number formats</a>',
 	'LBL_CONFIG_SAVED'=>'Your settings has been saved.',
 
 );
