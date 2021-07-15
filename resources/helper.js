@@ -139,13 +139,15 @@ jQuery.Class("Vtiger_Helper_Js",{
 	 */
 	showConfirmationBox : function(data){
 		var aDeferred = jQuery.Deferred();
-		var bootBoxModal = bootbox.confirm(data['message'],app.vtranslate('LBL_NO'),app.vtranslate('LBL_YES'), function(result) {
-			if(result){
-				aDeferred.resolve();
-			} else{
-				aDeferred.reject();
+		var bootBoxModal = bootbox.confirm(data['message'],app.vtranslate('LBL_NO'),app.vtranslate('LBL_YES'),
+			function(result){
+				if(result){
+					aDeferred.resolve();
+				} else{
+					aDeferred.reject();
+				}
 			}
-		});
+		);
 
         bootBoxModal.on('hidden',function(e){
             //In Case of multiple modal. like mass edit and quick create, if bootbox is shown and hidden , it will remove

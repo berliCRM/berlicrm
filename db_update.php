@@ -425,6 +425,22 @@ if($moduleInstance) {
 	}
 }
 
+echo "<br>Create berlicrm_recurringreferences table for calendar recurring events<br>";
+
+$query = "
+CREATE TABLE IF NOT EXISTS `berlicrm_recurringreferences` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `parentactivityid` int(11) NOT NULL,
+  `activityid` int(11) NOT NULL,
+  `startdate` date DEFAULT NULL,
+  `enddate` date DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+";
+$adb->pquery($query, array());
+echo "create berlicrm_recurringreferences table done.<br>";
+
+
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
 $adb->pquery($query, array($current_release_tag));
 echo "<h2>Finished updating to $current_release_tag!</h2>";

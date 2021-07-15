@@ -862,6 +862,8 @@ $languageStrings = array(
 	// RelatedList Count fail
 	'LBL_QUERY_FAILED' => 'Query failed',
 	
+	'LBL_SINGLE_EMAIL' => 'Email',
+
 	// Workflow
 	'LBL_WORKFLOW_TOO_MANY_SUBJECT' => 'Issues with Workflow',
 	'LBL_WORKFLOW_TOO_MANY_CONTENT' => '<html>This email has been generated because one of your <a href="%s">Workflows</a> with %d affected data sets would exceed the limitation of %d and thus was reduced to %d.<br><br>Should you recieve this email multiple times with an unaltered amount of affected data sets then you should consider to change the Workflow conditions, otherwise not all data will be processed.<html>',
@@ -1086,4 +1088,8 @@ $jsLanguageStrings = array(
     'JS_LBL_NO_TAXES'=>'no taxes assigned',
     'JS_LBL_SET_TAX_FOR'=>'set tax for', 
 	
+	//To delete all or only one Appointment from calendar inquiry
+	'JS_ALL'=>'All',
+	'JS_ONLY_THIS'=>'Only this',
+
 );

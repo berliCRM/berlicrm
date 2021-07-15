@@ -335,6 +335,68 @@ class CRMEntity {
 			return $adb->query_result($result, $index, $columnname);
 	}
 
+	/** Function to find all recurringreferences ids from this idRef
+	 * $idRef == this->id
+	 */
+	public function findRecurringreferencesIDs($idRef){
+		// if $idRef belong to RecurringEvent so this funktion find all IDs, that belong to it to.
+		global $adb;
+		$sqlRef1 = 'SELECT * FROM `berlicrm_recurringreferences` WHERE activityid = ?';
+		$resultRef1 = $adb->pquery($sqlRef1, array( $idRef ));
+		$rowsRef1 = $adb->num_rows($resultRef1);
+
+		$idsReferencesArray = array();
+		$parentactivityidMe ='';
+		//$rowsRef1, if it is not 0 so it can be only 1.
+		if($rowsRef1 > 0){
+			for($a = 0; $a < $rowsRef1 ; $a++){
+				$row1 = $adb->query_result_rowdata($resultRef1, $a);
+				$parentactivityidMe = $row1['parentactivityid'];
+			}
+			if($parentactivityidMe != ''){ // (here it muss have a value. )
+				$sqlRef2 = 'SELECT activityid FROM `berlicrm_recurringreferences` WHERE parentactivityid = ?';
+				$resultRef2 = $adb->pquery($sqlRef2, array(  $parentactivityidMe  ));
+				$rowsRef2 = $adb->num_rows($resultRef2);
+				// it can be nothing, one, or many here.
+				if($rowsRef2 > 0){
+					for($b = 0; $b < $rowsRef2 ; $b++){
+						$row2 = $adb->query_result_rowdata($resultRef2, $b);
+						$activityidMe = $row2['activityid'];
+						// add the belong IDs to the array.
+						$idsReferencesArray[] = $activityidMe;
+					}
+				}else{
+					// ERROR it can not step here, because if "parentactivityid" exist, it muss exist "activityid" to.
+				}
+			}else{
+				// ERROR it can not step here, because "parentactivityid" field are not found, but muss be in DB.
+			}
+		}else{
+			// here step it only if this $idRef not be in the table as 'activityid', 
+			// but if we delete the first Event of the RecurringsEvents, 
+			// it can be only 'parentactivityid' self. Vor another functionality it can help.
+			/*$sqlRef2 = 'SELECT activityid FROM `berlicrm_recurringreferences` WHERE parentactivityid = ?';
+			$resultRef2 = $adb->pquery($sqlRef2, array(  $idRef  ));
+			$rowsRef2 = $adb->num_rows($resultRef2);
+			if($rowsRef2 > 0){
+				for($b = 0; $b < $rowsRef2 ; $b++){
+					$row2 = $adb->query_result_rowdata($resultRef2, $b);
+					$activityidMe = $row2['activityid'];
+					// add the belong IDs to the array.
+					$idsReferencesArray[] = $activityidMe;
+				}
+			}else{
+				// if it is not a activityid or parentactivityid, so it can not be a Recurringevent, and this id belong to normal Event.
+			}*/
+		}
+		// if the array is empty, so it was a normal Event without recurring.
+		// doubles remove (it can not have a double values, but just in case)
+		$idsReferencesArray = array_unique($idsReferencesArray); 
+		// from smallest to largest value.  (normally it is allready sorted, but just im case)
+		sort($idsReferencesArray); 
+		return $idsReferencesArray;
+	}
+
 	/** Function to insert values in the specifed table for the specified module
 	 * @param $table_name -- table name:: Type varchar
 	 * @param $module -- module:: Type varchar
@@ -359,6 +421,80 @@ class CRMEntity {
 				$insertion_mode = '';
 			}
 		}
+
+		if ($insertion_mode == 'edit' && $this->column_fields['recurringtype'] != '' && $this->column_fields['recurringtype'] != '--None--' ){
+			
+			$idsReferencesArray = $this->findRecurringreferencesIDs(($this->id));
+
+			if( count($idsReferencesArray) > 0 ){
+				// in $_REQUEST :  [date_start] => 23-06-2021     /// in DB :  ['recurringdate'] 2021-06-23
+				$date_start_for_request = '';
+				$date_start_for_column_fields = '';
+				
+				$sqlRef2 = 'SELECT startdate FROM `berlicrm_recurringreferences` WHERE activityid = ?';
+				$resultRef2 = $adb->pquery($sqlRef2, array(  $idsReferencesArray[0]  ));
+				$rowsRef2 = $adb->num_rows($resultRef2);
+				if($rowsRef2 > 0){
+					$row2 = $adb->query_result_rowdata($resultRef2, 0);
+					$recurringdate = ($row2['startdate']); // 2021-06-23
+					$date_start_for_column_fields = $recurringdate;
+					$recurringdateArray = explode('-',$recurringdate);
+					$date_start_for_request = $recurringdateArray[2].'-'.$recurringdateArray[1].'-'.$recurringdateArray[0]; // 23-06-2021
+				}
+
+				// REQUEST [date_start] => 23-06-2021          //$this->column_fields['date_start']  2021-06-23
+				$_REQUEST['due_date'] = $date_start_for_request;
+				$_REQUEST['date_start'] = $date_start_for_request;                    
+				$this->column_fields['date_start'] = $date_start_for_column_fields;   
+				$this->column_fields['due_date'] = $date_start_for_column_fields;
+
+				$newRecurringdates = array();
+				for($a = 0; $a < count($idsReferencesArray) ; $a++){
+					// collect all datas from the recurringevents
+					$sqlRef1 = 'SELECT * FROM `berlicrm_recurringreferences` WHERE activityid = ?';
+					$resultRef1 = $adb->pquery($sqlRef1, array( $idsReferencesArray[$a] ));
+					$rowsRef1 = $adb->num_rows($resultRef1);
+					// sollte immer nur ein Treffer sein. $rowsRef1 sollte = 1 sein.
+					if($rowsRef1 > 0){
+						for($b = 0; $b < $rowsRef1; $b++ ){
+							$row = $adb->query_result_rowdata($resultRef1, $b);
+							$newStartdate = $row['startdate'];
+							$newRecurringdates[] = $newStartdate;
+						}
+					}
+				}
+
+
+				for($a = 0; $a < count($idsReferencesArray) ; $a++){
+					// dell all (because it will be set new)
+					$deleteFromBerlicrm_recurringreferences = 'DELETE FROM `berlicrm_recurringreferences` WHERE activityid = ?';
+					$adb->pquery($deleteFromBerlicrm_recurringreferences, array(  $idsReferencesArray[$a]  ));
+
+
+					if( $this->id == $idsReferencesArray[$a]){
+						//only if it is the id, not del. In Activity.php was a function for it to del and new set. 
+					}else{
+						$delete_from_vtiger_activity = 'DELETE FROM `vtiger_activity` WHERE activityid = ?';
+						$adb->pquery($delete_from_vtiger_activity, array(  $idsReferencesArray[$a]  ));
+
+						// if a activity in `vtiger_activity` deleted, so it will be deleted auto in `vtiger_recurringevents` to.
+						//$delete_from_vtiger_recurringevents = 'DELETE FROM vtiger_recurringevents WHERE activityid=?';
+						//$adb->pquery($delete_from_vtiger_recurringevents, array($idsReferencesArray[$a]));
+
+						$delete_from_vtiger_activity_reminder = 'DELETE FROM vtiger_activity_reminder WHERE activity_id=?';
+						$adb->pquery($delete_from_vtiger_activity_reminder, array($idsReferencesArray[$a]));
+
+						$delete_from_vtiger_cntactivityrel = 'DELETE FROM vtiger_cntactivityrel WHERE activityid = ?';
+						$adb->pquery($delete_from_vtiger_cntactivityrel, array($idsReferencesArray[$a]));
+
+					}
+				}
+
+				$_REQUEST['newRecurringdates'] = $newRecurringdates;
+
+			}
+		}
+
 
 		$tabid = getTabid($module);
 		if ($module == 'Calendar' && $this->column_fields["activitytype"] != null && $this->column_fields["activitytype"] != 'Task') {
@@ -446,7 +582,7 @@ class CRMEntity {
 
             // crm-now: flag for appending data, preventing multiple appends (by save-triggered workflows f.e.)
             $append = $_REQUEST["add"][$fieldname]=="on" && !$_REQUEST["added"][$fieldname][$this->id] && !empty($_REQUEST[$fieldname]);
-            $_REQUEST["added"][$fieldname][$this->id]=true;
+			$_REQUEST["added"][$fieldname][$this->id]=true;
 
 			$typeofdata_array = explode("~", $typeofdata);
 			$datatype = $typeofdata_array[0];
@@ -1787,12 +1923,12 @@ class CRMEntity {
         // crm-now: double joined crmentityrel (instead of OR in join-condition) yielding *huge* performance boost
 		$query .= " FROM $other->table_name";
 		$query .= " INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = $other->table_name.$other->table_index";
-		$query .= " LEFT JOIN vtiger_crmentityrel AS entrel1 ON (entrel1.relcrmid = vtiger_crmentity.crmid AND entrel1.crmid = $id)";
-		$query .= " LEFT JOIN vtiger_crmentityrel AS entrel2 ON (entrel2.crmid = vtiger_crmentity.crmid AND entrel2.relcrmid = $id)";
+		$query .= " LEFT JOIN vtiger_crmentityrel as entrel1 ON entrel1.relcrmid = vtiger_crmentity.crmid";
+		$query .= " LEFT JOIN vtiger_crmentityrel as entrel2 ON entrel2.crmid = vtiger_crmentity.crmid";
 		$query .= $more_relation;
 		$query .= " LEFT JOIN vtiger_users ON vtiger_users.id = vtiger_crmentity.smownerid";
 		$query .= " LEFT JOIN vtiger_groups ON vtiger_groups.groupid = vtiger_crmentity.smownerid";
-		$query .= " WHERE vtiger_crmentity.deleted = 0 AND (entrel1.crmid = $id OR entrel2.relcrmid = $id)";
+		$query .= " WHERE vtiger_crmentity.deleted = 0 AND (entrel2.relcrmid = $id OR entrel1.crmid = $id)";
 		$return_value = GetRelatedList($currentModule, $related_module, $other, $query, $button, $returnset);
 
 		if ($return_value == null)
