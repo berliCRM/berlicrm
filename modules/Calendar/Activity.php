@@ -90,7 +90,8 @@ class Activity extends CRMEntity {
        'Start Date'=>'date_start',
        'Start Time'=>'time_start',
        'End Date'=>'due_date',
-       'End Time'=>'time_end');
+       'End Time'=>'time_end'
+		);
 
        var $list_link_field= 'subject';
 
@@ -154,17 +155,26 @@ class Activity extends CRMEntity {
 		$recur_type='';
 		if(($recur_type == "--None--" || $recur_type == '') && $this->mode == "edit")
 		{
-			$sql = 'delete  from vtiger_recurringevents where activityid=?';
+			$sql = 'DELETE FROM vtiger_recurringevents WHERE activityid=?';
 			$adb->pquery($sql, array($this->id));
+
+			// If del it from vtiger_recurringevents, so del it from berlicrm_recurringreferences to. 
+			$sql = 'DELETE FROM berlicrm_recurringreferences WHERE activityid = ?';
+			$adb->pquery($sql, array($this->id));
+
 		}
+		
+		
 		//Handling for recurring type
 		//Insert into vtiger_recurring event table
 		if(isset($this->column_fields['recurringtype']) && $this->column_fields['recurringtype']!='' && $this->column_fields['recurringtype']!='--None--')
 		{
 			$recur_type = trim($this->column_fields['recurringtype']);
 			$recur_data = getrecurringObjValue();
-			if(is_object($recur_data))
-	      			$this->insertIntoRecurringTable($recur_data);
+
+			if(is_object($recur_data)){
+				$this->insertIntoRecurringTable($recur_data);
+			}
 		}
 
 		//Insert into vtiger_activity_remainder table
@@ -877,6 +887,9 @@ function insertIntoRecurringTable(& $recurObj)
 	// Function to unlink all the dependent entities of the given Entity by Id
 	function unlinkDependencies($module, $id) {
 		global $log;
+
+		$deleteFromBerlicrm_recurringreferences = 'DELETE FROM `berlicrm_recurringreferences` WHERE activityid = ?';
+		$this->db->pquery($deleteFromBerlicrm_recurringreferences, array($id));
 
 		$sql = 'DELETE FROM vtiger_activity_reminder WHERE activity_id=?';
 		$this->db->pquery($sql, array($id));

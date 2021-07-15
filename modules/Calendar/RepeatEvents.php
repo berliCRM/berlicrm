@@ -140,8 +140,23 @@ class Calendar_RepeatEvents {
 		$interval = strtotime($focus->column_fields['due_date']) - 
 				strtotime($focus->column_fields['date_start']);
 		
+		$recurringtypeOfFirstEvent = $focus->column_fields['recurringtype'];
+		$idOfFirstEvent = $focus->column_fields['id'];
+
+		$newRecurringdates = array();
+		if (isset($_REQUEST['newRecurringdates']) && count($_REQUEST['newRecurringdates']) != 0 && $_REQUEST['mode'] == 'edit'){
+			$newRecurringdates = $_REQUEST['newRecurringdates'];
+			$recurObj->recurringdates = $_REQUEST['newRecurringdates'];
+		}
+
 		foreach ($recurObj->recurringdates as $index => $startDate) {
-			if($index == 0 && $eventStartDate == $startDate) {
+			if($index == 0 ) {
+				$insert_ref_of_recurringevent = 
+				'INSERT INTO `berlicrm_recurringreferences`(`parentactivityid`, `activityid`, `startdate`, `enddate`) 
+				VALUES ( ?, ?, ?, ?)';
+				$adb->pquery($insert_ref_of_recurringevent, 
+					array($idOfFirstEvent, $idOfFirstEvent, $startDate, $recurObj->recurringdates[0] ));
+					//array($idOfFirstEvent,$idOfFirstEvent,$recurObj->recurringdates['date_start'],$focus->column_fields['due_date']));
 				continue;
 			}
 			$startDateTimestamp = strtotime($startDate);
@@ -162,13 +177,23 @@ class Calendar_RepeatEvents {
 				} else {
 					$new_focus->column_fields[$key]         = $value;
 				}
+
+				$new_focus->column_fields['recurringtype'] = $recurringtypeOfFirstEvent;
+
 			}
 			if($numberOfRepeats > 10 && $index > 10) {
 				unset($new_focus->column_fields['sendnotification']);
 			}
+
 			$new_focus->save('Calendar');
             $record = $new_focus->id;
-            
+
+			$insert_ref_of_recurringevent = 
+			'INSERT INTO `berlicrm_recurringreferences`(`parentactivityid`, `activityid`, `startdate`, `enddate`) 
+			VALUES ( ?, ?, ?, ?)';
+			$adb->pquery($insert_ref_of_recurringevent, 
+				array($idOfFirstEvent, $record, $new_focus->column_fields['date_start'], $new_focus->column_fields['due_date']));
+
             // add repeat event to contact record
             if (isset($_REQUEST['contactidlist']) && $_REQUEST['contactidlist'] != '') {
                 //split the string and store in an array

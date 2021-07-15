@@ -309,38 +309,148 @@ jQuery.Class("Calendar_CalendarView_Js",{
         }
     },
 
+
     registerEventDelete : function(targetElement,calEvent) {
         var thisInstance = this;
         var recordId = calEvent.id;
-        targetElement.find('.delete').click(function(e){
-            var message = app.vtranslate('LBL_DELETE_CONFIRMATION');
-            Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(
-			function(e) {
-				//Confirmed to delete
-                var params = {
-                    "module": "Calendar",
-                    "action": "DeleteAjax",
-                    "record": recordId
-                }
-                AppConnector.request(params).then(function(data){
-                   if(data.success) {
-                        thisInstance.getCalendarView().fullCalendar('removeEvents', calEvent.id);
-                        var param = {text:app.vtranslate('JS_RECORD_DELETED')};
-                        Vtiger_Helper_Js.showMessage(param);
-                    } else {
-                        var  params = {
-                            text : app.vtranslate('JS_NO_DELETE_PERMISSION')
-                        }
-                        Vtiger_Helper_Js.showPnotify(params);
-                    }
-                });
-			},
-			function(error, err){
-                e.preventDefault();
-                return false;
-			});
-        });
+		
+		var params = {
+			"module": "Calendar",
+			"action": "DeleteAjax",
+			"record": recordId,
+			"operation" : "checkRecurr"
+		}
+		AppConnector.request(params).then(function(data){
+		   if(data.success) {
+				var idsReferencesArray = data.result.idsReferencesArray; 
+				targetElement.find('.delete').click(function(e){
+
+					if(idsReferencesArray.length > 0){
+						
+						var message = app.vtranslate('JS_LBL_ARE_YOU_SURE_YOU_WANT_TO_DELETE');
+						var cancel = app.vtranslate('JS_LBL_CANCEL');
+						var all = app.vtranslate('JS_ALL');
+						var onlyThis = app.vtranslate('JS_ONLY_THIS');
+
+						console.log(cancel);
+						var bootBoxModal = bootbox.dialog(
+							message,
+							[
+								{ 
+									"label" : cancel,
+									//"class" : "btn-primary",
+									"callback": function() {
+									// cancel, nothing to do
+									}
+								},
+								{
+									"label" : onlyThis,
+									"class" : "btn-danger",
+									"callback": function() {
+										// delete one, not all (and not cancel)
+										var params = {
+											"module": "Calendar",
+											"action": "DeleteAjax",
+											"record": recordId,
+											"operation" : "deleteevent"
+										}
+										AppConnector.request(params).then(function(data){
+											if(data.success) {
+												thisInstance.getCalendarView().fullCalendar('removeEvents', recordId);
+												var param = {text:app.vtranslate('JS_RECORD_DELETED')};
+												Vtiger_Helper_Js.showMessage(param);
+											} else {
+												var  params = {
+													text : app.vtranslate('JS_NO_DELETE_PERMISSION')
+												}
+												Vtiger_Helper_Js.showPnotify(params);
+											}
+										});
+
+									}
+								}, 
+								{
+									"label":all,
+									"class" : "btn-danger",
+									"callback": function() {
+										// delete all, not one (and not cancel)
+										var params = {
+											"module": "Calendar",
+											"action": "DeleteAjax", 
+											"record": recordId,
+											"idsReferencesArray": idsReferencesArray,
+											"operation" : "deleteManyEvents"
+										}
+										AppConnector.request(params).then(function(data){
+											if(data.success) {
+												// remove the views of all this ids in GUI
+												for(a = 0; a < idsReferencesArray.length; a++){
+													thisInstance.getCalendarView().fullCalendar('removeEvents', idsReferencesArray[a]);
+												}
+												var param = {text:app.vtranslate('JS_RECORD_DELETED')};
+												Vtiger_Helper_Js.showMessage(param);
+											} else {
+												var  params = {
+													text : app.vtranslate('JS_NO_DELETE_PERMISSION')
+												}
+												Vtiger_Helper_Js.showPnotify(params);
+											}
+										});
+
+									}
+								}/*, 
+								{
+									"label" : "Just a button more..."
+								}*/
+							]
+						);
+
+
+					}else{
+						// if it was not a recurringevents
+						var message = app.vtranslate('LBL_DELETE_CONFIRMATION');
+						Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(
+						function(e) {
+							//Confirmed to delete
+							var params = {
+								"module": "Calendar",
+								"action": "DeleteAjax", 
+								"record": recordId,
+								"operation" : "deleteevent"
+							}
+							AppConnector.request(params).then(function(data){
+							   if(data.success) {
+									thisInstance.getCalendarView().fullCalendar('removeEvents', calEvent.id);
+									var param = {text:app.vtranslate('JS_RECORD_DELETED')};
+									Vtiger_Helper_Js.showMessage(param);
+								} else {
+									var  params = {
+										text : app.vtranslate('JS_NO_DELETE_PERMISSION')
+									}
+									Vtiger_Helper_Js.showPnotify(params);
+								}
+							});
+						},
+						function(error, err){
+							e.preventDefault();
+							return false;
+						});
+
+
+					}
+
+				});
+
+			} else {
+				// error
+				var  params = {
+					text : 'Check Recurring not correct'
+				}
+				Vtiger_Helper_Js.showPnotify(params);
+			}
+		});
     },
+
 
 	registerCalendar : function(customConfig) {
 		var thisInstance = this;
@@ -454,29 +564,56 @@ jQuery.Class("Calendar_CalendarView_Js",{
                     return;
                 }
 
-                var params = {
-                    module : 'Calendar',
-                    action : 'DragDropAjax',
-                    mode : 'updateDeltaOnResize',
-                    id : event.id,
-                    activitytype : event.activitytype,
-                    secDelta : delta.asSeconds()
-                }
-                AppConnector.request(params).then(function(data){
-                    if (!data || !data.result) {
-                        var err = app.vtranslate('JS_ERROR');
-                        if (data.error && data.error.message) err = err+ ': '+data.error.message;
-                        Vtiger_Helper_Js.showPnotify(err);
-                        revertFunc();
-                    } else if(!data.result.ispermitted){
-                        Vtiger_Helper_Js.showPnotify(app.vtranslate('JS_NO_EDIT_PERMISSION'));
-                        revertFunc();
-                    }
-                    }, function() {
-						var err = app.vtranslate('JS_ERROR')+': Internal Server Error';
-						Vtiger_Helper_Js.showPnotify(err);
+				var recordId = event.id;
+				var params = {
+					"module": "Calendar",
+					"action": "DeleteAjax",
+					"record": recordId,
+					"operation" : "checkRecurr"
+				}
+				AppConnector.request(params).then(function(data){
+					var idsReferencesArray = [];
+					if(data.success) {
+						idsReferencesArray = data.result.idsReferencesArray; 
+						if(idsReferencesArray.length > 0){
+							revertFunc();
+							return;
+						}else{
+							var params = {
+								module : 'Calendar',
+								action : 'DragDropAjax',
+								mode : 'updateDeltaOnResize',
+								id : event.id,
+								activitytype : event.activitytype,
+								secDelta : delta.asSeconds()
+							}
+							AppConnector.request(params).then(function(data){
+								if (!data || !data.result) {
+									var err = app.vtranslate('JS_ERROR');
+									if (data.error && data.error.message) err = err+ ': '+data.error.message;
+									Vtiger_Helper_Js.showPnotify(err);
+									revertFunc();
+								} else if(!data.result.ispermitted){
+									Vtiger_Helper_Js.showPnotify(app.vtranslate('JS_NO_EDIT_PERMISSION'));
+									revertFunc();
+								}
+							}, function() {
+								var err = app.vtranslate('JS_ERROR')+': Internal Server Error';
+								Vtiger_Helper_Js.showPnotify(err);
+								revertFunc();
+							});
+						}
+
+					}else{
 						revertFunc();
+						return;
+					}
+				}, function() {
+					var err = app.vtranslate('JS_ERROR')+': Internal Server Error';
+					Vtiger_Helper_Js.showPnotify(err);
+					revertFunc();
 				});
+
             },
 
             eventDrop : function( event, delta, revertFunc, jsEvent, ui, view ) {
@@ -488,29 +625,59 @@ jQuery.Class("Calendar_CalendarView_Js",{
                     revertFunc();
                     return;
                 }
-                var params = {
-                    module : 'Calendar',
-                    action : 'DragDropAjax',
-                    mode : 'updateDeltaOnDrop',
-                    id : event.id,
-                    activitytype : event.activitytype,
-                    secDelta : delta.asSeconds()
-                }
-                AppConnector.request(params).then(function(data){
-                    if (!data || !data.result) {
-                        var err = app.vtranslate('JS_ERROR');
-                        if (data.error && data.error.message) err = err+ ': '+data.error.message;
-                        Vtiger_Helper_Js.showPnotify(err);
-                        revertFunc();
-                    } else if(!data.result.ispermitted){
-                        Vtiger_Helper_Js.showPnotify(app.vtranslate('JS_NO_EDIT_PERMISSION'));
-                        revertFunc();
-                    }
-                }, function() {
-                    var err = app.vtranslate('JS_ERROR')+': Internal Server Error';
-                    Vtiger_Helper_Js.showPnotify(err);
-                    revertFunc();
-                });
+
+				var recordId = event.id;
+				var params = {
+					"module": "Calendar",
+					"action": "DeleteAjax",
+					"record": recordId,
+					"operation" : "checkRecurr"
+				}
+				AppConnector.request(params).then(function(data){
+					var idsReferencesArray = [];
+					if(data.success) {
+						idsReferencesArray = data.result.idsReferencesArray; 
+						if(idsReferencesArray.length > 0){
+							revertFunc();
+							return;
+						}else{
+
+							var params = {
+								module : 'Calendar',
+								action : 'DragDropAjax',
+								mode : 'updateDeltaOnDrop',
+								id : event.id,
+								activitytype : event.activitytype,
+								secDelta : delta.asSeconds()
+							}
+							AppConnector.request(params).then(function(data){
+								if (!data || !data.result) {
+									var err = app.vtranslate('JS_ERROR');
+									if (data.error && data.error.message) err = err+ ': '+data.error.message;
+									Vtiger_Helper_Js.showPnotify(err);
+									revertFunc();
+								} else if(!data.result.ispermitted){
+									Vtiger_Helper_Js.showPnotify(app.vtranslate('JS_NO_EDIT_PERMISSION'));
+									revertFunc();
+								}
+							}, function() {
+								var err = app.vtranslate('JS_ERROR')+': Internal Server Error';
+								Vtiger_Helper_Js.showPnotify(err);
+								revertFunc();
+							});
+
+						}
+
+					}else{
+						revertFunc();
+						return;
+					}
+				}, function() {
+					var err = app.vtranslate('JS_ERROR')+': Internal Server Error';
+					Vtiger_Helper_Js.showPnotify(err);
+					revertFunc();
+				});
+               
             },
 
 			eventMouseover : function(calEvent, jsEvent, view) {
