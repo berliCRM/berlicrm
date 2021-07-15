@@ -104,9 +104,12 @@ class Vtiger_Time_UIType extends Vtiger_Base_UIType {
 	 */
 	public function getDisplayValue($value, $record = false, $recordInstance = false) {
 		$userModel = Users_Privileges_Model::getCurrentUserModel();
-		$dateTimeValueObj = DateTimeField::convertToUserTimeZone($value);
-		$value = $dateTimeValueObj->format('H:i');
-		if($userModel->get('hour_format') == '12'){
+		// exclude UI 63 field with different time format  (duration_hours)
+		if (strpos($value, ':') !== false) {
+			$dateTimeValueObj = DateTimeField::convertToUserTimeZone($value);
+			$value = $dateTimeValueObj->format('H:i');
+		}
+		if($userModel->get('hour_format') == '12' && strpos($value, ':') !== false){
 			return self::getTimeValueInAMorPM($value);
 		}
 		return $value;
@@ -118,7 +121,7 @@ class Vtiger_Time_UIType extends Vtiger_Base_UIType {
 	 * @return converted value
 	 */
 	public function getEditViewDisplayValue($value) {
-		$dateTimeValueObj = DateTimeField::convertToUserTimeZone($value);
+        $dateTimeValueObj = DateTimeField::convertToUserTimeZone($value);
 		$value = $dateTimeValueObj->format('H:i');
 		return self::getTimeValueInAMorPM($value);
 	}
