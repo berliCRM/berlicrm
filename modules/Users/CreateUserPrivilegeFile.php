@@ -1622,11 +1622,9 @@ function populateSharingPrivileges($enttype,$userid,$module,$pertype, $var_name_
 				
 				foreach($roleusers as $user_id)
 				{
-					if(! in_array($user_id,$user_arr))
+					if(!isset($user_arr[$user_id]))
 					{
-						$query="insert into ".$table_name." values(?,?,?)";
-						$adb->pquery($query, array($userid, $tabid, $user_id));
-						$user_arr[]=$user_id;
+						$user_arr[$user_id] = array($userid, $tabid, $user_id);
 					}
 				}
 			}
@@ -1637,17 +1635,21 @@ function populateSharingPrivileges($enttype,$userid,$module,$pertype, $var_name_
 			{
 				foreach($grpusers as $user_id)
 				{
-					if(! in_array($user_id,$user_arr))
+					if(!isset($user_arr[$user_id]))
 					{
-						$query="insert into ".$table_name." values(?,?,?)";
-						$adb->pquery($query, array($userid, $tabid, $user_id));
-						$user_arr[]=$user_id;
+						$user_arr[$user_id] = array($userid, $tabid, $user_id);
 					}
 				}
 			}
 		}
-
-
+		if (!empty($user_arr)) {
+			$query = "INSERT INTO $table_name VALUES";
+			foreach ($user_arr AS $params) {
+				$query .= '(?,?,?),';
+			}
+			$query = rtrim($query, ',').';';
+			$adb->pquery($query, $user_arr);
+		}
 	}
 	elseif($enttype=='GROUP')
 	{
@@ -1669,15 +1671,20 @@ function populateSharingPrivileges($enttype,$userid,$module,$pertype, $var_name_
 
 			foreach($var_name_arr['GROUP'] as $grpid=>$grpusers)
 			{
-				if(! in_array($grpid,$grp_arr))
+				if(!isset($grp_arr[$grpid]))
 				{
-					$query="insert into ".$table_name." values(?,?,?)";
-					$adb->pquery($query, array($userid, $tabid, $grpid));
-					$grp_arr[]=$grpid;
+					$grp_arr[$grpid] = array($userid, $tabid, $grpid);
 				}
 			}
 		}
-
+		if (!empty($grp_arr)) {
+			$query = "INSERT INTO $table_name VALUES";
+			foreach ($grp_arr AS $params) {
+				$query .= '(?,?,?),';
+			}
+			$query = rtrim($query, ',').';';
+			$adb->pquery($query, $grp_arr);
+		}
 	}
 
 }
@@ -1725,11 +1732,9 @@ function populateRelatedSharingPrivileges($enttype,$userid,$module,$relmodule,$p
 				
 				foreach($roleusers as $user_id)
 				{
-					if(! in_array($user_id,$user_arr))
+					if(!isset($user_arr[$user_id]))
 					{
-						$query="insert into ".$table_name." values(?,?,?,?)";
-						$adb->pquery($query, array($userid, $tabid, $reltabid, $user_id));
-						$user_arr[]=$user_id;
+						$user_arr[$user_id] = array($userid, $tabid, $reltabid, $user_id);
 					}
 				}
 			}
@@ -1740,17 +1745,21 @@ function populateRelatedSharingPrivileges($enttype,$userid,$module,$relmodule,$p
 			{
 				foreach($grpusers as $user_id)
 				{
-					if(! in_array($user_id,$user_arr))
+					if(!isset($user_arr[$user_id]))
 					{
-						$query="insert into ".$table_name." values(?,?,?,?)";
-						$adb->pquery($query, array($userid, $tabid, $reltabid, $user_id));
-						$user_arr[]=$user_id;
+						$user_arr[$user_id] = array($userid, $tabid, $reltabid, $user_id);
 					}
 				}
 			}
 		}
-
-
+		if (!empty($user_arr)) {
+			$query = "INSERT INTO $table_name VALUES";
+			foreach ($user_arr AS $params) {
+				$query .= '(?,?,?,?),';
+			}
+			$query = rtrim($query, ',').';';
+			$adb->pquery($query, $user_arr);
+		}
 	}
 	elseif($enttype=='GROUP')
 	{
@@ -1772,15 +1781,20 @@ function populateRelatedSharingPrivileges($enttype,$userid,$module,$relmodule,$p
 
 			foreach($var_name_arr['GROUP'] as $grpid=>$grpusers)
 			{
-				if(! in_array($grpid,$grp_arr))
+				if(!isset($grp_arr[$grpid]))
 				{
-					$query="insert into ".$table_name." values(?,?,?,?)";
-					$adb->pquery($query, array($userid, $tabid, $reltabid, $grpid));
-					$grp_arr[]=$grpid;
+					$grp_arr[$grpid] = array($userid, $tabid, $reltabid, $grpid);
 				}
 			}
 		}
-
+		if (!empty($grp_arr)) {
+			$query = "INSERT INTO $table_name VALUES";
+			foreach ($grp_arr AS $params) {
+				$query .= '(?,?,?,?),';
+			}
+			$query = rtrim($query, ',').';';
+			$adb->pquery($query, $grp_arr);
+		}
 	}
 
 }
