@@ -12,6 +12,9 @@
 /**
  * URL Verfication - Required to overcome Apache mis-configuration and leading to shared setup mode.
  */
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+	
 require_once 'config.php';
 if (file_exists('config_override.php')) {
 	include_once 'config_override.php';
@@ -25,6 +28,10 @@ require_once('libraries/nusoap/nusoap.php');
 require_once('modules/HelpDesk/HelpDesk.php');
 require_once('modules/Emails/mail.php');
 require_once 'modules/Users/Users.php';
+
+require_once("modules/Emails/PHPMailer/src/PHPMailer.php");
+require_once("modules/Emails/PHPMailer/src/SMTP.php");
+require_once("modules/Emails/PHPMailer/src/Exception.php");
 
 
 /** Configure language for server response translation */
