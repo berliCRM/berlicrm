@@ -14874,6 +14874,19 @@ CREATE TABLE IF NOT EXISTS `vtiger_ws_userauthtoken` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
+-- Table structure for table `berlicrm_recurringreferences`
+--
+
+CREATE TABLE IF NOT EXISTS `berlicrm_recurringreferences` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `parentactivityid` int(11) NOT NULL,
+  `activityid` int(11) NOT NULL,
+  `startdate` date DEFAULT NULL,
+  `enddate` date DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
 -- Constraints for dumped tables
 --
 
