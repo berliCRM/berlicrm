@@ -66,7 +66,7 @@ class Install_Utils_Model {
 			$directiveValues['file_uploads'] = 'Off';
 		if (ini_get(('output_buffering') < '4096' && ini_get('output_buffering') != '0') || stripos(ini_get('output_buffering'), 'Off') > -1)
 			$directiveValues['output_buffering'] = 'Off';
-		if (ini_get('max_execution_time') < 3600)
+		if (ini_get('max_execution_time') < 3600 && ini_get('max_execution_time') > 0)
 			$directiveValues['max_execution_time'] = ini_get('max_execution_time');
 		if (self::memoryLimitInBytes() < 536870912)
 			$directiveValues['memory_limit'] = ini_get('memory_limit');
