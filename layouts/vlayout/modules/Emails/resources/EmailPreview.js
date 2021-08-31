@@ -34,7 +34,7 @@ jQuery.Class("Vtiger_EmailPreview_Js",{},{
 	 */
 	registerEventsForActionButtons : function(){
 		var thisInstance = this;
-		jQuery('[name="previewForward"],[name="previewEdit"]').on('click',function(e){
+		jQuery('[name="previewForward"],[name="previewEdit"],[name="previewAnswer"]').on('click',function(e){
 			var module = "Emails";
 			Vtiger_Helper_Js.checkServerConfig(module).then(function(data){
 				if(data == true){

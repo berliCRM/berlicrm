@@ -24,6 +24,11 @@
 							<strong>{vtranslate('LBL_FORWARD',$MODULE)}</strong>
 						</button>
 					</span>
+					<span class="btn-group">
+						<button type="button" name="previewAnswer" class="btn" data-mode="emailAnswer">
+							<strong>{vtranslate('LBL_ANSWER',$MODULE)}</strong>
+						</button>
+					</span>
 					{if !($RECORD->isSentMail())}
 						<span class="btn-group">
 							<button type="button" name="previewEdit" class="btn" data-mode="emailEdit">
