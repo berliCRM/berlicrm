@@ -24,11 +24,11 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 	 * Function to save an Email
 	 */
 	public function save() {
-            //Opensource fix for MailManager data mail attachment
-		if($this->get('email_flag')!="MailManager"){ 
-                    $this->set('date_start', date('Y-m-d')); 
-                    $this->set('time_start', date('H:i')); 
-                }
+        //Opensource fix for MailManager data mail attachment
+		if ($this->get('email_flag') != "MailManager" && empty($this->get('date_start'))) { 
+			$this->set('date_start', date('Y-m-d')); 
+			$this->set('time_start', date('H:i')); 
+		}
 		$this->set('activitytype', 'Emails');
 
 		//$currentUserModel = Users_Record_Model::getCurrentUserModel();
