@@ -133,7 +133,7 @@
 					</span>
 					<span class="span9">
 						<span class="row-fluid">
-							{decode_html($RECORD->get('description')|unescape:'html')}
+							{nl2br(decode_html($RECORD->get('description')|unescape:'html'))}
 						</span>
 					</span>
 				</span>
