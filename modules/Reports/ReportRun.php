@@ -543,7 +543,7 @@ class ReportRun extends CRMEntity
 			} elseif ($selectedfields[1] == 'realprice') {
 				$moduleInstance = CRMEntity::getInstance($module);
 				$tmpTbl = $selectedfields[0].$module;
-				$columnSQL = '(('.$tmpTbl.".listprice/".$moduleInstance->table_name.".conversion_rate) *".$tmpTbl.".quantity - CASE WHEN $tmpTbl.discount_amount IS NOT NULL THEN $tmpTbl.discount_amount ELSE 0 END - CASE WHEN $tmpTbl.discount_percent IS NOT NULL THEN ($tmpTbl.quantity * $tmpTbl.listprice * ($tmpTbl.discount_percent/100)) ELSE 0 END ) AS '". decode_html($header_label) ."'";
+				$columnSQL = '(('.$tmpTbl.".listprice/ CASE WHEN ".$moduleInstance->table_name.".conversion_rate = 0 THEN 1 ELSE ".$moduleInstance->table_name.".conversion_rate END) *".$tmpTbl.".quantity - CASE WHEN $tmpTbl.discount_amount IS NOT NULL THEN $tmpTbl.discount_amount ELSE 0 END - CASE WHEN $tmpTbl.discount_percent IS NOT NULL THEN ($tmpTbl.quantity * $tmpTbl.listprice * ($tmpTbl.discount_percent/100)) ELSE 0 END ) AS '". decode_html($header_label) ."'";
 				$this->queryPlanner->addTable($selectedfields[0].$module);
 			} else {
 				$columnSQL = $selectedfields[0].$module.".".$selectedfields[1]." AS '". decode_html($header_label) ."'";
@@ -1239,7 +1239,7 @@ class ReportRun extends CRMEntity
 							} elseif ($selectedfields[1] == 'realprice') {
 								$moduleInstance = CRMEntity::getInstance($moduleName);
 								$tmpTbl = $selectedfields[0].$moduleName;
-								$fieldvalue = '(('.$tmpTbl.".listprice/".$moduleInstance->table_name.".conversion_rate) *".$tmpTbl.".quantity - CASE WHEN $tmpTbl.discount_amount IS NOT NULL THEN $tmpTbl.discount_amount ELSE 0 END - CASE WHEN $tmpTbl.discount_percent IS NOT NULL THEN ($tmpTbl.quantity * $tmpTbl.listprice * ($tmpTbl.discount_percent/100)) ELSE 0 END ) ".$this->getAdvComparator($comparator,trim($value),$datatype);
+								$fieldvalue = '(('.$tmpTbl.".listprice/ CASE WHEN ".$moduleInstance->table_name.".conversion_rate = '0' THEN 1 ELSE ".$moduleInstance->table_name.".conversion_rate END) *".$tmpTbl.".quantity - CASE WHEN $tmpTbl.discount_amount IS NOT NULL THEN $tmpTbl.discount_amount ELSE 0 END - CASE WHEN $tmpTbl.discount_percent IS NOT NULL THEN ($tmpTbl.quantity * $tmpTbl.listprice * ($tmpTbl.discount_percent/100)) ELSE 0 END ) ".$this->getAdvComparator($comparator,trim($value),$datatype);
 							} else {
 							   //for inventory module table should be follwed by the module name
 								$selectedfields[0]='vtiger_inventoryproductrel'.$moduleName;
@@ -4022,7 +4022,7 @@ class ReportRun extends CRMEntity
 				$field = ' CASE WHEN '.$itemTableName.'.discount_amount is not null THEN '.$itemTableName.'.discount_amount/'.$primaryModuleInstance->table_name.'.conversion_rate '.
 					'WHEN '.$itemTableName.'.discount_percent IS NOT NULL THEN ('.$itemTableName.'.listprice*'.$itemTableName.'.quantity*'.$itemTableName.'.discount_percent/100/'.$primaryModuleInstance->table_name.'.conversion_rate) ELSE 0 END ';
 			} elseif ($field_columnname == 'realprice') {
-				$field = "($field_tablename.listprice".'/'.$primaryModuleInstance->table_name.".conversion_rate)*$field_tablename.quantity) - CASE WHEN $field_tablename.discount_amount IS NOT NULL THEN $field_tablename.discount_amount ELSE 0 END - CASE WHEN $field_tablename.discount_percent IS NOT NULL THEN ($field_tablename.quantity * $field_tablename.listprice * ($field_tablename.discount_percent/100)) ELSE 0 END )";
+				$field = "($field_tablename.listprice".'/CASE WHEN '.$primaryModuleInstance->table_name.'.conversion_rate = 0 THEN 1 ELSE '.$primaryModuleInstance->table_name.".conversion_rate END)*$field_tablename.quantity) - CASE WHEN $field_tablename.discount_amount IS NOT NULL THEN $field_tablename.discount_amount ELSE 0 END - CASE WHEN $field_tablename.discount_percent IS NOT NULL THEN ($field_tablename.quantity * $field_tablename.listprice * ($field_tablename.discount_percent/100)) ELSE 0 END )";
 			}
 		}
 		return $field;
