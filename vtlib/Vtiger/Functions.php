@@ -1308,4 +1308,49 @@ class Vtiger_Functions {
 		if (in_array($v5, $nationalPrefixes)) $b = 8;
 		return self::tz_ins_sp ($s, $a, $b);
 	}
+
+
+
+	/**
+	 * To show the colors in list and related list
+	 * include\ListView\ListViewController.php and modules/Vtiger/models/RelationListView.php used it.
+	 */
+	public static function getListViewColor($fieldName,$fieldValue, $moduleName, $moduleFieldInstances) {
+		$db = PearDatabase::getInstance();
+		// do it the same way as ListViewColor does to prevent ID issues with Calendar
+		if (!isset($moduleFieldInstances)) {
+			$moduleInstance = Vtiger_Module_Model::getInstance($moduleName);
+			$moduleFieldInstances = $moduleInstance->getFields();
+		}
+		$field = $moduleFieldInstances[$fieldName];
+		// Contacts got Account fields merged in... work around, uncached
+		if (!isset($field) && strpos($fieldName, '.') !== false) {
+			list($tmpModule, $tmpFieldName) = explode('.', $fieldName);
+			if ($tmpModule != $moduleName) {
+				$tmpModuleInstance = Vtiger_Module_Model::getInstance($tmpModule);
+				$tmpModuleFieldInstances = $tmpModuleInstance->getFields();
+				
+				$field = $tmpModuleFieldInstances[$tmpFieldName];
+			}
+		}
+		
+		if (isset($field)) {
+			$fieldId = $field->get('id');
+		
+			$query = 'SELECT listcolor FROM berli_listview_colors WHERE listfieldid = ? AND fieldcontent =?';
+			$result = $db->pquery($query,array($fieldId, decode_html($fieldValue)));
+			if ($result && $db->num_rows($result) > 0) {
+				$rowListColor = $db->query_result($result,0,'listcolor');
+			}
+		}
+		
+		if (!isset($rowListColor)) $rowListColor = '';
+		
+		// $this->fieldColorMap[$fieldName][$fieldValue] = $rowListColor;
+
+		return $rowListColor;
+	}
+
+
+
 }
