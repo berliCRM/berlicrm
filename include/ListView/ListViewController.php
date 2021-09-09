@@ -449,7 +449,7 @@ class ListViewController {
 						}
 						if ($parentMeta->isModuleEntity() && $parentModule != "Users") {
 							$value = "<a href='?module=$parentModule&view=Detail&".
-								"record=$rawValue' title='".getTranslatedString($parentModule, $parentModule)."'>$value</a>";
+							"record=$rawValue' title='".getTranslatedString($parentModule, $parentModule)."'>$value</a>";
 						}
 					} else {
 						$value = '--';
@@ -484,7 +484,7 @@ class ListViewController {
 							$value = substr($value, 0, strpos($value, $separator));
 						}
 					}
-				} 				
+				}
 				else {
 					$value = textlength_check($value);
 				}
@@ -496,48 +496,16 @@ class ListViewController {
 				$row[$fieldName] = $value;
 				if (in_array($uitype, Settings_ListViewColors_IndexAjax_View::getSupportedUITypes())) {
 					if (!isset($this->fieldColorMap[$fieldName]) || !isset($this->fieldColorMap[$fieldName][$rawValue])) {
-						$this->getListViewColor($fieldName,$rawValue,$module);
+						$rowListColor = Vtiger_Functions::getListViewColor($fieldName,$rawValue,$module, $this->moduleFieldInstances);
+						$this->fieldColorMap[$fieldName][$rawValue] = $rowListColor;
 					}
 					$row['fieldcolor'][] = $this->fieldColorMap[$fieldName][$rawValue];
 				}
 			}
 			$data[$recordId] = $row;
+			
 		}
 		return $data;
-	}
-	public function getListViewColor($fieldName,$fieldValue, $moduleName) {
-		$db = PearDatabase::getInstance();
-		
-		// do it the same way as ListViewColor does to prevent ID issues with Calendar
-		if (!isset($this->moduleFieldInstances)) {
-			$moduleInstance = Vtiger_Module_Model::getInstance($moduleName);
-			$this->moduleFieldInstances = $moduleInstance->getFields();
-		}
-		$field = $this->moduleFieldInstances[$fieldName];
-		// Contacts got Account fields merged in... work around, uncached
-		if (!isset($field) && strpos($fieldName, '.') !== false) {
-			list($tmpModule, $tmpFieldName) = explode('.', $fieldName);
-			if ($tmpModule != $moduleName) {
-				$tmpModuleInstance = Vtiger_Module_Model::getInstance($tmpModule);
-				$tmpModuleFieldInstances = $tmpModuleInstance->getFields();
-				
-				$field = $tmpModuleFieldInstances[$tmpFieldName];
-			}
-		}
-		
-		if (isset($field)) {
-			$fieldId = $field->get('id');
-		
-			$query = 'SELECT listcolor FROM berli_listview_colors WHERE listfieldid = ? AND fieldcontent =?';
-			$result = $db->pquery($query,array($fieldId, decode_html($fieldValue)));
-			if ($result && $db->num_rows($result) > 0) {
-				$rowListColor = $db->query_result($result,0,'listcolor');
-			}
-		}
-		
-		if (!isset($rowListColor)) $rowListColor = '';
-		
-		$this->fieldColorMap[$fieldName][$fieldValue] = $rowListColor;
 	}
 	
 }

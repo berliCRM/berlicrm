@@ -9,6 +9,9 @@
  *************************************************************************************/
 
 class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
+	
+	private $fieldColorMap = array();
+	private $moduleFieldInstances;
 
 	protected $relationModel = false;
 	protected $parentRecordModel = false;
@@ -290,7 +293,18 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
                             }
                         }
                     }
-                   $newRow[$relatedColumnFields[$col]] = $val;
+                    $newRow[$relatedColumnFields[$col]] = $val;
+
+					$fieldName = $relatedColumnFields[$col];
+					$rawValue = $val;
+					$module = $relationModuleName;
+
+					if (!isset($this->fieldColorMap[$fieldName]) || !isset($this->fieldColorMap[$fieldName][$rawValue])) {
+						$rowListColor = Vtiger_Functions::getListViewColor($fieldName,$rawValue,$module, $this->moduleFieldInstances);
+						$this->fieldColorMap[$fieldName][$rawValue] = $rowListColor;
+					}
+					$newRow['fieldcolor'][] = $this->fieldColorMap[$fieldName][$rawValue];
+
                 }
             }
 			//To show the value of "Assigned to"
@@ -385,7 +399,7 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
 		$queryGenerator->setFields($relatedModuleFields);
 		
 		$query = $queryGenerator->getQuery();
-		
+
         $pos = stripos($query,' from ');
         $query = substr($query,0,$pos).', vtiger_crmentity.crmid'.substr($query,$pos);
 
