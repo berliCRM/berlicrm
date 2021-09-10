@@ -120,7 +120,7 @@ class Settings_Vtiger_CompanyDetails_Model extends Settings_Vtiger_Module_Model 
 		unset($fieldsList['logo']);
 		$tableName = $this->baseTable;
 
-		if ($id) {
+		if ($id || $id == 0) {
 			$params = array();
 
 			$query = "UPDATE $tableName SET ";
