@@ -76,12 +76,16 @@ class Vtiger_EmailsRelatedModulePopup_View extends Vtiger_Popup_View {
 		$listViewModel = Vtiger_ListView_Model::getInstanceForPopup($moduleName);
 		$recordStructureInstance = Vtiger_RecordStructure_Model::getInstanceForModule($moduleModel);
 
-		$primaryEmailFieldName = 'email';
-		if ($moduleName == 'Accounts' || $moduleName == 'Users') {
-			$primaryEmailFieldName = 'email1';
+		$emailFields = array();
+		$moduleFields = $moduleModel->getFields();
+		foreach ($moduleFields AS $columnName => $fieldModel) {
+			$fieldType = $fieldModel->getFieldDataType();
+			if ($fieldType == 'email') {
+				$emailFields[$columnName] = $columnName;
+			}
 		}
 		
-		$listViewModel->extendPopupFields(array($primaryEmailFieldName=>$primaryEmailFieldName));
+		$listViewModel->extendPopupFields($emailFields);
 		
 		if(!empty($orderBy)) {
 			$listViewModel->set('orderby', $orderBy);
