@@ -71,7 +71,7 @@ class VTEntityDelta extends VTEventHandler {
 				if(!empty($newData[$fieldName])) {
 					$isModified = true;
 				}
-			} elseif($oldData[$fieldName] != $newData[$fieldName]) {
+			} elseif(strval($oldData[$fieldName]) !== strval($newData[$fieldName])) {
 				$isModified = true;
 			}
 			if($isModified) {
