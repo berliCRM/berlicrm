@@ -19,7 +19,10 @@ class HelpDeskHandler extends VTEventHandler {
 			$moduleName = $entityData->getModuleName();
 			if ($moduleName == 'HelpDesk') {
 				$ticketId = $entityData->getId();
-				$adb->pquery('UPDATE vtiger_ticketcf SET from_portal=0 WHERE ticketid=?', array($ticketId));
+				$fromPortalValue = $entityData->get('from_portal');
+				if ($fromPortalValue != 1) {
+					$adb->pquery('UPDATE vtiger_ticketcf SET from_portal=0 WHERE ticketid=?', array($ticketId));
+				}
 			}
 		}
 	}
