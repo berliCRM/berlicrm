@@ -8,7 +8,7 @@
  * All Rights Reserved.
  *************************************************************************************/
 
-	require_once("include/Webservices/QueryParser.php");
+	require_once("include/Webservices/Custom/NewParser.php");
 	
 	function vtws_query($q,$user){
 		
