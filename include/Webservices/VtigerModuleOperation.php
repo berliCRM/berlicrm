@@ -163,24 +163,23 @@ class VtigerModuleOperation extends WebserviceEntityOperation {
 	
 	public function query($q){
 		
-		$parser = new Parser($this->user, $q);
-		$error = $parser->parse();
+		$meta = $this->meta;
+		$parser = new berliQueryParser($this->user, $q, $meta);
+		$parsed = $parser->parse();
 		
-		if($error){
+		if(!$parsed){
 			return $parser->getError();
 		}
 		
 		$mysql_query = $parser->getSql();
-		$meta = $parser->getObjectMetaData();
-		$this->pearDB->startTransaction();
-		$result = $this->pearDB->pquery($mysql_query, array());
-		$error = $this->pearDB->hasFailedTransaction();
-		$this->pearDB->completeTransaction();
+		$params = $parser->getParams();
+		$result = $this->pearDB->pquery($mysql_query, $params);
+		$error = $this->pearDB->database->errorMsg();
 		
 		if($error){
 			throw new WebServiceException(WebServiceErrorCode::$DATABASEQUERYERROR,
 					vtws_getWebserviceTranslatedString('LBL_'.
-							WebServiceErrorCode::$DATABASEQUERYERROR));
+							WebServiceErrorCode::$DATABASEQUERYERROR).": $error");
 		}
 		
 		$noofrows = $this->pearDB->num_rows($result);
