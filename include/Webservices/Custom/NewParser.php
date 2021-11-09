@@ -167,7 +167,7 @@ class berliQueryParser {
 			}
 		}
 
-		$columnList = ($bCountQuery) ? 'COUNT(*) AS count' : $queryGenerator->getSelectClauseColumnSQL();
+		$columnList = ($bCountQuery) ? 'count(*)' : $queryGenerator->getSelectClauseColumnSQL();
 		$generatedQuery = "SELECT $columnList";
 		$generatedQuery .= $queryGenerator->getFromClause();
 		$generatedQuery .= $queryGenerator->getWhereClause();
