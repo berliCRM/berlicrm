@@ -14,23 +14,61 @@ Vtiger_Popup_Js("Vtiger_EmailsRelatedModule_Popup_Js",{},{
 		var id = row.data('id');
 		var recordName = row.data('name');
 		var emailFields = jQuery(row).find('.emailField');
-		var emailValue = '';
-		jQuery.each(emailFields,function(i,element) {
-			emailValue = jQuery(element).text();
-			if(emailValue != ''){
-				return false;
+
+		// we need to determine if it is a Verteiler or not
+		var modulename = (document.getElementById('modulename')).value;
+		if(modulename == 'Verteiler'){
+			let idVerteilerIdcontactEmail = (document.getElementById('idVerteilerIdcontactEmail')).value;
+			let selectedRecordDetails = {};
+
+			if(typeof(idVerteilerIdcontactEmail)!= "undefined" && idVerteilerIdcontactEmail.trim() != ''){
+				let idVerteilerIdcontactEmailArr = idVerteilerIdcontactEmail.split(';');
+				for(let a=0;a<idVerteilerIdcontactEmailArr.length;a++){
+					let tempArr =  idVerteilerIdcontactEmailArr[a].split(',');
+					if(tempArr[0] == id){
+						selectedRecordDetails[tempArr[1]] = {name : tempArr[2], 'email' : tempArr[3]};
+					}
+				}
 			}
-		});
-		if(emailValue == ""){
-			var error = recordName+" "+app.vtranslate("JS_DO_NOT_HAVE_AN_EMAIL_ID");
-			alert(error);
-			e.preventDefault();
-			return;
+			else{
+				var error = recordName+" "+app.vtranslate("JS_DO_NOT_HAVE_AN_EMAIL_ID");
+				alert(error);
+				e.preventDefault();
+				return;
+			}
+
+			if(Object.keys(selectedRecordDetails).length <= 0) {
+				var error = recordName+" "+app.vtranslate("JS_DO_NOT_HAVE_AN_EMAIL_ID");
+				alert(error);
+				e.preventDefault();
+				return;
+			}
+			else{
+				thisInstance.done(selectedRecordDetails, thisInstance.getEventName());
+				e.preventDefault();
+			}
+
 		}
-		var response ={};
-		response[id] = {'name' : recordName,'email' : emailValue} ;
-		thisInstance.done(response, thisInstance.getEventName());
-		e.preventDefault();
+		else{
+			var emailValue = '';
+			jQuery.each(emailFields,function(i,element) {
+				emailValue = jQuery(element).text();
+				if(emailValue != ''){
+					return false;
+				}
+			});
+			if(emailValue == ""){
+				var error = recordName+" "+app.vtranslate("JS_DO_NOT_HAVE_AN_EMAIL_ID");
+				alert(error);
+				e.preventDefault();
+				return;
+			}
+			var response ={};
+			response[id] = {'name' : recordName,'email' : emailValue} ;
+
+			thisInstance.done(response, thisInstance.getEventName());
+			e.preventDefault();
+		}
 	},
     
     registerSelectButton : function(){
@@ -47,20 +85,47 @@ Vtiger_Popup_Js("Vtiger_EmailsRelatedModule_Popup_Js",{},{
 				var row = checkBoxJqueryObject.closest('tr');
 				var id = row.data('id');
                 var name = row.data('name');
-                var emailField = jQuery(row).find('.emailField');
-                var emailValue = emailField.text();
-                if(emailValue == ''){
-                    var error = name+" "+app.vtranslate("JS_DO_NOT_HAVE_AN_EMAIL_ID");
-                    alert(error);
-                    e.preventDefault();
-                    return;
-                }
-				selectedRecordDetails[id] = {name : row.data('name'), 'email' : emailValue};
+
+				// we need to determine if it is a Verteiler or not
+				var modulename = (document.getElementById('modulename')).value;
+				if(modulename == 'Verteiler'){
+					let idVerteilerIdcontactEmail = (document.getElementById('idVerteilerIdcontactEmail')).value;
+		
+					if(typeof(idVerteilerIdcontactEmail)!= "undefined" && idVerteilerIdcontactEmail.trim() != ''){
+						let idVerteilerIdcontactEmailArr = idVerteilerIdcontactEmail.split(';');
+						for(let a=0;a<idVerteilerIdcontactEmailArr.length;a++){
+							let tempArr =  idVerteilerIdcontactEmailArr[a].split(',');
+							if(tempArr[0] == id){
+								selectedRecordDetails[tempArr[1]] = {name : tempArr[2], 'email' : tempArr[3]};
+							}
+						}
+					}
+					else{
+						var error = recordName+" "+app.vtranslate("JS_DO_NOT_HAVE_AN_EMAIL_ID");
+						alert(error);
+						e.preventDefault();
+						return;
+					}
+				}
+				else{
+					var emailField = jQuery(row).find('.emailField');
+					var emailValue = emailField.text();
+					if(emailValue == ''){
+						var error = name+" "+app.vtranslate("JS_DO_NOT_HAVE_AN_EMAIL_ID");
+						alert(error);
+						e.preventDefault();
+						return;
+					}
+					
+					selectedRecordDetails[id] = {name : row.data('name'), 'email' : emailValue};
+				}
 			});
+
 			if(Object.keys(selectedRecordDetails).length <= 0) {
 				alert(app.vtranslate('JS_PLEASE_SELECT_ONE_RECORD'));
 			}else{
                 thisInstance.done(selectedRecordDetails, thisInstance.getEventName());
+				e.preventDefault();
 			}
 		});
 	},

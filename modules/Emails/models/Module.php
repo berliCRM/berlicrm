@@ -53,6 +53,13 @@ class Emails_Module_Model extends Vtiger_Module_Model{
 			}
 		}
 		$emailRelatedModules[] = 'Users';
+
+		// since we need a Verteiler module, and his emails, we need to add it 
+		if( vtlib_isModuleActive('Verteiler') === true ){
+			$emailRelatedModules[] = 'Verteiler';
+		}
+		
+
 		return $emailRelatedModules;
 	}
 

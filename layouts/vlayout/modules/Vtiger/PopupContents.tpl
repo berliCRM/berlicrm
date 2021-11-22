@@ -18,6 +18,8 @@
 <input type="hidden" id="previousPageExist" value="{$PAGING_MODEL->isPrevPageExists()}" />
 <input type="hidden" id="nextPageExist" value="{$PAGING_MODEL->isNextPageExists()}" />
 <input type="hidden" id="totalCount" value="{$LISTVIEW_COUNT}" />
+<input type="hidden" id="modulename" value="{$MODULE}" />
+<input type="hidden" id="idVerteilerIdcontactEmail" value="{$VERTEILER_CONTACT_EMAIL}" />
 <div class="contents-topscroll">
     <div class="topscroll-div">
         &nbsp;

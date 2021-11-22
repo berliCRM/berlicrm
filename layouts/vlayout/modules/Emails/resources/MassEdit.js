@@ -66,7 +66,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		app.hideModalWindow();
 		var popupInstance = Vtiger_Popup_Js.getInstance();
 		return popupInstance.show(params,cb,windowName);
-		
+
 	},
 
 	/*
@@ -386,13 +386,46 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			var popupInstance =Vtiger_Popup_Js.getInstance();
 			popupInstance.show(params, function(data){
 				var responseData = JSON.parse(data);
+
+				// 'numberLimitOfEmails', so much emails we need to see. If more, we see only the count in input field.
+				const numberLimitOfEmails = 100;
+				// We can have many emails imported here from for example "Verteiler", 
+				let responseDataLength = (Object.keys(responseData).length);
+				// and we can write first a email adress in input field, so we need to count it to (or if in input field are a email adress already).
+				// name="selected_ids" have we only one time, because it can not be many from it!!! This element muss exist
+				let elementNameTo = document.getElementsByName('selected_ids');
+				
+				// We need to check if it is a 1 email or 0. (i dell first and last chars, because it was [])
+				let addToCountForEmailsString = (  ((((elementNameTo[0].value).trim()).slice(1,-1)).trim())  );
+				let addToCountForEmailsNumber = 0;
+				if(addToCountForEmailsString.length > 0){
+					addToCountForEmailsNumber=(addToCountForEmailsString.split(',')).length;
+				}
+				// Now add the number of emails from the past to new added count.
+				responseDataLength = responseDataLength + addToCountForEmailsNumber;
+				// Only if it is to many emails, we need to change the 'show' of input fields. HERE WE SET THE NUMBER LIMIT!
+				if(responseDataLength > numberLimitOfEmails){
+					let elementToEmail = document.getElementById('toEmailViewId');
+					let elementToEmailCount = document.getElementById('toEmailCount');
+					// The user input of email will be not displayed, and
+					elementToEmail.setAttribute('type','hidden');
+					elementToEmail.style.display = "none"; 
+					// the another, readonly input with Count of emails will displayed now. 
+					elementToEmailCount.setAttribute('type','text');
+					elementToEmailCount.value =  responseDataLength+''+(elementToEmailCount.value).slice((elementToEmailCount.value).indexOf(' '));
+
+				}
+
 				for(var id in responseData){
 					var data = {
 						'name' : responseData[id].name,
 						'id' : id,
 						'emailid' : responseData[id].email
 					}
-					thisInstance.setReferenceFieldValue(parentElem, data);
+					// the setReferenceFieldValue cost to many time (bottleneck), so set it only if we have not many emails.
+					if(responseDataLength <= numberLimitOfEmails){
+						thisInstance.setReferenceFieldValue(parentElem, data);
+					}
 					thisInstance.addToEmailAddressData(data);
 					thisInstance.appendToSelectedIds(id);
 					thisInstance.addToEmails(data);
