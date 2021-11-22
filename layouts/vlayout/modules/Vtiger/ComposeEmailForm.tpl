@@ -51,19 +51,22 @@
                     {/if}
                     
                     <span class="span9">
-                    
-                    {* hide emails if more than 100 *}
+
+                    {* hide emails if more than 100   *}
                     {if count($TO) > 100}
-                        <input type="text" class="row-fluid" value="{count($TO)} {vtranslate('LBL_SELECTED_RECIPIENTS',$MODULE)}" readonly>
-                        <input id="toEmail" name="toEmail" type="hidden" class="row-fluid"
-					value="{$TO_EMAILS}" data-validation-engine="validate[required, funcCall[Vtiger_To_Email_Validator_Js.invokeValidation]]"
-					data-fieldinfo='{$FIELD_INFO}'
-					{if !empty($SPECIAL_VALIDATOR)}data-validator='{json_encode($SPECIAL_VALIDATOR)}'{/if}/>
+                        <input type="text" id="toEmailCount" class="row-fluid" value="{count($TO)} {vtranslate('LBL_SELECTED_RECIPIENTS',$MODULE)}" readonly>
+                        <input type="hidden" id="toEmail" name="toEmail"  class="row-fluid"
+						value="{$TO_EMAILS}" data-validation-engine="validate[required, funcCall[Vtiger_To_Email_Validator_Js.invokeValidation]]"
+						data-fieldinfo='{$FIELD_INFO}'
+						{if !empty($SPECIAL_VALIDATOR)}data-validator='{json_encode($SPECIAL_VALIDATOR)}'{/if}/>
                     {else}
-                    <input id="toEmail" name="toEmail" type="text" class="row-fluid autoComplete emailField select2"
-					value="{$TO_EMAILS}" data-validation-engine="validate[required, funcCall[Vtiger_To_Email_Validator_Js.invokeValidation]]"
-					data-fieldinfo='{$FIELD_INFO}'
-					{if !empty($SPECIAL_VALIDATOR)}data-validator='{json_encode($SPECIAL_VALIDATOR)}'{/if}/>
+						<input type="hidden" id="toEmailCount" class="row-fluid" value=" {vtranslate('LBL_SELECTED_RECIPIENTS',$MODULE)}" readonly>
+						<div id="toEmailViewId">
+							<input type="text" id="toEmail" name="toEmail" class="row-fluid autoComplete emailField select2"
+							value="{$TO_EMAILS}" data-validation-engine="validate[required, funcCall[Vtiger_To_Email_Validator_Js.invokeValidation]]"
+							data-fieldinfo='{$FIELD_INFO}'
+							{if !empty($SPECIAL_VALIDATOR)}data-validator='{json_encode($SPECIAL_VALIDATOR)}'{/if}/>
+						</div>
                     {/if}
 
 				</span>

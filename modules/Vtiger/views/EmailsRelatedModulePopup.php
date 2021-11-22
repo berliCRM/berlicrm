@@ -109,6 +109,43 @@ class Vtiger_EmailsRelatedModulePopup_View extends Vtiger_Popup_View {
 		}
 		$noOfEntries = count($this->listViewEntries);
 
+		// first we need Verteiler ids from listViewEntries
+		if($moduleName == 'Verteiler' && $noOfEntries > 0){
+			global $adb;
+			// collect ids from all Verteiler
+			$idsVerteiler = array();
+			foreach ($this->listViewEntries as $key => $value){
+				$idsVerteiler[] = $key;
+			}
+			// now we need to collect the primary emails from every Verteiler
+			$idVerteilerIdcontactEmail = array();
+			$emailsOnly = array();
+			for($i = 0; $i < count($idsVerteiler); $i++){
+				$contactIds = Verteiler_Relation_Model::getContactIdsFromVerteiler($idsVerteiler[$i]);
+
+				for($a=0; $a < count($contactIds); $a++){
+					$sqlFindEmail = 'SELECT firstname, lastname, email, secondaryemail FROM vtiger_contactdetails WHERE contactid = ?'; //.$contactIds[$a];
+					// it muss be allways only one hit with a one id, 
+					$resultEmail = $adb->pquery($sqlFindEmail, array($contactIds[$a]));
+					$primEmail = $adb->query_result($resultEmail,0,"email");
+					$secEmail = $adb->query_result($resultEmail,0,"secondaryemail");
+					$firstname = $adb->query_result($resultEmail,0,"firstname");
+					$lastname = $adb->query_result($resultEmail,0,"lastname");
+					$emailValue = $primEmail;
+					if(  (empty($primEmail) || trim($primEmail) == '') && !empty($secEmail) && trim($secEmail) != ''){
+						$emailValue = $secEmail;
+					}
+					if(!empty($emailValue) && trim($emailValue) != ''){
+						$tempStr = $idsVerteiler[$i].','.$contactIds[$a].','.$firstname.' '.$lastname.','.$emailValue;
+						$idVerteilerIdcontactEmail[] = $tempStr;
+					}
+				}
+			}
+
+			$idVerteilerIdcontactEmailString = implode(';',$idVerteilerIdcontactEmail);
+			$viewer->assign('VERTEILER_CONTACT_EMAIL', $idVerteilerIdcontactEmailString);
+		}
+
 		if(empty($sortOrder)){
 			$sortOrder = "ASC";
 		}
