@@ -31,6 +31,8 @@ class Settings_Workflows_ListView_Model extends Settings_Vtiger_ListView_Model {
 		$recordModelClass = Vtiger_Loader::getComponentClassName('Model', 'Record', $qualifiedModuleName);
 
 		$listFields = $module->listFields;
+		unset ($listFields['tasktitles']);
+
 		$listQuery = "SELECT ";
 		foreach ($listFields as $fieldName => $fieldLabel) {
 			$listQuery .= "$fieldName, ";
@@ -72,13 +74,35 @@ class Settings_Workflows_ListView_Model extends Settings_Vtiger_ListView_Model {
 			//To handle translation of calendar to To Do
 			if($module_name == 'Calendar'){
 				$module_name = vtranslate('LBL_TASK', $module_name);
-			}else{
+			}
+			else{
 				$module_name = vtranslate($module_name, $module_name);
 			}
 			//crm-now: added for translation
 			$row['summary'] = vtranslate($row['summary'], 'Settings:Workflows');
 			$row['module_name'] = $module_name;
 			$row['execution_condition'] = vtranslate($record->executionConditionAsLabel($row['execution_condition']), 'Settings:Workflows');
+	
+			$workflow_id = $row['workflow_id'];
+			$tm = new VTTaskManager($db);
+			$tasks = $tm->getTasksForWorkflow($workflow_id);
+			$tasksummary = '';
+			foreach ($tasks as $key => $taskobj) {
+				if ($taskobj->active == 1 AND empty($tasksummary)) {
+					$tasksummary = $taskobj->summary;
+				}
+				else if ($taskobj->active == 1) {
+					$tasksummary = $tasksummary.', '.$taskobj->summary;
+				}
+			}
+			
+			if (!empty ($tasksummary)) {
+				$tasktitles = $tasksummary;			}
+			else {
+				$tasktitles = vtranslate('LBL_IN_ACTIVE', 'Settings:Workflows');
+			}
+			$row['tasktitles'] = $tasktitles;
+
 			$record->setData($row);
 			$listViewRecordModels[$record->getId()] = $record;
 		}
