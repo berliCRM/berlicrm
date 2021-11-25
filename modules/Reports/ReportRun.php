@@ -4368,9 +4368,18 @@ class ReportRun extends CRMEntity
 					} else {
 						$worksheet->setCellValueExplicitByColumnAndRow($count, $rowcount, $value, PHPExcel_Cell_DataType::TYPE_STRING);
 					}
+					// currently not working
+					// $worksheet->getStyleByColumnAndRow($count, $rowcount)->getAlignment()->setWrapText(true);
 					$count = $count + 1;
 				}
+				$worksheet->getRowDimension($rowcount)->setRowHeight(-1);
 				$rowcount++;
+			}
+			
+			$cellIterator = $worksheet->getRowIterator()->current()->getCellIterator();
+			$cellIterator->setIterateOnlyExistingCells(true);
+			foreach ($cellIterator AS $cell) {
+				$worksheet->getColumnDimension($cell->getColumn())->setAutoSize(true);
 			}
 
 			// Summary Total
