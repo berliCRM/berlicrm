@@ -463,7 +463,14 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 
     loadRowSequenceNumber: function() {
 		if(this.rowSequenceHolder == false) {
-			this.rowSequenceHolder = jQuery('.' + this.rowClass, this.getLineItemContentsContainer()).length;
+			this.rowSequenceHolder = 1;
+			var parentO = this;
+			jQuery('.' + this.rowClass, this.getLineItemContentsContainer()).each(function (key, ele) {
+				var tmpIdNo = jQuery(ele).attr('id').replace(/row/, '');
+				if (tmpIdNo > parentO.rowSequenceHolder) {
+					parentO.rowSequenceHolder = tmpIdNo;
+				}
+			});
 		}
 		return this;
     },
