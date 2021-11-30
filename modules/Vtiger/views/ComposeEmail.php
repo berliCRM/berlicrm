@@ -411,10 +411,11 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
         $this->emailPreview($request);
     }
 	
-	//crm-now: added for removing quotes (single/double) in email receiver name
+	//crm-now: added for escaping quotes (single/double) in email receiver name to prevent JS JSON.parse issues
 	public function string_sanitize($s) {
-		$result = str_replace('"', "", $s);
-		$result = str_replace("'", "", $result);
+		$result = html_entity_decode($s);
+		$result = str_replace('"', "\"", $result);
+		$result = str_replace("'", "\'", $result);
 		return $result;
 	}
 	
