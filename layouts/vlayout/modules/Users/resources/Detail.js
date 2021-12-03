@@ -253,6 +253,7 @@ Vtiger_Detail_Js("Users_Detail_Js",{
 		this.updateStartHourElement(form);
 		this.hourFormatUpdateEvent();
 		this.startHourUpdateEvent(form);
+		Users_PreferenceEdit_Js.registerChangeEventForCurrencySeperator();
 	}
 	
 });
