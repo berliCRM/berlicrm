@@ -782,17 +782,16 @@ class Contacts extends CRMEntity {
 
 		$userNameSql = getSqlForNameInDisplayFormat(array('first_name'=>
 							'vtiger_users.first_name', 'last_name' => 'vtiger_users.last_name'), 'Users');
-		$query = "select case when (vtiger_users.user_name not like '') then $userNameSql else vtiger_groups.groupname end as user_name," .
-				" vtiger_activity.activityid, vtiger_activity.subject, vtiger_activity.activitytype, vtiger_crmentity.modifiedtime," .
-                " vtiger_emaildetails.from_email, vtiger_emaildetails.to_email, ".
-				" vtiger_crmentity.crmid, vtiger_crmentity.smownerid, vtiger_activity.date_start, vtiger_activity.time_start, vtiger_seactivityrel.crmid as parent_id " .
-				" from vtiger_activity, vtiger_seactivityrel, vtiger_contactdetails, vtiger_users, vtiger_crmentity" .
-				" left join vtiger_groups on vtiger_groups.groupid=vtiger_crmentity.smownerid" .
-                " left join vtiger_emaildetails ON vtiger_crmentity.crmid = emailid".
-				" where vtiger_seactivityrel.activityid = vtiger_activity.activityid" .
-				" and vtiger_contactdetails.contactid = vtiger_seactivityrel.crmid and vtiger_users.id=vtiger_crmentity.smownerid" .
-				" and vtiger_crmentity.crmid = vtiger_activity.activityid  and vtiger_contactdetails.contactid = ".$id." and" .
-				" vtiger_activity.activitytype='Emails' and vtiger_crmentity.deleted = 0 ";
+		$query = "SELECT CASE WHEN (vtiger_users.user_name NOT LIKE '') THEN $userNameSql ELSE vtiger_groups.groupname END AS user_name, vtiger_activity.activityid, vtiger_activity.subject, vtiger_activity.activitytype, vtiger_crmentity.modifiedtime,
+				  vtiger_emaildetails.from_email, vtiger_emaildetails.to_email, vtiger_crmentity.crmid, vtiger_crmentity.smownerid, vtiger_activity.date_start, vtiger_activity.time_start, vtiger_seactivityrel.crmid as parent_id
+				  FROM vtiger_activity
+				  INNER JOIN vtiger_emaildetails ON vtiger_emaildetails.emailid = vtiger_activity.activityid
+				  INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_activity.activityid
+				  INNER JOIN vtiger_seactivityrel ON vtiger_seactivityrel.activityid = vtiger_activity.activityid
+				  INNER JOIN vtiger_contactdetails ON vtiger_contactdetails.contactid = vtiger_seactivityrel.crmid
+				  LEFT JOIN vtiger_users ON vtiger_users.id = vtiger_crmentity.smownerid
+				  LEFT JOIN vtiger_groups ON vtiger_groups.groupid = vtiger_crmentity.smownerid
+                  WHERE vtiger_crmentity.deleted = 0 AND vtiger_contactdetails.contactid = '".$id."' AND vtiger_activity.activitytype = 'Emails'";
 
 		$return_value = GetRelatedList($this_module, $related_module, $other, $query, $button, $returnset);
 
