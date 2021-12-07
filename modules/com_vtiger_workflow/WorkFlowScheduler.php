@@ -117,8 +117,11 @@ class WorkFlowScheduler {
 					$wsEntityId = vtws_getWebserviceEntityId($moduleName, $recordId);
 					$entityData = $entityCache->forId($wsEntityId);
 					$data = $entityData->getData();
+					// don't loop through all records if there is no active task anyway
+					$bActive = false;
 					foreach ($tasks as $task) {
 						if ($task->active) {
+							$bActive = true;
 							$trigger = $task->trigger;
 							if ($trigger != null) {
 								$delay = strtotime($data[$trigger['field']]) + $trigger['days'] * 86400;
@@ -133,6 +136,10 @@ class WorkFlowScheduler {
 						}
 					}
 					set_time_limit(0);
+					// break for loop of records
+					if (!$bActive) {
+						break;
+					}
 				}
 			}
 			$vtWorflowManager->updateNexTriggerTime($workflow);
