@@ -83,6 +83,9 @@ class Vtiger_RelationAjax_Action extends Vtiger_Action_Controller {
 		$sourceModuleModel = Vtiger_Module_Model::getInstance($sourceModule);
 		$relatedModuleModel = Vtiger_Module_Model::getInstance($relatedModule);
 		$relationModel = Vtiger_Relation_Model::getInstance($sourceModuleModel, $relatedModuleModel);
+		if (!$relationModel->isDeletable()) {
+			throw new AppException(vtranslate('LBL_PERMISSION_DENIED'));
+		}
 		foreach($relatedRecordIdList as $relatedRecordId) {
 			$response = $relationModel->deleteRelation($sourceRecordId,$relatedRecordId);
 		}
