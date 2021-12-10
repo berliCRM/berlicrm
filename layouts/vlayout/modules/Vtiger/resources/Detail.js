@@ -924,7 +924,11 @@ jQuery.Class("Vtiger_Detail_Js",{
 					var relatedModuleName = thisInstance.getRelatedModuleName();
 					var relatedController = new Vtiger_RelatedList_Js(thisInstance.getRecordId(), app.getModuleName(), selectedTabElement, relatedModuleName);
 					relatedController.deleteRelation([relatedRecordid]).then(function(response){
-						relatedController.loadRelatedList();
+						if (response.success) {
+							relatedController.loadRelatedList();
+						} else {
+							Vtiger_Helper_Js.showPnotify(response.error.message);
+						}
 					});
 				},
 				function(error, err){
