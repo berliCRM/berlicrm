@@ -201,6 +201,7 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		$baseFileName = $reportname . '_' . $currentTime;
 		//remove : for windows systems
 		$baseFileName = str_replace(':', '_', $baseFileName);
+		$baseFileName = str_replace('/', '_', $baseFileName);
 
 		$oReportRun = ReportRun::getInstance($this->get('reportid'));
 		$reportFormat = $this->scheduledFormat;
