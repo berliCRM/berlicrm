@@ -78,7 +78,7 @@ class VtigerCRMObjectMeta extends EntityMeta {
 		return $this->objectName;
 	}
 	
-	private function computeAccess(){
+	protected function computeAccess(){
 		
 		global $adb;
 		
