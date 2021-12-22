@@ -17,7 +17,7 @@
 			{if empty($ENTITY_METHODS)} 
 				<div class="alert alert-info">{vtranslate('LBL_NO_METHOD_IS_AVAILABLE_FOR_THIS_MODULE',$QUALIFIED_MODULE)}</div>
 			{else}	
-				<select name="methodName" class="chzn-select">
+				<select name="methodName" class="chzn-select" style ="width: 100%;">
 					{foreach from=$ENTITY_METHODS item=METHOD}
 						<option {if $TASK_OBJECT->methodName eq $METHOD}selected="" {/if} value="{$METHOD}">{vtranslate($METHOD,$QUALIFIED_MODULE)}</option>
 					{/foreach}
