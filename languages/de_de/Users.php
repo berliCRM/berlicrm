@@ -44,8 +44,8 @@ $languageStrings = array(
     'LBL_COPY' => 'Erstelle Kopie als neuen Nutzer',
     'LBL_COPY_OF' => 'Kopie von',
 	'LBL_CHANGE_ACCESS_KEY' => 'Zugangsschlüssel ändern',
-	'LBL_ACCESS_KEY_UPDATED_SUCCESSFULLY' => 'Zugangschlüssel erfolgreich geändert',
-	'LBL_FAILED_TO_UPDATE_ACCESS_KEY' => 'Zugangschlüssel konnte nicht geändert werden',
+	'LBL_ACCESS_KEY_UPDATED_SUCCESSFULLY' => 'Zugangsschlüssel erfolgreich geändert',
+	'LBL_FAILED_TO_UPDATE_ACCESS_KEY' => 'Zugangsschlüssel konnte nicht geändert werden',
 	'LBL_CONNECT_WITH_US' => 'mit uns verbinden',
 	'LBL_CURRENCY_CONFIGURATION' =>  'Währungs- und Zahlenfeldeinstellungen',
 	'LBL_DATE_FORMAT'		=> 'Datumsformat',
@@ -116,7 +116,7 @@ $languageStrings = array(
 	'Truncate Trailing Zeros'  =>   'angehängte Nullen entfernen',
 	'User Image' => 'Foto hochladen',
 	'User Name' => 'Nutzername',
-	'Webservice Access Key' => 'Zugangschlüssel',
+	'Webservice Access Key' => 'Zugangsschlüssel',
 	'Yahoo id' => 'zusätzliche E-Mail',
     
          //Patch provided by http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7884
