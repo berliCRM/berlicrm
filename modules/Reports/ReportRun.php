@@ -1256,7 +1256,7 @@ class ReportRun extends CRMEntity
 							}
 							$fieldvalue = ' ('. implode(' OR ', $fieldSqls).') ';
 						} else {
-							$fieldvalue = $selectedfields[0].".".$selectedfields[1].$this->getAdvComparator($comparator,trim($value),$datatype, $selectedfields[0].".".$selectedfields[1]);
+							$fieldvalue = '('.$selectedfields[0].".".$selectedfields[1].$this->getAdvComparator($comparator,trim($value),$datatype, $selectedfields[0].".".$selectedfields[1]).')';
 						}
 
 						$advfiltergroupsql .= $fieldvalue;
