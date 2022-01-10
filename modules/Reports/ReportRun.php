@@ -1142,14 +1142,14 @@ class ReportRun extends CRMEntity
                                                     $this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype);
                                 }
                                 else {
-									$advcolsql[] = $selectedfields[0].".".$selectedfields[1].$this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype);
+									$advcolsql[] = $selectedfields[0].".".$selectedfields[1].$this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype, $selectedfields[0].".".$selectedfields[1]);
 								}
 							}
 							//If negative logic filter ('not equal to', 'does not contain') is used, 'and' condition should be applied instead of 'or'
 							if($comparator == 'n' || $comparator == 'k')
-								$advcolumnsql = implode(" and ",$advcolsql);
+								$advcolumnsql = implode(" AND ",$advcolsql);
 							else
-								$advcolumnsql = implode(" or ",$advcolsql);
+								$advcolumnsql = implode(" OR ",$advcolsql);
 							$fieldvalue = " (".$advcolumnsql.") ";
 						} elseif($selectedfields[1] == 'user_name') {
 							if($selectedfields[0] == "vtiger_users".$this->primarymodule) {
@@ -1256,7 +1256,7 @@ class ReportRun extends CRMEntity
 							}
 							$fieldvalue = ' ('. implode(' OR ', $fieldSqls).') ';
 						} else {
-							$fieldvalue = $selectedfields[0].".".$selectedfields[1].$this->getAdvComparator($comparator,trim($value),$datatype);
+							$fieldvalue = $selectedfields[0].".".$selectedfields[1].$this->getAdvComparator($comparator,trim($value),$datatype, $selectedfields[0].".".$selectedfields[1]);
 						}
 
 						$advfiltergroupsql .= $fieldvalue;
