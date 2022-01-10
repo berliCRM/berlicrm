@@ -755,8 +755,6 @@ class QueryGenerator {
 			$valueSqlList = $this->getConditionValue($conditionInfo['value'],
 				$conditionInfo['operator'], $field);
 
-            if ($conditionInfo['operator'] == "n") $fieldSql .= "NOT "; // NULL-safe nonequality fix
-
             $operator = strtolower($conditionInfo['operator']);
             if($operator == 'between'&& $this->isDateType($field->getFieldDataType())){
                 $start = explode(' ', $conditionInfo['value'][0]);
@@ -784,6 +782,9 @@ class QueryGenerator {
 				$valueSqlList = array($valueSqlList);
 			}
 			foreach ($valueSqlList as $valueSql) {
+				
+				if ($conditionInfo['operator'] == "n") $fieldGlue .= " NOT"; // NULL-safe nonequality fix
+				
 				if (in_array($fieldName, $this->referenceFieldList)) {
 					if($conditionInfo['operator'] == 'y'){
 						$columnName = $field->getColumnName();
