@@ -178,7 +178,18 @@ class Vtiger_Response {
 	 * Emit response wrapper as JSONString
 	 */
 	protected function emitJSON() {
-		echo json_encode($this->prepareResponse());
+		$tmp = $this->prepareResponse();
+		$encoded = json_encode($tmp);
+		if (!$encoded) {
+			$error = json_last_error();
+			if ($error == JSON_ERROR_UTF8 && isset($tmp['result'])) {
+				if (is_string($tmp['result'])) {
+					$tmp['result'] = utf8_encode(utf8_decode($tmp['result']));
+					$encoded = json_encode($tmp);
+				}
+			}
+		}
+		echo $encoded;
 	}
 
 	/**
