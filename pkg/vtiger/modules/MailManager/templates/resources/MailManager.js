@@ -1308,18 +1308,52 @@ if (typeof(MailManager) == 'undefined') {
 			var attachmentCount = jQuery("#_mail_attachmentcount_").val();
 			if(attachmentCount) {
 				VtigerJS_DialogBox.block();
-                                AppConnector.request(MailManager._baseurl() + "_operation=mail&_operationarg=forward&messageid=" + 
-					encodeURIComponent(messageId) +"&folder=" + encodeURIComponent(folder) +"&subject=" + encodeURIComponent(fwdSubject) +
-					"&body=" + fwdBody).then(function(responseJSON) {
-                                            responseJSON = JSON.parse(responseJSON);
+				
+				var aDeferred = jQuery.Deferred();
+				var params = {
+					module: 'MailManager',
+					view: 'Index',
+					_operation: 'mail',
+					_operationarg: 'forward',
+					messageid: messageId,
+					folder: folder,
+					subject: fwdSubject,
+					body: fwdBody
+				};
+				AppConnector.request(params).then(
+					function(responseJSON) {
+						responseJSON = JSON.parse(responseJSON);
 						VtigerJS_DialogBox.unblock();
 						// Open the draft the was saved.
 						if (responseJSON['success']) {
 							MailManager.mail_draft(responseJSON['result']['emailid'], true);
+						} else {
+							var params = {
+								title : 'Error',
+								text : data.error.message,
+								hide: true,
+								delay: 5000,
+								closer_hover: true,
+								type: 'error'
+							};
+							Vtiger_Helper_Js.showPnotify(params);
 						}
+						aDeferred.resolve();
+					},
+					function(error,err) {
+						jQuery('#createVZFFromSelection').prop('disabled', false);
+						var params = {
+								title : 'Error',
+								text : err,
+								hide: true,
+								delay: 5000,
+								closer_hover: true,
+								type: 'error'
+							};
+						Vtiger_Helper_Js.showPnotify(params);
+						aDeferred.reject();
 					}
-					);
-
+				);
 			} else {
 				// Populate the popup window
 				function fillComposeEmailForm(win) {
