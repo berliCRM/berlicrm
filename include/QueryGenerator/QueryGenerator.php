@@ -946,6 +946,10 @@ class QueryGenerator {
 					$fieldGlue = ' OR';
 				}
 			}
+			if ($operator == 'k') {
+				$fieldSql .= ' OR '.$field->getTableName().'.'.$field->getColumnName().' IS NULL';
+			}
+			
 			$fieldSql .= ')';
             
 			$fieldSqlList[$index] = $fieldSql;
