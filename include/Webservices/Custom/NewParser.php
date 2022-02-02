@@ -34,6 +34,12 @@ class berliQueryParser {
 					unset($fieldObjects[$fieldName]);
 				}
 			}
+		} elseif (in_array($elementType, array('SalesOrder', 'Invoice', 'PurchaseOrder', 'Quotes'))) {
+			foreach ($fieldObjects AS $fieldName => $wsField) {
+				if ($wsField->getTableName() == 'vtiger_inventoryproductrel') {
+					unset($fieldObjects[$fieldName]);
+				}
+			}
 		}
 
 		// get field list
