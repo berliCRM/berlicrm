@@ -1956,7 +1956,8 @@ jQuery.Class("Vtiger_Detail_Js",{
 
 		detailContentsHolder.on('click','table.detailview-table td.fieldValue', function(e) {
 			var currentTdElement = jQuery(e.currentTarget);
-			thisInstance.ajaxEditHandling(currentTdElement);
+			// we have now pencil-symbol to edit the field
+			// thisInstance.ajaxEditHandling(currentTdElement);
 		});
 
 
