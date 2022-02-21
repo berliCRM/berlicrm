@@ -422,7 +422,7 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 				$whereClause .= sprintf( " %s LIKE '%%%s%%' OR", $field['name'], $text );
 			}
 		}
-		return ($whereClause == '') ? false : sprintf( "SELECT %s FROM %s WHERE %s;", $describe['labelFields'], $module, rtrim($whereClause, 'OR') );
+		return ($whereClause == '') ? false : sprintf( "SELECT %s FROM %s WHERE (%s);", $describe['labelFields'], $module, rtrim($whereClause, 'OR') );
 	}
 
 	/**
