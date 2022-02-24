@@ -878,7 +878,7 @@ class CustomView extends CRMEntity {
 	 */
 	function getAdvFilterByCvid($cvid) {
 
-		global $adb, $log, $default_charset;
+		global $adb, $log, $default_charset, $current_user;
 
 		$advft_criteria = array();
 
@@ -891,7 +891,7 @@ class CustomView extends CRMEntity {
 			$groupId = $relcriteriagroup["groupid"];
 			$groupCondition = $relcriteriagroup["group_condition"];
 
-			$ssql = 'select vtiger_cvadvfilter.* from vtiger_customview
+			$ssql = 'select vtiger_cvadvfilter.*, vtiger_customview.viewname from vtiger_customview
 						inner join vtiger_cvadvfilter on vtiger_cvadvfilter.cvid = vtiger_customview.cvid
 						left join vtiger_cvadvfilter_grouping on vtiger_cvadvfilter.cvid = vtiger_cvadvfilter_grouping.cvid
 								and vtiger_cvadvfilter.groupid = vtiger_cvadvfilter_grouping.groupid';
@@ -911,20 +911,29 @@ class CustomView extends CRMEntity {
 				$col = explode(":", $relcriteriarow["columnname"]);
 				$temp_val = explode(",", $relcriteriarow["value"]);
 				if ($col[4] == 'D' || ($col[4] == 'T' && $col[1] != 'time_start' && $col[1] != 'time_end') || ($col[4] == 'DT')) {
-					$val = Array();
-					for ($x = 0; $x < count($temp_val); $x++) {
-						if ($col[4] == 'D') {
-							$date = new DateTimeField(trim($temp_val[$x]));
-							$val[$x] = $date->getDisplayDate();
-						} elseif ($col[4] == 'DT') {
-							$date = new DateTimeField($temp_val[$x]);
-							$val[$x] = explode(' ', $date->getDisplayDateTimeValue())[0];
-						} else {
-							$date = new DateTimeField(trim($temp_val[$x]));
-							$val[$x] = $date->getDisplayTime();
+					try {
+						$val = Array();
+						for ($x = 0; $x < count($temp_val); $x++) {
+							if ($col[4] == 'D') {
+								$date = new DateTimeField(trim($temp_val[$x]));
+								$val[$x] = $date->getDisplayDate();
+							} elseif ($col[4] == 'DT') {
+								$date = new DateTimeField($temp_val[$x]);
+								$val[$x] = explode(' ', $date->getDisplayDateTimeValue())[0];
+							} else {
+								$date = new DateTimeField(trim($temp_val[$x]));
+								$val[$x] = $date->getDisplayTime();
+							}
 						}
+						$advfilterval = implode(",", $val);
+					} catch (Exception $e) {
+						// remove defaults
+						if (isset($_SESSION['lvs'][$this->customviewmodule]["viewname"])) {
+							unset($_SESSION['lvs'][$this->customviewmodule]["viewname"]);
+						}
+						$adb->pquery("DELETE FROM vtiger_user_module_preferences WHERE userid = ? AND tabid =?;", array($current_user->id, getTabid($this->customviewmodule)));
+					throw new Exception($e->getMessage()."<br>".__FILE__." ".__LINE__."<br>CustomViewId: $cvid<br>CustomViewName: {$relcriteriarow["viewname"]}");
 					}
-					$advfilterval = implode(",", $val);
 				}
 				$criteria['value'] = $advfilterval;
 				$criteria['column_condition'] = $relcriteriarow["column_condition"];
