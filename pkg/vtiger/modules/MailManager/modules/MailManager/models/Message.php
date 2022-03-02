@@ -299,7 +299,8 @@ class MailManager_Message_Model extends Vtiger_MailRecord  {
 		$params[] = Zend_Json::encode($this->_bcc);
 		$params[] = $this->_date;
 		$params[] = $this->_subject;
-		$params[] = $this->_body;
+		// remove 4-Byte UTF8 characters that cannot be inserted into utf8_unicode_ci
+		$params[] = preg_replace('/[\xF0-\xF7].../s', '', $this->_body);
 		$params[] = $this->_charset;
 		$params[] = $this->_isbodyhtml;
 		$params[] = $this->_plainmessage;
