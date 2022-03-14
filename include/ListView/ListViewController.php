@@ -142,12 +142,19 @@ class ListViewController {
 		$db = PearDatabase::getInstance();
 		$rowCount = $db->num_rows($result);
 		$ownerFieldList = $this->queryGenerator->getOwnerFieldList();
+		if ($module == 'Contacts') {
+			$ownerFieldList[] = 'Accounts.assigned_user_id';
+		}
 		foreach ($ownerFieldList as $fieldName) {
 			if (in_array($fieldName, $listViewFields)) {
 				$field = $moduleFields[$fieldName];
 				$idList = array();
 				for ($i = 0; $i < $rowCount; $i++) {
-					$id = $this->db->query_result($result, $i, $field->getColumnName());
+					if ($fieldName == 'Accounts.assigned_user_id') {
+						$id = $this->db->query_result($result, $i, 'accountsassigned_user_id');
+					} else {
+						$id = $this->db->query_result($result, $i, $field->getColumnName());
+					}
 					if (!isset($this->ownerNameList[$fieldName][$id])) {
 						$idList[] = $id;
 					}
