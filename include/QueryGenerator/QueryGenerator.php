@@ -998,7 +998,11 @@ class QueryGenerator {
 			$this->conditionalWhere = $groupSql;
 			$sql .= $groupSql;
 		}
-		$sql .= " AND $baseTable.$baseTableIndex > 0";
+		if (trim($sql) == 'WHERE') {
+			$sql .= " $baseTable.$baseTableIndex > 0";
+		} else {
+			$sql .= " AND $baseTable.$baseTableIndex > 0";
+		}
 		$this->whereClause = $sql;
 		return $sql;
 	}
