@@ -326,5 +326,23 @@ class VtigerCRMActorMeta extends EntityMeta {
 	public function isModuleEntity() {
 		return false;
 	}
+	
+	public function getJoinClause($tableName) {
+		return 'INNER JOIN';
+	}
+	
+	public function getTabName() {
+		return $this->getEntityName();
+	}
+	
+	public function getTabId() {
+		if ($this->tabId == null) {
+			$db = PearDatabase::getInstance();
+			$sql = 'SELECT id FROM vtiger_ws_entity WHERE name = ?;';
+			$result = $db->pquery($sql, array($this->getTabName()));
+			$this->tabId = $db->query_result($result, 0, 'id');
+		}
+		return $this->tabId;
+	}
 }
 ?>

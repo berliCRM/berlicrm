@@ -299,19 +299,18 @@ class VtigerActorOperation extends WebserviceEntityOperation {
 	}
 	public function query($q){
 
-		$parser = new Parser($this->user, $q);
-		$error = $parser->parse();
-
-		if($error){
+		$meta = $this->meta;
+		$parser = new berliQueryParser($this->user, $q, $meta);
+		$parsed = $parser->parse();
+		
+		if(!$parsed){
 			return $parser->getError();
 		}
-
+		
 		$mysql_query = $parser->getSql();
-		$meta = $parser->getObjectMetaData();
-		$this->pearDB->startTransaction();
-		$result = $this->pearDB->pquery($mysql_query, array());
-		$error = $this->pearDB->hasFailedTransaction();
-		$this->pearDB->completeTransaction();
+		$params = $parser->getParams();
+		$result = $this->pearDB->pquery($mysql_query, $params);
+		$error = $this->pearDB->database->errorMsg();
 
 		if($error){
 			throw new WebServiceException(WebServiceErrorCode::$DATABASEQUERYERROR,
@@ -323,7 +322,8 @@ class VtigerActorOperation extends WebserviceEntityOperation {
 		$output = array();
 		for($i=0; $i<$noofrows; $i++){
 			$row = $this->pearDB->fetchByAssoc($result,$i);
-			if(!$meta->hasPermission(EntityMeta::$RETRIEVE,$row["crmid"])){
+			$crmid = $meta->getTabId().'x'.$row[$meta->getObectIndexColumn()];
+			if(!$meta->hasPermission(EntityMeta::$RETRIEVE,$crmid)){
 				continue;
 			}
 			$output[] = DataTransform::sanitizeDataWithColumn($row,$meta);
