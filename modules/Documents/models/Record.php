@@ -78,6 +78,9 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 				$savedFile = $fileDetails['attachmentsid']."_".$fileName;
 
 				$FN = $filePath.$savedFile;
+				if (!file_exists($FN)) {
+					throw new Exception('Attachment not present!');
+				}
 				$size=filesize($FN);
 				//Begin writing headers
 				header("Cache-Control:");
