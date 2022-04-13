@@ -60,7 +60,7 @@ Vtiger_Detail_Js("Reports_Detail_Js",{},{
 
                         // To get total records count
                         var count  = parseInt(jQuery('#updatedCount').val());
-                        if(count < 1000){
+                        if(count < 10000){
                             jQuery('#countValue').text(count);
                             jQuery('#moreRecordsText').hide();
                         }else{        
@@ -76,7 +76,7 @@ Vtiger_Detail_Js("Reports_Detail_Js",{},{
                                 function(data){
                                     var count = parseInt(data.result);
                                     jQuery('#countValue').text(count);
-                                    if(count > 1000)
+                                    if(count > 10000)
                                         jQuery('#moreRecordsText').show();
                                     else
                                         jQuery('#moreRecordsText').hide();
