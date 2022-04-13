@@ -553,6 +553,14 @@ class Settings_Profiles_Record_Model extends Settings_Vtiger_Record_Model {
 					$utilityUpdateQuery = 'UPDATE vtiger_profile2utility SET permission = CASE ';
 					foreach($utilityIdsList as $actionId => $permission) {
 						$permissionValue = $this->tranformInputPermissionValue($permission);
+						// handle possible broken module permissions here
+						// PRIMARY KEY (`profileid`,`tabid`,`activityid`)
+						// Import, Export, Duplicates
+						// 1 means NOT allowed
+						if ($actionId == 5 || $actionId == 6 || $actionId == 10) {
+							$safetyQuery = "INSERT IGNORE INTO vtiger_profile2utility (profileid, tabid, activityid, permission) VALUES(?, ?, ?, ?);";
+							$db->pquery($safetyQuery, array($profileId, $tabId, $actionId, 1));
+						}
 						$utilityUpdateQuery .= " WHEN activityid = $actionId THEN $permissionValue ";
 					}
 					if ($utilityIdsList) {
