@@ -50,7 +50,7 @@ class VTEmailTask extends VTTask{
 					'saved_toid' => $to_email,
 					'ccmail' => $cc,
 					'bccmail' => $bcc,
-					'parent_id' => $entityId."@$userId|",
+					'parent_id' => $entityId."@-1",
 					'email_flag' => 'SENT',
 					'activitytype' => $moduleName,
 					'date_start' => date('Y-m-d'),
@@ -61,10 +61,11 @@ class VTEmailTask extends VTTask{
 			$emailFocus->column_fields = $emailFieldValues;
 			$emailFocus->save($moduleName);
 
-
 			//Including email tracking details
 			global $site_URL, $application_unique_key;
 			$emailId = $emailFocus->id;
+//			$trackURL = "$site_URL/modules/Emails/actions/TrackAccess.php?record=$entityId&mailid=$emailId&app_key=$application_unique_key";
+//			$content = "<img src='$trackURL' alt='' width='1' height='1'>$content";
 
 			if (stripos($content, '<img src="cid:logo" />')) {
 				$logo = 1;
