@@ -391,7 +391,9 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 			} elseif($uitype == 7 && $fieldInfo->get('typeofdata') == 'N~O' || $uitype == 9){
 				$value = decimalFormat($value);
 			} else if($type == 'date' || $type == 'datetime'){
-                $value = DateTimeField::convertToUserFormat($value);
+				if (!empty($value)) {
+					$value = DateTimeField::convertToUserFormat($value);
+				}
             }
 			if($moduleName == 'Documents' && $fieldname == 'description'){
 				$value = strip_tags($value);
