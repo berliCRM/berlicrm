@@ -41,9 +41,7 @@ if ($err)
 	echo '<h2>debug</h2><pre>' . htmlspecialchars($client->debug_str, ENT_QUOTES) . '</pre>';
 	exit;
 	*/
-	$login_error_msg = getTranslatedString("LBL_CANNOT_CONNECT_SERVER");
-	$login_error_msg = base64_encode('<font color=red size=1px;> '.$login_error_msg.' </font>');
-	header("Location: login.php?login_error=$login_error_msg");
+	header("Location: login.php?login_error=" . base64_encode("LBL_CANNOT_CONNECT_SERVER"));
 	exit;
 }
 
@@ -81,17 +79,16 @@ if(strtolower($result[0]['user_name']) == strtolower($username) && strtolower($r
 else
 {
 	if($result[0] == 'NOT COMPATIBLE'){
-		$error_msg = getTranslatedString("LBL_VERSION_INCOMPATIBLE");
+		$error_msg = "LBL_VERSION_INCOMPATIBLE";
 	}elseif($result[0] == 'INVALID_USERNAME_OR_PASSWORD') {
-		$error_msg = getTranslatedString("LBL_ENTER_VALID_USER");	
+		$error_msg = "LBL_ENTER_VALID_USER";	
 	}elseif($result[0] == 'MORE_THAN_ONE_USER'){
-		$error_msg = getTranslatedString("MORE_THAN_ONE_USER");
+		$error_msg = "MORE_THAN_ONE_USER";
 	}
 	else
-		$error_msg = getTranslatedString("LBL_CANNOT_CONNECT_SERVER");
+		$error_msg = "LBL_CANNOT_CONNECT_SERVER";
 
-	$login_error_msg = base64_encode('<font color=red size=1px;> '.$error_msg.' </font>');
-	header("Location: login.php?login_error=$login_error_msg");
+	header("Location: login.php?login_error=" . base64_encode($error_msg));
 }
 
 ?>
