@@ -1,12 +1,12 @@
 <?xml version='1.0'?>
 <module>
-<exporttime>2010-06-03 11:13:19</exporttime>
+<exporttime>2022-04-09 11:12:47</exporttime>
 <name>ProjectTask</name>
 <label>ProjectTask</label>
 <parent>Support</parent>
-<version>3.1</version>
+<version>3.2</version>
 <dependencies>
-<vtiger_version>6.0.0rc</vtiger_version>
+<vtiger_version>6.5.0</vtiger_version>
 </dependencies>
 <tables>
 <table>
@@ -335,7 +335,7 @@
 <selected>0</selected>
 <sequence>5</sequence>
 <maximumlength>100</maximumlength>
-<typeofdata>T~O</typeofdata>
+<typeofdata>DT~O</typeofdata>
 <quickcreate>1</quickcreate>
 <quickcreatesequence></quickcreatesequence>
 <displaytype>2</displaytype>
@@ -355,7 +355,7 @@
 <selected>0</selected>
 <sequence>6</sequence>
 <maximumlength>100</maximumlength>
-<typeofdata>T~O</typeofdata>
+<typeofdata>DT~O</typeofdata>
 <quickcreate>1</quickcreate>
 <quickcreatesequence></quickcreatesequence>
 <displaytype>2</displaytype>
