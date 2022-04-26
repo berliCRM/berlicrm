@@ -247,6 +247,26 @@ $languageStrings = array(
 	'LBL_VE_SUCCESS_CONTACT_LESS1'=>'Personen zum Verteiler hinzugefügt.',
 	
 	'LAST_USED_AT_BY' => 'zuletzt benutzt am',
+
+	// side bar Widget
+	'LBL_SCHEDULED_REPORTS' => 'geplante Berichte',
+	'LBL_CARRYING_OUT' => 'Ausführung',
+	'LBL_CRON_STATUS' => 'Status',
+	'LBL_CRON_STATUS_1' => 'ok, Berichtsplanung ist aktiviert',
+	'LBL_CRON_STATUS_2' => 'in Bearbeitung',
+	'LBL_CRON_STATUS_0' => 'Berichtsplanung deaktiviert',
+	'LBL_CRON_ACTIVATION' => 'Aktiviere Planung',
+	'LBL_CRON_COMMENT_1' => 'Seit dem Start der letzten Berichtsverarbeitung sind mehr als ',
+	'LBL_CRON_COMMENT_2' => ' Minuten vergangen. Ihre geplanten Berichte können nicht erstellt werden.',
+	'LBL_CRON_COMMENT_3' => 'Bitte prüfen Sie die Größe Ihrer Berichte. Sind zu viele Daten in einem Bericht, kann der Bericht nicht über die Berichtsplanung ausgeführt werden und die Bearbeitung bricht wieder mit dem Status 2 ab.',
+	'LBL_CRON_COMMENT_4' => 'Wenn der Status 2 länger als ',
+	'LBL_CRON_COMMENT_5' => ' Minuten besteht, wurde Ihre Berichtsplanung deaktiviert. Informieren Sie dann bitte Ihren CRM Administrator.',
+	'LBL_CRON_COMMENT_6' => 'Nachdem Sie Ihre Berichte korrigiert haben, können Sie über den Button die Ausführung von geplanten Berichten wieder aktivieren.',
+	'LBL_CRON_HEADLINE' => 'periodische Berichtserstellung',
+	'LBL_NEXT_TIME' => 'nächste Ausführung',
+	'LBL_LAST_TIME' => 'letzte Ausführung',
+	'LBL_RUNNING_SINCE' => 'läuft seit',
+	'LBL_NOTHING_SCHEDULED' => 'keine Berichte geplant',
 	
 );
 

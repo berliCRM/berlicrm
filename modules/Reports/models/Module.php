@@ -75,6 +75,12 @@ class Reports_Module_Model extends Vtiger_Module_Model {
 				'linkurl' => 'module='.$this->get('name').'&view=IndexAjax&mode=showActiveRecords',
 				'linkicon' => ''
 			),
+			array(
+				'linktype' => 'SIDEBARWIDGET',
+				'linklabel' => 'LBL_SCHEDULED_REPORTS',
+				'linkurl' => 'module='.$this->get('name').'&view=IndexAjax&mode=showScheduledReports',
+				'linkicon' => ''
+			),
 		);
 		foreach($quickWidgets as $quickWidget) {
 			$links['SIDEBARWIDGET'][] = Vtiger_Link_Model::getInstanceFromValues($quickWidget);
