@@ -49,6 +49,10 @@ $languageStrings = array(
 	// Google map view
     'LBL_MISSING_MAP_KEY' => 'Für die Kartenansicht wurde kein Schlüssel bereitgestellt. Bitte kontaktieren Sie den CRM Administrator.',
     'LBL_MISSING_MAP_KEY_ADMIN' => 'Bitte im Google Einstellungsmenü einen Schlüssel eingeben.',
+	
+	'LBL_ADDRESS_INFORMATION' => 'Adressdetails',
+	'LBL_DESCRIPTION_INFORMATION' => 'Beschreibungsinformationen',
+
 );
 
 $jsLanguageStrings = array(
