@@ -247,6 +247,26 @@ $languageStrings = array(
 	'LBL_VE_SUCCESS_CONTACT_LESS1'=>'contacts have been added to the selected contribution list.',
 	
 	'LAST_USED_AT_BY' => 'last used at',
+	
+	// side bar Widget
+	'LBL_SCHEDULED_REPORTS' => 'Scheduled Reports',
+	'LBL_CARRYING_OUT' => 'carrying out',
+	'LBL_CRON_STATUS' => 'Status',
+	'LBL_CRON_STATUS_1' => 'ok, scheduled reports are activated',
+	'LBL_CRON_STATUS_2' => 'currently running',
+	'LBL_CRON_STATUS_0' => 'scheduled reports are deactivated',
+	'LBL_CRON_ACTIVATION' => 'Activate Planning',
+	'LBL_CRON_COMMENT_1' => 'Since the last report processing started, more than  ',
+	'LBL_CRON_COMMENT_2' => ' minutes are over. Your scheduled reports cannot be generated. ',
+	'LBL_CRON_COMMENT_3' => 'Please check the size of your reports. If there is too much data in a report, the report cannot be executed via report planning and processing is canceled with status 2.',
+	'LBL_CRON_COMMENT_4' => 'If status 2 lasts longer than ',
+	'LBL_CRON_COMMENT_5' => ' minutes, your scheduled reports get deactivated. Then please inform your CRM administrator. ',
+	'LBL_CRON_COMMENT_6' => 'After you have corrected your reports, you can activate the execution of scheduled reports again using the button.',
+	'LBL_CRON_HEADLINE' => 'periodic reporting',
+	'LBL_NEXT_TIME' => 'next execution ',
+	'LBL_LAST_TIME' => 'last execution ',
+	'LBL_RUNNING_SINCE' => 'running since',
+	'LBL_NOTHING_SCHEDULED' => 'no reports scheduled',
 
 );
 
