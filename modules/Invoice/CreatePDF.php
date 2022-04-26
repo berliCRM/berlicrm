@@ -18,10 +18,10 @@ if(isset($_REQUEST['savemode']) && $_REQUEST['savemode'] == 'file') {
 
 }
 elseif (isset($_REQUEST['printsn']) && $_REQUEST['printsn'] == 'printsn') {
-	createpdffile ($_REQUEST[record],'printsn');
+	createpdffile ($_REQUEST['record'],'printsn');
 }
 else {
-	createpdffile ($_REQUEST[record],'print');
+	createpdffile ($_REQUEST['record'],'print');
 }
 
 ?>
