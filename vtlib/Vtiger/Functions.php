@@ -480,7 +480,7 @@ class Vtiger_Functions {
 	// Utility
 	static function formatDecimal($value){
 		$fld_value = explode('.', $value);
-		if($fld_value[1] != ''){
+		if(isset ($fld_value[1]) && $fld_value[1] != ''){
 			$fld_value = rtrim($value, '0');
 			$value = rtrim($fld_value, '.');
 		}
