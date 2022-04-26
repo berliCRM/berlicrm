@@ -72,8 +72,8 @@ header('Content-Type: text/html; charset='.$default_charset);
 				<div class="body bg-gray">
                 	<div class="form-group">
 						<?php
-							if($_REQUEST['login_error'] != '')
-								echo getTranslatedString(base64_decode($_REQUEST['login_error'])); 
+							if(isset($_REQUEST['login_error']) && in_array(base64_decode($_REQUEST['login_error']),  array('LBL_VERSION_INCOMPATIBLE', 'LBL_ENTER_VALID_USER', 'MORE_THAN_ONE_USER', 'LBL_CANNOT_CONNECT_SERVER')))
+								echo "<font color=red size=1px;>" . getTranslatedString(base64_decode($_REQUEST['login_error'])) . "</font>"; 
 						?>
 						<input type="text" id="username" name="username" class="form-control" placeholder="<?php echo getTranslatedString('LBL_EMAILID');?>">
 					</div>
