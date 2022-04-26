@@ -13,7 +13,7 @@ class MYPDF extends TCPDF
 	public function Footer() 
 	{
 		//To make the function Footer() work properly
-		$this->AliasNbPages();
+
 		if (!isset($this->original_lMargin)) 
 		{
 			$this->original_lMargin = $this->lMargin;

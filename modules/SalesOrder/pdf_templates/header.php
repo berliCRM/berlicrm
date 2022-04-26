@@ -90,7 +90,7 @@ if ($clientid =='true'){
 		$pdf->Cell($pdf->GetStringWidth($pdf_strings['YOUR_SIGN']),$pdf->getFontSize(),$pdf_strings['YOUR_SIGN'],0,0);
 		//content
 		$pdf->SetX($xmargin+$xdistance);
-		$pdf->Cell($pdf->GetStringWidth($customermark),$pdf->getFontSize(),$customermark,0,1);
+		$pdf->Cell($pdf->GetStringWidth(decode_html($customermark)),$pdf->getFontSize(),decode_html($customermark),0,1);
 	}
 }
 // used to define the y location for the body

@@ -76,7 +76,7 @@ if ($ownerphone =='true'){
 	$pdf->Cell(20,$pdf->getFontSize(),$owner_phone,0,1);
 }
 //print requisition# if set
-if ($requisition_no!='')
+if (isset($requisition_no) && $requisition_no!='')
 {
 	$pdf->SetXY($xmargin+25, $ymargin+35 );
 	$pdf->Cell(20,$pdf->getFontSize(), $pdf_strings['NUM_FACTURE_NAME']." ",0,0,'L');
@@ -84,7 +84,7 @@ if ($requisition_no!='')
 	$pdf->Cell(20,$pdf->getFontSize(), decode_html($requisition_no),0,0,'R');
 }
 //print customer markif set
-if ($customermark!='')
+if (isset($customermark) && $customermark!='')
 {
 	$pdf->SetXY($xmargin+25, $ymargin+39 );
 	$pdf->Cell(20,$pdf->getFontSize(), $pdf_strings['VAR_CUSTOMERMARK']." ",0,0,'L');

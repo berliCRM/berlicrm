@@ -141,8 +141,9 @@ for($i=0;$i<$num_products;$i++)
 				$actual_y_position = $pdf->GetY();
 				$current_y_location = $actual_y_position;
 			}
-			if ($formated_text_array[$k])
+			if (!empty($formated_text_array[$k])) {
 				$pdf->Cell($longCell, $pdf->getFontSize(), $formated_text_array [$k],0,1,$formText,0,0);
+			}
 			$x_value += $pos;
 		}
 		$actual_y_position   = $actual_y_position  + $line_distance_products;
@@ -183,8 +184,8 @@ If ($summaryradio == 'true') {
 		$line_y_tax = $line_y_location;
 		for($tax_count=0;$tax_count<count($tax_details);$tax_count++)
 		{	
-			$VATLISTING = number_format($taxtype_listings [percentage.$tax_count],$decimal_precision,$decimals_separator,$thousands_separator).' '.$pdf_strings['Tax_NAME'].' '.number_format($taxtype_listings [value.$tax_count],$decimal_precision,$decimals_separator,$thousands_separator).' '.$currency_symbol.' '.$pdf_strings['INCLUDE_NAME'];
-			if ($taxtype_listings [value.$tax_count] != "0.00")
+			$VATLISTING = number_format($taxtype_listings ['percentage'.$tax_count],$decimal_precision,$decimals_separator,$thousands_separator).' '.$pdf_strings['Tax_NAME'].' '.number_format($taxtype_listings ['value'.$tax_count],$decimal_precision,$decimals_separator,$thousands_separator).' '.$currency_symbol.' '.$pdf_strings['INCLUDE_NAME'];
+			if ($taxtype_listings ['value'.$tax_count] != "0.00")
 			{
 				$pdf->SetXY(PDF_MARGIN_LEFT , $line_y_tax);
 				$pdf->SetFont($default_font, "", $font_size_body);
@@ -216,7 +217,7 @@ If ($summaryradio == 'true') {
 		if ($price_discount != '0.00')
 		{
 			$pdf->Line("105",$line_y_location, "200", $line_y_location);
-			if($final_price_discount_percent != '')
+			if(isset($final_price_discount_percent) && $final_price_discount_percent != '')
 				$data= $pdf_strings['Discount']."   $final_price_discount_percent:";
 			else
 				$data= $pdf_strings['Discount'].":";
@@ -265,7 +266,7 @@ If ($summaryradio == 'true') {
 		//line & text $price_discount
 		if ($price_discount != '0.00')
 		{
-			if($final_price_discount_percent != '')
+			if(isset ($final_price_discount_percent) && $final_price_discount_percent != '')
 				$data= $pdf_strings['Discount']."   $final_price_discount_percent:";
 			else
 				$data= $pdf_strings['Discount'].":";
