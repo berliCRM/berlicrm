@@ -86,7 +86,7 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 				header("Cache-Control:");
 				header("Cache-Control: public");
 				header("Accept-Ranges: bytes");
-				header("Content-disposition: filename=\"".basename($FN)."\"");
+				header('Content-Disposition: attachment; filename="'.basename($FN).'"');
 				header("Content-type: application/octet-stream");
 				header("Connection: close");
 
