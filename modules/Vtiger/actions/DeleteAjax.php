@@ -13,7 +13,6 @@ class Vtiger_DeleteAjax_Action extends Vtiger_Delete_Action {
 	public function process(Vtiger_Request $request) {
 		$moduleName = $request->getModule();
 		$recordId = $request->get('record');
-
 		$operation = $request->get('operation');
 
 		if($operation == "checkRecurr"){
@@ -54,20 +53,10 @@ class Vtiger_DeleteAjax_Action extends Vtiger_Delete_Action {
 			exit;
 
 		}else{ 
-			// normally it cannot step here, but if $operation not given in request.
-			$recordModel = Vtiger_Record_Model::getInstanceById($recordId, $moduleName);
-			$recordModel->delete();
-
-			$cvId = $request->get('viewname');
-			$response = new Vtiger_Response();
-			$response->setResult(array('viewname'=>$cvId, 'module'=>$moduleName));
-			$response->emit();
+			// it cannot step here, $operation must be given in request. error.
 			exit;
-			
 		}
 	}
-
-
 
 	public function findRecurringreferencesIDs($idRef){
 		// if $idRef belong to RecurringEvent so this funktion find all IDs, that belong to it to.
@@ -84,7 +73,7 @@ class Vtiger_DeleteAjax_Action extends Vtiger_Delete_Action {
 				$row1 = $adb->query_result_rowdata($resultRef1, $a);
 				$parentactivityidMe = $row1['parentactivityid'];
 			}
-			if($parentactivityidMe != ''){ // (here it muss have a value. )
+			if($parentactivityidMe != ''){
 				$sqlRef2 = 'SELECT activityid FROM `berlicrm_recurringreferences` WHERE parentactivityid = ?';
 				$resultRef2 = $adb->pquery($sqlRef2, array(  $parentactivityidMe  ));
 				$rowsRef2 = $adb->num_rows($resultRef2);
@@ -103,22 +92,7 @@ class Vtiger_DeleteAjax_Action extends Vtiger_Delete_Action {
 				// ERROR it can not step here, because "parentactivityid" field are not found, but muss be in DB.
 			}
 		}else{
-			// here step it only if this $idRef not be in the table as 'activityid', 
-			// but if we delete the first Event of the RecurringsEvents, 
-			// it can be only 'parentactivityid' self. Vor another functionality it can help.
-			/*$sqlRef2 = 'SELECT activityid FROM `berlicrm_recurringreferences` WHERE parentactivityid = ?';
-			$resultRef2 = $adb->pquery($sqlRef2, array(  $idRef  ));
-			$rowsRef2 = $adb->num_rows($resultRef2);
-			if($rowsRef2 > 0){
-				for($b = 0; $b < $rowsRef2 ; $b++){
-					$row2 = $adb->query_result_rowdata($resultRef2, $b);
-					$activityidMe = $row2['activityid'];
-					// add the belong IDs to the array.
-					$idsReferencesArray[] = $activityidMe;
-				}
-			}else{
-				// if it is not a activityid or parentactivityid, so it can not be a Recurringevent, and this id belong to normal Event.
-			}*/
+			// here step it only if this $idRef not be in the table as 'activityid'
 		}
 		// if the array is empty, so it was a normal Event without recurring.
 		// doubles remove (it can not have a double values, but just in case)
