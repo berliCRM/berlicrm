@@ -28,12 +28,12 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	//get the stored configuration values
 	$pdf_config_details = getAllPDFDetails('PurchaseOrder');
 	//set font
-	$default_font = getTCPDFFontsname ($pdf_config_details[fontid]);
+	$default_font = getTCPDFFontsname ($pdf_config_details['fontid']);
 	if ($default_font =='') $default_font = 'freesans';
-	$font_size_header = $pdf_config_details[fontsizeheader];
-	$font_size_address = $pdf_config_details[fontsizeaddress];
-	$font_size_body = $pdf_config_details[fontsizebody];
-	$font_size_footer = $pdf_config_details[fontsizefooter];
+	$font_size_header = $pdf_config_details['fontsizeheader'];
+	$font_size_address = $pdf_config_details['fontsizeaddress'];
+	$font_size_body = $pdf_config_details['fontsizebody'];
+	$font_size_footer = $pdf_config_details['fontsizefooter'];
 
 	//get users data
 	//select language file
@@ -47,15 +47,16 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	$focus->retrieve_entity_info($id,'PurchaseOrder');
 	$vendor_name = decode_html(getVendorName($focus->column_fields['vendor_id']));
 	//get vendors No
-	$sql="SELECT vendor_no FROM vtiger_vendor where vendorid = '".$focus->column_fields['vendor_id']."'";
-	$result = $adb->query($sql);
+	$sql="SELECT vendor_no FROM vtiger_vendor where vendorid = ?";
+	$result = $adb->pquery($sql, array($focus->column_fields['vendor_id']));
 	$vendor_id = $adb->query_result($result,0,'vendor_no');
 	$carriername = $focus->column_fields['carrier'];
 	$PurchaseOrder_no = $focus->column_fields['purchaseorder_no'];
 	//set currency format
-	$sql="select currency_symbol, currency_code from vtiger_currency_info where id= ".$focus->column_fields['currency_id'];
-	$currency_symbol = $adb->query_result($adb->query($sql),0,'currency_symbol');
-	$currency_code = $adb->query_result($adb->query($sql),0,'currency_code');
+	$sql="select currency_symbol, currency_code from vtiger_currency_info where id= ?";
+	$curr_result = $adb->pquery($sql, array($focus->column_fields['currency_id']));
+	$currency_symbol = $adb->query_result($curr_result, 0, 'currency_symbol');
+	$currency_code = $adb->query_result($curr_result, 0, 'currency_code');
 	switch($currency_code)
       {
          //European Format
@@ -117,7 +118,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	$vendor = $pdf_config_details['clientid'];
 	// get company information from settings
 	$add_query = "select * from vtiger_organizationdetails";
-	$result = $adb->query($add_query);
+	$result = $adb->pquery($add_query, array());
 	$num_rows = $adb->num_rows($result);
 	if($num_rows > 0)
 	{
@@ -154,8 +155,8 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	if($ownertype == 'Users')
 	{
 		// get owner information for user
-		$sql="SELECT * FROM vtiger_users,vtiger_crmentity WHERE vtiger_users.id = vtiger_crmentity.smownerid AND vtiger_crmentity.crmid = '".$_REQUEST['record']."'";
-		$result = $adb->query($sql);
+		$sql="SELECT * FROM vtiger_users,vtiger_crmentity WHERE vtiger_users.id = vtiger_crmentity.smownerid AND vtiger_crmentity.crmid = ? ";
+		$result = $adb->pquery($sql, array($_REQUEST['record']));
 		$owner_lastname = $adb->query_result($result,0,'last_name');
 		$owner_firstname = $adb->query_result($result,0,'first_name');
 		$owner_id = $adb->query_result($result,0,'smownerid');
@@ -164,8 +165,8 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	}
 	else {
 	// get owner information for Groups
-		$sql="SELECT * FROM vtiger_groups,vtiger_crmentity WHERE vtiger_groups.groupid  = vtiger_crmentity.smownerid AND vtiger_crmentity.crmid = '".$_REQUEST['record']."'";
-		$result = $adb->query($sql);
+		$sql="SELECT * FROM vtiger_groups,vtiger_crmentity WHERE vtiger_groups.groupid  = vtiger_crmentity.smownerid AND vtiger_crmentity.crmid = ? ";
+		$result = $adb->pquery($sql, array($_REQUEST['record']));
 		$owner_lastname = '';
 		$owner_firstname = $adb->query_result($result,0,'groupname');
 		$owner_id = $adb->query_result($result,0,'smownerid');
@@ -177,7 +178,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	//display owner phone#?
 	$ownerphone = $pdf_config_details['ownerphone'];
 	//to display at product description based on tax type
-	$gproddetailarray = array($pdf_config_details[gprodname],$pdf_config_details[gproddes],$pdf_config_details[gprodcom]);
+	$gproddetailarray = array($pdf_config_details['gprodname'],$pdf_config_details['gproddes'],$pdf_config_details['gprodcom']);
 	$gproddetails = 0;
 	foreach($gproddetailarray as $key=>$value){
 		if ($value=='true') {
@@ -186,7 +187,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 		}
 	}
 	$iproddetails = 0;
-	$iproddetailarray = array($pdf_config_details[iprodname],$pdf_config_details[iproddes],$pdf_config_details[iprodcom]);
+	$iproddetailarray = array($pdf_config_details['iprodname'],$pdf_config_details['iproddes'],$pdf_config_details['iprodcom']);
 	foreach($iproddetailarray as $key=>$value){
 		if ($value=='true') {
 			if ($key==0) $iproddetails = $iproddetails + 1;
@@ -195,7 +196,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	}
 
 	// PO Requisition Nummer 
-	$subject = $focus->column_fields[requisition_no];
+	$subject = $focus->column_fields['requisition_no'];
 
 
 	if($focus->column_fields["hdnTaxType"] == "individual") {
@@ -223,9 +224,9 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	//get contact department
 	if(trim($focus->column_fields["contact_id"]) != '')
 	{
-        	$sql = "select * from vtiger_contactdetails where contactid=".$focus->column_fields["contact_id"];
-        	$result = $adb->query($sql);
-        	$contact_department = decode_html(trim($adb->query_result($result,0,"department")));
+        	$sql = "select * from vtiger_contactdetails where contactid= ?";
+        	$result = $adb->pquery($sql, array($focus->column_fields["contact_id"]));
+         	$contact_department = decode_html(trim($adb->query_result($result,0,"department")));
 	        $contact_firstname = decode_html(trim($adb->query_result($result,0,"firstname")));
 	        $contact_lastname = decode_html(trim($adb->query_result($result,0,"lastname")));
 	        $contact_salutation = decode_html(trim($adb->query_result($result,0,"salutation")));
@@ -313,9 +314,9 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	$numer_of_tax_types = count($tax_details);
 	for($tax_count=0;$tax_count<count($tax_details);$tax_count++)
 	{
-		$taxtype_listings[taxname.$tax_count] = $tax_details[$tax_count]['taxname'];
-		$taxtype_listings[percentage.$tax_count] = $tax_details[$tax_count]['percentage'];
-		$taxtype_listings[value.$tax_count] = '0';
+		$taxtype_listings['taxname'.$tax_count] = $tax_details[$tax_count]['taxname'];
+		$taxtype_listings['percentage'.$tax_count] = $tax_details[$tax_count]['percentage'];
+		$taxtype_listings['value'.$tax_count] = '0';
 	}
 	//This is to get all prodcut details as row basis
 	for($i=1,$j=$i-1;$i<=$num_products;$i++,$j++)
@@ -344,12 +345,14 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 			$subProductArray[$i] = '';
 		}
 		//create a subProduct string to be added to the main product
-		for($subprod_count=0;$subprod_count<count($subProductArray[$i]);$subprod_count++) {
-			if ($subProductArray[$i][$subprod_count]!='') {
-				$subProdString[$i] .= "- ".$subProductArray[$i][$subprod_count]."\n";
+		$subProdString = array();
+		if (is_array ($subProductArray[$i]) && count($subProductArray[$i]) > 0) {
+			for($subprod_count=0;$subprod_count<count($subProductArray[$i]);$subprod_count++) {
+				if ($subProductArray[$i][$subprod_count]!='') {
+					$subProdString[$i] .= "- ".$subProductArray[$i][$subprod_count]."\n";
+				}
 			}
 		}
-
 		$producttotal = $taxable_total;
 		$total_taxes = '0.00';
 		
@@ -365,7 +368,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 				$tax_amount = (($taxable_total*$tax_percent)/100);
 				//calculate the tax amount for any available tax percentage
 				$detected_tax = substr(array_search ($total_tax_percent,$taxtype_listings), -1);
-				$taxtype_listings [value.$detected_tax] = $taxtype_listings [value.$detected_tax]+$tax_amount;
+				$taxtype_listings ['value'.$detected_tax] = $taxtype_listings ['value'.$detected_tax]+$tax_amount;
 				$total_taxes = $total_taxes+$tax_amount;
 			}
 			$producttotal = $taxable_total+$total_taxes;
@@ -374,9 +377,16 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 		}
 
 	    // combine product name, description and comment to one field based on settings
-		if($focus->column_fields["hdnTaxType"] == "individual") $product_selection = $iproddetails;
-		else $product_selection = $gproddetails;
-			switch($product_selection)
+		if($focus->column_fields["hdnTaxType"] == "individual") {
+			$product_selection = $iproddetails;
+		}
+		else {
+			$product_selection = $gproddetails;
+		}
+		if (!isset ($subProdString[$i])) {
+			$subProdString[$i] ='';
+		}
+		switch($product_selection)
 			{
 			    case 1:
 						$product_name_long[$i] = $product_name[$i];
@@ -414,7 +424,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 					else
 						$product_name_long[$i] = $product_name[$i]."\n".$subProdString[$i].$comment[$i];
 			    break;
-			}
+		}
 
 		$prod_total[$i] = number_format($producttotal,$decimal_precision,$decimals_separator,$thousands_separator);
 
@@ -443,7 +453,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	//$pdf = new PDF( 'P', 'mm', 'A4' );
 	$pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true); 
 	// set font
-	$pdf->SetFont($default_font, " ", $default_font_size);
+	$pdf->SetFont($default_font, " ", $font_size_body);
 	$pdf->setPrintHeader(0); //header switched off permanently
 	// auto break on
 	//$pdf->SetAutoPageBreak(true); 
@@ -455,9 +465,9 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
 	$pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
 	// set pdf information
-	$pdf-> SetTitle ($pdf_strings['FACTURE'].": ".$account_name);
+	$pdf-> SetTitle ($pdf_strings['FACTURE'].": ".$vendor_name);
 	$pdf-> SetAuthor ($owner_firstname." ".$owner_lastname.", ".$org_name);
-	$pdf-> SetSubject ($account_name);
+	$pdf-> SetSubject ($vendor_name);
 	$pdf-> SetCreator ('CRM System berliCRM: www.crm-now.de ');
 	//list product names as keywords
 	$productlisting = implode(", ",$product_name);
@@ -467,9 +477,9 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	//set image scale factor
 	$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO); 
 	//set some language-dependent strings
-	$pdf->setLanguageArray($l); 
+	$pdf->setLanguageArray($pdf_config_details['pdflang']); 
 	//initialize document
-	$pdf->AliasNbPages();
+
 	//in reference to body.php -> if a new page must be added if the space available for summary is too small
 	$new_page_started = false;
 	$pdf->AddPage();
@@ -481,7 +491,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	//formating company name for file name
 	$export_org = utf8_decode($vendor_name);
 	$export_org = decode_html(strtolower($export_org));
-    $export_org = str_replace(array(" ","Ã¶","Ã¤","Ã¼","ÃŸ"),array("","oe","ae","ue","ss"),$export_org);
+    $export_org = str_replace(array(" ","ö","ä","ü","ß"),array("","oe","ae","ue","ss"),$export_org);
 	//remove not printable ascii char
 	$export_org = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $export_org);
 

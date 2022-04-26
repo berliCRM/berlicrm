@@ -109,6 +109,8 @@ if ($vendor =='true'){
 	$pdf->SetX($xmargin+$xdistance);
 	$pdf->Cell(20,$pdf->getFontSize(),$vendor_id,0,1);
 }
+// used to define the y location for the body
+$ylocation_rightheader= $pdf->GetY();
 // ************** End Top-Right Header *****************
 
 // ************** Begin Top-Left Header **************

@@ -2,7 +2,7 @@
 $pdf_strings = Array(
 	'LANGUAGENAME' =>'Deutsch',
 	'NUM_FACTURE_NAME' => 'Bestellnummer:',
-    'FACTURE' =>  'Bestellbestätigung',
+    'FACTURE' =>  'Auftragsbestätigung',
     'VALID_TILL' =>  'gültig bis:',
     'SODATE' =>  'Lieferdatum:',
     'IDCLIENT_NAME' => 'Kundennr.',

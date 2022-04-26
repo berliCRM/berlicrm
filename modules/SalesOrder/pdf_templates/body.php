@@ -141,8 +141,9 @@ for($i=0;$i<$num_products;$i++)
 				$actual_y_position = $pdf->GetY();
 				$current_y_location = $actual_y_position;
 			}
-			if ($formated_text_array[$k])
+			if (!empty($formated_text_array[$k])) {
 				$pdf->Cell($longCell, $pdf->getFontSize(), $formated_text_array [$k],0,1,$formText,0,0);
+			}
 			$x_value += $pos;
 		}
 		$actual_y_position   = $actual_y_position  + $line_distance_products;
@@ -159,7 +160,7 @@ for($i=0;$i<$num_products;$i++)
 	$y_line_storage = $pdf->GetY();
 	if ($newpage==false)
 		$pdf->Line(PDF_MARGIN_LEFT,$actual_y_position-2, "200", $actual_y_position-2);
-	$pdf->SetXY( PDF_MARGIN_LEFT, $y_line_storage+2);
+	$pdf->SetXY(PDF_MARGIN_LEFT, $y_line_storage+2);
 }
 /* ******************* End product population ********* */
 
