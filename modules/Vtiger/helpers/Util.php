@@ -545,6 +545,10 @@ class Vtiger_Util_Helper {
     }
 
     public static function transferListSearchParamsToFilterCondition($listSearchParams, $moduleModel) {
+		// crm-now: fix for legacy
+		if (is_string($moduleModel)) {
+			$moduleModel = Vtiger_Module_Model::getInstance($moduleModel);		
+		}
         if(empty($listSearchParams)) {
             $listSearchParams = array();
         }
