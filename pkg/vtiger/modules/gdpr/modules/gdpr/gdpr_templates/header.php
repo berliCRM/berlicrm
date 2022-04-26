@@ -38,7 +38,7 @@ $pdf->Cell($pdf->GetStringWidth(' '.$org_city),$pdf->getFontSize(),' '.$org_city
 ///current date
 $pdf->Ln(10);
 $pdf->SetX($xmargin+$xdistance);
-$pdf->Cell($pdf->GetStringWidth($date_to_display),$pdf->getFontSize(),$date_issued,0,1);
+$pdf->Cell($pdf->GetStringWidth($date_issued),$pdf->getFontSize(),$date_issued,0,1);
 
 /// used to define the y location for the body
 $ylocation_after = $pdf->GetY();
