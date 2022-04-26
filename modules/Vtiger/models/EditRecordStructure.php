@@ -37,7 +37,7 @@ class Vtiger_EditRecordStructure_Model extends Vtiger_RecordStructure_Model {
 							$fieldModel->set('fieldvalue', $recordModel->get($fieldName));
 						}else{
 							$defaultValue = $fieldModel->getDefaultFieldValue();
-							if(!empty($defaultValue) && !$recordId)
+							if(trim($defaultValue) !='' && $defaultValue != Null && !$recordId)
 								$fieldModel->set('fieldvalue', $defaultValue);
 						}
 						$values[$blockLabel][$fieldName] = $fieldModel;
