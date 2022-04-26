@@ -669,7 +669,7 @@ class QueryGenerator {
 		}
 
 		// Adding support for conditions on reference module fields
-		if($this->referenceModuleField) {
+		if(property_exists($this, 'referenceModuleField')) {
 			$referenceFieldTableList = array();
 			foreach ($this->referenceModuleField as $index=>$conditionInfo) {
 
@@ -972,7 +972,7 @@ class QueryGenerator {
 		}
 
 		// This is added to support reference module fields
-		if($this->referenceModuleField) {
+		if(property_exists($this, 'referenceModuleField')) {
 			foreach ($this->referenceModuleField as $index=>$conditionInfo) {
 				$handler = vtws_getModuleHandlerFromName($conditionInfo['relatedModule'], $current_user);
 				$meta = $handler->getMeta();
