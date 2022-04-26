@@ -423,6 +423,7 @@ function getTaxDetailsForProduct($productid, $available='all')
  		    $query = fixPostgresQuery( $query, $log, 0);
 
 		$res = $adb->pquery($query, $params);
+		$tax_details = array();
 		for($i=0;$i<$adb->num_rows($res);$i++)
 		{
 			$tax_details[$i]['productid'] = $adb->query_result($res,$i,'productid');

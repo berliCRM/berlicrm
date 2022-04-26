@@ -256,7 +256,7 @@ function getAssociatedProducts($module,$focus,$seid='')
 			$product_Detail[$i]['hdnLineitemId'.$i] = $hdnLineitemId;
 		}
 
-		if($module != 'PurchaseOrder' && $focus->object_name != 'Order') {
+		if($module != 'PurchaseOrder' && (isset ($focus->object_name) && $focus->object_name != 'Order')) {
 			$product_Detail[$i]['qtyInStock'.$i]=decimalFormat($qtyinstock);
 		}
 		$listprice = number_format($listprice, $no_of_decimal_places,'.','');
