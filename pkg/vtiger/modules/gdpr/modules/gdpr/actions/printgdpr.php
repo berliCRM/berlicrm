@@ -45,11 +45,6 @@ class gdpr_printgdpr_Action {
 		global $current_user;
 		
 		try {
-			/** Send the output header and invoke function for contents output */
-			header(sprintf("Content-Disposition:attachment;filename=%s.pdf", str_replace(';', '', $lastfirstname)));
-			header("Content-Type:text/plain;charset=UTF-8");
-			header("Cache-Control: post-check=0, pre-check=0", false );
-			
 			self::createpdffile($module,$recordid);
 			
 		} catch(Exception $e) {
@@ -207,7 +202,7 @@ class gdpr_printgdpr_Action {
 		$pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
 		// set pdf information
 		$recordName = $RecordDetails['lastname'].' '.$RecordDetails['firstname'];
-		$pdf-> SetTitle ($pdf_strings['FACTURE'].": ".$recordName);
+		$pdf-> SetTitle ($recordName);
 		$pdf-> SetAuthor ($org_name);
 		$pdf-> SetSubject ($recordName);
 		$pdf-> SetCreator ('CRM System berliCRM: www.crm-now.de ');
@@ -219,20 +214,20 @@ class gdpr_printgdpr_Action {
 		//set image scale factor
 		$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO); 
 		//initialize document
-		$pdf->AliasNbPages();
+
 		$new_page_started = false;
 		$pdf->AddPage();
 		include("modules/gdpr/gdpr_templates/header.php");
 		include("modules/gdpr/gdpr_templates/body.php");
 		//formatting name for file name
 		$exportname = utf8_decode($recordName);
-		$exportname = decode_html(strtoupper($exportname));
-		$exportname = str_replace(array("ö","ä","ü","ß"),array("oe","ae","ue","ss"),$exportname);
+		$exportname = decode_html($exportname);
+		$exportname = strtoupper(str_replace(array("ö","ä","ü","ß"),array("oe","ae","ue","ss"),$exportname));
 		//remove not printable ascii char
 		$exportname = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $exportname);
 
 		// issue pdf
-		$pdf->Output(getTranslatedString('LBL_DSGVO_NAME').' '.$exportname.'_'.$date_issued.'.pdf','D');
+		$pdf->Output(getTranslatedString('LBL_DSGVO_NAME').'_'.$exportname.'_'.$date_issued.'.pdf','D');
 		exit;
 	}
 }
