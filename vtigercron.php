@@ -11,11 +11,8 @@
 /**
  * Start the cron services configured.
  */
- 
 include_once 'vtlib/Vtiger/Cron.php';
 require_once 'config.inc.php';
-/* no dbconfig means - not installed yet */
-if(! isset($dbconfig)) { exit(0); }
 require_once('modules/Emails/mail.php');
 require_once('modules/Users/Users.php');
 require_once('includes/runtime/BaseModel.php');
@@ -61,6 +58,12 @@ if(PHP_SAPI === "cgi-fcgi" || empty($_SERVER['REMOTE_ADDR']) || (isset($_SESSION
 			// Not ready to run yet?
 			if (!$cronTask->isRunnable()) {
 				echo sprintf("[INFO] %s - not ready to run as the time to run again is not completed\n", $cronTask->getName());
+				continue;
+			}
+
+			// already running?
+			if ($cronTask->isRunning()) {
+				echo sprintf("[INFO] %s - not ready to run because it is running already", $cronTask->getName());
 				continue;
 			}
 
