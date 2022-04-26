@@ -1491,14 +1491,15 @@ function get_contactsforol($user_name)
 	//type argument included when when addin customizable tempalte for sending portal login details
 	public static function getPortalEmailContents($entityData, $password, $type='') {
         require_once 'config.inc.php';
-		global $PORTAL_URL, $HELPDESK_SUPPORT_EMAIL_ID;
+		global $PORTAL_URL,$PORTAL_URL_ENG, $HELPDESK_SUPPORT_EMAIL_ID;
 
 		$adb = PearDatabase::getInstance();
 		$moduleName = $entityData->getModuleName();
 
 		$companyDetails = getCompanyDetails();
 
-		$portalURL = '<a href="'.$PORTAL_URL.'" style="font-family:Arial, Helvetica, sans-serif;font-size:12px; font-weight:bolder;text-decoration:none;color: #4242FD;">'.getTranslatedString('Please Login Here', $moduleName).'</a>';
+		$portalURL = '<a href="'.$PORTAL_URL.'/" style="font-family:Arial, Helvetica, sans-serif;font-size:12px; font-weight:bolder;text-decoration:none;color: #4242FD;">'.getTranslatedString('Please Login Here', $moduleName).'</a>';
+		$portalURL_ENG = '<a href="'.$PORTAL_URL_ENG.'/" style="font-family:Arial, Helvetica, sans-serif;font-size:12px; font-weight:bolder;text-decoration:none;color: #4242FD;">'.getTranslatedString('Please Login Here', $moduleName).'</a>';
 
 		//here id is hardcoded with 5. it is for support start notification in vtiger_notificationscheduler
 		$query='SELECT vtiger_emailtemplates.subject,vtiger_emailtemplates.body
@@ -1513,6 +1514,7 @@ function get_contactsforol($user_name)
 		$contents = str_replace('$login_name$',$entityData->get('email'),$contents);
 		$contents = str_replace('$password$',$password,$contents);
 		$contents = str_replace('$URL$',$portalURL,$contents);
+		$contents = str_replace('$URL_ENG$',$portalURL_ENG,$contents);
 		$contents = str_replace('$support_team$',getTranslatedString('Support Team', $moduleName),$contents);
 		$contents = str_replace('$logo$','<img src="cid:logo" />',$contents);
 
