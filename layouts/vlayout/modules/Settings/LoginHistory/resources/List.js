@@ -68,9 +68,65 @@ Settings_Vtiger_List_Js("Settings_LoginHistory_List_Js",{},{
 		return pageJumpParams;
 	},
 	
+	/**
+	 * Function for Export Buttons
+	 */
+	registerButtonsForLoginHistory : function(){
+        jQuery("#exportUserByTime").on("click",function(e){
+			exportCsvFile('exportUserByTime');
+        });
+        jQuery("#exportUserByName").on("click",function(e){
+			exportCsvFile('exportUserByName');
+        });
+		function exportCsvFile(mode) {
+			var progressIndicatorElement = jQuery.progressIndicator({
+				'position' : 'html',
+				'blockInfo' : {
+					'enabled' : true
+				}
+			});
+			var params = 'index.php?module=LoginHistory&view=List&parent=Settings&action=exportLoginHistory&mode='+mode;
+			AppConnector.request(params).then(
+				function(response) {
+					progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+					if(response) {
+						var exportedData = jQuery.parseJSON(response);
+						var data = exportedData.result.data;
+						var csv = 'Nutzername,IP Adresse des Nutzers,Anmeldezeit,Abmeldezeit,Status\n';
+						var csv = app.vtranslate('JS_USER_NAME')+","+app.vtranslate('JS_IP_ADDRESS')+","+app.vtranslate('JS_SIGN_IN')+","+app.vtranslate('JS_SIGN_OUT')+","+app.vtranslate('JS_STATUS')+"\n";
+
+						for (index = 0; index < data.length; ++index) {
+								csv += data[index];
+						};
+						var hiddenElement = document.createElement('a');
+						hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+						hiddenElement.target = '_blank';
+						hiddenElement.download = 'LoginHistory'+mode+'.csv';
+						hiddenElement.click();
+					}
+					else {
+						var  params = {
+							title : app.vtranslate('JS_MESSAGE'),
+							text: app.vtranslate('JS_EXPORT_FAILURE'),
+							animation: 'show',
+							type: 'error'
+						}
+						Vtiger_Helper_Js.showPnotify(params);
+					}
+				},
+				function(error){
+					progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+					alert ('internal CRM problem');
+				}
+			)
+		}
+	},
+	
+	
 	registerEvents : function() {
 		this.registerFilterChangeEvent();
 		this.registerPageNavigationEvents();
 		this.registerEventForTotalRecordsCount();
+		this.registerButtonsForLoginHistory();
 	}
 });
