@@ -16,6 +16,14 @@
 	</div>
 	<hr>
 	<div class="row-fluid">
+		<span class="span2 btn-toolbar">
+			<button class="btn btn-success" type="submit" name="exportUserByTime" id="exportUserByTime"><strong>{vtranslate('LBL_EXPORT_BY_TIME', $QUALIFIED_MODULE)}</strong></button>
+		</span>
+		<span class="span2 btn-toolbar">
+			<button class="btn btn-success" type="submit" name="exportUserByName" id="exportUserByName"><strong>{vtranslate('LBL_EXPORT_BY_USER', $QUALIFIED_MODULE)}</strong></button>
+		</span>
+	</div>
+	<div class="row-fluid">
 		<span class="span8 btn-toolbar">
 				<select class="chzn-select" id="usersFilter" >
 					<option value="">{vtranslate('LBL_ALL', $QUALIFIED_MODULE)}</option>
