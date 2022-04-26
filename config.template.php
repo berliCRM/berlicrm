@@ -34,8 +34,8 @@ $CHAT_DISPLAY = 'true';
 $USE_RTE = 'true';
 
 // url for customer portal (Example: http://vtiger.com/portal)
-$PORTAL_URL = 'https://_DBC_USER_.co.crm-now.de/kundenportal';
-$PORTAL_URL_ENG = 'https://_DBC_USER_.co.crm-now.de/customerportal';
+$PORTAL_URL = 'https://_DBC_USER_.co.crm-now.de/kundenportal/';
+$PORTAL_URL_ENG = 'https://_DBC_USER_.co.crm-now.de/customerportal/';
 
 // helpdesk support email id and support name (Example: 'support@vtiger.com' and 'vtiger support')
 $HELPDESK_SUPPORT_EMAIL_ID = '_USER_SUPPORT_EMAIL_';
