@@ -106,7 +106,9 @@ class Pdfsettings_List_View extends Vtiger_Index_View {
 
 			//language
 			$pdflanguage_selected [$fld_module] = $pdf_details[$fld_module]['pdflang'];
-			if ($pdflanguage_selected[$fld_module] =='') $pdflanguage_selected[$fld_module] = 'ge_de';
+			if ($pdflanguage_selected[$fld_module] =='') {
+				$pdflanguage_selected[$fld_module] = 'de_de';
+			}
 			//get available languages based on existing language files
 			$pdflanguages[$fld_module] = getAllPDFlanguages ($fld_module);
 			$pdflanguage_keys[$fld_module] = array();
