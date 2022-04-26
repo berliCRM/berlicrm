@@ -393,5 +393,100 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 
 	return $body;
 	}
+	
+
+	/**
+	 * Function returns the Scheduled Reports Model instance
+	 * @param <Number> $recordId
+	 * @return <Reports_ScheduleReports_Model>
+	 */
+	public static function cronStatus() {
+		$db = PearDatabase::getInstance();
+		$cronStatus = false;
+
+		$scheduledReportCron = $db->pquery('SELECT status FROM vtiger_cron_task WHERE name = ?', array('ScheduleReports'));
+		if ($db->num_rows($scheduledReportCron) > 0) {
+			$reportScheduleInfo = $db->query_result_rowdata($scheduledReportCron, 0);
+			$cronStatus = $reportScheduleInfo['status'];
+		}
+
+		return $cronStatus;
+	}
+
+	/**
+	 * Function returns the next running time of Scheduled Reports Cron
+	 * @return <datetime>
+	 */
+	public static function getNextRunTime() {
+		$db = PearDatabase::getInstance();
+		$cronStatus = false;
+
+		$scheduledReportCron = $db->pquery('SELECT laststart, frequency, status FROM vtiger_cron_task WHERE name = ?', array('ScheduleReports'));
+		if ($db->num_rows($scheduledReportCron) > 0) {
+			$reportScheduleInfo = $db->query_result_rowdata($scheduledReportCron, 0);
+			$laststart = intval($reportScheduleInfo['laststart']);
+			$frequency = intval($reportScheduleInfo['frequency']);
+			$status = $reportScheduleInfo['status'];
+			if ($status == '2')  {
+				return '';
+			}
+			if($laststart > 0) {
+				$nextStartTime = Vtiger_Datetime_UIType::getDisplayDateTimeValue(date('Y-m-d H:i:s',$laststart + $frequency));
+			}
+			else {
+				$nextStartTime = Vtiger_Datetime_UIType::getDisplayDateTimeValue(date('Y-m-d H:i:s',strtotime(date('Y-m-d H:i:s')) + $frequency));
+			}
+			$userModel = Users_Record_Model::getCurrentUserModel();
+			$hourFormat = $userModel->get('hour_format');
+			if($hourFormat == '24') {
+				return $nextStartTime;
+			} 
+			else {
+				$dateTimeList = explode(" ", $nextStartTime);
+				return $dateTimeList[0]." ".date('g:i:sa', strtotime($dateTimeList[1]));
+			}
+		}
+		return '';
+	}
+	
+	/**
+	 * Function returns the last running time of Scheduled Reports Cron
+	 * @return <datetime>
+	 */
+    function getLastStartDateTime() {
+ 		$db = PearDatabase::getInstance();
+		$scheduledReportCron = $db->pquery('SELECT laststart FROM vtiger_cron_task WHERE name = ?', array('ScheduleReports'));
+		$reportScheduleInfo = $db->query_result_rowdata($scheduledReportCron, 0);
+		$laststart = intval($reportScheduleInfo['laststart']);
+
+		if($laststart > 0) {
+		    $lastScannedTime = Vtiger_Datetime_UIType::getDisplayDateTimeValue(date('Y-m-d H:i:s', $laststart));
+		    $userModel = Users_Record_Model::getCurrentUserModel();
+			$hourFormat = $userModel->get('hour_format');
+		    if($hourFormat == '24') {
+				return $lastScannedTime;
+		    } 
+			else {
+				$dateTimeList = explode(" ", $lastScannedTime);
+                return $dateTimeList[0]." ".date('g:i:sa', strtotime($dateTimeList[1]));
+			}
+		} 
+		else {
+			return '';
+		}
+    }
+	
+ 	/**
+	 * Function returns the frequency for Cron
+	 * @return <datetime>
+	 */
+    function getCronFrequency() {
+ 		$db = PearDatabase::getInstance();
+		$scheduledReportCron = $db->pquery('SELECT frequency FROM vtiger_cron_task WHERE name = ?', array('ScheduleReports'));
+		$reportScheduleInfo = $db->query_result_rowdata($scheduledReportCron, 0);
+		$frequency = intval($reportScheduleInfo['frequency']);
+		return $frequency;
+    }
+ 
 }
 

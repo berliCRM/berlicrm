@@ -372,3 +372,47 @@ callVerteilerList = {
 	}
 	
 }
+
+startCron = {
+	
+	exercise : function() {
+		var aDeferred = jQuery.Deferred();
+		var url = 'index.php?module=Reports&action=resetReportsCron&ajax=true';
+		
+		var progressIndicatorElement = jQuery.progressIndicator({
+			'position' : 'html',
+			'blockInfo' : {
+			'enabled' : true
+			}
+		});
+	
+		AppConnector.request(url).then(
+			function(data){
+				progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+				aDeferred.resolve(data);
+				if(data.result.success == true ) {
+					if(typeof data.result.listViewUrl != 'undefined') {
+						var path = data.result.listViewUrl;
+						window.location.assign(path);
+					}
+				}
+				else {
+					var params = {
+						title: data.result.error,
+						text: data.result.message,
+						type : 'info',
+						width: '35%'
+					};
+					Vtiger_Helper_Js.showPnotify(params);
+
+				}
+
+			},
+			function(error){
+				//aDeferred.reject();
+			}
+		);
+		return aDeferred.promise();
+	}
+
+}
