@@ -173,7 +173,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			this.removeAttachmentFileSizeByElement(jQuery(element));
 			master_element.list.find('.MultiFile-label:last').find('.MultiFile-remove').trigger('click');
 		}else if((mode != "") && (existingAttachment != "")){
-			fileuploaded = value.split('\\').pop().split('/').pop(); // get filename from full path
+			fileuploaded = value.split('\\').pop().split('/').pop();
 			jQuery.each(existingAttachment,function(key,value){
 				if((value['attachment'] == fileuploaded) && !(value.hasOwnProperty( "docid"))){
 					var errorMsg = app.vtranslate("JS_THIS_FILE_HAS_ALREADY_BEEN_SELECTED")+" "+fileuploaded;
@@ -376,8 +376,6 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		var thisInstance = this;
 		this.getMassEmailForm().on('click','.selectEmail',function(e){
 
-			//console.log("KLICK"); // wenn ich den Verteiler nachder suche lade.
-
 			var moduleSelected = jQuery('.emailModulesList').val();
 			var parentElem = jQuery(e.target).closest('.toEmailField');
 			var sourceModule = jQuery('[name=module]').val();
@@ -392,20 +390,10 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 				// 'numberLimitOfEmails', so much emails we need to see. If more, we see only the count in input field.
 				const numberLimitOfEmails = 100;
 
-				// We can have many emails imported here from for example "Verteiler", 
 				let responseDataLength = (Object.keys(responseData).length);
 
-				///////////////////////////////////////////////////////////////////////////////////////////////
-				// Es sind zu viele Felder: to, toEmail, toEmailInfo, toMailNamesList, selected_ids, ,,womoeglich Andere noch.
-				// toEmailInfo => ist das Feld, welcher fürs versand wichtig ist. Was dort steht, an die wird versand!!!!!!!!!!!!!!!!
-				// Alle die machen fast dasselbe, sie fassen zusammen die Emails, an die wir etwas versenden muessen. (historisch gewachsen)
-				// Es muss verbessert und bereinigt werden,... 
-				
 				let toemailinfoField = document.getElementsByName('toemailinfo');
-				// <input type="hidden" name="toemailinfo" value="{&quot;16&quot;:[],&quot;68&quot;:[&quot;erik.dartus@aol.com&quot;,&quot;erik.dartus@aol.com&quot;,&quot;erik.dartus@aol.com&quot;],&quot;82&quot;:[&quot;ed@crm-now.de&quot;],&quot;89&quot;:[&quot;dipner@gmx.net&quot;],&quot;90&quot;:[&quot;dipner333@gmx.de&quot;,&quot;dipner333@gmx.de&quot;,&quot;dipner333@gmx.de&quot;],&quot;1374&quot;:[&quot;DiPNer@gmx.Net&quot;,&quot;dipner@gmx.net&quot;,&quot;dipner@gmx.net&quot;],&quot;1375&quot;:[&quot;dipner@gmx.net&quot;,&quot;dipner@gmx.net&quot;,&quot;dipner@gmx.net&quot;]}">
 				let toemailinfoObj =  JSON.parse(toemailinfoField[0].value);
-				//console.log("toemailinfoObj");
-				//console.log(toemailinfoObj);
 				
 				// first we need to check, if it was new emails here, or it was the same, so do not count it. 
 				let newDataLength = 0;
@@ -420,8 +408,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 					if(isNew){
 						newDataLength++;
 					}
-					//console.log(key); // 68
-					//let emailArr = toemailinfoObj[key]; //Array [ "erik.dartus@aol.com", "erik.dartus@aol.com" ]
+
 				}
 		
 				// Now add the number of emails from the past to new added count.
@@ -474,11 +461,6 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 	setReferenceFieldValue : function(container,object){
 		var thisInstance = this;
 		var preloadData = thisInstance.getPreloadData();
-
-		console.log("preloadData");
-		console.log(preloadData);
-
-
 		var emailInfo = {
 			'recordId' : object.id,
 			'id' : object.emailid,
@@ -525,7 +507,6 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			var newValue = new Array(mailInfo.emailid);
 			
 			///(new) If it was the same email, so we need not to add it. Hmm emailAdresse has name "id" ?
-			//console.log("mailInfo.emailid = "+ mailInfo.emailid); // dip@gmx.net // erik.dartus@aol.com
 			let newHere = true;
 			for(let i =0; i < existingValues.length; i++){
 				if( ((existingValues[i]).trim()).toLowerCase() == ((mailInfo.emailid).trim()).toLowerCase() ){
@@ -897,7 +878,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 
 		var ccValues = container.find('[name="cc"]').val();
 		
-		if(ccValues.length > 0 && ccValues != "null") { // ["m@w.e"]   it can be ["null"]   if(ccValues.length > 8)
+		if(ccValues.length > 0 && ccValues != "null") { 
 			ccValues = ccValues.replace('"','');
 			ccValues = ccValues.replace("[","");
 			ccValues = ccValues.replace("]","");
@@ -990,12 +971,12 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		}
 	},
 	removeFromEmails : function(mailInfo){
-		var toEmails = this.getMassEmailForm().find('[name="to"]'); /*first it is a string, second a array? yes it is */ 
+		var toEmails = this.getMassEmailForm().find('[name="to"]');
 		var previousValue0 = JSON.parse(toEmails.val());
-		var previousValue = [];//previousValue0=Array [ "alfa@gmx.de,beta@aol.com,ceta@web.de,dora@gmx.net" ] // only one element in array
+		var previousValue = [];
 		if(previousValue0.length == 1){
-			previousValue = (previousValue0[0].split(',')).map(function(item){ return item.trim(); } ); // i splite and remove the whitespace from items.
-		} // now it is like: previousValue =Array[ "alfa@gmx.de","beta@aol.com","ceta@web.de","dora@gmx.net"]; // 4 elements
+			previousValue = (previousValue0[0].split(',')).map(function(item){ return item.trim(); } );
+		} 
 		else if(previousValue0.length > 1){
 			previousValue = previousValue0;
 		}
