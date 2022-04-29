@@ -375,6 +375,9 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 	registerEventsForToField : function(){
 		var thisInstance = this;
 		this.getMassEmailForm().on('click','.selectEmail',function(e){
+
+			//console.log("KLICK"); // wenn ich den Verteiler nachder suche lade.
+
 			var moduleSelected = jQuery('.emailModulesList').val();
 			var parentElem = jQuery(e.target).closest('.toEmailField');
 			var sourceModule = jQuery('[name=module]').val();
@@ -386,24 +389,44 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			var popupInstance =Vtiger_Popup_Js.getInstance();
 			popupInstance.show(params, function(data){
 				var responseData = JSON.parse(data);
-
 				// 'numberLimitOfEmails', so much emails we need to see. If more, we see only the count in input field.
 				const numberLimitOfEmails = 100;
+
 				// We can have many emails imported here from for example "Verteiler", 
 				let responseDataLength = (Object.keys(responseData).length);
-				// and we can write first a email adress in input field, so we need to count it to (or if in input field are a email adress already).
-				// name="selected_ids" have we only one time, because it can not be many from it!!! This element muss exist
-				let elementNameTo = document.getElementsByName('selected_ids');
+
+				///////////////////////////////////////////////////////////////////////////////////////////////
+				// Es sind zu viele Felder: to, toEmail, toEmailInfo, toMailNamesList, selected_ids, ,,womoeglich Andere noch.
+				// toEmailInfo => ist das Feld, welcher fürs versand wichtig ist. Was dort steht, an die wird versand!!!!!!!!!!!!!!!!
+				// Alle die machen fast dasselbe, sie fassen zusammen die Emails, an die wir etwas versenden muessen. (historisch gewachsen)
+				// Es muss verbessert und bereinigt werden,... 
 				
-				// We need to check if it is a 1 email or 0. (i dell first and last chars, because it was [])
-				let addToCountForEmailsString = (  ((((elementNameTo[0].value).trim()).slice(1,-1)).trim())  );
-				let addToCountForEmailsNumber = 0;
-				if(addToCountForEmailsString.length > 0){
-					addToCountForEmailsNumber=(addToCountForEmailsString.split(',')).length;
+				let toemailinfoField = document.getElementsByName('toemailinfo');
+				// <input type="hidden" name="toemailinfo" value="{&quot;16&quot;:[],&quot;68&quot;:[&quot;erik.dartus@aol.com&quot;,&quot;erik.dartus@aol.com&quot;,&quot;erik.dartus@aol.com&quot;],&quot;82&quot;:[&quot;ed@crm-now.de&quot;],&quot;89&quot;:[&quot;dipner@gmx.net&quot;],&quot;90&quot;:[&quot;dipner333@gmx.de&quot;,&quot;dipner333@gmx.de&quot;,&quot;dipner333@gmx.de&quot;],&quot;1374&quot;:[&quot;DiPNer@gmx.Net&quot;,&quot;dipner@gmx.net&quot;,&quot;dipner@gmx.net&quot;],&quot;1375&quot;:[&quot;dipner@gmx.net&quot;,&quot;dipner@gmx.net&quot;,&quot;dipner@gmx.net&quot;]}">
+				let toemailinfoObj =  JSON.parse(toemailinfoField[0].value);
+				//console.log("toemailinfoObj");
+				//console.log(toemailinfoObj);
+				
+				// first we need to check, if it was new emails here, or it was the same, so do not count it. 
+				let newDataLength = 0;
+				for (key1 in toemailinfoObj) {
+					let isNew = true;
+					for (key2 in responseData) {
+						if(key1 == key2){
+							isNew = false;
+							break;
+						}
+					}
+					if(isNew){
+						newDataLength++;
+					}
+					//console.log(key); // 68
+					//let emailArr = toemailinfoObj[key]; //Array [ "erik.dartus@aol.com", "erik.dartus@aol.com" ]
 				}
+		
 				// Now add the number of emails from the past to new added count.
-				responseDataLength = responseDataLength + addToCountForEmailsNumber;
-				// Only if it is to many emails, we need to change the 'show' of input fields. HERE WE SET THE NUMBER LIMIT!
+				responseDataLength = responseDataLength + newDataLength;
+				// Only if it is to many emails, we need to change the 'show' of input fields. 
 				if(responseDataLength > numberLimitOfEmails){
 					let elementToEmail = document.getElementById('toEmailViewId');
 					let elementToEmailCount = document.getElementById('toEmailCount');
@@ -452,6 +475,10 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		var thisInstance = this;
 		var preloadData = thisInstance.getPreloadData();
 
+		console.log("preloadData");
+		console.log(preloadData);
+
+
 		var emailInfo = {
 			'recordId' : object.id,
 			'id' : object.emailid,
@@ -464,9 +491,23 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		var toEmailField = container.find('#toEmail');
 		var toEmailFieldExistingValue = toEmailField.val();
 		var toEmailFieldNewValue;
+
+		/// check here vor double emails, add only new
 		if(toEmailFieldExistingValue != ""){
-			toEmailFieldNewValue = toEmailFieldExistingValue+","+object.emailid;
-		} else {
+			let arrFields = toEmailFieldExistingValue.split(",");
+			let newHere = true;
+			for(let i =0; i < arrFields.length; i++){
+				if( ((arrFields[i]).trim()).toLowerCase() == ((object.emailid).trim()).toLowerCase() ){
+					newHere = false;
+					break;
+				}
+			}
+			if(newHere){
+				toEmailFieldNewValue = toEmailFieldExistingValue+","+object.emailid;
+			}
+			
+		} 
+		else {
 			toEmailFieldNewValue = object.emailid;
 		}
 		toEmailField.val(toEmailFieldNewValue);
@@ -478,12 +519,24 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		 if(typeof existingToMailInfo.length != 'undefined') {
 			existingToMailInfo = {};
 		} 
-		//If same record having two different email id's then it should be appended to
-		//existing email id
-		 if(existingToMailInfo.hasOwnProperty(mailInfo.id) === true){
+		//If same record having two different email id's then it should be appended to existing email id
+		if(existingToMailInfo.hasOwnProperty(mailInfo.id) === true){
 			var existingValues = existingToMailInfo[mailInfo.id];
 			var newValue = new Array(mailInfo.emailid);
-			existingToMailInfo[mailInfo.id] = jQuery.merge(existingValues,newValue);
+			
+			///(new) If it was the same email, so we need not to add it. Hmm emailAdresse has name "id" ?
+			//console.log("mailInfo.emailid = "+ mailInfo.emailid); // dip@gmx.net // erik.dartus@aol.com
+			let newHere = true;
+			for(let i =0; i < existingValues.length; i++){
+				if( ((existingValues[i]).trim()).toLowerCase() == ((mailInfo.emailid).trim()).toLowerCase() ){
+					newHere = false;
+					break;
+				}
+			}
+			if(newHere){
+				// only if it is another email, we need add it to 
+				existingToMailInfo[mailInfo.id] = jQuery.merge(existingValues,newValue);
+			}
 		} else {
 			existingToMailInfo[mailInfo.id] = new Array(mailInfo.emailid);
 		}
@@ -493,13 +546,14 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 	appendToSelectedIds : function(selectedId) {
 		var selectedIdElement = this.getMassEmailForm().find('[name="selected_ids"]');
 		var previousValue = '';
-		if(JSON.parse(selectedIdElement.val()) != '') {
+		if(JSON.parse(selectedIdElement.val()) != '' && JSON.parse(selectedIdElement.val()) != 'all' && JSON.parse(selectedIdElement.val()) != '"all"') {
 			previousValue = JSON.parse(selectedIdElement.val());
 			//If value doesn't exist then insert into an array
 			if(jQuery.inArray(selectedId,previousValue) === -1){
 				previousValue.push(selectedId);
 			}
-		} else {
+		} 
+		else {
 			previousValue = new Array(selectedId);
 		}
 		selectedIdElement.val(JSON.stringify(previousValue));
@@ -512,8 +566,18 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		if(value == ""){
 			value = new Array();
 		}
-		value.push(mailInfo.emailid);
-		toEmails.val(JSON.stringify(value));
+		/// and here we need to check, if this Email adress are allready in it.
+		let pushIt = true;
+		for(let i = 0; i < value.length; i++){
+			if( ((mailInfo.emailid).trim()).toLowerCase() == ((value[i]).trim()).toLowerCase() ){
+				pushIt = false;
+				break;
+			}
+		}
+		if(pushIt){
+			value.push(mailInfo.emailid);
+			toEmails.val(JSON.stringify(value));
+		}
 	},
 
 	/**
@@ -898,7 +962,13 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 
 	removeFromSelectedIds : function(selectedId) {
 		var selectedIdElement = this.getMassEmailForm().find('[name="selected_ids"]');
+
 		var previousValue = JSON.parse(selectedIdElement.val());
+		// Noch herausfinden voher "all" kommt TODO
+		if(previousValue == "all" || previousValue == '"all"'){
+			previousValue = [];
+		}
+
 		var mailInfoElement = this.getMassEmailForm().find('[name="toemailinfo"]');
 		var mailAddress = JSON.parse(mailInfoElement.val());
 		var elements = mailAddress[selectedId];
