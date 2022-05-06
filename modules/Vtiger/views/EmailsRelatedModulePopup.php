@@ -124,13 +124,13 @@ class Vtiger_EmailsRelatedModulePopup_View extends Vtiger_Popup_View {
 				$contactIds = Verteiler_Relation_Model::getContactIdsFromVerteiler($idsVerteiler[$i]);
 
 				for($a=0; $a < count($contactIds); $a++){
-					$sqlFindEmail = 'SELECT firstname, lastname, email, secondaryemail FROM vtiger_contactdetails WHERE contactid = ?'; //.$contactIds[$a];
+					$sqlFindEmail = 'SELECT firstname, lastname, email, secondaryemail FROM vtiger_contactdetails WHERE contactid = ?';
 					// it muss be allways only one hit with a one id, 
 					$resultEmail = $adb->pquery($sqlFindEmail, array($contactIds[$a]));
 					$primEmail = $adb->query_result($resultEmail,0,"email");
 					$secEmail = $adb->query_result($resultEmail,0,"secondaryemail");
-					$firstname = $adb->query_result($resultEmail,0,"firstname");
-					$lastname = $adb->query_result($resultEmail,0,"lastname");
+					$firstname = decode_html($adb->query_result($resultEmail,0,"firstname"));
+					$lastname = decode_html($adb->query_result($resultEmail,0,"lastname"));
 					$emailValue = $primEmail;
 					if(  (empty($primEmail) || trim($primEmail) == '') && !empty($secEmail) && trim($secEmail) != ''){
 						$emailValue = $secEmail;
