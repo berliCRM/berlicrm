@@ -24,20 +24,15 @@ Vtiger_Email_Validator_Js("Vtiger_To_Email_Validator_Js", {
 	/**
 	 * Function to validate the email field data
 	 */
-	validate: function() {
+	validate: function(){
 		var fieldValue = this.getFieldValue();
 		var fieldValuesList = fieldValue.split(',');
-		/*for(let i = fieldValuesList.length-1; i >= 0; i--){
-			if(fieldValuesList[i] == "" || fieldValuesList[i] == undefined || fieldValuesList[i] == null){
-				fieldValuesList.splice(i,1);
-			}
-		}*/
 
 		if(fieldValue == "" || fieldValue == undefined || fieldValue == null){
 			fieldValuesList = new Array();
 			let toemailinfoField = document.getElementsByName('toemailinfo');
 			let toemailinfoObj =  JSON.parse(toemailinfoField[0].value);
-			for (let key in toemailinfoObj) {
+			for (let key in toemailinfoObj){
 				fieldValuesList.push( toemailinfoObj[key][0]); 
 			}
 		}
@@ -52,7 +47,7 @@ Vtiger_Email_Validator_Js("Vtiger_To_Email_Validator_Js", {
 			var splittedFieldValue = fieldValuesList[i];
 			var emailInstance = new Vtiger_Email_Validator_Js();
 			var response = emailInstance.validateValue(splittedFieldValue);
-			if(response != true) {
+			if(response != true){
 				return emailInstance.getError();
 			}
 		}
@@ -147,7 +142,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		this.attachmentsFileSize += parseFloat(fileSize);
 	},
 
-	removeAttachmentFileSizeByElement : function(element) {
+	removeAttachmentFileSizeByElement : function(element){
 			this.attachmentsFileSize -= element.get(0).files[0].size;
 	},
 	
@@ -194,7 +189,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			this.removeAttachmentFileSizeByElement(jQuery(element));
 			master_element.list.find('.MultiFile-label:last').find('.MultiFile-remove').trigger('click');
 		}else if((mode != "") && (existingAttachment != "")){
-			fileuploaded = value.split('\\').pop().split('/').pop(); // get filename from full path
+			fileuploaded = value.split('\\').pop().split('/').pop();
 			jQuery.each(existingAttachment,function(key,value){
 				if((value['attachment'] == fileuploaded) && !(value.hasOwnProperty( "docid"))){
 					var errorMsg = app.vtranslate("JS_THIS_FILE_HAS_ALREADY_BEEN_SELECTED")+" "+fileuploaded;
@@ -370,7 +365,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 	removeDocumentIds : function(removedDocumentId){
 		var documentIdsContainer = jQuery('#documentIds');
 		var documentIdsArray = JSON.parse(documentIdsContainer.val());
-		documentIdsArray.splice( jQuery.inArray('"'+removedDocumentId+'"', documentIdsArray), 1 );
+		documentIdsArray.splice( jQuery.inArray('"'+removedDocumentId+'"', documentIdsArray), 1);
 		documentIdsContainer.val(JSON.stringify(documentIdsArray));
 	},
 	
@@ -496,12 +491,12 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		var toEmailFieldExistingValue = toEmailField.val();
 		var toEmailFieldNewValue;
 
-		/// check here vor double emails, add only new
+		// check here vor double emails, add only new
 		if(toEmailFieldExistingValue != "" || toEmailFieldExistingValue != null){
 			let arrFields = toEmailFieldExistingValue.split(",");
 			let newHere = true;
 			for(let i =0; i < arrFields.length; i++){
-				if( ((arrFields[i]).trim()).toLowerCase() == ((object.emailid).trim()).toLowerCase() ){
+				if(((arrFields[i]).trim()).toLowerCase() == ((object.emailid).trim()).toLowerCase()){
 					newHere = false;
 					break;
 				}
@@ -522,14 +517,14 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		 if(typeof existingToMailInfo.length != 'undefined') {
 			existingToMailInfo = {};
 		} 
-		//If same record having two different email id's then it should be appended to existing email id
+		// If same record having two different email id's then it should be appended to existing email id
 		if(existingToMailInfo.hasOwnProperty(mailInfo.id) === true){
 			var existingValues = existingToMailInfo[mailInfo.id];
 			var newValue = new Array(mailInfo.emailid);
-			///(new) If it was the same email, so we need not to add it.
+			// If it was the same email, so we need not to add it.
 			let newHere = true;
 			for(let i =0; i < existingValues.length; i++){
-				if( ((existingValues[i]).trim()).toLowerCase() == ((mailInfo.emailid).trim()).toLowerCase() ){
+				if(((existingValues[i]).trim()).toLowerCase() == ((mailInfo.emailid).trim()).toLowerCase()){
 					newHere = false;
 					break;
 				}
@@ -667,15 +662,15 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			params['mode'] = "emailPreview";
 			params['record'] = recordId;
 			params['parentId'] = parentRecordId;
-			var urlString = (typeof params == 'string')? params : jQuery.param(params);
-			var url = 'index.php?'+urlString;
+			var urlString = (typeof params == 'string') ? params : jQuery.param(params);
+			var url = 'index.php?' + urlString;
 			self.location.href = url;
 		})
 	},
 
 	preloadData : new Array(),
 
-	getPreloadData : function() {
+	getPreloadData : function(){
 		return this.preloadData;
 	},
 
@@ -684,14 +679,14 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		return this;
 	},
 
-	searchEmails : function(params) {
+	searchEmails : function(params){
 		var aDeferred = jQuery.Deferred();
 
-		if(typeof params.module == 'undefined') {
+		if(typeof params.module == 'undefined'){
 			params.module = app.getModuleName();
 		}
 
-		if(typeof params.action == 'undefined') {
+		if(typeof params.action == 'undefined'){
 			params.action = 'BasicAjax';
 		}
 		AppConnector.request(params).then(
@@ -709,7 +704,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 	 * Function which will handle the reference auto complete event registrations
 	 * @params - container <jQuery> - element in which auto complete fields needs to be searched
 	 */
-	registerAutoCompleteFields : function(container) {
+	registerAutoCompleteFields : function(container){
 		var thisInstance = this;
 
 		container.find('.emailField').select2({
@@ -719,7 +714,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			tags : [],
 			tokenSeparators: [","],
 
-			createSearchChoice : function(term) {
+			createSearchChoice : function(term){
 				return {id: term, text: term};
 			},
 
@@ -735,14 +730,14 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 					var finalResult = [];
 					var results = data.result;
 					var resultData = new Array();
-					for(var moduleName in results) {
+					for(var moduleName in results){
 						var moduleResult = [];
 						moduleResult.text = moduleName;
 
 						var children = new Array();
-						for(var recordId in data.result[moduleName]) {
+						for(var recordId in data.result[moduleName]){
 							var emailInfo = data.result[moduleName][recordId];
-							for (var i in emailInfo) {
+							for (var i in emailInfo){
 								var childrenInfo = [];
 								childrenInfo.recordId = recordId;
 								childrenInfo.id = emailInfo[i].value;
@@ -756,38 +751,38 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 					finalResult.results = resultData;
 					return finalResult;
 				},
-				transport : function(params) {
+				transport : function(params){
 					return jQuery.ajax(params);
 				}
 			}
 
-		}).on("change", function (selectedData) {
+		}).on("change", function (selectedData){
 			var addedElement = selectedData.added;
 			var removedData = selectedData.removed;
 			var currentElementName = jQuery(selectedData.currentTarget).attr('name');
-			if(currentElementName == 'cc' || currentElementName == 'bcc') {
+			if(currentElementName == 'cc' || currentElementName == 'bcc'){
 				var fieldName = 'ccInfo';
-				if(currentElementName == 'bcc') {
+				if(currentElementName == 'bcc'){
 					fieldName = 'bccInfo';
 				}
 
 				var emailData = [];
 				var fieldData = jQuery('[name="'+fieldName+'"]').val();
-				if(typeof(fieldData) != 'undefined' && fieldData.length) {
+				if(typeof(fieldData) != 'undefined' && fieldData.length){
 					emailData = JSON.parse(fieldData);
-					emailData = jQuery.map(emailData, function(value, index) {
+					emailData = jQuery.map(emailData, function(value, index){
 						return [value];
 					});
 				}
 
-				if(typeof addedElement != 'undefined') {
+				if(typeof addedElement != 'undefined'){
 					var data = {
 						'id' : addedElement.recordId,
 						'name' : addedElement.text,
 						'emailid' : addedElement.id
 					}
 
-					let isNew = thisInstance.preloadDataAddNewEmail(emailData,addedElement, true);
+					let isNew = thisInstance.preloadDataAddNewEmail(emailData, addedElement, true);
 					if(isNew){
 						emailData.push(data);
 					}
@@ -795,13 +790,13 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 				} 
 				else if(typeof removedData != 'undefined') {
 					for(var i in emailData) {
-						if( removedData.recordId != undefined || removedData.recordId != '' || removedData.recordId != null ){
-							if(emailData[i].id == removedData.recordId) {
+						if(removedData.recordId != undefined || removedData.recordId != '' || removedData.recordId != null){
+							if(emailData[i].id == removedData.recordId){
 								emailData.splice(i, 1);
 							}
 						}
 						else{
-							if(emailData[i].emailid == removedData.id) {
+							if(emailData[i].emailid == removedData.id){
 								emailData.splice(i, 1);
 							}
 						}
@@ -810,19 +805,19 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 				jQuery('[name="'+fieldName+'"]').val(JSON.stringify(emailData));
 			}
 
-			if (typeof addedElement != 'undefined') {
+			if(typeof addedElement != 'undefined'){
 				var data = {
 					'id' : addedElement.recordId,
 					'name' : addedElement.text,
 					'emailid' : addedElement.id
 				}
 				//crm-now: cc and bcc shouldn't recieve extra emails
-				if (currentElementName != 'cc' && currentElementName != 'bcc') {
+				if(currentElementName != 'cc' && currentElementName != 'bcc'){
 					thisInstance.addToEmails(data);
 				}
-				if (typeof addedElement.recordId != 'undefined') {
+				if(typeof addedElement.recordId != 'undefined'){
 					//crm-now: cc and bcc shouldn't recieve extra emails
-					if (currentElementName != 'cc' && currentElementName != 'bcc') {
+					if(currentElementName != 'cc' && currentElementName != 'bcc'){
 						thisInstance.addToEmailAddressData(data);
 					}
 					thisInstance.appendToSelectedIds(addedElement.recordId);
@@ -832,7 +827,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 				var emailInfo = {
 					'id' : addedElement.id
 				}
-				if (typeof addedElement.recordId != 'undefined') {
+				if(typeof addedElement.recordId != 'undefined'){
 					emailInfo['text'] = addedElement.text;
 					emailInfo['recordId'] = addedElement.recordId;
 				}
@@ -840,7 +835,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 					emailInfo['text'] = addedElement.id;
 				}
 
-				let isNew = thisInstance.preloadDataAddNewEmail(preloadData,emailInfo);
+				let isNew = thisInstance.preloadDataAddNewEmail(preloadData, emailInfo);
 
 				if(isNew){
 					preloadData.push(emailInfo);
@@ -850,28 +845,28 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 
 			var removedElement = selectedData.removed;
 
-			if (typeof removedElement != 'undefined') {
+			if (typeof removedElement != 'undefined'){
 				var data = {
 					'id' : removedElement.recordId,
 					'name' : (removedElement.text).trim(),
 					'emailid' : (removedElement.id).trim()
 				}
 				thisInstance.removeFromEmails(data);
-				if (typeof removedElement.recordId != 'undefined') {
+				if (typeof removedElement.recordId != 'undefined'){
 					thisInstance.removeFromEmailAddressData(data);
 					thisInstance.removeFromSelectedIds(removedElement.recordId);
 				}
 
 				var preloadData = thisInstance.getPreloadData();
 
-				for(var i in preloadData) {
+				for(var i in preloadData){
 					if( removedElement.recordId != undefined || removedElement.recordId != '' || removedElement.recordId != null ){
-						if(preloadData[i].recordId == removedElement.recordId) {
+						if(preloadData[i].recordId == removedElement.recordId){
 							preloadData.splice(i, 1);
 						}
 					}
 					else{
-						if(preloadData[i].id == removedElement.id) {
+						if(preloadData[i].id == removedElement.id){
 							preloadData.splice(i, 1);
 						}
 					}
@@ -894,15 +889,15 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		var toEmailInfo = JSON.parse(container.find('[name="toemailinfo"]').val());
 		var toEmails = container.find('[name="toEmail"]').val();
 		var toFieldValues = Array();
-		if (toEmails.length > 0) {
+		if(toEmails.length > 0){
 			toFieldValues = toEmails.split(',');
 		}
 
 		var preloadData = thisInstance.getPreloadData();
-		if (typeof toEmailInfo != 'undefined') {
+		if (typeof toEmailInfo != 'undefined'){
 			for(var key in toEmailInfo) {
-				if (toEmailNamesList.hasOwnProperty(key)) {
-					for (var i in toEmailNamesList[key]) {
+				if(toEmailNamesList.hasOwnProperty(key)){
+					for(var i in toEmailNamesList[key]){
 						var emailInfo = [];
 						var emailId = toEmailNamesList[key][i].value;
 						var emailInfo = {
@@ -911,9 +906,9 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 							'text' : toEmailNamesList[key][i].label+' <b>('+emailId+')</b>'
 						}
 						preloadData.push(emailInfo);
-						if (jQuery.inArray(emailId, toFieldValues  ) != -1) {
+						if(jQuery.inArray(emailId, toFieldValues) != -1){
 							var index = toFieldValues.indexOf(emailId);
-							if (index !== -1) {
+							if(index !== -1) {
 								toFieldValues.splice(index, 1);
 							}
 						}
@@ -922,8 +917,8 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			}
 		}
 
-		if (typeof toFieldValues != 'undefined') {
-			for(var i in toFieldValues) {
+		if(typeof toFieldValues != 'undefined'){
+			for(var i in toFieldValues){
 				var emailId = toFieldValues[i];
 				var emailInfo = {
 					'id' : emailId,
@@ -933,7 +928,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			}
 		}
 		
-		if (typeof preloadData != 'undefined') {
+		if(typeof preloadData != 'undefined'){
 			thisInstance.setPreloadData(preloadData);
 			container.find('.emailField[name="toEmail"]').select2('data', preloadData);
 			
@@ -942,7 +937,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			
 			if(previousValue == "all" || previousValue == '"all"' || previousValue == '"[]"' || previousValue == '' || previousValue == null || previousValue == undefined){
 				previousValue = [];
-				for(let index = preloadData.length-1; index >=0; index-- ) {
+				for(let index = preloadData.length-1; index >=0; index--){
 					let reId = (preloadData[index]).recordId;
 					previousValue.push(reId);
 				}
@@ -951,7 +946,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		}
 
 		var ccValues = container.find('[name="cc"]').val();
-		if(ccValues.length > 0 && ccValues != "null") {
+		if(ccValues.length > 0 && ccValues != "null"){
 			let ccValParse0 = JSON.parse(ccValues.val());
 			let ccValParse = [];
 			if(ccValParse0.length == 1){
@@ -962,7 +957,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			}
 
 			var emailData = [];
-			for(var i in ccValParse) {
+			for(var i in ccValParse){
 				var ccValue = ((ccValParse[i]).trim()).toLowerCase();
 				// if(ccValue.id) {
 					// emailData.push({'id' : ccValue.emailid, 'text' : ccValue.name, 'recordId' : ccValue.id});
@@ -976,10 +971,10 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		}
 
 		var bccValues = container.find('[name="bcc"]').val();
-		if(bccValues) {
+		if(bccValues){
 			bccValues = bccValues.split(",");
 			var bemailData = [];
-			for(var i in bccValues) {
+			for(var i in bccValues){
 				var bccValue = bccValues[i];
 				// if(bccValue.id) {
 					// bemailData.push({'id' : bccValue.emailid, 'text' : bccValue.name, 'recordId' : bccValue.id});
@@ -993,7 +988,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		}
 	},
 
-	removeFromEmailAddressData : function(mailInfo) {
+	removeFromEmailAddressData : function(mailInfo){
 		var mailInfoElement = this.getMassEmailForm().find('[name="toemailinfo"]');
 		var previousValue = JSON.parse(mailInfoElement.val());
 		if(previousValue[mailInfo.id] != undefined ){
@@ -1004,13 +999,13 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			if(elementSize < 2){
 				delete previousValue[selectedId];
 			} 
-			else {
+			else{
 				// Update toemailinfo hidden element value
 				var newValue;
 				var reserveValue = previousValue[selectedId];
 				delete previousValue[selectedId];
 				//Remove value from an array and return the resultant array
-				newValue = jQuery.grep(reserveValue, function(value) {
+				newValue = jQuery.grep(reserveValue, function(value){
 					return value != emailAddress;
 				});
 				previousValue[selectedId] = newValue;
@@ -1020,7 +1015,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		}
 	},
 
-	removeFromSelectedIds : function(selectedId) {
+	removeFromSelectedIds : function(selectedId){
 		var selectedIdElement = this.getMassEmailForm().find('[name="selected_ids"]');
 		var previousValue = JSON.parse(selectedIdElement.val());
 
@@ -1035,13 +1030,13 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		//Don't remove id from selected_ids if element is having more than two email id's
 		if(typeof(elements) == 'undefined' || elements.length < 2){
 			var updatedValue = [];
-			for (var i in previousValue) {
+			for (var i in previousValue){
 				var id = previousValue[i];
 				var skip = false;
-				if (id == selectedId) {
+				if(id == selectedId){
 					skip = true;
 				}
-				if (skip == false) {
+				if(skip == false){
 					updatedValue.push(id);
 				}
 			}
@@ -1053,19 +1048,19 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		let previousValue0 = JSON.parse(toEmails.val());
 		let previousValue = [];
 		if(previousValue0.length == 1){
-			previousValue = (previousValue0[0].split(',')).map(function(item){ return item.trim(); } );
+			previousValue = (previousValue0[0].split(',')).map(function(item){ return item.trim(); });
 		}
 		else if(previousValue0.length > 1){
 			previousValue = previousValue0;
 		}
 		let updatedValue = [];
-		for (let i in previousValue) {
+		for(let i in previousValue){
 			let email = previousValue[i];
 			let skip = false;
-			if ((email.trim()).toLowerCase() == ((mailInfo.emailid).trim()).toLowerCase()){
+			if((email.trim()).toLowerCase() == ((mailInfo.emailid).trim()).toLowerCase()){
 				skip = true;
 			}
-			if (skip == false) {
+			if(skip == false){
 				updatedValue.push(email);
 			}
 		}
@@ -1076,13 +1071,13 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		let toEmailFieldValues = toEmailField.value;
 		let toEmailValuesArr = toEmailFieldValues.split(',');
 		let updatedValue2 = [];
-		for (let i in toEmailValuesArr) {
+		for(let i in toEmailValuesArr){
 			let email = toEmailValuesArr[i];
 			let skip = false;
-			if ((email.trim()).toLowerCase() == ((mailInfo.emailid).trim()).toLowerCase()){
+			if((email.trim()).toLowerCase() == ((mailInfo.emailid).trim()).toLowerCase()){
 				skip = true;
 			}
-			if (skip == false) {
+			if(skip == false){
 				updatedValue2.push(email);
 			}
 		}
@@ -1098,14 +1093,14 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			//get email receivers
 			var form = jQuery("#massEmailForm");
 			var receivers = form.find('[name="toemailinfo"]').val();
-			if (receivers.length < 3) {
+			if(receivers.length < 3){
 				alert ( app.vtranslate('JS_LBL_NO_RECEIVERS'));
 				return;
 			}
 			var oCKeditor = CKEDITOR.instances.description.getData();
 			
-			var editor_val = CKEDITOR.instances.description.document.getBody().getChild(0).getText() ;
-			if (editor_val == '') {
+			var editor_val = CKEDITOR.instances.description.document.getBody().getChild(0).getText();
+			if(editor_val == ''){
 				alert ( app.vtranslate('JS_LBL_NO_CONTENT'));
 				return false ;
 			}
@@ -1119,7 +1114,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			}
 			var aDeferred = jQuery.Deferred();
 			thisInstance.getMenuActionResponseData(params).then(
-				function(data) {
+				function(data){
 					thisInstance.displayTplMenueResponseData(data);
 				}
 			);
@@ -1142,37 +1137,38 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 	 * @params : fieldSelect - select element which will represents field list
 	 * @return : select element which will represent the condition element
 	 */
-	loadFields : function() {
+	loadFields : function(){
 		var moduleName = jQuery('#modulename').val();
 		var allFields = jQuery('#moduleFields').data('value');
 		var fieldSelectElement = jQuery('#templateFields');
 		var options = '';
-		for(var key in allFields) {
+		for(var key in allFields){
 			//IE Browser consider the prototype properties also, it should consider has own properties only.
-			if(allFields.hasOwnProperty(key) && key == moduleName) {
+			if(allFields.hasOwnProperty(key) && key == moduleName){
 				var moduleSpecificFields = allFields[key];
 				var len = moduleSpecificFields.length;
-				for (var i = 0; i < len; i++) {
+				for(var i = 0; i < len; i++){
 					var fieldName = moduleSpecificFields[i][0].split(':');
 					options += '<option value="'+moduleSpecificFields[i][1]+'"';
-					if(fieldName[0] == moduleName) {
+					if(fieldName[0] == moduleName){
 						options += '>'+fieldName[1]+'</option>';
-					} else {
+					}
+					else{
 						options += '>'+moduleSpecificFields[i][0]+'</option>';
 					}
 				}
 			}
 		}
 		
-		if(options == '')
+		if(options == ''){
 			options = '<option value="">NONE</option>';
-		
+		}
 		fieldSelectElement.empty().html(options).trigger("liszt:updated");
 		return fieldSelectElement;
 		
 	},
 
-	registerFillTemplateContentEvent : function() {
+	registerFillTemplateContentEvent : function(){
 		jQuery('#templateFields').change(function(e){
 			var textarea = CKEDITOR.instances.description;
 			var value = jQuery(e.currentTarget).val();
@@ -1186,7 +1182,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 	//cache for response data
 	use_cache: false,
 	getMenuActionResponseDataCache : {},
-	getMenuActionResponseData : function(params) {
+	getMenuActionResponseData : function(params){
 		var progressIndicatorElement = jQuery.progressIndicator({
 			'position' : 'html',
 			'blockInfo' : {
@@ -1195,12 +1191,12 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		});
 		var aDeferred = jQuery.Deferred();
 		// check cache
-		if(!(jQuery.isEmptyObject(this.getMenuActionResponseDataCache)) && this.use_cache == true) {
+		if(!(jQuery.isEmptyObject(this.getMenuActionResponseDataCache)) && this.use_cache == true){
 			aDeferred.resolve(this.getMenuActionResponseDataCache);
 		} 
-		else {
+		else{
 			AppConnector.request(params).then(
-				function(data) {
+				function(data){
 					//store it in the cache, so that we do no multiple request
 					this.getMenuActionResponseDataCache = data;
 					aDeferred.resolve(this.getMenuActionResponseDataCache);
@@ -1215,9 +1211,9 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 	/*
 	 * function to display the response data (tpl)
 	 */
-	displayTplMenueResponseData : function(data) {
-        var callbackFunction = function(data) {
-            app.showScrollBar(jQuery('#menueScroll'), {
+	displayTplMenueResponseData : function(data){
+        var callbackFunction = function(data){
+            app.showScrollBar(jQuery('#menueScroll'),{
                 height: '450px',
                 railVisible: true,
                 size: '6px'
@@ -1270,11 +1266,17 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		}
 	},
 
-	// diese funktion scheint gut zu funktionieren. ok.
+	/**
+	 * to search and find out, if we have a new email-adress or it is allready in preloadData.
+	 * @param {*} preloadDataOld 
+	 * @param {*} objectNew 
+	 * @param {*} emailidHere 
+	 * //objectNew: it can be 1.: 'recordId','id','text'  OR  2.:'id','emailid','name'. If emailid = true, so it is 2option.
+	 * @returns true, if it is a new emailAdress and needed added to the others
+	 */
 	preloadDataAddNewEmail : function(preloadDataOld, objectNew, emailidHere = false){
-		// it can be 1.: 'recordId','id','text'  OR  2.:'id','emailid','name'. If emailid = true, so it is 2option.
 		let isNew = true;
-		for(let index = preloadDataOld.length-1; index >=0; index-- ) {
+		for(let index = (preloadDataOld.length - 1); index >= 0; index--){
 			let reId = (preloadDataOld[index]).recordId;
 			let emailAdress = (preloadDataOld[index]).id;
 			let VornameNachname = (preloadDataOld[index]).text;
@@ -1297,12 +1299,11 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			}
 		}
 		return isNew;
-
 	}
 
 });
 //On Page Load
-jQuery(document).ready(function() {
+jQuery(document).ready(function(){
 	var emailMassEditInstance = new Emails_MassEdit_Js();
 	emailMassEditInstance.registerEvents();
 });
