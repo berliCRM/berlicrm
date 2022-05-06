@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <module>
-<exporttime>2019-04-27 14:51:11</exporttime>
+<exporttime>2022-05-05 14:11:11</exporttime>
 <name>Verteiler</name>
 <label>Verteiler</label>
 <parent>Marketing</parent>
-<version>1.0</version>
+<version>1.1</version>
 <dependencies>
 <vtiger_version>6.5.0</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>
