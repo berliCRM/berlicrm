@@ -590,25 +590,30 @@ class Users_Record_Model extends Vtiger_Record_Model {
 	 * @return string
 	 */
 	function getCurrentUserActivityReminderInSeconds() {
-		$activityReminder = $this->reminder_interval;
-		$activityReminderInSeconds = '';
-		if($activityReminder != 'None') {
-			preg_match('/([0-9]+)[\s]([a-zA-Z]+)/', $activityReminder, $matches);
-			if($matches) {
-				$number = $matches[1];
-				$string = $matches[2];
-				if($string) {
-					switch($string) {
-						case 'Minute':
-						case 'Minutes': $activityReminderInSeconds = $number * 60;			break;
-						case 'Hour'   : $activityReminderInSeconds = $number * 60 * 60;		break;
-						case 'Day'    : $activityReminderInSeconds = $number * 60 * 60 * 24;break;
-						default : $activityReminderInSeconds = '';
+		if (isset ( $this->reminder_interval)) {
+			$activityReminder = $this->reminder_interval;
+			$activityReminderInSeconds = '';
+			if($activityReminder != 'None') {
+				preg_match('/([0-9]+)[\s]([a-zA-Z]+)/', $activityReminder, $matches);
+				if($matches) {
+					$number = $matches[1];
+					$string = $matches[2];
+					if($string) {
+						switch($string) {
+							case 'Minute':
+							case 'Minutes': $activityReminderInSeconds = $number * 60;			break;
+							case 'Hour'   : $activityReminderInSeconds = $number * 60 * 60;		break;
+							case 'Day'    : $activityReminderInSeconds = $number * 60 * 60 * 24;break;
+							default : $activityReminderInSeconds = '';
+						}
 					}
 				}
 			}
+			return $activityReminderInSeconds;
 		}
-		return $activityReminderInSeconds;
+		else {
+			return '';
+		}
 	}	
     
     /**
