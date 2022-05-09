@@ -8,9 +8,9 @@
  * All Rights Reserved.
  ************************************************************************************/
 
-vimport ('~/libraries/Smarty/libs/SmartyBC.class.php');
+vimport ('~/libraries/Smarty/libs/Smarty.class.php');
 
-class Vtiger_Viewer extends SmartyBC {
+class Vtiger_Viewer extends Smarty {
 
 	const DEFAULTLAYOUT = 'vlayout';
 	const DEFAULTTHEME  = 'softed';
