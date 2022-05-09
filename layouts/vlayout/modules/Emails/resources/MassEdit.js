@@ -43,7 +43,7 @@ Vtiger_Email_Validator_Js("Vtiger_To_Email_Validator_Js", {
 		fieldValuesList = filteredArray;
 
 
-		for (var i in fieldValuesList) {
+		for(var i in fieldValuesList){
 			var splittedFieldValue = fieldValuesList[i];
 			var emailInstance = new Vtiger_Email_Validator_Js();
 			var response = emailInstance.validateValue(splittedFieldValue);
@@ -406,9 +406,14 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 				let responseDataLength = (Object.keys(responseData).length);
 
 				// Only if it is to many emails, we need to change the 'show' of input fields. 
+				let elementToEmail = document.getElementById('toEmailViewId');
+				let elementToEmailCount = document.getElementById('toEmailCount');
+
+				if(moduleSelected == "Verteiler"){
+					elementToEmailCount.value = '';
+				}
+
 				if(responseDataLength > numberLimitOfEmails){
-					let elementToEmail = document.getElementById('toEmailViewId');
-					let elementToEmailCount = document.getElementById('toEmailCount');
 					// The user input of email will be not displayed, and
 					if(elementToEmail != null ){
 						elementToEmail.setAttribute('type','hidden');
@@ -416,8 +421,21 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 					}
 					// the another, readonly input with Count of emails will displayed now. 
 					elementToEmailCount.setAttribute('type','text');
-					elementToEmailCount.value =  responseDataLength+''+(elementToEmailCount.value).slice((elementToEmailCount.value).indexOf(' '));
+					elementToEmailCount.value = responseDataLength + '' + (elementToEmailCount.value).slice((elementToEmailCount.value).indexOf(' '));
+					elementToEmailCount.style.display = "block"; 
 				}
+				else{
+					if(elementToEmail != null ){
+						// user input of email will be displayed
+						elementToEmail.setAttribute('type','text');
+						elementToEmail.style.display = "block"; 
+					}
+					// the Count will not displayed. 
+					elementToEmailCount.setAttribute('type','hidden');
+					elementToEmailCount.style.display = "none"; 
+					elementToEmailCount.value = '';
+				}
+
 				// only if import from "Verteiler", we need first set the allready loaded emails to empty, and the load from new "Verteiler".
 				if(moduleSelected == "Verteiler"){
 					let preloadData = Array();
