@@ -406,8 +406,12 @@ function isPermitted($module,$actionname,$record_id='')
 			$recOwnType=$type;
 			$recOwnId=$id;
 		}
-		//Retreiving the default Organisation sharing Access
-		$others_permission_id = $defaultOrgSharingPermission[$tabid];
+		
+		$others_permission_id = '';
+		if (isset ($defaultOrgSharingPermission[$tabid])) {
+			//Retreiving the default Organisation sharing Access
+			$others_permission_id = $defaultOrgSharingPermission[$tabid];
+		}
 
 		if($recOwnType == 'Users')
 		{

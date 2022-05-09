@@ -138,6 +138,7 @@ class Leads_Module_Model extends Vtiger_Module_Model {
 		}
 		
 		$params = array();
+		$dateFilterSql ='';
 		if(!empty($dateFilter)) {
 			$dateFilterSql = ' AND createdtime BETWEEN ? AND ? ';
 			//client is not giving time frame so we are appending it
