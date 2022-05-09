@@ -43,7 +43,7 @@ Vtiger_Email_Validator_Js("Vtiger_To_Email_Validator_Js", {
 		fieldValuesList = filteredArray;
 
 
-		for (var i in fieldValuesList) {
+		for(var i in fieldValuesList){
 			var splittedFieldValue = fieldValuesList[i];
 			var emailInstance = new Vtiger_Email_Validator_Js();
 			var response = emailInstance.validateValue(splittedFieldValue);
