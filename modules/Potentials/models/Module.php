@@ -136,6 +136,8 @@ class Potentials_Module_Model extends Vtiger_Module_Model {
 		//TODO need to handle security
 		$params = array();
 		$params[] = 'Closed Won';
+		
+		$dateFilterSql ='';
 		if(!empty($dateFilter)) {
 			$dateFilterSql = ' AND createdtime BETWEEN ? AND ? ';
 			//client is not giving time frame so we are appending it

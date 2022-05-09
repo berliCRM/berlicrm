@@ -28,6 +28,8 @@ class Potentials_TotalRevenuePerSalesPerson_Dashboard extends Vtiger_IndexAjax_V
 		$linkId = $request->get('linkid');
 		
 		$createdTime = $request->get('createdtime');
+		
+		$dates = array();
 		//Date conversion from user to database format
 		if(!empty($createdTime)) {
 			$dates['start'] = Vtiger_Date_UIType::getDBInsertedValue($createdTime['start']);
