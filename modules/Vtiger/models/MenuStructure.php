@@ -84,9 +84,11 @@ class Vtiger_MenuStructure_Model extends Vtiger_Base_Model {
 		}
 
 		if(!empty($selectedMenu) && !array_key_exists($selectedMenu, $menuListArray[self::TOP_MENU_INDEX])) {
-			$selectedMenuModel = $menuModelList[$selectedMenu];
-			if($selectedMenuModel) {
-				$menuListArray[self::TOP_MENU_INDEX][$selectedMenuModel->get('name')] = $selectedMenuModel;
+			if (isset ( $menuModelList[$selectedMenu])) {
+				$selectedMenuModel = $menuModelList[$selectedMenu];
+				if($selectedMenuModel) {
+					$menuListArray[self::TOP_MENU_INDEX][$selectedMenuModel->get('name')] = $selectedMenuModel;
+				}
 			}
 		}
 		
