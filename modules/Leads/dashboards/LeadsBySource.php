@@ -30,6 +30,7 @@ class Leads_LeadsBySource_Dashboard extends Vtiger_IndexAjax_View {
 		$data = $request->get('data');
 		$createdTime = $request->get('createdtime');
 		
+		$dates = array();
 		//Date conversion from user to database format
 		if(!empty($createdTime)) {
 			$dates['start'] = Vtiger_Date_UIType::getDBInsertedValue($createdTime['start']);
