@@ -96,7 +96,7 @@ class Users_Module_Model extends Vtiger_Module_Model {
 		$moduleName = $this->get('name');
 		$date_var = date('Y-m-d H:i:s');
         $query = "UPDATE vtiger_users SET status=?, date_modified=?, modified_user_id=? WHERE id=?";
-        $db->pquery($query, array('Inactive', $adb->formatDate($date_var, true), $recordModel->getId(), $recordModel->getId()), true,"Error marking record deleted: ");
+        $db->pquery($query, array('Inactive', $db->formatDate($date_var, true), $recordModel->getId(), $recordModel->getId()), true,"Error marking record deleted: ");
 	}
 
 	/**
