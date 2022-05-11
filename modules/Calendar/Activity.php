@@ -1058,8 +1058,6 @@ function insertIntoRecurringTable(& $recurObj)
 		$tabId = getTabid($module);
 		if($is_admin==false && $profileGlobalPermission[1] == 1 && $profileGlobalPermission[2] == 1 && $defaultOrgSharingPermission[$tabId] == 3) {
 			$tableName = 'vt_tmp_u'.$user->id.'_t'.$tabId;
-			$sharingRuleInfoVariable = $module.'_share_read_permission';
-			$sharingRuleInfo = $sharingRuleInfoVariable;
 			$sharedTabId = null;
 			$this->setupTemporaryTable($tableName, $sharedTabId, $user,	$current_user_parent_role_seq, $current_user_groups);
 			$sharedUsers = $this->getListViewAccessibleUsers($user->id);
