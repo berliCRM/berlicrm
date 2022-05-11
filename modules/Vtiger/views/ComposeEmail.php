@@ -217,7 +217,7 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		$this->composeMailData($request);
 		$viewer = $this->getViewer($request);
 		// check whether subject is already set by others, like composeMailData
-		if ($viewer->get_template_vars('SUBJECT') === null) {
+		if ($viewer->getTemplateVars('SUBJECT') === null) {
 			$viewer->assign('SUBJECT', decode_html($request->get('subject')));
 		}
 		$this->assignTemplateFields($request);
