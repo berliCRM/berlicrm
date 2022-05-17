@@ -267,6 +267,11 @@ $languageStrings = array(
 	'LBL_LAST_TIME' => 'last execution ',
 	'LBL_RUNNING_SINCE' => 'running since',
 	'LBL_NOTHING_SCHEDULED' => 'no reports scheduled',
+	
+	// Scheduled Reports
+	'POSSIBLE_OORESSOURCES' => 'possibly not enough ressources present',
+	'FAILED_REPORTS' => "Scheduled Reports that couldn't be created in 24 hours:",
+	'FAILED_REPORTS_SUBJECT' => 'failed Scheduled Reports',
 
 );
 
