@@ -311,11 +311,75 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		if(empty($current_language)) $current_language = 'en_us';
 
 		$scheduledReports = self::getScheduledReports();
+		
+		// try some mitigation should one report fail with catchable error or ressource crash
+		// first create new table to track Reports
+		$adb = PearDatabase::getInstance();
+		$tableName = 'berli_scheduled_reports';
+		$tableQuery = "CREATE TABLE IF NOT EXISTS `$tableName` (
+					 `reportid` int(11) NOT NULL,
+					 `started` datetime NOT NULL,
+					 `error_message` varchar(4000) COLLATE utf8_unicode_ci NOT NULL,
+					 PRIMARY KEY (`reportid`)
+					) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+		$adb->pquery($tableQuery, array());
+		
+		$checkQuery = "SELECT * FROM $tableName WHERE reportid = ?;";
+		$insertQuery = "INSERT INTO $tableName (reportid, started) VALUES (?,?);";
+		$deleteQuery = "DELETE FROM $tableName WHERE reportid = ?;";
+		$updateQuery = "UPDATE $tableName SET error_message = ? WHERE reportid = ?;";
+		
+		$failedReports = array();
+		
 		foreach ($scheduledReports as $scheduledReport) {
-			$status = $scheduledReport->sendEmail();
-            Vtiger_Utils::ModuleLog('ScheduleReprot Send Mail Status ', $status);
-			if($status)
-				$scheduledReport->updateNextTriggerTime();
+			try {
+				$now = date('Y-m-d H:i:s');
+				$reportId = $scheduledReport->get('reportid');
+				// check if report previously failed
+				$res = $adb->pquery($checkQuery, array($reportId));
+				if ($res && $adb->num_rows($res) > 0) {
+					// check if last start happened at least 24h before
+					$started = $adb->query_result($res, 0, 'started');
+					$errorMsg = $adb->query_result($res, 0, 'error_message');
+					$started = strtotime($started);
+					$nowStamp = strtotime($now);
+					if ($nowStamp - $started > 86400) {
+						// remove it, let it run again next time, collect info for email to admin
+						$adb->pquery($deleteQuery, array($reportId));
+						if (empty($errorMsg)) {
+							$errorMsg = vtranslate('POSSIBLE_OORESSOURCES', $currentModule);
+						}
+						$failedReports[$reportId] = $errorMsg;
+						continue;
+					} else {
+						// skip it
+						continue;
+					}
+				}
+				// insert start of processing
+				$adb->pquery($insertQuery, array($reportId, $now));
+				// ---
+				$status = $scheduledReport->sendEmail();
+				Vtiger_Utils::ModuleLog('ScheduleReprot Send Mail Status ', $status);
+				if($status) {
+					$scheduledReport->updateNextTriggerTime();
+					// remove entry from tracking table
+					$adb->pquery($deleteQuery, array($reportId));
+				}
+			} catch (Exception $e) {
+				// update entry in tracking table with error message
+				$adb->pquery($updateQuery, array($e->getMessage(), $reportId));
+			}
+		}
+		// handle failed Reports here
+		if (count($failedReports) > 0) {
+			global $site_URL, $current_user, $HELPDESK_SUPPORT_EMAIL_ID, $HELPDESK_SUPPORT_NAME;
+			$messageBody = vtranslate('FAILED_REPORTS', $currentModule).'<br><br>';
+			foreach ($failedReports AS $reportId => $errorMsg) {
+				$url = $site_URL."index.php?module=Reports&view=Detail&record=$reportId";
+				$messageBody .= "<a href='$url'>$url</a> -&gt; $errorMsg<br>";
+			}
+			send_mail('Reports', $current_user->email1, $HELPDESK_SUPPORT_NAME, $HELPDESK_SUPPORT_EMAIL_ID, vtranslate('FAILED_REPORTS_SUBJECT', $currentModule), $messageBody);
 		}
 		$util->revertUser();
 		return $status;

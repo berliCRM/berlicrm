@@ -268,6 +268,11 @@ $languageStrings = array(
 	'LBL_RUNNING_SINCE' => 'läuft seit',
 	'LBL_NOTHING_SCHEDULED' => 'keine Berichte geplant',
 	
+	// Scheduled Reports
+	'POSSIBLE_OORESSOURCES' => 'möglicherweise keine ausreichenden Resourcen vorhanden',
+	'FAILED_REPORTS' => 'geplante Berichte, die seit 24 Stunden nicht erzeugt werden konnten:',
+	'FAILED_REPORTS_SUBJECT' => 'fehlerhafte geplante Berichte',
+	
 );
 
 $jsLanguageStrings = array(
