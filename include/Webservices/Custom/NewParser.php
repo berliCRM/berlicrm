@@ -178,7 +178,7 @@ class berliQueryParser {
 		$generatedQuery .= $queryGenerator->getFromClause();
 		$generatedQuery .= $queryGenerator->getWhereClause();
 		if (!empty($where)) {
-			$generatedQuery .= " AND $where";
+			$generatedQuery .= " AND ($where)";
 		}
 		if (!empty($groupFields)) {
 			$generatedQuery .= ' GROUP BY '.implode(', ', $groupFields);
