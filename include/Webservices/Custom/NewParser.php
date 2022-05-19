@@ -19,6 +19,16 @@ class berliQueryParser {
 	
 	function parse() {
 		$parser = new Parser($this->query);
+		if (!empty($parser->errors)) {
+			$this->hasError = true;
+			$subStr = '';
+			if (!empty($parser->errors[0]->token)) {
+				$subStr = 'Error near: '.substr($this->query, $parser->errors[0]->token->position, 30);
+			}
+			
+			$this->error = $parser->errors[0]->getMessage()."\n$subStr";
+			return false;
+		}
 
 		// get module from FROM
 		$elementType = $parser->statements[0]->from[0]->table;
