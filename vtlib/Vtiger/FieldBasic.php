@@ -171,6 +171,10 @@ class Vtiger_FieldBasic {
 
         if (!$this->label)
             $this->label = $this->name;
+		
+		if (!empty($this->columntype)) {
+            Vtiger_Utils::AddColumn($this->table, $this->column, $this->columntype);
+        }
 
         $adb->pquery("INSERT INTO vtiger_field (tabid, fieldid, columnname, tablename, generatedtype,
 uitype, fieldname, fieldlabel, readonly, presence, defaultvalue, maximumlength, sequence,
@@ -184,10 +188,6 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", Array($this->getModuleId(),
         $adb->pquery('UPDATE vtiger_field SET masseditable=? WHERE fieldid=?', Array($this->masseditable, $this->id));
 
         Vtiger_Profile::initForField($this);
-
-        if (!empty($this->columntype)) {
-            Vtiger_Utils::AddColumn($this->table, $this->column, $this->columntype);
-        }
 
         self::log("Creating Field $this->name ... DONE");
         self::log("Module language mapping for $this->label ... CHECK");

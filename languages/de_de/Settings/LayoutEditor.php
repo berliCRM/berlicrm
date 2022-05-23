@@ -68,6 +68,7 @@ $languageStrings = array(
 	'LBL_HELPTEXT_VALUE' => 'Hilfetext',
     'LBL_PICKLIST_ROLE_HELP' => 'Bei rollenbasierten Auswahllisten können Sie einzelne Listen-Einträge nur bestimmten Nutzergruppen zur Verfügung stellen sowie die Anzeige von Blöcken von bestimmten Einträgen abhängig machen.<br>Bitte entnehmen Sie die Details dem Handbuch.',
 	'Picklist'=>'Auswahlliste',
+	'LBL_FIELD_CREATION_FAILED' => 'Fehler beim Anlegen des Feldes',
 
 );
 
