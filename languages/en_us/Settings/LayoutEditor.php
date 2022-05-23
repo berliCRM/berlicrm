@@ -67,6 +67,7 @@ $languageStrings = array(
 	'LBL_HELPTEXT_VALUE' => 'Help Text',
     'LBL_PICKLIST_ROLE_HELP' => 'Role based picklists allow to make selected entries only available to certain user groups, and to control the display of blocks in dependence of certain values.<br>Please see the manual for details.',
 	'Picklist'=>'Picklist',
+	'LBL_FIELD_CREATION_FAILED' => 'Error during field creation',
 
 );
 

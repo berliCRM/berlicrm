@@ -150,7 +150,7 @@ class Vtiger_Utils {
 		$adb->dieOnError = false;
 
 		$tablename = Vtiger_Utils::SQLEscape($tablename);
-		$tablecheck = $adb->pquery("SHOW TABLES LIKE ?", array($tablename));
+		$tablecheck = $adb->pquery("SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name LIKE ?;", array($tablename));
 
 		$tablePresent = true;
 		if(empty($tablecheck) || $adb->num_rows($tablecheck) === 0)
@@ -209,6 +209,10 @@ class Vtiger_Utils {
 		global $adb;
 		if(!in_array($columnname, $adb->getColumnNames($tablename))) {
 			self::AlterTable($tablename, " ADD COLUMN $columnname $criteria");
+		}
+		// check if field really was created
+		if(!in_array($columnname, $adb->getColumnNames($tablename))) {
+			throw new Exception(vtranslate('LBL_FIELD_CREATION_FAILED', 'Settings::LayoutEditor'), 513);
 		}
 	}
 
