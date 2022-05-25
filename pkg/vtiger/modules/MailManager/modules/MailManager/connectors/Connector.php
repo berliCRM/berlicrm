@@ -390,5 +390,11 @@ class MailManager_Connector_Connector {
 		}
 		return $value;
 	}
+	
+	public function getNewMailsCount() {
+		$nos = imap_search($this->mBox, 'NEW');
+		$found = 0;
+		if ($nos !== false) $found = count($nos);
+		return $found;
+	}
 }
-?>
