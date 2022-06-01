@@ -45,7 +45,8 @@ class Vtiger_TooltipView_Model extends Vtiger_DetailRecordStructure_Model {
 		$moduleName = $this->module->getName();
 		
 		// Preparation to pull required tool-tip field values.
-		$referenceFields = array(); $fieldNames = array();
+		$referenceFields = array(); 
+		$fieldNames = array();
 		foreach ($this->fields as $fieldModel) {
 			if($fieldModel->isViewableInDetailView()) {
 				$fieldType = $fieldModel->getFieldDataType();
@@ -73,6 +74,15 @@ class Vtiger_TooltipView_Model extends Vtiger_DetailRecordStructure_Model {
 					if (in_array($key, $referenceFields)) {
 						$data[$key] = substr($value,strrpos($value,"x")+1);
 					}
+				}
+			}
+
+			// if data[id] was with "x" we need only the second number (or the RecordId). So will the email-address in Popup work correctly.
+			// $data['id'] = $recordId;
+			$dataIdArr = explode('x',$data['id']);
+			if( count($dataIdArr) > 1){
+				if( isset($dataIdArr[1]) && is_numeric($dataIdArr[1])  ){
+					$data['id'] = $dataIdArr[1];
 				}
 			}
 			
