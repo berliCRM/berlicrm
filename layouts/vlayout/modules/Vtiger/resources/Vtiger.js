@@ -327,7 +327,7 @@ var Vtiger_Index_Js = {
 	 */
 	registerTooltipEvents: function() {
 		var references = jQuery('[data-field-type="reference"] > a,[data-field-type="multireference"] > a');
-		//var betreff = jQuery('[data-field-type="string"] > span > a '); //// example for another PopoverTooltip window
+		
 		var lastPopovers = [];
 
 		// Fetching reference fields often is not a good idea on a given page.
@@ -377,14 +377,15 @@ var Vtiger_Index_Js = {
 				template: '<div class="popover popover-tooltip"><div class="arrow"></div><div class="popover-inner"><button name="vtTooltipClose" class="close" style="color:white;opacity:1;font-weight:lighter;position:relative;top:3px;right:3px;">x</button><h3 class="popover-title"></h3><div class="popover-content"><div></div></div></div></div>'
 			});
 
-			//// first i hide all popover's, that are open. ("hideAllTooltipViews()" not real working ?.)
+			
+			//// first hide all popover's, that are open. 
 			jQuery('.popover').css( "display", "none", "important");
-			//console.log(el[0].dataset['originalTitle']); //// example: Leads
+			//hideAllTooltipViews();
+
 			if( el[0].dataset['originalTitle'] == undefined || el[0].dataset['originalTitle'] == '' ){
 				el[0].dataset['originalTitle'] = 'Details';
 			}
-			//// here was a problem with variable "lastPopovers.push(el.popover('show'));", is was not defined so. But if 
-			//// first defined a variable and then push this variable to lastPopovers, so it work! No idea whu?
+			
 			var popoverToShow = el.popover('show');
 			lastPopovers.push(popoverToShow);
 			registerToolTipDestroy();
@@ -406,27 +407,36 @@ var Vtiger_Index_Js = {
 				out: hideAllTooltipViews
 		});
 
-		/*
-		betreff.hoverIntent({
-			interval: 100,
-			sensitivity: 7,
-			timeout: 10,
-			over: prepareAndShowTooltipView,
-			out: hideAllTooltipViews
-		});
-		*/
-
+		
 		function registerToolTipDestroy() {
-			// i define it here, because in "on.click" anonyme funktion it can not defined so (only if final).
-			// if we have only one tooltip, we not need a array?
-			var lastPopover = lastPopovers.pop();
-			jQuery('button[name="vtTooltipClose"]').on('click', function(e){
-				// var lastPopover = lastPopovers.pop(); // here it was not defined because "it is in function"
-				lastPopover.popover('hide');
-				// Fix suggested http://code.vtiger.com/vtiger/vtigercrm/issues/43
-				jQuery('.popover').css( "display", "none", "important");
-			});
 
+			var lastPopover = lastPopovers.pop();
+
+			// to prevent many many calls of function "onmouseover"
+			let helpNr = 0;
+			
+			let popoverElements = document.getElementsByClassName('popover');
+			let popoverLastIndex = popoverElements.length-1;
+
+			if(helpNr == 0){
+				popoverElements[popoverLastIndex].onmouseover = function(e){
+					if(helpNr == 0){
+						lastPopover.popover('show');
+		
+						jQuery('button[name="vtTooltipClose"]').on('click', function(e){
+							lastPopover.popover('hide');
+							jQuery('.popover').css( "display", "none", "important");
+						});
+					}
+					
+					helpNr = 1;
+				}
+			}
+			
+			popoverElements[popoverLastIndex].onmouseout = function(e){
+				helpNr = 0;
+				lastPopover.popover('hide');
+			}
 
 		}
 	},
