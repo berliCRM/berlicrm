@@ -412,30 +412,36 @@ var Vtiger_Index_Js = {
 
 			var lastPopover = lastPopovers.pop();
 
-			// to prevent many many calls of function "onmouseover"
+			// to prevent to many calls of function "onmouseover"
 			let helpNr = 0;
-			
+
+			let rightPanel = document.getElementById("rightPanel");
+
 			let popoverElements = document.getElementsByClassName('popover');
 			let popoverLastIndex = popoverElements.length-1;
 
-			if(helpNr == 0){
-				popoverElements[popoverLastIndex].onmouseover = function(e){
-					if(helpNr == 0){
-						lastPopover.popover('show');
-		
-						jQuery('button[name="vtTooltipClose"]').on('click', function(e){
-							lastPopover.popover('hide');
-							jQuery('.popover').css( "display", "none", "important");
-						});
-					}
-					
-					helpNr = 1;
+			popoverElements[popoverLastIndex].onmouseover = function(e){
+				if(helpNr == 0){
+					lastPopover.popover('show');
+
+					// the x Button to close the popup
+					jQuery('button[name="vtTooltipClose"]').on('click', function(e){
+						lastPopover.popover('hide');
+						jQuery('.popover').css( "display", "none", "important");
+					});
+
+					// here add a listener after the first mouseOver from popup, so it will be activated, 
+					// only if we go first in popup field, and the go out to rightPanel.
+					rightPanel.addEventListener("mouseover", function handleMouseOver (eventX){
+						helpNr = 0;
+						lastPopover.popover('hide');
+						// here remove it, so it will not close the popup next time.
+						rightPanel.removeEventListener("mouseover", handleMouseOver, false);
+					}, false);
+
 				}
-			}
-			
-			popoverElements[popoverLastIndex].onmouseout = function(e){
-				helpNr = 0;
-				lastPopover.popover('hide');
+				
+				helpNr = 1;
 			}
 
 		}
@@ -476,7 +482,7 @@ var Vtiger_Index_Js = {
 			var url = 'index.php?module=MailManager&action=MailReminder&mode=checkForNewMails';
 			AppConnector.request(url).then(function(data){
 				if(data && data.success) {
-					if (data.result) {
+					if(data && data.success) {
 						var params = {
 							title: app.vtranslate('JS_MM_TITLE'),
 							text: data.result,
