@@ -1768,6 +1768,9 @@ function com_vtGetModules($adb) {
  * @param integer $recordId - record id
  */
 function isRecordExists($recordId) {
+	if (empty($recordId)) {
+		return false;
+	}
 	global $adb;
 	$query = "SELECT crmid FROM vtiger_crmentity where crmid=? AND deleted=0";
 	$result = $adb->pquery($query, array($recordId));
