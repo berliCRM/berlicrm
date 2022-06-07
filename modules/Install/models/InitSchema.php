@@ -18,19 +18,17 @@ class Install_InitSchema_Model {
 	public static function initialize() {
 		global $adb;
 		$path = Install_Utils_Model::INSTALL_LOG;
-		$fh = fopen($path, 'a+');
-		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Init DB from Session vars\n");
+		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Init DB from Session vars\n", FILE_APPEND);
 		$adb = PearDatabase::getInstance();
 		$configParams = $_SESSION['config_file_info'];
 		$adb->resetSettings($configParams['db_type'], $configParams['db_hostname'], $configParams['db_name'], $configParams['db_username'], $configParams['db_password']);
 		$adb->query('SET NAMES utf8');
 		
-		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Set MultiQuery Mode (requires mysqli) and import SQL dump\n");
+		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Set MultiQuery Mode (requires mysqli) and import SQL dump\n", FILE_APPEND);
 		$adb->database->multiQuery = true;
 		$schema = file_get_contents('schema/DatabaseSchema.sql');
 		$adb->pquery($schema);
 		$adb->database->multiQuery = false;
-		fclose($fh);
 		if ($adb->database->_failedQuery) {
 			return $adb->database->_failedQuery;
 		} else {
@@ -821,8 +819,7 @@ class Install_InitSchema_Model {
 	public static function createUser() {
 		global $adb;
 		$path = Install_Utils_Model::INSTALL_LOG;
-		$fh = fopen($path, 'a+');
-		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Get AdoDB instance and new Users object\n");
+		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Get AdoDB instance and new Users object\n", FILE_APPEND);
 		$adb = PearDatabase::getInstance();
 		
 		$adminPassword = $_SESSION['config_file_info']['password'];
@@ -864,20 +861,19 @@ class Install_InitSchema_Model {
 		$user->column_fields["email1"] = $adminEmail;
 		$user->column_fields["roleid"] = 'H2';
 		
-		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Save User\n");
+		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Save User\n", FILE_APPEND);
         $user->save("Users");
         $adminUserId = 1;
 		
-		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Update User ID\n");
+		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Update User ID\n", FILE_APPEND);
 		//due to late user entry the groups already exist, so cheat admin to id 1
 		$adb->pquery("UPDATE vtiger_users SET id = ? WHERE id = ?;", array($adminUserId, $user->id));
 		
 		//Creating the flat files for admin user
-		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Create Privilege file\n");
+		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Create Privilege file\n", FILE_APPEND);
 		createUserPrivilegesfile($adminUserId);
-		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Create Sharing file\n");
+		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Create Sharing file\n", FILE_APPEND);
 		createUserSharingPrivilegesfile($adminUserId);
-		fclose($fh);
 		return true;
 	}
 
@@ -1341,13 +1337,12 @@ class Install_InitSchema_Model {
 	public static function setCRMNOWmodifications() {
 		global $adb;
 		$path = Install_Utils_Model::INSTALL_LOG;
-		$fh = fopen($path, 'a+');
-		fwrite($fh, "[".date('Y-m-d h:i:s')."] Include Webservice Utils, get AdoDB instance\n");
+		file_put_contents($path, "[".date('Y-m-d h:i:s')."] Include Webservice Utils, get AdoDB instance\n", FILE_APPEND);
 		vimport('~~include/Webservices/Utils.php');
 		$adb = PearDatabase::getInstance();
 		
 		//crm-now: new settings menu for PDF templates
-		fwrite($fh, "[".date('Y-m-d h:i:s')."] Update vtiger_field to add PDF Templates entry\n");
+		file_put_contents($path, "[".date('Y-m-d h:i:s')."] Update vtiger_field to add PDF Templates entry\n", FILE_APPEND);
 		$ID = $adb->getUniqueID('vtiger_settings_field');
 		$params = array($ID, '3', 'LBL_PDF_TEMPLATES', '', 'LBL_PDF_TEMPLATE_DESCRIPTION', 'index.php?parent=Settings&module=Vtiger&view=listpdftexttemplates', '3', '0', '0');
 		$adb->pquery("INSERT INTO `vtiger_settings_field` (`fieldid` ,`blockid` ,`name` ,`iconpath` ,`description` ,`linkto` ,`sequence` ,`active`, `pinned`)
@@ -1421,7 +1416,7 @@ class Install_InitSchema_Model {
 		// vtws_addWebserviceOperationParam($operationId,'returnfile','string','2');
 		
 		//crm-now: add all modules to tracking (this was done in migration script)
-		fwrite($fh, "[".date('Y-m-d h:i:s')."] Update Modtracker tracked modules\n");
+		file_put_contents($path, "[".date('Y-m-d h:i:s')."] Update Modtracker tracked modules\n", FILE_APPEND);
 		if(file_exists('modules/ModTracker/ModTrackerUtils.php')) {
 			require_once 'modules/ModTracker/ModTrackerUtils.php';
 			$modules = $adb->pquery('SELECT * FROM vtiger_tab WHERE isentitytype = ?;', array(1));
@@ -1429,11 +1424,10 @@ class Install_InitSchema_Model {
 			for($i=0; $i<$rows; $i++) {
 				$tabid=$adb->query_result($modules, $i, 'tabid');
 				$module=$adb->query_result($modules, $i, 'name');
-				fwrite($fh, "[".date('Y-m-d h:i:s')."] Track $module\n");
+				file_put_contents($path, "[".date('Y-m-d h:i:s')."] Track $module\n", FILE_APPEND);
 				ModTrackerUtils::modTrac_changeModuleVisibility($tabid, 'module_enable');
 			}
 		}
-		fclose($fh);
 		
 		//last step, set info this system was installed
 		$path = Install_Utils_Model::INSTALL_FINISHED;

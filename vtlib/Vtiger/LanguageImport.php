@@ -65,9 +65,9 @@ class Vtiger_LanguageImport extends Vtiger_LanguageExport {
 	 * @access private
 	 */
 	function import_Language($zipfile) {
-		$name = $this->_modulexml->name;
-		$prefix = $this->_modulexml->prefix;
-		$label = $this->_modulexml->label;
+		$name = (string) $this->_modulexml->name;
+		$prefix = (string) $this->_modulexml->prefix;
+		$label = (string) $this->_modulexml->label;
 
 		self::log("Importing $label [$prefix] ... STARTED");
 		$unzip = new Vtiger_Unzip($zipfile);

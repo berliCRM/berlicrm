@@ -24,8 +24,7 @@ class Install_ajaxInitDB_Action extends Vtiger_BasicAjax_Action {
 			$mode = 'failed';
 		}
 		$path = Install_Utils_Model::INSTALL_LOG;
-		$fh = fopen($path, 'a+');
-		fwrite($fh, "[".date('Y-m-d h:i:s')."] Start $mode\n");
+		file_put_contents($path, "[".date('Y-m-d h:i:s')."] Start $mode\n", FILE_APPEND);
 		if ($mode == 'config') {
 			try {
 				// Create configuration file
@@ -65,8 +64,7 @@ class Install_ajaxInitDB_Action extends Vtiger_BasicAjax_Action {
 				$ret[1] = $e->getMessage();
 			}
 		}
-		fwrite($fh, "[".date('Y-m-d h:i:s')."] End $mode\n\n");
-		fclose($fh);
+		file_put_contents($path, "[".date('Y-m-d h:i:s')."] End $mode\n\n", FILE_APPEND);
 		$result = array("success" => $ret[0], "message" => $ret[1]);
 		
 		$response = new Vtiger_Response();

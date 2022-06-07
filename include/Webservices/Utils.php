@@ -150,7 +150,8 @@ function getEmailFieldId($meta, $entityId){
 
 function vtws_getParameter($parameterArray, $paramName,$default=null){
 
-	if (!get_magic_quotes_gpc()) {
+	// used to be !get_magic_quotes_gpc()
+	if (true) {
 		if(is_array($parameterArray[$paramName])) {
 			$param = array_map('addslashes', $parameterArray[$paramName]);
 		} else {
