@@ -266,7 +266,8 @@ class freetag {
 		}
 
 		foreach ($tagArray as $key => $value) {
-			$tagArray[$key] = $adb->qstr($value, get_magic_quotes_gpc());
+			// used to be get_magic_quotes_gpc(), never returned true
+			$tagArray[$key] = $adb->qstr($value, false);
 		}
 
 		$tagArray = array_unique($tagArray);
@@ -716,7 +717,8 @@ class freetag {
 		foreach($tagArray as $tag) {
 			$tag = trim($tag);
 			if(($tag != '') && (strlen($tag) <= $this->_MAX_TAG_LENGTH)) {
-				if(get_magic_quotes_gpc()) {
+				// used to be get_magic_quotes_gpc(), never returned true
+				if(false) {
 					$tag = addslashes($tag);
 				}
 				$this->safe_tag($tagger_id, $object_id, $tag, $module);
@@ -742,7 +744,8 @@ class freetag {
 			return $newwords;
 		}
 		# Perform tag parsing
-		if(get_magic_quotes_gpc()) {
+		// used to be get_magic_quotes_gpc(), never returned true
+		if(false) {
 			$query = stripslashes(trim($tag_string));
 		} else {
 			$query = trim($tag_string);
