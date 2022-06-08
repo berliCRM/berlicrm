@@ -16,7 +16,7 @@ class MailManager_Mailbox_Model {
 	protected $mProtocol = 'IMAP4';
 	protected $mSSLType  = 'ssl';
 	protected $mCertValidate = 'novalidate-cert';
-	protected $mRefreshTimeOut;
+	protected $mRefreshTimeOut = 0;
 	protected $mId;
 	protected $mServerName;
     protected $mFolder;
@@ -94,7 +94,7 @@ class MailManager_Mailbox_Model {
 	}
 
 	public function setRefreshTimeOut($value) {
-		$this->mRefreshTimeOut = $value;
+		$this->mRefreshTimeOut = intval($value);
 	}
 
 	public function refreshTimeOut() {
