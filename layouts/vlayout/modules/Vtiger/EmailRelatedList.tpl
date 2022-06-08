@@ -100,21 +100,21 @@
 							<td class="{$WIDTHTYPE}">
                             {if $HEADER_FIELD->isNameField() eq true or $HEADER_FIELD->get('uitype') eq '4'}
 								{if $RELATED_ATTACHMENTS > '0'}
-                                <a><img class="listViewLoadingImage" src="{vimage_path('emailattachment.gif')}" alt="no-image" title="{vtranslate('LBL_ATTACHMENTS')}"/>({$RELATED_ATTACHMENTS})&nbsp;{$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}</a>
+                                    <a><img class="listViewLoadingImage" src="{vimage_path('emailattachment.gif')}" alt="no-image" title="{vtranslate('LBL_ATTACHMENTS')}"/>({$RELATED_ATTACHMENTS})&nbsp;{$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}</a>
 								{else}
-                                <a>{$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}</a>
+                                    <a>{$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}</a>
 								{/if}
                             {elseif $RELATED_HEADERNAME eq 'access_count'}
                                 {$RELATED_RECORD->getAccessCountValue($PARENT_RECORD->getId())}
-                              {elseif $RELATED_HEADERNAME eq 'date_start'}
+                            {elseif $RELATED_HEADERNAME eq 'date_start'}
                                 {if $RELATED_RECORD->isSentMail() eq 'true'}
                                     {$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}
-								{else}
+                                {elseif $RELATED_RECORD->isFromMailManager()}
+                                    {$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}
+                                    <span class="label label-warning">{vtranslate('LBL_ATTACHED',$RELATED_MODULE_NAME)}</span>
+                                {else}
 									<span class="label label-warning">{vtranslate('LBL_DRAFT',$RELATED_MODULE_NAME)}&nbsp;{vtranslate('LBL_ATTACHED',$RELATED_MODULE_NAME)}</span>
 								{/if}
-                                {if $RELATED_RECORD->isFromMailManager()} 
-                                    <span class="label label-warning">{vtranslate('LBL_ATTACHED',$RELATED_MODULE_NAME)}</span>
-				{/if}
                             {else if $RELATED_HEADERNAME eq 'time_start'}
                                 {if $RELATED_RECORD->isSentMail() eq 'true'}  
                                     {$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}
