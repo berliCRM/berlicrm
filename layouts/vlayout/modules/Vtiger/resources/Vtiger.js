@@ -482,7 +482,7 @@ var Vtiger_Index_Js = {
 			var url = 'index.php?module=MailManager&action=MailReminder&mode=checkForNewMails';
 			AppConnector.request(url).then(function(data){
 				if(data && data.success) {
-					if(data && data.success) {
+					if(data.result) {
 						var params = {
 							title: app.vtranslate('JS_MM_TITLE'),
 							text: data.result,
