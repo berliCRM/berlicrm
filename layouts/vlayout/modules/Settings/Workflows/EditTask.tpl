@@ -11,7 +11,7 @@
 -->*}
 {strip}
 
-	<div class='modelContainer' id="addTaskContainer">
+	<div class='modelContainer' id="addTaskContainer" style="overflow:auto;">
 		<div class="modal-header contentsBackground">
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 			<h3>{vtranslate('LBL_ADD_TASKS_FOR_WORKFLOW', $QUALIFIED_MODULE)} -> {vtranslate($TASK_TYPE_MODEL->get('label'), $QUALIFIED_MODULE)}</h3>
@@ -24,7 +24,7 @@
 			<input type="hidden" name="for_workflow" value="{$WORKFLOW_ID}" />
 			<input type="hidden" name="task_id" value="{$TASK_ID}" />
 			<input type="hidden" name="taskType" id="taskType" value="{$TASK_TYPE_MODEL->get('tasktypename')}" />
-			<div id="scrollContainer">
+			<div id="scrollContainer" style="overflow:auto;" >
 				<div class="modal-body tabbable">
 					<div class="row-fluid padding-bottom1per">
 						<span class="span8 row-fluid">

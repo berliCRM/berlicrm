@@ -65,8 +65,16 @@ Settings_Workflows_Edit_Js("Settings_Workflows_Edit3_Js",{},{
 			});
 			AppConnector.request(params).then(function(data) {
 				var callBackFunction = function(data) {
+					// to set modal-window height correctly, we need the current height of the self window.
+					let heightOfDisplayInner = window.innerHeight;
+					// now bring the modal-window height in dependency of window.innerHeight.
+					let popupHeight = 180;
+					if(heightOfDisplayInner != undefined && heightOfDisplayInner != 0 && heightOfDisplayInner > 180 ){
+						// the "-180" because we have some fixed-px-height.
+						popupHeight = heightOfDisplayInner - 180;
+					}
 					app.showScrollBar(jQuery('#addTaskContainer').find('#scrollContainer'),{
-						height : '700px'
+						height : ''+popupHeight+'px'
 					});
                     thisInstance.registerVTCreateTodoTaskEvents();
 					var taskType = jQuery('#taskType').val();
