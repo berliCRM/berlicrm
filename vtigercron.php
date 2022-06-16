@@ -47,7 +47,7 @@ if(PHP_SAPI === "cgi-fcgi" || empty($_SERVER['REMOTE_ADDR']) || (isset($_SESSION
 	$cronStarts = date('Y-m-d H:i:s');
 
 	//set global current user permissions
-	global $current_user;
+	global $current_user, $site_URL;
 	$current_user = Users::getActiveAdminUser();
 	  
 	echo sprintf('[CRON],"%s",%s,Instance,"%s","",[STARTS]',$cronRunId,$site_URL,$cronStarts)."\n";
@@ -63,15 +63,27 @@ if(PHP_SAPI === "cgi-fcgi" || empty($_SERVER['REMOTE_ADDR']) || (isset($_SESSION
 
 			// already running?
 			if ($cronTask->isRunning()) {
-				echo sprintf("[INFO] %s - not ready to run because it is running already", $cronTask->getName());
-				continue;
+				// check if it timed out too long ago, if > 24h then reset and inform admin
+				$lastStart = $cronTask->getLastStart();
+				$now = time();
+				if ($lastStart == 0 || $now - $lastStart > 86400) {
+					$subject = sprintf(vtranslate('LBL_CRON_TIMEOUT_SUBJECT'), $cronTask->getName(), $site_URL);
+					$content = sprintf(vtranslate('LBL_CRON_TIMEOUT_CONTENT'), $site_URL, $cronTask->getName());
+					send_mail('Settings', $current_user->email1, $current_user->user_name, $current_user->email1, $subject, $content);
+					echo sprintf("[INFO] %s - running for more than 24h, informed admin and restarted", $cronTask->getName());
+				// if time since last start < 24h just skip it
+				} else {
+					echo sprintf("[INFO] %s - not ready to run because it is running already", $cronTask->getName());
+					continue;
+				}
 			}
 
 			// Timeout could happen if intermediate cron-tasks fails
-			// and affect the next task. Which need to be handled in this cycle.				
-			if ($cronTask->hadTimedout()) {
-				echo sprintf("[INFO] %s - cron task had timedout as it is not completed last time it run- restarting\n", $cronTask->getName());	
-			}
+			// and affect the next task. Which need to be handled in this cycle.
+			// doesn't work, 0 is returned from 'lastend' entry
+			// if ($cronTask->hadTimedout()) {
+				// echo sprintf("[INFO] %s - cron task had timedout as it is not completed last time it run- restarting\n", $cronTask->getName());	
+			// }
 			
 			// Mark the status - running		
 			$cronTask->markRunning();

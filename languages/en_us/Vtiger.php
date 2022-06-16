@@ -867,6 +867,10 @@ $languageStrings = array(
 	// Workflow
 	'LBL_WORKFLOW_TOO_MANY_SUBJECT' => 'Issues with Workflow',
 	'LBL_WORKFLOW_TOO_MANY_CONTENT' => '<html>This email has been generated because one of your <a href="%s">Workflows</a> with %d affected data sets would exceed the limitation of %d and thus was reduced to %d.<br><br>Should you recieve this email multiple times with an unaltered amount of affected data sets then you should consider to change the Workflow conditions, otherwise not all data will be processed.<html>',
+	
+	// Cron
+	'LBL_CRON_TIMEOUT_SUBJECT' => 'CRON \'%s\' Timeout in %s',
+	'LBL_CRON_TIMEOUT_CONTENT' => 'In your <a href="%s">CRM</a> the Cron \'%s\' was not finished since 24h.<br>It was restarted now but should be checked anyway.',
 );
 
 $jsLanguageStrings = array(
