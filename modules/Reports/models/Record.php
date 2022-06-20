@@ -727,7 +727,7 @@ class Reports_Record_Model extends Vtiger_Record_Model {
 
 		$fp = fopen($tempFileName, 'rb');
 		fpassthru($fp);
-		//unlink($tempFileName);
+		unlink($tempFileName);
 	}
 
 	/**
