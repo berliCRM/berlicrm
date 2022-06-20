@@ -490,6 +490,13 @@ $adb->pquery("INSERT INTO `berli_pdffonts` (`fontid` ,`tcpdfname` ,`namedisplay`
 ('50', 'hysmyeongjostdmedium', 'Hysmyeongjostd Medium')", array());
 echo "<br>adding new fonts done <br>";
 
+echo "<br>increase password field length for Mail Manager and MailScanner<br>";
+$query = "ALTER TABLE `vtiger_mailscanner` CHANGE `password` `password` VARCHAR( 4000 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL ;";
+$adb->pquery($query, array());
+$query = "ALTER TABLE `vtiger_mail_accounts` CHANGE `mail_password` `mail_password` VARCHAR( 4000 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;";
+$adb->pquery($query, array());
+echo "increase done.<br>";
+
 
 
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
