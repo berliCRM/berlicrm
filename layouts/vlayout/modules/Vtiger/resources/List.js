@@ -512,6 +512,7 @@ jQuery.Class("Vtiger_List_Js",{
 				var postData = {
 					"module": module,
 					"action": "DeleteAjax",
+					"operation": "deleteevent",
 					"record": recordId,
 					"parent": app.getParentModuleName()
 				}
@@ -527,7 +528,7 @@ jQuery.Class("Vtiger_List_Js",{
 					function(data){
 						progressIndicatorElement.progressIndicator({
 							'mode' : 'hide'
-						})
+						});
 						if(data.success) {
 							var orderBy = jQuery('#orderBy').val();
 							var sortOrder = jQuery("#sortOrder").val();

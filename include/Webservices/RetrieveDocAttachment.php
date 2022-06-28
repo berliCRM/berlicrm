@@ -131,7 +131,7 @@ function vtws_retrievedocattachment_get_attachment($fileid,$nr=false,$returnfile
     return $recordpdf;
 }
 
-if (!function_exists(berli_getWSEntityId)) {
+if (!function_exists('berli_getWSEntityId')) {
 	function berli_getWSEntityId($entityName) {
 		$db = PearDatabase::getInstance();
 		$rs = $db->pquery("select id from vtiger_ws_entity where name=?",array($entityName));

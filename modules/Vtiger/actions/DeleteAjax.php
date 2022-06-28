@@ -25,7 +25,8 @@ class Vtiger_DeleteAjax_Action extends Vtiger_Delete_Action {
             $response->emit();
             exit;
 
-		}else if($operation == "deleteevent"){
+		}
+		/*else if($operation == "deleteevent" ){
 
 			$recordModel = Vtiger_Record_Model::getInstanceById($recordId, $moduleName);
 			$recordModel->delete();
@@ -36,7 +37,8 @@ class Vtiger_DeleteAjax_Action extends Vtiger_Delete_Action {
 			$response->emit();
 			exit;
 
-		}else if($operation == "deleteManyEvents"){
+		}*/
+		else if($operation == "deleteManyEvents"){
 
 			$idsReferencesArray = $request->get('idsReferencesArray');
 			for($a = 0; $a < count($idsReferencesArray) ; $a++){
@@ -52,8 +54,17 @@ class Vtiger_DeleteAjax_Action extends Vtiger_Delete_Action {
 			$response->emit();
 			exit;
 
-		}else{ 
-			// it cannot step here, $operation must be given in request. error.
+		}
+		else{ 
+			//// it cannot step here, $operation must be given in request. error.
+			//// but because it are often not writen in request, we need to have a way to delete it anyway.
+			$recordModel = Vtiger_Record_Model::getInstanceById($recordId, $moduleName);
+			$recordModel->delete();
+
+			$cvId = $request->get('viewname');
+			$response = new Vtiger_Response();
+			$response->setResult(array('viewname'=>$cvId, 'module'=>$moduleName));
+			$response->emit();
 			exit;
 		}
 	}

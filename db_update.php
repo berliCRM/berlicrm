@@ -440,6 +440,64 @@ CREATE TABLE IF NOT EXISTS `berlicrm_recurringreferences` (
 $adb->pquery($query, array());
 echo "create berlicrm_recurringreferences table done.<br>";
 
+echo "<br>set proper format for modifiedtime and createdtime fields<br>";
+$query = "Update `vtiger_field` set typeofdata ='DT~O' where columnname = 'modifiedtime' and typeofdata ='T~O';";
+$adb->pquery($query, array());
+$query = "Update `vtiger_field` set typeofdata ='DT~O' where columnname = 'createdtime' and typeofdata ='T~O';";
+$adb->pquery($query, array());
+echo "set proper format done.<br>";
+
+echo "<br>delete not needed files for new tcpt version ";
+require_once('config.inc.php');
+
+$filePath = 'libraries/tcpdf/fonts/old/.noencode';
+$file = $root_directory.''.$filePath;
+unlink($file);
+
+$filePath = 'libraries/tcpdf/fonts/.noencode';
+$file = $root_directory.''.$filePath;
+unlink($file);
+
+$dirname = 'libraries/tcpdf/fonts/old';
+rmdir($dirname);
+
+$filePath = 'libraries/tcpdf/tcpdf_parser.php';
+$file = $root_directory.''.$filePath;
+unlink($file);
+echo "<br>file deletion done<br>";
+
+echo "<br>remove fonts no longer available<br>";
+$adb->pquery("DELETE FROM `berli_pdffonts` WHERE `berli_pdffonts`.`fontid` = 22", array());
+$adb->pquery("DELETE FROM `berli_pdffonts` WHERE `berli_pdffonts`.`fontid` = 23", array());
+$adb->pquery("DELETE FROM `berli_pdffonts` WHERE `berli_pdffonts`.`fontid` = 24", array());
+$adb->pquery("DELETE FROM `berli_pdffonts` WHERE `berli_pdffonts`.`fontid` = 25", array());
+echo "<br>font deletion done<br>";
+
+echo "<br>add new fonts<br>";
+$adb->pquery("INSERT INTO `berli_pdffonts` (`fontid` ,`tcpdfname` ,`namedisplay`) VALUES 
+('38', 'aealarabiya', 'aeAlArabiya'),
+('39', 'aefurat', 'AeFurat'),
+('40', 'courier', 'Courier'),
+('41', 'freemono', 'Free Mono'),
+('42', 'pdfacourier', 'PDFA Courier'),
+('43', 'pdfahelvetica', 'PDFA Helvetika'),
+('44', 'pdfasymbol', 'PDFA Symbol'),
+('45', 'pdfatimes', 'PDFA Times'),
+('46', 'times', 'Times'),
+('47', 'kozminproregular', 'Kozminpro Regular'),
+('48', 'kozgopromedium', 'Kozgopro Medium'),
+('49', 'msungstdlight', 'Msungstd Light'),
+('50', 'hysmyeongjostdmedium', 'Hysmyeongjostd Medium')", array());
+echo "<br>adding new fonts done <br>";
+
+echo "<br>increase password field length for Mail Manager and MailScanner<br>";
+$query = "ALTER TABLE `vtiger_mailscanner` CHANGE `password` `password` VARCHAR( 4000 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL ;";
+$adb->pquery($query, array());
+$query = "ALTER TABLE `vtiger_mail_accounts` CHANGE `mail_password` `mail_password` VARCHAR( 4000 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;";
+$adb->pquery($query, array());
+echo "increase done.<br>";
+
+
 
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
 $adb->pquery($query, array($current_release_tag));
