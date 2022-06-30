@@ -51,6 +51,15 @@ class berliQueryParser {
 				}
 			}
 		}
+		// fix the mess that is Calendar/Events/Emails
+		else if ($elementType == 'Calendar') {
+			$queryGenerator->addCondition('activitytype','Task','e','AND');
+		} else if ($elementType == 'Events') {
+			$queryGenerator->addCondition('activitytype','Task','n','AND');
+			$queryGenerator->addCondition('activitytype','Emails','n','AND');
+		} else if ($elementType == 'Emails') {
+			$queryGenerator->addCondition('activitytype','Emails','e','AND');
+		}
 
 		// get field list
 		$expressions = $parser->statements[0]->expr;
