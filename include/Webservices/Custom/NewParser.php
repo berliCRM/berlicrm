@@ -32,6 +32,11 @@ class berliQueryParser {
 
 		// get module from FROM
 		$elementType = $parser->statements[0]->from[0]->table;
+		$fromExpr = $parser->statements[0]->from[0]->expr;
+		if ($elementType != $fromExpr) {
+			$this->error = "Missing WHERE-Keyword";
+			return false;
+		}
 
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$queryGenerator = new QueryGenerator($elementType, $currentUserModel);
