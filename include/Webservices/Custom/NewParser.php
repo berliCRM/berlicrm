@@ -64,6 +64,12 @@ class berliQueryParser {
 			$queryGenerator->addCondition('activitytype','Emails','n','AND');
 		} else if ($elementType == 'Emails') {
 			$queryGenerator->addCondition('activitytype','Emails','e','AND');
+			if (isset($fieldObjects['filename'])) {
+				unset($fieldObjects['filename']);
+			}
+			if (isset($fieldObjects['access_count'])) {
+				unset($fieldObjects['access_count']);
+			}
 		}
 
 		// get field list
