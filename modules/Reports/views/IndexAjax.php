@@ -84,7 +84,7 @@ class Reports_IndexAjax_View extends Vtiger_Index_View {
 
 		$moduleName = $request->getModule();
 		$scheduledReportsModel = new Reports_ScheduleReports_Model();
-		$scheduledReports = $scheduledReportsModel->getScheduledReports();
+		$scheduledReports = $scheduledReportsModel->getScheduledReports(true);
 		
 		// cron should be finished at least 10 minutes before next cron starts
 		$cronFrequency = $scheduledReportsModel->getCronFrequency();
