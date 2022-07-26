@@ -1551,8 +1551,8 @@ function getCombinedUserActionPermissions($userId)
 				{
 					if($per == 1)
 					{
-						$now_permission = $tempActionPerrArr[$tabId][$actionid];
-						if($now_permission == 0 && $now_permission != "")
+						$now_permission = trim($tempActionPerrArr[$tabId][$actionid]);
+						if(($now_permission == '0' || $now_permission === false) && $now_permission != "")
 						{
 							$actionPerrArr[$tabId][$actionid]=$now_permission;
 						}
