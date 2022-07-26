@@ -279,7 +279,7 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
         Vtiger_Utils::ModuleLog('ScheduleReprot', 'Next Trigger Time updated');
 	}
 
-	public static function getScheduledReports() {
+	public static function getScheduledReports($forWidget = false) {
 		$adb = PearDatabase::getInstance();
         $default_timezone = vglobal('default_timezone');
 
@@ -290,7 +290,12 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		@date_default_timezone_set($adminTimeZone);
 		$currentTimestamp  = date("Y-m-d H:i:s");
 		@date_default_timezone_set($default_timezone);
-		$result = $adb->pquery("SELECT reportid FROM vtiger_schedulereports WHERE next_trigger_time = '' || next_trigger_time <= ?", array($currentTimestamp));
+		if ($forWidget == true) {
+			$result = $adb->pquery("SELECT reportid FROM vtiger_schedulereports ORDER BY next_trigger_time", array());
+		}
+		else{
+			$result = $adb->pquery("SELECT reportid FROM vtiger_schedulereports WHERE next_trigger_time = '' || next_trigger_time <= ?", array($currentTimestamp));
+		}
 
 		$scheduledReports = array();
 		$noOfScheduledReports = $adb->num_rows($result);
