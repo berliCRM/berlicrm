@@ -508,7 +508,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	//formating company name for file name
 	$export_org = utf8_decode($account_name);
 	$export_org = decode_html(strtolower($export_org));
-    $export_org = str_replace(array(" ","ö","ä","ü","ß"),array("","oe","ae","ue","ss"),$export_org);
+    $export_org = str_replace(array(" ","ö","ä","ü","ß","Ö","Ä","Ü","/","\\"),array("_","oe","ae","ue","ss","Oe","Ae","Ue","_","_"),$export_org);
 	//remove not printable ascii char
 	$export_org = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $export_org);
 
