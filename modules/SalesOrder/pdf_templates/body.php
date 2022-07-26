@@ -205,11 +205,11 @@ If ($summaryradio == 'true') {
 		//line & text $price_subtotal
 		$data= $pdf_strings['VAR_SUBTOTAL'].":";
 		$pdf->SetXY( 105 , $line_y_location);
-		$pdf->Cell(110, $line_distance, $data,0,0,'L',0,0);
+		$pdf->Cell(110, $line_distance, decode_html($data),0,0,'L',0,0);
 
 		//value $price_subtotal
 		$pdf->SetXY( 144 , $line_y_location );
-		$pdf->Cell(54, $line_distance, $price_subtotal_formated,0,1,'R',0,1);
+		$pdf->Cell(54, $line_distance, decode_html($price_subtotal_formated),0,1,'R',0,1);
 		$line_y_location = $pdf->GetY();
 		
 		//line & text $price_discount
@@ -221,10 +221,10 @@ If ($summaryradio == 'true') {
 			else
 				$data= $pdf_strings['Discount'].":";
 			$pdf->SetXY( 105 , $line_y_location );
-			$pdf->Cell(110, $line_distance, $data,0,0,'L',0,0);
+			$pdf->Cell(110, $line_distance, decode_html($data),0,0,'L',0,0);
 			//value $price_discount
 			$pdf->SetXY( 144 , $line_y_location );
-			$pdf->Cell(54, $line_distance, $price_discount_formated,0,1,'R',0,1);
+			$pdf->Cell(54, $line_distance, decode_html($price_discount_formated),0,1,'R',0,1);
 			$line_y_location = $pdf->GetY();
 		}
 
@@ -232,10 +232,10 @@ If ($summaryradio == 'true') {
 		$pdf->Line("105",$line_y_location, "200", $line_y_location);
 		$data= $pdf_strings['Tax']."  ($group_total_tax_percent %):";
 		$pdf->SetXY( 105 , $line_y_location );
-		$pdf->Cell(110, $line_distance, $data,0,0,'L',0,0);
+		$pdf->Cell(110, $line_distance, decode_html($data),0,0,'L',0,0);
 		//value $price_salestax
 		$pdf->SetXY( 144 , $line_y_location );
-		$pdf->Cell(54,$line_distance, $price_salestax_formated,0,1,'R',0,1);
+		$pdf->Cell(54,$line_distance, decode_html($price_salestax_formated),0,1,'R',0,1);
 		$line_y_location = $pdf->GetY();
 
 		//line & text $price_shipping
@@ -244,10 +244,10 @@ If ($summaryradio == 'true') {
 			$pdf->Line("105",$line_y_location, "200", $line_y_location);
 			$data = $pdf_strings['VAR_SHIPCOST'].":";
 			$pdf->SetXY( 105 , $line_y_location );
-			$pdf->Cell(110, $line_distance, $data,0,0,'L',0,0);
+			$pdf->Cell(110, $line_distance, decode_html($data),0,0,'L',0,0);
 			//value $price_shipping
 			$pdf->SetXY( 144 , $line_y_location );
-			$pdf->Cell(54, $line_distance, $price_shipping_formated,0,1,'R',0,1);
+			$pdf->Cell(54, $line_distance, decode_html($price_shipping_formated),0,1,'R',0,1);
 			$line_y_location = $pdf->GetY();
 		}
 	}
@@ -256,10 +256,10 @@ If ($summaryradio == 'true') {
 		//line & text $price_subtotal
 		$data= $pdf_strings['VAR_SUBTOTAL'].":";
 		$pdf->SetXY( 105 , $line_y_location);
-		$pdf->Cell(110, $line_distance, $data,0,0,'L',0,0);
+		$pdf->Cell(110, $line_distance, decode_html($data),0,0,'L',0,0);
 		//value $price_subtotal
 		$pdf->SetXY( 144 , $line_y_location );
-		$pdf->Cell(54, $line_distance, $price_subtotal_formated,0,1,'R',0,1);
+		$pdf->Cell(54, $line_distance, decode_html($price_subtotal_formated),0,1,'R',0,1);
 		$line_y_location = $pdf->GetY();
 
 		//line & text $price_discount
@@ -270,11 +270,11 @@ If ($summaryradio == 'true') {
 			else
 				$data= $pdf_strings['Discount'].":";
 			$pdf->SetXY( 105 , $line_y_location );
-			$pdf->Cell(110, $line_distance, $data,0,0,'L',0,0);
+			$pdf->Cell(110, $line_distance, decode_html($data),0,0,'L',0,0);
 			//value $price_discount
 			$pdf->SetXY( 144 , $line_y_location );
 			$pdf->SetFont( $default_font, "", $font_size_body);
-			$pdf->Cell(54, $line_distance, $price_discount_formated,0,1,'R',0,1);
+			$pdf->Cell(54, $line_distance, decode_html($price_discount_formated),0,1,'R',0,1);
 			$line_y_location = $pdf->GetY();
 			$pdf->Line("105",$line_y_location, "200", $line_y_location);
 		}
@@ -284,10 +284,10 @@ If ($summaryradio == 'true') {
 			$pdf->Line("105",$line_y_location, "200", $line_y_location);
 			$data = $pdf_strings['VAR_SHIPCOST'].":";
 			$pdf->SetXY( 105 , $line_y_location );
-			$pdf->Cell(110, $line_distance, $data,0,0,'L',0,0);
+			$pdf->Cell(110, $line_distance, decode_html($data),0,0,'L',0,0);
 			//value $price_shipping
 			$pdf->SetXY( 144 , $line_y_location );
-			$pdf->Cell(54, $line_distance, $price_shipping_formated,0,1,'R',0,1);
+			$pdf->Cell(54, $line_distance, decode_html($price_shipping_formated),0,1,'R',0,1);
 			$line_y_location = $pdf->GetY();
 		}
 	}
@@ -299,10 +299,10 @@ If ($summaryradio == 'true') {
 		$pdf->Line("105",$line_y_location, "200", $line_y_location);
 		$data = $pdf_strings['VAR_TAX_SHIP']."  ($sh_tax_percent %):";
 		$pdf->SetXY( 105 , $line_y_location );
-		$pdf->Cell(110, $line_distance, $data,0,0,'L',0,0);
+		$pdf->Cell(110, $line_distance, decode_html($data),0,0,'L',0,0);
 		//value $price_shipping_tax
 		$pdf->SetXY( 144 , $line_y_location );
-		$pdf->Cell(54, $line_distance, $price_shipping_tax,0,1,'R',0,1);
+		$pdf->Cell(54, $line_distance, decode_html($price_shipping_tax),0,1,'R',0,1);
 		$line_y_location = $pdf->GetY();
 	}
 	//line & text $price_adjustment
@@ -311,10 +311,10 @@ If ($summaryradio == 'true') {
 		$pdf->Line("105",$line_y_location, "200", $line_y_location);
 		$data = $pdf_strings['VAR_ADJUSTMENT'].":";
 		$pdf->SetXY( 105 , $line_y_location );
-		$pdf->Cell(110, $line_distance, $data,0,0,'L',0,0);
+		$pdf->Cell(110, $line_distance, decode_html($data),0,0,'L',0,0);
 		//value $price_adjustment
 		$pdf->SetXY( 144 , $line_y_location );
-		$pdf->Cell(54, $line_distance, $price_adjustment_formated,0,1,'R',0,1);
+		$pdf->Cell(54, $line_distance, decode_html($price_adjustment_formated),0,1,'R',0,1);
 		$line_y_location = $pdf->GetY();
 		$pdf->Line("105",$line_y_location, "200", $line_y_location);
 	}
@@ -323,10 +323,10 @@ If ($summaryradio == 'true') {
 	$data = $pdf_strings['VAR_TOTAL']." (".decode_html($currency_symbol)."):";
 	$pdf->SetXY( 105 , $line_y_location );
 	$pdf->SetFont( $default_font, "B", $font_size_body);
-	$pdf->Cell(110, $line_distance, $data,0,0,'L',0,0);
+	$pdf->Cell(110, $line_distance, decode_html($data),0,0,'L',0,0);
 	//value $price_total
 	$pdf->SetXY( 144 , $line_y_location );
-	$pdf->Cell(54, $line_distance, $price_total_formated,0,1,'R',0,1);
+	$pdf->Cell(54, $line_distance, decode_html($price_total_formated),0,1,'R',0,1);
 	$line_y_location = $pdf->GetY();
 	//double line for total
 	$pdf->Line("105",$line_y_location, "200", $line_y_location);
