@@ -68,12 +68,15 @@ jQuery.Class("Vtiger_Edit_Js",{
 		return Vtiger_Edit_Js.editInstance;
 	},
     
-    // lock record and set timer to refresh lock every 115 sec.
+    // old: lock record and set timer to refresh lock every 115 sec.  
+	// new: we release Lock after 2 minutes are passt. =120000 sec
     lockRecord: function(recordid) {
         var url = "index.php?module=Vtiger&action=EditLocksAjax&record="+recordid+"&mode=lock";
         AppConnector.request(url);
         Vtiger_Edit_Js.locked = true;
-        setTimeout(function() {Vtiger_Edit_Js.lockRecord(recordid)},115000);
+        //setTimeout(function() {Vtiger_Edit_Js.lockRecord(recordid)},115000);
+		setTimeout(function() {Vtiger_Edit_Js.releaseLock()},120000);
+
     },
     
     // release lock (if it was created by this editview)
