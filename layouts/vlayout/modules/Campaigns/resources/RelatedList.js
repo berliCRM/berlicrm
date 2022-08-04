@@ -49,6 +49,7 @@ Vtiger_RelatedList_Js("Campaigns_RelatedList_Js",{
 		params['mode'] = "showRelatedList",
 		params['selectedIds'] = jQuery('#selectedIds').data('selectedIds');
 		params['excludedIds'] = jQuery('#excludedIds').data('excludedIds');
+		params['tab_label'] = this.selectedRelatedTabElement.data('label-key');
 		
 		return params;
 	},
