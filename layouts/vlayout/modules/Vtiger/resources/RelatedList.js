@@ -194,12 +194,13 @@ jQuery.Class("Vtiger_RelatedList_Js",{},{
 		var params = {};
 		params['view'] = "Detail";
 		params['module'] = this.parentModuleName;
-		params['record'] = this.getParentId(),
-		params['relatedModule'] = this.relatedModulename,
-		params['sortorder'] =  this.getSortOrder(),
-		params['orderby'] =  this.getOrderBy(),
+		params['record'] = this.getParentId();
+		params['relatedModule'] = this.relatedModulename;
+		params['sortorder'] =  this.getSortOrder();
+		params['orderby'] =  this.getOrderBy();
 		params['page'] = this.getCurrentPageNum();
-		params['mode'] = "showRelatedList"
+		params['mode'] = "showRelatedList";
+		params['tab_label'] = this.selectedRelatedTabElement.data('label-key');
 		
 		return params;
 	},
