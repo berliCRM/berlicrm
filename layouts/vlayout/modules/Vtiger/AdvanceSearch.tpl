@@ -11,6 +11,11 @@
 -->*}
 {strip}
     <div id="advanceSearchContainer">
+        <div class="showProgressCircle" id="overheader">
+            <img id="progress" src="{'loadingSmall.gif'|vimage_path}"  name="loadingSmall.gif"
+                style="display:none; position: absolute; top: 5px; left: 5px;"> 
+            <div class="responseText" id="responseText"></div>
+        </div>
         <div class="row-fluid padding10 boxSizingBorderBox">
             <div class="span5">
                 <strong class="pull-right pushDown">{vtranslate('LBL_SEARCH_IN',$MODULE)}</strong>
@@ -44,7 +49,7 @@
                 {if $SAVE_FILTER_PERMITTED}
                     <button class="btn hide pull-right" {if $SOURCE_MODULE eq 'Home'} disabled="" {/if} id="advanceSave"><strong>{vtranslate('LBL_SAVE_FILTER', $MODULE)}</strong></button>
                     <button class="btn pull-right" {if $SOURCE_MODULE eq 'Home'} disabled="" {/if} id="advanceIntiateSave"><strong>{vtranslate('LBL_SAVE_AS_FILTER', $MODULE)}</strong></button>
-                    <input class="zeroOpacity pull-right" type="text" value="" name="viewname"/>&nbsp;
+                    <input class="zeroOpacity pull-right" type="text" value="" placeholder="geben Sie der Liste einen Namen" name="viewname"/>&nbsp;
                 {/if}
             </div>
         </div>

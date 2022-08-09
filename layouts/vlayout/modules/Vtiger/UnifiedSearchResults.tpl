@@ -11,6 +11,8 @@
 -->*}
 {strip}
 {assign var="totalCount" value=0}
+{assign var="totalAllSearched" value=($ALL_RESULT_COUNT)}
+{assign var="rowsLimit" value=($ROWS_LIMIT)}
 {assign var="totalModulesSearched" value=count($MATCHING_RECORDS)}
 {foreach key=module item=searchRecords from=$MATCHING_RECORDS}
     {assign var=modulesCount value=count($searchRecords)}
@@ -19,6 +21,11 @@
 <div class="globalSearchResults">
 	<div class="row-fluid">
 		<div class="header highlightedHeader padding1per">
+			<div>
+				<strong>
+					{vtranslate('All',$MODULE)} {vtranslate('LBL_SEARCH_RESULTS',$MODULE)}:&nbsp;({$totalAllSearched})
+				</strong>
+			</div>
 			<div class="row-fluid">
 				<span class="span6"><strong>{vtranslate('LBL_SEARCH_RESULTS',$MODULE)}&nbsp;({$totalCount})</strong></span>
 				{if $IS_ADVANCE_SEARCH }
@@ -31,13 +38,17 @@
 			</div>
 		</div>
 		<div class="contents">
-			{if $totalCount eq 100}
+			{if $totalCount eq $rowsLimit}
 				<div class='alert alert-block'>
 					<button type=button class="close" data-dismiss="alert">&times;</button>
 					{if $SEARCH_MODULE}
-						{vtranslate('LBL_GLOBAL_SEARCH_MAX_MESSAGE_FOR_MODULE', 'Vtiger')}
+						{vtranslate('LBL_GLOBAL_SEARCH_MAX_MESSAGE_PART1', 'Vtiger')}&nbsp;{$rowsLimit}&nbsp;
+						{vtranslate('LBL_GLOBAL_SEARCH_MAX_MESSAGE_PART2', 'Vtiger')}&nbsp;
+						{vtranslate('LBL_GLOBAL_SEARCH_MAX_MESSAGE_PART3_FOR_MODULE', 'Vtiger')}
 					{else}
-						{vtranslate('LBL_GLOBAL_SEARCH_MAX_MESSAGE', 'Vtiger')}
+						{vtranslate('LBL_GLOBAL_SEARCH_MAX_MESSAGE_PART1', 'Vtiger')}&nbsp;{$rowsLimit}&nbsp;
+						{vtranslate('LBL_GLOBAL_SEARCH_MAX_MESSAGE_PART2', 'Vtiger')}&nbsp;
+						{vtranslate('LBL_GLOBAL_SEARCH_MAX_MESSAGE_PART3', 'Vtiger')}
 					{/if}
 				</div>
 			{/if}
