@@ -104,6 +104,25 @@ class Vtiger_BasicAjax_View extends Vtiger_Basic_View {
 		$viewer = $this->getViewer($request);
 		$moduleName = $request->getModule();
 		$advFilterList = $request->get('advfilterlist');
+		
+		$allResultCount = 0;
+		$pageNumber = $request->get('page');
+		if(empty ($pageNumber)){
+			$pageNumber = '1';
+		}
+		$pagingModel = new Vtiger_Paging_Model();
+		$pagingModel->set('page', $pageNumber);
+        $pagingModel->set('viewid', $request->get('viewname'));
+		$pageLimit = $pagingModel->getPageLimit();
+		if(empty ($pageLimit) || !(is_numeric($pageLimit)) ||  $pageLimit < 0){
+			$pageLimit = 0;
+		}
+		else if( is_numeric($pageLimit) && $pageLimit >= 0){
+			if($pageLimit > 2){
+				$pageLimit = ceil($pageLimit / 2);
+			}
+		}
+		$rowsLimit = $pageLimit;
 
 		//used to show the save modify filter option
 		$isAdvanceSearch = false;
@@ -160,6 +179,11 @@ class Vtiger_BasicAjax_View extends Vtiger_Basic_View {
 			$result = $db->pquery($query, array());
 			$rows = $db->num_rows($result);
 
+			$allResultCount = $rows;
+			if($rows > $rowsLimit){
+				$rows = $rowsLimit;
+			}
+
 			for($i=0; $i<$rows; ++$i) {
 				$row = $db->query_result_rowdata($result, $i);
 				$recordInstance = Vtiger_Record_Model::getInstanceById($row[0]);
@@ -191,6 +215,8 @@ class Vtiger_BasicAjax_View extends Vtiger_Basic_View {
 		$viewer->assign('MODULE', $moduleName);
 		$viewer->assign('MATCHING_RECORDS', $matchingRecordsList);
 		$viewer->assign('IS_ADVANCE_SEARCH', $isAdvanceSearch);
+		$viewer->assign('ALL_RESULT_COUNT', $allResultCount);
+		$viewer->assign('ROWS_LIMIT', $rowsLimit);
 
 		echo $viewer->view('UnifiedSearchResults.tpl', '', true);
 	}	

@@ -281,6 +281,11 @@ Vtiger_BasicSearch_Js("Vtiger_AdvanceSearch_Js",{
 		var thisInstance = this;
 		var isSearchResultsAndFilterShown = this.isSearchAndFilterComponentsShown();
 		this.search().then(function(data){
+
+			// close here the progress "Circle"
+			let progressEle = jQuery('#progress');
+			progressEle.hide();
+
 			thisInstance.setContainer(thisInstance.getContainer().detach());
 			thisInstance.showSearchResults(data).then(function(modalBlock){
 				var msgContainer = modalBlock.closest('.blockMsg');
@@ -369,6 +374,10 @@ Vtiger_BasicSearch_Js("Vtiger_AdvanceSearch_Js",{
 		});
 
 		jQuery('#advanceSearchButton').on('click', function(e){
+			// show time-circle-progress, wait of results
+			let progressEle = jQuery('#progress');
+			progressEle.show();
+
 			var searchModule = thisInstance.getSearchModule();
 			//If no module is selected
 			if(searchModule.length <= 0) {
@@ -378,7 +387,7 @@ Vtiger_BasicSearch_Js("Vtiger_AdvanceSearch_Js",{
 			}
 			thisInstance.performValidation().then(
 				function(){
-					 thisInstance.performSearch();
+					thisInstance.performSearch();
 				},
 				function(){
 
