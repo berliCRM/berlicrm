@@ -21,11 +21,13 @@
 <div class="globalSearchResults">
 	<div class="row-fluid">
 		<div class="header highlightedHeader padding1per">
-			<div>
-				<strong>
-					{vtranslate('All',$MODULE)} {vtranslate('LBL_SEARCH_RESULTS',$MODULE)}:&nbsp;({$totalAllSearched})
-				</strong>
-			</div>
+			{if $IS_ADVANCE_SEARCH }
+				<div>
+					<strong>
+						{vtranslate('All',$MODULE)} {vtranslate('LBL_SEARCH_RESULTS',$MODULE)}:&nbsp;({$totalAllSearched})
+					</strong>
+				</div>
+			{/if}
 			<div class="row-fluid">
 				<span class="span6"><strong>{vtranslate('LBL_SEARCH_RESULTS',$MODULE)}&nbsp;({$totalCount})</strong></span>
 				{if $IS_ADVANCE_SEARCH }
