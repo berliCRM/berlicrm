@@ -106,29 +106,32 @@ class Vtiger_BasicAjax_View extends Vtiger_Basic_View {
 		$advFilterList = $request->get('advfilterlist');
 		
 		$allResultCount = 0;
-		$pageNumber = $request->get('page');
-		if(empty ($pageNumber)){
-			$pageNumber = '1';
-		}
-		$pagingModel = new Vtiger_Paging_Model();
-		$pagingModel->set('page', $pageNumber);
-        $pagingModel->set('viewid', $request->get('viewname'));
-		$pageLimit = $pagingModel->getPageLimit();
-		if(empty ($pageLimit) || !(is_numeric($pageLimit)) ||  $pageLimit < 0){
-			$pageLimit = 0;
-		}
-		else if( is_numeric($pageLimit) && $pageLimit >= 0){
-			if($pageLimit > 2){
-				$pageLimit = ceil($pageLimit / 2);
-			}
-		}
-		$rowsLimit = $pageLimit;
+		$rowsLimit = 0;
 
 		//used to show the save modify filter option
 		$isAdvanceSearch = false;
 		$matchingRecords = array();
 		if(is_array($advFilterList) && count($advFilterList) > 0) {
 			$isAdvanceSearch = true;
+
+			$pageNumber = $request->get('page');
+			if(empty ($pageNumber)){
+				$pageNumber = '1';
+			}
+			$pagingModel = new Vtiger_Paging_Model();
+			$pagingModel->set('page', $pageNumber);
+			$pagingModel->set('viewid', $request->get('viewname'));
+			$pageLimit = $pagingModel->getPageLimit();
+			if(empty ($pageLimit) || !(is_numeric($pageLimit)) ||  $pageLimit < 0){
+				$pageLimit = 0;
+			}
+			else if( is_numeric($pageLimit) && $pageLimit >= 0){
+				if($pageLimit > 2){
+					$pageLimit = ceil($pageLimit / 2);
+				}
+			}
+			$rowsLimit = $pageLimit;
+
 			$user = Users_Record_Model::getCurrentUserModel();
 			$queryGenerator = new QueryGenerator($moduleName, $user);
 			$queryGenerator->setFields(array('id'));
