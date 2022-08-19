@@ -9,14 +9,16 @@
   *
  ********************************************************************************/
 -->*}
-
-{foreach key=index item=cssModel from=$STYLES}
-	<link rel="{$cssModel->getRel()}" href="{$cssModel->getHref()}" type="{$cssModel->getType()}" media="{$cssModel->getMedia()}" />
-{/foreach}
-{foreach key=index item=jsModel from=$SCRIPTS}
-	<script type="{$jsModel->getType()}" src="{$jsModel->getSrc()}"></script>
-{/foreach}
-
+{if isset ($STYLES)}
+	{foreach key=index item=cssModel from=$STYLES}
+		<link rel="{$cssModel->getRel()}" href="{$cssModel->getHref()}" type="{$cssModel->getType()}" media="{$cssModel->getMedia()}" />
+	{/foreach}
+{/if}
+{if isset ($SCRIPTS)}
+	{foreach key=index item=jsModel from=$SCRIPTS}
+		<script type="{$jsModel->getType()}" src="{$jsModel->getSrc()}"></script>
+	{/foreach}
+{/if}
 <table width="100%" cellspacing="0" cellpadding="0">
 	<tbody>
 		<tr>
