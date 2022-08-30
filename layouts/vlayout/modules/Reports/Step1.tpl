@@ -232,6 +232,17 @@
                             </div>
                         </div>
                     {/if}
+					{if $SCHEDULEDREPORTS->get('errorMsg')}
+						<br>
+                        <div class="row-fluid">
+                            <div class='span3' style='color:red;'>
+                                <span class=''>{vtranslate('LBL_SCHEDULED_ERROR', $MODULE)}</span>
+                            </div>
+                            <div class='span' style='color:red;'>
+                                {$SCHEDULEDREPORTS->get('errorMsg')}
+                            </div>
+                        </div>
+                    {/if}
                 </div>
 		</div>
 		<div class="pull-right">

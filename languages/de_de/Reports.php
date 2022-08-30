@@ -272,6 +272,7 @@ $languageStrings = array(
 	'POSSIBLE_OORESSOURCES' => 'möglicherweise keine ausreichenden Resourcen vorhanden',
 	'FAILED_REPORTS' => 'geplante Berichte, die seit 24 Stunden nicht erzeugt werden konnten:',
 	'FAILED_REPORTS_SUBJECT' => 'fehlerhafte geplante Berichte',
+	'LBL_SCHEDULED_ERROR' => 'Fehlermeldung',
 	
 );
 
