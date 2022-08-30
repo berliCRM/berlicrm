@@ -272,6 +272,7 @@ $languageStrings = array(
 	'POSSIBLE_OORESSOURCES' => 'possibly not enough ressources present',
 	'FAILED_REPORTS' => "Scheduled Reports that couldn't be created in 24 hours:",
 	'FAILED_REPORTS_SUBJECT' => 'failed Scheduled Reports',
+	'LBL_SCHEDULED_ERROR' => 'Error Message',
 
 );
 

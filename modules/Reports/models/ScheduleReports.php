@@ -42,6 +42,11 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 				$reportScheduleInfo['schannualdates'] = decode_html($reportScheduleInfo['schannualdates']);
 				$reportScheduleInfo['recipients'] = decode_html($reportScheduleInfo['recipients']);
 				$reportScheduleInfo['specificemails'] = decode_html($reportScheduleInfo['specificemails']);
+				// get potential error message
+				$errorRes = $db->pquery('SELECT * FROM berli_scheduled_reports WHERE reportid = ?;', array($recordId));
+				if ($errorRes && $db->num_rows($errorRes) > 0) {
+					$reportScheduleInfo['errorMsg'] = $db->query_result($errorRes, 0, 'error_message');
+				}
 				$scheduledReportModel->setData($reportScheduleInfo);
 			}
 		}
