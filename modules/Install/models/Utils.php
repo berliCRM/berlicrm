@@ -396,7 +396,7 @@ class Install_Utils_Model {
 			$error_msg_info = getTranslatedString('MSG_LIST_REASONS', 'Install').':<br>
 					-  '.getTranslatedString('MSG_DB_PARAMETERS_INVALID', 'Install').'
 					-  '.getTranslatedString('MSG_DB_USER_NOT_AUTHORIZED', 'Install');
-		} elseif(self::isMySQL($db_type) && $mysql_server_version < 4.1) {
+		} elseif(self::isMySQL($db_type) && version_compare($mysql_server_version, '4.1', '<')) {
 			$error_msg = $mysql_server_version.' -> '.getTranslatedString('ERR_INVALID_MYSQL_VERSION', 'Install');
 		} elseif($db_creation_failed) {
 			$error_msg = getTranslatedString('ERR_UNABLE_CREATE_DATABASE', 'Install').' '.$db_name;
