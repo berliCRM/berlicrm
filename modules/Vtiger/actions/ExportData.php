@@ -283,7 +283,7 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 					$currencyFormat = (strpos($currencySymbolPlacement, '$') === 0) ? $tmpCurrencySymbol.$currencyFormat : $currencyFormat.$tmpCurrencySymbol;
 					
 					if ($type == 'date' || $type == 'datetime') {
-						if ($value != '--') {
+						if (!empty($value) && $value != '--') {
 							list($date, $time) = explode(' ', $value);
 							$date = DateTimeField::convertToDBFormat($date).' '.$time;
 							$value = PHPExcel_Shared_Date::PHPToExcel(strtotime($date));
