@@ -1105,7 +1105,7 @@ class ReportRun extends CRMEntity
                         }
 						$valuearray = explode(",",trim($value));
 						$datatype = (isset($selectedfields[4])) ? $selectedfields[4] : "";
-						if(isset($valuearray) && count($valuearray) > 1 && $comparator != 'bw') {
+						if(isset($valuearray) && count($valuearray) > 1 && $comparator != 'bw' && $comparator != 'y' && $comparator != 'ny') {
 
 							$advcolumnsql = "";
 							for($n=0;$n<count($valuearray);$n++) {
