@@ -246,8 +246,12 @@
 			$ownerFields = $meta->getOwnerFields();
 			foreach($ownerFields as $index=>$field){
 				if(isset($row[$field]) && $row[$field]!=null){
-					$ownerType = vtws_getOwnerType($row[$field]);
-					$webserviceObject = VtigerWebserviceObject::fromName($adb,$ownerType);
+					try {
+						$ownerType = vtws_getOwnerType($row[$field]);
+						$webserviceObject = VtigerWebserviceObject::fromName($adb,$ownerType);
+					} catch (Exception $e) {
+						throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, "Error while trying to determine owner: Data-ID -> {$row['id']}, '$field' -> '{$row[$field]}'");
+					}
 					$row[$field] = vtws_getId($webserviceObject->getEntityId(),$row[$field]);
 				}
 			}
