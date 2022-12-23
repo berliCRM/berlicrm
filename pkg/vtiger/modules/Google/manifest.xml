@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <module>
-<exporttime>2018-03-22 09:12:36</exporttime>
+<exporttime>2022-12-23 09:12:36</exporttime>
 <name>Google</name>
 <label>Google</label>
 <parent></parent>
 <type>extension</type>
-<version>1.6</version>
+<version>1.7</version>
 <dependencies>
 <vtiger_version>6.0.0rc</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>
