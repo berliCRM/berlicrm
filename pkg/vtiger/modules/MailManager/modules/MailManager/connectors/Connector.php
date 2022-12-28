@@ -119,6 +119,9 @@ class MailManager_Connector_Connector {
 	 */
 	public function isError() {
 		$errors = imap_errors();
+		if (is_array($errors) && count($errors) == 1 && $errors[0] == 'SECURITY PROBLEM: insecure server advertised AUTH=PLAIN') {
+			$errors = false;
+		}
 		if($errors !== false) {
 			$this->mError = implode(', ',$errors);
 		} else {
