@@ -951,7 +951,9 @@ class CRMEntity {
 
 			$result = $adb->pquery($sql, $params);
 
-			if (!$result || $adb->num_rows($result) < 1) {
+			if (!$result) {
+				throw new Exception('Query Error: '.$adb->database->errorMsg(), -1);
+			} elseif ($adb->num_rows($result) < 1) {
 				throw new Exception($app_strings['LBL_RECORD_NOT_FOUND'], -1);
 			} else {
 				$resultrow = $adb->query_result_rowdata($result);
