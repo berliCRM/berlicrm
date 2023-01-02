@@ -15,8 +15,36 @@ class Settings_LayoutEditor_Block_Action extends Settings_Vtiger_Index_Action {
         $this->exposeMethod('save');
         $this->exposeMethod('updateSequenceNumber');
         $this->exposeMethod('delete');
+        $this->exposeMethod('rename');
     }
-    
+   
+    public function rename(Vtiger_Request $request) {
+		global $adb;
+        $blockId = $request->get('blockid');
+		$label = $request->get('label');
+		
+		$q = "SELECT tabid FROM vtiger_blocks WHERE blockid = ?";
+		$res = $adb->pquery($q,array($blockId));
+		$tabid = $adb->query_result($res, 'tabid', 0);
+		
+		$q = "SELECT tabid FROM vtiger_blocks WHERE tabid = ? AND blocklabel = ?";
+		$res = $adb->pquery($q,array($tabid, $label));
+		
+		if ($adb->num_rows($res)>0) {
+			$response = new Vtiger_Response();
+			$response->setError('JS_BLOCK_NAME_EXISTS');
+			$response->emit();
+			return;
+		}
+		
+		$q = "UPDATE vtiger_blocks SET blocklabel = ? WHERE blockid = ?";
+		$adb->pquery($q,array($label,$blockId));
+		
+		$response = new Vtiger_Response();
+		$response->setResult(array('id'=>$blockId,'label'=>$label));
+		$response->emit();
+	}
+		
     public function save(Vtiger_Request $request) {
         $blockId = $request->get('blockid');
         $sourceModule = $request->get('sourceModule');

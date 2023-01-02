@@ -90,6 +90,9 @@
                                                                 <a href="javascript:void(0)">{vtranslate('LBL_DELETE_BLOCK', $QUALIFIED_MODULE)}</a>
                                                             </li>
                                                         {/if}
+								                        <li class="renameBlock">
+															<a href="javascript:void(0)">{vtranslate('LBL_RENAME_BLOCK', $QUALIFIED_MODULE)}</a>
+														</li>
                                                     </ul>
                                                 </div>
                                             {/if}
@@ -120,12 +123,46 @@
                                                                     <a href="javascript:void(0)" class="dropdown-toggle editFieldDetails" data-toggle="dropdown">
                                                                         <i class="icon-pencil alignMiddle" title="{vtranslate('LBL_EDIT', $QUALIFIED_MODULE)}"></i>
                                                                     </a>
-                                                                    <div class="basicFieldOperations pull-right hide" style="width : 250px;">
+                                                                    <div class="basicFieldOperations pull-right hide" style="width: 290px;">
                                                                         <form class="form-horizontal fieldDetailsForm" method="POST">
                                                                             <div class="modal-header contentsBackground">
                                                                                 <strong>{vtranslate($FIELD_MODEL->get('label'), $SELECTED_MODULE_NAME)}</strong>
                                                                                 <div class="pull-right"><a href="javascript:void(0)" class='cancel'>X</a></div>
                                                                             </div>
+																			
+																			<div style="margin:5px;padding:5px;">
+																				{assign var=uilbl value=$FIELD_MODEL->uitype}
+																				{assign var=datatype value=explode("~",$FIELD_MODEL->typeofdata)}
+																				{assign var=sqltype value=$SQLTYPES[$FIELD_MODEL->getName()]}
+																				{vtranslate("LBL_UITYPE",$QUALIFIED_MODULE)} {vtranslate("LBL_UI$uilbl",$QUALIFIED_MODULE)} <br>
+																				{if $FIELD_MODEL->displaytype == 2}
+																					{vtranslate("LBL_NOEDITVIEW",$QUALIFIED_MODULE)}
+																					<br>
+																				{/if}
+
+																				{if !in_array($uilbl,array(10,51,53,56,57,59,73,75,76,77,78,80,81,83,117))}
+																					{if substr($sqltype,0,7) == "varchar"}
+																						{assign var=maxchars value=substr($sqltype,8,-1)}
+																						{vtranslate('LBL_MAXLEN',$QUALIFIED_MODULE)}: {$maxchars} {vtranslate('LBL_CHARS',$QUALIFIED_MODULE)}
+																					{elseif $sqltype == "text"}
+																						{vtranslate('LBL_MAXLEN',$QUALIFIED_MODULE)}: 64kB
+																					{elseif $sqltype == "mediumtext"}
+																						{vtranslate('LBL_MAXLEN',$QUALIFIED_MODULE)}: 16MB
+																					{/if}
+																					{if $datatype[0] == "N" || $datatype[0] == "I" || $datatype[0] == "NN"}
+																						{if substr($sqltype,0,7) == "decimal"}
+																							{assign var=digits value=explode(",",substr($sqltype,8,-1))}
+																							
+																							{vtranslate("LBL_NUMFLOAT",$QUALIFIED_MODULE)} {$digits[0]} {vtranslate("LBL_NUMDIGITS",$QUALIFIED_MODULE)} {$digits[1]} {vtranslate("LBL_NUMDECIMALS",$QUALIFIED_MODULE)}
+																						{elseif substr($sqltype,0,6) == "bigint"}
+																							{vtranslate("LBL_NUMBIGINT",$QUALIFIED_MODULE)}
+																						{else}
+																							{vtranslate("LBL_NUMINT",$QUALIFIED_MODULE)}
+																						{/if}
+																					{/if}
+																				{/if}
+																			</div>
+																			
                                                                             <div style="padding-bottom: 5px;">
                                                                                 <span>
                                                                                     <input type="hidden" name="mandatory" value="O" />
@@ -246,6 +283,18 @@
 													<textarea class="input-medium" {if !$FIELD_MODEL->hasHelpinfo()} disabled="" {/if}  name="helptextValue" value="{$FIELD_MODEL->get('helpinfo')}">{$FIELD_MODEL->get('helpinfo')}</textarea>
 												</div>
 											</span>
+											
+											<span>
+												<input type="hidden" name="changelabel" value="" />
+												<label class="checkbox" style="padding-left: 25px; padding-top: 5px;">
+													<input type="checkbox" name="changelabel" />&nbsp;
+													Label ändern
+												</label>
+												<div class="padding1per newlabelUI zeroOpacity display:none">
+													<input type="text" maxlength="50" name="newlabelValue" value="">
+												</div>
+											</span>
+											
 											</div>
                                         <div class="modal-footer" style="padding: 0px;">
                                             <span class="pull-right">
@@ -298,12 +347,46 @@
                                     <a href="javascript:void(0)" class="dropdown-toggle editFieldDetails" data-toggle="dropdown">
                                         <i class="icon-pencil alignMiddle" title="{vtranslate('LBL_EDIT', $QUALIFIED_MODULE)}"></i>
                                     </a>
-                                    <div class="basicFieldOperations pull-right hide" style="width : 250px;">
+                                    <div class="basicFieldOperations pull-right hide" style="width : 290px;">
                                         <form class="form-horizontal fieldDetailsForm" method="POST">
                                             <div class="modal-header contentsBackground">
                                                 <strong>{vtranslate($FIELD_MODEL->get('label'), $SELECTED_MODULE_NAME)}</strong>
                                                 <div class="pull-right"><a href="javascript:void(0)" class="cancel">X</a></div>
                                             </div>
+					
+												<div style="margin:5px;padding:5px;">
+													{assign var=uilbl value=$FIELD_MODEL->uitype}
+													{assign var=datatype value=explode("~",$FIELD_MODEL->typeofdata)}
+													{assign var=sqltype value=$SQLTYPES[$FIELD_MODEL->getName()]}
+													{vtranslate("LBL_UITYPE",$QUALIFIED_MODULE)} {vtranslate("LBL_UI$uilbl",$QUALIFIED_MODULE)} <br>
+													{if $FIELD_MODEL->displaytype == 2}
+														{vtranslate("LBL_NOEDITVIEW",$QUALIFIED_MODULE)}
+														<br>
+													{/if}
+
+													{if !in_array($uilbl,array(10,51,53,56,57,59,73,75,76,77,78,80,81,83,117))}
+														{if substr($sqltype,0,7) == "varchar"}
+															{assign var=maxchars value=substr($sqltype,8,-1)}
+															{vtranslate('LBL_MAXLEN',$QUALIFIED_MODULE)}: {$maxchars} {vtranslate('LBL_CHARS',$QUALIFIED_MODULE)}
+														{elseif $sqltype == "text"}
+															{vtranslate('LBL_MAXLEN',$QUALIFIED_MODULE)}: 64kB
+														{elseif $sqltype == "mediumtext"}
+															{vtranslate('LBL_MAXLEN',$QUALIFIED_MODULE)}: 16MB
+														{/if}
+														{if $datatype[0] == "N" || $datatype[0] == "I" || $datatype[0] == "NN"}
+															{if substr($sqltype,0,7) == "decimal"}
+																{assign var=digits value=explode(",",substr($sqltype,8,-1))}
+																
+																{vtranslate("LBL_NUMFLOAT",$QUALIFIED_MODULE)} {$digits[0]} {vtranslate("LBL_NUMDIGITS",$QUALIFIED_MODULE)} {$digits[1]} {vtranslate("LBL_NUMDECIMALS",$QUALIFIED_MODULE)}
+															{elseif substr($sqltype,0,6) == "bigint"}
+																{vtranslate("LBL_NUMBIGINT",$QUALIFIED_MODULE)}
+															{else}
+																{vtranslate("LBL_NUMINT",$QUALIFIED_MODULE)}
+															{/if}
+														{/if}
+													{/if}
+												</div>
+																			
                                             <div style="padding-bottom: 5px;">
                                                 <span>
                                                     <input type="hidden" name="mandatory" value="O" /><label class="checkbox" style="padding-left: 25px; padding-top: 5px;">
@@ -418,6 +501,18 @@
 					<textarea class="input-medium" {if !$FIELD_MODEL->hasHelpinfo()} disabled="" {/if}  name="helptextValue" value="{$FIELD_MODEL->get('helpinfo')}">{$FIELD_MODEL->get('helpinfo')}</textarea>
 				</div>
 			</span>
+			
+			<span>
+				<input type="hidden" name="changelabel" value="" />
+				<label class="checkbox" style="padding-left: 25px; padding-top: 5px;">
+					<input type="checkbox" name="changelabel" />&nbsp;
+					Label ändern
+				</label>
+				<div class="padding1per newlabelUI zeroOpacity display:none">
+					<input type="text" maxlength="50" name="newlabelValue" value="">
+				</div>
+			</span>
+			
         </div>
         <div class="modal-footer" style="padding: 0px;">
             <span class="pull-right">
@@ -477,6 +572,9 @@
                         </li>
                         <li class="deleteCustomBlock">
                             <a href="javascript:void(0)">{vtranslate('LBL_DELETE_BLOCK', $QUALIFIED_MODULE)}</a>
+                        </li>
+                        <li class="renameBlock">
+                            <a href="javascript:void(0)">{vtranslate('LBL_RENAME_BLOCK', $QUALIFIED_MODULE)}</a>
                         </li>
                     </ul>
                 </div>
@@ -573,6 +671,28 @@
         </div>
     </div>
 </li>
+
+<div class="modal renameBlockModal hide">
+    <div class="modal-header contentsBackground">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>{vtranslate('LBL_RENAME_BLOCK', $QUALIFIED_MODULE)}</h3>
+    </div>
+	<form class="form-horizontal renameBlockForm" method="POST">
+        <div class="modal-body">
+            <div class="control-group">
+                <span class="control-label">
+                    <span class="redColor">*</span>
+                    <span>{vtranslate('LBL_BLOCK_NAME', $QUALIFIED_MODULE)}</span>
+                </span>
+                <div class="controls">
+				<input type="hidden" name="blockid" value="">
+                    <input id='blockname' type="text" name="label" class="span3" data-validation-engine="validate[required]" />
+                </div>
+            </div>
+        </div>
+		{include file='ModalFooter.tpl'|@vtemplate_path:'Vtiger'}
+    </form>
+</div>
 
 <div class="modal addBlockModal hide">
     <div class="modal-header contentsBackground">
