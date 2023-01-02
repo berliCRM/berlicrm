@@ -38,6 +38,7 @@ class Settings_LayoutEditor_Field_Action extends Settings_Vtiger_Index_Action {
     }
 
     public function save(Vtiger_Request $request) {
+		global $adb;
         $fieldId = $request->get('fieldid');
         $fieldInstance = Vtiger_Field_Model::getInstance($fieldId);
         $fieldInstance->updateTypeofDataFromMandatory($request->get('mandatory'))
@@ -45,6 +46,40 @@ class Settings_LayoutEditor_Field_Action extends Settings_Vtiger_Index_Action {
                       ->set('quickcreate', $request->get('quickcreate'))
 					  ->set('summaryfield', $request->get('summaryfield'))
                       ->set('masseditable', $request->get('masseditable'));
+	
+		if ($request->get("changelabel") && $request->get("newlabelValue") != '') {
+		
+			if (strlen($request->get("newlabelValue"))>32) {
+				$response = new Vtiger_Response();
+				$response->setError('JS_LENGTHEXCEEDED');
+				$response->emit();
+				return;
+			}
+			$q = "SELECT tabid FROM vtiger_field WHERE fieldid = ?";
+			$res = $adb->pquery($q,array($fieldId));
+			$tabid = $adb->query_result($res, 'tabid', 0);
+		
+			$q = "SELECT fieldid FROM vtiger_field WHERE tabid = ? AND fieldlabel = ?";
+			$res = $adb->pquery($q,array($tabid, $request->get("newlabelValue")));
+			if ($adb->num_rows($res)>0) {
+				$response = new Vtiger_Response();
+				$response->setError('JS_DUPLICATE_LABEL');
+				$response->emit();
+				return;
+			}
+			else {
+				$q = "UPDATE vtiger_field SET fieldlabel = ? WHERE fieldid = ?";
+				$adb->pquery($q,array($request->get("newlabelValue"),$fieldId));
+				$newlabel = $request->get("newlabelValue");
+				$response = new Vtiger_Response();
+				$response->setResult(array('success'=>true, 'newlabel' => $newlabel));
+				$response->emit();
+				return;
+			}
+
+	
+		}
+				  
 		$defaultValue = $request->get('fieldDefaultValue');
 		if($fieldInstance->getFieldDataType() == 'date') {
 			$dateInstance = new Vtiger_Date_UIType();

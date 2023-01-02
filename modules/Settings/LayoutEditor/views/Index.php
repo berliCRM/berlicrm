@@ -27,6 +27,7 @@ class Settings_LayoutEditor_Index_View extends Settings_Vtiger_Index_View {
 	}
 
 	public function showFieldLayout(Vtiger_Request $request) {
+		global $adb;
 		$sourceModule = $request->get('sourceModule');
 		$supportedModulesList = Settings_LayoutEditor_Module_Model::getSupportedModules();
 
@@ -37,7 +38,7 @@ class Settings_LayoutEditor_Index_View extends Settings_Vtiger_Index_View {
 		$moduleModel = Settings_LayoutEditor_Module_Model::getInstanceByName($sourceModule);
 		$fieldModels = $moduleModel->getFields();
 		$blockModels = $moduleModel->getBlocks();
-
+		$sqltypes=array();
 
 		$blockIdFieldMap = array();
 		$inactiveFields = array();
@@ -45,6 +46,13 @@ class Settings_LayoutEditor_Index_View extends Settings_Vtiger_Index_View {
 			$blockIdFieldMap[$fieldModel->getBlockId()][$fieldModel->getName()] = $fieldModel;
 			if(!$fieldModel->isActiveField()) {
 				$inactiveFields[$fieldModel->getBlockId()][$fieldModel->getId()] = vtranslate($fieldModel->get('label'), $sourceModule);
+			}
+			
+			if ($fieldModel->column!="") {
+				$q = "SHOW fields FROM {$fieldModel->table} WHERE field = '{$fieldModel->column}'";
+				$res = $adb->query($q);
+				$row = $adb->fetchByAssoc($res,-1,false);
+				$sqltypes[$fieldModel->getName()] = $row["type"];
 			}
 		}
 
@@ -56,6 +64,7 @@ class Settings_LayoutEditor_Index_View extends Settings_Vtiger_Index_View {
 		$qualifiedModule = $request->getModule(false);
 
 		$viewer = $this->getViewer($request);
+		$viewer->assign('SQLTYPES', $sqltypes);
 		$viewer->assign('SELECTED_MODULE_NAME', $sourceModule);
 		$viewer->assign('SUPPORTED_MODULES',$supportedModulesList);
 		$viewer->assign('SELECTED_MODULE_MODEL', $moduleModel);

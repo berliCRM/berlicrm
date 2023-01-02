@@ -811,6 +811,36 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 		return aDeferred.promise();
 	},
 
+	renameBlock : function(form) {
+		var thisInstance = this;
+		var aDeferred = jQuery.Deferred();
+		var progressIndicatorElement = jQuery.progressIndicator({
+			'position' : 'html',
+			'blockInfo' : {
+				'enabled' : true
+			}
+		});
+		var params = form.serializeFormData();
+		
+		params['module'] = app.getModuleName();
+		params['parent'] = app.getParentModuleName();
+		params['sourceModule'] = jQuery('#selectedModuleName').val();
+		params['action'] = 'Block';
+		params['mode'] = 'rename';
+
+		AppConnector.request(params).then(
+			function(data) {
+				progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+				aDeferred.resolve(data);
+			},
+			function(error) {
+				progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+				aDeferred.reject(error);
+			}
+		);
+		return aDeferred.promise();;
+	},
+
 	/**
 	 * Function used to display the new custom block ui after save
 	 */
@@ -1269,14 +1299,29 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 
 		AppConnector.request(params).then(
 			function(data) {
-				progressIndicatorElement.progressIndicator({'mode' : 'hide'});
-				var params = {};
-				params['text'] = app.vtranslate('JS_FIELD_DETAILS_SAVED');
-				Settings_Vtiger_Index_Js.showMessage(params);
-                                if(defaultValueField.prop("tagName") == 'TEXTAREA') {
-                                        defaultValueField.text(defaultValue);
-                                }
-				aDeferred.resolve(data);
+				if (data.success == false) {
+					var params = {};
+					params['text'] = app.vtranslate('JS_DUPLICATE_LABEL');
+					Settings_Vtiger_Index_Js.showMessage(params);
+					progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+					aDeferred.reject();
+				}
+				else {
+					if (data.newlabel !="") {
+						// reload if label has changed
+						location.reload(); 
+					}
+					else {
+						progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+						var params = {};
+						params['text'] = app.vtranslate('JS_FIELD_DETAILS_SAVED');
+						Settings_Vtiger_Index_Js.showMessage(params);
+										if(defaultValueField.prop("tagName") == 'TEXTAREA') {
+												defaultValueField.text(defaultValue);
+										}
+						aDeferred.resolve(data);
+					}
+				}
 			},
 			function(error) {
 				progressIndicatorElement.progressIndicator({'mode' : 'hide'});
@@ -1328,6 +1373,20 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 			}
 		})
 
+		contents.on('change', '[name="changelabel"]', function(e) {
+			var currentTarget = jQuery(e.currentTarget);
+			var newlabelUI=currentTarget.closest('span').find('.newlabelUI');
+			if(currentTarget.is(':checked')) {
+				newlabelUI.removeClass('zeroOpacity');
+				// newlabelUI.show();
+				// newlabelUI.removeAttr('disabled');
+			}
+			else {
+				newlabelUI.addClass('zeroOpacity');
+				// newlabelUI.hide();
+
+			}
+		})
 	},
 
 	/**
@@ -1533,6 +1592,72 @@ jQuery.Class('Settings_LayoutEditor_Js', {
             })
 		});
 	},
+    registerRenameBlockEvent : function() {
+		var thisInstance = this;
+		var contents = jQuery('#layoutEditorContainer').find('.contents');
+		var table = contents.find('.editFieldsTable');
+		contents.on('click', 'li.renameBlock', function(e) {
+
+			var currentTarget = jQuery(e.currentTarget);
+			var table = currentTarget.closest('div.editFieldsTable');
+			var blockId = table.data('blockId');
+			
+			contents.find('.renameBlockModal input[name=blockid]').val(blockId);
+			
+			var renameBlockContainer = contents.find('.renameBlockModal').clone(true, true);
+
+			var callBackFunction = function(data) {
+				
+				data.find('.renameBlockModal').removeClass('hide');
+
+				var form = data.find('.renameBlockForm');
+				thisInstance.setBlocksListArray(form);
+				var fieldLabel = form.find('[name="label"]');
+				
+				var params = app.validationEngineOptions;
+				params.onValidationComplete = function(form, valid){
+
+					if(valid) {
+						var formData = form.serializeFormData();
+						if(jQuery.inArray(formData['label'], thisInstance.blockNamesList) == -1) {
+							thisInstance.renameBlock(form).then(
+								function(data) {
+									var params = {};
+									if(data['success']) {
+										alert (app.vtranslate('JS_BLOCKRENAMED') + data['result']['label']);
+										location.reload();
+
+									} else {
+										params['text'] = data['error']['message'];
+										params['type'] = 'error';
+									}
+									Settings_Vtiger_Index_Js.showMessage(params);
+								}
+							);
+							app.hideModalWindow();
+							return valid;
+						} else {
+							var result = app.vtranslate('JS_BLOCK_NAME_EXISTS');
+							fieldLabel.validationEngine('showPrompt', result , 'error','topLeft',true);
+							e.preventDefault();
+							return;
+						}
+					}
+				}
+				form.validationEngine(params);
+
+				form.submit(function(e) {
+					e.preventDefault();
+				})
+			}
+
+			app.showModalWindow(renameBlockContainer,function(data) {
+				if(typeof callBackFunction == 'function') {
+					callBackFunction(data);
+				}
+			}, {'width':'1000px'});
+		});
+	},
 
 	/**
 	 * Function to register all the events for blocks
@@ -1544,6 +1669,7 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 		thisInstance.registerBlockVisibilityEvent();
 		thisInstance.registerInactiveFieldsEvent();
 		thisInstance.registerDeleteCustomBlockEvent();
+		thisInstance.registerRenameBlockEvent();
 	},
 
 	/**
