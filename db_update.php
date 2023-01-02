@@ -530,6 +530,25 @@ foreach($moduleFolders as $moduleFolder) {
 }
 echo '<br>module update Pdfsettings done <br>';
 
+echo "<br>set relation in Vendors to Services (to add related list into Vendors), increase vtiger_relatedlists_seq number.<br>";
+$query = "INSERT INTO vtiger_relatedlists (relation_id, tabid, related_tabid, name, sequence, label, presence, actions)
+VALUES ( 
+((SELECT max(id) FROM vtiger_relatedlists_seq)+1), 
+(SELECT tabid FROM vtiger_tab WHERE name = 'Vendors'), 
+(SELECT tabid FROM vtiger_tab WHERE name = 'Services'), 
+'get_services',
+7,
+'Services',
+0,
+'SELECT');";
+$adb->pquery($query, array());
+
+$query = "UPDATE vtiger_relatedlists_seq
+SET id = ((SELECT max(relation_id) FROM vtiger_relatedlists)) 
+WHERE id = ((SELECT max(relation_id) FROM vtiger_relatedlists)-1);";
+$adb->pquery($query, array());
+echo "DB relation and increase done.<br>";
+
 
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
 $adb->pquery($query, array($current_release_tag));
