@@ -39,95 +39,104 @@ class berlimap_ListAjax_Action extends Vtiger_BasicAjax_Action {
 		$targetModule = $request->get('targetModule');
 		
 		$queryGenerator = new QueryGenerator($targetModule, $current_user);
-		$fields = $queryGenerator->getModuleFields();
+		$queryGenerator-> initForCustomViewById($viewId);
+
 		if ($targetModule=='Accounts') {
-			$queryGenerator->setFields(array('accountname', 'bill_city', 'bill_code','bill_state','bill_country','bill_street','accountid'));
+			$fieldsToSet = array('city' => 'bill_city',
+								 'zip' => 'bill_code',
+								 'state' => 'bill_state',
+								 'country' => 'bill_country',
+								 'street' => 'bill_street',
+								 'id' => 'accountid',
+								 'name1' => 'accountname'
+						   );
 		}
 		elseif ($targetModule=='Contacts') {
-			$queryGenerator->setFields(array('lastname','firstname', 'mailingcity', 'mailingstate','mailingzip','mailingcountry','mailingstreet','contactid','accountid'));
+			$fieldsToSet = array('city' => 'mailingcity',
+								 'zip' => 'mailingzip',
+								 'state' => 'mailingstate',
+								 'country' => 'mailingcountry',
+								 'street' => 'mailingstreet', 
+								 'id' => 'contactid', 
+								 'name1' => 'lastname',
+								 'name2' => 'firstname'
+						   );
 		}
 		elseif ($targetModule=='Leads'){
-			$queryGenerator->setFields(array('lastname','firstname',  'city', 'code','state','country','lane','leadid'));
+			$fieldsToSet = array('city' => 'city',
+								 'zip' => 'code',
+								 'state' => 'state', 
+								 'country' => 'country',
+								 'street' => 'lane',
+								 'id' => 'leadid',
+								 'name1' => 'lastname',
+								 'name2' => 'firstname'
+						   );
 		}
+		$queryGenerator->setFields(array_merge(array('id'), $fieldsToSet));
+		$query = $queryGenerator->getQuery();
 
-		$GeoCoder = new GeoCoder();
-		$query = $queryGenerator->getCustomViewQueryById($viewId);
 		$queryResult = $db->pquery($query, array());
 		$locations = array();
 		$limitwarning = 0;
-		$response = new Vtiger_Response();
 		
-		while($record = $db->fetchByAssoc($queryResult)){
+		$GeoCoder = new GeoCoder();
+		$locations = array();
+		
+		$targetModuleModel = Vtiger_Module_Model::getInstance($targetModule);
+		
+		while($record = $db->getNextRow($queryResult, false)) {
 			set_time_limit(0);
-			if ($targetModule=='Accounts') {
-				$records[$record['accountid']]= array('street' => decode_html($record['bill_street']),'city' => decode_html($record['bill_city']),'code' => $record['bill_code'],'state' => decode_html($record['bill_state']),'country' => decode_html($record['bill_country']),'name' => decode_html($record['accountname']),'targetModule' => $targetModule);
-				$geodata = $GeoCoder->getGeoCode($record['accountid'],$records[$record['accountid']]['state'],$records[$record['accountid']]['city'],$records[$record['accountid']]['code'],$records[$record['accountid']]['street'],$records[$record['accountid']]['country']);
-				if ($geodata =='JS_OVER_24H_LIMIT') {
-					$limitwarning = $limitwarning+1;
-					continue;
+			
+			//city, code, state, country, street, id, name, latitude,longitude
+			$city = $record[$fieldsToSet['city']];
+			$code = $record[$fieldsToSet['zip']];
+			$state = $record[$fieldsToSet['state']];
+			$country = $record[$fieldsToSet['country']];
+			$street = $record[$fieldsToSet['street']];
+			$id = $record[$fieldsToSet['id']];
+			
+			$name = $record[$fieldsToSet['name1']];
+			if (isset($fieldsToSet['name2'])) {
+				$name = trim($record[$fieldsToSet['name2']].' '.$name);
+			}
+			$lat = '';
+			$lng = '';
+			if (isset($fieldsToSet['latitude'])) {
+				$lat = $record[$fieldsToSet['latitude']];
+				$lng = $record[$fieldsToSet['longitude']];
+			}
+			
+			if (!empty($lat) && !empty($lng)) {
+				$geodata = new GeoCode($lat,$lng);
+			}
+			else {
+				if ($targetModule != 'Locations') {
+					$geodata = $GeoCoder->getGeoCode($id, $state, $city, $code, $street, $country);
 				}
-				elseif (empty ($geodata)) {
-					continue;
+				else{
+					$geodata = array();
 				}
-				else {
-					$locations[$record['accountid']] = $geodata;
-				}
-				$locations[$record['accountid']]->targetModule=$targetModule;
-				$locations[$record['accountid']]->name=$record['accountname'];
-				$locations[$record['accountid']]->targetURL = $this->getDetailViewURL($record['accountid'], $targetModule);
-			}	
-			elseif ($targetModule=='Contacts') {
-				$records[$record['contactid']]= array('street' => decode_html($record['mailingstreet']),'city' => decode_html($record['mailingcity']),'code' => $record['mailingzip'],'state' => decode_html($record['mailingstate']),'country' => decode_html($record['mailingcountry']),'name' => decode_html($record['firstname'].' '.$record['lastname']),'targetModule' => $targetModule);
-				$geodata = $GeoCoder->getGeoCode($record['contactid'],$records[$record['contactid']]['state'],$records[$record['contactid']]['city'],$records[$record['contactid']]['code'],$records[$record['contactid']]['street'],$records[$record['contactid']]['country']);
-				if ($geodata =='JS_OVER_24H_LIMIT') {
-					$limitwarning = $limitwarning+1;
-					continue;
-				}
-				elseif (empty ($geodata)) {
-					continue;
-				}
-				else {
-					$locations[$record['contactid']] = $geodata;
-				}
-				$locations[$record['contactid']]->targetModule=$targetModule;
-				if (!empty ($record['accountid'])) {
-					$locations[$record['contactid']]->name = $records[$record['contactid']]['name'].' - '.getAccountName($record['accountid']);
-				}
-				else {
-					$locations[$record['contactid']]->name = $records[$record['contactid']]['name'];
-				}
-				$locations[$record['contactid']]->targetURL = $this->getDetailViewURL($record['contactid'], $targetModule);
-			}	
-			elseif ($targetModule=='Leads') {
-				$records[$record['leadid']]= array('street' => decode_html($record['lane']),'city' => decode_html($record['city']),'code' => $record['code'],'state' => decode_html($record['state']),'country' => decode_html($record['country']),'name' => decode_html($record['firstname'].' '.$record['lastname']),'targetModule' => $targetModule);
-				
-				$geodata = $GeoCoder->getGeoCode($record['leadid'],$records[$record['leadid']]['state'],$records[$record['leadid']]['city'],$records[$record['leadid']]['code'],$records[$record['leadid']]['street'],$records[$record['leadid']]['country']);
-				if ($geodata =='JS_OVER_24H_LIMIT') {
-					$limitwarning = $limitwarning+1;
-					continue;
-				}
-				elseif (empty ($geodata)) {
-					continue;
-				}
-				else {
-					$locations[$record['leadid']] = $geodata;
-				}
-				$locations[$record['leadid']]->targetModule=$targetModule;
-				$locations[$record['leadid']]->name=$records[$record['leadid']]['name'];
-				$locations[$record['leadid']]->targetURL = $this->getDetailViewURL($record['leadid'], $targetModule);
-			}	
+			}
+			if ($geodata == 'JS_OVER_24H_LIMIT') {
+				$limitwarning = $limitwarning+1;
+				continue;
+			}
+			elseif (empty($geodata)) {
+				continue;
+			}
+			else {
+				$locations[$id] = $geodata;
+				$locations[$id]->targetModule = $targetModule;
+				$locations[$id]->name = $name;
+				$locations[$id]->targetURL =  $targetModuleModel->getDetailViewUrl($id);
+			}
 		}
 
 		$results = array ('locations'=>$locations, 'limitwarning'=>$limitwarning);
+		$response = new Vtiger_Response();
 		$response->setResult($results);
 		$response->emit();
-	}
-	
-	
-	public function getDetailViewURL ($recordId, $moduleName) {
-		$recordModel = Vtiger_Record_Model::getInstanceById($recordId, $moduleName);
-		$url = $recordModel->getDetailViewUrl();
-		return $url;
 	}
 	
 	/*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/

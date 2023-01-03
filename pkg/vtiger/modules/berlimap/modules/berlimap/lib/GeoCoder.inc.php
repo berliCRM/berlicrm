@@ -133,6 +133,9 @@ class GeoCoder {
 		$log->debug("retrieveGeoDataOnline for: recordid->".$id." city->".$city." zip->".$postalCode." street->".$street." state->".$state." country->".$country."");
 		//get Google key
 		$GoogleGeoApiKey = Settings_Google_Module_Model::getGoogleGeoApikey();
+		if (empty($GoogleGeoApiKey)) {
+			return false;
+		}
 		$log->debug("used GoogleGeoApiKey in retrieveGeoDataOnline: ".$GoogleGeoApiKey);
 		// Initialize delay in geocode speed
 		$delay = 500000;
