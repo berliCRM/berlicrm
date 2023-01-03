@@ -800,7 +800,6 @@ $languageStrings = array(
 	
     //Copy CustomView
     'LBL_SAVE_AS_COPY'=>'Save as New View',
-    'LBL_COPY_APPENDIX'=>'(copy)',
     'LBL_OTHER_USER_ASSIGN'=>'copy for other user',
     'LBL_SELECTOTHER'=>'select other user',
     
@@ -1097,5 +1096,8 @@ $jsLanguageStrings = array(
 	//To delete all or only one Appointment from calendar inquiry
 	'JS_ALL'=>'All',
 	'JS_ONLY_THIS'=>'Only this',
+	
+    //Copy in CustomView
+    'JS_COPY_APPENDIX'=>' (copy)',
 
 );

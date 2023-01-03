@@ -40,37 +40,9 @@
                     <label class="checkbox"><input id="status" name="status" type="checkbox" {if $CUSTOMVIEW_MODEL->isSetPublic()} value="{$CUSTOMVIEW_MODEL->get('status')}" checked="checked" {else} value="{$CV_PENDING_VALUE}" {/if}>{vtranslate('LBL_SET_AS_PUBLIC',$MODULE)}</label>
                     {* crm-now: optional filter copy *}
                     {if $RECORD_ID}
-                        &nbsp;&nbsp;&nbsp;<label class="checkbox"><input id='copy' name='copy' type='checkbox' onChange='toggleCopy(this.checked);'> {vtranslate('LBL_SAVE_AS_COPY')}</label>
-                        <script type="text/javascript">
-                        var record = {$RECORD_ID};
-                        var filtername = "{$CUSTOMVIEW_MODEL->getCustomViewName()}";
-                        var namechanged = false;
-                        var nameappendix = " {vtranslate('LBL_COPY_APPENDIX')}";
-                        {literal}
-                        function toggleCopy(x) {
-                            if (x) {
-                                jQuery("#record").val(""); 
-                                if (jQuery("#viewname").val() == filtername) {
-                                    jQuery("#viewname").val(function() {
-										return this.value + nameappendix;
-									});
-                                    namechanged = true;
-                                }
-                            }
-                            else {
-                                jQuery("#record").val(record);
-                                if (namechanged) {
-                                    jQuery("#viewname").val(function() {
-										return this.value.replace(nameappendix,"");
-									});
-                                    namechanged = false;
-                                }
-                            }
-                        }
-                        {/literal}
-                        </script>
+                        &nbsp;&nbsp;&nbsp;<label class="checkbox"><input id='copy' name='copy' type='checkbox' > {vtranslate('LBL_SAVE_AS_COPY')}</label>
                     {/if}
-                    &nbsp;&nbsp;&nbsp;<select data-placeholder="{vtranslate('LBL_SELECTOTHER',$MODULE)}"  class="chosen-selecttag"  id="viewUsersSelect" name="viewUsersSelect" style="width:250px;display:none;">
+                   &nbsp;&nbsp;&nbsp;<select data-placeholder="{vtranslate('LBL_SELECTOTHER',$MODULE)}"  class="chosen-selecttag"  id="viewUsersSelect" name="viewUsersSelect" style="width:250px;display:none;">
  						<option value="0"></option>
 						{assign var=USERS_LIST value=$CUSTOMVIEW_MODEL->getCustomViewUsersList()}
 						{foreach item=USERS_NAME key=USERS_ID from=$USERS_LIST}
