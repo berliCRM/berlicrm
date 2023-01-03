@@ -1207,7 +1207,14 @@ if (typeof(MailManager) == 'undefined') {
 			var crmid = jQuery('#_mailopen_fromcrmid').html();
 			from = all ? (from+","+toMails) : from;
 			var replySubject = (subject.toUpperCase().indexOf('RE:') == 0) ? subject : 'Re: ' + subject;
-			var replyBody = MailManager.sprintf('<p></p><p style="margin:0;padding:0;">%s, %s, %s:</p><blockquote style="border:0;margin:0;border-left:1px solid gray;padding:0 0 0 2px;">%s</blockquote><br />', 'On ' + date, from, 'wrote', body);
+
+			// Beim "Antworten" auch signaturetext dazu.
+			let signaturetextElement = document.getElementsByName("signaturetext");
+			let signaturetext = '';
+			if (typeof signaturetextElement !== 'undefined' && typeof signaturetextElement[0] !== 'undefined' && signaturetextElement[0].value !== 'undefined' ) {
+				signaturetext = (signaturetextElement[0].value);
+			}
+			var replyBody = MailManager.sprintf('<p></p><p style="margin:0;padding:0;">%s, %s, %s:</p><blockquote style="border:0;margin:0;border-left:1px solid gray;padding:0 0 0 2px;">%s</blockquote><br />%s', 'On ' + date, from, 'wrote', body, signaturetext);
 
 			function fillComposeEmailForm(win) {
 				var formValues = {
@@ -1303,7 +1310,14 @@ if (typeof(MailManager) == 'undefined') {
 			fwdMsgMetaInfo += '<br/>';
 
 			var fwdSubject = (subject.toUpperCase().indexOf('FWD:') == 0) ? subject : 'Fwd: ' + subject;
-			var fwdBody = MailManager.sprintf('<p></p><p>%s<br/>%s</p>%s', MailManager.i18n('JSLBL_FORWARD_MESSAGE_TEXT'), fwdMsgMetaInfo, body);
+
+			// Beim "Weiterleiten" auch signaturetext dazu.
+			let signaturetextElement = document.getElementsByName("signaturetext");
+			let signaturetext = '';
+			if (typeof signaturetextElement !== 'undefined' && typeof signaturetextElement[0] !== 'undefined' && signaturetextElement[0].value !== 'undefined' ) {
+				signaturetext = (signaturetextElement[0].value);
+			}
+			var fwdBody = MailManager.sprintf('<p></p><p>%s<br/>%s</p>%s<p></p>%s', MailManager.i18n('JSLBL_FORWARD_MESSAGE_TEXT'), fwdMsgMetaInfo, body , signaturetext);
 
 			var attachmentCount = jQuery("#_mail_attachmentcount_").val();
 			if(attachmentCount) {

@@ -43,7 +43,7 @@ Vtiger_Email_Validator_Js("Vtiger_To_Email_Validator_Js", {
 		fieldValuesList = filteredArray;
 
 
-		for(var i in fieldValuesList){
+		for (var i in fieldValuesList) {
 			var splittedFieldValue = fieldValuesList[i];
 			var emailInstance = new Vtiger_Email_Validator_Js();
 			var response = emailInstance.validateValue(splittedFieldValue);
@@ -255,6 +255,12 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 					var selectedTemplateBody = responseData[id].info;
 				}
 				var ckEditorInstance = thisInstance.getckEditorInstance();
+				// Wenn "E-Mail Vorlage wahlen" dann signaturetext dazu.
+				let signaturetextElement = document.getElementsByName("signaturetext");
+				if (typeof signaturetextElement !== 'undefined' && typeof signaturetextElement[0] !== 'undefined' && signaturetextElement[0].value !== 'undefined' ) {
+					let signaturetext = (signaturetextElement[0].value);
+					selectedTemplateBody = selectedTemplateBody +'<p></p>'+ signaturetext;
+				}
 				ckEditorInstance.loadContentsInCkeditor(selectedTemplateBody);
 				jQuery('#subject').val(selectedName);
 			},'tempalteWindow');
@@ -1266,6 +1272,14 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			this.getMassEmailForm().validationEngine(app.validationEngineOptions);
 			this.registerSendEmailEvent();
 			var textAreaElement = jQuery('#description');
+			
+			// wenn er normal geladen wird, zB "Sende E-Mail" dann addiert signaturetext dazu.
+			let signaturetextElement = document.getElementsByName("signaturetext");
+			if (typeof signaturetextElement !== 'undefined' && typeof signaturetextElement[0] !== 'undefined' && signaturetextElement[0].value !== 'undefined') {
+				let signaturetext = (signaturetextElement[0].value);
+				textAreaElement[0].defaultValue = textAreaElement[0].defaultValue + signaturetext;
+			}
+
 			var ckEditorInstance = this.getckEditorInstance(textAreaElement);
 			ckEditorInstance.loadCkEditor(textAreaElement);
 			this.registerAutoCompleteFields(this.getMassEmailForm());

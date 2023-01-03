@@ -57,6 +57,7 @@
 		<input type="hidden" id="start_day" value="{$CURRENT_USER_MODEL->get('dayoftheweek')}">
 		<input type="hidden" id="row_type" value="{$CURRENT_USER_MODEL->get('rowheight')}">
 		<input type="hidden" id="current_user_id" value="{$CURRENT_USER_MODEL->get('id')}">
+		<input type="hidden" id="signaturetext" name="signaturetext" value="{$SIGNATURETEXT}" />
 		<div id="page">
 			<!-- container which holds data temporarly for pjax calls -->
 			<div id="pjaxContainer" class="hide noprint"></div>

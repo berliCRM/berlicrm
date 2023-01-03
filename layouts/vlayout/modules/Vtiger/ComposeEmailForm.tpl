@@ -202,7 +202,6 @@
                         <button type="button" class="btn" id="gotoPreview" title="{vtranslate('LBL_GO_TO_PREVIEW',$MODULE)}" style="margin-left: 5px;"><strong>{vtranslate('LBL_GO_TO_PREVIEW',$MODULE)}</strong></button>
                     {/if}
                     <button type="button" class="btn" id="previewEmail" data-url="{$EMAIL_TEMPLATE_URL}"  style="margin-left: 5px;" title="{vtranslate('LBL_EMAIL_PREVIEW',$MODULE)}"><strong>{vtranslate('LBL_EMAIL_PREVIEW',$MODULE)}</strong></button>
-                    <label style="display:inline;margin:0 12px;line-height:25px"><input type="checkbox" name="nosignature" style="vertical-align:text-top"> {vtranslate('LBL_NO_SIGNATURE',$MODULE)}</label>
                     {if $MODULE_IS_ACTIVE}
                         <button type="button" class="btn" style="float:none" id="selectEmailTemplate" data-url="{$EMAIL_TEMPLATE_URL}" title="{vtranslate('LBL_SELECT_EMAIL_TEMPLATE',$MODULE)}"><strong>{vtranslate('LBL_SELECT_EMAIL_TEMPLATE',$MODULE)}</strong></button>
                     {/if}
@@ -214,7 +213,9 @@
 		{if $RELATED_LOAD eq true}
 			<input type="hidden" name="related_load" value={$RELATED_LOAD} />
 		{/if}
-		<textarea id="description" name="description">{$DESCRIPTION}</textarea>
+		<textarea id="description" name="description">
+			{$DESCRIPTION}
+		</textarea>
 		<input type="hidden" name="attachments" value='{json_encode($ATTACHMENTS)}' />
 	</form>
 </div>
