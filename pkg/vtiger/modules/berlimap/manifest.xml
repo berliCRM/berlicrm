@@ -4,7 +4,7 @@
 <name>berlimap</name>
 <label>Map</label>
 <parent>Tools</parent>
-<version>2.0</version>
+<version>2.1</version>
 <type>extension</type>
 <dependencies>
 <vtiger_version>6.5.0</vtiger_version>
