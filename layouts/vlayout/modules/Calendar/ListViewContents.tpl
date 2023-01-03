@@ -161,7 +161,8 @@
 							{/if}
 						{/if}
 					</span>
-				</div></td>
+				</div>
+				</td>
 				{/if}
 			</td>
 			{/foreach}
