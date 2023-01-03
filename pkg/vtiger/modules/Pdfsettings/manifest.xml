@@ -1,11 +1,11 @@
 <?xml version='1.0'?>
 <module>
-<exporttime>2015-10-04 16:47:32</exporttime>
+<exporttime>2022-10-04 16:47:32</exporttime>
 <name>Pdfsettings</name>
 <label>Pdfsettings</label>
 <parent>Tools</parent>
 <type>extension</type>
-<version>2.1</version>
+<version>2.2</version>
 <dependencies>
 <vtiger_version>6.0.0RC</vtiger_version>
 </dependencies>
