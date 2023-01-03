@@ -130,22 +130,39 @@
 				<div class="actions pull-right">
 					<span class="actionImages">
                         {if $IS_MODULE_EDITABLE && $EDIT_VIEW_URL && $LISTVIEW_ENTRY->get('taskstatus') neq vtranslate("Held", $MODULE) && $LISTVIEW_ENTRY->get('taskstatus') neq vtranslate("Completed", $MODULE)}
-                            <a class="markAsHeld"><i title="{vtranslate('LBL_MARK_AS_HELD', $MODULE)}" class="icon-ok alignMiddle"></i></a>&nbsp;
+                            {if $OWNER_ID == $CURRENT_USER_ID || $CURRENT_USER_MODEL->isAdminUser() }
+								<a class="markAsHeld"><i title="{vtranslate('LBL_MARK_AS_HELD', $MODULE)}" class="icon-ok alignMiddle"></i></a>&nbsp;
+							{else}
+
+							{/if}
                         {/if}
                         {if $IS_MODULE_EDITABLE && $EDIT_VIEW_URL && $LISTVIEW_ENTRY->get('taskstatus') eq vtranslate("Held", $MODULE)}
-							<a class="holdFollowupOn"><i title="{vtranslate('LBL_HOLD_FOLLOWUP_ON', "Events")}" class="icon-flag alignMiddle"></i></a>&nbsp;
+							{if $OWNER_ID == $CURRENT_USER_ID || $CURRENT_USER_MODEL->isAdminUser() }
+								<a class="holdFollowupOn"><i title="{vtranslate('LBL_HOLD_FOLLOWUP_ON', "Events")}" class="icon-flag alignMiddle"></i></a>&nbsp;
+							{else}
+
+							{/if}							
 						{/if}
 						{if $FULL_DETAIL_VIEW_URL}
 							<a href="{$FULL_DETAIL_VIEW_URL}"><i title="{vtranslate('LBL_SHOW_COMPLETE_DETAILS', $MODULE)}" class="icon-th-list alignMiddle"></i></a>&nbsp;
 						{/if}
 						{if $IS_MODULE_EDITABLE && $EDIT_VIEW_URL}
-							<a href='{$EDIT_VIEW_URL}'><i title="{vtranslate('LBL_EDIT', $MODULE)}" class="icon-pencil alignMiddle"></i></a>&nbsp;
+							{if $OWNER_ID == $CURRENT_USER_ID || $CURRENT_USER_MODEL->isAdminUser() }
+								<a href='{$EDIT_VIEW_URL}'><i title="{vtranslate('LBL_EDIT', $MODULE)}" class="icon-pencil alignMiddle"></i></a>&nbsp;
+							{else}
+
+							{/if}
 						{/if}
 						{if $IS_MODULE_DELETABLE && $IS_DELETE}
-							<a class="deleteRecordButton"><i title="{vtranslate('LBL_DELETE', $MODULE)}" class="icon-trash alignMiddle"></i></a>
+							{if $OWNER_ID == $CURRENT_USER_ID || $CURRENT_USER_MODEL->isAdminUser() }
+								<a class="deleteRecordButton"><i title="{vtranslate('LBL_DELETE', $MODULE)}" class="icon-trash alignMiddle"></i></a>
+							{else}
+
+							{/if}
 						{/if}
 					</span>
-				</div></td>
+				</div>
+				</td>
 				{/if}
 			</td>
 			{/foreach}
