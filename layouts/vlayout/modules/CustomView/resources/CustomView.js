@@ -19,6 +19,10 @@ var Vtiger_CustomView_Js = {
 	//This will store the input hidden selectedColumnsList element
 	selectedColumnsList : false,
 
+	//This will store the original view recordid (if exists)
+	viewrecordid : '',
+	namechanged :false,
+
 	loadFilterView : function(url) {
 		var progressIndicatorElement = jQuery.progressIndicator();
 		AppConnector.request(url).then(
@@ -232,6 +236,31 @@ var Vtiger_CustomView_Js = {
 				$("#viewUsersSelect_chzn").remove();	
 				$("div#viewUsersSelect").hide();
 				$("label#userlist_label").hide();
+			}
+			
+		});
+		
+		jQuery('#copy').click(function() {
+			var nameappendix = app.vtranslate('JS_COPY_APPENDIX');
+			var hasnamechanged = Vtiger_CustomView_Js.namechanged;
+			if (hasnamechanged == false) {
+				Vtiger_CustomView_Js.viewrecordid = jQuery("#record").val();
+			}
+			if (this.checked) {
+				jQuery("#record").val(""); 
+                   jQuery("#viewname").val(function() {
+						return this.value + nameappendix;
+					});
+					Vtiger_CustomView_Js.namechanged = true;
+ 			}
+			else {
+				jQuery("#record").val(Vtiger_CustomView_Js.viewrecordid);
+				if (hasnamechanged) {
+					jQuery("#viewname").val(function() {
+						return this.value.replace(nameappendix,"");
+					});
+					Vtiger_CustomView_Js.namechanged = false;
+                }
 			}
 			
 		});
