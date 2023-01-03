@@ -147,7 +147,7 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 			$to = $requestTo; // here todo // because array or string //
 		}
 		$requestCc = $request->get('cc');
-		if ( count($requestCc) > 0 && is_array($requestCc) && $requestCc[0] != "null" ) {
+		if (is_array($requestCc) &&  count($requestCc) > 0 && $requestCc[0] != "null" ) {
 			$getCc = implode(',',$requestCc); // $requestCc is a array // $getCc = implode(',',$requestCc); // if i need a string
 		}
 		$documentsModel = Vtiger_Module_Model::getInstance('Documents');
