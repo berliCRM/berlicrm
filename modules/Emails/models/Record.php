@@ -92,7 +92,12 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 			$description = $this->get('description');
             $subject = $this->get('subject');
 			$parentModule = $this->getEntityType($id);
+
             if ($parentModule) {
+				$recordModel = Vtiger_Record_Model::getInstanceById($id,$parentModule);
+				$column_fields = $recordModel->entity->column_fields;
+				$names = vtws_getModuleNameList();
+				
                 $currentLanguage = Vtiger_Language_Handler::getLanguage();
                 $moduleLanguageStrings = Vtiger_Language_Handler::getModuleStringsFromFile($currentLanguage,$parentModule);
                 vglobal('mod_strings', $moduleLanguageStrings['languageStrings']);
@@ -100,8 +105,33 @@ class Emails_Record_Model extends Vtiger_Record_Model {
                 if ($parentModule != 'Users') {
                     // Apply merge for non-Users module merge tags.
                     $description = getMergedDescription($mergedDescription, $id, $parentModule);
+					foreach ($names as $tab) {
+						$recordModel = Vtiger_Record_Model::getCleanInstance($tab);
+						$table_index = $recordModel->entity->table_index;
+						$search_index = $table_index;
+						// special for accounts
+						if ($table_index == 'accountid' && array_key_exists('account_id', $column_fields)) {
+							$search_index = 'account_id';
+						}
+						if ((array_key_exists($search_index, $column_fields)  && !empty($column_fields[$search_index]))) {
+							$description = getMergedDescription($description,$column_fields[$search_index],$tab);
+						}
+					}
                     $subject = getMergedDescription($mergedSubject, $id, $parentModule);
-                } else {
+					foreach ($names as $tab) {
+						$recordModel = Vtiger_Record_Model::getCleanInstance($tab);
+						$table_index = $recordModel->entity->table_index;
+						$search_index = $table_index;
+						// special for accounts
+						if ($table_index == 'accountid' && array_key_exists('account_id', $column_fields)) {
+							$search_index = 'account_id';
+						}
+						if ((array_key_exists($search_index, $column_fields)  && !empty($column_fields[$search_index]))) {
+							$subject = getMergedDescription($subject,$column_fields[$search_index],$tab);
+						}
+					}
+                } 
+				else {
                     // Re-merge the description for user tags based on actual user.
                     $description = getMergedDescription($description, $id, 'Users');
                     $subject = getMergedDescription($mergedSubject, $id, 'Users');
@@ -121,13 +151,6 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 				// }
 				$mailer->msgHTML($mailer->Body.$description);
 
-                // add signature unless nosignature-checkbox is checked
-                if ($_REQUEST["nosignature"]!="on") {
-                    $mailer->Signature = str_replace(array('\r\n', '\n'),'',$currentUserModel->get('signature'));
-                    if($mailer->Signature != '') {
-                        $mailer->msgHTML($mailer->Body.'<br><br>'.html_entity_decode($mailer->Signature));
-                    }
-				}
                 // create non-html alternative body
                 $mailer->AltBody = decode_html(strip_tags(preg_replace(array("/<p>/i","/<br>/i","/<br \/>/i"),array("\n","\n","\n"),$mailer->Body)));
 				$mailer->Subject = $subject;
