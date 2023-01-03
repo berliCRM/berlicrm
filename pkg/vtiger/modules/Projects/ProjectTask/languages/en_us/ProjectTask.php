@@ -53,6 +53,8 @@ $languageStrings = array(
 	
 	//crm-now: missing entries in en_us file
 	'Related to' => 'Related to',
+	'Project Tasks'	=>	"Project Tasks",
+	'Project Task'	=>	"Project Task",
 	 
 	 
 );
