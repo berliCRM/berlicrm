@@ -106,7 +106,7 @@ $pdf->SetTextColor(120,120,120);
 // companyBlockPositions -> x,y,width
 $companyText=decode_html($org_name." - ".$org_address." - ".$org_code." ".$org_city);
 $pdf->SetFont($default_font,'B',6);
-$pdf->text($xmargin+1,$ymargin,$companyText);
+$pdf->text($xmargin,$ymargin-1,$companyText);
 $pdf->SetTextColor(0,0,0);
 $pdf->SetFont($default_font,'B',$font_size_address);
 $billPositions = array($xmargin,$ymargin,"80");
