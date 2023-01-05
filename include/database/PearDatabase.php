@@ -817,11 +817,15 @@ class PearDatabase{
 		if ($result) {
 			$this->database->LogSQL($this->enableSQLlog);
 
-			// 'SET NAMES UTF8' needs to be executed even if database has default CHARSET UTF8
-			// as mysql server might be running with different charset!
-			// We will notice problem reading UTF8 characters otherwise.
-			if($this->isdb_default_utf8_charset) {
-				$this->executeSetNamesUTF8SQL(true);
+			if($this->isMySQL()) {
+				$this->database->Execute("SET SESSION sql_mode = 'IGNORE_SPACE,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'");
+
+				// 'SET NAMES UTF8' needs to be executed even if database has default CHARSET UTF8
+				// as mysql server might be running with different charset!
+				// We will notice problem reading UTF8 characters otherwise.
+				if($this->isdb_default_utf8_charset) {
+					$this->executeSetNamesUTF8SQL(true);
+				}
 			}
 		}
 	}
