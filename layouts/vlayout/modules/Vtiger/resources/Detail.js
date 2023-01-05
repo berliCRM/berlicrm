@@ -1080,6 +1080,29 @@ jQuery.Class("Vtiger_Detail_Js",{
 					return;
 				}
 
+				// the cke-editor have no changes here in NewValue. Only in his iframe or in another textarea.
+				if(fieldName == "signature"){
+					// first the current element with correct iframes.
+					let signatureCkeElement = currentTdElement[0];
+					let iframe = (signatureCkeElement.getElementsByTagName("iframe"))[0];
+					// if iframe are not here, so it is html edit modus.
+					if(iframe != undefined){
+						// from this element get the body with new value
+						let ibody = (iframe.contentWindow.document.getElementsByTagName("body"))[0];
+						// now set the new value into variables:
+						ajaxEditNewValue = (ibody.innerHTML);
+						fieldValue = (ibody.innerHTML);
+					}
+					else{
+						// if we have no iframe, so we have a textarea with html code.
+						let textframe = (signatureCkeElement.querySelector("textarea.cke_source"));
+						if(textframe != undefined && textframe.value != undefined){
+							ajaxEditNewValue = (textframe.value);
+							fieldValue = (textframe.value);
+						}
+					}
+				}
+
                 fieldElement.validationEngine('hide');
                 //Before saving ajax edit values we need to check if the value is changed then only we have to save
                 if((""+previousValue) == (""+ajaxEditNewValue)) { // Normalize(99!="099") Fix http://code.vtiger.com/vtiger/vtigercrm/issues/16 
@@ -1143,7 +1166,11 @@ jQuery.Class("Vtiger_Detail_Js",{
                             //TODO : Handle error
                             currentTdElement.progressIndicator({'mode':'hide'});
                         }
-                    )
+                    );
+					if(fieldName == "signature"){
+						// cke editor show signature in html form, so we need to reload site to show it correct.
+						location.reload();
+					}
                 }
 			}
 
