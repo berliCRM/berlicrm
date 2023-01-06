@@ -852,20 +852,20 @@ class PearDatabase{
 		if($host == '') {
 		    $this->disconnect();
 		    $this->setDatabaseType($dbconfig['db_type']);
-	    	$this->setUserName($dbconfig['db_username']);
+		    $this->setUserName($dbconfig['db_username']);
 		    $this->setUserPassword($dbconfig['db_password']);
 		    $this->setDatabaseHost( $dbconfig['db_hostname']);
-	    	$this->setDatabaseName($dbconfig['db_name']);
+		    $this->setDatabaseName($dbconfig['db_name']);
 		    $this->dbOptions = $dbconfigoption;
 		    if($dbconfig['log_sql'])
-	    		$this->enableSQLlog = ($dbconfig['log_sql'] == true);
+	    	        $this->enableSQLlog = ($dbconfig['log_sql'] == true);
 		} else {
 		    $this->disconnect();
 		    $this->setDatabaseType($dbtype);
-	    	$this->setDatabaseName($dbname);
+		    $this->setDatabaseName($dbname);
 		    $this->setUserName($username);
 		    $this->setUserPassword($passwd);
-	    	$this->setDatabaseHost( $host);
+		    $this->setDatabaseHost( $host);
 		}
     }
 
@@ -875,16 +875,16 @@ class PearDatabase{
 
     function disconnect() {
 		$this->println("ADODB disconnect");
-		if(isset($this->database)){
-	    	if($this->dbType == "mysql"){
-			mysql_close($this->database->_connectionID);
-	    }else if($this->dbType=="mysqli"){
-                mysqli_close($this->database->_connectionID);
-            } 
-            else {
-			$this->database->disconnect();
-	    }
-	    unset($this->database);
+			if(isset($this->database)){
+				if($this->dbType == "mysql"){
+					mysql_close($this->database->_connectionID);
+				}else if($this->dbType=="mysqli"){
+					mysqli_close($this->database->_connectionID);
+				} 
+			else {
+				$this->database->disconnect();
+			}
+			unset($this->database);
 		}
     }
 
