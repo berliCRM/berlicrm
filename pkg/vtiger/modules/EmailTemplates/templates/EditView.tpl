@@ -11,6 +11,11 @@
 -->*}
 
 {strip}
+<style>
+	.input-large {
+		width: 99%;
+	}
+</style>
 <div class='editViewContainer'>
 	<form class="form-horizontal recordEditView" id="EditView" name="EditView" method="post" action="index.php">
 		{assign var=QUALIFIED_MODULE_NAME value={$MODULE}}
@@ -34,6 +39,10 @@
 		<table class="table table-bordered blockContainer showInlineTable">
 			<tr>
 				<th class="blockHeader" colspan="4">{vtranslate('SINGLE_EmailTemplates', $MODULE)}</th>
+			</tr>
+			<tr>
+				<td class="fieldLabel {$WIDTHTYPE}">{vtranslate('Template ID', $MODULE)}</td>
+				<td class="fieldValue {$WIDTHTYPE}">{$RECORD->get('templateid')}</td>
 			</tr>
 			<tr>
 				<td class="fieldLabel {$WIDTHTYPE}"><span class="redColor">*</span>{vtranslate('LBL_TEMPLATE_NAME', $MODULE)}</td>
