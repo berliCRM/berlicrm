@@ -1,10 +1,10 @@
 <?xml version='1.0'?>
 <module>
-<exporttime>2014-04-17 10:54:22</exporttime>
+<exporttime>2022-09-15 15:00:22</exporttime>
 <name>PBXManager</name>
 <label>PBXManager</label>
 <parent>Tools</parent>
-<version>2.2</version>
+<version>2.4</version>
 <dependencies>
 <vtiger_version>6.0.0</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>
@@ -375,7 +375,7 @@
 <masseditable>1</masseditable>
 </field>
 <field>
-<fieldname>CreatedTime</fieldname>
+<fieldname>createdtime</fieldname>
 <uitype>70</uitype>
 <columnname>createdtime</columnname>
 <columntype>DATETIME</columntype>
@@ -388,7 +388,7 @@
 <sequence>15</sequence>
 <maximumlength>100</maximumlength>
 <typeofdata>DT~O</typeofdata>
-<quickcreate>1</quickcreate>
+<quickcreate>3</quickcreate>
 <quickcreatesequence></quickcreatesequence>
 <displaytype>2</displaytype>
 <info_type>BAS</info_type>
@@ -396,7 +396,7 @@
 <masseditable>1</masseditable>
 </field>
 <field>
-<fieldname>ModifiedTime</fieldname>
+<fieldname>modifiedtime</fieldname>
 <uitype>70</uitype>
 <columnname>modifiedtime</columnname>
 <columntype>DATETIME</columntype>
@@ -409,7 +409,7 @@
 <sequence>16</sequence>
 <maximumlength>100</maximumlength>
 <typeofdata>DT~O</typeofdata>
-<quickcreate>1</quickcreate>
+<quickcreate>3</quickcreate>
 <quickcreatesequence></quickcreatesequence>
 <displaytype>2</displaytype>
 <info_type>BAS</info_type>
