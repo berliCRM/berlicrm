@@ -1,10 +1,10 @@
-<?xml version='1.0'?>
+<?xml version='1.0' encoding='UTF-8'?>
 <module>
-<exporttime>2022-04-09 07:43:08</exporttime>
+<exporttime>2022-09-15 15:03:08</exporttime>
 <name>berliCleverReach</name>
 <label>CleverReach</label>
 <parent>Marketing</parent>
-<version>0.97</version>
+<version>0.98</version>
 <dependencies>
 <vtiger_version>6.5.0</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>
@@ -14,10 +14,10 @@
 <name>vtiger_berlicleverreach</name>
 <sql><![CDATA[CREATE TABLE `vtiger_berlicleverreach` (
   `cleverreachid` int(11) NOT NULL,
-  `cleverreachname` varchar(50) DEFAULT NULL,
-  `bcr_campaign_no` varchar(100) DEFAULT NULL,
-  `bcr_campaign_type` varchar(200) DEFAULT NULL,
-  `bcr_campaign_status` varchar(200) DEFAULT NULL,
+  `cleverreachname` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `bcr_campaign_no` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `bcr_campaign_type` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `bcr_campaign_status` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
   `lastsynchronization` datetime DEFAULT NULL,
   PRIMARY KEY (`cleverreachid`),
   CONSTRAINT `fk_1_vtiger_cleverreach` FOREIGN KEY (`cleverreachid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE
@@ -35,10 +35,10 @@
 <name>vtiger_berlicleverreach_settings</name>
 <sql><![CDATA[CREATE TABLE `vtiger_berlicleverreach_settings` (
   `id` int(11) NOT NULL,
-  `customerid` varchar(16) NOT NULL,
-  `customername` varchar(128) NOT NULL,
-  `accesstoken` varchar(600) NOT NULL,
-  `newsubscribertype` varchar(50) NOT NULL,
+  `customerid` varchar(16) COLLATE utf8_unicode_ci NOT NULL,
+  `customername` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `accesstoken` varchar(600) COLLATE utf8_unicode_ci NOT NULL,
+  `newsubscribertype` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
@@ -203,7 +203,7 @@
 <summaryfield>0</summaryfield>
 </field>
 <field>
-<fieldname>CreatedTime</fieldname>
+<fieldname>createdtime</fieldname>
 <uitype>70</uitype>
 <columnname>createdtime</columnname>
 <tablename>vtiger_crmentity</tablename>
@@ -215,7 +215,7 @@
 <sequence>7</sequence>
 <maximumlength>100</maximumlength>
 <typeofdata>DT~O</typeofdata>
-<quickcreate>1</quickcreate>
+<quickcreate>3</quickcreate>
 <quickcreatesequence>0</quickcreatesequence>
 <displaytype>2</displaytype>
 <info_type>BAS</info_type>
@@ -224,7 +224,7 @@
 <summaryfield>0</summaryfield>
 </field>
 <field>
-<fieldname>ModifiedTime</fieldname>
+<fieldname>modifiedtime</fieldname>
 <uitype>70</uitype>
 <columnname>modifiedtime</columnname>
 <tablename>vtiger_crmentity</tablename>
@@ -236,7 +236,7 @@
 <sequence>8</sequence>
 <maximumlength>100</maximumlength>
 <typeofdata>DT~O</typeofdata>
-<quickcreate>1</quickcreate>
+<quickcreate>3</quickcreate>
 <quickcreatesequence>0</quickcreatesequence>
 <displaytype>2</displaytype>
 <info_type>BAS</info_type>
@@ -258,11 +258,12 @@
 <maximumlength>100</maximumlength>
 <typeofdata>V~O</typeofdata>
 <quickcreate>3</quickcreate>
-<quickcreatesequence></quickcreatesequence>
+<quickcreatesequence>3</quickcreatesequence>
 <displaytype>3</displaytype>
 <info_type>BAS</info_type>
 <helpinfo><![CDATA[]]></helpinfo>
 <masseditable>0</masseditable>
+<summaryfield>0</summaryfield>
 </field>
 </fields>
 </block>
@@ -358,6 +359,16 @@
 </relatedlist>
 </relatedlists>
 <customlinks>
+<customlink>
+<linktype>DETAILVIEWBASIC</linktype>
+<linklabel>View History</linklabel>
+<linkurl><![CDATA[javascript:ModTrackerCommon.showhistory('$RECORD$')]]></linkurl>
+<linkicon><![CDATA[]]></linkicon>
+<sequence>0</sequence>
+<handler_path><![CDATA[modules/ModTracker/ModTracker.php]]></handler_path>
+<handler_class><![CDATA[ModTracker]]></handler_class>
+<handler><![CDATA[isViewPermitted]]></handler>
+</customlink>
 <customlink>
 <linktype>DETAILVIEWWIDGET</linktype>
 <linklabel>DetailViewBlockCommentWidget</linklabel>

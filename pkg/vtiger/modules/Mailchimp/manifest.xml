@@ -1,10 +1,10 @@
 <?xml version='1.0'?>
 <module>
-<exporttime>2019-10-08 16:37:11</exporttime>
+<exporttime>2022-09-15 14:58:11</exporttime>
 <name>Mailchimp</name>
 <label>Mailchimp</label>
 <parent>Marketing</parent>
-<version>4.03</version>
+<version>4.04</version>
 <dependencies>
 <vtiger_version>6.5.0</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>
@@ -218,7 +218,7 @@
 <summaryfield>1</summaryfield>
 </field>
 <field>
-<fieldname>CreatedTime</fieldname>
+<fieldname>createdtime</fieldname>
 <uitype>70</uitype>
 <columnname>createdtime</columnname>
 <tablename>vtiger_crmentity</tablename>
@@ -230,7 +230,7 @@
 <sequence>7</sequence>
 <maximumlength>100</maximumlength>
 <typeofdata>DT~O</typeofdata>
-<quickcreate>1</quickcreate>
+<quickcreate>3</quickcreate>
 <quickcreatesequence>0</quickcreatesequence>
 <displaytype>2</displaytype>
 <info_type>BAS</info_type>
@@ -239,7 +239,7 @@
 <summaryfield>0</summaryfield>
 </field>
 <field>
-<fieldname>ModifiedTime</fieldname>
+<fieldname>modifiedtime</fieldname>
 <uitype>70</uitype>
 <columnname>modifiedtime</columnname>
 <tablename>vtiger_crmentity</tablename>
@@ -251,7 +251,7 @@
 <sequence>8</sequence>
 <maximumlength>100</maximumlength>
 <typeofdata>DT~O</typeofdata>
-<quickcreate>1</quickcreate>
+<quickcreate>3</quickcreate>
 <quickcreatesequence>0</quickcreatesequence>
 <displaytype>2</displaytype>
 <info_type>BAS</info_type>
