@@ -128,18 +128,32 @@ class Vtiger_PackageExport {
 		// Copy module directory
 		$zip->copyDirectoryFromDisk("modules/$module");
 
-		// Copy Settings/module directory
-		if(is_dir("modules/Settings/$module"))
+		// Copy Settings/module directory 
+		if(is_dir("modules/Settings/$module")) {
 			$zip->copyDirectoryFromDisk("modules/Settings/$module", 'settings/');
+		}	
 
 		// Copy cron files of the module (if any)
-		if(is_dir("cron/modules/$module"))
+		if(is_dir("cron/modules/$module")) {
 			$zip->copyDirectoryFromDisk("cron/modules/$module", "cron");
+		}
 
 		//Copy module templates files
-		if(is_dir("layouts/vlayout/modules/$module"))
+		if(is_dir("layouts/vlayout/modules/$module")) {
 			$zip->copyDirectoryFromDisk ("layouts/vlayout/modules/$module", "templates");
+		}
+		//Copy module Icon files
+		if(file_exists("layouts/vlayout/skins/images/".$module.".png")) {
+			$zip->copyFileFromDisk ("layouts/vlayout/skins/images/","layouts/vlayout/skins/images/",$module.".png");		
+		}
+		else{ 
+			$zip->copyFileFromDisk ("layouts/vlayout/skins/images/","layouts/vlayout/skins/images/","DefaultModule.png");
+		}
 
+		if(file_exists("layouts/vlayout/skins/images/$module.png")) {
+			$zip->copyFileFromDisk ("layouts/vlayout/skins/images/","layouts/vlayout/skins/images/","summary_".$module.".png");
+		}
+		
 		//Copy Settings module templates files, if any
 		if(is_dir("layouts/vlayout/modules/Settings/$module"))
 			$zip->copyDirectoryFromDisk ("layouts/vlayout/modules/Settings/$module", "settings/templates");
