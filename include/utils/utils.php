@@ -1944,13 +1944,15 @@ function validateServerName($string){
     return true;
 	}
 
-function validateEmailId($string){
-    preg_match('/^[a-zA-Z0-9]+([\_\-\.]*[a-zA-Z0-9]+[\_\-]?)*@[a-zA-Z0-9]+([\_\-]?[a-zA-Z0-9]+)*\.+([\-\_]?[a-zA-Z0-9])+(\.?[a-zA-Z0-9]+)*$/', $string, $matches);
-    if(count($matches) == 0) {
-        return false;
-    }
-    return true;
-}
+	function validateEmailId($string) {
+		$string = filter_var($string, FILTER_SANITIZE_EMAIL);
+		if (filter_var($string, FILTER_VALIDATE_EMAIL)) {
+			return true;
+		} 
+		else {
+			return false;
+		}	
+	}
 
 /**
 * Function to get the approximate difference between two date time values as string
