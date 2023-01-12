@@ -92,9 +92,65 @@ class ModuleName extends Vtiger_CRMEntity {
 	*/
 	function vtlib_handler($moduleName, $eventType) {
 		global $adb;
- 		if($eventType == 'module.postinstall') {
+ 		if($eventType == 'module.postinstall') {			
 			// TODO Handle actions after this module is installed.
-		} else if($eventType == 'module.disabled') {
+			include_once('vtlib/Vtiger/Module.php');
+			//adds sharing access
+			$moduleInstance  = Vtiger_Module::getInstance($moduleName);
+			Vtiger_Access::setDefaultSharing($moduleInstance);
+			
+			$blockInstance = Vtiger_Block::getInstance('LBL_DESCRIPTION_INFORMATION', $moduleInstance);
+			if (!$blockInstance) {
+				$blockcf = new Vtiger_Block();
+				$blockcf->label = 'LBL_DESCRIPTION_INFORMATION';
+				$moduleInstance->addBlock($blockcf);
+			}
+			$description = Vtiger_Field::getInstance('description', $moduleInstance);
+			
+			if (!$description) {
+				$description = new Vtiger_Field();
+				$description->name = 'description';
+				$description->label = 'Description';
+				$description->table = 'vtiger_crmentity';
+				$description->typeofdata = 'V~O';
+				$description->uitype = '19';
+				$description->info_type = 'BAS';
+				$description->displaytype = '1';
+				$blockInstance = Vtiger_Block::getInstance('LBL_DESCRIPTION_INFORMATION', $moduleInstance);
+				$blockInstance->addField($description);
+			}
+				if(strlen($moduleName) >=3){
+					$num=substr($moduleName,0,3);
+				}
+				else{
+					$num=$moduleName;
+				}			
+			//set the module numbering
+			$result = $adb->pquery("SELECT 1 FROM vtiger_modentity_num WHERE semodule = ? AND active = 1", array($moduleName));
+			if (!($adb->num_rows($result))) {
+				//Initialize module sequence for the module
+				$num=(strtoupper($num));
+				$adb->pquery("INSERT INTO vtiger_modentity_num values(?,?,?,?,?,?)", array($adb->getUniqueId("vtiger_modentity_num"), $moduleName, "$num-", 1, 1, 1));
+			}
+			
+			// add ModTracker
+			$modTrackerModuleInstance = Vtiger_Module::getInstance('ModTracker');
+			if($modTrackerModuleInstance && file_exists('modules/ModTracker/ModTracker.php')) {
+				require_once('modules/ModTracker/ModTracker.php'); 
+				if(class_exists('ModTracker')) { 
+					ModTracker::enableTrackingForModule($moduleInstance->id); 
+				}
+			}
+			// add Comments
+			$modcommentsModuleInstance = Vtiger_Module::getInstance('ModComments');
+			if($modcommentsModuleInstance && file_exists('modules/ModComments/ModComments.php')) {
+				include_once 'modules/ModComments/ModComments.php';
+				if(class_exists('ModComments')) {
+					ModComments::addWidgetTo(array($moduleName));
+				}
+			}
+		}			
+		else if($eventType == 'module.disabled') {
 			// TODO Handle actions before this module is being uninstalled.
 		} else if($eventType == 'module.preuninstall') {
 			// TODO Handle actions when this module is about to be deleted.
