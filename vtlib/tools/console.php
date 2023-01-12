@@ -253,7 +253,7 @@ class Vtiger_Tools_Console_ModuleController extends Vtiger_Tools_Console_Control
 		$field1  = new Vtiger_Field();
 		$field1->name = $moduleInformation['entityfieldname'];
 		$field1->label= $moduleInformation['entityfieldlabel'];
-		$field1->uitype= 2;
+		$field1->uitype= '2';
 		$field1->column = $field1->name;
 		$field1->columntype = 'VARCHAR(255)';
 		$field1->typeofdata = 'V~M';
@@ -267,7 +267,7 @@ class Vtiger_Tools_Console_ModuleController extends Vtiger_Tools_Console_Control
 		$field2->label = 'Assigned To';
 		$field2->table = 'vtiger_crmentity';
 		$field2->column = 'smownerid';
-		$field2->uitype = 53;
+		$field2->uitype = '53';
 		$field2->typeofdata = 'V~M';
 		$block->addField($field2);
 
@@ -276,9 +276,9 @@ class Vtiger_Tools_Console_ModuleController extends Vtiger_Tools_Console_Control
 		$field3->label= 'Created Time';
 		$field3->table = 'vtiger_crmentity';
 		$field3->column = 'createdtime';
-		$field3->uitype = 70;
+		$field3->uitype = '70';
 		$field3->typeofdata = 'DT~O';
-		$field3->displaytype= 2;
+		$field3->displaytype= '2';
 		$block->addField($field3);
 
 		$field4 = new Vtiger_Field();
@@ -286,9 +286,9 @@ class Vtiger_Tools_Console_ModuleController extends Vtiger_Tools_Console_Control
 		$field4->label= 'Modified Time';
 		$field4->table = 'vtiger_crmentity';
 		$field4->column = 'modifiedtime';
-		$field4->uitype = 70;
+		$field4->uitype = '70';
 		$field4->typeofdata = 'DT~O';
-		$field4->displaytype= 2;
+		$field4->displaytype= '2';
 		$block->addField($field4);
 
 		$field5 = new Vtiger_Field();
@@ -296,10 +296,23 @@ class Vtiger_Tools_Console_ModuleController extends Vtiger_Tools_Console_Control
 		$field5->label= 'Last Modified By';
 		$field5->table = 'vtiger_crmentity';
 		$field5->column = 'modifiedby';
-		$field5->uitype = 52;
+		$field5->uitype = '52';
 		$field5->typeofdata = 'V~O';
-		$field5->displaytype= 3;
+		$field5->displaytype= '3';
 		$block->addField($field5);
+		
+
+		$field6 = new Vtiger_Field();
+		$field6->name =strtolower($module->name ).'_no';
+		$field6->label= 'LBL_'.strtoupper($module->name).'_NO';
+		$field6->table = 'vtiger_'.strtolower($module->name);
+		$field6->column =  $field6->name;
+		$field6->columntype = 'varchar(30)';
+		$field6->uitype = '4';
+		$field6->typeofdata = 'V~O';
+		$field6->info_type = 'BAS';
+		$field6->displaytype= '1';
+		$block->addField($field6);
 
 		// Create default custom filter (mandatory)
 		$filter1 = new Vtiger_Filter();
@@ -307,7 +320,7 @@ class Vtiger_Tools_Console_ModuleController extends Vtiger_Tools_Console_Control
 		$filter1->isdefault = true;
 		$module->addFilter($filter1);
 		// Add fields to the filter created
-		$filter1->addField($field1)->addField($field2, 1)->addField($field3, 2);
+		$filter1->addField($field6)->addField($field1)->addField($field2, 1)->addField($field3, 2);
 
 		// Set sharing access of this module
 		$module->setDefaultSharing();
@@ -320,6 +333,10 @@ class Vtiger_Tools_Console_ModuleController extends Vtiger_Tools_Console_Control
 
 		// Create files
 		$this->createFiles($module, $field1);
+		
+
+		Vtiger_Module::fireEvent($module->name,	Vtiger_Module::EVENT_MODULE_POSTINSTALL);
+	
 	}
 
 	protected function createFiles(Vtiger_Module $module, Vtiger_Field $entityField) {
