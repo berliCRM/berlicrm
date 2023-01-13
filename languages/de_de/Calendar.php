@@ -14,7 +14,7 @@ $languageStrings = array(
 	'Completed' => 'erledigt',
 	'Daily'=>'täglich',
 	'Deferred' => 'hinausgeschoben',
-	'End Date & Time' => 'Enddatum &-zeit',
+	'End Date & Time' => 'Enddatum & -zeit',
 	'first' => 'zuerst',
 	'ICAL_FORMAT' => 'iCal Format',
 	'last' => 'zuletzt',
@@ -90,8 +90,8 @@ $languageStrings = array(
    
          //Patch provided by http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7884
         'Start Date &amp; Time' => 'Startdatum & Zeit', 
-        'End Date &amp; Time' => 'Endedatum & Zeit', 
-        'End Date' => 'Endedatum', 
+        'End Date &amp; Time' => 'Enddatum & Zeit', 
+        'End Date' => 'Enddatum', 
     
         //Event Status picklist values 
         'Held' => 'durchgeführt', 
@@ -106,7 +106,7 @@ $languageStrings = array(
 	'Start date and time'=>'beginnt',
 	'End date and time'=>'endet',
 	//this is for task
-	'End date'=>'Endedatum',
+	'End date'=>'Enddatum',
 	'LBL_SET_DATE'=>'Datum angeben..',
 
 	//added to send invitation mail Subject.
@@ -129,7 +129,7 @@ $languageStrings = array(
 	'LBL_APP_DESCRIPTION' => 'Beschreibung',
 	//missing
 	'Time Start'=>'Startzeit',
-	'End Time'=>'Endezeit',
+	'End Time'=>'Endzeit',
 );
 
 $jsLanguageStrings = array(

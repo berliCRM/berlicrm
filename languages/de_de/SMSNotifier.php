@@ -33,7 +33,7 @@ $languageStrings = array(
 	
 	//status messages
 	'LBL_PROVIDER_MESSAGE' => 'Nachricht des Providers',
-	'LBL_PROVIDER_ERROR_MESSAGE' => 'Fehlerachricht des Providers',
+	'LBL_PROVIDER_ERROR_MESSAGE' => 'Fehlernachricht des Providers',
 	'LBL_OTHER_PROVIDER_MESSAGE' => 'Providerinformation',
 	'LBL_MESSAGE_SENT' => 'SMS wurde versendet',
 

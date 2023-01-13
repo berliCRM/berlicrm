@@ -9,7 +9,7 @@
  * Reviewed by crm-now GmbH
  *************************************************************************************/
 $languageStrings = array(
-	'Big Problem'=>'grosses Problem',
+	'Big Problem'=>'großes Problem',
 	'Closed'=>'geschlossen',
 	'Contact Name' => 'Personenname',
 	'created' => 'erstellt',

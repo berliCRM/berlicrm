@@ -12,7 +12,7 @@ $languageStrings = array(
 	'ADD_RULES' => 'Regel erstellen',
 	'After Scan' => 'nach Scan',
 	'ALL' => 'alle',
-	'Begins With' => 'begint mit',
+	'Begins With' => 'beginnt mit',
 	'body' => 'Inhalt',
 	'Connect URL' => 'URL',
 	'Contains' => 'beinhaltet',
@@ -119,7 +119,7 @@ $languageStrings = array(
 );
 
 $jsLanguageStrings = array(
-	'JS_MAILBOX_DELETED_SUCCESSFULLY' => 'Mail Box erfolgreich gelöscht',
-	'JS_MAILBOX_LOADED_SUCCESSFULLY' => 'MailBox erfolgreich geladen',
+	'JS_MAILBOX_DELETED_SUCCESSFULLY' => 'Mailbox erfolgreich gelöscht',
+	'JS_MAILBOX_LOADED_SUCCESSFULLY' => 'Mailbox erfolgreich geladen',
 );
 ?>

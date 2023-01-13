@@ -128,7 +128,7 @@ $languageStrings = array(
 
         //Lead View settings 
         'Today' => 'heute', 
-        'Last 2 Days' => 'letze 2 Tage', 
+        'Last 2 Days' => 'letzte 2 Tage', 
         'Last Week' => 'letzte Woche', 
 
         //Calendar settings 
@@ -328,7 +328,7 @@ $languageStrings = array(
 	'LBL_MARKETING_DESCR'=>'Senden Sie gezielt individuelle Massen E-Mails zu den im CRM erfassten Kontakten und entdecken Sie de Möglichkeiten durch Kampagnen Vertriebsergebnisse zu verbessern.',
 	'LBL_SUPPORT_DESCR'=>'Erfassen Sie Kundenreklamationen oder -fragen als Tickets oder stellen Sie Ihren Kunden eine Kundenportal zur Verfügung.',
 	'LBL_INVENTORY_DESCR'=>'Erfassen Sie alle Ihre Dienstleistungen oder Produkte mit Preisen und ggf. Lagerbeständen im CRM and erstellen Sie daraus Angebote, Bestellungen oder Rechnungen.',
-	'LBL_PROJECT_DESCR'=>'Erstellen und managen Sie kundenbezogene Projekte mit Aufgabenverteilung und Terminplanung für die einzelnen CRM Nutzer.',
+	'LBL_PROJECT_DESCR'=>'Erstellen und verwalten Sie kundenbezogene Projekte mit Aufgabenverteilung und Terminplanung für die einzelnen CRM Nutzer.',
 	'LBL_PURPOSE'=>'Wofür wollen Sie das CRM nutzen?',
 	'LBL_INSTALL_DEFAULT'=>'Diese Leistungsmerkmale werden standardmäßig bereitgestellt',
 	'LBL_MODULE_FEATURE'=>'Diese Module gehören zu diesem Paket.',

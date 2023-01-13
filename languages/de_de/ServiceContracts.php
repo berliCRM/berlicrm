@@ -11,7 +11,7 @@
 $languageStrings = array(	
 	'Actual Duration' => 'ggw. Dauer (in Tagen)',
 	'Contract No' => 'Vertragsnummer',
-	'End Date' => 'Endedatum',
+	'End Date' => 'Enddatum',
 	'LBL_ADD_RECORD' => 'Servicevertrag hinzufügen',
 	'LBL_RECORDS_LIST' => 'Servicevertragsliste',
 	'LBL_SERVICE_CONTRACT_INFORMATION' => 'Servicevertragsinformation',

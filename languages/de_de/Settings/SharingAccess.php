@@ -32,7 +32,7 @@ $languageStrings = array(
 
 $jsLanguageStrings = array(
 	'JS_CUSTOM_RULE_SAVED_SUCCESSFULLY' => 'benutzerdefinierte Regel erfolgreich gespeichert',
-	'JS_DEPENDENT_PRIVILEGES_SHOULD_CHANGE' => 'Der Zugang zu Potentialen, Tickets, Angebote, Verkaufsbestellungen & Rechnungen muss auch auf prvat gesetzt werdesn, wenn der Zugang zu Organisationen auf privat gesetzt wird.',
+	'JS_DEPENDENT_PRIVILEGES_SHOULD_CHANGE' => 'Der Zugang zu Potentialen, Tickets, Angebote, Verkaufsbestellungen & Rechnungen muss auch auf privat gesetzt werden, wenn der Zugang zu Organisationen auf privat gesetzt wird.',
 	'JS_NEW_SHARING_RULES_APPLIED_SUCCESSFULLY' => 'neue benutzerdefinierte Regel erfolgreich zugewiesen',
 	'JS_SELECT_ANY_OTHER_ACCESSING_USER' => 'Wählen Sie einen anderen Nutzer.',
 );
