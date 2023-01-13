@@ -16,7 +16,7 @@ $languageStrings = array(
 	'Busy' => 'blockiert',
 	'Call' => 'Anruf',
 	'Daily'=>'Tag(e)',
-	'End Date & Time' => 'Endedatum & -zeit',
+	'End Date & Time' => 'Enddatum & -zeit',
 	'Events' => 'Ereignisse',
 	'Held' => 'durchgeführt',
 	'INVITATION'=>' Einladung ',
@@ -69,7 +69,7 @@ $languageStrings = array(
 	'Send Notification' => 'sende Erinnerung',
 	'Send Reminder' => 'sende E-Mail Erinnerung',
 	'SINGLE_Events' => 'Ereignis',
-	'Start Date & Time'=>'Startdatum & zeit',
+	'Start Date & Time'=>'Startdatum &-zeit',
 	'Visibility' => 'Sichtbarkeit',
 	'Weekly'=>'Woche(n)',
 	'Yearly'=>'Jahr',
@@ -77,8 +77,8 @@ $languageStrings = array(
 	'Mobile Call' => 'mobiler Anruf',
    
          //Patch provided by http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7884
-        'End Date &amp; Time' => 'Endedatum & Zeit', 
-        'Start Date &amp; Time'=>'Startdatum & Zeit', 
+        'End Date &amp; Time' => 'Enddatum & -zeit', 
+        'Start Date &amp; Time'=>'Startdatum & -zeit', 
     
         //Priority picklist values 
         'High' => 'hoch', 

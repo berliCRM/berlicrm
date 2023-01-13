@@ -64,6 +64,6 @@ $languageStrings = array(
 $jsLanguageStrings = array(
 	'of' => 'von',
 	'to' => 'bis',
-    'JS_LBL_ARE_YOU_SURE_YOU_WANT_TO_ADD_THIS_FILTER' => 'Sind Sie sicher, dass Sie diese Liste hinzufügen wollen? Der Vorgang läßt sich nicht mehr rückgängig machen.',
+    'JS_LBL_ARE_YOU_SURE_YOU_WANT_TO_ADD_THIS_FILTER' => 'Sind Sie sicher, dass Sie diese Liste hinzufügen wollen? Der Vorgang lässt sich nicht mehr rückgängig machen.',
 );
 ?>
