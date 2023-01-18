@@ -107,7 +107,7 @@ $languageStrings = Array (
 	//added for adding email to any contact
 	'LBL_COPY_MAIL_TO_OTHER' => 'select Contact',
 	'LBL_HEADLINE_CONTACTSEL2' => 'Select a contact to attach the email',
-	'LBL_SEARCH_LASTNAME' => 'Here you may enter a search term (last name, first name, email, contact id):',
+	'LBL_SEARCH_LASTNAME' => 'Here you may enter a search term (last name):',
 	'LBL_SHOW_LASTNAME' => 'Here you may select a contact:',
 	'LBL_SAVE_EMAIL' => 'Save Email To Contact',
 
