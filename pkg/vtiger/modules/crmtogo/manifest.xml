@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <module>
-<exporttime>2019-11-13 13:32:21</exporttime>
+<exporttime>2023-01-18 14:50:00</exporttime>
 <name>crmtogo</name>
 <label>crmtogo</label>
 <parent></parent>
 <type>extension</type>
-<version>4.13</version>
+<version>4.14</version>
 <dependencies>
 <vtiger_version>6.5.0</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>

@@ -96,6 +96,13 @@ $languageStrings = Array (
 	'LBL_THEME_COLOR_B'=>'blau',
 	'LBL_THEME_COLOR_C'=>'weiß',
 	'LBL_NAVI_SELECTION'=>'Anzahl beim Scrollen:',
+	'LBL_STARTDATE'=>'Startdatum',
+	'LBL_STARTTIME'=>'Startzeit',
+	'LBL_LOGOUT'=>'Logout',
+	'LBL_QUICKCREATE'=>'erstelle',
+	'LBL_SIGNATURE'=>'Signatur',	
+	'LBL_SIGNATUR_SOURCE'=>'erstellt bei mobile crmtogo',	
+	'Description Details'=>'Beschreibungsdetails',
+	
 );
-
 ?>
