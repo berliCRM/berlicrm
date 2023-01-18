@@ -29,13 +29,15 @@ $languageStrings = array(
 
 	//Blocks
 	'LBL_SMSNOTIFIER_INFORMATION' => 'SMS Information',
-	'SINGLE_SMSNotifier' => 'SMS Notifier',
+	'SINGLE_SMSNotifier' => 'SMS',
 	
 	//status messages
 	'LBL_PROVIDER_MESSAGE' => 'Provider message',
 	'LBL_PROVIDER_ERROR_MESSAGE' => 'Error message from provider',
 	'LBL_OTHER_PROVIDER_MESSAGE' => 'Provider information',
 	'LBL_MESSAGE_SENT' => 'SMS has been send',
+	'LBL_NO_SMS_FROM_THIS_VIEW' => 'You cannot send any short messages from this view.',
+
 );
 
 $jsLanguageStrings = array(
