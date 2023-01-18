@@ -7,6 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * Maintained by crm-now GmbH www.crm-now.de
  * All Rights Reserved.
+ * Modified by crm-now GmbH, www.crm-now.com
  ************************************************************************************/
 $languageStrings = Array (
 'Mobile' => 'Mobil',
@@ -50,10 +51,31 @@ $languageStrings = Array (
 'COMBO_USERS'=>'Benutzer',
 'COMBO_CAMPAIGNS'=>'Kampagnen',
 'LBL_RELATED_TO'=>'bezogen auf:',
-'LBL_DELETE'=>'Eintrag Löschen',
-'LBL_DELETE_COMMENT'=>'Den Eintrag wirklich löschen?',
+'LBL_DELETE'=>'Daten Löschen',
+'LBL_DELETE_COMMENT'=>'Die Daten wirklich löschen?',
 'LBL_YES_BUTTON'=>'Ja',
-'LBL_ACCOUNT_AUTOCOMPLETE'=>'Organisation suchen...'
+'LBL_ACCOUNT_AUTOCOMPLETE'=>'Organisation suchen...',
+'LBL_SEARCH_AUTOCOMPLETE'=>'Suchen...',
+'LBL_RELATED_LISTS'=>'Bezogene Listen',
+'LBL_RELATED_LIST'=>'Bezogene Liste',
+'LBL_RELATED_LISTS_COMMENT'=>'Diese Funktion wird später bereitgestellt.',
+'Leads'=>'Leads',
+'Accounts'=>'Organisationen',
+'Contacts'=>'Personen',
+'Potentials'=>'Potentiale',
+'Products'=>'Produkte',
+'Helpdesk'=>'Trouble Tickets',
+'Users'=>'Benutzer',
+'Campaigns'=>'Kampagnen',
+'Assets'=>'Produktverwaltung',
+'address'=>'Adresse',
+'otheraddress'=>'weitere Adresse',
+'bill_address'=>'Rechnungsadresse',
+'ship_address'=>'Lieferadresse',
+'ERR_INVALID_PASSWORD'=>'ungültiger Passwort',
+'LBL_AUTHOR'=>'Author',
+'LBL_ON_DATE'=>'am',
+'LBL_NO_SEARCHRESULT'=>'wurde nicht gefunden',
 
 );
 
