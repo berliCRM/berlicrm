@@ -6,6 +6,7 @@
  * The Initial Developer of the Original Code is vtiger.
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
+ * Reviewed by crm-now GmbH
  * *********************************************************************************** */
 $languageStrings = array(	
 	'Actual Duration' => 'Actual Duration (in Days)',
@@ -41,4 +42,14 @@ $languageStrings = array(
         'On Hold' => 'On Hold', 
         'Complete' => 'Complete', 
         'Archived' => 'Archived', 
+		
+	//crm-now: added labels for translation not in engl. files
+	'Related to' => 'related to',
+	'Normal' => 'normal',
 );
+
+$jsLanguageStrings = array(
+	'of' => 'von',
+	'to' => 'bis',
+);
+?>
