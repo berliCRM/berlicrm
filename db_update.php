@@ -863,6 +863,7 @@ echo 'module update ServiceContracts done <br>';
 
 
 
+
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
 $adb->pquery($query, array($current_release_tag));
 echo "<h2>Finished updating to $current_release_tag!</h2>";
