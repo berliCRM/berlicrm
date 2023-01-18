@@ -183,8 +183,6 @@ $jsLanguageStrings = Array (
 	//crm-now: added for saving email to other contact
 	'JSLBL_NO_SELECTION'=>'Sie haben keine Person ausgewählt.',
 	'JSLBL_EMAIL_SAVED'=>'Die E-Mail wurde bei der ausgewählten Person gespeichert.',
-	
-	
 );
 
 //Special Handling: Mix of language strings are used.
