@@ -2406,8 +2406,9 @@ function crmnow_login_protection($usr_name, $login_tries) {
 	
 	$failed_count = $adb->query_result($result, 0, 'failed_count');
 	if ($failed_count >= $login_tries) {
-		$query = "UPDATE vtiger_users SET status = ? WHERE user_name = ?;";
-		$result = $adb->pquery($query, array('Inactive', $usr_name));
+		$date_var = date('Y-m-d H:i:s');
+		$query = "UPDATE vtiger_users SET status = ?, date_modified=? WHERE user_name = ?;";
+		$result = $adb->pquery($query, array('Inactive',$adb->formatDate($date_var, true), $usr_name));
 		if (!$result) { 
 			$log->warn("MySQL error: (".$query.")");
 			return false;
