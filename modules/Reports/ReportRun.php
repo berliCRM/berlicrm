@@ -1118,38 +1118,40 @@ class ReportRun extends CRMEntity
 									if($selectedfields[2] == 'Calendar_Status') {
 										$advcolsql[] = "(case when (vtiger_activity.status not like '') then vtiger_activity.status else vtiger_activity.eventstatus end)".$this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype);
 									} else if($selectedfields[2] == 'HelpDesk_Status') {
-										$advcolsql[] = "vtiger_troubletickets.status".$this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype);
+										$advcolsql[] = "(vtiger_troubletickets.status".$this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype).')';
 									} else if($selectedfields[2] == 'Faq_Status') {
-										$advcolsql[] = "vtiger_faq.status".$this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype);
+										$advcolsql[] = "(vtiger_faq.status".$this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype).')';
+									} else {
+										$advcolsql[] = '('.$selectedfields[0].".".$selectedfields[1].$this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype).')';
 									}
-                                    else
-                                    $advcolsql[] = $selectedfields[0].".".$selectedfields[1].$this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype);
 								} elseif($selectedfields[1] == 'description') {//when you use comma seperated values.
-									if($selectedfields[0]=='vtiger_crmentity'.$this->primarymodule)
-										$advcolsql[] = "vtiger_crmentity.description".$this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype);
-									else
-										$advcolsql[] = $selectedfields[0].".".$selectedfields[1].$this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype);
+									if($selectedfields[0]=='vtiger_crmentity'.$this->primarymodule) {
+										$advcolsql[] = "(vtiger_crmentity.description".$this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype).')';
+									} else {
+										$advcolsql[] = '('.$selectedfields[0].".".$selectedfields[1].$this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype).')';
+									}
 								} elseif($selectedfields[2] == 'Quotes_Inventory_Manager'){
-									$advcolsql[] = ("trim($concatSql)".$this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype));
+									$advcolsql[] = ("(trim($concatSql)".$this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype)).')';
 								} elseif($selectedfields[1] == 'modifiedby'){
                                     $module_from_tablename = str_replace("vtiger_crmentity","",$selectedfields[0]);
                                     if($module_from_tablename != '') {
                                         $tableName = 'vtiger_lastModifiedBy'.$module_from_tablename;
-								} else {
+									} else {
                                         $tableName = 'vtiger_lastModifiedBy'.$this->primarymodule;
                                     }
-                                    $advcolsql[] = 'trim('.getSqlForNameInDisplayFormat(array('last_name'=>"$tableName.last_name",'first_name'=>"$tableName.first_name"), 'Users').')'.
-                                                    $this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype);
+                                    $advcolsql[] = '(trim('.getSqlForNameInDisplayFormat(array('last_name'=>"$tableName.last_name",'first_name'=>"$tableName.first_name"), 'Users').')'.
+                                                    $this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype).')';
                                 }
                                 else {
-									$advcolsql[] = $selectedfields[0].".".$selectedfields[1].$this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype, $selectedfields[0].".".$selectedfields[1]);
+									$advcolsql[] = '('.$selectedfields[0].".".$selectedfields[1].$this->getAdvComparator($comparator,trim($valuearray[$n]),$datatype, $selectedfields[0].".".$selectedfields[1]).')';
 								}
 							}
 							//If negative logic filter ('not equal to', 'does not contain') is used, 'and' condition should be applied instead of 'or'
-							if($comparator == 'n' || $comparator == 'k')
+							if($comparator == 'n' || $comparator == 'k') {
 								$advcolumnsql = implode(" AND ",$advcolsql);
-							else
+							} else {
 								$advcolumnsql = implode(" OR ",$advcolsql);
+							}
 							$fieldvalue = " (".$advcolumnsql.") ";
 						} elseif($selectedfields[1] == 'user_name') {
 							if($selectedfields[0] == "vtiger_users".$this->primarymodule) {
