@@ -565,23 +565,40 @@ foreach($moduleFolders as $moduleFolder) {
 echo '<br>module install Mailchimp done <br>';
 
 echo "<br>set relation in Vendors to Services (to add related list into Vendors), increase vtiger_relatedlists_seq number.<br>";
-$query = "INSERT INTO vtiger_relatedlists (relation_id, tabid, related_tabid, name, sequence, label, presence, actions)
-VALUES ( 
-((SELECT max(id) FROM vtiger_relatedlists_seq)+1), 
-(SELECT tabid FROM vtiger_tab WHERE name = 'Vendors'), 
-(SELECT tabid FROM vtiger_tab WHERE name = 'Services'), 
-'get_services',
-7,
-'Services',
-0,
-'SELECT');";
-$adb->pquery($query, array());
-
-$query = "UPDATE vtiger_relatedlists_seq
-SET id = ((SELECT max(relation_id) FROM vtiger_relatedlists)) 
-WHERE id = ((SELECT max(relation_id) FROM vtiger_relatedlists)-1);";
-$adb->pquery($query, array());
-echo "DB relation and increase done.<br>";
+// first we need to check, if it is allready in DB
+$sql = "SELECT * FROM vtiger_relatedlists
+WHERE tabid = (SELECT tabid FROM vtiger_tab WHERE name = 'Vendors')
+AND related_tabid = (SELECT tabid FROM vtiger_tab WHERE name = 'Services')
+AND name = 'get_services' 
+AND sequence = 7
+AND label = 'Services'
+AND presence = 0 
+AND actions = 'SELECT'";
+$resultsql = $adb->pquery($sql, array()); 
+$num_rows = $adb->num_rows($resultsql);
+if($num_rows <= 0){
+	// because it not exist we need to insert it.
+	$query = "INSERT INTO vtiger_relatedlists (relation_id, tabid, related_tabid, name, sequence, label, presence, actions)
+	VALUES ( 
+	((SELECT max(id) FROM vtiger_relatedlists_seq)+1), 
+	(SELECT tabid FROM vtiger_tab WHERE name = 'Vendors'), 
+	(SELECT tabid FROM vtiger_tab WHERE name = 'Services'), 
+	'get_services',
+	7,
+	'Services',
+	0,
+	'SELECT');";
+	$adb->pquery($query, array());
+	
+	$query = "UPDATE vtiger_relatedlists_seq
+	SET id = ((SELECT max(relation_id) FROM vtiger_relatedlists)) 
+	WHERE id = ((SELECT max(relation_id) FROM vtiger_relatedlists)-1);";
+	$adb->pquery($query, array());
+	echo "Vendors to Services DB relation and increase done.<br>";
+}
+else{
+	echo "Vendors to Services DB relation and increase allready exist. Done.<br>";
+}
 
 
 echo 'module SMSNotifier update start<br>';
