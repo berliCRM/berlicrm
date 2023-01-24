@@ -170,15 +170,15 @@
                             </div>
                             {if $WORKFLOW_MODEL_OBJ->nexttrigger_time}
                                 <div class="row-fluid">
-                                    <div class='span2'>
-                                        <span class=''>{vtranslate('LBL_NEXT_TRIGGER_TIME', $QUALIFIED_MODULE)}</span>
-                                    </div>
-                                    <div class='span'>
-                                        {if $WORKFLOW_MODEL_OBJ->schtypeid neq 4}
-                                            {DateTimeField::convertToUserFormat($WORKFLOW_MODEL_OBJ->nexttrigger_time)}
-                                            <span>&nbsp;({$ACTIVE_ADMIN->time_zone})</span>
-                                        {/if}
-                                    </div>
+                                    {if $WORKFLOW_MODEL_OBJ->schtypeid neq 4}
+										 <div class='span2'>
+											<span class=''>{vtranslate('LBL_NEXT_TRIGGER_TIME', $QUALIFIED_MODULE)}</span>
+										</div>
+										<div class='span'>
+												{DateTimeField::convertToUserFormat($WORKFLOW_MODEL_OBJ->nexttrigger_time)}
+												<span>&nbsp;({$ACTIVE_ADMIN->time_zone})</span>
+										</div>
+									{/if}
                                 </div>
                             {/if}
                         </div>
