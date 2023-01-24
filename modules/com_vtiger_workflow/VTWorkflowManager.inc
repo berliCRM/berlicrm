@@ -471,7 +471,7 @@
 			}
 
 			if($scheduleType == Workflow::$SCHEDULED_ON_SPECIFIC_DATE) {
-				$nextTime = date('Y-m-d H:i:s', strtotime('+10 year'));
+				$nextTime = date('Y-m-d H:i:s', strtotime('+100 year'));
 			}
 
 			if($scheduleType == Workflow::$SCHEDULED_MONTHLY_BY_DATE) {
