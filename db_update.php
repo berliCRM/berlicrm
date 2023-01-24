@@ -498,72 +498,33 @@ $adb->pquery($query, array());
 echo "increase done.<br>";
 
 
-echo '<br>module Pdfsettings update start<br>';
-//update Pdfsettings module
-$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-foreach($moduleFolders as $moduleFolder) {
-	if ($handle = opendir($moduleFolder)) {
-		while (false !== ($file = readdir($handle))) {
-			$packageNameParts = explode(".",$file);
-			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-				continue;
-			}
-			array_pop($packageNameParts);
-			$packageName = implode("",$packageNameParts);
-			if ($packageName =='Pdfsettings') {
-				$packagepath = "$moduleFolder/$file";
-				$package = new Vtiger_Package();
-				$module = $package->getModuleNameFromZip($packagepath);
-				if($module != null) {
-					$moduleInstance = Vtiger_Module::getInstance($module);
-					if($moduleInstance) {
-						updateVtlibModule($module, $packagepath);
-					} 
-					else {
-						installVtlibModule($module, $packagepath);
-					}
-				}
-			}
+// Module tabid update //get all tabids for module berliCleverReach, Mailchimp and PBXManager
+$arrModule = array('berliCleverReach', 'Mailchimp' , 'PBXManager');
+foreach($arrModule as $ModuleName){
+	$moduleToUpdate = $ModuleName;
+	if( Vtiger_Module::getInstance($moduleToUpdate) ){
+		echo '<br>module '.$moduleToUpdate.' update start<br>'; 
+		//get all tabids for module berliCleverReach, Mailchimp and PBXManager
+		$query = 'SELECT `tabid` FROM `vtiger_tab` WHERE `name`=?;';
+		$result = $adb->pquery($query, array($moduleToUpdate));
+		$numOfRows = $adb->num_rows($result);
+		
+		for ($i=0; $i<$numOfRows; $i++) {
+			$tabidarr[] = $adb->query_result($result, $i, "tabid");
 		}
-		closedir($handle);
-	}
-}
-echo '<br>module update Pdfsettings done <br>';
-
-echo '<br>module Mailchimp update start<br>';
-//update Mailchimp module
-$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-foreach($moduleFolders as $moduleFolder) {
-	if ($handle = opendir($moduleFolder)) {
-		while (false !== ($file = readdir($handle))) {
-			$packageNameParts = explode(".",$file);
-			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-				continue;
-			}
-			array_pop($packageNameParts);
-			$packageName = implode("",$packageNameParts);
-			if ($packageName =='Mailchimp') {
-				$packagepath = "$moduleFolder/$file";
-				$package = new Vtiger_Package();
-				$module = $package->getModuleNameFromZip($packagepath);
-				if($module != null) {
-					$moduleInstance = Vtiger_Module::getInstance($module);
-					if($moduleInstance) {
-						updateVtlibModule($module, $packagepath);
-					} 
-					else {
-						installVtlibModule($module, $packagepath);
-					}
-				}
-			}
+		foreach ($tabidarr as $tabid) {
+			//update
+			$updateQuery = "UPDATE `vtiger_field` set `quickcreate`='3', `fieldname`='createdtime' WHERE `tabid`=? and `fieldname`='CreatedTime';";
+			$adb->pquery($updateQuery, array($tabid));
+			$updateQuery = "UPDATE `vtiger_field` set `quickcreate`='3', `fieldname`='modifiedtime' WHERE `tabid`=? and `fieldname`='ModifiedTime';";
+			$adb->pquery($updateQuery, array($tabid));	
 		}
-		closedir($handle);
+		echo '<br>module '.$moduleToUpdate.' update done <br>';
 	}
 }
 
 
-echo '<br>module install Mailchimp done <br>';
-
+// Vendors and Service Relation
 echo "<br>set relation in Vendors to Services (to add related list into Vendors), increase vtiger_relatedlists_seq number.<br>";
 // first we need to check, if it is allready in DB
 $sql = "SELECT * FROM vtiger_relatedlists
@@ -600,284 +561,48 @@ else{
 	echo "Vendors to Services DB relation and increase allready exist. Done.<br>";
 }
 
-
-echo 'module SMSNotifier update start<br>';
-//update SMSNotifier module
-$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-foreach($moduleFolders as $moduleFolder) {
-	if ($handle = opendir($moduleFolder)) {
-		while (false !== ($file = readdir($handle))) {
-			$packageNameParts = explode(".",$file);
-			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-				continue;
-			}
-			array_pop($packageNameParts);
-			$packageName = implode("",$packageNameParts);
-			if ($packageName =='SMSNotifier') {
-				$packagepath = "$moduleFolder/$file";
-				$package = new Vtiger_Package();
-				$module = $package->getModuleNameFromZip($packagepath);
-				if($module != null) {
-					$moduleInstance = Vtiger_Module::getInstance($module);
-					if($moduleInstance) {
-						updateVtlibModule($module, $packagepath);
-					} 
-					else {
-						installVtlibModule($module, $packagepath);
+// module update standard if module exist.
+$moduleToUpdateArr = array('Pdfsettings', 'Projects', 'EmailTemplates', 'berlimap', 'MailManager', 
+	'Mailchimp', 'SMSNotifier', 'crmtogo', 'ServiceContracts' 
+);
+foreach($moduleToUpdateArr as $moduleToUpdate){
+	if( Vtiger_Module::getInstance($moduleToUpdate) ){
+		// if we are here, then the Module exist. And we can update.
+		echo '<br>module '.$moduleToUpdate.' update start<br>'; 
+		$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
+		foreach($moduleFolders as $moduleFolder) {
+			if ($handle = opendir($moduleFolder)) {
+				while (false !== ($file = readdir($handle))) {
+					$packageNameParts = explode(".",$file);
+					if($packageNameParts[count($packageNameParts)-1] != 'zip'){
+						continue;
+					}
+					array_pop($packageNameParts);
+					$packageName = implode("",$packageNameParts);
+					if ($packageName == $moduleToUpdate) { 
+						$packagepath = "$moduleFolder/$file";
+						$package = new Vtiger_Package();
+						$module = $package->getModuleNameFromZip($packagepath);
+						if($module != null) {
+							$moduleInstance = Vtiger_Module::getInstance($module);
+							if($moduleInstance) {
+								updateVtlibModule($module, $packagepath);
+							} 
+							else {
+								installVtlibModule($module, $packagepath);
+							}
+						}
 					}
 				}
+				closedir($handle);
 			}
 		}
-		closedir($handle);
+		echo '<br>module update '.$moduleToCheck.' done <br>';  
+	}else{
+		// This module does not exist.
+
 	}
 }
-echo '<br>module install SMSNotifier done <br>';
-
-echo '<br>module Projects update start<br>';
-//update Projects module
-$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-foreach($moduleFolders as $moduleFolder) {
-	if ($handle = opendir($moduleFolder)) {
-		while (false !== ($file = readdir($handle))) {
-			$packageNameParts = explode(".",$file);
-			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-				continue;
-			}
-			array_pop($packageNameParts);
-			$packageName = implode("",$packageNameParts);
-			if ($packageName =='Projects') {
-				$packagepath = "$moduleFolder/$file";
-				$package = new Vtiger_Package();
-				$module = $package->getModuleNameFromZip($packagepath);
-				if($module != null) {
-					$moduleInstance = Vtiger_Module::getInstance($module);
-					if($moduleInstance) {
-						updateVtlibModule($module, $packagepath);
-					} 
-					else {
-						installVtlibModule($module, $packagepath);
-					}
-				}
-			}
-		}
-		closedir($handle);
-	}
-}
-echo '<br>module update Projects done <br>';
-
-echo '<br>module EmailTemplates update start<br>';
-//update EmailTemplates module
-$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-foreach($moduleFolders as $moduleFolder) {
-	if ($handle = opendir($moduleFolder)) {
-		while (false !== ($file = readdir($handle))) {
-			$packageNameParts = explode(".",$file);
-			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-				continue;
-			}
-			array_pop($packageNameParts);
-			$packageName = implode("",$packageNameParts);
-			if ($packageName =='EmailTemplates') {
-				$packagepath = "$moduleFolder/$file";
-				$package = new Vtiger_Package();
-				$module = $package->getModuleNameFromZip($packagepath);
-				if($module != null) {
-					$moduleInstance = Vtiger_Module::getInstance($module);
-					if($moduleInstance) {
-						updateVtlibModule($module, $packagepath);
-					} 
-					else {
-						installVtlibModule($module, $packagepath);
-					}
-				}
-			}
-		}
-		closedir($handle);
-	}
-}
-
-echo '<br>module update EmailTemplates done <br>';
-
-echo '<br>module Cleverrech, Mailchimp and PBXManager update start<br>';
-//get all tabids for module Cleverrech, Mailchimp and PBXManager
-$query = 'SELECT `tabid` FROM `vtiger_tab` WHERE `name`=? or `name`=? or `name`=?;';
-$result = $adb->pquery($query, array('Mailchimp','berliCleverReach','PBXManager'));
-$numOfRows = $adb->num_rows($result);
-
-for ($i=0; $i<$numOfRows; $i++) {
-	$tabidarr[] = $adb->query_result($result, $i, "tabid");
-}
-Foreach ($tabidarr as $tabid) {
-	//update
-	$updateQuery = "UPDATE `vtiger_field` set `quickcreate`='3', `fieldname`='createdtime' WHERE `tabid`=? and `fieldname`='CreatedTime';";
-	$adb->pquery($updateQuery, array($tabid));
-	$updateQuery = "UPDATE `vtiger_field` set `quickcreate`='3', `fieldname`='modifiedtime' WHERE `tabid`=? and `fieldname`='ModifiedTime';";
-	$adb->pquery($updateQuery, array($tabid));	
-}
-echo '<br>module Cleverrech, Mailchimp and PBXManager update done <br>';
-
-echo '<br>module berlimap update start<br>';
-//update berlimap module
-$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-foreach($moduleFolders as $moduleFolder) {
-	if ($handle = opendir($moduleFolder)) {
-		while (false !== ($file = readdir($handle))) {
-			$packageNameParts = explode(".",$file);
-			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-				continue;
-			}
-			array_pop($packageNameParts);
-			$packageName = implode("",$packageNameParts);
-			if ($packageName =='berlimap') {
-				$packagepath = "$moduleFolder/$file";
-				$package = new Vtiger_Package();
-				$module = $package->getModuleNameFromZip($packagepath);
-				if($module != null) {
-					$moduleInstance = Vtiger_Module::getInstance($module);
-					if($moduleInstance) {
-						updateVtlibModule($module, $packagepath);
-					} 
-					else {
-						installVtlibModule($module, $packagepath);
-					}
-				}
-			}
-		}
-		closedir($handle);
-	}
-}
-echo '<br>module update berlimap done <br>';
-
-echo '<br>module MailManager update start<br>';
-//update MailManager module
-$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-foreach($moduleFolders as $moduleFolder) {
-	if ($handle = opendir($moduleFolder)) {
-		while (false !== ($file = readdir($handle))) {
-			$packageNameParts = explode(".",$file);
-			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-				continue;
-			}
-			array_pop($packageNameParts);
-			$packageName = implode("",$packageNameParts);
-			if ($packageName =='MailManager') {
-				$packagepath = "$moduleFolder/$file";
-				$package = new Vtiger_Package();
-				$module = $package->getModuleNameFromZip($packagepath);
-				if($module != null) {
-					$moduleInstance = Vtiger_Module::getInstance($module);
-					if($moduleInstance) {
-						updateVtlibModule($module, $packagepath);
-					} 
-					else {
-						installVtlibModule($module, $packagepath);
-					}
-				}
-			}
-		}
-		closedir($handle);
-	}
-}
-
-
-echo '<br>module install MailManager done <br>';
-
-echo 'module update crmtogo start<br>';
-//update crmtogo module
-$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-foreach($moduleFolders as $moduleFolder) {
-	if ($handle = opendir($moduleFolder)) {
-		while (false !== ($file = readdir($handle))) {
-			$packageNameParts = explode(".",$file);
-			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-				continue;
-			}
-			array_pop($packageNameParts);
-			$packageName = implode("",$packageNameParts);
-			if ($packageName =='crmtogo') {
-				$packagepath = "$moduleFolder/$file";
-				$package = new Vtiger_Package();
-				$module = $package->getModuleNameFromZip($packagepath);
-				if($module != null) {
-					$moduleInstance = Vtiger_Module::getInstance($module);
-					if($moduleInstance) {
-						updateVtlibModule($module, $packagepath);
-					} 
-					else {
-						installVtlibModule($module, $packagepath);
-					}
-				}
-			}
-		}
-		closedir($handle);
-	}
-}
-echo 'module update crmtogo done <br>';
-
-echo '<br>module Mobile update start<br>';
-//update Mobile module
-$moduleFolders = array('packages/vtiger/optional');
-foreach($moduleFolders as $moduleFolder) {
-	if ($handle = opendir($moduleFolder)) {
-		while (false !== ($file = readdir($handle))) {
-			$packageNameParts = explode(".",$file);
-			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-				continue;
-			}
-			array_pop($packageNameParts);
-			$packageName = implode("",$packageNameParts);
-			if ($packageName =='Mobile') {
-				$packagepath = "$moduleFolder/$file";
-				$package = new Vtiger_Package();
-				$module = $package->getModuleNameFromZip($packagepath);
-				if($module != null) {
-					$moduleInstance = Vtiger_Module::getInstance($module);
-					if($moduleInstance) {
-						updateVtlibModule($module, $packagepath);
-					} 
-					else {
-						installVtlibModule($module, $packagepath);
-					}
-				}
-			}
-		}
-		closedir($handle);
-	}
-}
-echo '<br>module install Mobile done <br>';
-
-echo 'module update ServiceContracts start<br>';
-//update ServiceContracts module
-$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-foreach($moduleFolders as $moduleFolder) {
-	if ($handle = opendir($moduleFolder)) {
-		while (false !== ($file = readdir($handle))) {
-			$packageNameParts = explode(".",$file);
-			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-				continue;
-			}
-			array_pop($packageNameParts);
-			$packageName = implode("",$packageNameParts);
-			if ($packageName =='ServiceContracts') {
-				$packagepath = "$moduleFolder/$file";
-				$package = new Vtiger_Package();
-				$module = $package->getModuleNameFromZip($packagepath);
-				if($module != null) {
-					$moduleInstance = Vtiger_Module::getInstance($module);
-					if($moduleInstance) {
-						updateVtlibModule($module, $packagepath);
-					} 
-					else {
-						installVtlibModule($module, $packagepath);
-					}
-				}
-			}
-		}
-		closedir($handle);
-	}
-}
-echo 'module update ServiceContracts done <br>';
-
 
 
 
