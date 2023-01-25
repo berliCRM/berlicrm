@@ -498,13 +498,13 @@ $adb->pquery($query, array());
 echo "increase done.<br>";
 
 
-// Module tabid update //get all tabids for module berliCleverReach, Mailchimp and PBXManager
-$arrModule = array('berliCleverReach', 'Mailchimp' , 'PBXManager');
+// Module tabid update //get all tabids for module berliCleverReach, Mailchimp 
+$arrModule = array('berliCleverReach', 'Mailchimp' );
 foreach($arrModule as $ModuleName){
 	$moduleToUpdate = $ModuleName;
 	if( Vtiger_Module::getInstance($moduleToUpdate) ){
 		echo '<br>module '.$moduleToUpdate.' update start<br>'; 
-		//get all tabids for module berliCleverReach, Mailchimp and PBXManager
+		//get all tabids for module berliCleverReach, Mailchimp 
 		$query = 'SELECT `tabid` FROM `vtiger_tab` WHERE `name`=?;';
 		$result = $adb->pquery($query, array($moduleToUpdate));
 		$numOfRows = $adb->num_rows($result);
