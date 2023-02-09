@@ -206,9 +206,14 @@ class berliQueryParser {
 		$columnList = ($bCountQuery) ? 'count(*)' : $queryGenerator->getSelectClauseColumnSQL();
 		$generatedQuery = "SELECT $columnList";
 		$generatedQuery .= $queryGenerator->getFromClause();
-		$generatedQuery .= $queryGenerator->getWhereClause();
+		$whereClause = $queryGenerator->getWhereClause();
+		$generatedQuery .= $whereClause;
 		if (!empty($where)) {
-			$generatedQuery .= " AND ($where)";
+			if (empty($whereClause)) {
+				$generatedQuery .= " WHERE ($where)";
+			} else {
+				$generatedQuery .= " AND ($where)";
+			}
 		}
 		if (!empty($groupFields)) {
 			$generatedQuery .= ' GROUP BY '.implode(', ', $groupFields);
