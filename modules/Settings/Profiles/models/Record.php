@@ -505,7 +505,11 @@ class Settings_Profiles_Record_Model extends Settings_Vtiger_Record_Model {
 			if($actionPermissions || $moduleModel->isUtilityActionEnabled()) {
 				$actionIdsList = Vtiger_Action_Model::$standardActions;
 				unset($actionIdsList[3]);
-				$availableActionIds = array_keys($actionIdsList);
+				// prevent standard actions from blocking Reports delete
+				$availableActionIds = array();
+				if ($moduleModel->getName() != 'Reports') {
+					$availableActionIds = array_keys($actionIdsList);
+				}
 
 				foreach ($availableActionIds as $actionId) {
 					if ($actionId === 0) {
@@ -592,6 +596,7 @@ class Settings_Profiles_Record_Model extends Settings_Vtiger_Record_Model {
 					$count = count($utilityIdsList);
 					$utilityInsertQuery .= 'INSERT INTO vtiger_profile2utility(profileid, tabid, activityid, permission) VALUES ';
 					foreach($utilityIdsList as $actionId => $permission) {
+						$actionEnabled = true;
 						$permissionValue = $this->tranformInputPermissionValue($permission);
 						$utilityInsertQuery .= "($profileId, $tabId, $actionId, $permissionValue)";
 
