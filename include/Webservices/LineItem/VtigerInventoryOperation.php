@@ -22,11 +22,16 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
 		$lineItems = $element['LineItems'];
 		if (!empty($lineItems)) {
 			//check at least for valid Product IDs before creating the parent
-			$pHandler =  vtws_getModuleHandlerFromName('Products', $this->user);
 			foreach ($lineItems AS $lineItem) {
 				$pid = $lineItem['productid'];
 				try {
-					$pHandler->retrieve($pid);
+					$xHandler = vtws_getModuleHandlerFromId($pid, $this->user);
+					$xName = $xHandler->meta->getTabName();
+					if ($xName == 'Products' || $xName == 'Services') {
+						$xHandler->retrieve($pid);
+					} else {
+						throw new Exception('error');
+					}
 				} catch (Exception $e) {
 					throw new WebServiceException(WebServiceErrorCode::$REFERENCEINVALID, "LineItem productid missing or invalid: ".json_encode($lineItem));
 				}
@@ -61,11 +66,16 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
 		$handler = vtws_getModuleHandlerFromName('LineItem', $this->user);
 		if (!empty($lineItemList)) {
 			//check at least for valid Product IDs before creating the parent
-			$pHandler =  vtws_getModuleHandlerFromName('Products', $this->user);
 			foreach ($lineItemList AS $lineItem) {
 				$pid = $lineItem['productid'];
 				try {
-					$pHandler->retrieve($pid);
+					$xHandler = vtws_getModuleHandlerFromId($pid, $this->user);
+					$xName = $xHandler->meta->getTabName();
+					if ($xName == 'Products' || $xName == 'Services') {
+						$xHandler->retrieve($pid);
+					} else {
+						throw new Exception('error');
+					}
 				} catch (Exception $e) {
 					throw new WebServiceException(WebServiceErrorCode::$REFERENCEINVALID, "LineItem productid missing or invalid: ".json_encode($lineItem));
 				}
@@ -113,11 +123,16 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
 			$lineItemList = $element['LineItems'];
 			unset($element['LineItems']);
 			//check at least for valid Product IDs before creating the parent
-			$pHandler =  vtws_getModuleHandlerFromName('Products', $this->user);
 			foreach ($lineItemList AS $lineItem) {
 				$pid = $lineItem['productid'];
 				try {
-					$pHandler->retrieve($pid);
+					$xHandler = vtws_getModuleHandlerFromId($pid, $this->user);
+					$xName = $xHandler->meta->getTabName();
+					if ($xName == 'Products' || $xName == 'Services') {
+						$xHandler->retrieve($pid);
+					} else {
+						throw new Exception('error');
+					}
 				} catch (Exception $e) {
 					throw new WebServiceException(WebServiceErrorCode::$REFERENCEINVALID, "LineItem productid missing or invalid: ".json_encode($lineItem));
 				}
