@@ -103,6 +103,10 @@ class VtigerLineItemMeta extends VtigerCRMActorMeta {
 		$field['masseditable'] = 0;
 		return $field;
 	}
+	
+	public function getEntityDeletedQuery() {
+		return 'vtiger_crmentity.deleted = 0';
+	}
 
 }
 ?>
