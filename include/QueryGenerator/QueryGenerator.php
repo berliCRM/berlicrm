@@ -611,6 +611,10 @@ class QueryGenerator {
 					"$baseTableIndex = $tableName.$moduleTableIndexList[$tableName]";
 			unset($tableList[$tableName]);
 		}
+		
+		if ($this->module == 'LineItem') {
+			$sql .= " INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_inventoryproductrel.id";
+		}
 
 		foreach ($tableList as $tableName) {
 			if($tableName == 'vtiger_users') {
