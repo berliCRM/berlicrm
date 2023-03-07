@@ -592,12 +592,26 @@ class Settings_Profiles_Record_Model extends Settings_Vtiger_Record_Model {
 					}
 
 					//Utility permissions
+					// delete previous permissions, just in case
+					$db->pquery('DELETE FROM vtiger_profile2utility WHERE profileid = ? AND tabid = ?;', array($profileId, $tabId));
+					// set default value to neq 1 and 'on' (NOT allowed) if not present for import and export
+					$mandatoryUtilities = array(5, 6);
+					if ($moduleModel->getName() == 'Reports') {
+						$mandatoryUtilities[] = 11;
+					}
+					foreach ($mandatoryUtilities AS $actionId) {
+						if (!isset($utilityIdsList[$actionId])) {
+							$utilityIdsList[$actionId] = 'off';
+						}
+					}
 					$i = 0;
 					$count = count($utilityIdsList);
 					$utilityInsertQuery .= 'INSERT INTO vtiger_profile2utility(profileid, tabid, activityid, permission) VALUES ';
 					foreach($utilityIdsList as $actionId => $permission) {
-						$actionEnabled = true;
 						$permissionValue = $this->tranformInputPermissionValue($permission);
+						if ($permissionValue == 0 || $moduleModel->getName() == 'Reports') {
+							$actionEnabled = true;
+						}
 						$utilityInsertQuery .= "($profileId, $tabId, $actionId, $permissionValue)";
 
 						if ($i !== $count-1) {
