@@ -113,8 +113,12 @@
 			{assign var=LISTVIEW_HEADERNAME value=$LISTVIEW_HEADER->get('name')}
 			<td class="listViewEntryValue {$WIDTHTYPE}" data-field-type="{$LISTVIEW_HEADER->getFieldDataType()}" nowrap>
 				{if $LISTVIEW_HEADER->isNameField() eq true or $LISTVIEW_HEADER->get('uitype') eq '4'}
-					<a href="{$LISTVIEW_ENTRY->getDetailViewUrl()}">{$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)}</a>{if $LISTVIEW_ENTRY->get('description') && {$LISTVIEW_ENTRY->get('description')|trim} neq '' }<a style="margin-left: 2px;" href="#"  rel="popover" title="{vtranslate('Description', $MODULE)}" data-placement="bottom" data-trigger="hover" data-content="{$LISTVIEW_ENTRY->get('description')}"><i class="icon-info-sign"></i></a>
-				{/if}
+					<a href="{$LISTVIEW_ENTRY->getDetailViewUrl()}">{$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)}</a>
+					{if $LISTVIEW_ENTRY->get('description') && {$LISTVIEW_ENTRY->get('description')|trim} neq '' && {$LISTVIEW_ENTRY->get('description')|trim} neq (vtranslate('Busy','Events')) }
+						<a style="margin-left: 2px;" href="#"  rel="popover" title="{vtranslate('Description', $MODULE)}" data-placement="bottom" data-trigger="hover" data-content="{$LISTVIEW_ENTRY->get('description')}">
+							<i class="icon-info-sign"></i>
+						</a>
+					{/if}
 				{else if $LISTVIEW_HEADER->get('uitype') eq '72'}
 					{assign var=CURRENCY_SYMBOL_PLACEMENT value={$CURRENT_USER_MODEL->get('currency_symbol_placement')}}
 					{if $CURRENCY_SYMBOL_PLACEMENT eq '1.0$'}
@@ -161,8 +165,7 @@
 							{/if}
 						{/if}
 					</span>
-				</div>
-				</td>
+				</div></td>
 				{/if}
 			</td>
 			{/foreach}
