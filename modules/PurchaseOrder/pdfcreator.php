@@ -134,7 +134,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 		$org_irs = $adb->query_result($result,0,"irs");
 		$org_website = $adb->query_result($result,0,"website");
 
-		$logo_name = $adb->query_result($result,0,"logoname");
+		$logo_name = decode_html($adb->query_result($result,0,"logoname"));
 		$bank_name = $adb->query_result($result,0,"bankname");
 		$bank_street = $adb->query_result($result,0,"bankstreet");
 		$bank_city = $adb->query_result($result,0,"bankcity");
