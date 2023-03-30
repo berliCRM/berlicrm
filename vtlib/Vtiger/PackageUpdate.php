@@ -118,13 +118,13 @@ class Vtiger_PackageUpdate extends Vtiger_PackageImport {
                     }
                 }
             } else {
-				if(!$moduleInstance || $moduleInstance->name != $module) {
-					self::log('Module name mismatch!');
-					return false;
-				}
+                if(!$moduleInstance || $moduleInstance->name != $module) {
+                    self::log('Module name mismatch!');
+                    return false;
+                }
 				if(version_compare($moduleInstance->version, $this->_modulexml->version, '>=')) {
 					self::log('Not newer!');
-					return false;
+                    return false;
 				}
                 $module = $this->initUpdate($moduleInstance, $zipfile, $overwrite);
                 // Call module update function
@@ -291,9 +291,15 @@ class Vtiger_PackageUpdate extends Vtiger_PackageImport {
     function update_Field($blocknode, $blockInstance, $moduleInstance, $fieldnode, $fieldInstance) {
         // TODO Handle field property update
 
-        if(!empty($fieldnode->helpinfo)) $fieldInstance->setHelpInfo($fieldnode->helpinfo);
-        if(!empty($fieldnode->masseditable)) $fieldInstance->setMassEditable($fieldnode->masseditable);
-        if(!empty($fieldnode->summaryfield)) $fieldInstance->setSummaryField($fieldnode->summaryfield); 
+        if(!empty($fieldnode->helpinfo)){
+            $fieldInstance->setHelpInfo(  (string)$fieldnode->helpinfo);
+        }
+        if(!empty($fieldnode->masseditable)){
+            $fieldInstance->setMassEditable( (int)$fieldnode->masseditable);
+        }
+        if(!empty($fieldnode->summaryfield)){
+            $fieldInstance->setSummaryField( (string)$fieldnode->summaryfield);
+        }
     }
 
     /**
