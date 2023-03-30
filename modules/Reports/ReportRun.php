@@ -2847,7 +2847,7 @@ class ReportRun extends CRMEntity
 			$wheresql = " and ".$stdfiltersql;
 		}
 
-		if(isset($filtersql) && $filtersql !== false && $filtersql != '') {
+		if(isset($filtersql) && $filtersql !== false && ($filtersql != '' || $_REQUEST['mode'] == 'generate')) {
 			$advfiltersql = $filtersql;
 		}
 		if($advfiltersql != "") {
