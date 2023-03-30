@@ -39,13 +39,13 @@ class Google_Map_Helper {
     static function getLocationFields($module) {
         switch ($module) {
             case 'Contacts': 
-                return array('street' => 'mailingstreet', 'city' => 'mailingcity', 'country' => 'mailingcountry');
+                return array('street' => 'mailingstreet', 'zip' => 'mailingzip', 'city' => 'mailingcity', 'country' => 'mailingcountry');
                 break;
             case 'Leads' : 
-                return array('street' => 'lane', 'city' => 'city', 'country' => 'country');
+                return array('street' => 'lane', 'zip' => 'code', 'city' => 'city', 'country' => 'country');
                 break;
             case 'Accounts' : 
-                return array('street' => 'bill_street', 'city' => 'bill_city', 'country' => 'bill_country');
+                return array('street' => 'bill_street', 'zip' => 'bill_code', 'city' => 'bill_city', 'country' => 'bill_country');
                 break;
             default : 
                 return array();
