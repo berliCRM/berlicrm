@@ -180,6 +180,7 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 					foreach($bccs as $bcc) $mailer->AddBCC($bcc);
 				}
 			}
+
 			$status = $mailer->Send(true);
 			if(!$status) {
 				$status = $mailer->getError();
@@ -191,6 +192,13 @@ class Emails_Record_Model extends Vtiger_Record_Model {
                     $connector = MailManager_Connector_Connector::connectorWithModel($mailBoxModel, '');
                     imap_append($connector->mBox, $connector->mBoxUrl.$folderName, $mailString, "\\Seen");
                 }
+
+				$mtQuery = "INSERT INTO berlicrm_mailtracker VALUES(?,?,?,?,?,?,?);";
+				$cDT = date('Y-m-d H:i:s');
+				$currentUserModel = Users_Record_Model::getCurrentUserModel();
+				$to_email = $this->get('saved_toid');
+				$adb = PearDatabase::getInstance();
+				$adb->pquery($mtQuery, array(NULL, $subject, serialize($to_email), $cDT, $currentUserModel->getId(), json_encode($status), $mailer->getLastMessageID()));
             }
 		}
 		return $status;

@@ -604,6 +604,26 @@ foreach($moduleToUpdateArr as $moduleToUpdate){
 	}
 }
 
+//  for db create new table for email tracking   add email tracking to send function
+echo "new table for email tracking<br>";
+$query = 'CREATE TABLE IF NOT EXISTS `berlicrm_mailtracker` (
+	`id` int(11) NOT NULL AUTO_INCREMENT,
+	`subject` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+	`reciever` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+	`send_date` datetime NOT NULL,
+	`send_user` int(11) NOT NULL,
+	`smtp_answer` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+	`messageid` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+	PRIMARY KEY (`id`)
+	) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+';
+$res = $adb->pquery($query, array());
+if(!$res) {
+	echo "Error: ".$adb->database->errorMsg();
+}
+echo "done new table for email tracking <br>";
+
+
 
 
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
