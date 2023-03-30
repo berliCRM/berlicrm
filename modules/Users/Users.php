@@ -1154,7 +1154,7 @@ class Users extends CRMEntity {
      * @param $module -- module name:: Type varchar
      * @param $file_details -- file details array:: Type array
      */
-    function uploadAndSaveFile($id,$module,$file_details, $attachmentType = '') {
+    function uploadAndSaveFile($id,$module,$file_details, $attachmentType = '', $internal = false) {
         global $log;
         $log->debug("Entering into uploadAndSaveFile($id,$module,$file_details) method.");
 
