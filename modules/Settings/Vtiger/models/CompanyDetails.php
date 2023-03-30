@@ -86,7 +86,7 @@ class Settings_Vtiger_CompanyDetails_Model extends Settings_Vtiger_Module_Model 
 	public function getLogoPath() {
 		$logoPath = $this->logoPath;
 		$handler = @opendir($logoPath);
-		$logoName = $this->get('logoname');
+		$logoName = decode_html($this->get('logoname'));
 		if ($logoName && $handler) {
 			while ($file = readdir($handler)) {
 				if($logoName === $file && in_array(str_replace('.', '', strtolower(substr($file, -4))), self::$logoSupportedFormats) && $file != "." && $file!= "..") {
