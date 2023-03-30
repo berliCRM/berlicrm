@@ -9,7 +9,7 @@
 ********************************************************************************/
 -->*}
 {strip}
-	<input type="hidden" id="supportedImageFormats" value='{ZEND_JSON::encode(Settings_Vtiger_CompanyDetails_Model::$logoSupportedFormats)}' />
+	<input type="hidden" id="supportedImageFormats" value='{Settings_Vtiger_CompanyDetails_Model::$logoSupportedFormats|@json_encode}' />
 	<div class="padding-left1per">
 		<div class="row-fluid widget_header">
 			<div class="span8">
