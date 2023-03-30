@@ -123,6 +123,10 @@ class ListViewController {
 	function getListViewRecords($focus, $module, $result) {
 		global $listview_max_textlength, $theme, $default_charset;
 
+		// to check the owner of task, we need currentUserId
+		$currentUser = Users_Record_Model::getCurrentUserModel();
+		$currentUserId = $currentUser->getId();
+	
 		require('user_privileges/user_privileges_'.$this->user->id.'.php');
 		$fields = $this->queryGenerator->getFields();
 		$meta = $this->queryGenerator->getMeta($this->queryGenerator->getModule());
@@ -202,6 +206,10 @@ class ListViewController {
 				$recordId = $db->query_result($result,$i,"id");
 			}
 			$row = array();
+
+			// here we dont know the row owmer and if it is a task in the row. We set it later.
+			$isTaskPresent = false;
+			$owneridnow = 0;
 
 			foreach ($listViewFields as $fieldName) {
 				$field = $moduleFields[$fieldName];
@@ -285,6 +293,12 @@ class ListViewController {
 					}
 				}elseif ($field->getFieldDataType() == 'picklist') {
 					//not check for permissions for non admin users for status and activity type field
+
+					// Only if we have a task , we need to set on task subject and description to 'blocked' // $module == 'Calendar' &&
+					if($fieldName == 'activitytype' && $value == 'Task' ){	
+						$isTaskPresent = true; 
+					} 
+
                     if($module == 'Calendar' && ($fieldName == 'taskstatus' || $fieldName == 'eventstatus' || $fieldName == 'activitytype')) {
                         $value = Vtiger_Language_Handler::getTranslatedString($value,$module);
 						$value = textlength_check($value);
@@ -462,6 +476,10 @@ class ListViewController {
 						$value = '--';
 					}
 				} elseif($field->getFieldDataType() == 'owner') {
+
+					// first we need to know the id of the owner now
+					$owneridnow = $value;
+
 					$value = textlength_check($this->ownerNameList[$fieldName][$value]);
 				} elseif ($field->getUIType() == 25) {
 					//TODO clean request object reference.
@@ -509,6 +527,24 @@ class ListViewController {
 					$row['fieldcolor'][] = $this->fieldColorMap[$fieldName][$rawValue];
 				}
 			}
+
+
+			// only if the 1 row are completed we have the needed information about it.
+			// not Admin and it is Task, so we need to check owner and currentUser
+			if(  !$is_admin && $isTaskPresent){ 
+				// not the owner, so set 'subject' and 'description' to "blocked"
+				if( $currentUserId != $owneridnow  ){
+					foreach($row as $keyrow => $item){
+						if( $keyrow == 'subject' ){
+							$row[$keyrow] = vtranslate('Busy','Events');
+						}
+						if( $keyrow == 'description' ){
+							$row[$keyrow] = vtranslate('Busy','Events');
+						}
+					}
+				}
+			}
+
 			$data[$recordId] = $row;
 			
 		}
