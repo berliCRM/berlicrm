@@ -24,31 +24,6 @@
 <script type="text/javascript" src="../../layouts/vlayout/modules/crmtogo/resources/settings.js" ></script>
 <!-- Leo 17-02-2017 add css with custom icons -->
 <link rel="stylesheet" href="../../layouts/vlayout/modules/crmtogo/resources/css/custom-icons/custom_icons.css">
-<style>
-  /* !important is needed sometimes */
- ::-webkit-scrollbar {
-    width: 12px !important;
- }
-
- /* Track */
-::-webkit-scrollbar-track {
-   -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3) !important;
-   -webkit-border-radius: 10px !important;
-   border-radius: 10px !important;
- }
-
- /* Handle */
- ::-webkit-scrollbar-thumb {
-   -webkit-border-radius: 10px !important;
-   border-radius: 10px !important;
-   background: #41617D !important; 
-   -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5) !important; 
-
- }
- ::-webkit-scrollbar-thumb:window-inactive {
-   background: #41617D !important; 
- }
-</style>
 
 <div data-role="page" data-theme="b" id="home_page">
 	<div data-role="header" data-theme="{$COLOR_HEADER_FOOTER}" data-position="fixed" class="ui-grid-b ui-responsive">
@@ -71,8 +46,8 @@
  			</table>
        </form>
 	</div>
-    <div data-role="collapsible-set"   data-mini="true">	
-       <ul data-role="listview" data-theme="c" id="homesortable" style ="overflow: scroll">
+	<div data-role="collapsible-set"   data-mini="true">	
+		<ul data-role="listview" data-theme="c" id="homesortable">
 		{foreach item=_MODULE from=$_MODULES}
 			{if $_MODULE->active() && $_MODULE->name() neq 'Events'}
 			<li id={$_MODULE->name()}>
@@ -93,4 +68,9 @@
 		<a href="?_operation=configCRMTOGO" class="ui-btn ui-corner-all ui-icon-gear ui-btn-icon-notext" data-iconpos="left" data-transition="slidedown" data-prefetch>{vtranslate('LBL_CONFIG', 'crmtogo')}</a>
 	</div>
 </div>
+<script>
+	jQuery(document).ready(function() {
+		jQuery('.ui-listview>li>a.ui-btn').css("overflow", "scroll");
+	});
+</script>
 {/strip}
