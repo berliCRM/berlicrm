@@ -126,7 +126,18 @@ class Vtiger_MassActionAjax_View extends Vtiger_IndexAjax_View {
 		$step = $request->get('step');
 		$selectedFields = $request->get('selectedFields');
 		$relatedLoad = $request->get('relatedLoad');
-
+		
+		if($step == 'step1') {
+			if ($selectedIds == 'all') {
+				$recordModule = $sourceModule;
+			}
+			else {
+				$recordModule = getSetypeForRecord($selectedIds[0]);
+			}
+		}
+		else {
+			$recordModule = $sourceModule;
+		}
 		$moduleModel = Vtiger_Module_Model::getInstance($sourceModule);
 		$emailFields = $moduleModel->getFieldsByType('email');
         $accesibleEmailFields = array();
@@ -202,7 +213,8 @@ class Vtiger_MassActionAjax_View extends Vtiger_IndexAjax_View {
                             break;
                         }
                     }
-                }else{
+                }
+				else{
                     //No Record which has email field value
                     foreach($emailColumnNames as $emailColumnName) {
                         //To send only the single email field since it has no email value
@@ -215,7 +227,7 @@ class Vtiger_MassActionAjax_View extends Vtiger_IndexAjax_View {
 
 		$viewer = $this->getViewer($request);
 		$viewer->assign('MODULE', $moduleName);
-        $viewer->assign('SOURCE_MODULE',$sourceModule);
+        $viewer->assign('SOURCE_MODULE',$recordModule);
 		$viewer->assign('VIEWNAME', $cvId);
 		$viewer->assign('SELECTED_IDS', $selectedIds);
 		$viewer->assign('EXCLUDED_IDS', $excludedIds);
