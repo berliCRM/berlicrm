@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<module>
+<exporttime>2023-04-18 08:21:40</exporttime>
+<name>ToolWidgets</name>
+<label>ToolWidgets</label>
+<parent></parent>
+<type>extension</type>
+<version>1.0</version>
+<dependencies>
+<vtiger_version>6.5.0</vtiger_version>
+<vtiger_max_version>6.*</vtiger_max_version>
+</dependencies>
+<tables>
+</tables>
+<sharingaccess>
+<default>public_readwritedelete</default>
+</sharingaccess>
+<crons>
+</crons>
+</module>

@@ -872,6 +872,9 @@ $languageStrings = array(
 	// Cron
 	'LBL_CRON_TIMEOUT_SUBJECT' => 'CRON \'%s\' Timeout in %s',
 	'LBL_CRON_TIMEOUT_CONTENT' => 'In Ihrem <a href="%s">CRM</a> konnte der Cron \'%s\' seit 24h nicht beendet werden.<br>Er wurde nun neugestartet, sollte aber trotzdem im Auge behalten werden.',
+
+	// Toolwidgets
+	'LBL_COPY_CONTACTDETAILS' => 'Kopiere Kontaktdaten',
 );
 
 $jsLanguageStrings = array(
