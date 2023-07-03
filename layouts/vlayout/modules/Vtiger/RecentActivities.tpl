@@ -84,6 +84,7 @@
 							</li>
 						{/if}
 					{/if}
+					<hr>
 				{/foreach}
 			</ul>
 			{else}
