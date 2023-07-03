@@ -49,6 +49,12 @@ class Install_ajaxInitDB_Action extends Vtiger_BasicAjax_Action {
 			} catch (Exception $e) {
 				$ret[1] = $e->getMessage();
 			}
+			try {
+				//create another admin user + files
+				$ret[0] = Install_InitSchema_Model::createNonAdminUser();
+			} catch (Exception $e) {
+				$ret[1] = $e->getMessage();
+			}
 		} elseif ($mode == 'modules') {
 			try {
 				// Install all the available modules

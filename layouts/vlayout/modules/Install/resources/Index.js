@@ -81,13 +81,14 @@ jQuery.Class('Install_Index_Js', {}, {
 
 		jQuery('input[name="step5"]').on('click', function() {
 			var error = false;
-			var validateFieldNames = ['db_hostname', 'db_username', 'db_name', 'password', 'retype_password', 'lastname', 'admin_email'];
+			var validateFieldNames = ['db_hostname', 'db_username', 'db_name', 'password', 'retype_password', 'lastname', 'admin_email', 'managerlastname'];
 			for(var fieldName in validateFieldNames) {
 				var field = jQuery('input[name="'+validateFieldNames[fieldName]+'"]');
 				if(field.val() == '') {
 					field.addClass('error').focus();
 					error = true; break;
-				} else {
+				} 
+				else {
 					field.removeClass('error');
 				}
 			}
@@ -103,7 +104,9 @@ jQuery.Class('Install_Index_Js', {}, {
 				}
 			}
 			var password = jQuery('#passwordError');
-			if(password.html() != '') error = true;
+			if(password.html() != '') {
+				error = true;
+			} 
 
                         var emailField = jQuery('input[name="admin_email"]'); 
                         var regex = /^[_/a-zA-Z0-9*]+([!"#$%&'()*+,./:;<=>?\^_`{|}~-]?[a-zA-Z0-9/_/-])*@[a-zA-Z0-9]+([\_\-\.]?[a-zA-Z0-9]+)*\.([\-\_]?[a-zA-Z0-9])+(\.?[a-zA-Z0-9]+)?$/;

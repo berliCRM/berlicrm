@@ -130,6 +130,46 @@
 							</tr>
 						</tbody>
 					</table>
+					<table class="config-table input-table">
+						<thead>
+							<tr>
+								<th colspan="2">{vtranslate('LBL_MANAGER_USER_INFORMATION','Install')}</th> <!-- LBL_MANAGER_USER_INFORMATION -->
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>
+									{vtranslate('LBL_USERNAME','Install')}
+								</td>
+								<td>
+									{$INFORMATION['managerfirstname']}
+								</td>
+							</tr>
+							<tr>
+								<td>
+									{vtranslate('LBL_EMAIL','Install')}<span class="no">*</span>
+								</td><td>
+									{$INFORMATION['admin_email']}
+								</td>
+							</tr>
+							<tr>
+								<td>
+									{vtranslate('LBL_TIME_ZONE','Install')}<span class="no">*</span>
+								</td>
+								<td>
+									{$INFORMATION['timezone']}
+								</td>
+							</tr>
+							<tr>
+								<td>
+									{vtranslate('LBL_DATE_FORMAT','Install')}<span class="no">*</span>
+								</td>
+								<td>
+									{$INFORMATION['dateformat']}
+								</td>
+							</tr>
+						</tbody>
+					</table>
 				</div>
 			</div>
 			<div class="row-fluid offset2">
