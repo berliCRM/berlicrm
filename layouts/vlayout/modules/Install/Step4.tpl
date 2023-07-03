@@ -135,6 +135,31 @@
 							</tr>
 						</tbody>
 					</table>
+
+					<table class="config-table input-table">
+						<thead>
+							<tr>
+								<th colspan="2">{vtranslate('LBL_MANAGER_INFORMATION', 'Install')}
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>{vtranslate('First Name', 'Install')}
+								</td>
+								<td><input type="text" value="" name="managerfirstname" />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									{vtranslate('Last Name', 'Install')} <span class="no">*</span>
+								</td>
+								<td>
+									<input type="text" value="" name="managerlastname" />
+								</td>
+							</tr>
+						</tbody>
+					</table>
 				</div>
 			</div>
 

@@ -115,7 +115,6 @@ class Install_Index_view extends Vtiger_View_Controller {
 		$viewer->assign('ADMIN_PASSWORD', $_SESSION['installer_info']['admin_password']);
 		$viewer->assign('ADMIN_EMAIL', $_SESSION['installer_info']['admin_email']);
 		$viewer->assign('CURRENCY', $_SESSION['installer_info']['currency_name']);
-						
 		$viewer->view('Step4.tpl', $moduleName);
 	}
 
@@ -125,7 +124,7 @@ class Install_Index_view extends Vtiger_View_Controller {
 		$moduleName = $request->getModule();
 		$requestData = $request->getAll();
 
-	foreach($requestData as $name => $value) {
+		foreach($requestData as $name => $value) {
 			$_SESSION['config_file_info'][$name] = $value;
 		}
 

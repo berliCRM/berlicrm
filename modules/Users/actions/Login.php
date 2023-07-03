@@ -51,7 +51,12 @@ class Users_Login_Action extends Vtiger_Action_Controller {
 			$moduleModel->saveLoginHistory($user->column_fields['user_name']);
 			//End
 
-			header ('Location: index.php?module=Users&parent=Settings&view=SystemSetup');
+			if(vglobal('default_language') == 'en_us') {
+				header ('Location: index.php?module=Users&parent=Settings&view=SystemSetup&lang=en');
+			}
+			else {
+				header ('Location: index.php?module=Users&parent=Settings&view=SystemSetup&lang=de');
+			}
 		}
         else {
             // login failed

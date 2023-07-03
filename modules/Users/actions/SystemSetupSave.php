@@ -22,6 +22,8 @@ class Users_SystemSetupSave_Action extends Users_Save_Action {
 		$packages = $request->get(packages);
 		$userModuleModel = Users_Module_Model::getInstance($moduleName);
 		$userModuleModel::savePackagesInfo($packages);
+		$currentUser = Users_Record_Model::getCurrentUserModel();
+		$userModuleModel->insertEntryIntoCRMSetup($currentUser->getId());
 		header ('Location: index.php?module=Users&parent=Settings&view=UserSetup');
 		exit();
 	}

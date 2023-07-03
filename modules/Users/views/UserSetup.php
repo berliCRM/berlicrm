@@ -20,10 +20,11 @@ class Users_UserSetup_View extends Vtiger_Index_View {
 		$viewer = $this->getViewer($request);
 		$userModel = Users_Record_Model::getCurrentUserModel();
 		$userModuleModel = Users_Module_Model::getInstance($moduleName);
-		$userSetupStatus = $userModel->isFirstTimeLogin($userModel->id);
+		// $userSetupStatus = $userModel->isFirstTimeLogin($userModel->id);
+		$userSetupStatus = False;
 		if($userSetupStatus) {
 			$isFirstUser = Users_CRMSetup::isFirstUser($userModel);
-			if($isFirstUser) {
+			if ($isFirstUser) {
 				$defaultCurrencyKey = 'USA, Dollars';
 				$currencies = $userModuleModel->getCurrenciesList();
 				$defaultCurrencyValue = $currencies[$defaultCurrencyKey];
