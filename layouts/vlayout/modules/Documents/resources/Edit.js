@@ -153,10 +153,20 @@ Vtiger_Edit_Js("Documents_Edit_Js", {} ,{
         }
         return aDeferred.promise();
     },
+
+	registerDeleteAttachmentEvent : function(e) {
+		var thisInstance = this;
+		jQuery('#fileDeleteButton').on('click', function(e){
+           jQuery('#deleteDiv').html('');
+		   jQuery('#bdeleteAttachment').val('true');
+		});
+	},
+
     registerBasicEvents : function(container) {
         this._super(container);
         this.registerFileLocationTypeChangeEvent(container);
 		this.registerFileChangeEvent(container);
+		this.registerDeleteAttachmentEvent();
     },
 
 	registerEvents : function() {

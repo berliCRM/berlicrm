@@ -111,7 +111,9 @@ class Documents extends CRMEntity {
 					}
 			}elseif($this->mode == 'edit') {
 				$fileres = $adb->pquery("select filetype, filesize,filename,filedownloadcount,filelocationtype from vtiger_notes where notesid=?", array($this->id));
-				if ($adb->num_rows($fileres) > 0) {
+				$bDeleteAttachment = vtlib_purify($_REQUEST['bdeleteAttachment']);
+				// file_put_contents('test/debug.txt', serialize($_REQUEST), FILE_APPEND);
+				if ($adb->num_rows($fileres) > 0 && ($bDeleteAttachment == 'false' || empty($bDeleteAttachment))) {
 					$filename = $adb->query_result($fileres, 0, 'filename');
 					$filetype = $adb->query_result($fileres, 0, 'filetype');
 					$filesize = $adb->query_result($fileres, 0, 'filesize');

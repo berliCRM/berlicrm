@@ -40,7 +40,9 @@
 		<div class="uploadedFileSize"></div>
 		<div class="uploadedFileName">
 			{if $IS_INTERNAL_LOCATION_TYPE && !empty($FIELD_VALUE)}
-				[{$FIELD_VALUE}]
+				<div id="deleteDiv">[{$FIELD_VALUE}]</div>
+				<input type="button" id="fileDeleteButton" value={vtranslate("LBL_DELETE")} class="fileDelete">
+				<input type="hidden" id="bdeleteAttachment" name="bdeleteAttachment" value="false">
 			{/if}
 		</div>
 		<div class="uploadFileSizeLimit redColor">
