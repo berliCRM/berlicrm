@@ -809,6 +809,7 @@ class Install_InitSchema_Model {
 
 		$roleRecordModel->set('rolename', 'CRM Administrator');
 		$roleRecordModel->set('profileIds', array('1'));
+		$roleRecordModel->set('allowassignedrecordsto', 1);
 		$parentRole->addChildRole($roleRecordModel);
 	}
 
