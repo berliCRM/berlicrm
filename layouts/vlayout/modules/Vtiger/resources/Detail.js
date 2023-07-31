@@ -935,6 +935,21 @@ jQuery.Class("Vtiger_Detail_Js",{
 				}
 			);
 		});
+		
+		detailContentsHolder.on('click','[data-trigger="listSearch"]',function(e){
+			e.stopPropagation();
+			e.preventDefault();
+			Vtiger_Detail_Js.reloadRelatedList();
+		});
+
+		detailContentsHolder.on('keypress','input.listSearchContributor',function(e){
+			if (e.keyCode == 13) {
+				var element = jQuery(e.currentTarget);
+				var parentElement = element.closest('tr');
+				var searchTriggerElement = parentElement.find('[data-trigger="listSearch"]');
+				searchTriggerElement.trigger('click');
+			}
+		});
 	},
 
 	registerBlockAnimationEvent : function(){

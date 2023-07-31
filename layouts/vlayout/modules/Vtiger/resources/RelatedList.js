@@ -69,6 +69,7 @@ jQuery.Class("Vtiger_RelatedList_Js",{},{
 				}
 				// Let listeners know about page state change.
 				app.notifyPostAjaxReady();
+				app.showSelect2ElementView(jQuery('#detailView').find('select.select2'));
 			},
 			
 			function(textStatus, errorThrown){
@@ -201,6 +202,8 @@ jQuery.Class("Vtiger_RelatedList_Js",{},{
 		params['page'] = this.getCurrentPageNum();
 		params['mode'] = "showRelatedList";
 		params['tab_label'] = this.selectedRelatedTabElement.data('label-key');
+		
+		params['search_params'] = JSON.stringify(this.getRelListSearchParams());
 		
 		return params;
 	},
@@ -559,6 +562,91 @@ jQuery.Class("Vtiger_RelatedList_Js",{},{
             function(error, err){
                 return false;
 			});
+    },
+	
+	getRelListSearchParams : function(){
+
+        var listViewPageDiv = this.relatedContentContainer;
+        var listViewTable = listViewPageDiv.find('.listViewEntriesTable');
+		
+		
+		
+        var searchParams = new Array();
+        listViewTable.find('.listSearchContributor').each(function(index,domElement){
+            var searchInfo = new Array();
+            var searchContributorElement = jQuery(domElement);
+            var fieldInfo = searchContributorElement.data('fieldinfo');
+            var fieldName = searchContributorElement.attr('name');
+
+            var searchValue = searchContributorElement.val();
+
+            if(typeof searchValue == "object") {
+                if(searchValue == null) {
+                   searchValue = "";
+                }else{
+                    searchValue = searchValue.join(',');
+                }
+            }
+
+            searchValue = searchValue.trim();
+            if(searchValue.length <=0 ) {
+                //continue
+                return true;
+            }
+            var searchOperator = 'c';
+            if(fieldInfo.type == "date" || fieldInfo.type == "datetime") {
+                searchOperator = 'bw';
+             }else if (  fieldInfo.type == "boolean" || fieldInfo.type == "picklist") {
+                searchOperator = 'e';
+            }else if( fieldInfo.type == 'currency'  || fieldInfo.type == "double" || 
+                fieldInfo.type == 'percentage' || fieldInfo.type == "integer"  ||
+                fieldInfo.type == "number"){
+                if(searchValue.substring(0,2) == '>=' ) {
+                    searchOperator = 'h';
+                } else if ( searchValue.substring(0,2)== '<=') { 
+                    searchOperator = 'm';   
+                } else   if(searchValue.substring(0,1) == '>' ) { 
+                    searchOperator = 'g';
+                } else if ( searchValue.substring(0,1)== '<') {
+                    searchOperator = 'l';   
+                } else {
+                    searchOperator = 'e';
+                }
+            }
+            searchInfo.push(fieldName);
+            searchInfo.push(searchOperator);
+            searchInfo.push(searchValue);
+            searchParams.push(searchInfo);
+
+        });
+		//crm-now: use preserved search parameter in case field is not present in view
+		var preserved_search = jQuery("#url_search_parameters");
+		if (preserved_search.val() != null) {
+			preserved_search = JSON.parse(preserved_search.val());
+			jQuery.each(preserved_search, function(index,innerArray) {
+				jQuery.each(innerArray, function(index2,innerArray2) {
+
+					var inputname= innerArray2[0];
+					var inputobj = jQuery(":input[name='" + inputname + "']");
+					var inputval = inputobj.val();
+					var bAddIt = true;
+
+					if (inputobj.length > 0 && !inputval) bAddIt = false;
+					else {
+						jQuery.each(searchParams, function(index3,innerArray3) {
+							if (innerArray2[0] == innerArray3[0]) {
+								bAddIt = false;
+								return;
+							}
+						});
+					}
+					if (bAddIt) {
+						searchParams.push(innerArray2);
+					}
+				});
+			});
+		}
+        return new Array(searchParams);
     },
 
 	init : function(parentId, parentModule, selectedRelatedTabElement, relatedModuleName){
