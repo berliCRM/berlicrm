@@ -224,6 +224,34 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
 		if (!empty($transformedSearchParams)) {
 			$currentUserModel = Users_Record_Model::getCurrentUserModel();
 			$queryGenerator = new QueryGenerator($relationModuleName, $currentUserModel);
+			$tmpFields = array();
+			$addedModules = array();
+			foreach($searchParams AS $fieldListGroup){
+				foreach($fieldListGroup AS $fieldSearchInfo){
+					$fieldName = $fieldSearchInfo[0];
+					$filterFieldModel = $relationModule->getFieldByColumn($fieldName);
+					$tmpFields[] = $fieldName;
+					if ($filterFieldModel && $filterFieldModel->isReferenceField()) {
+						$pos = stripos($query,' WHERE ');
+						$selectAndFromClause = substr($query, 0, $pos);
+						$whereCondition = substr($query, $pos);
+						$refModules = $filterFieldModel->getReferenceList();
+
+						foreach ($refModules AS $moduleName) {
+							if (!isset($addedModules[$moduleName])) {
+								$focus = CRMEntity::getInstance($moduleName);
+								$relTableName = $focus->table_name;
+								$relTableIndex = $focus->table_index;
+								$selectAndFromClause .= " LEFT JOIN {$relTableName} AS {$relTableName}{$fieldName} ON {$relTableName}{$fieldName}.{$relTableIndex} = {$filterFieldModel->get('table')}.{$filterFieldModel->get('column')}";
+								$addedModules[$moduleName] = $moduleName;
+							}
+						}
+						$query = $selectAndFromClause.$whereCondition;
+					}
+				}
+			}
+			$queryGenerator->setFields($tmpFields);
+			$queryGenerator->getQuery();
 			$queryGenerator->parseAdvFilterList($transformedSearchParams);
 			$whereCondition = $queryGenerator->getWhereClause();
 			// remove deleted etc.
@@ -480,6 +508,34 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
 		if (!empty($transformedSearchParams)) {
 			$currentUserModel = Users_Record_Model::getCurrentUserModel();
 			$queryGenerator = new QueryGenerator($relationModuleName, $currentUserModel);
+			$tmpFields = array();
+			$addedModules = array();
+			foreach($searchParams AS $fieldListGroup){
+				foreach($fieldListGroup AS $fieldSearchInfo){
+					$fieldName = $fieldSearchInfo[0];
+					$filterFieldModel = $relationModule->getFieldByColumn($fieldName);
+					$tmpFields[] = $fieldName;
+					if ($filterFieldModel && $filterFieldModel->isReferenceField()) {
+						$pos = stripos($relationQuery,' WHERE ');
+						$selectAndFromClause = substr($relationQuery, 0, $pos);
+						$whereCondition = substr($relationQuery, $pos);
+						$refModules = $filterFieldModel->getReferenceList();
+
+						foreach ($refModules AS $moduleName) {
+							if (!isset($addedModules[$moduleName])) {
+								$focus = CRMEntity::getInstance($moduleName);
+								$relTableName = $focus->table_name;
+								$relTableIndex = $focus->table_index;
+								$selectAndFromClause .= " LEFT JOIN {$relTableName} AS {$relTableName}{$fieldName} ON {$relTableName}{$fieldName}.{$relTableIndex} = {$filterFieldModel->get('table')}.{$filterFieldModel->get('column')}";
+								$addedModules[$moduleName] = $moduleName;
+							}
+						}
+						$relationQuery = $selectAndFromClause.$whereCondition;
+					}
+				}
+			}
+			$queryGenerator->setFields($tmpFields);
+			$queryGenerator->getQuery();
 			$queryGenerator->parseAdvFilterList($transformedSearchParams);
 			$whereCondition = $queryGenerator->getWhereClause();
 			// remove deleted etc.
