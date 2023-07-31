@@ -210,21 +210,37 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
         
 		$query = $this->getRelationQuery();
 
+		// is this even used?
 		if ($this->get('whereCondition')) {
 			$query = $this->updateQueryWithWhereCondition($query);
 		}
 
 		$startIndex = $pagingModel->getStartIndex();
 		$pageLimit = $pagingModel->getPageLimit();
+		
+		// crm-now: add search
+		$searchParams = $this->get('search_params');
+		$transformedSearchParams = Vtiger_Util_Helper::transferListSearchParamsToFilterCondition($searchParams, $relationModule);
+		if (!empty($transformedSearchParams)) {
+			$currentUserModel = Users_Record_Model::getCurrentUserModel();
+			$queryGenerator = new QueryGenerator($relationModuleName, $currentUserModel);
+			$queryGenerator->parseAdvFilterList($transformedSearchParams);
+			$whereCondition = $queryGenerator->getWhereClause();
+			// remove deleted etc.
+			$pos = strpos($whereCondition, '((');
+			$conditions = substr($whereCondition, $pos);
+			$query .= "AND $conditions";
+		}
+		// end
 
 		$orderBy = $this->getForSql('orderby');
 		$sortOrder = $this->getForSql('sortorder');
 
-                if (!$orderBy & PerformancePrefs::getBoolean('LISTVIEW_DEFAULT_SORTING', true)) {
-                        $entityModule=CRMEntity::getInstance($relationModule->name);
-                        $orderBy=$entityModule->default_order_by;
-                        $sortOrder=$entityModule->default_sort_order;
-                }
+		if (!$orderBy & PerformancePrefs::getBoolean('LISTVIEW_DEFAULT_SORTING', true)) {
+				$entityModule=CRMEntity::getInstance($relationModule->name);
+				$orderBy=$entityModule->default_order_by;
+				$sortOrder=$entityModule->default_sort_order;
+		}
 
 		if($orderBy) {
 
@@ -455,6 +471,24 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
 		if ($pos !== false) {
 			$relationQuery = 'SELECT COUNT(DISTINCT vtiger_crmentity.crmid) AS count' . substr($relationQuery,$pos); 
 		}
+		
+		// crm-now: add search
+		$relationModule = $this->getRelationModel()->getRelationModuleModel();
+		$relationModuleName = $relationModule->get('name');
+		$searchParams = $this->get('search_params');
+		$transformedSearchParams = Vtiger_Util_Helper::transferListSearchParamsToFilterCondition($searchParams, $relationModule);
+		if (!empty($transformedSearchParams)) {
+			$currentUserModel = Users_Record_Model::getCurrentUserModel();
+			$queryGenerator = new QueryGenerator($relationModuleName, $currentUserModel);
+			$queryGenerator->parseAdvFilterList($transformedSearchParams);
+			$whereCondition = $queryGenerator->getWhereClause();
+			// remove deleted etc.
+			$pos = strpos($whereCondition, '((');
+			$conditions = substr($whereCondition, $pos);
+			$relationQuery .= "AND $conditions";
+		}
+		// end
+		
         $pos = stripos($relationQuery,' GROUP BY '); // remove any GROUPing
         if ($pos !== false) {
             $relationQuery = substr($relationQuery,0,$pos);

@@ -97,6 +97,20 @@
                     {/foreach}
                 </tr>
             </thead>
+			{if $RELATED_MODULE->isQuickSearchEnabled()}
+				<tr>
+					{foreach $RELATED_HEADERS AS $HEADER_FIELD}
+						{assign var=FIELD_UI_TYPE_MODEL value=$HEADER_FIELD->getUITypeModel()}
+						<td>
+							{include file=vtemplate_path($FIELD_UI_TYPE_MODEL->getListSearchTemplateName(), $RELATED_MODULE->get('name'))
+								FIELD_MODEL=$HEADER_FIELD SEARCH_INFO=$SEARCH_DETAILS[$HEADER_FIELD->getName()] USER_MODEL=$USER_MODEL}
+						</td>
+					{/foreach}
+					<td>
+						<button class="btn" data-trigger="listSearch">{vtranslate('LBL_SEARCH', $RELATED_MODULE->get('name'))}</button>
+					</td>
+				</tr>
+			{/if}
             {foreach item=RELATED_RECORD from=$RELATED_RECORDS}
                 <tr style="background: linear-gradient({$RELATED_RECORD->getListViewColor()});"  class="listViewEntries" data-id='{$RELATED_RECORD->getId()}' 
                     {if $RELATED_MODULE_NAME eq 'Calendar'}

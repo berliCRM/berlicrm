@@ -37,6 +37,12 @@ class Vtiger_RelatedList_View extends Vtiger_Index_View {
 			$relationListView->set('orderby', $orderBy);
 			$relationListView->set('sortorder',$sortOrder);
 		}
+		$searchParams = $request->get('search_params');
+		if(empty($searchParams)) {
+            $searchParams = array();
+        }
+		$relationListView->set('search_params', $searchParams);
+		
 		$models = $relationListView->getEntries($pagingModel);
 		$links = $relationListView->getLinks();
 		$header = $relationListView->getHeaders();
@@ -54,6 +60,19 @@ class Vtiger_RelatedList_View extends Vtiger_Index_View {
 		$viewer->assign('RELATED_MODULE', $relatedModuleModel);
 		$viewer->assign('RELATED_ENTIRES_COUNT', $noOfEntries);
 		$viewer->assign('RELATION_FIELD', $relationField);
+		if (!empty($request->get('search_params'))) {
+			$searchParams = $request->get('search_params');
+			$tmpSearchParams = array();
+			// for easier Smarty access
+			foreach($searchParams as $fieldListGroup){
+				foreach($fieldListGroup as $fieldSearchInfo){
+					$fieldSearchInfo['searchValue'] = $fieldSearchInfo[2];
+					$fieldSearchInfo['fieldName'] = $fieldName = $fieldSearchInfo[0];
+					$tmpSearchParams[$fieldName] = $fieldSearchInfo;
+				}
+			}
+			$viewer->assign('SEARCH_DETAILS', $tmpSearchParams);
+		}
 
 		if (PerformancePrefs::getBoolean('LISTVIEW_COMPUTE_PAGE_COUNT', false)) {
 			$totalCount = $relationListView->getRelatedEntriesCount();
