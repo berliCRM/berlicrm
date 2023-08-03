@@ -454,6 +454,12 @@ class VtigerLineItemOperation  extends VtigerActorOperation {
 			throw new WebServiceException(WebServiceErrorCode::$DATABASEQUERYERROR,
 				"Database error while performing required operation");
 		}
+		$query = "UPDATE vtiger_crmentity SET modifiedtime = ? WHERE crmid = ?;";
+		$transactionSuccessful = vtws_runQueryAsTransaction($query, array(date('Y-m-d H:i:s'), $parentId), $result);
+		if (!$transactionSuccessful) {
+			throw new WebServiceException(WebServiceErrorCode::$DATABASEQUERYERROR,
+				"Database error while updating parent modifiedtime");
+		}
 	}
 
 	public function getCollectiveTaxList(){
