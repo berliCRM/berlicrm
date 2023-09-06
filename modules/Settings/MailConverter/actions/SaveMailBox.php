@@ -29,13 +29,26 @@ class Settings_MailConverter_SaveMailBox_Action extends Settings_Vtiger_Index_Ac
 		$status = $recordModel->save();
 
 		$response = new Vtiger_Response();
-		if ($status) {
+		if ($status == "connectedToMailBoxOK") { 
 			$result = array('message' => vtranslate('LBL_SAVED_SUCCESSFULLY', $qualifiedModuleName));
 			$result['id'] = $recordModel->getId();
 			$result['listViewUrl'] = $recordModel->getListUrl();
 			$response->setResult($result);
-		} else {
-			$response->setError(vtranslate('LBL_CONNECTION_TO_MAILBOX_FAILED', $qualifiedModuleName));
+		} 
+		else if($status == "scannerNameNotValide") {
+			$response->setError(vtranslate('LBL_ERROR_SCANNER_NAME', $qualifiedModuleName));
+		}
+		else if($status == "serverNameNotValide") {
+			$response->setError(vtranslate('LBL_ERROR_SERVER_NAME', $qualifiedModuleName));
+		}
+		else if($status == "notMailBoxConnect") {
+			$response->setError(vtranslate('LBL_ERROR_CONNECTION_TO_MAILBOX', $qualifiedModuleName));
+		}
+		else if($status == "thisReturnValueShouldNotAppearHere") {
+			$response->setError(vtranslate('LBL_ERROR_NOT_REACHEBLE_RETURN_TOUCHED', $qualifiedModuleName));
+		}
+		else {
+			$response->setError(vtranslate('LBL_ERROR_NOT_EXPECTED_RETURN_VALUE', $qualifiedModuleName));
 		}
 		$response->emit();
 	}
