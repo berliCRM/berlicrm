@@ -655,6 +655,37 @@ foreach($moduleFolders as $moduleFolder) {
 }
 echo '<br>module Google done <br>';
 
+//update crmtogo module
+echo '<br>module crmtogo update start<br>';
+$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
+foreach($moduleFolders as $moduleFolder) {
+	if ($handle = opendir($moduleFolder)) {
+		while (false !== ($file = readdir($handle))) {
+			$packageNameParts = explode(".",$file);
+			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
+				continue;
+			}
+			array_pop($packageNameParts);
+			$packageName = implode("",$packageNameParts);
+			if ($packageName =='crmtogo') {
+				$packagepath = "$moduleFolder/$file";
+				$package = new Vtiger_Package();
+				$module = $package->getModuleNameFromZip($packagepath);
+				if($module != null) {
+					$moduleInstance = Vtiger_Module::getInstance($module);
+					if($moduleInstance) {
+						updateVtlibModule($module, $packagepath);
+					} 
+					else {
+						installVtlibModule($module, $packagepath);
+					}
+				}
+			}
+		}
+		closedir($handle);
+	}
+}
+echo '<br>module crmtogo done <br>';
 
 
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
