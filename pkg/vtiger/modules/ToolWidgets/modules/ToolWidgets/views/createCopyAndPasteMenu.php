@@ -79,7 +79,7 @@ class ToolWidgets_createCopyAndPasteMenu_View extends Vtiger_Edit_View {
 		$viewer = $Index_View_Obj->getViewer($request);
 		$viewer->assign('COPYPASTESTRING', $copypastestring);
 		$viewer->assign('SOURCEMODULE', $recordid);
-        $viewer->assign('RECORD', $recordid);
+        $viewer->assign('RECORD', $record);
         $viewer->assign('MODULE', $moduleName);
         $viewer->view('createCopyPasteDataMenue.tpl', 'ToolWidgets');
 	}

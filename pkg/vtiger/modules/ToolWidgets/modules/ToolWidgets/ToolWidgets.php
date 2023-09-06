@@ -28,6 +28,7 @@ class ToolWidgets {
 			return;
 		} else if($event_type == 'module.preuninstall') {
 			// TODO Handle actions when this module is about to be deleted.
+			$this->uninstallToolWidgets();
 			return;		
 		} else if($event_type == 'module.preupdate') {
 			// TODO Handle actions before this module is updated.
@@ -40,9 +41,9 @@ class ToolWidgets {
 	function initToolWidgets() {
 		include_once('vtlib/Vtiger/Module.php');
 		$module = Vtiger_Module::getInstance('Contacts');
-		$module->addLink('DETAILVIEWSIDEBARWIDGET', 'LBL_COPY_CONTACTDETAILS', 'module=ToolWidgets&view=showCopyPasteDataWidget&mode=showEntries&source_module=Contacts&viewtype=detail');
+		$module->addLink('DETAILVIEWSIDEBARWIDGET', 'LBL_COPY_CONTACTDETAILS', 'module=ToolWidgets&view=showCopyPasteData&mode=showEntries&source_module=Contacts&viewtype=detail');
 		$module = Vtiger_Module::getInstance('Accounts');
-		$module->addLink('DETAILVIEWSIDEBARWIDGET', 'LBL_COPY_CONTACTDETAILS', 'module=ToolWidgets&view=showCopyPasteDataWidget&mode=showEntries&source_module=Accounts&viewtype=detail');	
+		$module->addLink('DETAILVIEWSIDEBARWIDGET', 'LBL_COPY_CONTACTDETAILS', 'module=ToolWidgets&view=showCopyPasteData&mode=showEntries&source_module=Accounts&viewtype=detail');	
 	}
 
 
