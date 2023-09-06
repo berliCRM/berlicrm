@@ -47,6 +47,15 @@ class Verteiler_DetailView_Model extends Vtiger_DetailView_Model {
 			);
 		$linkModelList['DETAILVIEWBASIC'][] = Vtiger_Link_Model::getInstanceFromValues($basicActionLink);
 	
+		// check emails
+		//$basicActionLink = array(
+			//'linktype' => 'DETAILVIEWBASIC',
+			//'linklabel' => 'LBL_Check_E-MAIL',
+			//'linkurl' => 'javascript:Verteiler_Detail_Js.showEmailCheckResults('.$recordModel->getId().')',
+			//'linkicon' => ''
+			//);
+		//$linkModelList['DETAILVIEWBASIC'][] = Vtiger_Link_Model::getInstanceFromValues($basicActionLink);
+	
 		return $linkModelList;
 	}
 

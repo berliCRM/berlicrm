@@ -58,16 +58,22 @@ $languageStrings = array(
     'LBL_EXPORT_OPTION' => 'Export Options',
     'LBL_EXPORT_DESCRIPTION' => 'Please select a CRM module to which the contacts from this distribution list should be exported.',
     'LBL_EXPORT_BUTTON' => 'Export',
-	
+
+    'LBL_CHECK_E-MAIL_HEADER' => 'Email Validation',
+    'LBL_CHECK_E-MAIL_DESCRIPTION' => 'Incorrect email addresses have been found. The mailing list can only be used if the email addresses are correct.',
+    'LBL_CHECK_E-MAIL_FALSE' => 'Incorrect email addresses:',
+    'LBL_CHECK_E-MAIL_CLOSE' => 'Close',
+    'LBL_Check_E-MAIL' => 'Check email',
+    'LBL_CHECK_E-MAIL_TRUE' => 'All containing email addresses have no errors.',
+    'LBL_CHECK_E-MAIL_ALL-DETAIL' => 'All details',
+
     'LBL_MODULE_EDIT_PERMISSION_DENIED' => 'You do not have permission to modify data for this CRM module.',
 	'LBL_SPECIAL_EXPORT' => 'Special Exports',
 	'LBL_EXPORT_STEP1' => '1. Select Module',
 	'LBL_EXPORT_STEP2' => '2. Select Module Entry',
 	'LBL_TRACKERINFO' => 'Contacs have been exported to: ',
  	'LBL_CHOSEN_MODUL' => 'Select Module',
-	'LBL_CHOSEN_ENTRY' => 'Select Module Entry',
-	
-	
+	'LBL_CHOSEN_ENTRY' => 'Select Module Entry',	
     );
     
 $jsLanguageStrings = array(   
@@ -84,4 +90,6 @@ $jsLanguageStrings = array(
 	'JS_INTERNAL_ERROR' => 'internal error',
 	'JS_INTERNAL_ERROR_MESSAGE1' => 'the order could not be processed',
 	'JS_INTERNAL_ERROR_MESSAGE2' => 'Internal error, please contact your CRM administrator',
+    'JS_LBL_EMAIL_ERROR' => 'No email check possible',
+    'JS_LBL_NO_EMAIL' => 'There is no email available',
     );

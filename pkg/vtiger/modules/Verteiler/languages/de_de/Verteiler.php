@@ -59,7 +59,15 @@ Wenn Sie alle automatisch entfernen, bleibt der zuletzt hinzugefügte Kontakt au
     'LBL_EXPORT_OPTION' => 'Export Optionen',
     'LBL_EXPORT_DESCRIPTION' => 'Bitte wählen Sie ein CRM Modul aus, zu welchem die Kontakte aus diesem Verteiler exportiert werden sollen.',
     'LBL_EXPORT_BUTTON' => 'Exportieren',
-	
+
+    'LBL_CHECK_E-MAIL_HEADER' => 'E-Mail Überprüfung',
+    'LBL_CHECK_E-MAIL_DESCRIPTION' => 'Es wurden fehlerhafte E-Mail Adressen gefunden. Der Verteiler kann nur verwendet werden, wenn die E-Mail Adessen korrekt sind.',
+    'LBL_CHECK_E-MAIL_FALSE' => 'Fehlerhafte E-Mail Adressen:',
+    'LBL_CHECK_E-MAIL_CLOSE' => 'Schließen',
+	'LBL_Check_E-MAIL' => 'Check E-Mail',
+    'LBL_CHECK_E-MAIL_TRUE' => 'Alle enthaltende E-Mail Adressen weisen keine Fehler auf.',
+    'LBL_CHECK_E-MAIL_ALL-DETAIL' => 'Alle Details',
+
     'LBL_MODULE_EDIT_PERMISSION_DENIED' => 'Sie haben für dieses CRM Modul nicht die Berechtigung, Daten zu verändern.',
 	'LBL_SPECIAL_EXPORT' => 'Spezielle Exporte',
 	'LBL_EXPORT_STEP1' => '1. Modul auswählen',
@@ -67,7 +75,6 @@ Wenn Sie alle automatisch entfernen, bleibt der zuletzt hinzugefügte Kontakt au
 	'LBL_TRACKERINFO' => 'Personen wurden exportiert zu: ',
  	'LBL_CHOSEN_MODUL' => 'Modul wählen',
 	'LBL_CHOSEN_ENTRY' => 'Eintrag wählen',
-	
     );
     
 $jsLanguageStrings = array(   
@@ -84,4 +91,6 @@ $jsLanguageStrings = array(
 	'JS_INTERNAL_ERROR' => 'Interner Fehler',
 	'JS_INTERNAL_ERROR_MESSAGE1' => 'der Auftrag konnte nicht bearbeitet werden',
 	'JS_INTERNAL_ERROR_MESSAGE2' => 'Interner Fehler, bitte den CRM Administrator informieren',
+    'JS_LBL_EMAIL_ERROR' => 'Kein E-Mail Check möglich',
+    'JS_LBL_NO_EMAIL' => 'Es sind keine E-Mails vorhanden',
   );
