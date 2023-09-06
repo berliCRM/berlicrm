@@ -1945,9 +1945,15 @@ function validateServerName($string){
 	}
 
 	function validateEmailId($string) {
+		$position = strpos($string,' ');
 		$string = filter_var($string, FILTER_SANITIZE_EMAIL);
 		if (filter_var($string, FILTER_VALIDATE_EMAIL)) {
-			return true;
+			if ($position !== false) {
+				return false;
+			} else {
+				return true;
+			}
+			
 		} 
 		else {
 			return false;
