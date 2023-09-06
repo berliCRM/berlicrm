@@ -116,6 +116,12 @@ $languageStrings = array(
 	//added for mail scanner
 	'LBL_REGEX_RULE' => 'Wenn Sie einen regulären Ausdruck (Regex) verwenden,<br>so wird dieser als " /yourexpression/i " genutzt.',
 	'LBL_ATTACHMENTS' => 'Verzeichnis für Anhänge',
+	'LBL_ERROR_SCANNER_NAME' => 'Scanner-Name ist ungültig.<br>Sonderzeichen nicht erlaubt!',
+	'LBL_ERROR_SERVER_NAME' => 'Servername ist ungültig!<br>Sonderzeichen sind für Servername nicht erlaubt.',
+	'LBL_ERROR_CONNECTION_TO_MAILBOX' => 'Die Mail Box konnte nicht erreicht werden!<br>Bitte prüfen Sie Ihre Zugangsdaten.',
+	'LBL_ERROR_NOT_REACHEBLE_RETURN_TOUCHED' => 'Unbekannter Fehler beim Verbindungsaufbau! Bitte noch einmal versuchen.',
+	'LBL_ERROR_NOT_EXPECTED_RETURN_VALUE' => 'Unerwarteter Rückgabewert im Status!',
+	
 );
 
 $jsLanguageStrings = array(

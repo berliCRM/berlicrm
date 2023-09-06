@@ -115,7 +115,12 @@ $languageStrings = array(
 	//added for mail scanner
 	'LBL_REGEX_RULE' => 'Your regular expressions (Regex) term is getting used as " /yourexpression/i ".',
 	'LBL_ATTACHMENTS' => 'Folder for Attachments',
-
+	'LBL_ERROR_SCANNER_NAME' => 'Scanner-Name is invalide.<br>Special characters are not allowed!',
+	'LBL_ERROR_SERVER_NAME' => 'Server name is invalide!<br>Special characters are not allowed for server name.',
+	'LBL_ERROR_CONNECTION_TO_MAILBOX' => 'The mailbox could not be reached!<br>Please check your access data.',
+	'LBL_ERROR_NOT_REACHEBLE_RETURN_TOUCHED' => 'Unknown error while establishing connection! Please try again.',
+	'LBL_ERROR_NOT_EXPECTED_RETURN_VALUE' => 'Unexpected return value in status!',
+	
 );
 
 $jsLanguageStrings = array(

@@ -194,13 +194,13 @@ class Settings_MailConverter_Record_Model extends Settings_Vtiger_Record_Model {
 		//Checking Scanner Name
 		$scannerName = $this->getName();
 		if($scannerName && !validateAlphanumericInput($scannerName)) {
-			return false;
+			return "scannerNameNotValide";
 		}
 
 		//Checking Server
 		$server = $this->get('server');
 		if($server && !validateServerName($server)) {
-			return false;
+			return "serverNameNotValide";
 		}
 
 		
@@ -211,6 +211,11 @@ class Settings_MailConverter_Record_Model extends Settings_Vtiger_Record_Model {
             vimport('~~modules/Settings/MailConverter/handlers/MailBox.php');
 			$mailBox = new Vtiger_MailBox($scannerLatestInfo);
 			$isConnected = $mailBox->connect();
+
+			if(!$isConnected){
+				return "notMailBoxConnect";
+			}
+
 		}
 		if($isConnected) {
 			$scannerLatestInfo->connecturl = $mailBox->_imapurl;
@@ -228,8 +233,10 @@ class Settings_MailConverter_Record_Model extends Settings_Vtiger_Record_Model {
 				$rescanFolder = true;
 			}
 			$scannerOldInfo->updateAllFolderRescan($rescanFolder);
+			return "connectedToMailBoxOK";
 		}
-		return $isConnected;
+
+		return "thisReturnValueShouldNotAppearHere";
 	}
 
 	/**
