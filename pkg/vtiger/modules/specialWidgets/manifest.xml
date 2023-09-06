@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<module>
+<exporttime>2023-08-02 07:28:26</exporttime>
+<name>specialWidgets</name>
+<label>specialWidgets</label>
+<parent></parent>
+<type>extension</type>
+<version>1.0</version>
+<dependencies>
+<vtiger_version>6.5.0</vtiger_version>
+<vtiger_max_version>6.*</vtiger_max_version>
+</dependencies>
+<tables>
+</tables>
+<crons>
+</crons>
+</module>
