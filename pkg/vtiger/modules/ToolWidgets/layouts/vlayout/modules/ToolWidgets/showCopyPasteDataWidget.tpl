@@ -7,7 +7,7 @@
     <div id="copypasteButton">
         <div class="modal-header contentsBackground">
             <div class="row-fluid">
-				<input class="btn span" id="showcontactdetails" value="{vtranslate('LBL_SHOW_CONTACTDETAILS', $MODULE)}" type="button"> 
+				<input class="btn span" id="showcontactdetails" value="{vtranslate('LBL_SHOW_CONTACTDETAILS', $MODULE)}" type="button">
  			</div>
        </div>
     </div>

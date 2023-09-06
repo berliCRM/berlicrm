@@ -1,6 +1,6 @@
 {strip}
 	<div class="modal-header">
-		<button class="close" data-dismiss="modal" title="{vtranslate('LBL_CLOSE', $MODULE)}">x</button>
+		<button class="close" data-dismiss="modal" title="{vtranslate('LBL_CLOSE')}">x</button>
 		<h3>
 			{vtranslate('LBL_CONTACTDETAILS', $MODULE)}
 		</h3>

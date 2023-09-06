@@ -1,5 +1,5 @@
 <?php
-class ToolWidgets_showCopyPasteDataWidget_View extends Vtiger_Detail_View {
+class ToolWidgets_showCopyPasteData_View extends Vtiger_Detail_View {
 	function checkPermission(Vtiger_Request $request) {
 		return;
 	}
