@@ -96,3 +96,38 @@
 	height: 30px;
     width: 30px;
 }
+.ui-icon-Products::after {
+	background-image: url("Products.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-Project::after {
+	background-image: url("Project.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-ProjectMilestone::after {
+	background-image: url("ProjectMilestone.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-ProjectTask::after {
+	background-image: url("ProjectTask.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-Invoice::after {
+	background-image: url("Invoice.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
