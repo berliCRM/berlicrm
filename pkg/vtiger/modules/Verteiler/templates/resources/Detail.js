@@ -9,8 +9,8 @@
 
 Vtiger_Detail_Js("Verteiler_Detail_Js",{
 	selectedexport : '',
-    sendemail : function(recordid) {
-        var params = {};
+	sendemail : function(recordid) {
+    	var params = {};
 		params['sourceModule'] = "Verteiler";
 		params['sourceRecord'] = recordid;
 		params['selected_ids'] = "all";
@@ -20,10 +20,38 @@ Vtiger_Detail_Js("Verteiler_Detail_Js",{
             "url" :'index.php?module=Contacts&view=MassActionAjax&mode=showComposeEmailForm&step=step1',
             "dataType":"html",
             "data" : params
-        };
-        Vtiger_Index_Js.showComposeEmailPopup(actionParams);
+        }; 
+
+		var url = 'index.php?module=Verteiler&view=showCheckVerteilerEmails&recordid='+recordid;
+		AppConnector.request(url).then(
+			function(data){
+				if(data) {
+					if (data == 'ok') {
+						//call email popup
+						Vtiger_Index_Js.showComposeEmailPopup(actionParams);
+					}
+					else {
+							//call modalwindow
+							var callbackFunction = function(data) {											
+							}
+							app.showModalWindow(data, function(data){ 
+								if(typeof callbackFunction == 'function'){
+									callbackFunction(data);
+								}
+							});
+					}
+				}
+				else {
+					alert (app.vtranslate('JS_INTERNAL_ERROR_MESSAGE2'));
+				}
+				
+			},
+			function(error){
+				alert (app.vtranslate('JS_INTERNAL_ERROR_MESSAGE2'));
+			}
+		);
     },
-    
+	
     exportexcel : function(recordid) {
         window.location = "index.php?module=Verteiler&action=ExcelExport&record="+recordid;
     },
@@ -188,7 +216,42 @@ Vtiger_Detail_Js("Verteiler_Detail_Js",{
 		);
 		
 	},
-},{
+
+	 /**
+	 * Function to show a contact list
+	 */ 
+	/*	 showEmailCheckResults : function(recordid){
+			var url = 'index.php?module=Verteiler&view=showCheckVerteilerEmails&recordid='+recordid;
+			AppConnector.request(url).then(
+				function(data){
+					if(data.indexOf("NODESTINATION") > -1 ) {
+						var params = {
+							title: app.vtranslate('JS_LBL_EMAIL_ERROR'),
+							text: app.vtranslate('JS_LBL_NO_EMAIL'),
+							width: '35%'
+						};
+						Vtiger_Helper_Js.showPnotify(params);	
+						return false; 
+					}
+					else {
+						var callbackFunction = function(data) {											
+						}
+						app.showModalWindow(data, function(data){
+							if(typeof callbackFunction == 'function'){
+								callbackFunction(data);
+							}
+						});
+					} 
+				},
+				function(error){
+					alert (app.vtranslate('JS_INTERNAL_ERROR_MESSAGE2'));
+				}
+			);
+			
+		}, */
+},
+
+{
     
 	loadRelatedList : function(pageNumber){
 		var relatedListInstance = new Verteiler_RelatedList_Js(this.getRecordId(), app.getModuleName(), this.getSelectedTab(), this.getRelatedModuleName());
