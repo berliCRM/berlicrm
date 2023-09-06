@@ -28,8 +28,8 @@
 		private $inParamProcess ;
 		private $sessionManager;
 		private $pearDB;
-		private $operationName;
-		private $type;
+		public $operationName;
+		public $type;
 		private $handlerPath;
 		private $handlerMethod;
 		private $preLogin;
@@ -101,9 +101,17 @@
 		public function getOperationInput(){
 			$type = strtolower($this->type);
 			switch($type){
-				case 'get': $input = &$_GET;
+				case 'get':
+					if (!isset($_GET['operation']) && isset($_POST['operation'])) {
+						throw new WebServiceException(WebServiceErrorCode::$METHODNOTALLOWED,"Method not allowed");
+					}
+					$input = &$_GET;
 					return $input;
-				case 'post': $input = &$_POST;
+				case 'post':
+					if (isset($_GET['operation']) && !isset($_POST['operation'])) {
+						throw new WebServiceException(WebServiceErrorCode::$METHODNOTALLOWED,"Method not allowed");
+					}
+					$input = &$_POST;
 					return $input;
 				default: $input = &$_REQUEST;
 					return $input;
@@ -162,7 +170,13 @@
 			}catch(WebServiceException $e){
 				throw $e;
 			}catch(Exception $e){
-				throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR,"Unknown Error while processing request");
+				$errorMessage = $e->getMessage();
+				if (!empty($errorMessage)) {
+					throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR,$errorMessage);
+				}
+				else {
+					throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR,"Unknown Error while processing request");
+				}
 			}
 			
 		}
