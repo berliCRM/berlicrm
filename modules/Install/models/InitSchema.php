@@ -1036,7 +1036,7 @@ class Install_InitSchema_Model {
 							  'Update Inventory Products' => array('Aktualisierung vom Lagerbestand')
 						);
 
-		class VTEntityMethodTask {};
+		
 		while($row = $adb->getNextRow($result, false)){
 			$task = $row['task'];
 			$taskId = $row['task_id'];
@@ -1056,7 +1056,7 @@ class Install_InitSchema_Model {
 		$translations = array('update forecast amount' => array('Aktualisierung vom Forecast Betrag'),
 						);
 
-		class VTUpdateFieldsTask {};
+		
 		while($row = $adb->getNextRow($result, false)){
 			$task = $row['task'];
 			$taskId = $row['task_id'];
