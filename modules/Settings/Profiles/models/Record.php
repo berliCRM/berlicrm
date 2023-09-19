@@ -489,7 +489,7 @@ class Settings_Profiles_Record_Model extends Settings_Vtiger_Record_Model {
         return $profileId;
 	}
 
-	protected function saveModulePermissions($moduleModel, $permissions) {
+	public function saveModulePermissions($moduleModel, $permissions) {
 		$db = PearDatabase::getInstance();
 		$profileId = $this->getId();
 		$tabId = $moduleModel->getId();
@@ -531,7 +531,7 @@ class Settings_Profiles_Record_Model extends Settings_Vtiger_Record_Model {
 				}
 
 				//Update process
-				if ($profileActionPermissions) {
+				if ($profileActionPermissions && $moduleModel->getName() != 'Reports') {
 					//Standard permissions
 					$actionsUpdateQuery = 'UPDATE vtiger_profile2standardpermissions SET permissions = CASE ';
 					foreach ($actionsIdsList as $actionId => $permission) {
