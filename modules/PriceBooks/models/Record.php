@@ -54,8 +54,12 @@ class PriceBooks_Record_Model extends Vtiger_Record_Model {
 		$result = $db->pquery('SELECT * FROM vtiger_pricebookproductrel WHERE pricebookid = ? AND productid = ?',
 				array($this->getId(), $relatedRecordId));
 		if($db->num_rows($result)) {
-			 $db->pquery('UPDATE vtiger_pricebookproductrel SET listprice = ? WHERE pricebookid = ? AND productid = ?',
-					 array($price, $this->getId(), $relatedRecordId));
+			$sql = "UPDATE vtiger_pricebookproductrel 
+			INNER JOIN vtiger_crmentity 
+			ON vtiger_crmentity.crmid = vtiger_pricebookproductrel.pricebookid 
+			SET listprice = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE pricebookid = ? AND productid = ?";
+			$db->pquery($sql, array($price, $this->getId(), $relatedRecordId));
 		} else {
 			$db->pquery('INSERT INTO vtiger_pricebookproductrel (pricebookid,productid,listprice,usedcurrency) values(?,?,?,?)',
 					array($this->getId(), $relatedRecordId, $price, $this->get('currency_id')));

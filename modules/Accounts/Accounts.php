@@ -1308,7 +1308,12 @@ class Accounts extends CRMEntity {
 			$this->db->pquery('INSERT INTO vtiger_relatedlists_rb VALUES(?,?,?,?,?,?)', $params);
 		}
 		//Deleting Contact-Account Relation.
-		$con_q = 'UPDATE vtiger_contactdetails SET accountid = 0 WHERE accountid = ?';
+		$con_q = "UPDATE vtiger_contactdetails 
+		INNER JOIN vtiger_crmentity 
+		ON vtiger_crmentity.crmid = vtiger_contactdetails.contactid 
+		SET accountid = 0 
+		, vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+		WHERE accountid = ?";
 		$this->db->pquery($con_q, array($id));
 
 		//Backup Trouble Tickets-Account Relation
@@ -1324,7 +1329,11 @@ class Accounts extends CRMEntity {
 			$this->db->pquery('INSERT INTO vtiger_relatedlists_rb VALUES(?,?,?,?,?,?)', $params);
 		}
 		//Deleting Trouble Tickets-Account Relation.
-		$tt_q = 'UPDATE vtiger_troubletickets SET parent_id = 0 WHERE parent_id = ?';
+		$tt_q = "UPDATE vtiger_troubletickets 
+		INNER JOIN vtiger_crmentity 
+		ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid 
+		SET parent_id = 0, vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+		WHERE parent_id = ?";
 		$this->db->pquery($tt_q, array($id));
 
 		parent::unlinkDependencies($module, $id);

@@ -1216,7 +1216,12 @@ function get_contactsforol($user_name)
 		$imageName = decode_html($adb->query_result($imageNameResult, 0, "name"));
 
 		//Inserting image information of record into base table
-		$adb->pquery('UPDATE vtiger_contactdetails SET imagename = ? WHERE contactid = ?',array($imageName,$id));
+		$sqlImageInfoUpdate = "UPDATE vtiger_contactdetails 
+		INNER JOIN vtiger_crmentity 
+		ON vtiger_crmentity.crmid = vtiger_contactdetails.contactid 
+		SET vtiger_contactdetails.imagename = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+		WHERE contactid = ?";
+		$adb->pquery($sqlImageInfoUpdate, array($imageName,$id));
 
 		//This is to handle the delete image for contacts
 		if($module == 'Contacts' && $file_saved)
@@ -1282,7 +1287,12 @@ function get_contactsforol($user_name)
 					}
 				}
 			}
-			$adb->pquery("UPDATE vtiger_potential SET related_to = ? WHERE related_to = ?", array($entityId, $transferId));
+			$updateSql = "UPDATE vtiger_potential 
+			INNER JOIN vtiger_crmentity 
+			ON vtiger_crmentity.crmid = vtiger_potential.potentialid 
+			SET related_to = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE related_to = ?";
+			$adb->pquery($updateSql, array($entityId, $transferId));
 		}
 		parent::transferRelatedRecords($module, $transferEntityIds, $entityId);
 		$log->debug("Exiting transferRelatedRecords...");
@@ -1403,7 +1413,12 @@ function get_contactsforol($user_name)
 			$this->db->pquery('INSERT INTO vtiger_relatedlists_rb VALUES (?,?,?,?,?,?)', $params);
 		}
 		//removing the relationship of contacts with Trouble Tickets
-		$this->db->pquery('UPDATE vtiger_troubletickets SET contact_id=0 WHERE contact_id=?', array($id));
+		$updateQuery = "UPDATE vtiger_troubletickets 
+		INNER JOIN vtiger_crmentity 
+		ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid 
+		SET contact_id = 0 , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+		WHERE contact_id = ? ";
+		$this->db->pquery($updateQuery, array($id));
 
 		//Backup Contact-PurchaseOrder Relation
 		$po_q = 'SELECT purchaseorderid FROM vtiger_purchaseorder WHERE contactid=?';
@@ -1418,7 +1433,12 @@ function get_contactsforol($user_name)
 			$this->db->pquery('INSERT INTO vtiger_relatedlists_rb VALUES (?,?,?,?,?,?)', $params);
 		}
 		//removing the relationship of contacts with PurchaseOrder
-		$this->db->pquery('UPDATE vtiger_purchaseorder SET contactid=0 WHERE contactid=?', array($id));
+		$updateQuery = "UPDATE vtiger_purchaseorder 
+		INNER JOIN vtiger_crmentity 
+		ON vtiger_crmentity.crmid = vtiger_purchaseorder.purchaseorderid
+		SET contactid = 0 , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."'  
+		WHERE contactid = ?";
+		$this->db->pquery($updateQuery, array($id));
 
 		//Backup Contact-SalesOrder Relation
 		$so_q = 'SELECT salesorderid FROM vtiger_salesorder WHERE contactid=?';
@@ -1433,7 +1453,12 @@ function get_contactsforol($user_name)
 			$this->db->pquery('INSERT INTO vtiger_relatedlists_rb VALUES (?,?,?,?,?,?)', $params);
 		}
 		//removing the relationship of contacts with SalesOrder
-		$this->db->pquery('UPDATE vtiger_salesorder SET contactid=0 WHERE contactid=?', array($id));
+		$sqlRem = "UPDATE vtiger_salesorder 
+		INNER JOIN vtiger_crmentity 
+		ON vtiger_crmentity.crmid = vtiger_salesorder.salesorderid
+		SET contactid = 0 , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."'  
+		WHERE contactid = ?";
+		$this->db->pquery($sqlRem, array($id));
 
 		//Backup Contact-Quotes Relation
 		$quo_q = 'SELECT quoteid FROM vtiger_quotes WHERE contactid=?';
@@ -1448,7 +1473,12 @@ function get_contactsforol($user_name)
 			$this->db->pquery('INSERT INTO vtiger_relatedlists_rb VALUES (?,?,?,?,?,?)', $params);
 		}
 		//removing the relationship of contacts with Quotes
-		$this->db->pquery('UPDATE vtiger_quotes SET contactid=0 WHERE contactid=?', array($id));
+		$query = "UPDATE vtiger_quotes 
+		INNER JOIN vtiger_crmentity 
+		ON vtiger_crmentity.crmid = vtiger_quotes.quoteid 
+		SET contactid = 0 , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+		WHERE contactid = ?";
+		$this->db->pquery($query, array($id));
 		//remove the portal info the contact
 		$this->db->pquery('DELETE FROM vtiger_portalinfo WHERE id = ?', array($id));
 		$this->db->pquery('UPDATE vtiger_customerdetails SET portal=0,support_start_date=NULL,support_end_date=NULl WHERE customerid=?', array($id));
@@ -1458,10 +1488,16 @@ function get_contactsforol($user_name)
 	// Function to unlink an entity with given Id from another entity
 	function unlinkRelationship($id, $return_module, $return_id) {
 		global $log;
-		if(empty($return_module) || empty($return_id)) return;
+		if(empty($return_module) || empty($return_id)) {
+			return;
+		}
 
 		if($return_module == 'Accounts') {
-			$sql = 'UPDATE vtiger_contactdetails SET accountid = ? WHERE contactid = ?';
+			$sql = "UPDATE vtiger_contactdetails 
+			INNER JOIN vtiger_crmentity 
+			ON vtiger_crmentity.crmid = vtiger_contactdetails.contactid 
+			SET accountid = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE contactid = ?";
 			$this->db->pquery($sql, array(null, $id));
 		} elseif($return_module == 'Potentials') {
 			$sql = 'DELETE FROM vtiger_contpotentialrel WHERE contactid=? AND potentialid=?';
@@ -1469,7 +1505,11 @@ function get_contactsforol($user_name)
 
 			//If contact related to potential through edit of record,that entry will be present in
 			//vtiger_potential contact_id column,which should be set to zero
-			$sql = 'UPDATE vtiger_potential SET contact_id = ? WHERE contact_id=? AND potentialid=?';
+			$sql = "UPDATE vtiger_potential 
+			INNER JOIN vtiger_crmentity 
+			ON vtiger_crmentity.crmid = vtiger_potential.potentialid 
+			SET contact_id = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE contact_id=? AND potentialid=?";
 			$this->db->pquery($sql, array(0,$id, $return_id));
 		} elseif($return_module == 'Campaigns') {
 			$sql = 'DELETE FROM vtiger_campaigncontrel WHERE contactid=? AND campaignid=?';

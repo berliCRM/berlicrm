@@ -29,7 +29,12 @@ class PurchaseOrder_Record_Model extends Inventory_Record_Model {
 				$result = $db->pquery("SELECT qtyinstock FROM vtiger_products WHERE productid=?", array($productId));
 				$qty = $db->query_result($result,0,"qtyinstock");
 				$stock = $qty + $relatedProduct['qty'.$key];
-				$db->pquery("UPDATE vtiger_products SET qtyinstock=? WHERE productid=?", array($stock, $productId));
+				$sql = "UPDATE vtiger_products 
+				INNER JOIN vtiger_crmentity 
+				ON vtiger_crmentity.crmid = vtiger_products.productid 
+				SET qtyinstock = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+				WHERE productid = ?";
+				$db->pquery($sql, array($stock, $productId));
 			}
 		}
 	}

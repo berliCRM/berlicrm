@@ -389,7 +389,11 @@ class Vendors extends CRMEntity {
 			$this->db->pquery('INSERT INTO vtiger_relatedlists_rb VALUES (?,?,?,?,?,?)', $params);
 		}
 		//Deleting Product-Vendor Relation.
-		$pro_q = 'UPDATE vtiger_products SET vendor_id = 0 WHERE vendor_id = ?';
+		$pro_q = "UPDATE vtiger_products 
+		INNER JOIN vtiger_crmentity 
+		ON vtiger_crmentity.crmid = vtiger_products.productid 
+		SET vendor_id = 0 , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+		WHERE vendor_id = ?";
 		$this->db->pquery($pro_q, array($id));
 
 		/*//Backup Contact-Vendor Relaton
@@ -415,10 +419,17 @@ class Vendors extends CRMEntity {
 
 		if(!is_array($with_crmids)) $with_crmids = Array($with_crmids);
 		foreach($with_crmids as $with_crmid) {
-			if($with_module == 'Contacts')
+			if($with_module == 'Contacts'){
 				$adb->pquery("insert into vtiger_vendorcontactrel values (?,?)", array($crmid, $with_crmid));
-			elseif($with_module == 'Products')
-				$adb->pquery("update vtiger_products set vendor_id=? where productid=?", array($crmid, $with_crmid));
+			}
+			elseif($with_module == 'Products'){
+				$sql = "UPDATE vtiger_products 
+				INNER JOIN vtiger_crmentity 
+				ON vtiger_crmentity.crmid = vtiger_products.productid 
+				SET vendor_id = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+				WHERE productid = ?";
+				$adb->pquery($sql, array($crmid, $with_crmid));
+			}
 			else {
 				parent::save_related_module($module, $crmid, $with_module, $with_crmid);
 			}

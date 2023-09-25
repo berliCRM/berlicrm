@@ -137,7 +137,11 @@ class Invoice extends CRMEntity {
 			}
 		}
 		// Update the currency id and the conversion rate for the invoice
-		$update_query = "update vtiger_invoice set currency_id=?, conversion_rate=? where invoiceid=?";
+		$update_query = "UPDATE vtiger_invoice 
+		INNER JOIN vtiger_crmentity 
+        ON vtiger_crmentity.crmid = vtiger_invoice.invoiceid 
+		SET currency_id = ? , conversion_rate = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+		WHERE invoiceid = ?";
 		if ($_REQUEST['action'] == 'SaveAjax') {
 			global $current_user;
 			$this->column_fields['conversion_rate'] = NumberField::convertToDBFormat($this->column_fields['conversion_rate'], $current_user, true);
@@ -148,7 +152,11 @@ class Invoice extends CRMEntity {
 		//crm-now: Checking if SO is present and updating the SO status
 		if($this->column_fields["salesorder_id"] != '') 		{
         	$so_id = $this->column_fields["salesorder_id"];
-        	$query1 = "update vtiger_salesorder set sostatus='Approved' where salesorderid=?";
+        	$query1 = "UPDATE vtiger_salesorder 
+			INNER JOIN vtiger_crmentity 
+			ON vtiger_crmentity.crmid = vtiger_salesorder.salesorderid
+			SET sostatus = 'Approved' , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE salesorderid = ?";
         	$this->db->pquery($query1, array($so_id));
 		}
 	}
@@ -453,7 +461,11 @@ class Invoice extends CRMEntity {
 		if($return_module == 'Accounts' || $return_module == 'Contacts') {
 			$this->trash('Invoice',$id);
 		} elseif($return_module=='SalesOrder') {
-			$relation_query = 'UPDATE vtiger_invoice set salesorderid=? where invoiceid=?';
+			$relation_query = "UPDATE vtiger_invoice 
+			INNER JOIN vtiger_crmentity 
+            ON vtiger_crmentity.crmid = vtiger_invoice.invoiceid 
+			SET salesorderid = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE invoiceid = ?";
 			$this->db->pquery($relation_query, array(null,$id));
 		} else {
 			$sql = 'DELETE FROM vtiger_crmentityrel WHERE (crmid=? AND relmodule=? AND relcrmid=?) OR (relcrmid=? AND module=? AND crmid=?)';
@@ -539,7 +551,10 @@ class Invoice extends CRMEntity {
 
 		//Update the netprice (subtotal), taxtype, discount, S&H charge, adjustment and total for the Invoice
 
-		$updatequery  = " UPDATE vtiger_invoice SET ";
+		$updatequery  = " UPDATE vtiger_invoice
+		INNER JOIN vtiger_crmentity 
+        ON vtiger_crmentity.crmid = vtiger_invoice.invoiceid 
+		SET ";
 		$updateparams = array();
 		// Remaining column values to be updated -> column name to field name mapping
 		$invoice_column_field = Array (
@@ -559,7 +574,8 @@ class Invoice extends CRMEntity {
 		if (count($updatecols) > 0) {
 			$updatequery .= implode(",", $updatecols);
 
-			$updatequery .= " WHERE invoiceid=?";
+			$updatequery .= " , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."'  
+			WHERE invoiceid = ?";
 			array_push($updateparams, $this->id);
 
 			$adb->pquery($updatequery, $updateparams);

@@ -189,7 +189,12 @@ class Vtiger_MailScannerAction {
 				$commentFocus->saveentity('ModComments');
 
 				// Set the ticket status to Open if its Closed
-				$adb->pquery("UPDATE vtiger_troubletickets set status=? WHERE ticketid=? AND status='Closed'", Array('Open', $linkfocus->id));
+				$updateQuery = "UPDATE vtiger_troubletickets 
+				INNER JOIN vtiger_crmentity 
+				ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid 
+				SET status = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+				WHERE ticketid = ? AND status = 'Closed' ";
+				$adb->pquery($updateQuery, Array('Open', $linkfocus->id));
 
 				$returnid = $this->__CreateNewEmail($mailrecord, $this->module, $linkfocus, $mailscannerrule);
 
@@ -475,8 +480,8 @@ class Vtiger_MailScannerAction {
 					Array($basefocus->id, $document->id));
 
 				// Link document to Parent entity - Account/Contact/...
+				list($eid,$junk)=explode('@',$basefocus->column_fields['parent_id']);
 				if (!empty($eid)) {
-					list($eid,$junk)=explode('@',$basefocus->column_fields['parent_id']);
 					$adb->pquery("INSERT INTO vtiger_senotesrel(crmid, notesid) VALUES(?,?)",
 						Array($eid, $document->id));
 				}
