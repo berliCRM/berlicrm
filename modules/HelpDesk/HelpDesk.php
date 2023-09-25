@@ -654,17 +654,29 @@ case when (vtiger_users.user_name not like '') then $userNameSql else vtiger_gro
 		if(empty($return_module) || empty($return_id)) return;
 
 		if($return_module == 'Accounts') {
-			$sql = 'UPDATE vtiger_troubletickets SET parent_id=? WHERE ticketid=?';
+			$sql = "UPDATE vtiger_troubletickets 
+			INNER JOIN vtiger_crmentity 
+			ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid 
+			SET parent_id = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE ticketid = ? ";
 			$this->db->pquery($sql, array(null, $id));
 			$se_sql= 'DELETE FROM vtiger_seticketsrel WHERE ticketid=?';
 			$this->db->pquery($se_sql, array($id));
 		} elseif($return_module == 'Contacts') {
-			$sql = 'UPDATE vtiger_troubletickets SET contact_id=? WHERE ticketid=?';
+			$sql = "UPDATE vtiger_troubletickets 
+			INNER JOIN vtiger_crmentity 
+			ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid 
+			SET contact_id = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE ticketid = ? ";
 			$this->db->pquery($sql, array(null, $id));
 			$se_sql= 'DELETE FROM vtiger_seticketsrel WHERE ticketid=?';
 			$this->db->pquery($se_sql, array($id));
 		}elseif($return_module == 'Products') {
-			$sql = 'UPDATE vtiger_troubletickets SET product_id=? WHERE ticketid=?';
+			$sql = "UPDATE vtiger_troubletickets 
+			INNER JOIN vtiger_crmentity 
+			ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid 
+			SET product_id = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE ticketid = ? ";
 			$this->db->pquery($sql, array(null, $id));
 		} else {
 			$sql = 'DELETE FROM vtiger_crmentityrel WHERE (crmid=? AND relmodule=? AND relcrmid=?) OR (relcrmid=? AND module=? AND crmid=?)';

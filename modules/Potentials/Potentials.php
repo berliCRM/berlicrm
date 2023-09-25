@@ -732,7 +732,11 @@ class Potentials extends CRMEntity {
 		if($return_module == 'Accounts') {
 			$this->trash($this->module_name, $id);
 		} elseif($return_module == 'Campaigns') {
-			$sql = 'UPDATE vtiger_potential SET campaignid = ? WHERE potentialid = ?';
+			$sql = "UPDATE vtiger_potential 
+			INNER JOIN vtiger_crmentity 
+			ON vtiger_crmentity.crmid = vtiger_potential.potentialid 
+			SET campaignid = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE potentialid = ?";
 			$this->db->pquery($sql, array(null, $id));
 		} elseif($return_module == 'Products') {
 			$sql = 'DELETE FROM vtiger_seproductsrel WHERE crmid=? AND productid=?';
@@ -743,7 +747,11 @@ class Potentials extends CRMEntity {
 
 			//If contact related to potential through edit of record,that entry will be present in
 			//vtiger_potential contact_id column,which should be set to zero
-			$sql = 'UPDATE vtiger_potential SET contact_id = ? WHERE potentialid=? AND contact_id=?';
+			$sql = "UPDATE vtiger_potential 
+			INNER JOIN vtiger_crmentity 
+			ON vtiger_crmentity.crmid = vtiger_potential.potentialid 
+			SET contact_id = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE potentialid=? AND contact_id=?";
 			$this->db->pquery($sql, array(0,$id, $return_id));
 
 			// Potential directly linked with Contact (not through Account - vtiger_contpotentialrel)

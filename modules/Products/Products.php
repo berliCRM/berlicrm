@@ -145,7 +145,11 @@ class Products extends CRMEntity {
 			}
 		}
 		if (!empty($arr_taxes)) {
-			$query = "UPDATE vtiger_products SET taxclass = ? WHERE productid = ?;";
+			$query = "UPDATE vtiger_products 
+			INNER JOIN vtiger_crmentity 
+			ON vtiger_crmentity.crmid = vtiger_products.productid 
+			SET taxclass = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE productid = ?;";
 			$adb->pquery($query, array(implode(', ', $arr_taxes), $this->id));
 		}
 
@@ -202,12 +206,22 @@ class Products extends CRMEntity {
 				// Update the Product information with Base Currency choosen by the User.
 				if ($_REQUEST['base_currency'] == $cur_valuename) {
 					$currencySet = 1;
-					$adb->pquery("update vtiger_products set currency_id=?, unit_price=? where productid=?", array($curid, $actualPrice, $this->id));
+					$query = "UPDATE vtiger_products 
+					INNER JOIN vtiger_crmentity 
+					ON vtiger_crmentity.crmid = vtiger_products.productid 
+					SET currency_id = ?, unit_price = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+					WHERE productid = ?";
+					$adb->pquery($query, array($curid, $actualPrice, $this->id));
 				}
 			}
 			if(!$currencySet){
 				$curid = fetchCurrency($current_user->id);
-				$adb->pquery("update vtiger_products set currency_id=? where productid=?", array($curid, $this->id));
+				$query = "UPDATE vtiger_products 
+				INNER JOIN vtiger_crmentity 
+				ON vtiger_crmentity.crmid = vtiger_products.productid 
+				SET currency_id = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+				WHERE productid = ?";
+				$adb->pquery($query, array($curid, $this->id));
 			}
 		}
 
@@ -219,7 +233,11 @@ class Products extends CRMEntity {
 		$prod_unit_price = $this->db->query_result($prod_res, 0, 'unit_price');
 		$prod_base_currency = $this->db->query_result($prod_res, 0, 'currency_id');
 
-		$query = "update vtiger_productcurrencyrel set actual_price=? where productid=? and currencyid=?";
+		$query = "UPDATE vtiger_productcurrencyrel 
+		INNER JOIN vtiger_crmentity 
+		ON vtiger_crmentity.crmid = vtiger_productcurrencyrel.productid 
+		SET actual_price = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+		WHERE productid = ? AND currencyid = ?";
 		$params = array($prod_unit_price, $this->id, $prod_base_currency);
 		$this->db->pquery($query, $params);
 	}
@@ -257,7 +275,12 @@ class Products extends CRMEntity {
 		}
 		$commaSeperatedFileNames = implode(",", $productImageMap);
 
-		$adb->pquery('UPDATE vtiger_products SET imagename = ? WHERE productid = ?',array($commaSeperatedFileNames,$id));
+		$query = "UPDATE vtiger_products 
+		INNER JOIN vtiger_crmentity 
+		ON vtiger_crmentity.crmid = vtiger_products.productid 
+		SET imagename = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+		WHERE productid = ?";
+		$adb->pquery($query, array($commaSeperatedFileNames, $id));
 
 		//Remove the deleted vtiger_attachments from db - Products
 		if($module == 'Products' && $_REQUEST['del_file_list'] != '')
@@ -1335,7 +1358,11 @@ class Products extends CRMEntity {
 			$sql = 'DELETE FROM vtiger_seproductsrel WHERE productid = ? AND crmid = ?';
 			$this->db->pquery($sql, array($id, $return_id));
 		} elseif($return_module == 'Vendors') {
-			$sql = 'UPDATE vtiger_products SET vendor_id = ? WHERE productid = ?';
+			$sql = "UPDATE vtiger_products 
+			INNER JOIN vtiger_crmentity 
+			ON vtiger_crmentity.crmid = vtiger_products.productid 
+			SET vendor_id = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE productid = ?";
 			$this->db->pquery($sql, array(null, $id));
 		} elseif($return_module == 'Accounts') {
 			$sql = 'DELETE FROM vtiger_seproductsrel WHERE productid = ? AND (crmid = ? OR crmid IN (SELECT contactid FROM vtiger_contactdetails WHERE accountid=?))';

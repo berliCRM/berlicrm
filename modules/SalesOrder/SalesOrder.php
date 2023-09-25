@@ -120,7 +120,11 @@ class SalesOrder extends CRMEntity {
 		if($this->column_fields["quote_id"] != '')
 		{
         		$qt_id = $this->column_fields["quote_id"];
-        		$query1 = "update vtiger_quotes set quotestage='Accepted' where quoteid=?";
+        		$query1 = "UPDATE vtiger_quotes 
+				INNER JOIN vtiger_crmentity 
+				ON vtiger_crmentity.crmid = vtiger_quotes.quoteid 
+				SET quotestage = 'Accepted' , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+				WHERE quoteid = ?";
         		$this->db->pquery($query1, array($qt_id));
 		}
 
@@ -136,7 +140,11 @@ class SalesOrder extends CRMEntity {
 		}
 
 		// Update the currency id and the conversion rate for the sales order
-		$update_query = "update vtiger_salesorder set currency_id=?, conversion_rate=? where salesorderid=?";
+		$update_query = "UPDATE vtiger_salesorder 
+		INNER JOIN vtiger_crmentity 
+		ON vtiger_crmentity.crmid = vtiger_salesorder.salesorderid
+		SET currency_id = ?, conversion_rate = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+		WHERE salesorderid = ?";
 		if ($_REQUEST['action'] == 'SaveAjax') {
 			global $current_user;
 			$this->column_fields['conversion_rate'] = NumberField::convertToDBFormat($this->column_fields['conversion_rate'], $current_user, true);
@@ -433,15 +441,27 @@ class SalesOrder extends CRMEntity {
 			$this->trash('SalesOrder',$id);
 		}
 		elseif($return_module == 'Quotes') {
-			$relation_query = 'UPDATE vtiger_salesorder SET quoteid=? WHERE salesorderid=?';
+			$relation_query = "UPDATE vtiger_salesorder 
+			INNER JOIN vtiger_crmentity 
+			ON vtiger_crmentity.crmid = vtiger_salesorder.salesorderid
+			SET quoteid = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE salesorderid = ?";
 			$this->db->pquery($relation_query, array(null, $id));
 		}
 		elseif($return_module == 'Potentials') {
-			$relation_query = 'UPDATE vtiger_salesorder SET potentialid=? WHERE salesorderid=?';
+			$relation_query = "UPDATE vtiger_salesorder 
+			INNER JOIN vtiger_crmentity 
+			ON vtiger_crmentity.crmid = vtiger_salesorder.salesorderid
+			SET potentialid = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE salesorderid = ?";
 			$this->db->pquery($relation_query, array(null, $id));
 		}
 		elseif($return_module == 'Contacts') {
-			$relation_query = 'UPDATE vtiger_salesorder SET contactid=? WHERE salesorderid=?';
+			$relation_query = "UPDATE vtiger_salesorder 
+			INNER JOIN vtiger_crmentity 
+			ON vtiger_crmentity.crmid = vtiger_salesorder.salesorderid
+			SET contactid = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE salesorderid = ?";
 			$this->db->pquery($relation_query, array(null, $id));
 		} else {
 			$sql = 'DELETE FROM vtiger_crmentityrel WHERE (crmid=? AND relmodule=? AND relcrmid=?) OR (relcrmid=? AND module=? AND crmid=?)';

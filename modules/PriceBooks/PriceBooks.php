@@ -89,7 +89,11 @@ class PriceBooks extends CRMEntity {
 			$conversion_rate = $pb_conv_rate / $product_conv_rate;
 			$computed_list_price = $list_price * $conversion_rate;
 
-			$query = "update vtiger_pricebookproductrel set listprice=?, usedcurrency=? where pricebookid=? and productid=?";
+			$query = "UPDATE vtiger_pricebookproductrel 
+			INNER JOIN vtiger_crmentity 
+			ON vtiger_crmentity.crmid = vtiger_pricebookproductrel.pricebookid 
+			SET listprice = ?, usedcurrency = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE pricebookid = ? AND productid = ?";
 			$params = array($computed_list_price, $pricebook_currency, $this->id, $product_id);
 			$adb->pquery($query, $params);
 		}

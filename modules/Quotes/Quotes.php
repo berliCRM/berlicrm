@@ -122,7 +122,11 @@ class Quotes extends CRMEntity {
 		}
 
 		// Update the currency id and the conversion rate for the quotes
-		$update_query = "update vtiger_quotes set currency_id=?, conversion_rate=? where quoteid=?";
+		$update_query = "UPDATE vtiger_quotes 
+		INNER JOIN vtiger_crmentity 
+		ON vtiger_crmentity.crmid = vtiger_quotes.quoteid 
+		SET currency_id = ?, conversion_rate = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+		WHERE quoteid = ?";
 		if ($_REQUEST['action'] == 'SaveAjax') {
 			global $current_user;
 			$this->column_fields['conversion_rate'] = NumberField::convertToDBFormat($this->column_fields['conversion_rate'], $current_user, true);
@@ -448,10 +452,18 @@ class Quotes extends CRMEntity {
 		if($return_module == 'Accounts' ) {
 			$this->trash('Quotes',$id);
 		} elseif($return_module == 'Potentials') {
-			$relation_query = 'UPDATE vtiger_quotes SET potentialid=? WHERE quoteid=?';
+			$relation_query = "UPDATE vtiger_quotes 
+			INNER JOIN vtiger_crmentity 
+			ON vtiger_crmentity.crmid = vtiger_quotes.quoteid 
+			SET potentialid = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE quoteid = ?";
 			$this->db->pquery($relation_query, array(null, $id));
 		} elseif($return_module == 'Contacts') {
-			$relation_query = 'UPDATE vtiger_quotes SET contactid=? WHERE quoteid=?';
+			$relation_query = "UPDATE vtiger_quotes 
+			INNER JOIN vtiger_crmentity 
+			ON vtiger_crmentity.crmid = vtiger_quotes.quoteid 
+			SET contactid = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE quoteid = ?";
 			$this->db->pquery($relation_query, array(null, $id));
 		} else {
 			$sql = 'DELETE FROM vtiger_crmentityrel WHERE (crmid=? AND relmodule=? AND relcrmid=?) OR (relcrmid=? AND module=? AND crmid=?)';

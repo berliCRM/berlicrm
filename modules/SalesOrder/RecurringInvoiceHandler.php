@@ -30,7 +30,12 @@ class RecurringInvoiceHandler extends VTEventHandler {
 					$noofrows = $adb->num_rows($check_res);
 					if ($noofrows > 0) {
 						$row = $adb->query_result_rowdata($check_res, 0);
-						$query = "UPDATE vtiger_invoice_recurring_info SET recurring_frequency=?, start_period=?, end_period=?, payment_duration=?, invoice_status=? WHERE salesorderid=?";
+						$query = "UPDATE vtiger_invoice_recurring_info 
+						INNER JOIN vtiger_crmentity 
+                        ON vtiger_crmentity.crmid = vtiger_invoice_recurring_info.salesorderid 
+						SET recurring_frequency = ?, start_period = ?, end_period = ?, payment_duration = ?, invoice_status = ? 
+						, vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+						WHERE salesorderid = ?";
 						$params = array($frequency,$startPeriod,$endPeriod,$paymentDuration,$invoiceStatus,$soId);
 					} else {
 						$query = "INSERT INTO vtiger_invoice_recurring_info VALUES (?,?,?,?,?,?,?)";
