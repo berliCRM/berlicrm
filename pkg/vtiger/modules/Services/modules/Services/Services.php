@@ -233,7 +233,11 @@ class Services extends CRMEntity {
 		$prod_unit_price = $this->db->query_result($prod_res, 0, 'unit_price');
 		$prod_base_currency = $this->db->query_result($prod_res, 0, 'currency_id');
 
-		$query = "update vtiger_productcurrencyrel set actual_price=? where productid=? and currencyid=?";
+		$query = "UPDATE vtiger_productcurrencyrel 
+		INNER JOIN vtiger_crmentity 
+		ON vtiger_crmentity.crmid = vtiger_productcurrencyrel.productid 
+		SET actual_price = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+		WHERE productid = ? AND currencyid = ?";
 		$params = array($prod_unit_price, $this->id, $prod_base_currency);
 		$this->db->pquery($query, $params);
 	}
