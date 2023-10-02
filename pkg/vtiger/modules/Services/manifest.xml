@@ -1,10 +1,10 @@
 <?xml version='1.0'?>
 <module>
-<exporttime>2009-02-06 12:10:08</exporttime>
+<exporttime>2023-10-02 08:08:08</exporttime>
 <name>Services</name>
 <label>Services</label>
 <parent>Inventory</parent>
-<version>2.6</version>
+<version>2.7</version>
 <dependencies>
 <vtiger_version>6.0.0rc</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>
