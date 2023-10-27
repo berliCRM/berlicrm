@@ -136,7 +136,8 @@ class Users_SaveAjax_Action extends Vtiger_SaveAjax_Action {
                 $recordModel->save();
                 
                 $db = PearDatabase::getInstance();
-                $db->pquery("UPDATE vtiger_users SET deleted=? WHERE id=?", array(0,$record));
+				$date_var = date('Y-m-d H:i:s');
+                $db->pquery("UPDATE vtiger_users SET deleted=?, date_modified=? WHERE id=?", array(0,$db->formatDate($date_var, true),$record));
                 
                 $userModuleModel = Users_Module_Model::getInstance($moduleName);
 		$listViewUrl = $userModuleModel->getListViewUrl();
