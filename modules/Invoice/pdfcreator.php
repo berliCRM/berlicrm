@@ -15,8 +15,6 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	require_once('include/database/PearDatabase.php');
 	require_once('include/utils/InventoryUtils.php');
 	require_once('modules/Pdfsettings/helpers/PDFutils.php');
-	require_once('swisspdf/createpng.php');
-	include('config.inc.php');
 	global $FOOTER_PAGE, $default_font, $font_size_footer, $NUM_FACTURE_NAME, $pdf_strings, $quote_no, $footer_margin;
 	global $org_name, $org_address, $org_city, $org_code, $org_country, $org_irs, $org_taxid, $org_phone, $org_fax, $org_website;
 	global $ORG_POSITION,$VAR_PAGE, $VAR_OF, $invoice_status;
@@ -135,7 +133,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 		$org_irs = $adb->query_result($result,0,"irs");
 		$org_website = $adb->query_result($result,0,"website");
 
-		$logo_name = $adb->query_result($result,0,"logoname");
+		$logo_name = decode_html($adb->query_result($result,0,"logoname"));
 		$bank_name = $adb->query_result($result,0,"bankname");
 		$bank_street = $adb->query_result($result,0,"bankstreet");
 		$bank_city = $adb->query_result($result,0,"bankcity");
@@ -469,61 +467,6 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	// no description
 	}
 	// ************************ END POPULATE DATA ***************************
-
-	//create QR-Code
-
-	$pdfDataObj['organisation']['name'] = $account_name;
-	$pdfDataObj['organisation']['hnr+street'] = $bill_street;
-	$pdfDataObj['organisation']['zip+state'] = $bill_code.' '.$bill_city;
-	$pdfDataObj['organisation']['country'] = $currency_code;
-
-	$pdfDataObj['contact']['name'] = $contact_firstname.' '.$contact_lastname;
-	$pdfDataObj['contact']['street'] = explode(' ', $ship_street)[0];
-	$pdfDataObj['contact']['hnr'] = explode(' ', $ship_street)[1];
-	$pdfDataObj['contact']['zip'] = $ship_code;
-	$pdfDataObj['contact']['state'] = $ship_state;
-	$pdfDataObj['contact']['country'] = $currency_code;
-
-	$pdfDataObj['payment']['currency'] = $currency_code;
-	$pdfDataObj['payment']['amount'] = $price_total;  
-
-	$pdfDataObj['bill_number'] = strval($current_id);
-
-
-	if($pdfDataObj['payment']['currency'] == "CHF") {
-		// $datei = fopen("test/testData.txt","a+");
-		// fwrite($datei, print_r($pdfDataObj, TRUE));
-		// fclose($datei);
-		createpng($pdfDataObj);
-		// $datei = fopen("test/testData.txt","a+");
-		// fwrite($datei, print_r('\ndone', TRUE));
-		// fclose($datei);
-
-
-
-
-		$payload = json_encode($pdfDataObj);
-
-		$ch = curl_init($site_URL.'pdfEndPoint.php');
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-			'Content-Type: application/json',
-			'Content-Length: ' . strlen($payload)
-		));
-		
-		$result = curl_exec($ch);
-		curl_close($ch);
-		
-		// Process the response from Server B
-		$response = json_decode($result, true);
-		if ($response['success'] == true) {
-			$imagepath = $response['pictureURL'];
-		} else {
-			echo 'Error: Invalid response from Server B';
-		}
-	}
 	//************************BEGIN PDF FORMATING**************************
 	// Extend the TCPDF class to create custom Header and Footer
 	$page_num='1';
@@ -577,51 +520,10 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	//formating company name for file name
 	$export_org = utf8_decode($account_name);
 	$export_org = decode_html(strtolower($export_org));
-    $export_org = str_replace(array(" ","ц","д","ь","Я","Ц","Д","Ь","/","\\"),array("_","oe","ae","ue","ss","Oe","Ae","Ue","_","_"),$export_org);
+    $export_org = str_replace(array(" ","ö","ä","ü","ß","Ö","Ä","Ü","/","\\"),array("_","oe","ae","ue","ss","Oe","Ae","Ue","_","_"),$export_org);
 	//remove not printable ascii char
 	$export_org = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $export_org);
 
-	if($pdfDataObj['payment']['currency'] == "CHF") {
-
-		$pdf->AddPage();
-		$imagewidth=50;
-		$imageheight=50;
-
-
-		//$pdf->Cell(20, 0, 'Rechnung', 0, 0, 'L', 0, '', 0);
-		//$pdf->Ln(6);
-		/*$pdf->Cell(20, 0, 'Zahlen an', 0, 0, 'L', 0, '', 0);*/ $pdf->Cell(0, 0,'Zahlen an', 0, 1, 'C', 0, '', 0);
-		$pdf->Ln(6);
-		/*$pdf->Cell(20, 0, $pdfDataObj['organisation']['name'], 0, 0, 'L', 0, '', 0);*/ $pdf->Cell(0, 0, $pdfDataObj['organisation']['name'], 0, 1, 'C', 0, '', 0);
-		/*$pdf->Cell(20, 0, $pdfDataObj['organisation']['hnr+street'], 0, 0, 'L', 0, '', 0);*/ $pdf->Cell(0, 0, $pdfDataObj['organisation']['hnr+street'], 0, 1, 'C', 0, '', 0);
-		/*$pdf->Cell(20, 0, $pdfDataObj['organisation']['zip+state'], 0, 0, 'L', 0, '', 0);*/ $pdf->Cell(0, 0, $pdfDataObj['organisation']['zip+state'], 0, 1, 'C', 0, '', 0);
-		//$pdf->Cell(0, 0, $pdfDataObj['organisation']['country'], 0, 2, 'L', 0, '', 0); //$pdf->Cell(0, 0, $pdfDataObj['organisation']['country'], 0, 2, 'L', 0, '', 0);
-		$pdf->Ln(10);
-		/*$pdf->Cell(20, 0, 'Zahlung von', 0, 0, 'L', 0, '', 0);*/ $pdf->Cell(0, 0, 'Zahlung von', 0, 1, 'C', 0, '', 0);
-		/*$pdf->Cell(20, 0, $pdfDataObj['contact']['name'], 0, 0, 'L', 0, '', 0);*/ $pdf->Cell(0, 0, $pdfDataObj['contact']['name'], 0, 1, 'C', 0, '', 0);
-		/*$pdf->Cell(20, 0, $pdfDataObj['contact']['street'].' '.$pdfDataObj['contact']['hnr'], 0, 0, 'L', 0, '', 0);*/ $pdf->Cell(0, 0, $pdfDataObj['contact']['street'].' '.$pdfDataObj['contact']['hnr'], 0, 1, 'C', 0, '', 0);
-		/*$pdf->Cell(20, 0, $pdfDataObj['contact']['zip'].' '.$pdfDataObj['contact']['state'], 0, 0, 'L', 0, '', 0);*/ $pdf->Cell(0, 0, $pdfDataObj['contact']['zip'].' '.$pdfDataObj['contact']['state'], 0, 1, 'C', 0, '', 0);
-
-		//$pdf->Cell(0, 0, $pdfDataObj['contact']['country'], 0, 5, 'L', 0, '', 0);
-		
-		$pdf->Ln(10);
-
-		$pdf->Cell(50, 0, 'Währung', 0, 0, 'C', 0, '', 0);
-		$pdf->Cell(1, 0, 'Menge', 0, 1, 'C', 0, '', 0);
-		$pdf->Cell(50, 0, $pdfDataObj['payment']['currency'], 0, 0, 'C', 0, '', 0);
-		$pdf->Cell(1, 0, $pdfDataObj['payment']['amount'], 0, 1, 'C', 0, '', 0);
-
-		//$pdf->Cell(0, 0, $pdfDataObj['bill_number'], 0, 1, 'C', 0, '', 0);
-
-		$imageData = imagecreatefrompng($imagepath);	
-
-
-		$tempimagepath = $root_directory.'storage/temp/temp.jpg';
-		imagejpeg($imageData, $tempimagepath, 100);
-		imagedestroy($imageData);
-		$pdf->Image($tempimagepath, 35, 13, $imagewidth, $imageheight, 'JPEG');
-	}
-	
 	if ($purpose=='save' || $purpose=='savesn') {
 		// save PDF file at Invoice
 		if ($purpose=='savesn') {
