@@ -1042,20 +1042,19 @@ function getRoleInformation($roleid)
 	global $log;
 	$log->debug("Entering getRoleInformation(".$roleid.") method ...");
 	global $adb;
-	$query = "select * from vtiger_role where roleid=?";
+	$query = "SELECT * FROM vtiger_role WHERE roleid=?";
 	$result = $adb->pquery($query, array($roleid));
-	$rolename=$adb->query_result($result,0,'rolename');
-	$parentrole=$adb->query_result($result,0,'parentrole');
-	$roledepth=$adb->query_result($result,0,'depth');
-	$parentRoleArr=explode('::',$parentrole);
-	$immediateParent=$parentRoleArr[sizeof($parentRoleArr)-2];
-	$roleDet=Array();
-	$roleDet[]=$rolename;
-	$roleDet[]=$parentrole;
-	$roleDet[]=$roledepth;
-	$roleDet[]=$immediateParent;
-	$roleInfo=Array();
-	$roleInfo[$roleid]=$roleDet;
+	$roleInfo = array();
+	if ($adb->num_rows($result) > 0) {
+		$row = $adb->getNextRow($result);
+		$rolename = $row['rolename'];
+		$parentrole = $row['parentrole'];
+		$roledepth = $row['depth'];
+		$parentRoleArr = explode('::', $parentrole);
+		$immediateParent = $parentRoleArr[sizeof($parentRoleArr)-2];
+		$roleDet = array($rolename, $parentrole, $roledepth, $immediateParent, );
+		$roleInfo[$roleid] = $roleDet;
+	}
 	$log->debug("Exiting getRoleInformation method ...");
 	return $roleInfo;
 }
@@ -1188,19 +1187,20 @@ function getRoleAndSubordinatesRoleIds($roleId)
 	global $log;
 	$log->debug("Entering getRoleAndSubordinatesRoleIds(".$roleId.") method ...");
 	global $adb;
-	$roleDetails=getRoleInformation($roleId);
-	$roleInfo=$roleDetails[$roleId];
-	$roleParentSeq=$roleInfo[1];
+	$roleDetails = getRoleInformation($roleId);
+	$roleInfo = $roleDetails[$roleId];
+	if (!empty($roleInfo[1])) {
+		$roleParentSeq = $roleInfo[1];
 
-	$query="select * from vtiger_role where parentrole like ? order by parentrole asc";
-	$result=$adb->pquery($query, array($roleParentSeq."%"));
-	$num_rows=$adb->num_rows($result);
-	$roleInfo=Array();
-	for($i=0;$i<$num_rows;$i++)
-	{
-		$roleid=$adb->query_result($result,$i,'roleid');
-		$roleInfo[]=$roleid;
-
+		$query = "SELECT * FROM vtiger_role WHERE parentrole LIKE ? ORDER BY parentrole ASC";
+		$result = $adb->pquery($query, array($roleParentSeq."%"));
+		$num_rows = $adb->num_rows($result);
+		$roleInfo = array();
+		for($i=0;$i<$num_rows;$i++)
+		{
+			$roleid = $adb->query_result($result, $i, 'roleid');
+			$roleInfo[] = $roleid;
+		}
 	}
 	$log->debug("Exiting getRoleAndSubordinatesRoleIds method ...");
 	return $roleInfo;
