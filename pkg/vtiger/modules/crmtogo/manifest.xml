@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<module>
+<exporttime>2023-01-18 14:50:00</exporttime>
+<name>crmtogo</name>
+<label>crmtogo</label>
+<parent></parent>
+<type>extension</type>
+<version>4.14</version>
+<dependencies>
+<vtiger_version>6.5.0</vtiger_version>
+<vtiger_max_version>6.*</vtiger_max_version>
+</dependencies>
+<tables>
+<table>
+<name>berli_crmtogo_defaults</name>
+<sql><![CDATA[CREATE TABLE `berli_crmtogo_defaults` (
+  `fetch_limit` int(3) NOT NULL,
+  `crmtogo_lang` varchar(5) COLLATE utf8_unicode_ci NOT NULL,
+  `defaulttheme` varchar(1) COLLATE utf8_unicode_ci NOT NULL,
+  `crm_version` varchar(5) COLLATE utf8_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+<table>
+<name>berli_crmtogo_config</name>
+<sql><![CDATA[CREATE TABLE `berli_crmtogo_config` (
+  `crmtogouser` int(19) NOT NULL,
+  `navi_limit` int(3) NOT NULL,
+  `theme_color` varchar(1) COLLATE utf8_unicode_ci NOT NULL,
+  `compact_cal` int(1) NOT NULL,
+  PRIMARY KEY (`crmtogouser`),
+  CONSTRAINT `fk_1_berli_crmtogo_config` FOREIGN KEY (`crmtogouser`) REFERENCES `vtiger_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+<table>
+<name>berli_crmtogo_modules</name>
+<sql><![CDATA[CREATE TABLE `berli_crmtogo_modules` (
+  `crmtogo_user` int(19) NOT NULL,
+  `crmtogo_module` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `crmtogo_active` int(1) NOT NULL DEFAULT '1',
+  `order_num` int(3) NOT NULL,
+  KEY `fk_1_berli_crmtogo_modules` (`crmtogo_user`),
+  CONSTRAINT `fk_1_berli_crmtogo_modules` FOREIGN KEY (`crmtogo_user`) REFERENCES `vtiger_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+</tables>
+<crons>
+</crons>
+</module>

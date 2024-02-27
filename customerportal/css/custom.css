@@ -1,0 +1,52 @@
+.widget-box {
+	padding: 0;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	margin: 3px 0;
+}
+.widget-header {
+-webkit-box-sizing: content-box;
+-moz-box-sizing: content-box;
+box-sizing: content-box;
+position: relative;
+min-height: 38px;
+background: #f7f7f7;
+background-image: -webkit-linear-gradient(top, #fff 0, #eee 100%);
+background-image: linear-gradient(to bottom, #fff 0, #eee 100%);
+background-repeat: repeat-x;
+filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffeeeeee', GradientType=0);
+color: #669fc7;
+border-bottom: 1px solid #DDD;
+padding-left: 12px;
+margin-top:10px;
+}
+
+.widget-header>.widget-title {
+line-height: 36px;
+padding: 0;
+margin: 0;
+display: inline;
+}
+h5 {
+font-size: 15px;
+font-weight: normal;
+font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+.widget-body {
+background-color: #FFF;
+}
+.form-group>label[class*="col-"] {
+padding-top: 4px;
+margin-bottom: 4px;
+}
+.no-padding-right {
+padding-right: 0 !important;
+}
+
+.single-entity-view .dvtCellInfo {
+background-color: #f7f7f7;
+font-size: 14px;
+padding-bottom: 4px;
+padding-top: 4px;
+position: relative;
+}

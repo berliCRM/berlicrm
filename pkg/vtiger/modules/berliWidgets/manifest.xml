@@ -1,0 +1,24 @@
+<?xml version='1.0'?>
+<module>
+	<exporttime>2022-06-17 13:30:00</exporttime>
+	<name>berliWidgets</name>
+	<label>berliWidgets</label>
+	<parent></parent>
+	<type>extension</type>
+	<version>1.0.2</version>
+	<dependencies>
+		<vtiger_version>6.5.0</vtiger_version>
+		<vtiger_max_version>6.*</vtiger_max_version>
+	</dependencies>
+	<license>
+		<inline><![CDATA[/*+**********************************************************************************
+		 * The content of this Widget Extensionfile is subject to the crm-now Commercial License, www.crm-now.de
+		 * You may not use this file except in compliance with the License
+		 * The Original Code is from the crm - now GmbH
+		 * Portions created by vtiger are Copyright (C) vtiger.
+		 * All Rights Reserved.
+		 ************************************************************************************/]]></inline>
+	</license>
+	<tables>
+	</tables>
+</module>

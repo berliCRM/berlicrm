@@ -1,0 +1,56 @@
+<?xml version='1.0'?>
+<schema>
+	<tables>
+		<table>
+			<name>vtiger_pbxmanager</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_pbxmanager` (
+  `pbxmanagerid` int(20) NOT NULL AUTO_INCREMENT,
+  `direction` varchar(10) DEFAULT NULL,
+  `callstatus` varchar(20) DEFAULT NULL,
+  `starttime` datetime DEFAULT NULL,
+  `endtime` datetime DEFAULT NULL,
+  `totalduration` int(11) DEFAULT NULL,
+  `billduration` int(11) DEFAULT NULL,
+  `recordingurl` varchar(200) DEFAULT NULL,
+  `sourceuuid` varchar(100) DEFAULT NULL,
+  `gateway` varchar(20) DEFAULT NULL,
+  `customer` varchar(100) DEFAULT NULL,
+  `user` varchar(100) DEFAULT NULL,
+  `customernumber` varchar(100) DEFAULT NULL,
+  `customertype` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`pbxmanagerid`),
+  KEY `index_sourceuuid` (`sourceuuid`),
+  KEY `index_pbxmanager_id` (`pbxmanagerid`)
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>vtiger_pbxmanagercf</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_pbxmanagercf` (
+  `pbxmanagerid` int(11) NOT NULL,
+  PRIMARY KEY (`pbxmanagerid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>vtiger_pbxmanager_gateway</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_pbxmanager_gateway` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `gateway` varchar(20) DEFAULT NULL,
+  `parameters` text,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>vtiger_pbxmanager_phonelookup</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_pbxmanager_phonelookup` (
+  `crmid` int(20) DEFAULT NULL,
+  `setype` varchar(30) DEFAULT NULL,
+  `fnumber` varchar(100) DEFAULT NULL,
+  `rnumber` varchar(100) DEFAULT NULL,
+  `fieldname` varchar(50) DEFAULT NULL,
+  UNIQUE KEY `unique_key` (`crmid`,`setype`,`fieldname`),
+  KEY `index_phone_number` (`fnumber`,`rnumber`),
+  CONSTRAINT `vtiger_pbxmanager_phonelookup_ibfk_1` FOREIGN KEY (`crmid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+	</tables>
+</schema>

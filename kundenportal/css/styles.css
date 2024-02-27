@@ -1,0 +1,24 @@
+#tabSrch{
+	display:none;
+	width:700px;
+	border:0px;
+	position:absolute;
+	left:135px;
+	top:170px;
+	background-image:url(../images/loginBg.gif);
+	/*border:1px solid #CCCCCC;*/
+}
+.addimage{
+	text-align:left;
+	font-weight:bold;
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+	font-size:12px;
+	color:#000000;
+	text-decoration:none;
+}
+
+.lvtHeaderText {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-weight:bold;
+}

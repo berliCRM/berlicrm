@@ -1,0 +1,252 @@
+Array
+(
+    [fieldlabel] => Vorname
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => Frank
+)
+Array
+(
+    [fieldlabel] => Contact Id
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => CON2
+)
+Array
+(
+    [fieldlabel] => Nachname
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => Piepiorra
+)
+Array
+(
+    [fieldlabel] => Office Phone
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Organisation
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Mobiles Telefon
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Leadquelle
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Home Phone
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Title
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => weiteres Telefon
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Department
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Fax
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => primäre E-Mail Adresse
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => fp@crm-now.de
+)
+Array
+(
+    [fieldlabel] => Birthdate
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Assistant
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Reports To
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Assistant Phone
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => weitere E-Mail
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => E-Mail Opt. aus
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => No
+)
+Array
+(
+    [fieldlabel] => Do Not Call
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => No
+)
+Array
+(
+    [fieldlabel] => Reference
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => No
+)
+Array
+(
+    [fieldlabel] => zuständig
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] =>  Administrator
+)
+Array
+(
+    [fieldlabel] => erstellt
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => 2017-02-22 09:13:37
+)
+Array
+(
+    [fieldlabel] => Besitzer informieren
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => No
+)
+Array
+(
+    [fieldlabel] => geändert
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => 2017-02-22 09:13:37
+)
+Array
+(
+    [fieldlabel] => aus Lead erstellt
+    [blockname] => Allgemeine Informationen
+    [fieldvalue] => No
+)
+Array
+(
+    [fieldlabel] => Portal User
+    [blockname] => Kundenportaldetails
+    [fieldvalue] => Yes
+)
+Array
+(
+    [fieldlabel] => Support Startdatum
+    [blockname] => Kundenportaldetails
+    [fieldvalue] => 2017-02-22
+)
+Array
+(
+    [fieldlabel] => Support End Date
+    [blockname] => Kundenportaldetails
+    [fieldvalue] => 2018-02-22
+)
+Array
+(
+    [fieldlabel] => Mailing Street
+    [blockname] => Adressdetails
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Other Street
+    [blockname] => Adressdetails
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Mailing Po Box
+    [blockname] => Adressdetails
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Other Po Box
+    [blockname] => Adressdetails
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Mailing City
+    [blockname] => Adressdetails
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Other City
+    [blockname] => Adressdetails
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Mailing State
+    [blockname] => Adressdetails
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Other State
+    [blockname] => Adressdetails
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Mailing Zip
+    [blockname] => Adressdetails
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Other Zip
+    [blockname] => Adressdetails
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Mailing Country
+    [blockname] => Adressdetails
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Other Country
+    [blockname] => Adressdetails
+    [fieldvalue] => 
+)
+Array
+(
+    [fieldlabel] => Beschreibung
+    [blockname] => Beschreibungsinformationen
+    [fieldvalue] => 
+)

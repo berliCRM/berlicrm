@@ -1,0 +1,385 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<module>
+<exporttime>2022-09-15 15:03:08</exporttime>
+<name>berliCleverReach</name>
+<label>CleverReach</label>
+<parent>Marketing</parent>
+<version>0.98</version>
+<dependencies>
+<vtiger_version>6.5.0</vtiger_version>
+<vtiger_max_version>6.*</vtiger_max_version>
+</dependencies>
+<tables>
+<table>
+<name>vtiger_berlicleverreach</name>
+<sql><![CDATA[CREATE TABLE `vtiger_berlicleverreach` (
+  `cleverreachid` int(11) NOT NULL,
+  `cleverreachname` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `bcr_campaign_no` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `bcr_campaign_type` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `bcr_campaign_status` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `lastsynchronization` datetime DEFAULT NULL,
+  PRIMARY KEY (`cleverreachid`),
+  CONSTRAINT `fk_1_vtiger_cleverreach` FOREIGN KEY (`cleverreachid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+<table>
+<name>vtiger_berlicleverreachcf</name>
+<sql><![CDATA[CREATE TABLE `vtiger_berlicleverreachcf` (
+  `cleverreachid` int(11) NOT NULL,
+  PRIMARY KEY (`cleverreachid`),
+  CONSTRAINT `fk_1_vtiger_cleverreachcf` FOREIGN KEY (`cleverreachid`) REFERENCES `vtiger_berlicleverreach` (`cleverreachid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+<table>
+<name>vtiger_berlicleverreach_settings</name>
+<sql><![CDATA[CREATE TABLE `vtiger_berlicleverreach_settings` (
+  `id` int(11) NOT NULL,
+  `customerid` varchar(16) COLLATE utf8_unicode_ci NOT NULL,
+  `customername` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `accesstoken` varchar(600) COLLATE utf8_unicode_ci NOT NULL,
+  `newsubscribertype` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+<table>
+<name>vtiger_berlicleverreach_synced_entities</name>
+<sql><![CDATA[CREATE TABLE `vtiger_berlicleverreach_synced_entities` (
+  `crmid` int(11) NOT NULL,
+  `crgroupid` int(11) NOT NULL,
+  `recordid` int(11) NOT NULL,
+  KEY `recordidx` (`recordid`),
+  KEY `crmid` (`crmid`),
+  CONSTRAINT `vtiger_berlicleverreach_synced_entities_ibfk_1` FOREIGN KEY (`recordid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE,
+  CONSTRAINT `vtiger_berlicleverreach_synced_entities_ibfk_2` FOREIGN KEY (`crmid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+</tables>
+<blocks>
+<block>
+<label>LBL_CLEVERREACH_MODULE_NAME</label>
+<fields>
+<field>
+<fieldname>cleverreachname</fieldname>
+<uitype>2</uitype>
+<columnname>cleverreachname</columnname>
+<tablename>vtiger_berlicleverreach</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>LBL_BCR_CAMPAIGN_NAME</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>1</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~M</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>0</summaryfield>
+<entityidentifier>
+<entityidfield>cleverreachid</entityidfield>
+<entityidcolumn>cleverreachid</entityidcolumn>
+</entityidentifier>
+</field>
+<field>
+<fieldname>bcr_campaign_no</fieldname>
+<uitype>4</uitype>
+<columnname>bcr_campaign_no</columnname>
+<tablename>vtiger_berlicleverreach</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>LBL_BCR_CAMPAIGN_NO</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>2</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>0</summaryfield>
+</field>
+<field>
+<fieldname>bcr_campaign_type</fieldname>
+<uitype>15</uitype>
+<columnname>bcr_campaign_type</columnname>
+<tablename>vtiger_berlicleverreach</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>LBL_BCR_CAMPAIGN_TYPE</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>3</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>0</summaryfield>
+<picklistvalues>
+<picklistvalue>Others</picklistvalue>
+<picklistvalue>Sicherheitswarnungen</picklistvalue>
+<picklistvalue>Wartungsmeldungen</picklistvalue>
+<picklistvalue>Newsletter</picklistvalue>
+</picklistvalues>
+</field>
+<field>
+<fieldname>bcr_campaign_status</fieldname>
+<uitype>15</uitype>
+<columnname>bcr_campaign_status</columnname>
+<tablename>vtiger_berlicleverreach</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>LBL_BCR_CAMPAIGN_STATUS</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>4</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>0</summaryfield>
+<picklistvalues>
+<picklistvalue>Planning</picklistvalue>
+<picklistvalue>Active</picklistvalue>
+<picklistvalue>Inactive</picklistvalue>
+<picklistvalue>Completed</picklistvalue>
+<picklistvalue>Cancelled</picklistvalue>
+</picklistvalues>
+</field>
+<field>
+<fieldname>lastsynchronization</fieldname>
+<uitype>5</uitype>
+<columnname>lastsynchronization</columnname>
+<tablename>vtiger_berlicleverreach</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>LBL_LAST_SYNCHRONIZATION</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>5</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>D~O</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>2</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>0</summaryfield>
+</field>
+<field>
+<fieldname>assigned_user_id</fieldname>
+<uitype>53</uitype>
+<columnname>smownerid</columnname>
+<tablename>vtiger_crmentity</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Assigned To</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>6</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~M</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>0</summaryfield>
+</field>
+<field>
+<fieldname>createdtime</fieldname>
+<uitype>70</uitype>
+<columnname>createdtime</columnname>
+<tablename>vtiger_crmentity</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Created Time</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>7</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>DT~O</typeofdata>
+<quickcreate>3</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>2</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>0</summaryfield>
+</field>
+<field>
+<fieldname>modifiedtime</fieldname>
+<uitype>70</uitype>
+<columnname>modifiedtime</columnname>
+<tablename>vtiger_crmentity</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Modified Time</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>8</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>DT~O</typeofdata>
+<quickcreate>3</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>2</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>0</summaryfield>
+</field>
+<field>
+<fieldname>modifiedby</fieldname>
+<uitype>52</uitype>
+<columnname>modifiedby</columnname>
+<tablename>vtiger_crmentity</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Last Modified By</fieldlabel>
+<readonly>1</readonly>
+<presence>0</presence>
+<defaultvalue></defaultvalue>
+<sequence>9</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O</typeofdata>
+<quickcreate>3</quickcreate>
+<quickcreatesequence>3</quickcreatesequence>
+<displaytype>3</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>0</masseditable>
+<summaryfield>0</summaryfield>
+</field>
+</fields>
+</block>
+<block>
+<label>Description Information</label>
+<fields>
+<field>
+<fieldname>description</fieldname>
+<uitype>19</uitype>
+<columnname>description</columnname>
+<tablename>vtiger_crmentity</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Description</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>1</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>0</summaryfield>
+</field>
+</fields>
+</block>
+</blocks>
+<customviews>
+<customview>
+<viewname>All</viewname>
+<setdefault>true</setdefault>
+<setmetrics>false</setmetrics>
+<fields>
+<field>
+<fieldname>bcr_campaign_no</fieldname>
+<columnindex>0</columnindex>
+</field>
+<field>
+<fieldname>cleverreachname</fieldname>
+<columnindex>1</columnindex>
+</field>
+<field>
+<fieldname>bcr_campaign_status</fieldname>
+<columnindex>2</columnindex>
+</field>
+<field>
+<fieldname>lastsynchronization</fieldname>
+<columnindex>3</columnindex>
+</field>
+<field>
+<fieldname>assigned_user_id</fieldname>
+<columnindex>4</columnindex>
+</field>
+</fields>
+</customview>
+</customviews>
+<sharingaccess>
+<default>public_readwritedelete</default>
+</sharingaccess>
+<relatedlists>
+<relatedlist>
+<function>get_related_list</function>
+<label>Contacts</label>
+<sequence>1</sequence>
+<presence>0</presence>
+<actions>
+<action>SELECT</action>
+</actions>
+<relatedmodule>Contacts</relatedmodule>
+</relatedlist>
+<relatedlist>
+<function>get_related_list</function>
+<label>Leads</label>
+<sequence>2</sequence>
+<presence>0</presence>
+<actions>
+<action>SELECT</action>
+</actions>
+<relatedmodule>Leads</relatedmodule>
+</relatedlist>
+<relatedlist>
+<function>get_related_list</function>
+<label>Documents</label>
+<sequence>3</sequence>
+<presence>0</presence>
+<actions>
+<action>SELECT</action>
+</actions>
+<relatedmodule>Documents</relatedmodule>
+</relatedlist>
+</relatedlists>
+<customlinks>
+<customlink>
+<linktype>DETAILVIEWBASIC</linktype>
+<linklabel>View History</linklabel>
+<linkurl><![CDATA[javascript:ModTrackerCommon.showhistory('$RECORD$')]]></linkurl>
+<linkicon><![CDATA[]]></linkicon>
+<sequence>0</sequence>
+<handler_path><![CDATA[modules/ModTracker/ModTracker.php]]></handler_path>
+<handler_class><![CDATA[ModTracker]]></handler_class>
+<handler><![CDATA[isViewPermitted]]></handler>
+</customlink>
+<customlink>
+<linktype>DETAILVIEWWIDGET</linktype>
+<linklabel>DetailViewBlockCommentWidget</linklabel>
+<linkurl><![CDATA[block://ModComments:modules/ModComments/ModComments.php]]></linkurl>
+<linkicon><![CDATA[]]></linkicon>
+<sequence>0</sequence>
+<handler_path><![CDATA[]]></handler_path>
+<handler_class><![CDATA[]]></handler_class>
+<handler><![CDATA[]]></handler>
+</customlink>
+</customlinks>
+<crons>
+</crons>
+</module>

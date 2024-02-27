@@ -1,0 +1,498 @@
+<?php
+////////////////////////////////////////////////////
+// PHPMailer - PHP email class
+//
+// Class for sending email using either
+// sendmail, PHP mail(), or SMTP.  Methods are
+// based upon the standard AspEmail(tm) classes.
+//
+// Copyright (C) 2001 - 2003  Brent R. Matzelle
+//
+// License: LGPL, see LICENSE
+////////////////////////////////////////////////////
+
+/**
+ * PHPMailer - PHP email transport class
+ * @package PHPMailer
+ * @author Brent R. Matzelle
+ * @copyright 2001 - 2003 Brent R. Matzelle
+ */
+require_once('vtlib/Vtiger/Cron.php');
+require_once('config.inc.php');
+require_once('includes/runtime/BaseModel.php');
+require_once('includes/runtime/Globals.php');
+require_once('includes/runtime/LanguageHandler.php');
+
+if (file_exists('config_override.php')) {
+	include_once 'config_override.php';
+}
+
+// Extended inclusions
+require_once 'includes/Loader.php';
+
+//file modified by richie
+require_once('include/utils/utils.php');
+require_once("modules/Emails/class.phpmailer.php");
+require_once("modules/Emails/mail.php");
+require_once('include/logging.php');
+require_once("config.php");
+
+$current_user = Users::getActiveAdminUser();
+// Set the default sender email id
+global $HELPDESK_SUPPORT_EMAIL_ID;
+$from = $HELPDESK_SUPPORT_EMAIL_ID;
+if(empty($from)) {
+	// default configuration is empty?
+	$from = "reminder@crm-now.com";
+}
+
+// Get the list of activity for which reminder needs to be sent
+
+global $adb;
+global $log, $default_language;
+$log = LoggerManager::getLogger('SendReminder');
+$log->debug(" invoked SendReminder ");
+
+// retrieve the translated strings.
+if(empty($current_language)) {
+	$current_language = $default_language;
+}
+include_once("languages/$current_language/Vtiger.php");
+$app_strings = $languageStrings;
+
+//modified query for recurring events -Jag
+$query="select vtiger_crmentity.crmid, vtiger_crmentity.smownerid, vtiger_seactivityrel.crmid as setype,vtiger_activity.*,vtiger_activity_reminder.reminder_time,vtiger_activity_reminder.reminder_sent,vtiger_activity_reminder.recurringid,vtiger_recurringevents.recurringdate from vtiger_activity inner join vtiger_crmentity on vtiger_crmentity.crmid=vtiger_activity.activityid inner join vtiger_activity_reminder on vtiger_activity.activityid=vtiger_activity_reminder.activity_id left outer join vtiger_recurringevents on vtiger_activity.activityid=vtiger_recurringevents.activityid left outer join vtiger_seactivityrel on vtiger_seactivityrel.activityid = vtiger_activity.activityid where DATE_FORMAT(vtiger_activity.date_start,'%Y-%m-%d, %H:%i:%s') >= '".date('Y-m-d')."' and vtiger_crmentity.crmid != 0 and vtiger_activity.eventstatus = 'Planned' and vtiger_activity_reminder.reminder_sent = 0 group by vtiger_activity.activityid,vtiger_recurringevents.recurringid";
+$result = $adb->pquery($query, array());
+
+if($adb->num_rows($result) >= 1) {
+	//To fetch reminder frequency from cron tasks
+	$reminderFrequencyQuery = 'SELECT frequency FROM vtiger_cron_task WHERE name = "SendReminder" AND handler_file = "cron/SendReminder.service"';
+	$reminderResult = $adb->pquery($reminderFrequencyQuery, array());
+	$reminderFrequency = $adb->query_result($reminderResult,0,'frequency');
+	while($result_set = $adb->fetch_array($result)) {
+		$smownerid = $result_set['smownerid'];
+		$date_start = $result_set['date_start'];
+		$time_start = $result_set['time_start'];
+		$reminder_time = $result_set['reminder_time']*60;
+		$date = new DateTimeField( null );
+		$userFormatedString = $date->getDisplayDate();
+        $timeFormatedString = $date->getDisplayTime();
+        $dBFomatedDate = DateTimeField::convertToDBFormat($userFormatedString);
+		$curr_time = strtotime($dBFomatedDate." ". $timeFormatedString);
+		$activity_id = $result_set['activityid'];
+		$activitymode = ($result_set['activitytype'] == "Task")?"Task":"Events";
+		$parent_type = $result_set['setype'];
+		$activity_sub = $result_set['subject'];
+		$to_addr=array();
+
+		if($parent_type!='') {
+			$parent_content = getParentInfo($parent_type)."\n";
+		}
+		else {
+			$parent_content = "";
+		}
+		//code included for recurring events by jaguar starts
+		$recur_id = $result_set['recurringid'];
+		$current_date=date('Y-m-d');
+		if($recur_id == 0)
+		{
+			$date_start = $result_set['date_start'];
+		}
+		else
+		{
+			$date_start = $result_set['recurringdate'];
+		}
+		//code included for recurring events by jaguar ends
+		$date = new DateTimeField("$date_start $time_start");
+        $userFormatedString = $date->getDisplayDate();
+        $timeFormatedString = $date->getDisplayTime();
+        $dBFomatedDate = DateTimeField::convertToDBFormat($userFormatedString);
+		$activity_time = strtotime($dBFomatedDate.' '.$timeFormatedString);
+		$differenceOfActivityTimeAndCurrentTime = ($activity_time - $curr_time);
+		if (($differenceOfActivityTimeAndCurrentTime > 0) && (($differenceOfActivityTimeAndCurrentTime <= $reminder_time) || ($differenceOfActivityTimeAndCurrentTime <= $reminderFrequency))) {
+			$log->debug(" InSide  REMINDER");
+			$query_user="SELECT vtiger_users.email1,vtiger_salesmanactivityrel.smid FROM vtiger_salesmanactivityrel inner join vtiger_users on vtiger_users.id=vtiger_salesmanactivityrel.smid where vtiger_salesmanactivityrel.activityid =? and vtiger_users.deleted=0";
+			$user_result = $adb->pquery($query_user, array($activity_id));
+			$invitedUsersList = array();
+			if($adb->num_rows($user_result)>=1)
+			{
+				while($user_result_row = $adb->fetch_array($user_result))
+				{
+					if($user_result_row['email1']!='' || $user_result_row['email1'] !=NULL)
+					{
+						$to_addr[] = $user_result_row['email1'];
+					}
+					$invitedUsersList[] = $user_result_row['smid'];
+				}
+			}
+
+			$ownerId = $result_set['smownerid'];
+			if (!in_array($ownerId, $invitedUsersList)) {
+				$ownerId = $invitedUsersList[0];
+			}
+			$ownerFocus = CRMEntity::getInstance('Users');
+			$ownerFocus->retrieve_entity_info($ownerId, 'Users');
+			$ownerTimeZone = getTranslatedString($ownerFocus->column_fields['time_zone'], 'Users');
+
+			$dateTime = new DateTimeField($result_set['date_start'] .' '. $result_set['time_start']);
+			$dateTimeInOwnerFormat = $dateTime->getDisplayDateTimeValue($ownerFocus);
+
+			// Retriving the Subject and message from reminder table
+			$sql = "select active,notificationsubject,notificationbody from vtiger_notificationscheduler where schedulednotificationid=8";
+			$result_main = $adb->pquery($sql, array());
+		
+			if ($default_language == "de_de") {
+				$remind = "CRM Erinnerung";
+				$dont_forget = "Nicht vergessen";
+				$relatedto = "in Bezug auf den CRM Eintrag";
+				$linktoevent = "Link zum CRM System";
+				$date_time = "Fälligkeitstermin";
+				$was_sent = "Diese Erinnerung wurde Ihnen von Ihrem CRM System gesendet. Bitte loggen Sie sich ein und klicken Sie auf den nachfolgenden Link, um die damit verbundene Aktivität und weitere Informationen zu sehen";
+				$hint = "Hinweis";
+				$hint2 ="Nachricht aus Ihrem CRM System";
+				$reminds = "Erinnerungsbenachrichtigungen werden alle 15 Minuten versendet. Dadurch kann sich eine Benachrichtigung um bis zu 15 Minuten verspäten.";
+				//crm-now: added more details
+				if($parent_content!='') {
+					$parent_module = getSalesEntityType($parent_type);
+					if($parent_module=='Accounts') {
+						//get special fields content
+						//address
+						$sql = "select bill_code, bill_city, bill_street, bill_country from vtiger_accountbillads where accountaddressid=?";
+						$result = $adb->pquery($sql, array($parent_type));
+						$bill_code = $adb->query_result($result,0,"bill_code");
+						$bill_city = $adb->query_result($result,0,"bill_city");
+						$bill_street = $adb->query_result($result,0,"bill_street");
+						$bill_country = $adb->query_result($result,0,"bill_country");
+					}
+					elseif($parent_module=='Leads') {
+						//get special fields content
+						//address
+						$sql = "select code, city, lane, country from vtiger_leadaddress where leadaddressid=?";
+						$result = $adb->pquery($sql, array($parent_type));
+						$bill_code = $adb->query_result($result,0,"code");
+						$bill_city = $adb->query_result($result,0,"city");
+						$bill_street = $adb->query_result($result,0,"lane");
+						$bill_country = $adb->query_result($result,0,"country");
+					}
+					else {
+						$bill_code = '';
+						$bill_city = '';
+						$bill_street = '';
+						$bill_country = '';
+					}
+					if (trim($bill_code)!='' AND trim($bill_city)!='')
+						if ($bill_country =='') {
+							$billaddress = $bill_code." ".$bill_city.", ".$bill_street;
+						}
+						else {
+							$billaddress = $bill_code." ".$bill_city.", ".$bill_street.', '.$bill_country;
+						}
+					else {
+						if ($bill_country =='') {
+							$billaddress = $bill_street;
+						}
+						else {
+							$billaddress = $bill_street.', '.$bill_country;
+						}
+					}
+				}
+				//get parent name
+				$contact_info = array();
+				$contact_info[0] = $parent_content;
+				//crm-now: get related information
+				if($parent_module=='Accounts') {
+					$contact_information_details =  getRelatedContacts ($activity_id,$contact_info);
+				}
+				elseif ($parent_module=='Leads') {
+					$contact_information_details =  getRelatedLeadContacts ($activity_id,$contact_info);
+				}
+				elseif  ($parent_module=='Potentials'){
+					$contact_information_details = getRelatedAccountsInformation ($activity_id,$contact_info);
+				}
+				else {
+					$contact_information_details = $parent_content;
+				}
+				// crm-now: translate activity type if possible
+                $activitytype1 = trim($result_set['activitytype']);
+                switch ($activitytype1) {
+					case 'Call':
+						$activitytype1 = 'geplanter Anruf -';
+						break;
+					case 'Meeting':
+						$activitytype1 = 'geplantes Meeting -';
+						break;
+					default:
+						$activitytype1 = $activitytype1.' -';
+						break;
+					}
+				//Datum auf deutsches Format umstellen
+				$Datum= $result_set['date_start'];
+				$GewandeltesDatum = substr($Datum, 8, 2);
+				$GewandeltesDatum .= ".";
+				$GewandeltesDatum .= substr($Datum, 5, 2);
+				$GewandeltesDatum .= ".";
+				$GewandeltesDatum .= substr($Datum, 0, 4);
+				// Nachricht in deutschem Format zusammenbauen
+				$subject = $remind.": ".$activitytype1." am ".$GewandeltesDatum.", ".$timeFormatedString." Uhr ";
+				$messageline1 = $dont_forget.": ".$activity_sub;
+				if (empty($parent_content) && $parent_content!==0) {
+					$messageline2 = " ";
+				}
+                   else {
+					$messageline2 = $relatedto.": ".$contact_information_details;
+				}
+				if($parent_module=='Accounts') {
+					$messageline3 = $billaddress;
+				}
+				elseif($parent_module=='Leads') {
+					$messageline3 = $billaddress;
+				}
+				else {
+					$messageline3 = '';
+				}
+				$messageline4 = $date_time.": ".$GewandeltesDatum.", ".$timeFormatedString." Uhr";
+            }
+			else {
+				$remind = "CRM Reminder";
+				$dont_forget = "Do not forget";
+                $relatedto = "related to the CRM entry";
+                $linktoevent = "link to the CRM system";
+                $date_time = "due";
+                $was_sent = "This remind was sent from your CRM system. Please login and click the following link to retrieve the activity and other information";
+                $hint = "Note";
+                $hint2 ="Message from your CRM System";
+                $reminds ="Reminder messages are sent every 15 minutes, therefore reminder messages may be late for 15 minutes.";
+                $activitytype1 = trim($result_set['activitytype']);
+                $Datum= $result_set['date_start'];
+                $GewandeltesDatum = $Datum;
+ 				$messageline1 = $dont_forget.": ".$activity_sub;
+                $subject = $remind.": ".$activitytype1." @ ".$GewandeltesDatum.", Time: ".$result_set['time_start'];
+ 				//no special fields content as it is in German
+				if (empty($parent_content) && $parent_content!==0) {
+					$messageline2 = " ";
+				}
+                else {
+					$messageline2 = $relatedto.": ".$parent_content;
+				}
+				if($parent_module=='Accounts') {
+					$messageline3 = $billaddress;
+				}
+				elseif($parent_module=='Leads') {
+					$messageline3 = $billaddress;
+				}
+				else {
+					$messageline3 = "";
+				}
+                $messageline4 = $date_time.": ".$GewandeltesDatum." Time:".$time_start;
+             }
+
+				//mail compose starts		
+				//HTML Mail
+				if ($messageline2 == " ") {
+					$contents = "<HTML><BODY LANG=\"de-DE\" LINK=\"#145cab\" DIR=\"LTR\"><P STYLE=\"display: block; margin-top: 1em; margin-bottom: 1em; margin-left: 0; margin-right: 0;\"><BR></P><TABLE WIDTH=\"96%\" BORDER=0 CELLPADDING=0 CELLSPACING=0><TR><TD VALIGN=TOP><P style=\"margin: 0;padding: 0; height: 3px;background-color: blue;\" >&nbsp;</P></TD></TR><TR><TD BGCOLOR=\"#f1f1f1\"><P ALIGN=LEFT id=\"headline\" style=\"border-top: 1pt solid #ffffff; border-bottom: 1px solid #c9cec4; border-left: 1px solid #fdfdfd; border-right: 1px solid #f1f1f1; padding: 0.05em;\"><B><FONT COLOR=\"#9b9c9e\" SIZE=\"2\">".$hint2."</FONT> </P></TD></TR><TR BGCOLOR=\"#f1f1f1\" ><TD VALIGN=TOP BGCOLOR=\"#f7f7f7\"><P id=\"rundrum\" style=\"border-width:4px; border-style:solid; border-color:#f1f1f1;padding:0em;text-align:justify;\"><FONT SIZE=\"2\"><B> ".utf8_decode($messageline1)."</B><BR ><BR />".$messageline4."<BR >
+					<BR />".$was_sent.": <BR /><BR /><a href='".$site_URL."index.php?module=Calendar&view=Detail&record=".$activity_id."'> ".$linktoevent."</a></FONT></P></TD></TR><TR><TD HEIGHT=\"20\" BGCOLOR=\"#f1f1f1\"><HR></TD></TR><TR><TD HEIGHT=\"20\" BGCOLOR=\"#f1f1f1\"><P id=\"final\" style=\"border: 1px solid #7a9cbb; padding-top: 0.05em; padding-bottom: 0.05em; padding-left: 0.53em; padding-right: 0.05em;\" ><FONT SIZE=\"2\">".$hint.":<BR> ".$reminds."</FONT></P></TD></TR></TABLE></BODY></HTML>";
+				}
+				else {
+					$contents = "<HTML><BODY LANG=\"de-DE\" LINK=\"#145cab\" DIR=\"LTR\"><P STYLE=\"display: block; margin-top: 1em; margin-bottom: 1em; margin-left: 0; margin-right: 0;\"><BR></P><TABLE WIDTH=\"96%\" BORDER=0 CELLPADDING=0 CELLSPACING=0><TR><TD VALIGN=TOP><P style=\"margin: 0;padding: 0; height: 3px;background-color: blue;\" >&nbsp;</P></TD></TR><TR><TD BGCOLOR=\"#f1f1f1\"><P ALIGN=LEFT id=\"headline\" style=\"border-top: 1pt solid #ffffff; border-bottom: 1px solid #c9cec4; border-left: 1px solid #fdfdfd; border-right: 1px solid #f1f1f1; padding: 0.05em;\"><B><FONT COLOR=\"#9b9c9e\" SIZE=\"2\">".$hint2."</FONT> </P></TD></TR><TR BGCOLOR=\"#f1f1f1\" ><TD VALIGN=TOP BGCOLOR=\"#f7f7f7\"><P id=\"rundrum\" style=\"border-width:4px; border-style:solid; border-color:#f1f1f1;padding:0em;text-align:justify;\"><FONT SIZE=\"2\"><B> ".utf8_decode($messageline1)."</B><BR ><BR />".utf8_decode($messageline2)." <BR ><BR />".utf8_decode($messageline3)."<BR ><BR />".$messageline4."<BR >
+					<BR />".$was_sent.": <BR /><BR /><a href='".$site_URL."index.php?module=Calendar&view=Detail&record=".$activity_id."'> ".$linktoevent."</a></FONT></P></TD></TR><TR><TD HEIGHT=\"20\" BGCOLOR=\"#f1f1f1\"><HR></TD></TR><TR><TD HEIGHT=\"20\" BGCOLOR=\"#f1f1f1\"><P id=\"final\" style=\"border: 1px solid #7a9cbb; padding-top: 0.05em; padding-bottom: 0.05em; padding-left: 0.53em; padding-right: 0.05em;\" ><FONT SIZE=\"2\">".$hint.":<BR> ".$reminds."</FONT></P></TD></TR></TABLE></BODY></HTML>";
+				}
+				//alternative TEXT Mail
+				$alt_body  = "\n". $hint2."\n\n";
+				$alt_body .= "# ".utf8_decode($messageline1)." #\n\n";
+                $alt_body .= utf8_decode($messageline2)."\n"; 
+                $alt_body .= utf8_decode($messageline3)."\n";
+                $alt_body .= utf8_decode($messageline4)."\n";
+                $alt_body .= $was_sent."\n";
+                $alt_body .= $site_URL."index.php?module=Calendar&view=Detail&record=".$activity_id;
+				$alt_body .= "\n\n";
+				$alt_body .= $hint."\n".$reminds;
+				//mail compose ends			
+				send_email($to_addr,$from,utf8_encode(html_entity_decode($subject)),utf8_encode($contents),$mail_server,$mail_server_username,$mail_server_password, $alt_body);
+				$upd_query = "UPDATE vtiger_activity_reminder SET reminder_sent=1 where activity_id=?";
+				$upd_params = array($activity_id);
+
+				if($recur_id!=0) {
+					$upd_query.=" and recurringid =?";
+					array_push($upd_params, $recur_id);
+				}
+				$adb->pquery($upd_query, $upd_params);
+		}
+	}
+}
+
+/**
+ This function is used to assign parameters to the mail object and send it.
+ It takes the following as parameters.
+	$to as string - to address
+	$from as string - from address
+	$subject as string - subject if the mail
+	$contents as text - content of the mail
+	$mail_server as string - sendmail server name
+	$mail_server_username as string - sendmail server username
+	$mail_server_password as string - sendmail server password
+
+*/
+function send_email($to,$from,$subject,$contents,$mail_server,$mail_server_username,$mail_server_password, $alt_body) {
+	global $adb;
+	global $log;
+    $log->info("This is send_mail function in SendReminder.php(vtiger home).");
+	global $root_directory;
+
+	$mail = new PHPMailer();
+
+
+	$mail->Subject = $subject;
+	$mail->Body    = nl2br($contents);//"This is the HTML message body <b>in bold!</b>";
+
+
+	$mail->IsSMTP();                                      // set mailer to use SMTP
+
+		$mailserverresult=$adb->pquery("select * from vtiger_systems where server_type='email'", array());
+		$mail_server = $adb->query_result($mailserverresult,0,'server');
+		$mail_server_username = $adb->query_result($mailserverresult,0,'server_username');
+		$mail_server_password = $adb->query_result($mailserverresult,0,'server_password');
+		$smtp_auth = $adb->query_result($mailserverresult,0,'smtp_auth');
+
+		$_REQUEST['server']=$mail_server;
+		$log->info("Mail Server Details => '".$mail_server."','".$mail_server_username."','".$mail_server_password."'");
+
+
+	$mail->Host = $mail_server;			// specify main and backup server
+	if($smtp_auth == 'true' || $smtp_auth == '1')
+		$mail->SMTPAuth = true;
+	else
+		$mail->SMTPAuth = false;
+	$mail->Username = $mail_server_username ;	// SMTP username
+	$mail->Password = $mail_server_password ;	// SMTP password
+	$mail->From = $from;
+	$mail->FromName = $initialfrom;
+	$log->info("Mail sending process : From Name & email id => '".$initialfrom."','".$from."'");
+	foreach($to as $pos=>$addr)
+	{
+		$mail->AddAddress($addr);                  // name is optional
+		$log->info("Mail sending process : To Email id = '".$addr."' (set in the mail object)");
+
+	}
+	$mail->WordWrap = 50;                                 // set word wrap to 50 characters
+
+	$mail->IsHTML(true);                                  // set email format to HTML
+
+	$mail->AltBody = $alt_body;
+
+	$flag = MailSend($mail);
+	$log->info("After executing the mail->Send() function.");
+}
+
+/**
+ This function is used to get the Parent type and its Name
+ It takes the input integer - crmid and returns the parent type and its name as string.
+*/
+function getParentInfo($value)
+{
+	global $adb;
+ 	$parent_module = getSalesEntityType($value);
+	if($parent_module == "Leads")
+	{
+		$sql = "select * from vtiger_leaddetails where leadid=?";
+		$result = $adb->pquery($sql, array($value));
+		$first_name = $adb->query_result($result,0,"firstname");
+		$last_name = $adb->query_result($result,0,"lastname");
+
+		$parent_name = $last_name.' '.$first_name;
+	}
+	elseif($parent_module == "Accounts")
+	{
+		$sql = "select * from  vtiger_account where accountid=?";
+		$result = $adb->pquery($sql, array($value));
+		$account_name = $adb->query_result($result,0,"accountname");
+
+		$parent_name =$account_name;
+	}
+	elseif($parent_module == "Potentials")
+	{
+		$sql = "select * from  vtiger_potential where potentialid=?";
+		$result = $adb->pquery($sql, array($value));
+		$potentialname = $adb->query_result($result,0,"potentialname");
+
+		$parent_name =$potentialname;
+	}
+	  return $parent_module ." : ".$parent_name;
+}
+//crm-now to return contact information related to Accounts
+function getRelatedContacts ($id,$contact_info) {
+	global $adb;
+	$contact =array();
+	$query = " SELECT vtiger_contactdetails.firstname, vtiger_contactdetails.lastname, vtiger_contactdetails.phone
+					FROM vtiger_activity
+					INNER JOIN vtiger_cntactivityrel ON vtiger_cntactivityrel.activityid = ".$id."
+					INNER JOIN vtiger_contactdetails ON vtiger_contactdetails.contactid = vtiger_cntactivityrel.contactid
+					INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid =vtiger_cntactivityrel.contactid 
+					WHERE  vtiger_crmentity.deleted =0 AND vtiger_activity.activityid = ".$id;
+	$result =  $adb->query($query);
+	$list_result = $adb->query($query);
+	$noofrows = $adb->num_rows($list_result);
+	if ($noofrows >0) {
+		for ($r = 0; $r < $noofrows; $r ++) {
+			$contact[$r+1 ] = trim($adb->query_result($result,$r,"firstname")." ".$adb->query_result($result,$r,"lastname").", Ph.: ".$adb->query_result($result,$r,"phone"));
+			if ($contact[$r+1 ] != "") $contact[$r+1] = "& ".$contact[$r+1];
+		}
+	}
+	if (!empty($contact )) $contact_info = array_merge($contact_info, $contact);
+	if (!empty($contact_info)) $contact_info = implode ("<br>",$contact_info);
+	return ($contact_info);
+}
+//crm-now to return contact information related to Leads
+function getRelatedLeadContacts ($id,$contact_information) {
+	global $adb;
+	$contact =array();
+	$query = " SELECT vtiger_leadaddress.phone, vtiger_leaddetails.lead_no
+					FROM vtiger_activity
+					INNER JOIN vtiger_seactivityrel ON vtiger_seactivityrel.activityid = ".$id."
+					INNER JOIN vtiger_leaddetails ON vtiger_leaddetails.leadid = vtiger_seactivityrel.crmid
+					INNER JOIN vtiger_leadaddress ON vtiger_leadaddress.leadaddressid = vtiger_leaddetails.leadid
+					INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid =vtiger_seactivityrel.crmid 
+					WHERE  vtiger_crmentity.deleted =0 AND vtiger_activity.activityid = ".$id;
+	$result =  $adb->query($query);
+	$noofrows = $adb->num_rows($result);
+	if ($noofrows >0) {
+		for ($r = 0; $r < $noofrows; $r ++) {
+			$contact[$r] = "Ph.: ".$adb->query_result($result,$r,"phone");
+		}
+	}
+	$contact[count($contact)] = "<br>#: ".$adb->query_result($result,0,"lead_no");
+	if (!empty($contact )) { 
+		$contact_information = array_merge($contact_information, $contact);
+	}
+	if (!empty($contact_information)) {
+		$contact_information = implode ("<br>",$contact_information);
+	}
+	return ($contact_information);
+}
+//crm-now to return contact information related to Potentials
+function getRelatedAccountsInformation ($id,$potential_information) {
+	global $adb;
+	$account =array();
+	$query = " SELECT vtiger_account.accountname
+					FROM vtiger_activity
+					INNER JOIN vtiger_seactivityrel ON vtiger_seactivityrel.activityid = ".$id."
+					INNER JOIN vtiger_potential ON vtiger_potential.potentialid = vtiger_seactivityrel.crmid
+					INNER JOIN vtiger_account ON vtiger_account.accountid = vtiger_potential.related_to
+					INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_seactivityrel.crmid
+					WHERE  vtiger_crmentity.deleted =0 AND vtiger_activity.activityid = ".$id;
+	$result =  $adb->query($query);
+	$noofrows = $adb->num_rows($result);
+	if ($noofrows >0) {
+		for ($r = 0; $r < $noofrows; $r ++) {
+			$account[$r] = "& ".$adb->query_result($result,$r,"accountname");
+		}
+	}
+	if (!empty($account )) {
+		$potential_information = array_merge($potential_information, $account);
+	}
+	if (!empty($potential_information)) {
+		$potential_information = implode ("<br>",$potential_information);
+	}
+	return ($potential_information);
+}
+
+?>
