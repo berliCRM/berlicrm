@@ -1,0 +1,91 @@
+<?php
+/*+***********************************************************************************
+ * The contents of this file are subject to the vtiger CRM Public License Version 1.0
+ * ("License"); You may not use this file except in compliance with the License
+ * The Original Code is:  vtiger CRM Open Source
+ * The Initial Developer of the Original Code is vtiger.
+ * Portions created by vtiger are Copyright (C) vtiger.
+ * All Rights Reserved.
+ * Reviewed by crm-now GmbH
+ *************************************************************************************/
+$languageStrings = array(
+	'Big Problem'=>'grosses Problem',
+	'Closed'=>'geschlossen',
+	'Contact Name' => 'Personenname',
+	'created' => 'erstellt',
+	'Critical'=>'kritisch',
+	'customer_portal' => ' im Kundenportal des CRM Systems.',
+	'Days' => 'Tage',
+	'Dear'=> 'Hallo',
+	'Feature'=>'Feature',
+	'From Portal' => 'vom Portal',
+	'HelpDesk ID' => 'Ticket ID',
+	'HelpDesk' => 'Tickets',
+	'High'=>'hoch',
+	'Hi' => 'Hallo',
+	'Hours' => 'Stunden',
+	'LBL_ADD_RECORD' => 'Ticket hinzufügen',
+	'LBL_ALTBODY' => 'Das ist die Nachricht für Klienten ohne HTML.',
+	'LBL_CHECK_MAILID' => 'Bitte prüfen Sie die E-Mail Adresse für das Kundenportal',
+	'LBL_CONVERT_FAQ' => 'zu Wissensbasis umwandeln',
+	'LBL_COULDNOT_CLOSED' => 'Der nachfolgende Ticket Status konnte nicht gesetzt werden:',
+	'LBL_CUSTOMER_COMMENTS' => 'Der Kunde hat die folgenden zusätzlichen Infomationen zu dem Ticket hinzugefügt:',
+	'LBL_CUSTOMER_PORTAL' => ' im Kundenportal - Dringend!',
+	'LBL_DETAIL' => 'Hier sind die Details dazu: ',
+	'LBL_GIVE_MAILID' => 'Bitte die E-Mail Adresse angeben',
+	'LBL_LOGIN_DETAILS' => 'Hier sind Ihre Login Daten für das Kundenportal: ',
+	'LBL_LOGIN_REVOKED' => 'Sie haben keine Zugangsberechtigung mehr. Bitte kontaktieren Sie den Administrator.',
+	'LBL_MAIL_COULDNOT_SENT' =>'Die E-Mail konnte nicht gesendet werden.',
+	'LBL_MAIL_SENT' => 'Eine E-Mail mit den Zugangsdaten wurde zu Ihnen gesendet.',
+	'LBL_PASSWORD' => 'Passwort: ',
+	'LBL_PORTAL_BODY_MAILINFO'=> 'Ein Ticket wurde',
+	'LBL_RECORDS_LIST' => 'Ticketliste',
+	'LBL_REGARDS'=> 'Mit freundlichen Grüßen,',
+	'LBL_RELATED_TO' => 'bezogen auf',
+	'LBL_RESPOND'=> 'Bitte kümmern Sie sich darum.',
+	'LBL_RESPONDTO_TICKETID' =>'Antwort zum Ticket Nr.',
+	'LBL_RESPONSE_TO_TICKET_NUMBER' =>'Antwort zum Ticket Nr.',
+	'LBL_SEVERITY' => 'Gewichtung',
+	'LBL_STATUS_CLOSED' =>'Closed',//Do not convert this label. This is used to check the status. If the status 'Closed' is changed in vtigerCRM server side then you have to change in customerportal language file also.
+	'LBL_STATUS' => 'Status',
+	'LBL_STATUS_UPDATE' => 'Neuer Ticket Status: ',
+	'LBL_SUBJECT_PORTAL_LOGIN_DETAILS' => 'Ihnen wurde der Zugang zum Kundenportal freigeschaltet',
+	'LBL_SUBJECT' => 'Betreff: ',
+	'LBL_SUPPORT_ADMIN' => 'Support Administrator',
+	'LBL_TEAM'=> 'HelpDesk Team',
+	'LBL_TICKET_DETAILS' => 'Ticketdetails',
+	'LBL_TICKET_INFORMATION' => 'Ticketinformation',
+	'LBL_TICKET_NUMBER' => 'Ticketnummer',
+	'LBL_TICKET_RESOLUTION' => 'Lösung',
+	'LBL_USERNAME' => 'Nutzername: ',
+	'link' => 'Loggen Sie sich in das Kundenportal ein und nutzen Sie den folgenden Link, um die Nachricht zu sehen:',
+	'Major'=>'bedeutend',
+	'Minor'=>'gering',
+	'Normal'=>'normal',
+	'Open'=>'offen',
+	'Other Problem'=>'anderes Problem',
+	'Related To' => 'Organisationsname',
+	'replied' => 'beantwortet',
+	'reply'=>'Es gibt eine Antwort zu Ihrem Anliegen ',
+	'Re' => 'AW: ',
+	'Severity' => 'Gewichtung',
+	'SINGLE_HelpDesk' => 'Ticket',
+	'Small Problem'=>'geringes Problem',
+	'Solution' => 'Lösung',
+	'Support_team' => 'Support Team',
+	'Thanks' => 'Danke',
+	'The comments are' => 'Die Kommentare sind',
+	'Ticket ID'=>'Ticketnr.',
+	'Ticket No' => 'Ticketnummer',
+	'Ticket Title' => 'Tickettitel',
+	'Title' => 'Titel',
+	'Update History' => 'Update Historie',
+	'Urgent'=>'dringend',
+	'Wait For Response'=>'warte auf Zuarbeit',
+);
+
+$jsLanguageStrings = array(
+	'of' => 'von',
+	'to' => 'bis',
+);
+?>
