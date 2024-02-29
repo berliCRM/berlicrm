@@ -34,7 +34,7 @@ require_once('include/fields/NumberField.php');
 require_once('data/CRMEntity.php');
 require_once('vtlib/Vtiger/Language.php');
 require_once('include/ListView/ListViewSession.php');
-require_once('includes/runtime/Configs.php');
+include_once('includes/runtime/Configs.php');
 require_once('vtlib/Vtiger/Functions.php');
 require_once('vtlib/Vtiger/Deprecated.php');
 
