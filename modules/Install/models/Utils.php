@@ -301,7 +301,7 @@ class Install_Utils_Model {
 	 * @return type
 	 */
 	static function isMySQL($dbType) {
-		return (stripos($dbType ,'mysql') === 0);
+		return (stripos(strval($dbType) ,'mysql') === 0);
 	}
 
 	/**
@@ -311,7 +311,7 @@ class Install_Utils_Model {
 	 */
 	public static function getMySQLVersion($serverInfo) {
 		if(!is_array($serverInfo)) {
-			$version = explode('-',$serverInfo);
+			$version = explode('-',strval($serverInfo));
 			$mysql_server_version=$version[0];
 		} else {
 			$mysql_server_version = $serverInfo['version'];
@@ -396,7 +396,7 @@ class Install_Utils_Model {
 			$error_msg_info = getTranslatedString('MSG_LIST_REASONS', 'Install').':<br>
 					-  '.getTranslatedString('MSG_DB_PARAMETERS_INVALID', 'Install').'
 					-  '.getTranslatedString('MSG_DB_USER_NOT_AUTHORIZED', 'Install');
-		} elseif(self::isMySQL($db_type) && $mysql_server_version < 4.1) {
+		} elseif(self::isMySQL($db_type) && intval($mysql_server_version) < 4.1) {
 			$error_msg = $mysql_server_version.' -> '.getTranslatedString('ERR_INVALID_MYSQL_VERSION', 'Install');
 		} elseif($db_creation_failed) {
 			$error_msg = getTranslatedString('ERR_UNABLE_CREATE_DATABASE', 'Install').' '.$db_name;
