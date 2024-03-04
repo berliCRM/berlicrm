@@ -1,2 +1,5 @@
 test
 config.csrf-secret.php
+logs
+storage
+cache
