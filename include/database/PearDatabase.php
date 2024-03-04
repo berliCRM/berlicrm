@@ -17,9 +17,6 @@ require_once 'include/logging.php';
 include_once 'libraries/adodb/adodb.inc.php';
 require_once 'libraries/adodb/adodb-xmlschema03.inc.php';
 
-$log = LoggerManager::getLogger('VT');
-$logsqltm = LoggerManager::getLogger('SQLTIME');
-
 // Callback class useful to convert PreparedStatement Question Marks to SQL value
 // See function convertPS2Sql in PearDatabase below
 class PreparedQMark2SqlValue {
@@ -99,7 +96,7 @@ class PearDatabase{
 	 * Manage instance usage of this class
 	 */
 	static function &getInstance() {
-		global $adb, $log;
+		global $adb;
 
 		if(!isset($adb)) {
 			$adb = new self();
@@ -115,12 +112,11 @@ class PearDatabase{
     function println($msg)
     {
 		require_once('include/logging.php');
-		$log1 = LoggerManager::getLogger('VT');
-		if(is_array($msg)) {
-		    $log1->info("PearDatabse ->".print_r($msg,true));
-		} else {
-		    $log1->info("PearDatabase ->".$msg);
-		}
+		// if(is_array($msg)) {
+		//     $log1->info("PearDatabse ->".print_r($msg,true));
+		// } else {
+		//     $log1->info("PearDatabase ->".$msg);
+		// }
 		return $msg;
     }
 
@@ -183,7 +179,6 @@ class PearDatabase{
 
     var $req_flist;
     function checkConnection(){
-		global $log;
 
 		if(!isset($this->database)) {
 		    $this->println("TRANS creating new connection");
@@ -288,9 +283,8 @@ class PearDatabase{
 
     function query($sql, $dieOnError=false, $msg='')
     {
-	global $log, $default_charset;
+	global $default_charset;
 
-	$log->debug('query being executed : '.$sql);
 	$this->checkConnection();
 
 	$this->executeSetNamesUTF8SQL();
@@ -340,17 +334,13 @@ class PearDatabase{
    	* @param $msg -- Error message on query execution failure
    	*/
 	function pquery($sql, $params=array(), $dieOnError=false, $msg='') {
-		global $log, $default_charset;
-		$log->debug('Prepared sql query being executed : '.$sql);
+		global $default_charset;
 		$this->checkConnection();
 
 		$this->executeSetNamesUTF8SQL();
 
 		$sql_start_time = microtime(true);
 		$params = $this->flatten_array($params);
-		if (count($params) > 0) {
-			$log->debug('Prepared sql query parameters : [' . implode(",", $params) . ']');
-		}
 
 		if($this->avoidPreparedSql || empty($params)) {
 			$sql = $this->convert2Sql($sql, $params);
@@ -424,9 +414,7 @@ class PearDatabase{
 
     function limitQuery($sql,$start,$count, $dieOnError=false, $msg='')
     {
-	global $log;
 	//$this->println("ADODB limitQuery sql=".$sql." st=".$start." co=".$count);
-	$log->debug(' limitQuery sql = '.$sql .' st = '.$start .' co = '.$count);
 	$this->checkConnection();
 
 	$this->executeSetNamesUTF8SQL();
@@ -507,7 +495,6 @@ class PearDatabase{
     }
 
     function getRowCount(&$result){
-		global $log;
 		if(isset($result) && !empty($result))
 		    $rows= $result->RecordCount();
 		return $rows;
@@ -728,10 +715,7 @@ class PearDatabase{
 
 
     function getAffectedRowCount(&$result){
-		global $log;
-		$log->debug('getAffectedRowCount');
 		$rows =$this->database->Affected_Rows();
-		$log->debug('getAffectedRowCount rows = '.$rows);
 		return $rows;
     }
 
@@ -782,8 +766,6 @@ class PearDatabase{
     }
 
     function getNextRow(&$result, $encode=true){
-		global $log;
-		$log->info('getNextRow');
 		if(isset($result)){
 	    	$row = $this->change_key_case($result->FetchRow());
 		    if($row && $encode&& is_array($row))
