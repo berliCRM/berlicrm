@@ -1305,6 +1305,9 @@ function constructArray($var)
        		$code .= ')';
        		return $code;
    	}
+	else {
+		return 'array()';
+	}
 }
 
 /** Converts the input array  to a single string to facilitate the writing of the input array in a flat file 
@@ -1393,6 +1396,9 @@ function constructSingleStringKeyValueArray($var) {
 	    $code .= ')';
 	    return $code;
     }
+	else {
+		return 'array()';
+	}
 }
 
 
@@ -1413,6 +1419,9 @@ function constructSingleArray($var)
        		$code .= ')';
        		return $code;
    	}
+	else {
+		return 'array()';
+	}
 }
 
 /** Converts the input array  to a single string to facilitate the writing of the input array in a flat file 
@@ -1432,6 +1441,9 @@ function constructSingleCharArray($var)
        		$code .= ")";
        		return $code;
    	}
+	else {
+		return 'array()';
+	}
 }
 
 
@@ -1457,6 +1469,9 @@ function constructTwoDimensionalArray($var)
        		$code .= ')';
        		return $code;
    	}
+	else {
+		return 'array()';
+	}
 }
 
 /** Converts the input array  to a single string to facilitate the writing of the input array in a flat file 
