@@ -437,17 +437,17 @@ class Vtiger_Deprecated {
 
 		$relativeFilePath = str_replace($rootdirpath, '', $realfilepath);
 		$filePathParts = explode('/', $relativeFilePath);
-
+		
 		if (stripos($realfilepath, $rootdirpath) !== 0 || in_array($filePathParts[0], $unsafeDirectories)) {
 			$a = debug_backtrace();
-                        $backtrace = 'Traced on '.date('Y-m-d H:i:s')."\n";
-                        $backtrace .= "FileAccessForInclusion - \n";
-                        foreach ($a as $b) {
-                            $backtrace .=  $b['file'] . '::' . $b['function'] . '::' . $b['line'] . '<br>'.PHP_EOL;
-                        }
-                        Vtiger_Utils::writeLogFile('fileMissing.log', $backtrace);
-                        die('Sorry! Attempt to access restricted file.');
-                }
+			$backtrace = 'Traced on '.date('Y-m-d H:i:s')."\n";
+			$backtrace .= "FileAccessForInclusion - \n";
+			foreach ($a as $b) {
+				$backtrace .=  $b['file'] . '::' . $b['function'] . '::' . $b['line'] . '<br>'.PHP_EOL;
+			}
+			Vtiger_Utils::writeLogFile('fileMissing.log', $backtrace);
+			die('Sorry! Attempt to access restricted file.');
+		}
 	}
 
 	/** Function to check the file deletion within the deletable (safe) directories*/
