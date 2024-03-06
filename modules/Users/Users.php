@@ -808,7 +808,6 @@ class Users extends CRMEntity {
 			$this->column_fields['currency_grouping_separator'] = ',';
 		}
 
-        $this->db->println("TRANS saveentity starts $module");
         $this->db->startTransaction();
         foreach($this->tab_name as $table_name) {
             if($table_name == 'vtiger_attachments') {
@@ -826,7 +825,6 @@ class Users extends CRMEntity {
             $this->createAccessKey();
         }
         $this->db->completeTransaction();
-        $this->db->println("TRANS saveentity ends");
     }
 
     function createAccessKey() {
