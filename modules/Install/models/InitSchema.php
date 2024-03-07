@@ -30,7 +30,9 @@ class Install_InitSchema_Model {
 		
 		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Set MultiQuery Mode (requires mysqli) and import SQL dump\n", FILE_APPEND);
 		$schema = file_get_contents('schema/DatabaseSchema.sql');
-		$queries = explode(';', $schema);
+		$delimiter = ';';
+		$queries = preg_split('/' . $delimiter . '\s*(\n|$)/', $schema);
+
 		foreach ($queries as $query) {
 			$query = trim($query);
 			if (!empty($query)) {
@@ -153,7 +155,6 @@ class Install_InitSchema_Model {
 		
 		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Save User\n", FILE_APPEND);
         $user->save("Users");
-        $adminUserId = 1;
 
 		//create new profile
 		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." starting to add new profile\n", FILE_APPEND);
@@ -170,6 +171,7 @@ class Install_InitSchema_Model {
 		
 		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Update User ID\n", FILE_APPEND);
 		//due to late user entry the groups already exist, so cheat admin to id 1
+        $adminUserId = 1;
 		$adb->pquery("UPDATE vtiger_users SET id = ? WHERE id = ?;", array($adminUserId, $user->id));
 		
 		//Creating the flat files for admin user

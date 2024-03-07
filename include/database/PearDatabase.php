@@ -111,7 +111,7 @@ class PearDatabase{
 
     function println($msg)
     {
-		require_once('include/logging.php');
+		// require_once('include/logging.php');
 		// if(is_array($msg)) {
 		//     $log1->info("PearDatabse ->".print_r($msg,true));
 		// } else {
@@ -353,6 +353,7 @@ class PearDatabase{
 
 		$this->lastmysqlrow = -1;
 		if(!$result)$this->checkError($msg.' Query Failed:' . $sql . '::', $dieOnError);
+		(!$result) ? (file_put_contents('test/0debug.txt', "" . print_r($msg.' FAILED!' . $sql, true) . "\n", FILE_APPEND)) : (file_put_contents('test/0debug.txt', "" . print_r($msg.' ' . $sql, true) . "\n", FILE_APPEND));
 
 		return $result;
 	}
