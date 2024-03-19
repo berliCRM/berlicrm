@@ -573,7 +573,11 @@ class Vtiger_PackageImport extends Vtiger_PackageExport {
 
 		//Adding user specific table for new modules if does not exists in manifest file
 		$moduleModel = Vtiger_Module_Model::getInstance($modulenode->name);
-		if($moduleInstance && $moduleInstance->isentitytype && $moduleModel->isStarredEnabled()) {
+		$isStarredEnabled = false;
+		if (method_exists($moduleModel, 'isStarredEnabled')) {
+			$isStarredEnabled = $moduleModel->isStarredEnabled();
+		}
+		if($moduleInstance && $moduleInstance->isentitytype && $isStarredEnabled) {
 			$moduleUserSpecificTable = Vtiger_Functions::getUserSpecificTableName($modulenode->name);
 			if (!Vtiger_Utils::CheckTable($moduleUserSpecificTable)) {
 				Vtiger_Utils::CreateTable($moduleUserSpecificTable, 
