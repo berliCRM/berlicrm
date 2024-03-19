@@ -55,7 +55,6 @@ class Vtiger_Field extends Vtiger_FieldBasic {
 				true);
 			$new_picklistid = $this->__getPicklistUniqueId();
 			$adb->pquery("INSERT INTO vtiger_picklist (picklistid,name) VALUES(?,?)",Array($new_picklistid, $this->name));
-			self::log("Creating table $picklist_table ... DONE");
 		} else {
 			$picklistResult = $adb->pquery("SELECT picklistid FROM vtiger_picklist WHERE name=?", Array($this->name));
 			$new_picklistid = $adb->query_result($picklistResult, 0, 'picklistid');
@@ -120,7 +119,6 @@ class Vtiger_Field extends Vtiger_FieldBasic {
 				presence INT (11) NOT NULL DEFAULT 1,
 				color VARCHAR(10))",
 				true);
-			self::log("Creating table $picklist_table ... DONE");
 		}
 
 		// Add value to picklist now
@@ -178,8 +176,6 @@ class Vtiger_Field extends Vtiger_FieldBasic {
 			$adb->pquery('INSERT INTO vtiger_fieldmodulerel(fieldid, module, relmodule) VALUES(?,?,?)',
 				Array($this->id, $this->getModuleName(), $relmodule));
 
-			self::log("Setting $this->name relation with $relmodule ... DONE");
-
             if ($relLabel) {
 				$otherModule = Vtiger_Module::getInstance($relmodule);
 				$moduleModel = Vtiger_Module_Model::getInstance($this->getModuleName());
@@ -200,8 +196,6 @@ class Vtiger_Field extends Vtiger_FieldBasic {
 		foreach($moduleNames as $relmodule) {
 			$adb->pquery('DELETE FROM vtiger_fieldmodulerel WHERE fieldid=? AND module=? AND relmodule = ?',
 				Array($this->id, $this->getModuleName(), $relmodule));
-
-			Vtiger_Utils::Log("Unsetting $this->name relation with $relmodule ... DONE");
 		}
 		return true;
 	}
@@ -293,7 +287,6 @@ class Vtiger_Field extends Vtiger_FieldBasic {
 	static function deleteForModule($moduleInstance) {
 		global $adb;
 		$adb->pquery("DELETE FROM vtiger_field WHERE tabid=?", Array($moduleInstance->id));
-		self::log("Deleting fields of the module ... DONE");
 	}
 }
 ?>

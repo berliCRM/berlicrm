@@ -127,7 +127,6 @@ class Vtiger_Link {
 			}
 			$sql .= (') VALUES ('.generateQuestionMarks($params).')');
 			$adb->pquery($sql, $params);
-			self::log("Adding Link ($type - $label) ... DONE");
 		}
 	}
 
@@ -144,11 +143,9 @@ class Vtiger_Link {
 		if($url) {
 			$adb->pquery('DELETE FROM vtiger_links WHERE tabid=? AND linktype=? AND linklabel=? AND linkurl=?',
 				Array($tabid, $type, $label, $url));
-			self::log("Deleting Link ($type - $label - $url) ... DONE");
 		} else {
 			$adb->pquery('DELETE FROM vtiger_links WHERE tabid=? AND linktype=? AND linklabel=?',
 				Array($tabid, $type, $label));
-			self::log("Deleting Link ($type - $label) ... DONE");
 		}
 	}
 
@@ -160,7 +157,6 @@ class Vtiger_Link {
 		global $adb;
 		self::__initSchema();
 		$adb->pquery('DELETE FROM vtiger_links WHERE tabid=?', Array($tabid));
-		self::log("Deleting Links ... DONE");
 	}
 
 	/**
@@ -235,7 +231,6 @@ class Vtiger_Link {
 				$linkData = new Vtiger_LinkData($instance, $current_user);
 				$ignore = call_user_func(array($row['handler_class'], $row['handler']), $linkData);
 				if(!$ignore) {
-					self::log("Ignoring Link ... ".var_export($row, true));
 					continue;
 				}
 			}
@@ -265,16 +260,6 @@ class Vtiger_Link {
 			$links[] = $instance;
 		}
 		return $links;
-	}
-
-	/**
-	 * Helper function to log messages
-	 * @param String Message to log
-	 * @param Boolean true appends linebreak, false to avoid it
-	 * @access private
-	 */
-	static function log($message, $delimit=true) {
-		Vtiger_Utils::Log($message, $delimit);
 	}
 
 	/**

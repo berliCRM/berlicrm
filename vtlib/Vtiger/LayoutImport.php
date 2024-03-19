@@ -63,7 +63,6 @@ function import_Layout($zipfile) {
 		$name = $this->_modulexml->name;
 		$label = $this->_modulexml->label;
        
-		self::log("Importing $name ... STARTED");
 		$unzip = new Vtiger_Unzip($zipfile);
 		$filelist = $unzip->getList();
 		$vtiger6format = false;
@@ -112,21 +111,16 @@ function import_Layout($zipfile) {
                     
                    if($fileValidation){
                            if($unzip->unzip($filename, "$targetdir/$targetfile") !== false){
-                                 self::log("Copying file $filename ... DONE");
                              } else {
-                                 self::log("Copying file $filename ... FAILED");
                              } 
                      }
 				    } else {
-					self::log("Copying file $filename ... SKIPPED");
 				}
 			}
 		}
 		if($unzip) $unzip->close();
 
 		self::register($name,$label);
-
-		self::log("Importing $name($label) ... DONE");
 
 		return;
 	}

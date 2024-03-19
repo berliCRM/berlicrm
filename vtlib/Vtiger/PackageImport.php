@@ -561,17 +561,12 @@ class Vtiger_PackageImport extends Vtiger_PackageExport {
 			// Avoid executing SQL that will DELETE or DROP table data
 			if(Vtiger_Utils::IsCreateSql($tablesql)) {
 				if(!Vtiger_Utils::checkTable($tablename)) {
-					self::log("SQL: $tablesql ... ", false);
 					Vtiger_Utils::ExecuteQuery($tablesql);
-					self::log("DONE");
 				}
 			} else {
 				if(Vtiger_Utils::IsDestructiveSql($tablesql)) {
-					self::log("SQL: $tablesql ... SKIPPED");
 				} else {
-					self::log("SQL: $tablesql ... ", false);
 					Vtiger_Utils::ExecuteQuery($tablesql);
-					self::log("DONE");
 				}
 			}
 		}

@@ -200,9 +200,6 @@ class Vtiger_FieldBasic {
 		$adb->pquery('UPDATE vtiger_field SET masseditable=? WHERE fieldid=?', Array($this->masseditable, $this->id));
 
 		Vtiger_Profile::initForField($this);
-
-		self::log("Creating Field $this->name ... DONE");
-		self::log("Module language mapping for $this->label ... CHECK");
 	}
 
 	/**
@@ -211,7 +208,6 @@ class Vtiger_FieldBasic {
 	 * @internal TODO
 	 */
 	function __update() {
-		self::log("Make use of Vtiger_Field_Model => __update() api.");
 	}
 
 	/**
@@ -230,8 +226,6 @@ class Vtiger_FieldBasic {
 
 		$em = new VTEventsManager($adb);
 		$em->triggerEvent('vtiger.field.afterdelete', $this);
-
-		self::log("Deleteing Field $this->name ... DONE");
 	}
 
 	/**
@@ -296,7 +290,6 @@ class Vtiger_FieldBasic {
 
 		global $adb;
 		$adb->pquery('UPDATE vtiger_field SET helpinfo=? WHERE fieldid=?', Array($helptext, $this->id));
-		self::log("Updated help information of $this->name ... DONE");
 	}
 
 	/**
@@ -306,7 +299,6 @@ class Vtiger_FieldBasic {
 	function setMassEditable($value) {
 		global $adb;
 		$adb->pquery('UPDATE vtiger_field SET masseditable=? WHERE fieldid=?', Array($value, $this->id));
-		self::log("Updated masseditable information of $this->name ... DONE");
 	}
 
 	/**
@@ -316,17 +308,6 @@ class Vtiger_FieldBasic {
     function setSummaryField($value) { 
         global $adb; 
         $adb->pquery('UPDATE vtiger_field SET summaryfield=? WHERE fieldid=?', Array($value, $this->id)); 
-        self::log("Updated summaryfield information of $this->name ... DONE"); 
-    } 
-
-	/**
-	 * Helper function to log messages
-	 * @param String Message to log
-	 * @param Boolean true appends linebreak, false to avoid it
-	 * @access private
-	 */
-	static function log($message, $delim = true) {
-		Vtiger_Utils::Log($message, $delim);
-	}
+    }
 }
 ?>

@@ -35,7 +35,6 @@ class Vtiger_PackageUpdate extends Vtiger_PackageImport {
 		$module = $this->getModuleNameFromZip($zipfile);
 
 		if(!$moduleInstance || $moduleInstance->name != $module) {
-			self::log('Module name mismatch!');
 			return false;
 		}
 
@@ -129,7 +128,6 @@ class Vtiger_PackageUpdate extends Vtiger_PackageImport {
 				}
 			} else {
 				if(!$moduleInstance || $moduleInstance->name != $module) {
-					self::log('Module name mismatch!');
 					return false;
 				}
 				$module = $this->initUpdate($moduleInstance, $zipfile, $overwrite);
@@ -213,7 +211,6 @@ class Vtiger_PackageUpdate extends Vtiger_PackageImport {
 		foreach($this->_migrations as $migversion=>$migrationnode) {
 			// Perform migration only for higher version than current
 			if(version_compare($cur_version, $migversion, '<')) {
-				self::log("Migrating to $migversion ... STARTED");
 				if(!empty($migrationnode->tables) && !empty($migrationnode->tables->table)) {
 					foreach($migrationnode->tables->table as $tablenode) {
 						$tablename = $tablenode->name;
@@ -221,16 +218,12 @@ class Vtiger_PackageUpdate extends Vtiger_PackageImport {
 
 						// Skip SQL which are destructive
 						if(Vtiger_Utils::IsDestructiveSql($tablesql)) {
-							self::log("SQL: $tablesql ... SKIPPED");
 						} else {
 							// Supress any SQL query failures
-							self::log("SQL: $tablesql ... ", false);
 							Vtiger_Utils::ExecuteQuery($tablesql, true);
-							self::log("DONE");
 						}
 					}
 				}
-				self::log("Migrating to $migversion ... DONE");
 			}
 		}
 	}

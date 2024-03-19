@@ -64,7 +64,6 @@ class Vtiger_ThemeImport extends Vtiger_ThemeExport {
 		$label = $this->_modulexml->label;
                 $parent = $this->_modulexml->parent;
 
-		self::log("Importing $label ... STARTED");
 		$unzip = new Vtiger_Unzip($zipfile);
 		$filelist = $unzip->getList();
 		$vtiger6format = false;
@@ -91,20 +90,15 @@ class Vtiger_ThemeImport extends Vtiger_ThemeExport {
 					}
 
 					if($unzip->unzip($filename, "$targetdir/$targetfile") !== false) {
-						self::log("Copying file $filename ... DONE");
 					} else {
-						self::log("Copying file $filename ... FAILED");
 					}
 				} else {
-					self::log("Copying file $filename ... SKIPPED");
 				}
 			}
 		}
 		if($unzip) $unzip->close();
 
 		self::register($label, $name, $parent);
-
-		self::log("Importing $label [$prefix] ... DONE");
 
 		return;
 	}    

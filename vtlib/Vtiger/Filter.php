@@ -68,15 +68,11 @@ class Vtiger_Filter {
 		$adb->pquery("INSERT INTO vtiger_customview(cvid,viewname,setdefault,setmetrics,entitytype) VALUES(?,?,?,?,?)", 
 			Array($this->id, $this->name, $this->isdefault, $this->inmetrics, $this->module->name));
 
-		self::log("Creating Filter $this->name ... DONE");
-
 		// Filters are role based from 5.1.0 onwards
 		if(!$this->status) {
 			if(strtoupper(trim($this->name)) == 'ALL') $this->status = '0'; // Default
 			else $this->status = '3'; // Public
 			$adb->pquery("UPDATE vtiger_customview SET status=? WHERE cvid=?", Array($this->status, $this->id));
-
-			self::log("Setting Filter $this->name to status [$this->status] ... DONE");
 		}
 		// END
 		
@@ -88,7 +84,6 @@ class Vtiger_Filter {
 	 * @internal TODO
 	 */
 	function __update() {
-		self::log("Updating Filter $this->name ... DONE");
 	}
 
 	/**
@@ -146,7 +141,6 @@ class Vtiger_Filter {
 			Array($this->id, $index));
 		$adb->pquery("INSERT INTO vtiger_cvcolumnlist(cvid,columnindex,columnname) VALUES(?,?,?)", Array($this->id, $index, $cvcolvalue));
 
-		$this->log("Adding $fieldInstance->name to $this->name filter ... DONE");
 		return $this;
 	}
 
@@ -171,8 +165,6 @@ class Vtiger_Filter {
 		$adb->pquery("INSERT INTO vtiger_cvadvfilter(cvid, columnindex, columnname, comparator, value, groupid, column_condition) VALUES(?,?,?,?,?,?,?)",
 			Array($this->id, $index, $cvcolvalue, $comparator, $comparevalue, $group, $condition));
 
-		Vtiger_Utils::Log("Adding Condition " . self::translateComparator($comparator,true) ." on $fieldInstance->name of $this->name filter ... DONE");
-		
 		return $this;
 	}
 
@@ -209,16 +201,6 @@ class Vtiger_Filter {
 			else if($comparator == 'GREATER_OR_EQUAL') $comparator = 'h';
 		}
 		return $comparator;
-	}
-
-	/**
-	 * Helper function to log messages
-	 * @param String Message to log
-	 * @param Boolean true appends linebreak, false to avoid it
-	 * @access private
-	 */
-	static function log($message, $delim=true) {
-		Vtiger_Utils::Log($message, $delim);
 	}
 
 	/**

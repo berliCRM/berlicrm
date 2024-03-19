@@ -14,16 +14,6 @@ include_once('vtlib/Vtiger/Utils.php');
  * @package vtlib
  */
 class Vtiger_Webservice {
-	
-	/**
-	 * Helper function to log messages
-	 * @param String Message to log
-	 * @param Boolean true appends linebreak, false to avoid it
-	 * @access private
-	 */
-	static function log($message, $delim=true) {
-		Vtiger_Utils::Log($message, $delim);
-	}
 
 	/**
 	 * Initialize webservice for the given module
@@ -34,7 +24,6 @@ class Vtiger_Webservice {
 			// TODO: Enable support when webservice API support is added.
 			if(function_exists('vtws_addDefaultModuleTypeEntity')) { 
 				vtws_addDefaultModuleTypeEntity($moduleInstance->name);
-				self::log("Initializing webservices support ...DONE");
 			}
 		}
 	}
@@ -48,7 +37,6 @@ class Vtiger_Webservice {
 			// TODO: Enable support when webservice API support is added.
 			if(function_exists('vtws_deleteWebserviceEntity')) { 
 				vtws_deleteWebserviceEntity($moduleInstance->name);
-				self::log("De-Initializing webservices support ...DONE");
 			}
 		}
 	}

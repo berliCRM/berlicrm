@@ -169,7 +169,6 @@ class Vtiger_LayoutExport extends Vtiger_Package {
                     $adb->pquery('INSERT INTO '.self::TABLENAME.' (id,name,label,lastupdated,isdefault,active) VALUES(?,?,?,?,?,?)',
                             Array($uniqueid, $name, $label, $datetime, $useisdefault, $useisactive));
             }
-            self::log("Registering Layout $name ... DONE");		
     }
     
     
@@ -180,7 +179,6 @@ class Vtiger_LayoutExport extends Vtiger_Package {
 
 		global $adb;
 	    $adb->pquery('DELETE FROM '.self::TABLENAME.' WHERE name=?', Array($name));
-		self::log("Deregistering Layout $name ... DONE");
 	}
 
 }

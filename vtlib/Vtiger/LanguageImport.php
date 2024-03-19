@@ -69,7 +69,6 @@ class Vtiger_LanguageImport extends Vtiger_LanguageExport {
 		$prefix = $this->_modulexml->prefix;
 		$label = $this->_modulexml->label;
 
-		self::log("Importing $label [$prefix] ... STARTED");
 		$unzip = new Vtiger_Unzip($zipfile);
 		$filelist = $unzip->getList();
 		$vtiger6format = false;
@@ -131,20 +130,15 @@ class Vtiger_LanguageImport extends Vtiger_LanguageExport {
 					}
 
 					if($unzip->unzip($filename, "$targetdir/$targetfile") !== false) {
-						self::log("Copying file $filename ... DONE");
 					} else {
-						self::log("Copying file $filename ... FAILED");
 					}
 				} else {
-					self::log("Copying file $filename ... SKIPPED");
 				}
 			}
 		}
 		if($unzip) $unzip->close();
 
 		self::register($prefix, $label, $name);
-
-		self::log("Importing $label [$prefix] ... DONE");
 
 		return;
 	}

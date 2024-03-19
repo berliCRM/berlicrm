@@ -27,16 +27,6 @@ class Vtiger_Event {
 
 	/** Internal caching */
 	static $is_supported = '';
-	
-	/**
-	 * Helper function to log messages
-	 * @param String Message to log
-	 * @param Boolean true appends linebreak, false to avoid it
-	 * @access private
-	 */
-	static function log($message, $delim=true) {
-		Vtiger_Utils::Log($message, $delim);
-	}
 
 	/**
 	 * Check if vtiger CRM support Events
@@ -63,8 +53,6 @@ class Vtiger_Event {
 			$eventsManager = new VTEventsManager($adb);
 			$eventsManager->registerHandler($eventname, $filename, $classname, $condition, $dependent);
 			$eventsManager->setModuleForHandler($moduleInstance->name, $classname);
-
-			self::log("Registering Event $eventname with [$filename] $classname ... DONE");
 		}
 	}
 

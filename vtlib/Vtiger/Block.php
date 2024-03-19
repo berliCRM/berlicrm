@@ -95,8 +95,6 @@ class Vtiger_Block {
 		$adb->pquery("INSERT INTO vtiger_blocks(blockid,tabid,blocklabel,sequence,show_title,visible,create_view,edit_view,detail_view,iscustom)
 			VALUES(?,?,?,?,?,?,?,?,?,?)", Array($this->id, $this->module->id, $this->label,$this->sequence,
 			$this->showtitle, $this->visible,$this->increateview, $this->ineditview, $this->indetailview, $this->iscustom));
-		self::log("Creating Block $this->label ... DONE");
-		self::log("Module language entry for $this->label ... CHECK");
 	}
 
 	/**
@@ -105,7 +103,6 @@ class Vtiger_Block {
 	 * @internal TODO
 	 */
 	function __update() {
-		self::log("Updating Block $this->label ... DONE");
 	}
 
 	/**
@@ -114,9 +111,7 @@ class Vtiger_Block {
 	 */
 	function __delete() {
 		global $adb;
-		self::log("Deleting Block $this->label ... ", false);
 		$adb->pquery("DELETE FROM vtiger_blocks WHERE blockid=?", Array($this->id));
-		self::log("DONE");
 	}
 
 	/**
@@ -149,16 +144,6 @@ class Vtiger_Block {
 	function addField($fieldInstance) {
 		$fieldInstance->save($this);
 		return $this;
-	}
-
-	/**
-	 * Helper function to log messages
-	 * @param String Message to log
-	 * @param Boolean true appends linebreak, false to avoid it
-	 * @access private
-	 */
-	static function log($message, $delim=true) {
-		Vtiger_Utils::Log($message, $delim);
 	}
 
 	/**
@@ -216,7 +201,6 @@ class Vtiger_Block {
 		global $adb;
 		if($recursive) Vtiger_Field::deleteForModule($moduleInstance);
 		$adb->pquery("DELETE FROM vtiger_blocks WHERE tabid=?", Array($moduleInstance->id));
-		self::log("Deleting blocks for module ... DONE");
 	}
 }
 ?>

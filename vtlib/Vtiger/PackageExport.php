@@ -711,15 +711,5 @@ class Vtiger_PackageExport {
         }
       $this->closeNode('crons');
     }
-
-	/**
-	 * Helper function to log messages
-	 * @param String Message to log
-	 * @param Boolean true appends linebreak, false to avoid it
-	 * @access private
-	 */
-	static function log($message, $delim=true) {
-		Vtiger_Utils::Log($message, $delim);
-	}
 }
 ?>

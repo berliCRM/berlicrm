@@ -248,7 +248,6 @@ class Vtiger_ModuleBasic {
 	function save() {
 		if($this->id) $this->__update();
 		else $this->__create();
-		Vtiger_Cache::delete('module', $this->name);
 		return $this->id;
 	}
 
@@ -270,7 +269,6 @@ class Vtiger_ModuleBasic {
 		Vtiger_Link::deleteAll($this->id);
 		Vtiger_Menu::detachModule($this);
 		self::syncfile();
-        Vtiger_Cache::flushModuleCache($this->name);
 	}
 
 	/**

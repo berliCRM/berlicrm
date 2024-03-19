@@ -177,7 +177,6 @@ class Vtiger_LanguageExport extends Vtiger_Package {
 			$adb->pquery('INSERT INTO '.self::TABLENAME.' (id,name,prefix,label,lastupdated,isdefault,active) VALUES(?,?,?,?,?,?,?)',
 				Array($uniqueid, $name, $prefix, $label, $datetime, $useisdefault, $useisactive));
 		}
-		self::log("Registering Language $label [$prefix] ... DONE");		
 	}
 
 	/**
@@ -193,7 +192,6 @@ class Vtiger_LanguageExport extends Vtiger_Package {
 
 		global $adb;
 		$checkres = $adb->pquery('DELETE FROM '.self::TABLENAME.' WHERE prefix=?', Array($prefix));
-		self::log("Deregistering Language $prefix ... DONE");
 	}
 
 	/**

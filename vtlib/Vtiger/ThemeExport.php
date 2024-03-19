@@ -192,7 +192,6 @@ class Vtiger_ThemeExport extends Vtiger_Package {
                     $adb->pquery('INSERT INTO '.self::TABLENAME.' (id,name,label,parent,lastupdated,isdefault,active) VALUES(?,?,?,?,?,?)',
                             Array($uniqueid, $name, $label, $parent, $datetime, $useisdefault, $useisactive));
             }
-            self::log("Registering Language $label [$prefix] ... DONE");		
     }
 
 }

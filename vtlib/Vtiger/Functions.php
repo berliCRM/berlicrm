@@ -85,7 +85,7 @@ class Vtiger_Functions {
 	}
 
 	static function currentUserDisplayDateNew() {
-		global $log, $current_user;
+		global $current_user;
 		$date = new DateTimeField(null);
 		return $date->getDisplayDate($current_user);
 	}
@@ -637,7 +637,7 @@ class Vtiger_Functions {
 	}
 
 	static function validateImage($file_details) {
-		global $app_strings, $log;
+		global $app_strings;
 		$allowedImageFormats = array('jpeg', 'png', 'jpg', 'pjpeg', 'x-png', 'gif', 'bmp');
 
 		$mimeTypesList = array_merge($allowedImageFormats, array('x-ms-bmp'));//bmp another format
@@ -649,7 +649,6 @@ class Vtiger_Functions {
 
 		$saveimage = 'true';
 		if (!in_array($filetype, $allowedImageFormats)) {
-                        $log->debug('file type not matched allowed formats');
 			$saveimage = 'false';
 		}
 
@@ -657,7 +656,6 @@ class Vtiger_Functions {
 		$mimeType = self::mime_content_type($file_details['tmp_name']);
 		$mimeTypeContents = explode('/', $mimeType);
 		if (!$file_details['size'] || strtolower($mimeTypeContents[0]) !== 'image' || !in_array($mimeTypeContents[1], $mimeTypesList)) {
-                    $log->debug('Failed because of size or image not supported types');
 			$saveimage = 'false';
 		}
 
@@ -669,7 +667,6 @@ class Vtiger_Functions {
                     if($file_details['type'] == 'image/jpeg' || $file_details['type'] == 'image/tiff') {
                         $exifdata = @exif_read_data($file_details['tmp_name']);
                         if($exifdata && !self::validateImageMetadata($exifdata, $shortTagSupported)) {
-                            $log->debug('Image metadata validation failed');
                             $saveimage = 'false';
                         }
                         //remove sensitive information(like,GPS or camera information) from the image
@@ -684,7 +681,6 @@ class Vtiger_Functions {
 		if ($saveimage == 'true') {
                     $imageContents = file_get_contents($file_details['tmp_name']);
                     if (stripos($imageContents, $shortTagSupported ? "<?" : "<?php") !== false) { // suspicious dynamic content.
-                        $log->debug('Php injection suspected');
                         $saveimage = 'false';
                     }
 		}

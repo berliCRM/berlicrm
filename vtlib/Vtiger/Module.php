@@ -99,8 +99,6 @@ class Vtiger_Module extends Vtiger_ModuleBasic {
         if(method_exists($this,'set')) {
             $this->set('relation_id', $relation_id);
         }
-        
-		self::log("Setting relation with $moduleInstance->name [$useactions_text] ... DONE");
 	}
 
 	/**
@@ -118,8 +116,6 @@ class Vtiger_Module extends Vtiger_ModuleBasic {
 
 		$adb->pquery("DELETE FROM vtiger_relatedlists WHERE tabid=? AND related_tabid=? AND name=? AND label=?",
 			Array($this->id, $moduleInstance->id, $function_name, $label));
-
-		self::log("Unsetting relation with $moduleInstance->name ... DONE");
 	}
     
 	function unsetRelatedListForField($fieldId) {
@@ -227,9 +223,7 @@ class Vtiger_Module extends Vtiger_ModuleBasic {
 		$instance = self::getClassInstance((string)$modulename);
 		if($instance) {
 			if(method_exists($instance, 'vtlib_handler')) {
-				self::log("Invoking vtlib_handler for $event_type ...START");
 				$instance->vtlib_handler((string)$modulename, (string)$event_type);
-				self::log("Invoking vtlib_handler for $event_type ...DONE");
 			}
 		}
 	}
