@@ -352,8 +352,6 @@ class PearDatabase{
 		$this->logSqlTiming($sql_start_time, $sql_end_time, $sql, $params);
 
 		$this->lastmysqlrow = -1;
-		if(!$result)$this->checkError($msg.' Query Failed:' . $sql . '::', $dieOnError);
-		(!$result) ? (file_put_contents('test/0debug.txt', "" . print_r($msg.' FAILED!' . $sql, true) . "\n", FILE_APPEND)) : (file_put_contents('test/0debug.txt', "" . print_r($msg.' ' . $sql, true) . "\n", FILE_APPEND));
 
 		return $result;
 	}
@@ -993,11 +991,10 @@ class PearDatabase{
     }
 
 	//To get a function name with respect to the database type which escapes strings in given text
-	function sql_escape_string($str)
-	{
-		if($this->isMySql()){
+	function sql_escape_string($str) {
+		if($this->isMySql()) {
 			$result_data = ($this->dbType=='mysqli')?mysqli_real_escape_string($this->database->_connectionID,$str):mysql_real_escape_string($str);
-                }
+		}
 		elseif($this->isPostgres())
 			$result_data = pg_escape_string($str);
 		return $result_data;
