@@ -55,23 +55,11 @@ class Vtiger_Profile {
                             WHERE actionname IN ('Save', 'CreateView', 'EditView', 'Delete', 'index', 'DetailView') AND isentitytype = 1"; 
             $binds = array($this->id); 
             $adb->pquery($sql, $binds); 
-
-            self::log("Initializing profile permissions ... DONE"); 
         } 
 
         private function update() { 
             throw new Exception("Not implemented"); 
         } 
- 		 
-        /**
-	 * Helper function to log messages
-	 * @param String Message to log
-	 * @param Boolean true appends linebreak, false to avoid it
-	 * @access private
-	 */
-	static function log($message, $delimit=true) {
-		Vtiger_Utils::Log($message, $delimit);
-	}
 
 	/**
 	 * Initialize profile setup for Field
@@ -150,7 +138,6 @@ class Vtiger_Profile {
 				}
 			}
 		}
-		self::log("Initializing module permissions ... DONE");
 	}
 
 	/**

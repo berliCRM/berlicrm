@@ -60,9 +60,7 @@ class Vtiger_Menu {
 			$relsequence = $this->__getNextRelSequence();
 			$adb->pquery("INSERT INTO vtiger_parenttabrel (parenttabid,tabid,sequence) VALUES(?,?,?)",
 					Array($this->id, $moduleInstance->id, $relsequence));
-			self::log("Added to menu $this->label ... DONE");
 		} else {
-			self::log("Menu could not be found!");
 		}
 		self::syncfile();
 	}
@@ -76,7 +74,6 @@ class Vtiger_Menu {
 	static function detachModule($moduleInstance) {
 		global $adb;
 		$adb->pquery("DELETE FROM vtiger_parenttabrel WHERE tabid=?", Array($moduleInstance->id));
-		self::log("Detaching from menu ... DONE");
 		self::syncfile();
 	}
 
@@ -102,23 +99,11 @@ class Vtiger_Menu {
 	}
 
 	/**
-	 * Helper function to log messages
-	 * @param String Message to log
-	 * @param Boolean true appends linebreak, false to avoid it
-	 * @access private
-	 */
-	static function log($message, $delim=true) {
-		Vtiger_Utils::Log($message, $delim);
-	}
-
-	/**
 	 * Synchronize the menu information to flat file
 	 * @access private
 	 */
 	static function syncfile() {
-		self::log("Updating parent_tabdata file ... STARTED");
 		create_parenttab_data_file();
-		self::log("Updating parent_tabdata file ... DONE");
 	}
 }
 ?>

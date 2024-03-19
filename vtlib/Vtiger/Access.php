@@ -18,16 +18,6 @@ include_once('vtlib/Vtiger/Profile.php');
 class Vtiger_Access {
 
 	/**
-	 * Helper function to log messages
-	 * @param String Message to log
-	 * @param Boolean true appends linebreak, false to avoid it
-	 * @access private
-	 */
-	static function log($message, $delim=true) {
-		Vtiger_Utils::Log($message, $delim);
-	}
-
-	/**
 	 * Get unique id for sharing access record.
 	 * @access private
 	 */
@@ -42,9 +32,7 @@ class Vtiger_Access {
 	 * @access private
 	 */
 	static function syncSharingAccess() {
-		self::log("Recalculating sharing rules ... ", false);
 		RecalculateSharingRules();
-		self::log("DONE");
 	}
 
 	/**
@@ -57,7 +45,6 @@ class Vtiger_Access {
 		global $adb;
 		$ownedby = $enable? 0 : 1;
 		$adb->pquery("UPDATE vtiger_tab set ownedby=? WHERE tabid=?", Array($ownedby, $moduleInstance->id));
-		self::log(($enable? "Enabled" : "Disabled") . " sharing access control ... DONE");
 	}
 
 	/**
@@ -76,7 +63,6 @@ class Vtiger_Access {
 			$actionid = $adb->query_result($result, $index, 'share_action_id');
 			$adb->pquery("INSERT INTO vtiger_org_share_action2tab(share_action_id,tabid) VALUES(?,?)", Array($actionid, $moduleInstance->id));
 		}
-		self::log("Setting up sharing access options ... DONE");
 	}
 
 	/**
@@ -88,7 +74,6 @@ class Vtiger_Access {
 	static function deleteSharing($moduleInstance) {
 		global $adb;
 		$adb->pquery("DELETE FROM vtiger_org_share_action2tab WHERE tabid=?", Array($moduleInstance->id));
-		self::log("Deleting sharing access ... DONE");
 	}
 
 	/**
@@ -146,8 +131,6 @@ class Vtiger_Access {
 				$profileids = Vtiger_Profile::getAllIds();
 			}
 
-			self::log( ($flag? 'Enabling':'Disabling') . " $toolAction for Profile [", false);
-
 			foreach($profileids as $useprofileid) {
 				$result = $adb->pquery("SELECT permission FROM vtiger_profile2utility WHERE profileid=? AND tabid=? AND activityid=?",
 					Array($useprofileid, $moduleInstance->id, $actionid));
@@ -162,9 +145,7 @@ class Vtiger_Access {
 					   	Array($useprofileid, $moduleInstance->id, $actionid, $permission));
 				}
 
-				self::log("$useprofileid,", false);
 			}
-			self::log("] ... DONE");
 		}
 	}
 
@@ -175,7 +156,6 @@ class Vtiger_Access {
 	static function deleteTools($moduleInstance) {
 		global $adb;
 		$adb->pquery("DELETE FROM vtiger_profile2utility WHERE tabid=?", Array($moduleInstance->id));
-		self::log("Deleting tools ... DONE");
 	}
 }
 ?>

@@ -151,8 +151,6 @@ class Vtiger_ModuleBasic {
 	function __create() {
 		global $adb;
 
-		self::log("Creating Module $this->name ... STARTED");
-
 		$this->id = $this->__getUniqueId();
 		if(!$this->tabsequence) $this->tabsequence = $this->__getNextSequence();
 		if(!$this->label) $this->label = $this->name;
@@ -207,7 +205,6 @@ class Vtiger_ModuleBasic {
 			$menuInstance->addModule($moduleInstance);
 		}
 
-		self::log("Creating Module $this->name ... DONE");
 	}
 
 	/**
@@ -215,7 +212,6 @@ class Vtiger_ModuleBasic {
 	 * @access private
 	 */
 	function __update() {
-		self::log("Updating Module $this->name ... DONE");
 	}
 
 	/**
@@ -233,7 +229,6 @@ class Vtiger_ModuleBasic {
 		}
 
 		$adb->pquery("DELETE FROM vtiger_tab WHERE tabid=?", Array($this->id));
-		self::log("Deleting Module $this->name ... DONE");
 	}
 
 	/**
@@ -245,7 +240,6 @@ class Vtiger_ModuleBasic {
 		global $adb;
 		$adb->pquery("UPDATE vtiger_tab SET version=? WHERE tabid=?", Array($newversion, $this->id));
 		$this->version = $newversion;
-		self::log("Updating version to $newversion ... DONE");
 	}
 
 	/**
@@ -323,10 +317,8 @@ class Vtiger_ModuleBasic {
 			$result = $adb->pquery("SELECT tabid FROM vtiger_entityname WHERE tablename=? AND tabid=?", array($fieldInstance->table, $this->id));
 			if ($adb->num_rows($result) == 0) {
 				$adb->pquery("INSERT INTO vtiger_entityname(tabid, modulename, tablename, fieldname, entityidfield, entityidcolumn) VALUES(?,?,?,?,?,?)", Array($this->id, $this->name, $fieldInstance->table, $fieldInstance->name, $this->entityidfield, $this->entityidcolumn));
-				self::log("Setting entity identifier ... DONE");
 			} else {
 				$adb->pquery("UPDATE vtiger_entityname SET fieldname=?,entityidfield=?,entityidcolumn=? WHERE tablename=? AND tabid=?", array($fieldInstance->name, $this->entityidfield, $this->entityidcolumn, $fieldInstance->table, $this->id));
-				self::log("Updating entity identifier ... DONE");
 			}
 		}
 	}
@@ -337,7 +329,6 @@ class Vtiger_ModuleBasic {
 	function unsetEntityIdentifier() {
 		global $adb;
 		$adb->pquery("DELETE FROM vtiger_entityname WHERE tabid=?", Array($this->id));
-		self::log("Unsetting entity identifier ... DONE");
 	}
 
 	/**
@@ -346,7 +337,6 @@ class Vtiger_ModuleBasic {
 	function deleteRelatedLists() {
 		global $adb;
 		$adb->pquery("DELETE FROM vtiger_relatedlists WHERE tabid=?", Array($this->id));
-		self::log("Deleting related lists ... DONE");
 	}
 
 	/**
@@ -355,7 +345,6 @@ class Vtiger_ModuleBasic {
 	function deleteLinks() {
 		global $adb;
 		$adb->pquery("DELETE FROM vtiger_links WHERE tabid=?", Array($this->id));
-		self::log("Deleting links ... DONE");
 	}
 
 	/**
@@ -436,23 +425,11 @@ class Vtiger_ModuleBasic {
 	}
 
 	/**
-	 * Helper function to log messages
-	 * @param String Message to log
-	 * @param Boolean true appends linebreak, false to avoid it
-	 * @access private
-	 */
-	static function log($message, $delimit=true) {
-		Vtiger_Utils::Log($message, $delimit);
-	}
-
-	/**
 	 * Synchronize the menu information to flat file
 	 * @access private
 	 */
 	static function syncfile() {
-		self::log("Updating tabdata file ... ", false);
 		create_tab_data_file();
-		self::log("DONE");
 	}
 }
 ?>

@@ -128,24 +128,6 @@ class Vtiger_Utils {
 	}
 
 	/**
-	 * Log the debug message 
-	 * @param String Log message
-	 * @param Boolean true to append end-of-line, false otherwise
-	 */
-	static function Log($message, $delimit=true) {
-		global $Vtiger_Utils_Log, $log;
-		
-		$log->debug($message);
-		if(!isset($Vtiger_Utils_Log) || $Vtiger_Utils_Log == false) return;
-
-		print_r($message);
-		if($delimit) {
-			if(isset($_REQUEST)) echo "<BR>";
-			else echo "\n";
-		}
-	}
-
-	/**
 	 * Escape the string to avoid SQL Injection attacks.
 	 * @param String Sql statement string
 	 */
