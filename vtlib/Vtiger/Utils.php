@@ -208,8 +208,10 @@ class Vtiger_Utils {
 	static function AddColumn($tablename, $columnname, $criteria) {
 		global $adb;
 		$db = PearDatabase::getInstance();
-		if (!in_array($columnname, $db->getColumnNames($tablename))) {
-			self::AlterTable($tablename, " ADD COLUMN $columnname $criteria");
+		if (is_array($db->getColumnNames($tablename))) {
+			if (!in_array($columnname, $db->getColumnNames($tablename))) {
+				self::AlterTable($tablename, " ADD COLUMN $columnname $criteria");
+			}
 		}
 	}
 
