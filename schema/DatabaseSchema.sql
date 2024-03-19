@@ -703,77 +703,77 @@ CREATE TABLE IF NOT EXISTS `vtiger_announcement` (
   KEY `announcement_creatorid_idx` (`creatorid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- --------------------------------------------------------
+-- -- --------------------------------------------------------
 
---
--- Table structure for table `vtiger_asterisk`
---
+-- --
+-- -- Table structure for table `vtiger_asterisk`
+-- --
 
-CREATE TABLE IF NOT EXISTS `vtiger_asterisk` (
-  `server` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `port` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `username` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `password` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `version` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+-- CREATE TABLE IF NOT EXISTS `vtiger_asterisk` (
+--   `server` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+--   `port` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+--   `username` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+--   `password` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+--   `version` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- --------------------------------------------------------
+-- -- --------------------------------------------------------
 
---
--- Table structure for table `vtiger_asteriskextensions`
---
+-- --
+-- -- Table structure for table `vtiger_asteriskextensions`
+-- --
 
-CREATE TABLE IF NOT EXISTS `vtiger_asteriskextensions` (
-  `userid` int(11) DEFAULT NULL,
-  `asterisk_extension` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `use_asterisk` varchar(3) COLLATE utf8_unicode_ci DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+-- CREATE TABLE IF NOT EXISTS `vtiger_asteriskextensions` (
+--   `userid` int(11) DEFAULT NULL,
+--   `asterisk_extension` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+--   `use_asterisk` varchar(3) COLLATE utf8_unicode_ci DEFAULT NULL
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
---
--- Dumping data for table `vtiger_asteriskextensions`
---
+-- --
+-- -- Dumping data for table `vtiger_asteriskextensions`
+-- --
 
-INSERT INTO `vtiger_asteriskextensions` (`userid`, `asterisk_extension`, `use_asterisk`) VALUES
-(1, NULL, NULL),
-(5, NULL, NULL);
+-- INSERT INTO `vtiger_asteriskextensions` (`userid`, `asterisk_extension`, `use_asterisk`) VALUES
+-- (1, NULL, NULL),
+-- (5, NULL, NULL);
 
--- --------------------------------------------------------
+-- -- --------------------------------------------------------
 
---
--- Table structure for table `vtiger_asteriskincomingcalls`
---
+-- --
+-- -- Table structure for table `vtiger_asteriskincomingcalls`
+-- --
 
-CREATE TABLE IF NOT EXISTS `vtiger_asteriskincomingcalls` (
-  `from_number` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `from_name` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `to_number` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `callertype` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `flag` int(19) DEFAULT NULL,
-  `timer` int(19) DEFAULT NULL,
-  `refuid` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+-- CREATE TABLE IF NOT EXISTS `vtiger_asteriskincomingcalls` (
+--   `from_number` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+--   `from_name` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+--   `to_number` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+--   `callertype` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+--   `flag` int(19) DEFAULT NULL,
+--   `timer` int(19) DEFAULT NULL,
+--   `refuid` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- --------------------------------------------------------
+-- -- --------------------------------------------------------
 
---
--- Table structure for table `vtiger_asteriskincomingevents`
---
+-- --
+-- -- Table structure for table `vtiger_asteriskincomingevents`
+-- --
 
-CREATE TABLE IF NOT EXISTS `vtiger_asteriskincomingevents` (
-  `uid` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `channel` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `from_number` bigint(20) DEFAULT NULL,
-  `from_name` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `to_number` bigint(20) DEFAULT NULL,
-  `callertype` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `timer` int(20) DEFAULT NULL,
-  `flag` varchar(3) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `pbxrecordid` int(19) DEFAULT NULL,
-  `relcrmid` int(19) DEFAULT NULL,
-  PRIMARY KEY (`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+-- CREATE TABLE IF NOT EXISTS `vtiger_asteriskincomingevents` (
+--   `uid` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+--   `channel` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+--   `from_number` bigint(20) DEFAULT NULL,
+--   `from_name` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+--   `to_number` bigint(20) DEFAULT NULL,
+--   `callertype` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+--   `timer` int(20) DEFAULT NULL,
+--   `flag` varchar(3) COLLATE utf8_unicode_ci DEFAULT NULL,
+--   `pbxrecordid` int(19) DEFAULT NULL,
+--   `relcrmid` int(19) DEFAULT NULL,
+--   PRIMARY KEY (`uid`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- --------------------------------------------------------
+-- -- --------------------------------------------------------
 
 --
 -- Table structure for table `vtiger_attachments`
