@@ -1,0 +1,366 @@
+<?xml version='1.0'?>
+<module>
+<exporttime>2023-01-13 15:36:11</exporttime>
+<name>Mailchimp</name>
+<label>Mailchimp</label>
+<parent>Marketing</parent>
+<version>4.04</version>
+<dependencies>
+<vtiger_version>6.5.0</vtiger_version>
+<vtiger_max_version>6.*</vtiger_max_version>
+</dependencies>
+<migrations>
+	<migration version='4.02'>
+		<tables>
+			<table>
+				<name>vtiger_mailchimp_synced_entities</name>
+				<sql><![CDATA[CREATE TABLE IF NOT EXISTS `vtiger_mailchimp_synced_entities` (
+				  `crmid` int(11) NOT NULL,
+				  `mcgroupid` int(11) NOT NULL,
+				  `recordid` int(11) NOT NULL,
+				  KEY `recordidx` (`recordid`),
+				  KEY `crmid` (`crmid`),
+				  CONSTRAINT FOREIGN KEY (`crmid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+			</table>
+		</tables>
+	</migration>
+</migrations>
+<tables>
+<table>
+<name>vtiger_mailchimp</name>
+<sql><![CDATA[CREATE TABLE `vtiger_mailchimp` (
+  `mailchimpid` int(11) NOT NULL,
+  `mailchimpname` varchar(50) DEFAULT NULL,
+  `campaign_no` varchar(100) DEFAULT NULL,
+  `campaign_type` varchar(200) DEFAULT NULL,
+  `campaign_status` varchar(200) DEFAULT NULL,
+  `lastsynchronization` datetime DEFAULT NULL,
+  PRIMARY KEY (`mailchimpid`),
+  CONSTRAINT `fk_1_vtiger_mailchimp` FOREIGN KEY (`mailchimpid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+<table>
+<name>vtiger_mailchimpcf</name>
+<sql><![CDATA[CREATE TABLE `vtiger_mailchimpcf` (
+  `mailchimpid` int(11) NOT NULL,
+  PRIMARY KEY (`mailchimpid`),
+  CONSTRAINT `fk_1_vtiger_mailchimpcf` FOREIGN KEY (`mailchimpid`) REFERENCES `vtiger_mailchimp` (`mailchimpid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+<table>
+<name>vtiger_mailchimp_synced_entities</name>
+<sql><![CDATA[CREATE TABLE `vtiger_mailchimp_synced_entities` (
+  `crmid` int(11) NOT NULL,
+  `mcgroupid` int(11) NOT NULL,
+  `recordid` int(11) NOT NULL,
+  KEY `recordidx` (`recordid`),
+  KEY `crmid` (`crmid`),
+  CONSTRAINT `fk_1_vtiger_mailchimp_synced_entities` FOREIGN KEY (`crmid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+<table>
+<name>vtiger_mailchimp_settings</name>
+<sql><![CDATA[CREATE TABLE `vtiger_mailchimp_settings` (
+  `id` int(11) NOT NULL,
+  `apikey` varchar(100) NOT NULL,
+  `listid` varchar(50) NOT NULL,
+  `newsubscribertype` varchar(50) NOT NULL,
+  `lastsyncdate` varchar(25) NOT NULL DEFAULT '1970-01-01 09:30:00',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+</tables>
+<blocks>
+<block>
+<label>Mailchimp Information</label>
+<fields>
+<field>
+<fieldname>mailchimpname</fieldname>
+<uitype>2</uitype>
+<columnname>mailchimpname</columnname>
+<tablename>vtiger_mailchimp</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>CampaignName</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>1</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~M</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>1</summaryfield>
+<entityidentifier>
+<entityidfield>mailchimpid</entityidfield>
+<entityidcolumn>mailchimpid</entityidcolumn>
+</entityidentifier>
+</field>
+<field>
+<fieldname>campaign_no</fieldname>
+<uitype>4</uitype>
+<columnname>campaign_no</columnname>
+<tablename>vtiger_mailchimp</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Campaign No</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>2</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>0</summaryfield>
+</field>
+<field>
+<fieldname>campaign_type</fieldname>
+<uitype>15</uitype>
+<columnname>campaign_type</columnname>
+<tablename>vtiger_mailchimp</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Campaign Type</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>3</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>1</summaryfield>
+<picklistvalues>
+<picklistvalue>Marketing</picklistvalue>
+<picklistvalue>Newsletter</picklistvalue>
+<picklistvalue>Others</picklistvalue>
+</picklistvalues>
+</field>
+<field>
+<fieldname>campaign_status</fieldname>
+<uitype>15</uitype>
+<columnname>campaign_status</columnname>
+<tablename>vtiger_mailchimp</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Campaign Status</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>4</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>1</summaryfield>
+<picklistvalues>
+<picklistvalue>Planning</picklistvalue>
+<picklistvalue>Active</picklistvalue>
+<picklistvalue>Inactive</picklistvalue>
+<picklistvalue>Completed</picklistvalue>
+<picklistvalue>Cancelled</picklistvalue>
+</picklistvalues>
+</field>
+<field>
+<fieldname>lastsynchronization</fieldname>
+<uitype>5</uitype>
+<columnname>lastsynchronization</columnname>
+<tablename>vtiger_mailchimp</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Last Synchronization</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>5</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>D~O</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>2</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>0</summaryfield>
+</field>
+<field>
+<fieldname>assigned_user_id</fieldname>
+<uitype>53</uitype>
+<columnname>smownerid</columnname>
+<tablename>vtiger_crmentity</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Assigned To</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>6</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~M</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>1</summaryfield>
+</field>
+<field>
+<fieldname>createdtime</fieldname>
+<uitype>70</uitype>
+<columnname>createdtime</columnname>
+<tablename>vtiger_crmentity</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Created Time</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>7</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>DT~O</typeofdata>
+<quickcreate>3</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>2</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>0</summaryfield>
+</field>
+<field>
+<fieldname>modifiedtime</fieldname>
+<uitype>70</uitype>
+<columnname>modifiedtime</columnname>
+<tablename>vtiger_crmentity</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Modified Time</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>8</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>DT~O</typeofdata>
+<quickcreate>3</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>2</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>0</summaryfield>
+</field>
+</fields>
+</block>
+<block>
+<label>Description Information</label>
+<fields>
+<field>
+<fieldname>description</fieldname>
+<uitype>19</uitype>
+<columnname>description</columnname>
+<tablename>vtiger_crmentity</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Description</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>1</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>1</summaryfield>
+</field>
+</fields>
+</block>
+</blocks>
+<customviews>
+<customview>
+<viewname>All</viewname>
+<setdefault>true</setdefault>
+<setmetrics>false</setmetrics>
+<fields>
+<field>
+<fieldname>mailchimpname</fieldname>
+<columnindex>1</columnindex>
+</field>
+<field>
+<fieldname>campaign_status</fieldname>
+<columnindex>2</columnindex>
+</field>
+<field>
+<fieldname>lastsynchronization</fieldname>
+<columnindex>3</columnindex>
+</field>
+<field>
+<fieldname>assigned_user_id</fieldname>
+<columnindex>4</columnindex>
+</field>
+</fields>
+</customview>
+</customviews>
+<sharingaccess>
+<default>public_readwritedelete</default>
+</sharingaccess>
+<relatedlists>
+<relatedlist>
+<function>get_related_list</function>
+<label>Contacts</label>
+<sequence>1</sequence>
+<presence>0</presence>
+<actions>
+<action>SELECT</action>
+</actions>
+<relatedmodule>Contacts</relatedmodule>
+</relatedlist>
+<relatedlist>
+<function>get_related_list</function>
+<label>Leads</label>
+<sequence>2</sequence>
+<presence>0</presence>
+<actions>
+<action>SELECT</action>
+</actions>
+<relatedmodule>Leads</relatedmodule>
+</relatedlist>
+<relatedlist>
+<function>get_attachments</function>
+<label>Documents</label>
+<sequence>3</sequence>
+<presence>0</presence>
+<actions>
+<action>ADD</action>
+<action>SELECT</action>
+</actions>
+<relatedmodule>Documents</relatedmodule>
+</relatedlist>
+</relatedlists>
+<customlinks>
+<customlink>
+<linktype>DETAILVIEWWIDGET</linktype>
+<linklabel>DetailViewBlockCommentWidget</linklabel>
+<linkurl><![CDATA[block://ModComments:modules/ModComments/ModComments.php]]></linkurl>
+<linkicon><![CDATA[]]></linkicon>
+<sequence>0</sequence>
+<handler_path><![CDATA[]]></handler_path>
+<handler_class><![CDATA[]]></handler_class>
+<handler><![CDATA[]]></handler>
+</customlink>
+</customlinks>
+<crons>
+</crons>
+</module>

@@ -1,0 +1,348 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<module>
+<exporttime>2023-09-01 10:00:00</exporttime>
+<name>Verteiler</name>
+<label>Verteiler</label>
+<parent>Marketing</parent>
+<version>1.3</version>
+<dependencies>
+<vtiger_version>6.5.0</vtiger_version>
+<vtiger_max_version>6.*</vtiger_max_version>
+</dependencies>
+<tables>
+<table>
+<name>vtiger_verteiler</name>
+<sql><![CDATA[CREATE TABLE `vtiger_verteiler` (
+  `verteilerid` int(19) NOT NULL AUTO_INCREMENT,
+  `verteiler_no` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `verteilername` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `verteilerstatus` varchar(255) COLLATE utf8_unicode_ci DEFAULT '',
+  `verteilertype` varchar(255) COLLATE utf8_unicode_ci DEFAULT '',
+  `campaignid` varchar(255) COLLATE utf8_unicode_ci DEFAULT '',
+  PRIMARY KEY (`verteilerid`),
+  KEY `verteiler_verteilername_idx` (`verteilername`)
+) ENGINE=InnoDB AUTO_INCREMENT=712705 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+<table>
+<name>vtiger_verteilercf</name>
+<sql><![CDATA[CREATE TABLE `vtiger_verteilercf` (
+  `verteilerid` int(19) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`verteilerid`),
+  CONSTRAINT `vtiger_verteilercf_ibfk_1` FOREIGN KEY (`verteilerid`) REFERENCES `vtiger_verteiler` (`verteilerid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+<table>
+<name>vtiger_verteilercontrel</name>
+<sql><![CDATA[CREATE TABLE `vtiger_verteilercontrel` (
+  `verteilerid` int(19) NOT NULL,
+  `contactid` int(19) NOT NULL,
+  `addedbyuserid` int(19) NOT NULL,
+  `parent` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`verteilerid`,`contactid`,`addedbyuserid`),
+  KEY `verteilercontrel_contactid_idx` (`contactid`),
+  KEY `verteilercontrel_addedbyuserid_idx` (`addedbyuserid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+<table>
+<name>vtiger_verteiler_usage</name>
+<sql><![CDATA[CREATE TABLE `vtiger_verteiler_usage` (
+  `usageid` int(11) NOT NULL AUTO_INCREMENT,
+  `verteilerid` int(11) NOT NULL,
+  `relid` int(11) NOT NULL,
+  `usagedate` date NOT NULL,
+  `crmuser` int(11) NOT NULL,
+  PRIMARY KEY (`usageid`)
+) ENGINE=InnoDB AUTO_INCREMENT=290 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+</tables>
+<blocks>
+<block>
+<label>LBL_VERTEILER_INFORMATION</label>
+<fields>
+<field>
+<fieldname>verteilername</fieldname>
+<uitype>2</uitype>
+<columnname>verteilername</columnname>
+<tablename>vtiger_verteiler</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>LBL_DISTRIBUTION_NAME</fieldlabel>
+<readonly>1</readonly>
+<presence>0</presence>
+<defaultvalue></defaultvalue>
+<sequence>1</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~M</typeofdata>
+<quickcreate>0</quickcreate>
+<quickcreatesequence>1</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>1</summaryfield>
+<entityidentifier>
+<entityidfield>verteilerid</entityidfield>
+<entityidcolumn>verteilerid</entityidcolumn>
+</entityidentifier>
+</field>
+<field>
+<fieldname>verteiler_no</fieldname>
+<uitype>4</uitype>
+<columnname>verteiler_no</columnname>
+<tablename>vtiger_verteiler</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>LBL_DISTRIBUTION_NO</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>2</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>2</masseditable>
+<summaryfield>1</summaryfield>
+</field>
+<field>
+<fieldname>assigned_user_id</fieldname>
+<uitype>53</uitype>
+<columnname>smownerid</columnname>
+<tablename>vtiger_crmentity</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Assigned To</fieldlabel>
+<readonly>1</readonly>
+<presence>0</presence>
+<defaultvalue></defaultvalue>
+<sequence>3</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~M</typeofdata>
+<quickcreate>0</quickcreate>
+<quickcreatesequence>7</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>1</summaryfield>
+</field>
+<field>
+<fieldname>createdtime</fieldname>
+<uitype>70</uitype>
+<columnname>createdtime</columnname>
+<tablename>vtiger_crmentity</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Created Time</fieldlabel>
+<readonly>1</readonly>
+<presence>0</presence>
+<defaultvalue></defaultvalue>
+<sequence>11</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>DT~O</typeofdata>
+<quickcreate>3</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>2</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>0</masseditable>
+<summaryfield>0</summaryfield>
+</field>
+<field>
+<fieldname>modifiedtime</fieldname>
+<uitype>70</uitype>
+<columnname>modifiedtime</columnname>
+<tablename>vtiger_crmentity</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Modified Time</fieldlabel>
+<readonly>1</readonly>
+<presence>0</presence>
+<defaultvalue></defaultvalue>
+<sequence>13</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>DT~O</typeofdata>
+<quickcreate>3</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>2</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>0</masseditable>
+<summaryfield>0</summaryfield>
+</field>
+<field>
+<fieldname>modifiedby</fieldname>
+<uitype>52</uitype>
+<columnname>modifiedby</columnname>
+<tablename>vtiger_crmentity</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Last Modified By</fieldlabel>
+<readonly>1</readonly>
+<presence>0</presence>
+<defaultvalue></defaultvalue>
+<sequence>16</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O</typeofdata>
+<quickcreate>3</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>3</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>0</masseditable>
+<summaryfield>0</summaryfield>
+</field>
+<field>
+<fieldname>campaignid</fieldname>
+<uitype>10</uitype>
+<columnname>campaignid</columnname>
+<tablename>vtiger_verteiler</tablename>
+<generatedtype>2</generatedtype>
+<fieldlabel>LBL_RELATED_CAMPAIGN</fieldlabel>
+<readonly>0</readonly>
+<presence>1</presence>
+<defaultvalue></defaultvalue>
+<sequence>10</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O~LE~255</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>2</masseditable>
+<summaryfield>0</summaryfield>
+<relatedmodules>
+<relatedmodule>Campaigns</relatedmodule>
+</relatedmodules>
+</field>
+</fields>
+</block>
+<block>
+<label>LBL_CUSTOM_INFORMATION</label>
+<fields>
+<field>
+<fieldname>verteilerstatus</fieldname>
+<uitype>15</uitype>
+<columnname>verteilerstatus</columnname>
+<tablename>vtiger_verteiler</tablename>
+<generatedtype>2</generatedtype>
+<fieldlabel>LBL_DISTRIBITON_STATUS</fieldlabel>
+<readonly>0</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>1</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>1</summaryfield>
+<picklistvalues>
+<picklistvalue>planning</picklistvalue>
+<picklistvalue>active</picklistvalue>
+<picklistvalue>old</picklistvalue>
+</picklistvalues>
+</field>
+<field>
+<fieldname>verteilertype</fieldname>
+<uitype>15</uitype>
+<columnname>verteilertype</columnname>
+<tablename>vtiger_verteiler</tablename>
+<generatedtype>2</generatedtype>
+<fieldlabel>LBL_DSITRIBUTION_TYPE</fieldlabel>
+<readonly>0</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>2</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>1</summaryfield>
+<picklistvalues>
+<picklistvalue>Mailing</picklistvalue>
+<picklistvalue>Post Distribution</picklistvalue>
+<picklistvalue>other Distribution</picklistvalue>
+</picklistvalues>
+</field>
+</fields>
+</block>
+<block>
+<label>LBL_DESCRIPTION_INFORMATION</label>
+<fields>
+<field>
+<fieldname>description</fieldname>
+<uitype>19</uitype>
+<columnname>description</columnname>
+<tablename>vtiger_crmentity</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>Description</fieldlabel>
+<readonly>1</readonly>
+<presence>2</presence>
+<defaultvalue></defaultvalue>
+<sequence>1</sequence>
+<maximumlength>100</maximumlength>
+<typeofdata>V~O</typeofdata>
+<quickcreate>1</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+<summaryfield>1</summaryfield>
+</field>
+</fields>
+</block>
+</blocks>
+<customviews>
+<customview>
+<viewname>All</viewname>
+<setdefault>false</setdefault>
+<setmetrics>false</setmetrics>
+<fields>
+<field>
+<fieldname>verteilername</fieldname>
+<columnindex>0</columnindex>
+</field>
+<field>
+<fieldname>verteiler_no</fieldname>
+<columnindex>1</columnindex>
+</field>
+<field>
+<fieldname>verteilerstatus</fieldname>
+<columnindex>3</columnindex>
+</field>
+<field>
+<fieldname>verteilertype</fieldname>
+<columnindex>4</columnindex>
+</field>
+<field>
+<fieldname>assigned_user_id</fieldname>
+<columnindex>6</columnindex>
+</field>
+</fields>
+</customview>
+</customviews>
+<sharingaccess>
+<default>public_readwritedelete</default>
+</sharingaccess>
+<relatedlists>
+<relatedlist>
+<function>get_contacts</function>
+<label>Contacts</label>
+<sequence>1</sequence>
+<presence>0</presence>
+<actions>
+<action>SELECT</action>
+</actions>
+<relatedmodule>Contacts</relatedmodule>
+</relatedlist>
+</relatedlists>
+<crons>
+</crons>
+</module>

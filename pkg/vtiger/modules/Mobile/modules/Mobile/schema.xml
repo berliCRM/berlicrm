@@ -1,0 +1,16 @@
+<?xml version='1.0'?>
+<schema>
+	<tables>
+		<table>
+			<name>vtiger_mobile_alerts</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_mobile_alerts` (
+  `id` int(11) NOT NULL auto_increment,
+  `handler_path` varchar(500) default NULL,
+  `handler_class` varchar(50) default NULL,
+  `sequence` int(11) default NULL,
+  `deleted` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8]]></sql>
+		</table>
+	</tables>
+</schema>

@@ -1,0 +1,243 @@
+<?php
+/*+***********************************************************************************
+ * The contents of this file are subject to the vtiger CRM Public License Version 1.0
+ * ("License"); You may not use this file except in compliance with the License
+ * The Original Code is:  vtiger CRM Open Source
+ * The Initial Developer of the Original Code is vtiger.
+ * Portions created by vtiger are Copyright (C) vtiger.
+ * All Rights Reserved.
+ *************************************************************************************/
+
+ // this cron jobs performs a daily scan for data that must be deleted after the maximum allowed retention period
+ // and - depending on mode - informs the admin OR deletes the data directly/moves it to the recycle bin
+
+require_once 'vtlib/Vtiger/Cron.php';
+require_once 'config.inc.php';
+require_once 'includes/Loader.php';
+require_once 'includes/runtime/BaseModel.php';
+require_once 'includes/runtime/Globals.php';
+require_once 'includes/runtime/LanguageHandler.php';
+require_once 'modules/Vtiger/models/Module.php';
+require_once 'modules/Settings/Vtiger/models/Record.php';
+require_once 'modules/Settings/gdpr/models/Record.php';
+require_once "modules/Emails/mail.php";
+
+$current_user = Users::getActiveAdminUser();
+$db = PearDatabase::getInstance();
+
+$admin_email = $current_user->email1;
+
+// get global settings
+$settings = Settings_gdpr_Record_Model::getGlobalSettingsParameters();
+
+$op_mode = $settings->get('op_mode'); // "m"anual or "a"utomatic deletion, "d"eactivated
+
+if ($op_mode=="d") return;
+
+$del_mode = (int) $settings->get('del_mode'); // 0 = move to recycle bin, 1 = delete immediately
+$del_note_time_days = (int) $settings->get('del_note_time_days'); // time to prepone notification of pending deletions (in days)
+
+$maximum_default_retention_days = 182; // defaults to 182 days, half a year, does it?
+
+// path to logfile of permanently deleted records (for german data protection laws), set to false to disable
+$deletionLogFile = "logs/deletions.csv";
+
+// date for notification about pending deletes
+$notedate = date("Y-m-d",time() - $maximum_default_retention_days*86400 + $del_note_time_days*86400);
+
+// date for automatic deletion
+$deldate = date("Y-m-d",time() - $maximum_default_retention_days*86400);
+
+$expirationnotedate = date("Y-m-d",time() - $del_note_time_days*86400);
+
+$today = date("Y-m-d");
+
+$mailbody = "";
+$trashed_entities = array();
+$deleted_entities = array();
+$deleted_fields_in_entities = array();
+
+// get per-module settings
+$moduleSettings = Settings_gdpr_Record_Model::getModuleSettings();
+
+// no record of $moduleid == module does not contain personal data, will be ignored
+
+// deletion_mode == 0: no automatic deletion
+// deletion_mode == 1: delete whole record
+// deletion_mode == 2: only delete (or hash?) selected fields containing personal data
+
+// fieldids = array of fieldsids that contain personal data for reports and automatic deletion/hashing
+
+// iterate over modules
+foreach ($moduleSettings as $tabId => $moduleSetting) {
+
+    // get instance of module model by id
+    $modInst = Vtiger_Module_Model::getInstance($tabId);
+
+    // fetch all fields of current module
+    $modFields = $modInst->getFieldsById();
+
+    $modFocus = CRMEntity::getInstance($modInst->name);
+
+    $queryFields = array();
+    $queryCols = array();
+
+    // collect array of fields to query (from selection given or "all" if selection empty)
+    $queryFields = array();
+    if (empty($moduleSetting["fields"])) {
+        foreach ($modFields as $field) {
+            $queryFields[] = $field->name;
+            $queryCols[] = $field->column;
+        }
+    }
+    else {
+        foreach ($moduleSetting["fields"] as $fieldId) {
+            $queryFields[] = $modFields[$fieldId]->name;
+            $queryCols[] = $modFields[$fieldId]->column;
+        }
+    }
+
+    // if automatic deletion is enabled find records to delete
+    if ($op_mode == "a") {
+
+        $queryGenerator = new QueryGenerator($modInst->name, $current_user);
+        $queryGenerator->setFields(array("id") + $queryFields);
+        $queryGenerator->addCondition('createdtime',$deldate,'b');  // created before deletion date
+        $queryColumns = $queryGenerator->getSelectClauseColumnSQL();
+        $queryFrom = $queryGenerator->getFromClause();
+        $queryWhere = $queryGenerator->getWhereClause();
+
+        // join vtiger_gdpr for Contacts and Leads module
+        if ($modInst->name == "Contacts") {
+            $queryColumns.=", vtiger_gdpr.expiration_date, vtiger_gdpr.permission_check";
+            $queryFrom.=" LEFT JOIN vtiger_gdpr ON vtiger_contactdetails.contactid = vtiger_gdpr.contactid";
+            $queryWhere.= " AND (vtiger_gdpr.expiration_date < '$today' OR permission_check = 0 OR permission_check IS NULL)";
+        }
+        if ($modInst->name == "Leads") {
+            $queryColumns.=", vtiger_gdpr.expiration_date, vtiger_gdpr.permission_check";
+            $queryFrom.=" LEFT JOIN vtiger_gdpr ON vtiger_leaddetails.leadid = vtiger_gdpr.leadid";
+            $queryWhere.= " AND (vtiger_gdpr.expiration_date < '$today' OR permission_check = 0 OR permission_check IS NULL)";
+        }
+
+        $query = "SELECT $queryColumns $queryFrom $queryWhere";
+
+        $res = $db->pquery($query);
+        while ($row = $db->fetch_row($res,false)) {
+            $recordId = $row[0];
+
+            // no fields selected: delete/trash whole record
+            if (empty($moduleSetting["fields"])) {
+                if ($del_mode === 0) {
+                    // move record to recycle bin
+                    $modFocus->trash($modInst->name,$recordId);
+                    $trashed_entities[]=$recordId;
+                }
+                else {
+                    // delete record completely from all tables of current module
+                    $tables = $modFocus->tab_name;
+                    $delquery = "DELETE ".implode(",",$tables)." $queryFrom WHERE crmid = ?";
+                    $db->pquery($delquery,array($recordId));
+                    $deleted_entities[]=$recordId;
+                }
+            }
+            else {
+                // test for null and delete given $fields of $record
+                $testquery = "SELECT $queryColumns $queryFrom WHERE crmid = $recordId AND ";
+                foreach ($queryCols as $column) {
+                    $testquery .= "$column IS NOT NULL OR ";
+                }
+                $testquery = substr($testquery,0,-4);
+                $res2 = $db->query($testquery);
+
+                if ($res2 && $db->num_rows($res2) > 0) {
+
+                    $q = str_replace("FROM ","UPDATE ",$queryFrom)." SET ";
+                    foreach ($queryCols as $column) {
+                        $q .= "$column = NULL, ";
+                    }
+                    $q = substr($q,0,-2)." WHERE crmid = $recordId";
+                    $db->pquery($q);
+                    $deleted_fields_in_entities[$recordId] = $recordId;
+                }
+                $personal_fields_cleared[$recordId]=1;
+            }
+        }
+    }
+
+    // find records to notify about
+    $queryGenerator = new QueryGenerator($modInst->name, $current_user);
+    $queryGenerator->setFields(array("id") + $queryFields);
+    $queryGenerator->addCondition('createdtime',$notedate,'b');  // created before notification date
+    $queryColumns = $queryGenerator->getSelectClauseColumnSQL();
+    $queryFrom = $queryGenerator->getFromClause();
+    $queryWhere = $queryGenerator->getWhereClause();
+
+    // join vtiger_gdpr for Contacts and Leads module
+    if ($modInst->name == "Contacts") {
+        $queryColumns.=", vtiger_gdpr.expiration_date, vtiger_gdpr.permission_check";
+        $queryFrom.=" LEFT JOIN vtiger_gdpr ON vtiger_contactdetails.contactid = vtiger_gdpr.contactid";
+        $queryWhere.= " AND (vtiger_gdpr.expiration_date < '$expirationnotedate' OR permission_check = 0 OR permission_check IS NULL)";
+    }
+    if ($modInst->name == "Leads") {
+        $queryColumns.=", vtiger_gdpr.expiration_date, vtiger_gdpr.permission_check";
+        $queryFrom.=" LEFT JOIN vtiger_gdpr ON vtiger_leaddetails.leadid = vtiger_gdpr.leadid";
+        $queryWhere.= " AND (vtiger_gdpr.expiration_date < '$expirationnotedate' OR permission_check = 0 OR permission_check IS NULL)";
+    }
+
+    $query = "SELECT $queryColumns $queryFrom $queryWhere";
+
+    $res = $db->pquery($query);
+    while ($row = $db->fetch_row($res,false)) {
+        $recordId = $row[0];
+        if (!isset($personal_fields_cleared[$recordId])) {
+            $mailbody.= "\n".$site_URL.$modInst->getDetailViewUrl($recordId);
+        }
+    }
+}
+
+// add automatically processed recordids to mail
+if (count($trashed_entities)>0) {
+    $mailbody .= getTranslatedString('LBL_CRON_AUTO_TRASHED_ENT','gdpr').wordwrap(implode(", ",$trashed_entities));
+}
+if (count($deleted_entities)>0) {
+    $mailbody .= getTranslatedString('LBL_CRON_AUTO_DELETED_ENT','gdpr').wordwrap(implode(", ",$deleted_entities));
+
+    //log deletions
+    if ($deletionLogFile !== false) {
+        if (!file_exists($deletionLogFile)) {
+            // create file and write csv header
+            file_put_contents($deletionLogFile,"crmid;deletiondate;deletedbyuserid");
+        }
+        $handle = fopen($deletionLogFile,"a");
+        foreach ($deleted_entities as $recordId) {
+            fwrite($handle,"\n$recordId;");
+            fwrite($handle,date("c;")); // datetime in ISO 8601
+            fwrite($handle,$current_user->id);
+        }
+        fclose($handle);
+    }
+}
+if (count($deleted_fields_in_entities)>0) {
+    $mailbody .= getTranslatedString('LBL_CRON_AUTO_DELETED_FIELDS','gdpr').wordwrap(implode(", ",$deleted_fields_in_entities));
+}
+
+if ($mailbody !="") {
+    if ($op_mode == "a") {
+        $mailcontent = getTranslatedString('LBL_CRON_MAIL_AUTO_HEADER','gdpr').$mailbody.getTranslatedString('LBL_CRON_MAIL_AUTO_FOOTER','gdpr');
+    }
+    if ($op_mode == "m") {
+        $mailcontent = getTranslatedString('LBL_CRON_MAIL_HEADER','gdpr').$mailbody.getTranslatedString('LBL_CRON_MAIL_FOOTER','gdpr');
+    }
+    // send notification email
+    $mail = new PHPMailer();
+    $mail->Subject = getTranslatedString('LBL_CRON_MAIL_SUBJECT','gdpr');
+    $mail->Body = $mailcontent;
+    $mail->addAddress($admin_email);
+    $mail->IsSMTP();
+    $mail->FromName = getTranslatedString('LBL_CRON_MAIL_FROMNAME','gdpr');
+    $mail->From = trim(str_replace("https://","noreply@",$site_URL),"/");
+    setMailServerProperties($mail);
+    $mailres = $mail->Send();
+
+    // if ($mailres) echo "\nNotification email sent successfully"; else echo "\nError sending notification email: ",$mail->ErrorInfo;
+}

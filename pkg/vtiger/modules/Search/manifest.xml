@@ -1,0 +1,58 @@
+<?xml version='1.0'?>
+<module>
+    <exporttime>2016-05-22 11:28:36</exporttime>
+    <name>Search</name>
+    <label>Global Search</label>
+    <parent></parent>
+    <version>3.10</version>
+    <dependencies>
+		<vtiger_version>6.0.0</vtiger_version>
+		<vtiger_max_version>6.*</vtiger_max_version>
+    </dependencies>
+	<license>
+		<inline><![CDATA[/*+**********************************************************************************
+		 * The contents of this file are subject to the vtiger CRM Public License Version 1.0
+		 * ("License"); You may not use this file except in compliance with the License
+		 * The Original Code is:  vtiger CRM Open Source
+		 * The Initial Developer of the Original Code is vtiger.
+		 * Portions created by vtiger are Copyright (C) vtiger.
+		 * All Rights Reserved.
+		 * The originaldeveloper is Yetiforce
+		 * Modified and improved by dubwise and crm-now.de
+		 * No warranty given, deploy it at your own risk!
+		 ************************************************************************************/]]>
+		</inline>
+	</license>
+	<tables>
+		<table>
+			<name>globalsearch_settings</name>
+			<sql><![CDATA[CREATE TABLE IF NOT EXISTS `berli_globalsearch_settings` (
+			  `gstabid` int(19) NOT NULL,
+			  `displayfield` varchar(150) NOT NULL,
+			  `searchcolumn` varchar(150) NOT NULL,
+			  `turn_off` int(1) NOT NULL DEFAULT '1',
+			  `sequence` int(19) NOT NULL,
+			  `searchall` tinyint(1) NOT NULL DEFAULT '1',
+			  PRIMARY KEY (`gstabid`),
+			  CONSTRAINT `fk_1_berl_globalsearch_settings` FOREIGN KEY (`gstabid`) REFERENCES `vtiger_tab` (`tabid`) ON DELETE CASCADE
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8  COLLATE=utf8_unicode_ci;]]></sql>
+		</table>
+		<table>
+		<name>globalsearch_data</name>
+			<sql><![CDATA[CREATE TABLE IF NOT EXISTS `berli_globalsearch_data` (
+			  `gscrmid` int(19) NOT NULL,
+			  `searchlabel` varchar(255) NOT NULL,
+			  PRIMARY KEY (`gscrmid`),
+			  CONSTRAINT `fk_1_berli_globalsearch_data` FOREIGN KEY (`gscrmid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8  COLLATE=utf8_unicode_ci;]]></sql>
+		</table>
+	</tables>
+	<events>
+		<event>
+			<eventname>vtiger.entity.aftersave</eventname>
+			<classname><![CDATA[Settings_Search_RecordSearchLabelUpdater_Handler]]></classname>
+			<filename><![CDATA[modules/Search/handlers/RecordSearchLabelUpdater.php]]></filename>
+			<condition><![CDATA[]]></condition>
+		</event>
+	</events>
+</module>

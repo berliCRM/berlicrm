@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<module>
+<exporttime>2023-02-01 16:00:00</exporttime>
+<name>berlimap</name>
+<label>Map</label>
+<parent>Tools</parent>
+<version>2.2</version>
+<type>extension</type>
+<dependencies>
+<vtiger_version>6.5.0</vtiger_version>
+</dependencies>
+<tables>
+<table>
+<name>berli_map</name>
+<sql><![CDATA[CREATE TABLE `berli_map` (
+  `mapid` int(11) NOT NULL DEFAULT '0',
+  `state` varchar(100) NOT NULL,
+  `city` varchar(100) NOT NULL,
+  `postalCode` varchar(100) NOT NULL,
+  `country` varchar(100) DEFAULT NULL,
+  `street` varchar(250) DEFAULT NULL,
+  `lat` float(10,6) NOT NULL,
+  `lng` float(10,6) NOT NULL,
+  PRIMARY KEY (`mapid`),
+  CONSTRAINT `fk_1_vtiger_berli_map` FOREIGN KEY (`mapid`) REFERENCES `vtiger_crmentity` (`crmid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;]]></sql>
+</table>
+</tables>
+</module>

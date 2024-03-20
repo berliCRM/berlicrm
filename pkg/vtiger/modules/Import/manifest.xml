@@ -1,0 +1,51 @@
+<?xml version='1.0'?>
+<module>
+<exporttime>2020-02-27 08:34:59</exporttime>
+<name>Import</name>
+<label>Import</label>
+<parent></parent>
+<type>extension</type>
+<version>1.8</version>
+<dependencies>
+<vtiger_version>6.0.0rc</vtiger_version>
+<vtiger_max_version>6.*</vtiger_max_version>
+</dependencies>
+<tables>
+	<table>
+		<name>vtiger_import_locks</name>
+		<sql>
+			<![CDATA[CREATE TABLE vtiger_import_locks
+				(vtiger_import_lock_id INT NOT NULL PRIMARY KEY,
+				userid INT NOT NULL,
+				tabid INT NOT NULL,
+				importid INT NOT NULL,
+				locked_since DATETIME)
+			ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]>
+		</sql>
+	</table>
+	<table>
+		<name>vtiger_import_queue</name>
+		<sql>
+			<![CDATA[CREATE TABLE vtiger_import_queue
+				(importid INT NOT NULL PRIMARY KEY,
+				userid INT NOT NULL,
+				tabid INT NOT NULL,
+				field_mapping TEXT,
+				default_values TEXT,
+				merge_type INT,
+				merge_fields TEXT,
+				status INT default 0)
+			ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]>
+		</sql>
+	</table>
+</tables>
+<crons>
+	<cron>
+		<name>Scheduled Import</name>
+		<handler>cron/modules/Import/ScheduledImport.service</handler>
+		<frequency>900</frequency>
+		<description>The recommended frequency for Imports is 15 minutes.</description>
+		<status>1</status>
+	</cron>
+</crons>
+</module>

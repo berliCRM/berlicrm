@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<schema>
+	<tables>
+		<table>
+			<name>vtiger_verteiler</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_verteiler` (
+  `verteilerid` int(19) NOT NULL AUTO_INCREMENT,
+  `verteiler_no` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `verteilername` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `verteilerstatus` varchar(255) COLLATE utf8_unicode_ci DEFAULT '',
+  `verteilertype` varchar(255) COLLATE utf8_unicode_ci DEFAULT '',
+  `campaignid` varchar(255) COLLATE utf8_unicode_ci DEFAULT '',
+  PRIMARY KEY (`verteilerid`),
+  KEY `verteiler_verteilername_idx` (`verteilername`)
+) ENGINE=InnoDB AUTO_INCREMENT=712705 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+		</table>
+		<table>
+			<name>vtiger_verteilercf</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_verteilercf` (
+  `verteilerid` int(19) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`verteilerid`),
+  CONSTRAINT `vtiger_verteilercf_ibfk_1` FOREIGN KEY (`verteilerid`) REFERENCES `vtiger_verteiler` (`verteilerid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+		</table>
+		<table>
+			<name>vtiger_verteilercontrel</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_verteilercontrel` (
+  `verteilerid` int(19) NOT NULL,
+  `contactid` int(19) NOT NULL,
+  `addedbyuserid` int(19) NOT NULL,
+  `parent` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`verteilerid`,`contactid`,`addedbyuserid`),
+  KEY `verteilercontrel_contactid_idx` (`contactid`),
+  KEY `verteilercontrel_addedbyuserid_idx` (`addedbyuserid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+		</table>
+		<table>
+			<name>vtiger_verteiler_usage</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_verteiler_usage` (
+  `usageid` int(11) NOT NULL AUTO_INCREMENT,
+  `verteilerid` int(11) NOT NULL,
+  `relid` int(11) NOT NULL,
+  `usagedate` date NOT NULL,
+  `crmuser` int(11) NOT NULL,
+  PRIMARY KEY (`usageid`)
+) ENGINE=InnoDB AUTO_INCREMENT=290 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+		</table>
+	</tables>
+</schema>

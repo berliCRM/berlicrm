@@ -1,0 +1,119 @@
+<?xml version='1.0'?>
+<module>
+<exporttime>2022-10-04 16:47:32</exporttime>
+<name>Pdfsettings</name>
+<label>Pdfsettings</label>
+<parent>Tools</parent>
+<type>extension</type>
+<version>2.2</version>
+<dependencies>
+<vtiger_version>6.0.0RC</vtiger_version>
+</dependencies>
+<tables>
+<table>
+<name>berli_pdfsettings</name>
+<sql><![CDATA[CREATE TABLE `berli_pdfsettings` (
+  `pdfieldid` int(2) NOT NULL DEFAULT '0',
+  `pdffieldname` varchar(19) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `pdfeditable` int(1) NOT NULL DEFAULT '0',
+  `pdfmodul` varchar(13) COLLATE utf8_unicode_ci NOT NULL DEFAULT ''
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+<table>
+<name>berli_pdf_fields</name>
+<sql><![CDATA[CREATE TABLE `berli_pdf_fields` (
+  `pdffieldid` int(2) NOT NULL DEFAULT '0',
+  `pdffieldname` varchar(30) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `pdftablename` varchar(30) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `quotes_g_enabled` int(1) NOT NULL DEFAULT '0',
+  `quotes_i_enabled` int(1) NOT NULL DEFAULT '0',
+  `po_g_enabled` int(1) NOT NULL DEFAULT '0',
+  `po_i_enabled` int(1) NOT NULL DEFAULT '0',
+  `so_g_enabled` int(1) NOT NULL DEFAULT '0',
+  `so_i_enabled` int(1) NOT NULL DEFAULT '0',
+  `invoice_g_enabled` int(1) NOT NULL DEFAULT '0',
+  `invoice_i_enabled` int(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`pdffieldid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+<table>
+<name>berli_pdfcolums_active</name>
+<sql><![CDATA[CREATE TABLE `berli_pdfcolums_active` (
+  `pdfcolumnactiveid` int(2) NOT NULL DEFAULT '0',
+  `pdfmodulname` varchar(13) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `pdftaxmode` varchar(10) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `position` varchar(8) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `ordercode` varchar(8) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `description` varchar(8) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `qty` varchar(8) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `unit` varchar(8) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `unitprice` varchar(8) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `discount` varchar(8) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `tax` varchar(8) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `linetotal` varchar(8) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  PRIMARY KEY (`pdfcolumnactiveid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+<table>
+<name>berli_pdfcolums_sel</name>
+<sql><![CDATA[CREATE TABLE `berli_pdfcolums_sel` (
+  `pdfcolumnselid` int(2) NOT NULL DEFAULT '0',
+  `pdfmodul` varchar(13) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `pdftaxmode` varchar(10) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `position` varchar(7) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `ordercode` varchar(7) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `description` varchar(7) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `qty` varchar(7) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `unit` varchar(7) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `unitprice` varchar(7) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `discount` varchar(7) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `tax` varchar(7) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `linetotal` varchar(7) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  PRIMARY KEY (`pdfcolumnselid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+<table>
+<name>berli_pdfconfiguration</name>
+<sql><![CDATA[CREATE TABLE `berli_pdfconfiguration` (
+  `pdfid` int(2) NOT NULL DEFAULT '0',
+  `pdfmodul` varchar(13) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `fontid` int(5) NOT NULL DEFAULT '0',
+  `fontsizebody` int(2) NOT NULL DEFAULT '9',
+  `fontsizeheader` int(2) NOT NULL DEFAULT '9',
+  `fontsizefooter` int(2) NOT NULL DEFAULT '9',
+  `fontsizeaddress` int(2) NOT NULL DEFAULT '9',
+  `dateused` int(1) NOT NULL DEFAULT '0',
+  `spaceheadline` int(1) NOT NULL DEFAULT '1',
+  `summaryradio` varchar(5) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'true',
+  `gprodname` varchar(5) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'true',
+  `gproddes` varchar(5) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'true',
+  `gprodcom` varchar(5) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'true',
+  `iprodname` varchar(5) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'true',
+  `iproddes` varchar(5) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'true',
+  `iprodcom` varchar(5) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'true',
+  `pdflang` varchar(5) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'ge_de',
+  `footerradio` varchar(5) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'true',
+  `logoradio` varchar(5) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'true',
+  `pageradio` varchar(5) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'true',
+  `owner` varchar(5) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'true',
+  `ownerphone` varchar(5) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'true',
+  `poname` varchar(5) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'true',
+  `clientid` varchar(5) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'true',
+  `carrier` varchar(5) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'true',
+  `paperf` varchar(9) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'A4',
+  PRIMARY KEY (`pdfid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+<table>
+<name>berli_pdffonts</name>
+<sql><![CDATA[CREATE TABLE `berli_pdffonts` (
+  `fontid` int(2) NOT NULL DEFAULT '0',
+  `tcpdfname` varchar(30) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `namedisplay` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  PRIMARY KEY (`fontid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+</tables>
+<crons>
+</crons>
+</module>

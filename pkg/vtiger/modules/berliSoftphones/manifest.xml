@@ -1,0 +1,34 @@
+<?xml version='1.0'?>
+<module>
+<exporttime>2020-08-20 14:50:22</exporttime>
+<name>berliSoftphones</name>
+<label>Softphones</label>
+<parent></parent>
+<type>extension</type>
+<version>1.2</version>
+<dependencies>
+<vtiger_version>6.5.0</vtiger_version>
+<vtiger_max_version>6.*</vtiger_max_version>
+</dependencies>
+<tables>
+<table>
+<name>berli_softphones</name>
+<sql><![CDATA[CREATE TABLE IF NOT EXISTS `berli_softphones` (
+  `phoneid` int(11) NOT NULL DEFAULT '0',
+  `phonename` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `phoneprefix` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `phactive` varchar(10) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `phdescription` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  PRIMARY KEY (`phoneid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+]]></sql>
+</table>
+<table>
+<name>berli_softphonescf</name>
+<sql><![CDATA[CREATE TABLE `berli_softphonescf` (
+  `phoneid` int(11) NOT NULL,
+  PRIMARY KEY (`phoneid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+</tables>
+</module>
