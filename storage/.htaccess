@@ -1,5 +1,0 @@
-deny from all
-<FilesMatch "\.(gif|jpe?g|png)$">
-Order allow,deny
-Allow from all
-</FilesMatch>
