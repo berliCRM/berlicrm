@@ -1,0 +1,133 @@
+.ui-icon-Contacts::after {
+	background-image: url("Contacts.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-Accounts::after {
+	background-image: url("Accounts.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-Potentials::after {
+	background-image: url("Potentials.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-Assets::after {
+	background-image: url("Assets.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-Calendar::after {
+	background-image: url("Calendar.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-HelpDesk::after {
+	background-image: url("HelpDesk.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-Documents::after {
+	background-image: url("Documents.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-Invoice::after {
+	background-image: url("Invoice.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-Faq::after {
+	background-image: url("Faq.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-Vtiger::after {
+	background-image: url("Vtiger.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-SalesOrder::after {
+	background-image: url("SalesOrder.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-Leads::after {
+	background-image: url("Leads.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-Quotes::after {
+	background-image: url("Quotes.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-Vendors::after {
+	background-image: url("Vendors.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-Products::after {
+	background-image: url("Products.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-Project::after {
+	background-image: url("Project.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-ProjectMilestone::after {
+	background-image: url("ProjectMilestone.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-ProjectTask::after {
+	background-image: url("ProjectTask.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
+.ui-icon-Invoice::after {
+	background-image: url("Invoice.png");
+	background-size: 28px 28px;
+	background-color: white;
+	height: 30px;
+    width: 30px;
+}
