@@ -75,8 +75,8 @@ function color_generator($count = 1, $start = '33CCFF', $step = '221133')
 	global $log;
 	$log->debug("Entering color_generator(".$count.",".$start.",".$step.") method ...");
 	// explode color strings to RGB array
-	if($start{0} == "#") $start = substr($start,1);
-	if($step{0} == "#") $step = substr($step,1);
+	if($start[0] == "#") $start = substr($start,1);
+	if($step[0] == "#") $step = substr($step,1);
 	// pad shorter strings with 0
 	$start = substr($start."000000",0,6);
 	$step = substr($step."000000",0,6);

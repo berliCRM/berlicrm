@@ -701,7 +701,7 @@ class iCalendar_property_duration extends iCalendar_property {
         }
 
         // Value must be positive
-        return ($value{0} != '-');
+        return ($value[0] != '-');
     }
 }
 
@@ -724,11 +724,11 @@ class iCalendar_property_freebusy extends iCalendar_property {
         }
 
         $pos = strpos($value, '/'); // We know there's only one / in there
-        if($value{$pos - 1} != 'Z') {
+        if($value[$pos - 1] != 'Z') {
             // Start time MUST be in UTC
             return false;
         }
-        if($value{$pos + 1} != 'P' && $substr($value, -1) != 'Z') {
+        if($value[$pos + 1] != 'P' && $substr($value, -1) != 'Z') {
             // If the second part is not a period, it MUST be in UTC
             return false;
         }
@@ -1161,13 +1161,13 @@ class iCalendar_property_request_status extends iCalendar_property {
         $escch = false;
 
         for($i = 0; $i < $len; ++$i) {
-            if($value{$i} == ';' && !$escch) {
+            if($value[$i] == ';' && !$escch) {
                 // Token completed
                 $parts[] = substr($value, $from, $i - $from);
                 $from = $i + 1;
                 continue;
             }
-            $escch = ($value{$i} == '\\');
+            $escch = ($value[$i] == '\\');
         }
         // Add one last token with the remaining text; if the value
         // ended with a ';' it was illegal, so check that this token
