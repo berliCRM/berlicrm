@@ -134,7 +134,7 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 		$notesId = $this->get('id');
 
 		$result = $db->pquery("SELECT filedownloadcount FROM vtiger_notes WHERE notesid = ?", array($notesId));
-		$downloadCount = $db->query_result($result, 0, 'filedownloadcount') + 1;
+		$downloadCount = (int)$db->query_result($result, 0, 'filedownloadcount') + 1;
 
 		$db->pquery("UPDATE vtiger_notes SET filedownloadcount = ? WHERE notesid = ?", array($downloadCount, $notesId));
 	}
