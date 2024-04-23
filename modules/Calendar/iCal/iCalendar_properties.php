@@ -1188,23 +1188,23 @@ class iCalendar_property_request_status extends iCalendar_property {
             return false;
         }
 
-        if($parts[0]{0} < '1' || $parts[0]{0} > '4') {
+        if($parts[0][0] < '1' || $parts[0][0] > '4') {
             return false;
         }
 
         $len = strlen($parts[0]);
 
         // Max 3 levels, and can't end with a period
-        if($len > 5 || $parts[0]{$len - 1} == '.') {
+        if($len > 5 || $parts[0][$len - 1] == '.') {
             return false;
         }
 
         for($i = 1; $i < $len; ++$i) {
-            if(($i & 1) == 1 && $parts[0]{$i} != '.') {
+            if(($i & 1) == 1 && $parts[0][$i] != '.') {
                 // Even-indexed chars must be periods
                 return false;
             }
-            else if(($i & 1) == 0 && ($parts[0]{$i} < '0' || $parts[0]{$i} > '9')) {
+            else if(($i & 1) == 0 && ($parts[0][$i] < '0' || $parts[0][$i] > '9')) {
                 // Odd-indexed chars must be numbers
                 return false;
             }
@@ -1228,8 +1228,8 @@ class iCalendar_property_request_status extends iCalendar_property {
             $parts[$i] .= '#'; // This guard token saves some conditionals in the loop
 
             for($j = 0; $j < $len; ++$j) {
-                $thischar = $parts[$i]{$j};
-                $nextchar = $parts[$i]{$j + 1};
+                $thischar = $parts[$i][$j];
+                $nextchar = $parts[$i][$j + 1];
                 if($thischar == '\\') {
                     // Next char must now be one of ";,\nN"
                     if($nextchar != ';' && $nextchar != ',' && $nextchar != '\\' &&
