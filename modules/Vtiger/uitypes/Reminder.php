@@ -54,9 +54,9 @@ class Vtiger_Reminder_UIType extends Vtiger_Date_UIType {
 	 */
 	public function getEditViewDisplayValue($value) {
 		if($value != 0 ){
-            $rem_days = floor($value/(24*60));
-            $rem_hrs = floor(($value-$rem_days*24*60)/60);
-            $rem_min = ($value-($rem_days*24*60))%60;
+            $rem_days = floor((int)$value/(24*60));
+            $rem_hrs = floor(((int)$value-$rem_days*24*60)/60);
+            $rem_min = ((int)$value-($rem_days*24*60))%60;
             $reminder_time = array($rem_days , $rem_hrs, $rem_min);
             return $reminder_time;
         }else{
