@@ -14,7 +14,7 @@ class Settings_Mailchimp_Module_Model extends Vtiger_Module_Model {
 	/**
 	 * Function to get the Subscriber type (lead or contact)
 	 */
-	public function getSubscriberType() {
+	public static function getSubscriberType() {
 		$SubscriberType = 'lead';
 		$db = PearDatabase::getInstance();
 		$query = 'SELECT newsubscribertype FROM vtiger_mailchimp_settings WHERE id=1';
