@@ -27,7 +27,7 @@ class Settings_Mailchimp_Module_Model extends Vtiger_Module_Model {
 	/**
 	 * Function to get the Mailchimp api key
 	 */
-	public function getApikey() {
+	public static function getApikey() {
 		$Apikey = '';
 		$db = PearDatabase::getInstance();
 		$query = 'SELECT apikey FROM vtiger_mailchimp_settings WHERE id=1';
