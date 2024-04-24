@@ -517,4 +517,16 @@ function getSetypeForRecord($record_id) {
 	return $setype;
 }
 
+
+/** Function that checks if the input value is empty or not a valid number before formatting it
+  */
+function safe_number_format($number, $decimals = 0, $dec_point = ',', $thousands_sep = '.') {
+    if (is_numeric($number)) {
+        return number_format($number, $decimals, $dec_point, $thousands_sep);
+    } 
+	else {
+        return '';
+    }
+}
+
 ?>
