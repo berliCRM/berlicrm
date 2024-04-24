@@ -32,11 +32,8 @@ require_once 'modules/PickList/DependentPickListUtils.php';
 * Return type is an object array
 */
 
-function getConvertSoToInvoice($focus,$so_focus,$soid)
-{
-	global $log,$current_user;
-	$log->debug("Entering getConvertSoToInvoice(".get_class($focus).",".get_class($so_focus).",".$soid.") method ...");
-    $log->info("in getConvertSoToInvoice ".$soid);
+function getConvertSoToInvoice($focus,$so_focus,$soid) {
+	global $current_user;
     $xyz=array('bill_street','bill_city','bill_code','bill_pobox','bill_country','bill_state','ship_street','ship_city','ship_code','ship_pobox','ship_country','ship_state');
 	for($i=0;$i<count($xyz);$i++){
 		if (getFieldVisibilityPermission('SalesOrder', $current_user->id,$xyz[$i]) == '0'){
@@ -71,7 +68,6 @@ function getConvertSoToInvoice($focus,$so_focus,$soid)
     $focus->column_fields['currency_id'] = $so_focus->column_fields['currency_id'];
     $focus->column_fields['conversion_rate'] = $so_focus->column_fields['conversion_rate'];
 
-	$log->debug("Exiting getConvertSoToInvoice method ...");
 	return $focus;
 
 }
@@ -84,13 +80,9 @@ function getConvertSoToInvoice($focus,$so_focus,$soid)
 */
 
 
-function getAssociatedProducts($module,$focus,$seid='')
-{
-	global $log;
-	$log->debug("Entering getAssociatedProducts(".$module.",".get_class($focus).",".$seid."='') method ...");
-	global $adb;
+function getAssociatedProducts($module,$focus,$seid='') {
+	global $adb,$theme,$current_user;
 	$output = '';
-	global $theme,$current_user;
 
 	$no_of_decimal_places = getCurrencyDecimalPlaces();
 	$theme_path="themes/".$theme."/";
@@ -176,8 +168,7 @@ function getAssociatedProducts($module,$focus,$seid='')
 
 	$result = $adb->pquery($query, $params);
 	$num_rows=$adb->num_rows($result);
-	for($i=1;$i<=$num_rows;$i++)
-	{
+	for($i=1;$i<=$num_rows;$i++) {
 		$deleted = $adb->query_result($result,$i-1,'deleted');
 		$hdnProductId = $adb->query_result($result,$i-1,'productid');
 		$hdnProductcode = $adb->query_result($result,$i-1,'productcode');
@@ -260,17 +251,17 @@ function getAssociatedProducts($module,$focus,$seid='')
 		if($module != 'PurchaseOrder' && (isset ($focus->object_name) && $focus->object_name != 'Order')) {
 			$product_Detail[$i]['qtyInStock'.$i]=decimalFormat($qtyinstock);
 		}
-		$listprice = number_format($listprice, $no_of_decimal_places,'.','');
+		$listprice = safe_number_format($listprice, $no_of_decimal_places,'.','');
 		$product_Detail[$i]['qty'.$i]=decimalFormat($qty);
 		$product_Detail[$i]['listPrice'.$i]=$listprice;
-		$product_Detail[$i]['unitPrice'.$i]=number_format($unitprice, $no_of_decimal_places,'.','');
+		$product_Detail[$i]['unitPrice'.$i]=safe_number_format($unitprice, $no_of_decimal_places,'.','');
 		$product_Detail[$i]['usageunit'.$i]= from_html($usageunit);
-		$product_Detail[$i]['productTotal'.$i]=number_format($productTotal, $no_of_decimal_places,'.','');
+		$product_Detail[$i]['productTotal'.$i]=safe_number_format($productTotal, $no_of_decimal_places,'.','');
 		$product_Detail[$i]['subproduct_ids'.$i]=$subprodid_str;
 		$product_Detail[$i]['subprod_names'.$i]=$subprodname_str;
 		$discount_percent = decimalFormat($adb->query_result($result,$i-1,'discount_percent'));
 		$discount_amount = $adb->query_result($result,$i-1,'discount_amount');
-		$discount_amount = decimalFormat(number_format($discount_amount, $no_of_decimal_places,'.',''));
+		$discount_amount = decimalFormat(safe_number_format($discount_amount, $no_of_decimal_places, '.', ''));
 		$discountTotal = '0';
 		//Based on the discount percent or amount we will show the discount details
 
@@ -298,13 +289,13 @@ function getAssociatedProducts($module,$focus,$seid='')
 			$product_Detail[$i]['checked_discount_zero'.$i] = ' checked';
 		}
 		$totalAfterDiscount = $productTotal-$discountTotal;
-		$totalAfterDiscount = number_format($totalAfterDiscount, $no_of_decimal_places,'.','');
-		$discountTotal = number_format($discountTotal, $no_of_decimal_places,'.','');
+		$totalAfterDiscount = safe_number_format($totalAfterDiscount, $no_of_decimal_places,'.','');
+		$discountTotal = safe_number_format($discountTotal, $no_of_decimal_places,'.','');
 		$product_Detail[$i]['discountTotal'.$i] = $discountTotal;
 		$product_Detail[$i]['totalAfterDiscount'.$i] = $totalAfterDiscount;
 
 		$taxTotal = '0';
-		$taxTotal = number_format($taxTotal, $no_of_decimal_places,'.','');
+		$taxTotal = safe_number_format($taxTotal, $no_of_decimal_places,'.','');
 		$product_Detail[$i]['taxTotal'.$i] = $taxTotal;
 
 		//Calculate netprice
@@ -319,7 +310,7 @@ function getAssociatedProducts($module,$focus,$seid='')
 				$netPrice = $netPrice+$taxTotal;
 			}
 		}
-		$product_Detail[$i]['netPrice'.$i] = number_format($netPrice, $no_of_decimal_places,'.','');
+		$product_Detail[$i]['netPrice'.$i] = safe_number_format($netPrice, $no_of_decimal_places,'.','');
 
 		//First we will get all associated taxes as array
 		$tax_details = getTaxDetailsForProduct($hdnProductId,'all');
@@ -357,7 +348,7 @@ function getAssociatedProducts($module,$focus,$seid='')
 	$product_Detail[1]['final_details']['discount_type_final'] = 'zero';
 
 	$subTotal = ($focus->column_fields['hdnSubTotal'] != '')?$focus->column_fields['hdnSubTotal']:'0';
-	$subTotal = number_format($subTotal, $no_of_decimal_places,'.','');
+	$subTotal = safe_number_format($subTotal, $no_of_decimal_places,'.','');
 
 	$product_Detail[1]['final_details']['hdnSubTotal'] = $subTotal;
 	$discountPercent = ($focus->column_fields['hdnDiscountPercent'] != '')?$focus->column_fields['hdnDiscountPercent']:'0';
@@ -368,7 +359,7 @@ function getAssociatedProducts($module,$focus,$seid='')
 
 	//To avoid NaN javascript error, here we assign 0 initially to' %of price' and 'Direct Price reduction'(For Final Discount)
 	$discount_amount_final = '0';
-	$discount_amount_final = number_format($discount_amount_final, $no_of_decimal_places,'.','');
+	$discount_amount_final = safe_number_format($discount_amount_final, $no_of_decimal_places,'.','');
     $product_Detail[1]['final_details']['discount_percentage_final'] = 0;
 	$product_Detail[1]['final_details']['discount_amount_final'] = $discount_amount_final;
 
@@ -392,7 +383,7 @@ function getAssociatedProducts($module,$focus,$seid='')
 		$product_Detail[1]['final_details']['style_discount_amount_final'] = ' style="visibility:visible"';
 		$product_Detail[1]['final_details']['style_discount_percentage_final'] = ' style="visibility:hidden"';
 	}
-	$finalDiscount = number_format($finalDiscount, $no_of_decimal_places,'.','');
+	$finalDiscount = safe_number_format($finalDiscount, $no_of_decimal_places,'.','');
 	$product_Detail[1]['final_details']['discountTotal_final'] = $finalDiscount;
 
 	//To set the Final Tax values
@@ -418,7 +409,7 @@ function getAssociatedProducts($module,$focus,$seid='')
 		if($tax_percent == '' || $tax_percent == 'NULL')
 			$tax_percent = '0';
 		$taxamount = ($subTotal-$finalDiscount)*$tax_percent/100;
-		$taxamount = number_format($taxamount, $no_of_decimal_places,'.','');
+		$taxamount = safe_number_format($taxamount, $no_of_decimal_places,'.','');
 		$taxtotal = $taxtotal + $taxamount;
 		$product_Detail[1]['final_details']['taxes'][$tax_count]['taxname'] = $tax_name;
 		$product_Detail[1]['final_details']['taxes'][$tax_count]['taxlabel'] = $tax_label;
@@ -429,7 +420,7 @@ function getAssociatedProducts($module,$focus,$seid='')
 
 	//To set the Shipping & Handling charge
 	$shCharge = ($focus->column_fields['hdnS_H_Amount'] != '')?$focus->column_fields['hdnS_H_Amount']:'0    ';
-	$shCharge = number_format($shCharge, $no_of_decimal_places,'.','');
+	$shCharge = safe_number_format($shCharge, $no_of_decimal_places,'.','');
 	$product_Detail[1]['final_details']['shipping_handling_charge'] = $shCharge;
 
 	//To set the Shipping & Handling tax values
@@ -456,20 +447,18 @@ function getAssociatedProducts($module,$focus,$seid='')
 		$product_Detail[1]['final_details']['sh_taxes'][$shtax_count]['percentage'] = $shtax_percent;
 		$product_Detail[1]['final_details']['sh_taxes'][$shtax_count]['amount'] = $shtaxamount;
 	}
-	$shtaxtotal = number_format($shtaxtotal, $no_of_decimal_places,'.','');
+	$shtaxtotal = safe_number_format($shtaxtotal, $no_of_decimal_places,'.','');
 	$product_Detail[1]['final_details']['shtax_totalamount'] = $shtaxtotal;
 
 	//To set the Adjustment value
 	$adjustment = ($focus->column_fields['txtAdjustment'] != '')?$focus->column_fields['txtAdjustment']:'0';
-	$adjustment = number_format($adjustment, $no_of_decimal_places,'.','');
+	$adjustment = safe_number_format($adjustment, $no_of_decimal_places,'.','');
 	$product_Detail[1]['final_details']['adjustment'] = $adjustment;
 
 	//To set the grand total
 	$grandTotal = ($focus->column_fields['hdnGrandTotal'] != '')?$focus->column_fields['hdnGrandTotal']:'0';
-	$grandTotal = number_format($grandTotal, $no_of_decimal_places,'.','');
+	$grandTotal = safe_number_format($grandTotal, $no_of_decimal_places,'.','');
 	$product_Detail[1]['final_details']['grandTotal'] = $grandTotal;
-
-	$log->debug("Exiting getAssociatedProducts method ...");
 
 	return $product_Detail;
 
@@ -480,10 +469,7 @@ function getAssociatedProducts($module,$focus,$seid='')
 * Return type array
 */
 
-function split_validationdataArray($validationData)
-{
-	global $log;
-	$log->debug("Entering split_validationdataArray(".$validationData.") method ...");
+function split_validationdataArray($validationData) {
 	$fieldName = '';
 	$fieldLabel = '';
 	$fldDataType = '';
@@ -521,7 +507,6 @@ function split_validationdataArray($validationData)
 	$data['fieldname'] = $fieldName;
 	$data['fieldlabel'] = $fieldLabel;
 	$data['datatype'] = $fldDataType;
-	$log->debug("Exiting split_validationdataArray method ...");
 	return $data;
 }
 
