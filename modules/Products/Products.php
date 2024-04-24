@@ -196,7 +196,7 @@ class Products extends CRMEntity {
 			{
 				$conversion_rate = $currency_details[$i]['conversionrate'];
 				$actual_conversion_rate = $product_base_conv_rate * $conversion_rate;
-				$converted_price = $actual_conversion_rate * $requestPrice;
+				$converted_price = (float)$actual_conversion_rate * (float)$requestPrice;
 
 				$log->debug("Going to save the Product - $curname currency relationship");
 
