@@ -8,7 +8,7 @@
  * All Rights Reserved.
  *************************************************************************************/
 	
-	function vtws_login($username,$pwd){
+	function vtws_login($username, $accessKey){
 		
 		$user = new Users();
 		$userId = $user->retrieve_user_id($username);
@@ -18,13 +18,13 @@
 			throw new WebServiceException(WebServiceErrorCode::$INVALIDTOKEN,"Specified token is invalid or expired");
 		}
 		
-		$accessKey = vtws_getUserAccessKey($userId);
-		if($accessKey == null){
+		$userAccessKey = vtws_getUserAccessKey($userId);
+		if($userAccessKey == null){
 			throw new WebServiceException(WebServiceErrorCode::$ACCESSKEYUNDEFINED,"Access key for the user is undefined");
 		}
 		
-		$accessCrypt = md5($token.$accessKey);
-		if(strcmp($accessCrypt,$pwd)!==0){
+		$accessCrypt = md5($token.$userAccessKey);
+		if(strcmp($accessCrypt,$accessKey)!==0){
 			crmnow_login_protection($username, 5);
 			throw new WebServiceException(WebServiceErrorCode::$INVALIDUSERPWD,"Invalid username or password");
 		}
