@@ -29,13 +29,8 @@
 	require_once("include/Webservices/OperationManager.php");
 	require_once("include/Webservices/SessionManager.php");
 	require_once("include/Zend/Json.php");
-	require_once('include/logging.php');
 
 	$API_VERSION = "0.22";
-
-	global $seclog,$log;
-	$seclog =& LoggerManager::getLogger('SECURITY');
-	$log =& LoggerManager::getLogger('webservice');
 
 	function getRequestParamsArrayForOperation($operation){
 		global $operationInput;
