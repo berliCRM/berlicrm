@@ -1,4 +1,5 @@
 <?php // $Id: iCalendar_properties.php,v 1.13 2005/07/21 22:42:13 defacer Exp $
+define('_BENNU_VERSION', '0.1');
 
 class iCalendar_property {
     // Properties can have parameters, but cannot have other properties or components
