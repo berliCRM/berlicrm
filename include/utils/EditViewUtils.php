@@ -243,8 +243,9 @@ function getAssociatedProducts($module,$focus,$seid='')
 		$product_Detail[$i]['hdnProductId'.$i] = $hdnProductId;
 		$product_Detail[$i]['productName'.$i]= from_html($productname);
 		/* Added to fix the issue Product Pop-up name display*/
-		if($_REQUEST['action'] == 'CreateSOPDF' || $_REQUEST['action'] == 'CreatePDF' || $_REQUEST['action'] == 'SendPDFMail')
+		if(isset ($_REQUEST['action']) && ($_REQUEST['action'] == 'CreateSOPDF' || $_REQUEST['action'] == 'CreatePDF' || $_REQUEST['action'] == 'SendPDFMail')) {
 			$product_Detail[$i]['productName'.$i]= htmlspecialchars($product_Detail[$i]['productName'.$i]);
+		}
 		$product_Detail[$i]['hdnProductcode'.$i] = $hdnProductcode;
 		$product_Detail[$i]['productDescription'.$i]= from_html($productdescription);
 		if($module == 'Potentials' || $module == 'Products' || $module == 'Services') {
