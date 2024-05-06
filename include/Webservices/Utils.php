@@ -8,15 +8,15 @@
  * All Rights Reserved.
  *************************************************************************************/
 
-require_once('include/database/PearDatabase.php');
-require_once("modules/Users/Users.php");
+require_once 'include/database/PearDatabase.php';
+require_once 'modules/Users/Users.php';
 require_once 'include/Webservices/WebserviceField.php';
 require_once 'include/Webservices/EntityMeta.php';
 require_once 'include/Webservices/VtigerWebserviceObject.php';
-require_once("include/Webservices/VtigerCRMObject.php");
-require_once("include/Webservices/VtigerCRMObjectMeta.php");
-require_once("include/Webservices/DataTransform.php");
-require_once("include/Webservices/WebServiceError.php");
+require_once 'include/Webservices/VtigerCRMObject.php';
+require_once 'include/Webservices/VtigerCRMObjectMeta.php';
+require_once 'include/Webservices/DataTransform.php';
+require_once 'include/Webservices/WebServiceError.php';
 require_once 'include/utils/utils.php';
 require_once 'include/utils/UserInfoUtil.php';
 require_once 'include/Webservices/ModuleTypes.php';
@@ -1026,7 +1026,7 @@ function vtws_transferOwnershipForWorkflowTasks($ownerModel, $newOwnerModel) {
 		require_once 'modules/com_vtiger_workflow/tasks/'.$className.'.inc';
 		$unserializeTask = unserialize($task);
 		if(array_key_exists("field_value_mapping",$unserializeTask)) {
-			$fieldMapping = Zend_Json::decode($unserializeTask->field_value_mapping);
+			$fieldMapping = json_decode($unserializeTask->field_value_mapping, true);
 			if (!empty($fieldMapping)) {
 				foreach ($fieldMapping as $key => $condition) {
 					if ($condition['fieldname'] == 'assigned_user_id') {
@@ -1039,7 +1039,7 @@ function vtws_transferOwnershipForWorkflowTasks($ownerModel, $newOwnerModel) {
 					}
 					$fieldMapping[$key] = $condition;
 				}
-				$updatedTask = Zend_Json::encode($fieldMapping);
+				$updatedTask = json_encode($fieldMapping);
 				$unserializeTask->field_value_mapping = $updatedTask;
 				$serializeTask = serialize($unserializeTask);
 				
