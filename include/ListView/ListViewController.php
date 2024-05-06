@@ -492,10 +492,12 @@ class ListViewController {
 						$value = 0;
 					}
 				} elseif($field->getUIType() == 8){
-					if(!empty($value)){
-						$temp_val = html_entity_decode($value,ENT_QUOTES,$default_charset);
-						$json = new Zend_Json();
-						$value = vt_suppressHTMLTags(implode(',',$json->decode($temp_val)));
+					if (!empty($value)) {
+						$temp_val = html_entity_decode($value, ENT_QUOTES, $default_charset);
+						$decodedValue = json_decode($temp_val, true);
+						if ($decodedValue !== null) {
+							$value = vt_suppressHTMLTags(implode(',', $decodedValue));
+						}
 					}
 				} 
 				elseif($field->getUIType() == 7){
