@@ -90,7 +90,7 @@
                 {include file="LineItemsContent.tpl"|@vtemplate_path:'Inventory' row_no=$row_no data=$data}
             </tr>
         {/foreach}
-        {if count($RELATED_PRODUCTS) eq 0}
+        {if is_array($RELATED_PRODUCTS) && count($RELATED_PRODUCTS) eq 0}
             <tr id="row1" class="lineItemRow">
                 {include file="LineItemsContent.tpl"|@vtemplate_path:'Inventory' row_no=1 data=[]}
             </tr>
