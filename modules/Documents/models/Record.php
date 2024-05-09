@@ -69,52 +69,55 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 		$fileDetails = $this->getFileDetails();
 		$fileContent = false;
 
-		if (!empty ($fileDetails)) {
+		if (!empty($fileDetails)) {
 			$filePath = $fileDetails['path'];
 			$fileName = $fileDetails['name'];
 
 			if ($this->get('filelocationtype') == 'I') {
 				$fileName = html_entity_decode($fileName, ENT_QUOTES, vglobal('default_charset'));
-				$savedFile = $fileDetails['attachmentsid']."_".$fileName;
+				// Include the attachmentsid in the saved file name
+				$savedFileName = $fileDetails['attachmentsid'] . "_" . $fileName; 
+				// Use only $fileName for the download name
+				$downloadFileName = $fileName; 
 
-				$FN = $filePath.$savedFile;
+				$FN = $filePath . $savedFileName;
 				if (!file_exists($FN)) {
 					throw new Exception('Attachment not present!');
 				}
-				$size=filesize($FN);
+				$size = filesize($FN);
 				//Begin writing headers
 				header("Cache-Control:");
 				header("Cache-Control: public");
 				header("Accept-Ranges: bytes");
-				header('Content-Disposition: attachment; filename="'.basename($FN).'"');
+				header('Content-Disposition: attachment; filename="' . basename($downloadFileName) . '"');
 				header("Content-type: application/octet-stream");
 				header("Connection: close");
 
 				//check if http_range is sent by browser (or download manager)
-				if(isset($_SERVER['HTTP_RANGE'])) {
-					list($a, $range)=explode("=",$_SERVER['HTTP_RANGE']);
+				if (isset($_SERVER['HTTP_RANGE'])) {
+					list($a, $range) = explode("=", $_SERVER['HTTP_RANGE']);
 					//if yes, download missing part
 					str_replace($range, "-", $range);
-					$size2=$size-1;
-					$new_length=$size2-$range;
+					$size2 = $size - 1;
+					$new_length = $size2 - $range;
 					header("HTTP/1.1 206 Partial Content");
 					header("Content-Length: $new_length");
 					header("Content-Range: bytes $range$size2/$size");
 				} 
 				else {
-					$range=0;
-					$size2=$size-1;
+					$range = 0;
+					$size2 = $size - 1;
 					header("Content-Range: bytes 0-$size2/$size");
-					header("Content-Length: ".$size);
+					header("Content-Length: " . $size);
 				}
 
-				$fd=fopen($FN,"rb");
-				fseek($fd,$range);
+				$fd = fopen($FN, "rb");
+				fseek($fd, $range);
 
-				$bytes=0;
-				while(!feof($fd)) {
-					$fileContent=fread($fd, 4096);
-					$bytes+=strlen($fileContent);
+				$bytes = 0;
+				while (!feof($fd)) {
+					$fileContent = fread($fd, 4096);
+					$bytes += strlen($fileContent);
 					print $fileContent;
 					flush();
 				}
