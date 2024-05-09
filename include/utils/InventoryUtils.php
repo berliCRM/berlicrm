@@ -1194,7 +1194,7 @@ function getPricesForProducts($currencyid, $product_ids, $module='Products') {
 	global $adb,$log,$current_user;
 
 	$price_list = array();
-	if (count($product_ids) > 0) {
+	if (is_array($product_ids) && count($product_ids) > 0) {
 		if ($module == 'Services') {
 			$query = "SELECT vtiger_currency_info.id, vtiger_currency_info.conversion_rate, " .
 					"vtiger_service.serviceid AS productid, vtiger_service.unit_price, " .
