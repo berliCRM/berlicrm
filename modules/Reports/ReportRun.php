@@ -4338,6 +4338,14 @@ class ReportRun extends CRMEntity
 		$workbookWriter->save($fileName);
 	}
 
+	function extractFirstElement($array) {
+		$result = [];
+		foreach ($array as $key => $value) {
+			$result[$key] = is_array($value) ? $value[0] : $value;
+		}
+		return $result;
+	}
+	
 	function writeReportToCSVFile($fileName, $filterlist='') {
 
 		global $currentModule, $current_language;
@@ -4356,7 +4364,7 @@ class ReportRun extends CRMEntity
 			array_shift($csv_values);  // removed listcolor
 			fputcsv($fp, $csv_values);
 			foreach($arr_val as $key=>$array_value) {
-				$array_value = array_map('array_shift', $array_value);
+				$array_value = $this->extractFirstElement($array_value);
 				array_pop($array_value);	//removed action link
 				array_shift($array_value);  // removed listcolor
 				$csv_values = array_map('decode_html', array_values($array_value));
