@@ -50,7 +50,7 @@ class Vtiger_Request {
 
 		// Check if the value is a serialized empty array '[[]]'
 		if ($value === '[[]]') {
-			$value = '[]';
+			$value = [];
 		}
 
 		// Try to decode JSON
@@ -63,7 +63,7 @@ class Vtiger_Request {
 
 		// Purify the value
 		if (!empty($value) && $purify) {
-			$value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+			$value = vtlib_purify($value);
 		}
 
 		return $value;
