@@ -8,9 +8,9 @@
  * All Rights Reserved.
 *
  ********************************************************************************/
-require_once('include/database/PearDatabase.php');
-require_once('data/CRMEntity.php');
-require_once('include/utils/UserInfoUtil.php');
+require_once 'include/database/PearDatabase.php';
+require_once 'data/CRMEntity.php';
+require_once 'include/utils/UserInfoUtil.php';
 require_once 'modules/Reports/ReportUtils.php';
 global $calpath;
 global $app_strings,$mod_strings;
@@ -18,7 +18,6 @@ global $app_list_strings;
 global $modules;
 global $blocks;
 global $adv_filter_options;
-global $log;
 
 global $report_modules;
 global $related_modules;
@@ -356,23 +355,19 @@ class Reports extends CRMEntity{
 	 *  contains HTML
 	 */
 
-	function sgetRptFldr($mode='')
-	{
+	function sgetRptFldr($mode=''){
 
-		global $adb,$log,$mod_strings;
+		global $adb,$mod_strings;
 		$returndata = Array();
 		$sql = "select * from vtiger_reportfolder order by folderid";
 		$result = $adb->pquery($sql, array());
 		$reportfldrow = $adb->fetch_array($result);
-		if($mode != '')
-		{
+		if($mode != '')	{
 			// Fetch detials of all reports of folder at once
 			$reportsInAllFolders = $this->sgetRptsforFldr(false);
 
-			do
-			{
-				if($reportfldrow["state"] == $mode)
-				{
+			do	{
+				if($reportfldrow["state"] == $mode)	{
 					$details = Array();
 					$details['state'] = $reportfldrow["state"];
 					$details['id'] = $reportfldrow["folderid"];
@@ -384,8 +379,8 @@ class Reports extends CRMEntity{
 					$returndata[] = $details;
 				}
 			}while($reportfldrow = $adb->fetch_array($result));
-		}else
-		{
+		}
+		else {
 			do
 			{
 				$details = Array();
@@ -399,7 +394,6 @@ class Reports extends CRMEntity{
 			}while($reportfldrow = $adb->fetch_array($result));
 		}
 
-		$log->info("Reports :: ListView->Successfully returned vtiger_report folder HTML");
 		return $returndata;
 	}
     
@@ -409,10 +403,8 @@ class Reports extends CRMEntity{
 	 *  This Returns a HTML sring
 	 */
     
-    function sgetAllRpt($fldrId,$paramsList)
-    {
+    function sgetAllRpt($fldrId,$paramsList) {
         global $adb;
-        global $log;
         $returndata=Array();
         $sql ="select vtiger_report.*, vtiger_reportmodules.*, vtiger_reportfolder.folderid from vtiger_report inner join vtiger_reportfolder on vtiger_reportfolder.folderid = vtiger_report.folderid";
         $sql.=" inner join vtiger_reportmodules on vtiger_reportmodules.reportmodulesid = vtiger_report.reportid";
@@ -453,7 +445,6 @@ class Reports extends CRMEntity{
 				$returndata[] = $report_details;
 			}while($report = $adb->fetch_array($result));
 		}
-		$log->info("Reports :: ListView->Successfully returned vtiger_report details HTML");
         return $returndata;
     }
     
@@ -464,11 +455,9 @@ class Reports extends CRMEntity{
 	 *  This Returns a HTML sring
 	 */
 
-	function sgetRptsforFldr($rpt_fldr_id, $paramsList=false)
-	{
+	function sgetRptsforFldr($rpt_fldr_id, $paramsList=false) {
 		$srptdetails="";
 		global $adb;
-		global $log;
 		global $mod_strings,$current_user;
 		$returndata = Array();
 
@@ -571,7 +560,6 @@ class Reports extends CRMEntity{
 			$returndata = $returndata[$rpt_fldr_id];
 		}
 
-		$log->info("Reports :: ListView->Successfully returned vtiger_report details HTML");
 		return $returndata;
 	}
 
@@ -698,10 +686,8 @@ class Reports extends CRMEntity{
 	 *  Array module_columnlist[ vtiger_fieldtablename:fieldcolname:module_fieldlabel1:fieldname:fieldtypeofdata]=fieldlabel
 	 */
 
-	function getColumnsListbyBlock($module,$block,$group_res_by_block=false)
-	{
+	function getColumnsListbyBlock($module,$block,$group_res_by_block=false) {
 		global $adb;
-		global $log;
 		global $current_user;
 
 		if(is_string($block)) $block = explode(",", $block);
@@ -808,7 +794,6 @@ class Reports extends CRMEntity{
 	}
 
 	function fixGetColumnsListbyBlockForInventory($module, $blockid, &$module_columnlist) {
-		global $log;
 
 		$blockname = getBlockName($blockid);
 		if($blockname == 'LBL_RELATED_PRODUCTS' && ($module=='PurchaseOrder' || $module=='SalesOrder' || $module=='Quotes' || $module=='Invoice')){
@@ -838,7 +823,6 @@ class Reports extends CRMEntity{
 				$module_columnlist[$optionvalue] = $label;
 			}
 		}
-		$log->info("Reports :: FieldColumns->Successfully returned ColumnslistbyBlock".$module.$block);
 		return $module_columnlist;
 	}
 
@@ -910,10 +894,8 @@ class Reports extends CRMEntity{
 	 *  Array stdcriteria_list[fieldtablename:fieldcolname:module_fieldlabel1]=fieldlabel
 	 */
 
-	function getStdCriteriaByModule($module)
-	{
+	function getStdCriteriaByModule($module) {
 		global $adb;
-		global $log;
 		global $current_user;
 		require('user_privileges/user_privileges_'.$current_user->id.'.php');
 
@@ -958,7 +940,6 @@ class Reports extends CRMEntity{
 			$stdcriteria_list[$optionvalue] = $fieldlabel;
 		}
 
-		$log->info("Reports :: StdfilterColumns->Successfully returned Stdfilter for".$module);
 		return $stdcriteria_list;
 
 	}
@@ -1310,11 +1291,9 @@ function getEscapedColumns($selectedfields)
 	 */
 
 
-	function getSelctedSortingColumns($reportid)
-	{
+	function getSelctedSortingColumns($reportid) {
 
 		global $adb;
-		global $log;
 
 		$sreportsortsql = "select vtiger_reportsortcol.* from vtiger_report";
 		$sreportsortsql .= " inner join vtiger_reportsortcol on vtiger_report.reportid = vtiger_reportsortcol.reportid";
@@ -1331,7 +1310,6 @@ function getEscapedColumns($selectedfields)
 			$array_list[] = $fieldcolname;
 		}
 
-		$log->info("Reports :: Successfully returned getSelctedSortingColumns");
 		return $array_list;
 	}
 
@@ -1341,11 +1319,10 @@ function getEscapedColumns($selectedfields)
 	 *  HTML of the combo values
 	 */
 
-	function getSelectedColumnsList($reportid)
-	{
+	function getSelectedColumnsList($reportid) {
 		global $adb;
 		global $modules;
-		global $log,$current_user;
+		global $current_user;
 
 		$ssql = "select vtiger_selectcolumn.* from vtiger_report inner join vtiger_selectquery on vtiger_selectquery.queryid = vtiger_report.queryid";
 		$ssql .= " left join vtiger_selectcolumn on vtiger_selectcolumn.queryid = vtiger_selectquery.queryid";
@@ -1401,14 +1378,11 @@ function getEscapedColumns($selectedfields)
 			}
 			//end
 		}
-		$log->info("ReportRun :: Successfully returned getQueryColumnsList".$reportid);
 		return $shtml;
 	}
-	function getAdvancedFilterList($reportid)
-	{
+	function getAdvancedFilterList($reportid) {
 		global $adb;
 		global $modules;
-		global $log;
 		global $current_user;
 
 		$advft_criteria = array();
@@ -1489,7 +1463,6 @@ function getEscapedColumns($selectedfields)
 		// Clear the condition (and/or) for last group, if any.
 		if(!empty($advft_criteria[$i-1]['condition'])) $advft_criteria[$i-1]['condition'] = '';
 		$this->advft_criteria = $advft_criteria;
-		$log->info("Reports :: Successfully returned getAdvancedFilterList");
 		return true;
 	}
 	//<<<<<<<<advanced filter>>>>>>>>>>>>>>
@@ -1500,21 +1473,17 @@ function getEscapedColumns($selectedfields)
 	 *  HTML of the combo values
 	 */
 
-	function sgetRptFldrSaveReport()
-	{
+	function sgetRptFldrSaveReport() {
 		global $adb;
-		global $log;
 
 		$sql = "select * from vtiger_reportfolder order by folderid";
 		$result = $adb->pquery($sql, array());
 		$reportfldrow = $adb->fetch_array($result);
 		$x = 0;
-		do
-		{
+		do {
 			$shtml .= "<option value='".$reportfldrow['folderid']."'>".$reportfldrow['foldername']."</option>";
 		}while($reportfldrow = $adb->fetch_array($result));
 
-		$log->info("Reports :: Successfully returned sgetRptFldrSaveReport");
 		return $shtml;
 	}
 
@@ -1546,10 +1515,8 @@ function getEscapedColumns($selectedfields)
 	 */
 
 
-	function sgetColumntoTotalSelected($primarymodule,$secondarymodule,$reportid)
-	{
+	function sgetColumntoTotalSelected($primarymodule,$secondarymodule,$reportid) {
 		global $adb;
-		global $log;
 		$options = Array();
 		if($reportid != "")
 		{
@@ -1576,7 +1543,6 @@ function getEscapedColumns($selectedfields)
 			}
 		}
 
-		$log->info("Reports :: Successfully returned sgetColumntoTotalSelected");
 		return $options;
 
 	}
@@ -1588,11 +1554,9 @@ function getEscapedColumns($selectedfields)
 	 */
 
 
-	function sgetColumnstoTotalHTML($module)
-	{
+	function sgetColumnstoTotalHTML($module) {
 		//retreive the vtiger_tabid
 		global $adb;
-		global $log;
 		global $current_user;
 		require('user_privileges/user_privileges_'.$current_user->id.'.php');
 		$tabid = getTabid($module);
@@ -1733,7 +1697,6 @@ function getEscapedColumns($selectedfields)
 			}
 		}while($columntototalrow = $adb->fetch_array($result));
 
-		$log->info("Reports :: Successfully returned sgetColumnstoTotalHTML");
 		return $options_list;
 	}
 
@@ -1806,7 +1769,7 @@ function getReportRelatedModules($module,$focus)
 
 function updateAdvancedCriteria($reportid, $advft_criteria, $advft_criteria_groups) {
 
-	global $adb, $log;
+	global $adb;
 
 	$idelrelcriteriasql = "delete from vtiger_relcriteria where queryid=?";
 	$idelrelcriteriasqlresult = $adb->pquery($idelrelcriteriasql, array($reportid));
