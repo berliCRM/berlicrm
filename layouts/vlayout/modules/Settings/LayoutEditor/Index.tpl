@@ -241,14 +241,13 @@
                                                                 </span>
                                                             </div>
                                                         {elseif $FIELD_MODEL->getFieldDataType() eq "date"}
-                                                            <div class="input-append date">
-                                                                {assign var=FIELD_NAME value=$FIELD_MODEL->get('name')}
-																<input type="text" class="input-medium" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if} name="fieldDefaultValue" data-toregister="date" data-date-format="{$USER_MODEL->get('date_format')}" data-fieldinfo='{$FIELD_INFO|json_encode}' />
-                                                                       value="{$FIELD_MODEL->getEditViewDisplayValue($FIELD_MODEL->get('defaultvalue'))}" />
-                                                                <span class="add-on">
-                                                                    <i class="icon-calendar"></i>
-                                                                </span>
-                                                            </div>
+															<div class="input-append date">
+																{assign var=FIELD_NAME value=$FIELD_MODEL->get('name')}
+																<input type="text" class="input-medium" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if} name="fieldDefaultValue" data-toregister="date" data-date-format="{$USER_MODEL->get('date_format')}" data-fieldinfo='{$FIELD_INFO|json_encode}' value="{$FIELD_MODEL->getEditViewDisplayValue($FIELD_MODEL->get('defaultvalue'))}" />
+																<span class="add-on">
+																	<i class="icon-calendar"></i>
+																</span>
+															</div>
                                                         {elseif $FIELD_MODEL->getFieldDataType() eq "percentage"}
                                                             <div class="input-append">
  																<input type="number" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  class="input-medium" name="fieldDefaultValue" value="{$FIELD_MODEL->get('defaultvalue')}" data-fieldinfo='{$FIELD_INFO|json_encode}' step="any" />
