@@ -1,11 +1,11 @@
 <?xml version='1.0'?>
 <module>
-	<exporttime>2016-04-16 11:26:51</exporttime>
+	<exporttime>2024-05-10 11:26:51</exporttime>
 	<name>ListViewColors</name>
 	<label>ListViewColors</label>
 	<parent></parent>
 	<type>extension</type>
-	<version>1.1</version>
+	<version>1.2</version>
 	<dependencies>
 		<vtiger_version>6.4.0</vtiger_version>
 		<vtiger_max_version>6.*</vtiger_max_version>

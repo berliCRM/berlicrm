@@ -26,7 +26,9 @@ class CronTasks {
 		$seq_res = $adb->pquery("SELECT max(sequence) AS max_seq FROM vtiger_settings_field WHERE blockid = ?", array($blockid));
 			if ($adb->num_rows($seq_res) > 0) {
 				$cur_seq = $adb->query_result($seq_res, 0, 'max_seq');
-				if ($cur_seq != null)	$seq = $cur_seq + 1;
+				if ($cur_seq != null) {
+					$seq = (int)$cur_seq + 1;
+				}
 			}
 			
 		$adb->pquery('INSERT INTO vtiger_settings_field(fieldid, blockid, name, iconpath, description, linkto, sequence) 

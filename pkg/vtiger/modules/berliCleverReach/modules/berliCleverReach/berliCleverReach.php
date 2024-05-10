@@ -533,7 +533,7 @@ class berliCleverReach extends Vtiger_CRMEntity {
 			if ($adb->num_rows($seq_res) > 0) {
 				$cur_seq = $adb->query_result($seq_res, 0, 'max_seq');
 				if ($cur_seq != null) {
-					$seq = $cur_seq + 1;
+					$seq = (int)$cur_seq + 1;
 				}
 			}
 			$adb->pquery('INSERT INTO vtiger_settings_field(fieldid, blockid, name, iconpath, description, linkto, sequence)

@@ -54,8 +54,10 @@ class Webforms {
 			$blockid = getSettingsBlockId('LBL_OTHER_SETTINGS');
 			$seq_res = $adb->pquery("SELECT max(sequence) AS max_seq FROM vtiger_settings_field WHERE blockid = ?", array($blockid));
 			if ($adb->num_rows($seq_res) > 0) {
-				$cur_seq = $adb->query_result($seq_res, 0, 'max_seq');
-				if ($cur_seq != null)	$seq = $cur_seq + 1;
+				$cur_seq = (int)$adb->query_result($seq_res, 0, 'max_seq');
+				if ($cur_seq != null) {
+					$seq = $cur_seq + 1;
+				}
 			}
 
 			$result=$adb->pquery('SELECT 1 FROM vtiger_settings_field WHERE name=?',array($this->LBL_WEBFORMS));
