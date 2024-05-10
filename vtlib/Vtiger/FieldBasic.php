@@ -111,7 +111,7 @@ class Vtiger_FieldBasic {
         $result = $adb->pquery("SELECT MAX(sequence) AS max_seq FROM vtiger_field WHERE tabid=? AND block=?", Array($this->getModuleId(), $this->getBlockId()));
         $maxseq = 0;
         if ($result && $adb->num_rows($result)) {
-            $maxseq = $adb->query_result($result, 0, 'max_seq');
+			$maxseq = (int)$adb->query_result($result, 0, 'max_seq');
             $maxseq += 1;
         }
         return $maxseq;
