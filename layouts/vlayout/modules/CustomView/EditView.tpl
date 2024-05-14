@@ -9,7 +9,7 @@
 *
 ********************************************************************************/
 -->*}
-{strip}
+{strip} 
     {assign var=SELECTED_FIELDS value=$CUSTOMVIEW_MODEL->getSelectedFields()}
     <div class="container-fluid">
         <form class="form-inline" id="CustomView" name="CustomView" method="post" action="index.php">
@@ -21,11 +21,11 @@
             <input type="hidden" id="advfilterlist" name="advfilterlist" value=""/>
             <input type="hidden" id="status" name="status" value="{$CV_PRIVATE_VALUE}"/>
 			<div class="CustomFilterViewTitle">
-				<h3>{vtranslate('LBL_CREATE_VIEW',$MODULE)}</h3>
+				<h3>{vtranslate('LBL_CREATE_VIEW',$MODULE)}</h3> 
 			</div>	
 			<hr>
             <input type="hidden" id="sourceModule" value="{$SOURCE_MODULE}">
-            <input type="hidden" name="date_filters" data-value='{Vtiger_Util_Helper::toSafeHTML(ZEND_JSON::encode($DATE_FILTERS))}' />
+            <input type="hidden" name="date_filters" data-value='{Vtiger_Util_Helper::toSafeHTML(json_encode($DATE_FILTERS))}' />
             <div class="filterBlocksAlignment">
 				<br>
                 <div class="row-fluid">
@@ -100,8 +100,8 @@
 					</optgroup>
 				{/foreach}
                 </select>
-                <input type="hidden" name="columnslist" value='{ZEND_JSON::encode($SELECTED_FIELDS)}' />
-                <input id="mandatoryFieldsList" type="hidden" value='{ZEND_JSON::encode($MANDATORY_FIELDS)}' />
+                <input type="hidden" name="columnslist" value='{json_encode($SELECTED_FIELDS)}' />
+                <input id="mandatoryFieldsList" type="hidden" value='{json_encode($MANDATORY_FIELDS)}' />
             </div>
             <br>
             <h4 class="filterHeaders">{vtranslate('LBL_CHOOSE_FILTER_CONDITIONS', $MODULE)} :</h4>
