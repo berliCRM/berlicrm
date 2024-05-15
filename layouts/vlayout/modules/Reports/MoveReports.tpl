@@ -18,8 +18,8 @@
 		<form class="form-horizontal contentsBackground" id="moveReports" method="post" action="index.php">
 			<input type="hidden" name="module" value="{$MODULE}" />
 			<input type="hidden" name="action" value="MoveReports" />
-			<input type="hidden" name="selected_ids" value={ZEND_JSON::encode($SELECTED_IDS)} />
-			<input type="hidden" name="excluded_ids" value={ZEND_JSON::encode($EXCLUDED_IDS)} />
+			<input type="hidden" name="selected_ids" value={json_encode($SELECTED_IDS)} />
+			<input type="hidden" name="excluded_ids" value={json_encode($EXCLUDED_IDS)} />
 			<input type="hidden" name="viewname" value="{$VIEWNAME}" />
 			<div class="modal-body">
 				<div class="row-fluid verticalBottomSpacing">
