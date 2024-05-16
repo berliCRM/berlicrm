@@ -146,7 +146,7 @@ class NumberField {
         if(empty($currencySeparator)) $currencySeparator = ' ';
         if(empty($decimalSeparator)) $decimalSeparator = ' ';
         
-        if ($value < 0) { 
+        if ($value < 0 && !($value == '')) {
             $sign = "-"; 
             $value = substr($value, 1); 
         } 
