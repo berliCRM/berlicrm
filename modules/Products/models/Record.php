@@ -139,7 +139,7 @@ class Products_Record_Model extends Vtiger_Record_Model {
 		$totalAfterDiscount = $productDetails[1]['totalAfterDiscount1'];
 		$productTaxes = $productDetails[1]['taxes'];
 		if (!empty ($productDetails)) {
-			$taxCount = count($productTaxes);
+			is_countable($productTaxes) ? $taxCount = count($productTaxes) : $taxCount = 0;
 			$taxTotal = '0';
 
 			for($i=0; $i<$taxCount; $i++) {
