@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-class specialWidgetsHandler extends VTEventHandler {
+class ToolWidgetsHandler extends VTEventHandler {
 
 	function handleEvent($eventName, $data) {
 

@@ -1,5 +1,5 @@
 <?php
-class specialWidgets_createCopyAndPasteMenu_View extends Vtiger_Edit_View {
+class ToolWidgets_createCopyAndPasteMenu_View extends Vtiger_Edit_View {
 	function checkPermission(Vtiger_Request $request) {
 		return;
 	}
@@ -79,9 +79,9 @@ class specialWidgets_createCopyAndPasteMenu_View extends Vtiger_Edit_View {
 		$viewer = $Index_View_Obj->getViewer($request);
 		$viewer->assign('COPYPASTESTRING', $copypastestring);
 		$viewer->assign('SOURCEMODULE', $recordid);
-        $viewer->assign('RECORD', $recordid);
+        $viewer->assign('RECORD', $record);
         $viewer->assign('MODULE', $moduleName);
-        $viewer->view('createCopyPasteDataMenue.tpl', 'specialWidgets');
+        $viewer->view('createCopyPasteDataMenue.tpl', 'ToolWidgets');
 	}
 }
 ?>

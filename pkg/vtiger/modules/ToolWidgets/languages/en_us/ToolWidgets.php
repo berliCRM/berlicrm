@@ -9,10 +9,10 @@
  * reviewed by crm-now GmbH
  *************************************************************************************/
 $languageStrings = array(
-	'LBL_SHOW_CONTACTDETAILS' => 'Zeige Kontaktdaten',
-    'LBL_CONTACTDETAILS' => 'Kontaktdaten',
-    'LBL_COPY' => 'Kopieren',
-    'LBL_TEXT_COPIED' => 'Text kopiert',
+    'LBL_CONTACTDETAILS' => 'contact details',
+	'LBL_COPY' => 'copy',
+	'LBL_SHOW_CONTACTDETAILS' => 'show contact details',
+	'LBL_TEXT_COPIED' => 'text copied',
 );
 
 $jsLanguageStrings = array(

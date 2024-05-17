@@ -7,7 +7,7 @@
  * All Rights Reserved.
  *************************************************************************************/
 
-jQuery.Class("specialWidgets_popupMenueCopyAndPaste_Js",{
+jQuery.Class("ToolWidgets_popupMenueCopyAndPaste_Js",{
 	/*
 	 * Function to register button event
 	 */
@@ -15,7 +15,7 @@ jQuery.Class("specialWidgets_popupMenueCopyAndPaste_Js",{
 		var thisInstance = this;
 		jQuery('#copypasteButton').on('click',function(e){
 			var element = jQuery(e.currentTarget);
-			specialWidgets_popupMenueCopyAndPaste_Js.showmenu(element);
+			ToolWidgets_popupMenueCopyAndPaste_Js.showmenu(element);
 		});
 	},
 
@@ -24,7 +24,7 @@ jQuery.Class("specialWidgets_popupMenueCopyAndPaste_Js",{
 		var sourcemodule = jQuery('#sourcemodule').val();
 		var aDeferred = jQuery.Deferred();
 		var params = {
-			module: 'specialWidgets',
+			module: 'ToolWidgets',
 			view: 'createCopyAndPasteMenu',
 			sourcemodule: sourcemodule,
 			recordid: recordid

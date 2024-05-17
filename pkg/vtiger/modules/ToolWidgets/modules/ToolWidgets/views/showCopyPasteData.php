@@ -1,5 +1,5 @@
 <?php
-class specialWidgets_showCopyPasteDataWidget_View extends Vtiger_Detail_View {
+class ToolWidgets_showCopyPasteData_View extends Vtiger_Detail_View {
 	function checkPermission(Vtiger_Request $request) {
 		return;
 	}
@@ -15,7 +15,7 @@ class specialWidgets_showCopyPasteDataWidget_View extends Vtiger_Detail_View {
 		$viewer->assign('SOURCEMODULE', $source_module);
         $viewer->assign('RECORD', $recordid);
         $viewer->assign('MODULE', $moduleName);
-        $viewer->view('showCopyPasteDataWidget.tpl', 'specialWidgets');
+        $viewer->view('showCopyPasteDataWidget.tpl', 'ToolWidgets');
 	}
 }
 ?>

@@ -9,7 +9,7 @@
  *************************************************************************************/
 require_once('include/events/include.inc');
 
-class specialWidgets {
+class ToolWidgets {
 
 	/**
 	 * Invoked when special actions are performed on the module.
@@ -19,7 +19,7 @@ class specialWidgets {
 	function vtlib_handler($moduleName, $event_type) {
 		require_once('include/utils/utils.php');			
 		if($event_type == 'module.postinstall') {
-			$this->initspecialWidgets();
+			$this->initToolWidgets();
 		} else if($event_type == 'module.disabled') {
 			// TODO Handle actions when this module is disabled.
 			return;
@@ -28,7 +28,7 @@ class specialWidgets {
 			return;
 		} else if($event_type == 'module.preuninstall') {
 			// TODO Handle actions when this module is about to be deleted.
-			$this->uninstallspecialWidgets();
+			$this->uninstallToolWidgets();
 			return;		
 		} else if($event_type == 'module.preupdate') {
 			// TODO Handle actions before this module is updated.
@@ -38,18 +38,18 @@ class specialWidgets {
 		}
 	}
 	
-	function initspecialWidgets() {
+	function initToolWidgets() {
 		include_once('vtlib/Vtiger/Module.php');
 		$module = Vtiger_Module::getInstance('Contacts');
-		$module->addLink('DETAILVIEWSIDEBARWIDGET', 'LBL_COPY_CONTACTDETAILS', 'module=specialWidgets&view=showCopyPasteData&mode=showEntries&source_module=Contacts&viewtype=detail');
+		$module->addLink('DETAILVIEWSIDEBARWIDGET', 'LBL_COPY_CONTACTDETAILS', 'module=ToolWidgets&view=showCopyPasteData&mode=showEntries&source_module=Contacts&viewtype=detail');
 		$module = Vtiger_Module::getInstance('Accounts');
-		$module->addLink('DETAILVIEWSIDEBARWIDGET', 'LBL_COPY_CONTACTDETAILS', 'module=specialWidgets&view=showCopyPasteData&mode=showEntries&source_module=Accounts&viewtype=detail');	
+		$module->addLink('DETAILVIEWSIDEBARWIDGET', 'LBL_COPY_CONTACTDETAILS', 'module=ToolWidgets&view=showCopyPasteData&mode=showEntries&source_module=Accounts&viewtype=detail');	
 	}
 
 
-	function uninstallspecialWidgets() {
+	function uninstallToolWidgets() {
 		include_once('vtlib/Vtiger/Module.php');
-		$module = Vtiger_Module::getInstance('specialWidgets');
+		$module = Vtiger_Module::getInstance('ToolWidgets');
 		if($module) {
 			// Delete from system
 			$module->delete();
