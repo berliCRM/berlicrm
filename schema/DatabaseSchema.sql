@@ -5210,9 +5210,9 @@ CREATE TABLE IF NOT EXISTS `vtiger_inventorytaxinfo` (
 --
 
 INSERT INTO `vtiger_inventorytaxinfo` (`taxid`, `taxname`, `taxlabel`, `percentage`, `deleted`) VALUES
-(1, 'tax1', 'VAT', 19.000, 0),
-(2, 'tax2', 'Sales', 0.000, 0),
-(3, 'tax3', 'Service', 0.000, 0);
+(1, 'tax1', 'LBL_VAT', 19.000, 0),
+(2, 'tax2', 'LBL_SALES_TAX', 0.000, 0),
+(3, 'tax3', 'LBL_SERVICE_TAX', 0.000, 0);
 
 -- --------------------------------------------------------
 
@@ -13079,9 +13079,9 @@ CREATE TABLE IF NOT EXISTS `vtiger_shippingtaxinfo` (
 --
 
 INSERT INTO `vtiger_shippingtaxinfo` (`taxid`, `taxname`, `taxlabel`, `percentage`, `deleted`) VALUES
-(1, 'shtax1', 'VAT', 19.000, 0),
-(2, 'shtax2', 'Sales', 0.000, 0),
-(3, 'shtax3', 'Service', 0.000, 0);
+(1, 'shtax1', 'LBL_VAT', 19.000, 0),
+(2, 'shtax2', 'LBL_SALES_TAX', 0.000, 0),
+(3, 'shtax3', 'LBL_SERVICE_TAX', 0.000, 0);
 
 -- --------------------------------------------------------
 

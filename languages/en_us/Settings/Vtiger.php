@@ -297,7 +297,11 @@ $languageStrings = array(
 	'LBL_SEARCH_SETUP' => 'Search Setup',
 	
 	'LBL_INACTIVE_USERS' => 'inactive Users',
-		
+	
+	//added for default values in Tax Index
+	'LBL_VAT' => 'VAT',
+	'LBL_SALES_TAX' => 'Sales',
+	'LBL_SERVICE_TAX' => 'Service',
 );
 
 $jsLanguageStrings = array(

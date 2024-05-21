@@ -37,7 +37,7 @@
 					</tr>
 					{foreach item=PRODUCT_SERVICE_TAX_MODEL from=$PRODUCT_AND_SERVICES_TAXES}
 						<tr class="opacity" data-taxid="{$PRODUCT_SERVICE_TAX_MODEL->get('taxid')}" data-taxtype="{$PRODUCT_SERVICE_TAX_MODEL->getType()}">
-							<td class="textAlignCenter {$WIDTHTYPE}" style="border-left: none;"><label class="taxLabel">{$PRODUCT_SERVICE_TAX_MODEL->getName()}</label></td>
+							<td class="textAlignCenter {$WIDTHTYPE}" style="border-left: none;"><label class="taxLabel">{vtranslate($PRODUCT_SERVICE_TAX_MODEL->getName(), $QUALIFIED_MODULE)}</label></td>
 							<td class="textAlignCenter {$WIDTHTYPE}" style="border-left: none;"><span class="taxPercentage">{$PRODUCT_SERVICE_TAX_MODEL->getTax()}%</span></td>
 							<td class="textAlignCenter {$WIDTHTYPE}" style="border-left: none;"><input type="checkbox" class="editTaxStatus" {if !$PRODUCT_SERVICE_TAX_MODEL->isDeleted()}checked{/if} />
 								<div class="pull-right actions">
@@ -69,7 +69,7 @@
 					</tr>
 					{foreach item=SHIPPING_HANDLING_TAX_MODEL from=$SHIPPING_AND_HANDLING_TAXES}
 						<tr class="opacity" data-taxid="{$SHIPPING_HANDLING_TAX_MODEL->get('taxid')}" data-taxtype="{$SHIPPING_HANDLING_TAX_MODEL->getType()}">
-							<td class="textAlignCenter {$WIDTHTYPE}" style="border-left: none;"><label class="taxLabel">{$SHIPPING_HANDLING_TAX_MODEL->getName()}</label></td>
+							<td class="textAlignCenter {$WIDTHTYPE}" style="border-left: none;"><label class="taxLabel">{vtranslate($SHIPPING_HANDLING_TAX_MODEL->getName(), $QUALIFIED_MODULE)}</label></td>
 							<td class="textAlignCenter {$WIDTHTYPE}" style="border-left: none;"><span class="taxPercentage">{$SHIPPING_HANDLING_TAX_MODEL->getTax()}%</span></td>
 							<td class="textAlignCenter {$WIDTHTYPE}" style="border-left: none;"><input type="checkbox" class="editTaxStatus" {if !$SHIPPING_HANDLING_TAX_MODEL->isDeleted()}checked{/if} />
 								<div class="pull-right actions">
