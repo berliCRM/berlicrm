@@ -306,8 +306,8 @@ $languageStrings = array(
 	
 	//added for default values in Tax Index
 	'LBL_VAT' => 'MwSt.',
-	'LBL_SALES_TAX' => 'Mehrwertsteuer',
-	'LBL_SERVICE_TAX' => 'Dienstleistungssteuer',
+	'LBL_SALES_TAX' => 'ohne',
+	'LBL_SERVICE_TAX' => 'ohne',
 );
 
 $jsLanguageStrings = array(
