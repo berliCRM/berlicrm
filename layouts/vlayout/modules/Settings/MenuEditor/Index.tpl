@@ -53,7 +53,7 @@
                 </div>
             </div>
             <input type="hidden" name="selectedModulesList" value='' />
-            <input type="hidden" name="topMenuIdsList" value='{ZEND_JSON::encode($SELECTED_MODULE_IDS)}' />
+            <input type="hidden" name="topMenuIdsList" value='{json_encode($SELECTED_MODULE_IDS)}' />
         </form>
     </div>	
 </div>
