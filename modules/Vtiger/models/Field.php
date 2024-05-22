@@ -235,7 +235,7 @@ class Vtiger_Field_Model extends Vtiger_Field {
 	 * Function to get all the available picklist values for the current field
 	 * @return <Array> List of picklist values if the field is of type picklist or multipicklist, null otherwise.
 	 */
-	public function getPicklistValues($a=false,$b=false) {
+	public function getPicklistValues() {
         $fieldDataType = $this->getFieldDataType();
 		if($this->getName() == 'hdnTaxType') return null;
 
