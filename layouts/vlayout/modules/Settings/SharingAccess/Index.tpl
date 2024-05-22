@@ -16,8 +16,7 @@
 			<input type="hidden" name="module" value="SharingAccess" />
 			<input type="hidden" name="action" value="SaveAjax" />
 			<input type="hidden" name="parent" value="Settings" />
-			<input type="hidden" class="dependentModules" value='{ZEND_JSON::encode($DEPENDENT_MODULES)}' />
-			
+			<input type="hidden" class="dependentModules" value='{json_encode($DEPENDENT_MODULES)}' />
 			<div>
 				<div class="widget_header row-fluid">
 					<div class="span8"><h3>{vtranslate('LBL_SHARING_ACCESS', $QUALIFIED_MODULE)}</h3></div>

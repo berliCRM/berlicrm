@@ -10,9 +10,7 @@
 ********************************************************************************/
 -->*}
 {strip}
-    
     {if !empty($CUSTOM_VIEWS)}
-        
         <div class="relatedContainer listViewPageDiv margin0px">
             <input type="hidden" name="emailEnabledModules" value=true />
             <input type="hidden" id="view" value="{$VIEW}" />
