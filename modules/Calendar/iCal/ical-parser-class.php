@@ -131,21 +131,21 @@ class iCal {
                                         // mktime(0, 0, 0, date("m")  , date("d"), date("Y"));
                                         // mktime(hour, minute, second, month, day, year, is_dst)
                                         $correctMktime = mktime( 
-                                            ($hoursWithTZ - $tzoffsetNumberOfHours) , 
-                                            ($minutesWithTZ - $tzoffsetNumberOfMinutes) , 
+                                            ((int)$hoursWithTZ - (int)$tzoffsetNumberOfHours) , 
+                                            ((int)$minutesWithTZ - (int)$tzoffsetNumberOfMinutes) , 
                                             0, 
-                                            $monthWithTZ  , 
-                                            $dayWithTZ, 
-                                            $yearWithTZ 
+                                            (int)$monthWithTZ  , 
+                                            (int)$dayWithTZ, 
+                                            (int)$yearWithTZ 
                                         );
                                     }else{
                                         $correctMktime = mktime( 
-                                            ($hoursWithTZ + $tzoffsetNumberOfHours) , 
-                                            ($minutesWithTZ + $tzoffsetNumberOfMinutes) , 
+                                            ((int)$hoursWithTZ + (int)$tzoffsetNumberOfHours) , 
+                                            ((int)$minutesWithTZ + (int)$tzoffsetNumberOfMinutes) , 
                                             0, 
-                                            $monthWithTZ  , 
-                                            $dayWithTZ, 
-                                            $yearWithTZ 
+                                            (int)$monthWithTZ  , 
+                                            (int)$dayWithTZ, 
+                                            (int)$yearWithTZ 
                                         );
                                     }
                                     // example: // echo date("Y-m-d H:i:s",mktime(14,05,00,1,1,99))  // 1999-01-01 14:05:00
