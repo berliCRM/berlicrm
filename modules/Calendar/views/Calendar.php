@@ -94,7 +94,7 @@ class Calendar_Calendar_View extends Vtiger_Index_View {
         
 		$viewer->assign('CURRENTUSER_MODEL',$currentUserModel);
 		$viewer->assign('SHAREDUSERS', $sharedUsers);
-		$viewer->assign("DAY_STARTS", Zend_Json::encode($dayStartPicklistValues));
+		$viewer->assign("DAY_STARTS", json_encode($dayStartPicklistValues));
 		$viewer->assign('ALL_USERS',$allUsers);
 		$viewer->assign('RECORD_STRUCTURE', $recordStructure);
 		$viewer->assign('MODULE',$module);

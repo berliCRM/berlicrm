@@ -16,7 +16,7 @@ class Reports_Chart_Model extends Vtiger_Base_Model {
 		$result = $db->pquery('SELECT * FROM vtiger_reporttype WHERE reportid = ?', array($reportModel->getId()));
 		$data = $db->query_result($result, 0, 'data');
 		if(!empty($data)) {
-			$decodeData = Zend_Json::decode(decode_html($data));
+			$decodeData = json_decode(decode_html($data));
 			$self->setData($decodeData);
 			$self->setParent($reportModel);
 			$self->setId($reportModel->getId());

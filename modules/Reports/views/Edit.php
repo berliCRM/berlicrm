@@ -227,7 +227,7 @@ Class Reports_Edit_View extends Vtiger_Edit_View {
 		$data = $request->getAll();
 		foreach ($data as $name => $value) {
 			if($name == 'schdayoftheweek' || $name == 'schdayofthemonth' || $name == 'schannualdates' || $name == 'recipients') {
-				$value = Zend_Json::decode($value);
+				$value = json_decode($value);
 				if(!is_array($value)) {	// need to save these as json data
 					$value = array($value);
 				}
@@ -304,7 +304,7 @@ Class Reports_Edit_View extends Vtiger_Edit_View {
 
 		$calculationFields = $reportModel->get('calculation_fields');
 		if($calculationFields) {
-			$calculationFields = Zend_Json::decode($calculationFields);
+			$calculationFields = json_decode($calculationFields);
 			$viewer->assign('LINEITEM_FIELD_IN_CALCULATION', $reportModel->showLineItemFieldsInFilter($calculationFields));
 		}
 		if ($request->get('isDuplicate')) {

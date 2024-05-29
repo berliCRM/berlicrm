@@ -16,7 +16,7 @@ class VTJsonCondition {
 	}
 
 	function evaluate($condition, $entityCache, $id) {
-		$expr = Zend_Json::decode($condition);
+		$expr = json_decode($condition);
 		$finalResult = TRUE;
 		if (is_array($expr)) {
 			$entityData = $entityCache->forId($id);

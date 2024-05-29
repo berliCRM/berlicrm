@@ -33,12 +33,12 @@ class PickListHandler extends VTEventHandler {
 		for($i = 0; $i < $num_rows; $i++) {
 			$row = $db->query_result_rowdata($result, $i);
 			$value = decode_html($row['targetvalues']);
-			$explodedValueArray = Zend_Json::decode($value);
+			$explodedValueArray = json_decode($value);
 			$arrayKey = array_search($oldValue, $explodedValueArray);
 			if($arrayKey !== false){
 				$explodedValueArray[$arrayKey] = $newValue;
 			}
-			$value = Zend_Json::encode($explodedValueArray);
+			$value = json_encode($explodedValueArray);
 			$query = 'UPDATE vtiger_picklist_dependency SET targetvalues=? where id=? AND tabid=?';
 			$db->pquery($query, array($value, $row['id'], $tabId));
 		}
@@ -87,7 +87,7 @@ class PickListHandler extends VTEventHandler {
 		for($i = 0;$i < $num_rows; $i++) {
 			$row = $db->query_result_rowdata($result, $i);
 			$condition = decode_html($row['test']);
-			$decodedArrayConditions = Zend_Json::decode($condition);
+			$decodedArrayConditions = json_decode($condition);
 			if(!empty($decodedArrayConditions)){
 				foreach($decodedArrayConditions as $key=>$condition) {
 					if($condition['fieldname'] == $pickListFieldName){
@@ -102,7 +102,7 @@ class PickListHandler extends VTEventHandler {
 					}
 					$decodedArrayConditions[$key] = $condition;
 				}
-				$condtion = Zend_Json::encode($decodedArrayConditions);
+				$condtion = json_encode($decodedArrayConditions);
 				$query= 'UPDATE com_vtiger_workflows SET test=? where workflow_id=?';
 				$db->pquery($query, array($condtion, $row['workflow_id']));
 			}
@@ -123,7 +123,7 @@ class PickListHandler extends VTEventHandler {
 			require_once 'modules/com_vtiger_workflow/tasks/'.$className.'.inc';
 			$unserializeTask = unserialize($task);
 			if(array_key_exists("field_value_mapping",$unserializeTask)) {
-				$fieldMapping = Zend_Json::decode($unserializeTask->field_value_mapping);
+				$fieldMapping = json_decode($unserializeTask->field_value_mapping);
 				if (!empty($fieldMapping)) {
 					foreach ($fieldMapping as $key => $condition) {
 						if ($condition['fieldname'] == $pickListFieldName) {
@@ -138,7 +138,7 @@ class PickListHandler extends VTEventHandler {
 						}
 						$fieldMapping[$key] = $condition;
 					}
-					$updatedTask = Zend_Json::encode($fieldMapping);
+					$updatedTask = json_encode($fieldMapping);
 					$unserializeTask->field_value_mapping = $updatedTask;
 					$serializeTask = serialize($unserializeTask);
 					$query = 'UPDATE com_vtiger_workflowtasks SET task=? where workflow_id=? AND task_id=?';
@@ -238,7 +238,7 @@ class PickListHandler extends VTEventHandler {
 			for ($i = 0; $i < $num_rows; $i++) {
 				$row = $db->query_result_rowdata($result, $i);
 				$condition = decode_html($row['test']);
-				$decodedArrayConditions = Zend_Json::decode($condition);
+				$decodedArrayConditions = json_decode($condition);
 				if (!empty($decodedArrayConditions)) {
 					foreach ($decodedArrayConditions as $key => $condition) {
 						if ($condition['fieldname'] == $pickListFieldName) {
@@ -255,7 +255,7 @@ class PickListHandler extends VTEventHandler {
 						}
 						$decodedArrayConditions[$key] = $condition;
 					}
-					$condtion = Zend_Json::encode($decodedArrayConditions);
+					$condtion = json_encode($decodedArrayConditions);
 					$query = 'UPDATE com_vtiger_workflows SET test=? where workflow_id=?';
 					$db->pquery($query, array($condtion, $row['workflow_id']));
 				}
@@ -279,7 +279,7 @@ class PickListHandler extends VTEventHandler {
 				require_once 'modules/com_vtiger_workflow/tasks/' . $className . '.inc';
 				$unserializeTask = unserialize($task);
 				if (array_key_exists("field_value_mapping", $unserializeTask)) {
-					$fieldMapping = Zend_Json::decode($unserializeTask->field_value_mapping);
+					$fieldMapping = json_decode($unserializeTask->field_value_mapping);
 					if (!empty($fieldMapping)) {
 						foreach ($fieldMapping as $key => $condition) {
 							if ($condition['fieldname'] == $pickListFieldName) {
@@ -296,7 +296,7 @@ class PickListHandler extends VTEventHandler {
 							}
 							$fieldMapping[$key] = $condition;
 						}
-						$updatedTask = Zend_Json::encode($fieldMapping);
+						$updatedTask = json_encode($fieldMapping);
 						$unserializeTask->field_value_mapping = $updatedTask;
 						$serializeTask = serialize($unserializeTask);
 						$query = 'UPDATE com_vtiger_workflowtasks SET task=? where workflow_id=? AND task_id=?';

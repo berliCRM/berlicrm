@@ -11,13 +11,13 @@
 class Vtiger_Notebook_Model extends Vtiger_Widget_Model {
 	
 	public function getContent() {
-		$data = Zend_Json::decode(decode_html($this->get('data')));
+		$data = json_decode(decode_html($this->get('data')));
 		return $data['contents'];
 		
 	}
 	
 	public function getLastSavedDate() {
-		$data = Zend_Json::decode(decode_html($this->get('data')));
+		$data = json_decode(decode_html($this->get('data')));
 		return $data['lastSavedOn'];
 		
 	}
@@ -33,7 +33,7 @@ class Vtiger_Notebook_Model extends Vtiger_Widget_Model {
 		$dataValue['contents'] = $content;
 		$dataValue['lastSavedOn'] = $date;
 		
-		$data = Zend_Json::encode((object) $dataValue);
+		$data = json_encode((object) $dataValue);
 		$this->set('data', $data);
 		
 		

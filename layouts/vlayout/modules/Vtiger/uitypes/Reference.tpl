@@ -13,7 +13,7 @@
 {assign var=FIELD_NAME value=$FIELD_MODEL->get('name')}
 {assign var="REFERENCE_LIST" value=$FIELD_MODEL->getReferenceList()}
 {assign var="REFERENCE_LIST_COUNT" value=count($REFERENCE_LIST)}
-{assign var="FIELD_INFO" value=Vtiger_Util_Helper::toSafeHTML(Zend_Json::encode($FIELD_MODEL->getFieldInfo()))}
+{assign var="FIELD_INFO" value=Vtiger_Util_Helper::toSafeHTML(json_encode($FIELD_MODEL->getFieldInfo()))}
 {assign var="SPECIAL_VALIDATOR" value=$FIELD_MODEL->getValidator()}
 {if {$REFERENCE_LIST_COUNT} eq 1}
 	<input name="popupReferenceModule" type="hidden" value="{$REFERENCE_LIST[0]}" />
@@ -41,7 +41,7 @@
 <input id="{$FIELD_NAME}_display" name="{$FIELD_MODEL->getFieldName()}_display" type="text" class="{if (($VIEW_NAME eq 'Edit') or ($MODULE_NAME eq 'Webforms'))} span7 {else} span8 {/if}	marginLeftZero autoComplete" {if !empty($displayId)}readonly="true"{/if}
  value="{$FIELD_MODEL->getEditViewDisplayValue($displayId)}" data-validation-engine="validate[{if $FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]"
  data-fieldinfo='{$FIELD_INFO}' placeholder="{vtranslate('LBL_TYPE_SEARCH',$MODULE)}"
- {if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if}/>
+ {if !empty($SPECIAL_VALIDATOR)}data-validator='{json_encode($SPECIAL_VALIDATOR)}'{/if}/>
 <span class="add-on relatedPopup cursorPointer">
 	<i id="{$MODULE}_editView_fieldName_{$FIELD_NAME}_select" class="icon-search relatedPopup" title="{vtranslate('LBL_SELECT', $MODULE)}" ></i>
 </span>

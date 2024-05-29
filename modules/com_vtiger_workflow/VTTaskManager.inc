@@ -240,7 +240,7 @@ class VTTaskType {
 					true);
 		}
 
-		$modules = Zend_Json::encode($taskType['modules']);
+		$modules = json_encode($taskType['modules']);
 
 		$taskTypeId = $adb->getUniqueID("com_vtiger_workflow_tasktypes");
 		$taskType['id'] = $taskTypeId;
@@ -264,7 +264,7 @@ class VTTaskType {
 			$taskName = $rawData['tasktypename'];
 			$moduleslist = $rawData['modules'];
 			$sourceModule = $rawData['sourcemodule'];
-			$modules = Zend_Json::decode($moduleslist);
+			$modules = json_decode($moduleslist);
 			$includeModules = $modules['include'];
 			$excludeModules = $modules['exclude'];
 

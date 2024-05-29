@@ -26,7 +26,7 @@ class WorkFlowScheduler {
 	}
 
 	public function getWorkflowQuery($workflow) {
-		$conditions = Zend_Json :: decode(decode_html($workflow->test));
+		$conditions = json_decode(decode_html($workflow->test));
 
 		$moduleName = $workflow->moduleName;
 		$queryGenerator = new QueryGenerator($moduleName, $this->user);

@@ -148,7 +148,7 @@ Class Calendar_Edit_View extends Vtiger_Edit_View {
 		$picklistDependencyDatasource = Vtiger_DependencyPicklist::getPicklistDependencyDatasource($moduleName);
         $accessibleUsers = $currentUser->getAccessibleUsers();
 		
-		$viewer->assign('PICKIST_DEPENDENCY_DATASOURCE',Zend_Json::encode($picklistDependencyDatasource));
+		$viewer->assign('PICKIST_DEPENDENCY_DATASOURCE',json_encode($picklistDependencyDatasource));
 		$viewer->assign('ACCESSIBLE_USERS', $accessibleUsers);
         $viewer->assign('INVITIES_SELECTED', $recordModel->getInvities());
         $viewer->assign('CURRENT_USER', $currentUser);
