@@ -42,7 +42,7 @@ class Vtiger_Widget_Model extends Vtiger_Base_Model {
 	public function getPositionCol($default=0) {
 		$position = $this->get('position');
 		if ($position) {
-			$position = json_decode(decode_html($position));
+			$position = json_decode(decode_html($position), true);
 			return intval($position['col']);
 		}
 		return $default;
@@ -51,7 +51,7 @@ class Vtiger_Widget_Model extends Vtiger_Base_Model {
 	public function getPositionRow($default=0) {
 		$position = $this->get('position');
 		if ($position) {
-			$position = json_decode(decode_html($position));
+			$position = json_decode(decode_html($position), true);
 			return intval($position['row']);
 		}
 		return $default;
