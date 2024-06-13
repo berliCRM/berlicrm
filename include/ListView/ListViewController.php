@@ -462,7 +462,7 @@ class ListViewController {
 					} else {
 						$parentModule = $this->typeList[$value];
 					}
-					if(!empty($value) && !empty($this->nameList[$fieldName]) && !empty($parentModule) && (isRecordExists($value) || ($module == 'Documents' && $fieldName == 'folderid') || $fieldName == 'smcreatorid')) {
+					if(!empty($value) && !empty($this->nameList[$fieldName]) && !empty($parentModule) && (isRecordExists($value) || ($module == 'Documents' && $fieldName == 'folderid') || $fieldName == 'smcreatorid' || $fieldName == 'modifiedby')) {
 						$parentMeta = $this->queryGenerator->getMeta($parentModule);
 						$value = textlength_check($this->nameList[$fieldName][$value]);
 						if ($module == 'Documents' && $fieldName == 'folderid') {
