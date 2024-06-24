@@ -11,6 +11,11 @@ global $calpath;
 global $app_strings,$mod_strings;
 global $theme;
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Shared\Date as SharedDate;
+
 $theme_path="themes/".$theme."/";
 $image_path=$theme_path."images/";
 require_once('include/database/PearDatabase.php');
@@ -4223,30 +4228,43 @@ class ReportRun extends CRMEntity
 		global $currentModule, $current_language, $current_user;
 		$mod_strings = return_module_language($current_language, $currentModule);
 
-		require_once("libraries/PHPExcel/PHPExcel.php");
+		require_once('libraries/PhpSpreadsheet/autoloader.php');
 
-		$workbook = new PHPExcel();
-		$worksheet = $workbook->setActiveSheetIndex(0);
+		$spreadsheet = new Spreadsheet();
+		$activeWorksheet = $spreadsheet->setActiveSheetIndex(0);
 
 		$reportData = $this->GenerateReport("PDF",$filterlist);
         $arr_val = $reportData['data'];
 		$totalxls = $this->GenerateReport("TOTALXLS",$filterlist);
 
 		$header_styles = array(
-			'fill' => array( 'type' => PHPExcel_Style_Fill::FILL_SOLID, 'color' => array('rgb'=>'E1E0F7') ),
+			'fill' => array(
+				'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 
+				'startColor' => array('rgb' => 'E1E0F7')
+			),
 			//'font' => array( 'bold' => true )
 		);
 
 		if(isset($arr_val)) {
-			$count = 0;
+			$count = 1;
 			$rowcount = 1;
             //copy the first value details
             $arrayFirstRowValues = $arr_val[0];
 			array_pop($arrayFirstRowValues);			// removed action link in details
 			array_shift($arrayFirstRowValues);  // removed listcolor
+			
+			$currencyId = (isset($current_user)) ? $current_user->currency_id : 1;
+			$currencyRateAndSymbol = getCurrencySymbolandCRate($currencyId);
+			$currencySymbol = $currencyRateAndSymbol['symbol'];
+			$currencySymbolPlacement = (isset($current_user)) ? $current_user->currency_symbol_placement : '$';
+			$currencyFormat = '#,##0.00_-[$€]';
+			$tmpCurrencySymbol = '"'.$currencySymbol.'"';
+
 			foreach($arrayFirstRowValues as $key=>$value) {
-				$worksheet->setCellValueExplicitByColumnAndRow($count, $rowcount, $key, true);
-				$worksheet->getStyleByColumnAndRow($count, $rowcount)->applyFromArray($header_styles);
+
+				// $currencyFormat = (strpos($currencySymbolPlacement, '$') === 0) ? $tmpCurrencySymbol.$currencyFormat : $currencyFormat.$tmpCurrencySymbol;
+				$activeWorksheet->setCellValue(array($count, $rowcount), $key);
+				$activeWorksheet->getStyle(array($count, $rowcount))->applyFromArray($header_styles);
 
 				// NOTE Performance overhead: http://stackoverflow.com/questions/9965476/phpexcel-column-size-issues
 				//$worksheet->getColumnDimensionByColumn($count)->setAutoSize(true);
@@ -4254,17 +4272,11 @@ class ReportRun extends CRMEntity
 				$count = $count + 1;
 			}
 			
-			$currencyId = (isset($current_user)) ? $current_user->currency_id : 1;
-			$currencyRateAndSymbol = getCurrencySymbolandCRate($currencyId);
-			$currencySymbol = html_entity_decode($currencyRateAndSymbol['symbol']);
-			$currencySymbolPlacement = (isset($current_user)) ? $current_user->currency_symbol_placement : '$';
-			$currencyFormat = '#,##0.00_-';
-			$tmpCurrencySymbol = '"'.$currencySymbol.'"';
-			$currencyFormat = (strpos($currencySymbolPlacement, '$') === 0) ? $tmpCurrencySymbol.$currencyFormat : $currencyFormat.$tmpCurrencySymbol;
+
 
 			$rowcount++;
 			foreach($arr_val as $key=>$array_value) {
-				$count = 0;
+				$count = 1;
 				array_pop($array_value);	// removed action link in details
 				array_shift($array_value);  // removed listcolor
 				foreach($array_value as $hdr=>$value) {
@@ -4281,43 +4293,42 @@ class ReportRun extends CRMEntity
 					}
 					if ($type == 'date') {
 						$date = new DateTimeField($value);
-						$value = PHPExcel_Shared_Date::PHPToExcel(strtotime($date->getDBInsertDateValue()));
-						
-						$worksheet->setCellValueByColumnAndRow($count, $rowcount, $value);
-						$worksheet->getStyleByColumnAndRow($count, $rowcount)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_XLSX14);
+						$value = SharedDate::PHPToExcel(strtotime($date->getDBInsertDateValue()));
+						$activeWorksheet->setCellValue(array($count, $rowcount), $value);
+						$activeWorksheet->getStyle(array($count, $rowcount))->getNumberFormat()->setFormatCode("dd.mm.yyyy");
 					} elseif ($type == 'double' || $type == 'currency') {
 						//double is currently not in userformat
 						if (isset($currencySymbol)) $value = str_replace($currencySymbol, '', html_entity_decode($value));
-						$value = ($type == 'currency') ? CurrencyField::convertToDBFormat($value, null, true) : $value;
-						$worksheet->setCellValueByColumnAndRow($count, $rowcount, $value, PHPExcel_Cell_DataType::TYPE_NUMERIC);
-						if ($type == 'currency') $worksheet->getStyleByColumnAndRow($count, $rowcount)->getNumberFormat()->setFormatCode($currencyFormat);
+						$value = CurrencyField::convertToDBFormat($value, null, true);
+						$activeWorksheet->setCellValueExplicit(array($count, $rowcount), $value, DataType::TYPE_NUMERIC);
+						if ($type == 'currency') $activeWorksheet->getStyle(array($count, $rowcount))->getNumberFormat()->setFormatCode($currencyFormat);
 					} else {
-						$worksheet->setCellValueExplicitByColumnAndRow($count, $rowcount, $value, PHPExcel_Cell_DataType::TYPE_STRING);
+						$activeWorksheet->setCellValueExplicit(array($count, $rowcount), $value, DataType::TYPE_STRING);
 					}
 					// currently not working
 					// $worksheet->getStyleByColumnAndRow($count, $rowcount)->getAlignment()->setWrapText(true);
 					$count = $count + 1;
 				}
-				$worksheet->getRowDimension($rowcount)->setRowHeight(-1);
+				$activeWorksheet->getRowDimension($rowcount)->setRowHeight(-1);
 				$rowcount++;
 			}
 			
-			$cellIterator = $worksheet->getRowIterator()->current()->getCellIterator();
+			$cellIterator = $activeWorksheet->getRowIterator()->current()->getCellIterator();
 			$cellIterator->setIterateOnlyExistingCells(true);
 			foreach ($cellIterator AS $cell) {
-				$worksheet->getColumnDimension($cell->getColumn())->setAutoSize(true);
+				$activeWorksheet->getColumnDimension($cell->getColumn())->setAutoSize(true);
 			}
 
 			// Summary Total
 			$rowcount++;
-			$count=0;
+			$count = 1;
 			if(is_array($totalxls[0])) {
 				foreach($totalxls[0] as $key=>$value) {
 					$chdr=substr($key,-3,3);
 					$translated_str = in_array($chdr ,array_keys($mod_strings))?$mod_strings[$chdr]:$key;
-					$worksheet->setCellValueExplicitByColumnAndRow($count, $rowcount, $translated_str);
+					$activeWorksheet->setCellValue(array($count, $rowcount), $translated_str);
 
-					$worksheet->getStyleByColumnAndRow($count, $rowcount)->applyFromArray($header_styles);
+					$activeWorksheet->getStyle(array($count, $rowcount))->applyFromArray($header_styles);
 
 					$count = $count + 1;
 				}
@@ -4325,16 +4336,17 @@ class ReportRun extends CRMEntity
 
 			$rowcount++;
 			foreach($totalxls as $key=>$array_value) {
-				$count = 0;
+				$count = 1;
 				foreach($array_value as $hdr=>$value) {
 					$value = decode_html($value);
-					$worksheet->setCellValueExplicitByColumnAndRow($count, $key+$rowcount, $value);
+					$activeWorksheet->setCellValueExplicit($count, $key+$rowcount, $value, DataType::TYPE_STRING);
+					// $activeWorksheet->setCellValueExplicitByColumnAndRow($count, $key+$rowcount, $value); (deprecated)
 					$count = $count + 1;
 				}
 			}
 		}
 
-		$workbookWriter = PHPExcel_IOFactory::createWriter($workbook, 'Excel5');
+		$workbookWriter = new Xlsx($spreadsheet);
 		$workbookWriter->save($fileName);
 	}
 
