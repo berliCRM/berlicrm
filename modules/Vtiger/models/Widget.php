@@ -16,12 +16,12 @@ class Vtiger_Widget_Model extends Vtiger_Base_Model {
 		$largerSizedWidgets = array('GroupedBySalesPerson', 'PipelinedAmountPerSalesPerson', 'GroupedBySalesStage', 'Funnel Amount','LeadsByIndustry');
 		$title = $this->getName();
 		if(in_array($title, $largerSizedWidgets)) {
-			$this->set('width', '6');
+			$this->set('width', '4');
 		}
 
 		$width = $this->get('width');
 		if(empty($width)) {
-			$this->set('width', '4');
+			$this->set('width', '3');
 		}
 		return $this->get('width');
 	}
@@ -30,11 +30,11 @@ class Vtiger_Widget_Model extends Vtiger_Base_Model {
 		//Special case for History widget
 		$title = $this->getTitle();
 		if($title == 'History') {
-			$this->set('height', '2');
+			$this->set('height', '3');
 		}
 		$height = $this->get('height');
 		if(empty($height)) {
-			$this->set('height', '1');
+			$this->set('height', '2');
 		}
 		return $this->get('height');
 	}
