@@ -35,7 +35,7 @@ class VTUpdateFieldsTask extends VTTask {
 
 		$fieldValueMapping = array();
 		if (!empty($this->field_value_mapping)) {
-			$fieldValueMapping = json_decode($this->field_value_mapping);
+			$fieldValueMapping = json_decode($this->field_value_mapping, true);
 		}
 
 		if (!empty($fieldValueMapping) && count($fieldValueMapping) > 0) {

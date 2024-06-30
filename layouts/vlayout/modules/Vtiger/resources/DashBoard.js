@@ -8,7 +8,7 @@
  *************************************************************************************/
 
 jQuery.Class("Vtiger_DashBoard_Js", {
-	gridster : false,
+	gridStack : false,
 
 	//static property which will store the instance of dashboard
 	currentInstance : false,
@@ -17,13 +17,15 @@ jQuery.Class("Vtiger_DashBoard_Js", {
 		var element = jQuery(element);
 		var linkId = element.data('linkid');
 		var name = element.data('name');
-		jQuery(element).parent().hide();
-		var widgetContainer = jQuery('<li class="new dashboardWidget" id="'+ linkId +'" data-name="'+name+'" data-mode="open"></li>');
-		widgetContainer.data('url', url);
 		var width = element.data('width');
 		var height = element.data('height');
-		Vtiger_DashBoard_Js.gridster.add_widget(widgetContainer, width, height);
-		Vtiger_DashBoard_Js.currentInstance.loadWidget(widgetContainer);
+		jQuery(element).parent().hide();
+		var widgetContainer = 
+			'<div class="grid-stack-item" gs-w="' + width + '" gs-h="' + height + '">' + 
+				'<div class="grid-stack-item-content new dashboardWidget" id="'+ linkId +'" data-name="'+name+'" data-mode="open" data-url="'+url+'"></div>' + 
+			'</div>';
+		Vtiger_DashBoard_Js.gridStack.addWidget(widgetContainer);
+		Vtiger_DashBoard_Js.currentInstance.loadWidget(jQuery('#'+linkId));
 	},
 
 	addMiniListWidget: function(element, url) {
@@ -202,7 +204,7 @@ jQuery.Class("Vtiger_DashBoard_Js", {
 
 	getContainer : function() {
 		if(this.container == false) {
-			this.container = jQuery('.gridster ul');
+			this.container = jQuery('.grid-stack');
 		}
 		return this.container;
 	},
@@ -216,19 +218,12 @@ jQuery.Class("Vtiger_DashBoard_Js", {
 		return this.instancesCache[id];
 	},
 
-	registerGridster : function() {
+	registerGridStack : function() {
 		var thisInstance = this;
-		Vtiger_DashBoard_Js.gridster = this.getContainer().gridster({
-			widget_margins: [7, 7],
-			widget_base_dimensions: [100, 300],
-			min_cols: 6,
-			min_rows: 20,
-			draggable: {
-				'stop': function() {
-					thisInstance.savePositions(jQuery('.dashboardWidget'));
-				}
-			}
-		}).data('gridster');
+		Vtiger_DashBoard_Js.gridStack = GridStack.init();
+		Vtiger_DashBoard_Js.gridStack.on('dragstop', function(event, el) {
+			thisInstance.savePositions(jQuery('.dashboardWidget'));
+		})
 	},
 
 	savePositions: function(widgets) {
@@ -236,7 +231,7 @@ jQuery.Class("Vtiger_DashBoard_Js", {
 		for (var index=0, len = widgets.length; index < len; ++index) {
 			var widget = jQuery(widgets[index]);
 			widgetRowColPositions[widget.attr('id')] = JSON.stringify({
-				row: widget.attr('data-row'), col: widget.attr('data-col')
+				row: widget.parent().attr('gs-x'), col: widget.parent().attr('gs-y')
 			});
 		}
 
@@ -271,12 +266,12 @@ jQuery.Class("Vtiger_DashBoard_Js", {
 				}
 				);
 		} else {
-	}
+		}
 	},
 
 
 	registerEvents : function() {
-		this.registerGridster();
+		this.registerGridStack();
 		this.loadWidgets();
 
 		this.registerRefreshWidget();
@@ -284,13 +279,12 @@ jQuery.Class("Vtiger_DashBoard_Js", {
 		this.removeWidget();
 		this.registerFilterInitiater();
 
-		this.gridsterStop();
-
+		this.gridStackStop();
 	},
 
-	gridsterStop : function() {
+	gridStackStop : function() {
 		// TODO: we need to allow the header of the widget to be draggable
-		var gridster = Vtiger_DashBoard_Js.gridster;
+		var gridStack = Vtiger_DashBoard_Js.gridStack;
 
 	},
 
@@ -299,16 +293,16 @@ jQuery.Class("Vtiger_DashBoard_Js", {
 		this.getContainer().on('click', 'a[name="drefresh"]', function(e) {
 			var element = $(e.currentTarget);
 			var parent = element.closest('li');
-			var widgetInstnace = thisInstance.getWidgetInstance(parent);
-			widgetInstnace.refreshWidget();
+			var widgetInstance = thisInstance.getWidgetInstance(parent);
+			widgetInstance.refreshWidget();
 			return;
 		});
 	},
 
 	removeWidget : function() {
-		this.getContainer().on('click', 'li a[name="dclose"]', function(e) {
+		this.getContainer().on('click', 'div a[name="dclose"]', function(e) {
 			var element = $(e.currentTarget);
-            var listItem = jQuery(element).parents('li');
+            var listItem = jQuery(element).parents('div').parents('div');
             var width = listItem.attr('data-sizex');
             var height = listItem.attr('data-sizey');
             
@@ -329,9 +323,9 @@ jQuery.Class("Vtiger_DashBoard_Js", {
 										parent.remove();
 									});
 									if (jQuery.inArray(widgetName, nonReversableWidgets) == -1) {
-										var data = '<li><a onclick="Vtiger_DashBoard_Js.addWidget(this, \''+response.result.url+'\')" href="javascript:void(0);"';
-										data += 'data-width='+width+' data-height='+height+ ' data-linkid='+response.result.linkid+' data-name='+response.result.name+'>'+response.result.title+'</a></li>';
-										var divider = jQuery('.widgetsList .divider');
+										var data = '<li><a class="dropdown-item" onclick="Vtiger_DashBoard_Js.addWidget(this, \''+response.result.url+'\')" href="javascript:void(0);"';
+										data += 'data-width="'+width+'" data-height="'+height+ '" data-linkid="'+response.result.linkid+'" data-name="'+response.result.name+'">'+response.result.title+'</a></li>';
+										var divider = jQuery('.widgetsList .dropdown-divider');
 										if(divider.length) {
 											jQuery(data).insertBefore(divider);
 										} else {
@@ -368,3 +362,8 @@ jQuery.Class("Vtiger_DashBoard_Js", {
 		})
 	}
 });
+
+jQuery(document).ready(function() {
+	var dashboard = new Vtiger_DashBoard_Js();
+	dashboard.registerEvents();
+})
