@@ -4295,7 +4295,7 @@ class ReportRun extends CRMEntity
 						$date = new DateTimeField($value);
 						$value = SharedDate::PHPToExcel(strtotime($date->getDBInsertDateValue()));
 						$activeWorksheet->setCellValue(array($count, $rowcount), $value);
-						$activeWorksheet->getStyle(array($count, $rowcount))->getNumberFormat()->setFormatCode("dd.mm.yyyy");
+						$activeWorksheet->getStyle(array($count, $rowcount))->getNumberFormat()->setFormatCode("dd-mm-yyyy");
 					} elseif ($type == 'double' || $type == 'currency') {
 						//double is currently not in userformat
 						if (isset($currencySymbol)) $value = str_replace($currencySymbol, '', html_entity_decode($value));

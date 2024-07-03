@@ -255,12 +255,9 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 			
 			fclose($fp);
 		} elseif ($exportType == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-			$fileName .= '.xls';
+			$fileName .= '.xlsx';
 			header("Content-Disposition:attachment;filename=$fileName");
 
-
-			// $workbook = new PHPExcel();
-			// $worksheet = $workbook->setActiveSheetIndex(0);
 			try{
 			$worksheet = new Spreadsheet();
 			$activeWorksheet = $worksheet->getActiveSheet();
@@ -316,12 +313,18 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 						}
 						
 						$activeWorksheet->setCellValue(array($count, $rowcount), $value);
-						$activeWorksheet->getStyle(array($count, $rowcount))->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_XLSX14);
+						$activeWorksheet->getStyle(array($count, $rowcount))->getNumberFormat()->setFormatCode("dd-mm-yyyy");
 					} elseif ($type == 'double' || $type == 'currency') {
 						if (isset($currencySymbol)) $value = str_replace($currencySymbol, '', html_entity_decode($value));
 						$value = CurrencyField::convertToDBFormat($value, null, true);
 						$activeWorksheet->setCellValueExplicit(array($count, $rowcount), $value, DataType::TYPE_NUMERIC);
 						if ($type == 'currency') $activeWorksheet->getStyle(array($count, $rowcount))->getNumberFormat()->setFormatCode($currencyFormat);
+					}
+					elseif ($type == 'checkbox') {
+							if(strcasecmp(trim($value),"yes")==0)
+								$value="1";
+							if(strcasecmp(trim($value),"no")==0)
+								$value="0";
 					} else {
 						if ($type == 'reference') {
 							list($parent_module, $value) = explode('::::', $value);
