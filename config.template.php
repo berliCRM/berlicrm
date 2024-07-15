@@ -202,6 +202,9 @@ $max_mailboxes = 3;
 // Set the default timezone as per your preference
 $default_timezone = 'UTC';
 
+// Set true for activation of QR Code for swiss pdf 
+$qr_feature = false;
+
 /** If timezone is configured, try to set it */
 if(isset($default_timezone) && function_exists('date_default_timezone_set')) {
 	@date_default_timezone_set($default_timezone);
