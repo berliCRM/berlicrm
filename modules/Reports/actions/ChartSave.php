@@ -14,7 +14,7 @@ class Reports_ChartSave_Action extends Reports_Save_Action {
 		$moduleName = $request->getModule();
 
 		$record = $request->get('record');
-		$reportModel = Reports_Record_Model::getCleanInstance();
+		$reportModel = Reports_Record_Model::getCleanInstance($record);
 		$reportModel->setModule('Reports');
 		if(!empty($record) && !$request->get('isDuplicate')) {
 			$reportModel->setId($record);
