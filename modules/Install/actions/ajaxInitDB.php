@@ -1,7 +1,7 @@
 <?php
 class Install_ajaxInitDB_Action extends Vtiger_BasicAjax_Action {
 	
-	function loginRequired() {
+	function loginRequired():bool {
 		return false;
 	}
 	
