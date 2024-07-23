@@ -613,6 +613,33 @@ var Settings_Picklist_Js = {
 		});
 	},
 
+	registerPickListOrderValuesClickEvent : function() {
+		jQuery('#orderSequence').on('click',function(e){
+			// Get the table element by its ID
+			const table = document.getElementById("pickListValuesTable");
+
+			// Get the table body element
+			const tbody = table.querySelector("tbody");
+
+			// Get all the rows inside the table body
+			const rows = Array.from(tbody.querySelectorAll("tr"));
+
+			// Sort the rows based on the text content in the second column (td)
+			rows.sort((a, b) => {
+				const textA = a.querySelector("td").textContent.trim();
+				const textB = b.querySelector("td").textContent.trim();
+			return textA.localeCompare(textB);
+			});
+
+			// Remove the current rows from the table
+			rows.forEach(row => tbody.removeChild(row));
+
+			// Append the sorted rows back to the table
+			rows.forEach(row => tbody.appendChild(row));
+			document.getElementById('saveSequence').disabled = false;
+			});
+		},
+
 	registerSaveSequenceClickEvent : function() {
 		jQuery('#saveSequence').on('click',function(e) {
 			var progressIndicatorElement = jQuery.progressIndicator({
@@ -724,6 +751,7 @@ var Settings_Picklist_Js = {
 		Settings_Picklist_Js.registerAssingValueToRoleTabClickEvent();
 		Settings_Picklist_Js.registerAssignValueToBlockTabClickEvent();
 		Settings_Picklist_Js.registerPickListValuesSortableEvent();
+		Settings_Picklist_Js.registerPickListOrderValuesClickEvent();
 		Settings_Picklist_Js.registerSaveSequenceClickEvent();
 	},
 

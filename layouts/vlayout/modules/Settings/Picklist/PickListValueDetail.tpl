@@ -47,6 +47,7 @@
 					<button class="btn span10 marginLeftZero" id="addItem">{vtranslate('LBL_ADD_VALUE',$QUALIFIED_MODULE)}</button><br><br>
 					<button class="btn span10 marginLeftZero" id="renameItem">{vtranslate('LBL_RENAME_VALUE',$QUALIFIED_MODULE)}</button><br><br>
 					<button class="btn btn-danger span10 marginLeftZero"  id="deleteItem">{vtranslate('LBL_DELETE_VALUE',$QUALIFIED_MODULE)}</button><br><br>
+					<button class="btn span10 marginLeftZero" id="orderSequence">{vtranslate('LBL_ORDER_VALUE',$QUALIFIED_MODULE)}</button><br><br>
 				{/if}
 				<button class="btn btn-success span10 marginLeftZero" disabled=""  id="saveSequence">{vtranslate('LBL_SAVE_ORDER',$QUALIFIED_MODULE)}</button><br><br>
 			</div>
