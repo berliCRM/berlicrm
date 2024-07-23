@@ -149,7 +149,7 @@ abstract class Vtiger_View_Controller extends Vtiger_Action_Controller {
 
 		// es gib da ein unterschied. Sobald die Signatur einmal mit cke-Editor mit "Quellcode" bearbeitet wurde, wird es /n geben. Davor aber nicht.
 		$signatureUnformatted = $currentUser->get('signature');
-		if( strpos($signatureUnformatted, '\n') !== false ){
+		if(!empty($signatureUnformatted) && strpos($signatureUnformatted, '\n') !== false ){
 			// <pre> tag darf nicht im Signatur sein, da dort keine <br> dazu erscheinen, und deswegen es hier in "einer Zeile" erscheinen wird.
 			// kann nur mit viel Aufwand abgefangen werden, aber wenn es mehrere <pre> tag gibt, verkompliziert es das ganze.
 			$signaturetext=(str_replace(array('\r\n', '\n'),'',$signatureUnformatted ));
