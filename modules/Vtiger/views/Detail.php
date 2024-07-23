@@ -36,7 +36,7 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		return true;
 	}
 
-	function preProcess(Vtiger_Request $request, $display=true): void  {
+	function preProcess(Vtiger_Request $request, bool $display=true):void  {
 		parent::preProcess($request, false);
 
 		$recordId = $request->get('record');

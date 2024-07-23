@@ -27,12 +27,12 @@ Class Users_PreferenceEdit_View extends Vtiger_Edit_View {
 		}
 	}
 
-	function preProcessTplName(Vtiger_Request $request) {
+	function preProcessTplName(Vtiger_Request $request):string {
 		return 'UserEditViewPreProcess.tpl';
 	}
 
 
-	public function preProcess (Vtiger_Request $request, $display=true) {
+	public function preProcess (Vtiger_Request $request, bool $display=true):void {
 		if($this->checkPermission($request)) {
 			$currentUser = Users_Record_Model::getCurrentUserModel();
 			$viewer = $this->getViewer($request);
@@ -78,7 +78,7 @@ Class Users_PreferenceEdit_View extends Vtiger_Edit_View {
 		}
 	}
 
-	protected function preProcessDisplay(Vtiger_Request $request) {
+	protected function preProcessDisplay(Vtiger_Request $request):void {
 		$viewer = $this->getViewer($request);
 		$viewer->view($this->preProcessTplName($request), $request->getModule());
 	}
@@ -105,7 +105,7 @@ Class Users_PreferenceEdit_View extends Vtiger_Edit_View {
 		parent::process($request);
 	}
 
-    public function getHeaderScripts(Vtiger_Request $request) {
+    public function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
         $moduleDetailFile = 'modules.'.$moduleName.'.resources.PreferenceEdit';
