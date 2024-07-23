@@ -32,18 +32,39 @@ class Settings_Workflows_ListView_Model extends Settings_Vtiger_ListView_Model {
 
 		$listFields = $module->listFields;
 		unset ($listFields['tasktitles']);
+		// it are here deleted, because it was not in the table (com_vtiger_workflows).(need set it later) 
 
 		$listQuery = "SELECT ";
+		// we need "com_vtiger_workflowtasks.summary AS tasktitles", attention, fieeld "summary" are in both tables (but means another value)
+		// tables: com_vtiger_workflows, com_vtiger_workflowtasks.
 		foreach ($listFields as $fieldName => $fieldLabel) {
-			$listQuery .= "$fieldName, ";
+			$listQuery .= $module->baseTable.".".$fieldName.", ";
 		}
-		$listQuery .= $module->baseIndex . " FROM ". $module->baseTable;
+
+		$setGroupBy = false;
+		if( trim($module->baseTable) == "com_vtiger_workflows" ){
+			$listQuery .= $module->baseTable.".".$module->baseIndex . ", ";
+			$listQuery .= " com_vtiger_workflowtasks.summary AS tasktitles ";
+			$listQuery .= " FROM ".$module->baseTable." ";
+			$listQuery .= " LEFT JOIN com_vtiger_workflowtasks ON com_vtiger_workflows.workflow_id = com_vtiger_workflowtasks.workflow_id ";
+			// the same "com_vtiger_workflowtasks.workflow_id" can occur multiple time. (it was the first BUG). So we need  " GROUP BY ".
+			// But " GROUP BY " are always set after "WHERE .. " and before " ORDER BY ". So set it later.
+			$setGroupBy = true;
+		} 
+		else{
+			$listQuery .= $module->baseTable.".".$module->baseIndex . " FROM ". $module->baseTable;
+		}
 
 		$params = array();
 		$sourceModule = $this->get('sourceModule');
 		if(!empty($sourceModule)) {
-			$listQuery .= ' WHERE module_name = ?';
+			$listQuery .= " WHERE module_name = ? ";
 			$params[] = $sourceModule;
+		}
+
+		if( $setGroupBy ){
+			// " GROUP BY " are always set after "WHERE .. " and before " ORDER BY ". 
+			$listQuery .= " GROUP BY  com_vtiger_workflows.workflow_id "; 
 		}
 
 		$startIndex = $pagingModel->getStartIndex();
@@ -70,6 +91,7 @@ class Settings_Workflows_ListView_Model extends Settings_Vtiger_ListView_Model {
 			$row = $db->query_result_rowdata($listResult, $i);
 			$record = new $recordModelClass();
 			$module_name = $row['module_name'];
+			$tasktitles = $row['tasktitles'];
 			
 			//To handle translation of calendar to To Do
 			if($module_name == 'Calendar'){
@@ -114,7 +136,7 @@ class Settings_Workflows_ListView_Model extends Settings_Vtiger_ListView_Model {
 		}else{
 			$pagingModel->set('nextPageExists', false);
 		}
-		
+
         $nextPageResult = $db->pquery($nextListQuery, $params);
         $nextPageNumRows = $db->num_rows($nextPageResult);
         if($nextPageNumRows <= 0) {
