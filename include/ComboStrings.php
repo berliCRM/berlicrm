@@ -320,9 +320,11 @@ $combo_strings = Array(
 								'Weekly' => 'Weekly',
 								'Monthly' => 'Monthly',
 								'Quarterly' => 'Quarterly',
+								'every 4 months' => 'every 4 months',
 								'Yearly' => 'Yearly'
 							),		
-'payment_duration_dom' => Array('Net 30 days'=>'Net 30 days',
+'payment_duration_dom' => Array('Net 14 days'=>'Net 14 days',
+								'Net 30 days'=>'Net 30 days',
 								'Net 45 days'=>'Net 45 days',
 								'Net 60 days'=>'Net 60 days'
 							),      
