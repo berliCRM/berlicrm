@@ -63,11 +63,18 @@ for($i=0; $i<$no_of_salesorder;$i++) {
 		$interval = 'P1M';
 		//get day of month
 		$format = 'j';
-	} elseif (strtolower($recurring_frequency) == 'quarterly') {
+	} 
+	elseif (strtolower($recurring_frequency) == 'quarterly') {
 		$interval = 'P3M';
 		//get day of month
 		$format = 'j';
-	} elseif (strtolower($recurring_frequency) == 'yearly') {
+	} 
+	elseif (strtolower($recurring_frequency) == 'every 4 months') {
+		$interval = 'P4M';
+		//get day of month
+		$format = 'j';
+	} 
+	elseif (strtolower($recurring_frequency) == 'yearly') {
 		$interval = 'P1Y';
 		//get day of month
 		$format = 'Y';
@@ -131,7 +138,8 @@ function createInvoice($salesorder_id) {
         'net 5 days' => '5',
         'net 7 days' => '7',
         'net 10 days' => '10',
-        'net 15 days' => '15',
+        'net 14 days' => '14',
+		'net 15 days' => '15',
 		'net 30 days' => '30',
 		'net 45 days' => '45',
 		'net 60 days' => '60'
@@ -144,7 +152,12 @@ function createInvoice($salesorder_id) {
 	$so_focus->id = $salesorder_id;
 	$so_focus->retrieve_entity_info($salesorder_id,"SalesOrder");
 	foreach($so_focus->column_fields as $fieldname=>$value) {
-		$so_focus->column_fields[$fieldname] = decode_html($value);
+		if($fieldname == "description" || $fieldname == "productDescription"){
+			$so_focus->column_fields[$fieldname] = html_entity_decode(decode_html($value));
+		}
+		else{
+			$so_focus->column_fields[$fieldname] = decode_html($value);
+		}
 	}
 
 	$focus = new Invoice();

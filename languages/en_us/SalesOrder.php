@@ -44,8 +44,10 @@ $languageStrings = array(
         'Weekly'=>'Weekly', 
         'Monthly'=>'Monthly', 
         'Quarterly'=>'Quarterly', 
+        'every 4 months'=>'Every 4 Months', 
         'Yearly'=>'Yearly', 
 
+        'Net 14 days' => 'Net 14 days',
         'Net 30 days' => 'Net 30 days', 
         'Net 45 days' => 'Net 45 days', 
         'Net 60 days' => 'Net 60 days', 
