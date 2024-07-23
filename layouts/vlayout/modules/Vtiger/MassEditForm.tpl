@@ -67,6 +67,9 @@
 										{assign var=COUNTER value=$COUNTER+1}
 									{/if}
 									<td class="fieldLabel alignMiddle">
+									{if ($FIELD_MODEL->isMandatory() neq true)}
+										<input type="checkbox" name="mass_delete_check_{$FIELD_MODEL->get('name')}" id="mass_delete_check_{$FIELD_MODEL->get('name')}" title="{vtranslate('LBL_EMPTY_FIELD')}" style ="outline:2px solid lightgrey; outline-offset: -2px;"  class="small">&nbsp;
+									{/if}
 									{if $FIELD_MODEL->isMandatory() eq true} <span class="redColor">*</span> {/if}
 									{if {$isReferenceField} eq "reference"}
 										{if $refrenceListCount > 1}
