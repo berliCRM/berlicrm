@@ -42,6 +42,7 @@ $languageStrings = array(
 	'LBL_TO_DELETE_MULTIPLE_HOLD_CONTROL_KEY' => 'To Delete multiple items hold Ctrl key down while selecting items',
 	'LBL_VALUES_ASSIGNED_TO_A_ROLE' => 'Values assigned to a role',
     'NO_PICKLIST_FIELDS'=> 'do not have any picklist fields',
+	'LBL_ORDER_VALUE'=> 'Order Picklist',
 	//labels missing in en_us
 	'Events' => 'Events',
     // crm-now: dynamic blocks

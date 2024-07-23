@@ -42,6 +42,7 @@ $languageStrings = array(
 	'LBL_TO_DELETE_MULTIPLE_HOLD_CONTROL_KEY' => 'um mehrere Einträge zum Löschen zu markieren benutzen Sie die Strg Taste',
 	'LBL_VALUES_ASSIGNED_TO_A_ROLE' => 'Rollenzuordnung der Einträge',
     'NO_PICKLIST_FIELDS'=> 'haben keine Auswahllistenfelder',
+	'LBL_ORDER_VALUE'=> 'Sortiere Auswahlliste',
 	//labels missing in en_us
 	'Events' => 'Ereignisse',
     // crm-now: dynamic blocks
