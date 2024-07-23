@@ -108,7 +108,10 @@ class Vtiger_Save_Action extends Vtiger_Action_Controller {
 		return $recordModel;
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
-            return $request->validateWriteAccess(); 
-        } 
+	public function validateRequest(Vtiger_Request $request):bool {
+		return $request->validateWriteAccess();
+	}
+
+	public function getViewer(Vtiger_Request $request) {
+	}
 }
