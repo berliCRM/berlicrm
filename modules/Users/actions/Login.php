@@ -10,7 +10,7 @@
 
 class Users_Login_Action extends Vtiger_Action_Controller {
 
-	function loginRequired() {
+	function loginRequired():bool {
 		return false;
 	}
 
@@ -63,5 +63,8 @@ class Users_Login_Action extends Vtiger_Action_Controller {
 			header ('Location: index.php?module=Users&parent=Settings&view=Login&error=1');
 		}
         exit();
+	}
+
+	public function getViewer(Vtiger_Request $request) {
 	}
 }
