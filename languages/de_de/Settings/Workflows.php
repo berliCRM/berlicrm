@@ -135,6 +135,27 @@ $languageStrings = array(
     'LBL_FIELD_DELETED' => 'Ein in diesem Workflow gespeichertes Feld wurde inzwischen gelöscht und deswegen auch aus dem Workflow entfernt. Bitte erstellen Sie die Aufgabe neu.',
 	'LBL_TICKET_CREATE_ORG_CON_EMAIL'=>'Ticket über Portal erstellt: Sende E-Mail an Zuständigen und Person',
 	'LBL_TICKET_UPDATE_CON_EMAIL'=>'Sende E-Mail an Person bei Ticket Aktualisierung',
+
+	// workflows conditions
+	'is' => 'ist',
+    'contains' => 'enthält',
+    'does not contain' => 'nicht enthält',
+    'starts with' => 'startet mit',
+    'ends with' => 'endet mit',
+    'has changed' => 'hat sich geändert',
+    'has changed to' => 'hat sich geändert zu',
+    'is empty' => 'ist leer',
+    'is not empty' => 'ist nicht leer',
+    'less than' => 'kleiner als',
+    'greater than' => 'großer als',
+    'does not equal' => 'nicht gleich',
+    'less than or equal to' => 'kleiner oder gleich',
+    'greater than or equal to' => 'großer oder gleich',
+    'before' => 'davor',
+    'after' => 'danach',
+    'between' => 'zwischen',
+    'is added' => 'wird addiert',
+	'is not' => 'ist nicht',
 );
 
 $jsLanguageStrings = array(

@@ -125,6 +125,27 @@ $languageStrings = array(
 	'LBL_TICKET_UPDATE_CON_EMAIL'=>'send email to contact on ticket update',
 	'LBL_EVENT_NOTIFY_TRUE'=>'Workflow for events when send notification is activated',
 	'LBL_TODOS_NOTIFY_TRUE'=>'Workflow for calendar todos when send notification is activated',
+
+	// workflows conditions
+	'is' => 'is',
+    'contains' => 'contains',
+    'does not contain' => 'does not contain',
+    'starts with' => 'starts with',
+    'ends with' => 'ends with',
+    'has changed' => 'has changed',
+    'has changed to' => 'has changed to',
+    'is empty' => 'is empty',
+    'is not empty' => 'is not empty',
+    'less than' => 'less than',
+    'greater than' => 'greater thans',
+    'does not equal' => 'does not equal',
+    'less than or equal to' => 'less than or equal to',
+    'greater than or equal to' => 'greater than or equal to',
+    'before' => 'before',
+    'after' => 'after',
+    'between' => 'between',
+    'is added' => 'is added',
+	'is not' => 'is not',
 );
 
 $jsLanguageStrings = array(
