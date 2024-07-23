@@ -309,8 +309,39 @@ class NumberField {
 		if(empty($decimalSeparator)) {
 			$decimalSeparator = ' ';
 		}
-        $value = str_replace("$currencySeparator", "", $value);
-        $value = str_replace("$decimalSeparator", ".", $value);
+        
+		// Problem: $currencySeparator can be '.' or',' ... and if we have here number 2.000 so it will convert to 2000 if we only delete the point.
+		// But if we have a currency, we have allways two places after the decimal point, not three. (example 3,456.15 or 4.567,05)
+		// So we do it only if both of them are present, and the first will be deleted, and the second will be convert to '.' point.
+		// In all another situations we have only decimalSeparator present. So it will be convert to '.' point.
+		$pos1 = strpos($value, ',');
+		$pos2 = strpos($value, '.');
+		$valueLength = strlen($value);
+
+		if($pos1 !== false && $pos2 !== false){
+			if($pos1 < $pos2 ){	
+				// example 3,456.15
+				$value = str_replace(",", "", $value);
+			}
+			elseif($pos1 > $pos2){ 
+				// example 4.567,05
+				$value = str_replace(".", "", $value);
+				$value = str_replace(",", ".", $value);
+			}
+		}
+		elseif($pos1 !== false && (($valueLength - $pos1) == 3) ){
+			// only ',' is here: example 343,25 (but it can not be 3,095 here)
+			$value = str_replace(",", ".", $value);
+		}
+		elseif($pos1 !== false){
+			// TODO
+			// example 3,095 # but we do not know is it a thousand separator or not. Do old Funktionality. Maybe it is correct then.
+			$value = str_replace("$currencySeparator", "", $value);
+			$value = str_replace("$decimalSeparator", ".", $value);
+		}
+		else{
+			// and here we go only if it is only one point as separator. Example 2.000 or 2.00 or 2.0 // nothing to do.
+		}
 
 		//$value = round($value, $this->maxNumberOfDecimals);
 
