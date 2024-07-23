@@ -57,7 +57,7 @@ class Settings_Picklist_Index_View extends Settings_Vtiger_Index_View {
 		$viewer->view('Index.tpl',$qualifiedName);
     }
 	
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

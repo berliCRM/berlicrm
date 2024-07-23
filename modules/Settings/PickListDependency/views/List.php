@@ -10,7 +10,7 @@
 
 class Settings_PickListDependency_List_View extends Settings_Vtiger_List_View {
 	
-	public function preProcess(Vtiger_Request $request, $display = true) {
+	public function preProcess(Vtiger_Request $request, $display = true):void {
 		$moduleModelList = Settings_PickListDependency_Module_Model::getPicklistSupportedModules();
 		$forModule = $request->get('formodule');
 		$viewer = $this->getViewer($request);
@@ -40,7 +40,7 @@ class Settings_PickListDependency_List_View extends Settings_Vtiger_List_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 
@@ -53,7 +53,7 @@ class Settings_PickListDependency_List_View extends Settings_Vtiger_List_View {
 		return $headerScriptInstances;
 	}
 	
-	public function getHeaderCss(Vtiger_Request $request) {
+	public function getHeaderCss(Vtiger_Request $request):array {
 		$headerCssInstances = parent::getHeaderCss($request);
 
 		$cssFileNames = array(
