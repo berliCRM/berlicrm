@@ -19,7 +19,7 @@ class Vtiger_Index_View extends Vtiger_Basic_View {
 		return true;
 	}
 
-	public function preProcess (Vtiger_Request $request, $display=true) {
+	public function preProcess (Vtiger_Request $request, bool $display=true): void {
 		parent::preProcess($request, false);
 
                 $viewer = $this->getViewer($request);
@@ -51,7 +51,7 @@ class Vtiger_Index_View extends Vtiger_Basic_View {
 		}
 	}
 
-	protected function preProcessTplName(Vtiger_Request $request) {
+	protected function preProcessTplName(Vtiger_Request $request): string {
 		return 'IndexViewPreProcess.tpl';
 	}
 
@@ -61,7 +61,7 @@ class Vtiger_Index_View extends Vtiger_Basic_View {
 		return parent::preProcessTplName($request);
 	}*/
 
-	public function postProcess(Vtiger_Request $request) {
+	public function postProcess(Vtiger_Request $request): void {
 		$moduleName = $request->getModule();
 		$viewer = $this->getViewer($request);
 		$viewer->view('IndexPostProcess.tpl', $moduleName);
@@ -80,7 +80,7 @@ class Vtiger_Index_View extends Vtiger_Basic_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request): array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 
@@ -94,7 +94,7 @@ class Vtiger_Index_View extends Vtiger_Basic_View {
 		return $headerScriptInstances;
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
-            $request->validateReadAccess(); 
-        } 
+	public function validateRequest(Vtiger_Request $request): bool {
+		return $request->validateReadAccess();
+	}
 }

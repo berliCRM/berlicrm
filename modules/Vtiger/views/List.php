@@ -17,7 +17,7 @@ class Vtiger_List_View extends Vtiger_Index_View {
 		parent::__construct();
 	}
 
-	function preProcess(Vtiger_Request $request, $display=true) {
+	function preProcess(Vtiger_Request $request, bool $display=true):void {
 		parent::preProcess($request, false);
 
 		$viewer = $this->getViewer ($request);
@@ -44,7 +44,7 @@ class Vtiger_List_View extends Vtiger_Index_View {
 		}
 	}
 
-	function preProcessTplName(Vtiger_Request $request) {
+	function preProcessTplName(Vtiger_Request $request): string {
 		return 'ListViewPreProcess.tpl';
 	}
 
@@ -54,7 +54,7 @@ class Vtiger_List_View extends Vtiger_Index_View {
 		return parent::preProcessTplName($request);
 	}*/
 
-	protected function preProcessDisplay(Vtiger_Request $request) {
+	protected function preProcessDisplay(Vtiger_Request $request): void {
 		parent::preProcessDisplay($request);
 	}
 
@@ -72,7 +72,7 @@ class Vtiger_List_View extends Vtiger_Index_View {
 		$viewer->view('ListViewContents.tpl', $moduleName);
 	}
 
-	function postProcess(Vtiger_Request $request) {
+	function postProcess(Vtiger_Request $request): void {
 		$viewer = $this->getViewer ($request);
 		$moduleName = $request->getModule();
 
@@ -85,7 +85,7 @@ class Vtiger_List_View extends Vtiger_Index_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request): array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

@@ -36,7 +36,7 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		return true;
 	}
 
-	function preProcess(Vtiger_Request $request, $display=true) {
+	function preProcess(Vtiger_Request $request, $display=true): void  {
 		parent::preProcess($request, false);
 
 		$recordId = $request->get('record');
@@ -121,7 +121,7 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		}
 	}
 
-	function preProcessTplName(Vtiger_Request $request) {
+	function preProcessTplName(Vtiger_Request $request): string  {
 		return 'DetailViewPreProcess.tpl';
 	}
 
@@ -141,7 +141,7 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		}
 	}
 
-	public function postProcess(Vtiger_Request $request) {
+	public function postProcess(Vtiger_Request $request): void {
 		$recordId = $request->get('record');
 		$moduleName = $request->getModule();
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
@@ -178,7 +178,7 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 	}
 
 
-	public function getHeaderScripts(Vtiger_Request $request) {
+	public function getHeaderScripts(Vtiger_Request $request): array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 
