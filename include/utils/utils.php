@@ -2367,6 +2367,8 @@ if (!function_exists('set_magic_quotes_runtime')) { function set_magic_quotes_ru
 
 function crmnow_login_protection($usr_name, $login_tries) {
 	global $adb, $log;
+	$usr_name = trim($usr_name);
+
 	/* added for brute force protection */
 	$query = 'CREATE TABLE IF NOT EXISTS `berli_failed_logins` (
 			  `user_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,

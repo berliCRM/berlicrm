@@ -9,7 +9,7 @@
  *************************************************************************************/
 	
 	function vtws_login($username,$pwd){
-		
+		$username = trim($username);
 		$user = new Users();
 		$userId = $user->retrieve_user_id($username);
 		

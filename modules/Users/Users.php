@@ -349,7 +349,7 @@ class Users extends CRMEntity {
     function doLogin($user_password) {
         global $AUTHCFG;
         //crm-now: added for brute force check
-        $usr_name = $this->column_fields["user_name"];
+        $usr_name = trim($this->column_fields["user_name"]);
 
         switch (strtoupper($AUTHCFG['authType'])) {
             case 'LDAP':
