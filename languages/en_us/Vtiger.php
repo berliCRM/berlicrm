@@ -322,6 +322,7 @@ $languageStrings = array(
 	'LBL_MARKETING_AND_SALES' => 'MARKETING & SALES',
 	'LBL_MARK_AS_HELD' => 'Mark As Held',
 	'LBL_MASS_EDITING' => 'Mass Editing',
+	'LBL_EMPTY_FIELD' => 'Empty field',
 	'LBL_MATCHED_THIS_CRITERIA' => 'matched this criteria',
 	'LBL_MAX_NUMBER_FILTER_COLUMNS' => 'Max. 12',
 	'LBL_MAX_QTY_SELECT' => 'Maximum value is',
@@ -873,7 +874,7 @@ $languageStrings = array(
 	'LBL_CRON_TIMEOUT_SUBJECT' => 'CRON \'%s\' Timeout in %s',
 	'LBL_CRON_TIMEOUT_CONTENT' => 'In your <a href="%s">CRM</a> the Cron \'%s\' was not finished since 24h.<br>It was restarted now but should be checked anyway.',
 
-	// Toolwisgets
+	// SpecialWidgets
 	'LBL_COPY_CONTACTDETAILS' => 'Copy Contact Details',
 );
 
