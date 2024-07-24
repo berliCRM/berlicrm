@@ -21,7 +21,11 @@ function vtws_update($element,$user){
     $handler = new $handlerClass($webserviceObject,$user,$adb,$log);
     $meta = $handler->getMeta();
     $entityName = $meta->getObjectEntityName($element['id']);
-    
+	
+	if ($entityName == null){
+		throw new WebServiceException(WebServiceErrorCode::$RECORDNOTFOUND,"Record you are trying to access is not found");
+	}
+	
     $types = vtws_listtypes(null, $user);
     if(!in_array($entityName,$types['types'])){
         throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED,"Permission to perform the operation is denied");
@@ -121,6 +125,14 @@ function vtws_update($element,$user){
             $res = $adb->pquery($sql,array($element[$fieldName],$element[$fieldName]));
             if ($res && $adb->num_rows($res) == 0) {
                 throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, "Illegal value (".$element[$fieldName].") for $fieldName (".$fieldmodel->get('label').")");
+            }
+        }
+        elseif($uitype == "23" || $uitype == "5") {
+            if($element[$fieldName] !="") {
+                $temp = Vtiger_Functions::checkValidYearFormat($element[$fieldName]);
+                if(!$temp) {
+                    throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, "Illegal date value ($fieldName => {$element[$fieldName]})");
+                }
             }
         }
     }

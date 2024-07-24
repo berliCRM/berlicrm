@@ -657,17 +657,31 @@ class Vtiger_Functions {
 	static function getMergedDescriptionCustomVars($fields, $description) {
 		global $current_user;
 		date_default_timezone_set($current_user->time_zone);
-		$user_lang_arr = explode("_",$current_user->language);
-		$user_lang_arr[1] = strtoupper ($user_lang_arr[1]);
-		$user_lang = implode("_", $user_lang_arr);
-		setlocale(LC_TIME, $user_lang, $user_lang.'UTF-8');
+		
+		$dateFormat = new IntlDateFormatter(
+			$current_user->language,
+			IntlDateFormatter::FULL,
+			IntlDateFormatter::FULL,
+			$current_user->time_zone,
+			IntlDateFormatter::GREGORIAN,
+			'dd. MMMM yyyy'
+		);
+
+		$timeFormat = new IntlDateFormatter(
+			$current_user->language,
+			IntlDateFormatter::FULL,
+			IntlDateFormatter::FULL,
+			$current_user->time_zone,
+			IntlDateFormatter::GREGORIAN,
+			'HH:mm:ss (zz)'
+		);
 		foreach ($fields['custom'] as $columnname) {
 			$token_data = '$custom-' . $columnname . '$';
 			$token_value = '';
 			switch ($columnname) {
-				case 'currentdate': $token_value = strftime("%d. %B %Y");
+				case 'currentdate': $token_value = $dateFormat->format(microtime(true));
 					break;
-				case 'currenttime': $token_value = strftime("%T (%Z)");
+				case 'currenttime': $token_value = $timeFormat->format(microtime(true));
 					break;
 			}
 			$description = str_replace($token_data, $token_value, $description);
@@ -1351,6 +1365,22 @@ class Vtiger_Functions {
 		return $rowListColor;
 	}
 
-
+	//
+	/**
+	 * Check Valid Dataformat
+	 * @param  string 	$dateValue	Date to validate
+	 * @return boolean				Indicator for valid Format
+	*/
+	public static function checkValidYearFormat($dateValue) {
+		$regexExpression = '/^(?:\d{4}-\d{2}-\d{2}|NULL)$/';
+		if (preg_match($regexExpression, $dateValue)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
 
 }
+
+

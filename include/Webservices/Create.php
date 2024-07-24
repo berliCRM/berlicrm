@@ -94,6 +94,14 @@ function vtws_create($elementType, $element, $user) {
                 throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, "Illegal value (".$element[$fieldName].") for $fieldName (".$fieldmodel->get('label').")");
             }
         }
+        elseif($uitype == "23" || $uitype == "5") {
+            if($element[$fieldName] !="") {
+                $temp = Vtiger_Functions::checkValidYearFormat($element[$fieldName]);
+                if(!$temp) {
+                    throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, "Illegal date value ($fieldName => {$element[$fieldName]})");
+                }
+            }
+        }
     }
 
     if ($meta->hasMandatoryFields($element)) {
