@@ -653,7 +653,7 @@ function saveInventoryProductDetails(&$focus, $module, $update_prod_stock='false
 				addToProductDemand($prod_id,$qty);
 			}
 		}
-
+		$description = html_entity_decode($description);
 		$query ="insert into vtiger_inventoryproductrel(id, productid, sequence_no, quantity, listprice, comment, description, lineitem_id) values(?,?,?,?,?,?,?,?)";
 		$qparams = array($focus->id,$prod_id,$prod_seq,$qty,$listprice,$comment,$description,$line_id);
 		$adb->pquery($query,$qparams);
