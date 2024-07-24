@@ -32,6 +32,12 @@ class Vtiger_Reference_UIType extends Vtiger_Base_UIType {
 		} elseif (in_array('Users', $referenceModuleList)) {
 			return Vtiger_Module_Model::getInstance('Users');
 		}
+
+		// if $referenceModuleList is empty, then it is blocked. ToDo, can it be mandatory and in role blocked?
+		if( empty($referenceModuleList) ){
+			return '';
+		}
+		// it can land here if value are empty or referenceModuleList have not referenceEntityType in it. 
 		return null;
 	}
 
@@ -42,7 +48,12 @@ class Vtiger_Reference_UIType extends Vtiger_Base_UIType {
 	 */
 	public function getDisplayValue($value, $record = false, $recordInstance = false) {
 		$referenceModule = $this->getReferenceModule($value);
-		if($referenceModule && !empty($value)) {
+		// if it is blocked.
+		if(($referenceModule == '' && !is_null($referenceModule))){
+			$displayValue = getTranslatedString('LBL_NOT_ACCESSIBLE', $currentModule);
+			return $displayValue;
+		}
+		else if($referenceModule && !empty($value)) {
 			$referenceModuleName = $referenceModule->get('name');
 			if($referenceModuleName == 'Users') {
 				$db = PearDatabase::getInstance();
