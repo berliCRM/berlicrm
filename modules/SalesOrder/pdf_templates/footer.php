@@ -15,7 +15,7 @@ class MYPDF extends TCPDF
 		}
 		global $footerradio, $pageradio;
 		global $FOOTER_PAGE, $default_font, $font_size_footer, $SalesOrder_no, $NUM_FACTURE_NAME, $pdf_strings, $footer_margin;
-		global $org_name, $org_address, $org_city, $org_code, $org_country, $org_irs, $org_taxid, $org_phone, $org_fax, $org_website, $requisition_no;
+		global $org_name, $org_address, $org_city, $org_code, $org_country, $org_state, $org_vatid, $org_taxid, $org_phone, $org_fax, $org_website, $requisition_no;
 		global $VAR40_NAME, $VAR3_NAME, $VAR4_NAME,$ORG_POSITION,$VAR_PAGE, $VAR_OF;
 		//bank information - content
 		global $bank_name , $bank_street , $bank_city ,$bank_zip ,$bank_country, $bank_account, $bank_routing, $bank_iban, $bank_swift;
@@ -46,7 +46,7 @@ class MYPDF extends TCPDF
 			$this->SetXY(PDF_MARGIN_LEFT+45 , -PDF_MARGIN_FOOTER+16);
 			$this->Cell(20,4,$pdf_strings['VAR_TAXID'].' '.$org_taxid,0,0,'L');
 			$this->SetXY(PDF_MARGIN_LEFT+45 , -PDF_MARGIN_FOOTER+20);
-			$this->Cell(20,4,decode_html($org_irs),0,0,'L');
+			$this->Cell(20,4,$pdf_strings['VAR_VATID'].' '.$org_vatid,0,0,'L');
 			//draw line
 			$x =PDF_MARGIN_LEFT+83;
 			$this->Line($x,$this->h - PDF_MARGIN_FOOTER+9,$x,$this->h - PDF_MARGIN_FOOTER+23);

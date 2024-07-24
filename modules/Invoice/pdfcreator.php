@@ -15,8 +15,10 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	require_once('include/database/PearDatabase.php');
 	require_once('include/utils/InventoryUtils.php');
 	require_once('modules/Pdfsettings/helpers/PDFutils.php');
+	require_once('swisspdf/createpng.php');
+	include('config.inc.php');
 	global $FOOTER_PAGE, $default_font, $font_size_footer, $NUM_FACTURE_NAME, $pdf_strings, $quote_no, $footer_margin;
-	global $org_name, $org_address, $org_city, $org_code, $org_country, $org_irs, $org_taxid, $org_phone, $org_fax, $org_website;
+	global $org_name, $org_address, $org_city, $org_code, $org_country, $org_vatid, $org_state, $org_taxid, $org_phone, $org_fax, $org_website;
 	global $ORG_POSITION,$VAR_PAGE, $VAR_OF, $invoice_status;
 	//bank information - content
 	global $bank_name , $bank_street , $bank_city ,$bank_zip ,$bank_country, $bank_account, $bank_routing, $bank_iban, $bank_swift;
@@ -25,6 +27,8 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	global $columns, $logoradio, $logo_name, $footerradio, $pageradio;
 	global $adb,$app_strings,$focus,$current_user,$invoice_no, $purposefooter;
 	$module = 'Invoice';
+	$current_id = $adb->getUniqueID("vtiger_crmentity");
+
 	//get the stored configuration values
 	$pdf_config_details = getAllPDFDetails('Invoice');
 	//set font
@@ -79,7 +83,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
             $decimals_separator = ',';
             $thousands_separator = '.';   
          break;
-      }
+    }
 	if(isset($current_user->currency_decimal_separator)) {
 		$decimals_separator = $current_user->currency_decimal_separator;
 	}
@@ -130,7 +134,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 		$org_phone = $adb->query_result($result,0,"phone");
 		$org_fax = $adb->query_result($result,0,"fax");
 		$org_taxid = $adb->query_result($result,0,"tax_id");
-		$org_irs = $adb->query_result($result,0,"irs");
+		$org_vatid = $adb->query_result($result,0,"vatid");
 		$org_website = $adb->query_result($result,0,"website");
 
 		$logo_name = decode_html($adb->query_result($result,0,"logoname"));
@@ -467,6 +471,100 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	// no description
 	}
 	// ************************ END POPULATE DATA ***************************
+
+	if($qr_feature == true) {
+		//$bank_iban
+// 		//Funktion zur Generierung einer zufälligen IBAN
+// 		function generateUniqueIBAN() {
+// 			// Ländercode und Prüfziffer
+// 			$qriban = 'CH'; // Schweiz
+// 			$qriban .= sprintf('%02d', mt_rand(10, 99)); // Zufällige Prüfziffer
+
+// 			// Bankleitzahl
+// 			$qriban .= sprintf('%05d', mt_rand(30000, 31999));
+
+// 			// Kontonummer
+// 			$qriban .= sprintf('%010d', mt_rand(0, 9999999999));
+		
+// 			// IBAN-Prüfziffer berechnen
+// 			$ibanWithoutChecksum = $qriban . '271500';
+// 			$checksum = 98 - bcmod($ibanWithoutChecksum, '97');
+// 			$qriban .= sprintf('%02d', $checksum);
+		
+// 			return $qriban;
+// 		}
+
+// 		$pdfDataObj['qriban'] = generateUniqueIBAN();
+
+		//available countrylist
+		$countrylist = array(
+		'SCHWEIZ' => 'CH',
+		'Schweiz' => 'CH',
+		'DEUTSCHLAND' => 'DE',
+		'Deutschland' => 'DE',
+
+		);
+
+
+			
+		foreach ($countrylist as $country => $country_code) {
+			if(strtoupper($org_country) == $country) {
+				$bill_country_code = $country_code;
+			}
+
+			if(strtoupper($ship_country) == $country) {
+				$ship_country_code = $country_code;
+			}
+		}
+
+		// Überprüfung, ob die Postleitzahl Buchstaben enthält
+		if (preg_match('/[a-zA-Z]/', $org_code)) {
+			// Buchstaben entfernen und nur Zahlen beibehalten
+			$org_code = preg_replace('/[^0-9]/', '', $org_code);
+		}
+	
+		//create QR-Code
+
+		if(empty($org_name) || empty($org_address) || empty($org_code) || empty($org_city) || empty($bill_country_code)|| empty($contact_firstname) || empty($contact_lastname) || empty($ship_street) || empty($ship_code) || empty($ship_state) || empty($ship_country_code)) {
+    		// Ausgabe der Fehlermeldung
+    		var_dump('Fehler: Bitte füllen Sie alle Adressfelder aus.');
+		} else {
+			$pdfDataObj['organisation']['name'] = $org_name;
+			$pdfDataObj['organisation']['hnr+street'] = $org_address;
+			$pdfDataObj['organisation']['zip+state'] = $org_code.' '.$org_city;
+			$pdfDataObj['organisation']['country'] = $bill_country_code;
+
+
+
+			$pdfDataObj['contact']['name'] = $contact_firstname.' '.$contact_lastname;
+			$pdfDataObj['contact']['street'] = explode(' ', $ship_street)[0];
+			$pdfDataObj['contact']['hnr'] = explode(' ', $ship_street)[1];
+			$pdfDataObj['contact']['zip'] = $ship_code;
+			$pdfDataObj['contact']['state'] = $ship_state;
+			$pdfDataObj['contact']['country'] = $ship_country_code;
+			$pdfDataObj['contact']['org'] = $account_name;
+
+			$pdfDataObj['payment']['currency'] = $currency_code;
+			$pdfDataObj['payment']['amount'] = number_format($price_total,$decimal_precision,$decimals_separator,$thousands_separator);  
+
+			$pdfDataObj['qriban'] = 'CH4431999123000889012';
+			$pdfDataObj['invoice_number'] = strval($focus->column_fields['invoice_no']);
+			$pdfDataObj['bill_number'] = strval($current_id);
+			$pdfDataObj['description'] = strval($focus->column_fields['description']);
+		}
+
+
+		if($pdfDataObj['payment']['currency'] != " ") {
+			// $datei = fopen("test/testData.txt","a+");
+			// fwrite($datei, print_r($pdfDataObj, TRUE));
+			// fclose($datei);
+			$createpngpath = createpng($pdfDataObj);
+			// $datei = fopen("test/testData.txt","a+");
+			// fwrite($datei, print_r('\ndone', TRUE));
+			// fclose($datei);
+
+		}
+	}
 	//************************BEGIN PDF FORMATING**************************
 	// Extend the TCPDF class to create custom Header and Footer
 	$page_num='1';
@@ -518,12 +616,44 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	$pdf->SetFont($default_font, " ", $font_size_body);
 	include("modules/Invoice/pdf_templates/body.php");
 	//formating company name for file name
-	$export_org = utf8_decode($account_name);
-	$export_org = decode_html(strtolower($export_org));
-    $export_org = str_replace(array(" ","ö","ä","ü","ß","Ö","Ä","Ü","/","\\"),array("_","oe","ae","ue","ss","Oe","Ae","Ue","_","_"),$export_org);
+	$export_org = strtolower($account_name);
+	$export_org = preg_replace('/[^a-z0-9_]/i', '_', $export_org);	
 	//remove not printable ascii char
 	$export_org = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $export_org);
 
+	if($qr_feature == true) {
+		$pdf->AddPage();
+		$imagewidth=50;
+		$imageheight=50;
+
+		//Right Side of QR-Code
+		$pdf->MultiCell(70, 0,'<h2>Rechnung</h2>', 0, 'C', 0, 0, '', '', true, 0, true);
+		$pdf->Ln(6);
+		$pdf->MultiCell(65, 5,'', 0, 'L', 0, 0, '', '', true); $pdf->MultiCell(55, 5,'<b>Zahlen an</b><br>'.$pdfDataObj['qriban'], 0, 'L', 0, 1, '', '', true, 0, true);
+		$pdf->MultiCell(65, 5,'', 0, 'L', 0, 0, '', '', true); $pdf->MultiCell(55, 5,$pdfDataObj['organisation']['name']."\n".$pdfDataObj['organisation']['hnr+street'], 0, 'L', 0, 1, '', '', true);			
+		$pdf->MultiCell(65, 5,'', 0, 'L', 0, 0, '', '', true); $pdf->MultiCell(55, 5,$pdfDataObj['organisation']['zip+state'], 0, 'L', 0, 1, '', '', true);
+		$pdf->Ln(2);
+		$pdf->MultiCell(65, 5,'', 0, 'L', 0, 0, '', '', true); $pdf->MultiCell(55, 5,"<b>Referenz</b><br>".$pdfDataObj['invoice_number'], 0, 'L', 0, 1, '', '', true, 0, true);
+		$pdf->Ln(2);
+		$pdf->MultiCell(65, 5,'', 0, 'L', 0, 0, '', '', true); $pdf->MultiCell(55, 5,"<b>Beschreibung</b><br>".$pdfDataObj['description'], 0, 'L', 0, 1, '', '', true, 0, true);
+		$pdf->Ln(2);
+		$pdf->MultiCell(65, 5,'', 0, 'L', 0, 0, '', '', true); $pdf->MultiCell(55, 5,"<b>Zahlung von</b><br>".$pdfDataObj['contact']['org']."<br>".$pdfDataObj['contact']['name']."<br>".$pdfDataObj['contact']['street'].' '.$pdfDataObj['contact']['hnr']."<br>".$pdfDataObj['contact']['zip'].' '.$pdfDataObj['contact']['state'], 0, 'L', 0, 1, '', '', true, 0, true);
+		$pdf->Ln(5);
+		$pdf->MultiCell(40, 0,'<b>Währung</b>', 0, 'C', 0, 0, '', '', true, 0, true);
+		$pdf->MultiCell(15, 0,'<b>Betrag</b>', 0, 'C', 0, 1, '', '', true, 0, true);
+		$pdf->MultiCell(40, 0,$pdfDataObj['payment']['currency'], 0, 'C', 0, 0, '', '', true, 0, true);
+		$pdf->MultiCell(15, 0,$pdfDataObj['payment']['amount'], 0, 'C', 0, 1, '', '', true, 0, true);
+
+
+		$imageData = imagecreatefrompng($imagepath);	
+
+
+		$tempimagepath = $root_directory.$createpngpath;
+		imagejpeg($imageData, $tempimagepath, 100);
+		imagedestroy($imageData);
+		$pdf->Image($tempimagepath, 30, 30, $imagewidth, $imageheight, 'JPEG');
+	}
+	
 	if ($purpose=='save' || $purpose=='savesn') {
 		// save PDF file at Invoice
 		if ($purpose=='savesn') {
