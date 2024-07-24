@@ -46,119 +46,137 @@
 <div class="contents-topscroll noprint">
 	<div class="topscroll-div">
 		&nbsp;
-	 </div>
+	</div>
 </div>
 <div class="listViewEntriesDiv contents-bottomscroll">
 	<div class="bottomscroll-div">
-	<input type="hidden" value="{$ORDER_BY}" id="orderBy">
-	<input type="hidden" value="{$SORT_ORDER}" id="sortOrder">
-	<span class="listViewLoadingImageBlock hide modal noprint" id="loadingListViewModal">
-		<img class="listViewLoadingImage" src="{vimage_path('loading.gif')}" alt="no-image" title="{vtranslate('LBL_LOADING', $MODULE)}"/>
-		<p class="listViewLoadingMsg">{vtranslate('LBL_LOADING_LISTVIEW_CONTENTS', $MODULE)}........</p>
-	</span>
-	{assign var=WIDTHTYPE value=$CURRENT_USER_MODEL->get('rowheight')}
-	<table class="table table-bordered listViewEntriesTable">
-		<thead>
-			<tr class="listViewHeaders">
-				<th width="5%">
-					<input type="checkbox" id="listViewEntriesMainCheckBox" />
-				</th>
-				{foreach key=ENTRY_INDEX item=LISTVIEW_HEADER from=$LISTVIEW_HEADERS}
-				<th nowrap {if $LISTVIEW_HEADER@last} colspan="2" {/if}>
-                
-                    {if $LISTVIEW_HEADER->block->module->name neq null AND $LISTVIEW_HEADER->block->module->name != $MODULE} {*crmnow *}
-                        <a href="javascript:void(0);" class="listViewHeaderValues" data-nextsortorderval="{if $COLUMN_NAME eq $ENTRY_INDEX}{$NEXT_SORT_ORDER}{else}ASC{/if}" data-columnname="{$ENTRY_INDEX}">{vtranslate($LISTVIEW_HEADER->get('label'), $MODULE)} 
-						<span style='font-size:80%;font-weight:normal;color:#888;'> {if {vtranslate({$LISTVIEW_HEADER->block->module->name})} neq ''} ({vtranslate({$LISTVIEW_HEADER->block->module->name})}) {/if}</span>
-						&nbsp;&nbsp;{if $COLUMN_NAME eq $ENTRY_INDEX}<img class="{$SORT_IMAGE} icon-white">{/if}</a>
-                    {else}
-                        <a href="javascript:void(0);" class="listViewHeaderValues" data-nextsortorderval="{if $COLUMN_NAME eq $LISTVIEW_HEADER->get('column')}{$NEXT_SORT_ORDER}{else}ASC{/if}" data-columnname="{$LISTVIEW_HEADER->get('column')}">{vtranslate($LISTVIEW_HEADER->get('label'), $MODULE)} 
-                        &nbsp;&nbsp;{if $COLUMN_NAME eq $LISTVIEW_HEADER->get('column')}<img class="{$SORT_IMAGE} icon-white">{/if}</a>
-                    {/if}
-				</th>
-				{/foreach}
-			</tr>
-		</thead>
-        {if $MODULE_MODEL->isQuickSearchEnabled()}
-        <tr>
-            <td></td>
-			{foreach key=ENTRY_INDEX item=LISTVIEW_HEADER from=$LISTVIEW_HEADERS}
-             <td>
-                 {assign var=FIELD_UI_TYPE_MODEL value=$LISTVIEW_HEADER->getUITypeModel()}
-                {include file=vtemplate_path($FIELD_UI_TYPE_MODEL->getListSearchTemplateName(),$MODULE_NAME)
-                    FIELD_MODEL= $LISTVIEW_HEADER SEARCH_INFO=$SEARCH_DETAILS[$LISTVIEW_HEADER->getName()] USER_MODEL=$CURRENT_USER_MODEL}
-             </td>
-			{/foreach}
-			<td>
-				<button class="btn" data-trigger="listSearch">{vtranslate('LBL_SEARCH', $MODULE )}</button>
-			</td>
-        </tr>
-        {/if}
-		{if $URL_SEARCH_PARAMETERS}
-			<input type="hidden" id="url_search_parameters" value='{$URL_SEARCH_PARAMETERS}'>
-		{/if}
-		{foreach item=LISTVIEW_ENTRY from=$LISTVIEW_ENTRIES name=listview}
-		<tr style="background: linear-gradient({$LISTVIEW_ENTRY->getListViewColor()});" class="listViewEntries" data-id='{$LISTVIEW_ENTRY->getId()}' data-recordUrl='{$LISTVIEW_ENTRY->getDetailViewUrl()}' id="{$MODULE}_listView_row_{$smarty.foreach.listview.index+1}">
-           <td  width="5%" class="{$WIDTHTYPE}">
-				<input type="checkbox" value="{$LISTVIEW_ENTRY->getId()}" class="listViewEntriesCheckBox"/>
-			</td>
-			{foreach key=ENTRY_INDEX item=LISTVIEW_HEADER from=$LISTVIEW_HEADERS}
-			{assign var=LISTVIEW_HEADERNAME value=$ENTRY_INDEX}
-			<td class="listViewEntryValue {$WIDTHTYPE}" data-field-type="{$LISTVIEW_HEADER->getFieldDataType()}" nowrap>
-				{if ($LISTVIEW_HEADER->isNameField() eq true or $LISTVIEW_HEADER->get('uitype') eq '4') and $MODULE_MODEL->isListViewNameFieldNavigationEnabled() eq true }
-					<a href="{$LISTVIEW_ENTRY->getDetailViewUrl()}">{$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)}</a>
-				{else if $LISTVIEW_HEADER->get('uitype') eq '72'}
-					{assign var=CURRENCY_SYMBOL_PLACEMENT value={$CURRENT_USER_MODEL->get('currency_symbol_placement')}}
-					{if $CURRENCY_SYMBOL_PLACEMENT eq '1.0$'}
-						{$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)}{$LISTVIEW_ENTRY->get('currencySymbol')}
-					{else}
-						{$LISTVIEW_ENTRY->get('currencySymbol')}{$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)}
-					{/if}
-				{else}
-                    {if $LISTVIEW_HEADER->getFieldDataType() eq 'double'}
-                        {decimalFormat($LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME))}
-                    {elseif $LISTVIEW_HEADER->getFieldDataType() eq 'percentage'}
-                        {decimalFormat($LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME))}%
-                    {else}
-                        {$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)}
-                    {/if}
-				{/if}
-			</td>
-				{if $LISTVIEW_HEADER@last}
-				<td nowrap class="{$WIDTHTYPE}">
-				<div class="actions pull-right">
-					<span class="actionImages">
-						<a href="{$LISTVIEW_ENTRY->getFullDetailViewUrl()}"><i title="{vtranslate('LBL_SHOW_COMPLETE_DETAILS', $MODULE)}" class="icon-th-list alignMiddle"></i></a>&nbsp;
-						{if $IS_MODULE_EDITABLE}
-							<a href='{$LISTVIEW_ENTRY->getEditViewUrl()}'><i title="{vtranslate('LBL_EDIT', $MODULE)}" class="icon-pencil alignMiddle"></i></a>&nbsp;
+		<input type="hidden" value="{$ORDER_BY}" id="orderBy">
+		<input type="hidden" value="{$SORT_ORDER}" id="sortOrder">
+		<span class="listViewLoadingImageBlock hide modal noprint" id="loadingListViewModal">
+			<img class="listViewLoadingImage" src="{vimage_path('loading.gif')}" alt="no-image" title="{vtranslate('LBL_LOADING', $MODULE)}"/>
+			<p class="listViewLoadingMsg">{vtranslate('LBL_LOADING_LISTVIEW_CONTENTS', $MODULE)}........</p>
+		</span>
+		{assign var=WIDTHTYPE value=$CURRENT_USER_MODEL->get('rowheight')}
+		<table class="table table-bordered listViewEntriesTable">
+			<thead>
+				<tr class="listViewHeaders">
+					<th width="5%">
+						<input type="checkbox" id="listViewEntriesMainCheckBox" />
+					</th>
+					{foreach key=ENTRY_INDEX item=LISTVIEW_HEADER from=$LISTVIEW_HEADERS}
+					<th nowrap {if $LISTVIEW_HEADER@last} colspan="2" {/if}>
+						{if $LISTVIEW_HEADER->block->module->name neq null AND $LISTVIEW_HEADER->block->module->name != $MODULE} {*crmnow *}
+							<a href="javascript:void(0);" class="listViewHeaderValues" data-nextsortorderval="{if $COLUMN_NAME eq $ENTRY_INDEX}{$NEXT_SORT_ORDER}{else}ASC{/if}" data-columnname="{$ENTRY_INDEX}">{vtranslate($LISTVIEW_HEADER->get('label'), $MODULE)} 
+							<span style='font-size:80%;font-weight:normal;color:#888;'> {if {vtranslate({$LISTVIEW_HEADER->block->module->name})} neq ''} ({vtranslate({$LISTVIEW_HEADER->block->module->name})}) {/if}</span>
+							&nbsp;&nbsp;{if $COLUMN_NAME eq $ENTRY_INDEX}<img class="{$SORT_IMAGE} icon-white">{/if}</a>
+						{else}
+							<a href="javascript:void(0);" class="listViewHeaderValues" data-nextsortorderval="{if $COLUMN_NAME eq $LISTVIEW_HEADER->get('column')}{$NEXT_SORT_ORDER}{else}ASC{/if}" data-columnname="{$LISTVIEW_HEADER->get('column')}">{vtranslate($LISTVIEW_HEADER->get('label'), $MODULE)} 
+							&nbsp;&nbsp;{if $COLUMN_NAME eq $LISTVIEW_HEADER->get('column')}<img class="{$SORT_IMAGE} icon-white">{/if}</a>
 						{/if}
-						{if $IS_MODULE_DELETABLE}
-							<a class="deleteRecordButton"><i title="{vtranslate('LBL_DELETE', $MODULE)}" class="icon-trash alignMiddle"></i></a>
-						{/if}
-					</span>
-				</div></td>
-				{/if}
-			{/foreach}
-		</tr>
-		{/foreach}
-	</table>
-
-<!--added this div for Temporarily -->
-{if $LISTVIEW_ENTRIES_COUNT eq '0'}
-	<table class="emptyRecordsDiv">
-		<tbody>
+					</th>
+					{/foreach}
+				</tr>
+			</thead>
+			{if $MODULE_MODEL->isQuickSearchEnabled()}
 			<tr>
 				<td>
-					{if $MODULE eq 'SMSNotifier'}
-						{vtranslate('LBL_NO_SMS_FROM_THIS_VIEW', $MODULE)}
-					{else}
-						{assign var=SINGLE_MODULE value="SINGLE_$MODULE"}
-						{vtranslate('LBL_EQ_ZERO')} {vtranslate($SINGLE_MODULE, $MODULE)} {vtranslate('LBL_FOUND')}.{if $IS_RECORD_CREATABLE} {vtranslate('LBL_CREATE')} <a href="{$MODULE_MODEL->getCreateRecordUrl()}">{vtranslate($SINGLE_MODULE, $MODULE)}</a>{/if}
-					{/if}
+				</td>
+				{foreach key=ENTRY_INDEX item=LISTVIEW_HEADER from=$LISTVIEW_HEADERS}
+				<td>
+					{assign var=FIELD_UI_TYPE_MODEL value=$LISTVIEW_HEADER->getUITypeModel()}
+					{include file=vtemplate_path($FIELD_UI_TYPE_MODEL->getListSearchTemplateName(),$MODULE_NAME)
+						FIELD_MODEL= $LISTVIEW_HEADER SEARCH_INFO=$SEARCH_DETAILS[$LISTVIEW_HEADER->getName()] USER_MODEL=$CURRENT_USER_MODEL}
+				</td>
+				{/foreach}
+				<td>
+					<button class="btn" data-trigger="listSearch">{vtranslate('LBL_SEARCH', $MODULE )}</button>
 				</td>
 			</tr>
-		</tbody>
-	</table>
-{/if}
+			{/if}
+			{if $URL_SEARCH_PARAMETERS}
+				<input type="hidden" id="url_search_parameters" value='{$URL_SEARCH_PARAMETERS}'>
+			{/if}
+			{foreach item=LISTVIEW_ENTRY from=$LISTVIEW_ENTRIES name=listview}
+			<tr style="background: linear-gradient({$LISTVIEW_ENTRY->getListViewColor()});" class="listViewEntries" data-id='{$LISTVIEW_ENTRY->getId()}' data-recordUrl='{$LISTVIEW_ENTRY->getDetailViewUrl()}' id="{$MODULE}_listView_row_{$smarty.foreach.listview.index+1}">
+				<td  width="5%" class="{$WIDTHTYPE}">
+					<input type="checkbox" value="{$LISTVIEW_ENTRY->getId()}" class="listViewEntriesCheckBox"/>
+				</td>
+				{foreach key=ENTRY_INDEX item=LISTVIEW_HEADER from=$LISTVIEW_HEADERS}
+				{assign var=LISTVIEW_HEADERNAME value=$ENTRY_INDEX}
+				<td class="listViewEntryValue {$WIDTHTYPE}" data-field-type="{$LISTVIEW_HEADER->getFieldDataType()}" nowrap>
+					{if ($LISTVIEW_HEADER->isNameField() eq true or $LISTVIEW_HEADER->get('uitype') eq '4') and $MODULE_MODEL->isListViewNameFieldNavigationEnabled() eq true }
+						<a href="{$LISTVIEW_ENTRY->getDetailViewUrl()}">{$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)}</a>
+					{else if $LISTVIEW_HEADER->get('uitype') eq '72'}
+						{assign var=CURRENCY_SYMBOL_PLACEMENT value={$CURRENT_USER_MODEL->get('currency_symbol_placement')}}
+						{if $CURRENCY_SYMBOL_PLACEMENT eq '1.0$'}
+							{$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)}{$LISTVIEW_ENTRY->get('currencySymbol')}
+						{else}
+							{$LISTVIEW_ENTRY->get('currencySymbol')}{$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)}
+						{/if}
+					{else}
+						{if $LISTVIEW_HEADER->getFieldDataType() eq 'double'}
+							{decimalFormat($LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME))}
+						{elseif $LISTVIEW_HEADER->getFieldDataType() eq 'percentage'}
+							{decimalFormat($LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME))}%
+						{else}
+							{$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)} 
+							{if $LISTVIEW_HEADER->get('uitype') eq '19' or $LISTVIEW_HEADER->get('uitype') eq '21'  }
+								{if $LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME) && {$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)|trim} neq '' }
+									{assign var=RAWDATA value=$LISTVIEW_ENTRY->getRawData()}
+									{assign var=INFO_TEXT_FULL value=$RAWDATA[$LISTVIEW_HEADERNAME]}
+									<a style="margin-left: 2px;" href="#"  rel="popover" title="{vtranslate($LISTVIEW_HEADER->get('label'), $MODULE)}" data-placement="bottom" data-trigger="hover" data-content="{$INFO_TEXT_FULL}">
+										<i class="icon-info-sign"></i>
+									</a>
+								{/if}
+							{/if}
+						{/if}
+					{/if}
+				</td>
+				{if $LISTVIEW_HEADER@last}
+				<td nowrap class="{$WIDTHTYPE}">
+					<div class="actions pull-right">
+						<span class="actionImages">
+							<a href="{$LISTVIEW_ENTRY->getFullDetailViewUrl()}"><i title="{vtranslate('LBL_SHOW_COMPLETE_DETAILS', $MODULE)}" class="icon-th-list alignMiddle"></i></a>&nbsp;
+							{if $IS_MODULE_EDITABLE}
+								<a href='{$LISTVIEW_ENTRY->getEditViewUrl()}'><i title="{vtranslate('LBL_EDIT', $MODULE)}" class="icon-pencil alignMiddle"></i></a>&nbsp;
+							{/if}
+							{if $IS_MODULE_DELETABLE}
+								<a class="deleteRecordButton"><i title="{vtranslate('LBL_DELETE', $MODULE)}" class="icon-trash alignMiddle"></i></a>
+							{/if}
+						</span>
+					</div>
+				</td>
+				{/if}
+				{/foreach}
+			</tr>
+			{/foreach}
+		</table>
+
+		<!--added this div for Temporarily -->
+		{if $LISTVIEW_ENTRIES_COUNT eq '0'}
+			<table class="emptyRecordsDiv">
+				<tbody>
+					<tr>
+						<td>
+							{if $MODULE eq 'SMSNotifier'}
+								{vtranslate('LBL_NO_SMS_FROM_THIS_VIEW', $MODULE)}
+							{else}
+								{assign var=SINGLE_MODULE value="SINGLE_$MODULE"}
+								{vtranslate('LBL_EQ_ZERO')} {vtranslate($SINGLE_MODULE, $MODULE)} {vtranslate('LBL_FOUND')}.{if $IS_RECORD_CREATABLE} {vtranslate('LBL_CREATE')} <a href="{$MODULE_MODEL->getCreateRecordUrl()}">{vtranslate($SINGLE_MODULE, $MODULE)}</a>{/if}
+							{/if}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		{/if}
+	</div>
 </div>
-</div>
+<!-- crm-now added for tool tip (display of activity description contents -->
+<script>
+	jQuery().ready(function(){
+		jQuery('[rel=popover]').popover();
+	});
+</script>
+
 {/strip}
+	
