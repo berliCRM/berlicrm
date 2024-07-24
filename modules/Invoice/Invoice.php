@@ -486,12 +486,17 @@ class Invoice extends CRMEntity {
 		$no_of_products = $adb->num_rows($res);
 		$fieldsList = $adb->getFieldsArray($res);
 		$update_stock = array();
-		for($j=0; $j<$no_of_products; $j++) {
-			$row = $adb->query_result_rowdata($res, $j);
+
+		while ($row = $adb->getNextRow($res, false)) {
 			$col_value = array();
 			for($k=0; $k<count($fieldsList); $k++) {
 				if($fieldsList[$k]!='lineitem_id'){
-					$col_value[$fieldsList[$k]] = $row[$fieldsList[$k]];
+					if($fieldsList[$k] == 'description'){
+						$col_value[$fieldsList[$k]] = html_entity_decode($row[$fieldsList[$k]]);
+					}
+					else{
+						$col_value[$fieldsList[$k]] = $row[$fieldsList[$k]];
+					}
 				}
 			}
 			if(count($col_value) > 0) {
