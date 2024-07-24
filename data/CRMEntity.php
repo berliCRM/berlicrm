@@ -258,6 +258,12 @@ class CRMEntity {
 			//crm-now: should an array still be present, assume JSON input and re-encode it (was probably decoded by Vtiger_Request class)
 			if (is_array($description_val)) $description_val = json_encode($description_val);
 
+			// to del from description smiles or another special symbols
+			global $set_utf8_special_chars_to_empty_string;
+			if($set_utf8_special_chars_to_empty_string){
+				$description_val = $this->convert_str_with_symb_to_strform($description_val);
+			}
+
             // crm-now: optional appending in mass operations, preventing multiple appends (by save-triggered workflows f.e.)
             if ($_REQUEST["add"]["description"]=="on" && !$_REQUEST["added"]["description"][$this->id] && !empty($_REQUEST['description'])) { 
                 $sql = "UPDATE vtiger_crmentity SET smownerid=?,modifiedby=?,description=TRIM(LEADING '\n' FROM CONCAT(TRIM(TRAILING '\n' FROM description),'\n',?)), modifiedtime=? WHERE crmid=?";
@@ -314,6 +320,12 @@ class CRMEntity {
 			$description_val = from_html($this->column_fields['description'], ($insertion_mode == 'edit') ? true : false);
 			//crm-now: should an array still be present, assume JSON input and re-encode it (was probably decoded by Vtiger_Request class)
 			if (is_array($description_val)) $description_val = json_encode($description_val);
+
+			global $set_utf8_special_chars_to_empty_string;
+			if($set_utf8_special_chars_to_empty_string){
+				$description_val = $this->convert_str_with_symb_to_strform($description_val);
+			}
+
 			$sql = "insert into vtiger_crmentity (crmid,smcreatorid,smownerid,setype,description,modifiedby,createdtime,modifiedtime) values(?,?,?,?,?,?,?,?)";
 			$params = array($current_id, $current_user->id, $ownerid, $module, $description_val, $current_user->id, $created_date_var, $modified_date_var);
 			$adb->pquery($sql, $params);
@@ -2941,5 +2953,124 @@ class CRMEntity {
 
 		return array('query' => $query);
 	}
+
+
+	function convert_str_with_symb_to_strform($originalstr){
+
+		$workStr = $originalstr;
+
+		if(!empty($workStr)){
+
+			$chars = str_split($workStr);
+			$lenChars = count($chars); // 211
+			$lenUtf = mb_strlen($workStr, "UTF-8"); // 190
+
+			// ist symbol da, unterscheiden sich die laengen.
+			if($lenChars != $lenUtf){
+				// wenn da, dann Position im CharArray herausfinden. Anfang und Ende notieren.
+				$beginEndArr = array();
+
+				$temp1 = '';
+				$numb1 = 0;
+				$enterC = true;
+				for($i=0; $i < $lenChars; $i++){
+
+					$temp1 = $temp1.$chars[$i];
+
+					$temp1c = count(str_split($temp1));
+					$temp1l = mb_strlen($temp1, "UTF-8");
+
+					$numb0 = $temp1c - $temp1l;
+
+					// wenn die gleich sind, dann gab es da keine Sonderzeichen.
+					if($numb0 == 0){
+						continue;
+					}
+					else{  //von [35] => � bis [38] => �
+						// und wenn doch, dann wird die Länge nicht stimmen und wir landen hier. 
+						
+						if($enterC){
+							// wenn wir noch nicht da waren, weiter zählen. Beginn notieren.
+							$beginEndArr[] = $i-1;// beginn mit [35
+							$enterC = false;
+						}
+						
+						$numb2 = $numb0 - $numb1; 
+						if($numb2 != 0){
+							$numb1 = $numb0; // wir brauchen bis wann geht es
+						}
+						else{
+							// hat er dann wieder normales Text erreicht, wird  numb2 zu 0 und wir landen hier
+							$beginEndArr[] = $i-1;// ende mit [38
+							// setze alles zum wiederstarten: 
+							$enterC = true;
+							$temp1 = '';
+							$numb1 = 0;
+							// er wird beim durchlauf i++ noch machen, so setze 1 weniger hier.
+							$i = $i-1;
+						}
+					}
+				}
+
+				$countBE = count($beginEndArr);
+				// wenn Sonderzeichen am Ende des Textes steht, ist es nicht gerade, dann die letzte stelle [x] dazu.
+				if(($countBE %2 ) != 0){
+					$beginEndArr[] = $lenChars - 1;
+				}
+
+				$resultText = '';
+				$aStart = 0;
+				for( $ind = 0; $ind < count($beginEndArr); $ind = $ind + 2){
+					// wenn Symbol ganz am Anfang steht, bleibt text leer und somit ist die reihenfolge richtig.
+					$textChars = '';
+					for( $alfa = $aStart; $alfa < $beginEndArr[$ind]; $alfa++){
+						$textChars = $textChars.$chars[$alfa];
+					}
+					// fuer den nachsten Durchlauf setzen.
+					$aStart = ($beginEndArr[$ind+1])+1;
+					
+					$smilesInChars = '';
+					for( $beta = $beginEndArr[$ind]; $beta <= ($beginEndArr[$ind+1]); $beta++){
+						$smilesInChars = $smilesInChars.$chars[$beta];
+					}
+
+					// Integerwert des Symbols
+					$int_symb_val = mb_ord($smilesInChars, 'UTF-8'); // zB 128540 Smiles
+					
+					//// wenn es als HTML entity benoetigt wird:
+					//// $resultText = $resultText.$textChars.'&#'.$int_symb_val.';';
+
+					//// wenn es einfach zu leeren String werden sollte.
+					////$resultText = $resultText.$textChars.'';
+
+					// wenn es die noch bei alter utf8 Einstellung bis 2hoch16 gehen sollte (Umlauten und chinesisch werden angezeigt, Smiles abgeschnitten).
+					if( $int_symb_val < 65536 ){
+						$resultText = $resultText.$textChars.$smilesInChars;
+					}
+					else{
+						$resultText = $resultText.$textChars.'';
+					}
+
+				}
+				// Rest danach wenn da.
+				if( $beginEndArr[count($beginEndArr)-1] < $lenChars-1 ){
+					$textChars = '';
+					for( $alfa = ($beginEndArr[count($beginEndArr)-1])+1; $alfa < $lenChars; $alfa++){
+						$textChars = $textChars.$chars[$alfa];
+					}
+					$resultText = $resultText.$textChars;
+				}				
+
+				$workStr = $resultText;
+
+			}
+
+		}
+
+		return $workStr;
+
+	}
+
+
 }
 ?>
