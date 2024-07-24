@@ -29,6 +29,7 @@ $pdf_strings = Array(
 	'LineTotal' =>  'Betrag',
 	'Discount' =>  'Rabatt',
 	'VAR_TAXID' =>  'USt-IdNr.:',
+	'VAR_VATID'=>'Steuer Nr.:',
 	'VAR_ADJUSTMENT' =>  'Anpassung',
 	'Tax_NAME' =>  '% Mwst. => ',
 	'INCLUDE_NAME' =>  'enthalten',
