@@ -21,13 +21,18 @@ class Project_Module_Model extends Vtiger_Module_Model {
 				'linkurl' => $this->getTasksListUrl(),
 				'linkicon' => '',
 			),
-            array(
-				'linktype' => 'SIDEBARLINK',
-				'linklabel' => 'LBL_MILESTONES_LIST',
-				'linkurl' => $this->getMilestonesListUrl(),
-				'linkicon' => '',
-			),
 		);
+
+		if(vtlib_isModuleActive('ProjectMilestone') === true) {
+			$quickLinks= array_merge($quickLinks, 
+				array(
+					'linktype' => 'SIDEBARLINK',
+					'linklabel' => 'LBL_MILESTONES_LIST',
+					'linkurl' => $this->getMilestonesListUrl(),
+					'linkicon' => '',
+					)
+					);
+			}
 		foreach($quickLinks as $quickLink) {
 			$links['SIDEBARLINK'][] = Vtiger_Link_Model::getInstanceFromValues($quickLink);
 		}
