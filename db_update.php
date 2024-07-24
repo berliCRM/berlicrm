@@ -687,6 +687,53 @@ foreach($moduleFolders as $moduleFolder) {
 }
 echo '<br>module crmtogo done <br>';
 
+// add recurring frequency
+echo "add recurring frequency of 4 month<br>";
+$query = 'update `vtiger_recurring_frequency` set recurring_frequency_id = 7, sortorderid = 7 where recurring_frequency_id = 6';
+$res = $adb->pquery($query, array());
+if(!$res) {
+    echo "Error: ".$adb->database->errorMsg();
+}
+echo "sortoder done<br>";
+
+$query = "INSERT INTO `vtiger_recurring_frequency` (`recurring_frequency_id`, `recurring_frequency`, `sortorderid`, `presence`) VALUES (6, 'every 4 months', 6, 1)";
+$res = $adb->pquery($query, array());
+if(!$res) {
+    echo "Error: ".$adb->database->errorMsg();
+}
+
+$query = "UPDATE `vtiger_recurring_frequency_seq` SET id = 7";
+$res = $adb->pquery($query, array());
+if(!$res) {
+    echo "Error: ".$adb->database->errorMsg();
+}
+
+echo "recurring frequency done<br>";
+
+// add 14 days payment interval
+echo "add 14 days payment interval<br>";
+$query = 'UPDATE vtiger_payment_duration SET sortorderid = sortorderid + 1 WHERE sortorderid >= 1';
+$res = $adb->pquery($query, array());
+if(!$res) {
+    echo "Error: ".$adb->database->errorMsg();
+}
+echo "sortoder done<br>";
+
+$query = "INSERT INTO vtiger_payment_duration (payment_duration_id, payment_duration, sortorderid, presence) VALUES (1, 'Net 14 days', 1, 1)";
+$res = $adb->pquery($query, array());
+if(!$res) {
+    echo "Error: ".$adb->database->errorMsg();
+}
+
+$query = "UPDATE `vtiger_payment_duration_seq` SET id = 4";
+$res = $adb->pquery($query, array());
+if(!$res) {
+    echo "Error: ".$adb->database->errorMsg();
+}
+
+echo "14 days payment interval done<br>";
+
+
 
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
 $adb->pquery($query, array($current_release_tag));
