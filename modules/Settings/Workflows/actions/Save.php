@@ -84,7 +84,7 @@ class Settings_Workflows_Save_Action extends Settings_Vtiger_Basic_Action {
 		$response->emit();
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
-            $request->validateWriteAccess(); 
+        public function validateRequest(Vtiger_Request $request):bool { 
+            return $request->validateWriteAccess(); 
         }
 } 

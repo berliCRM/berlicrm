@@ -16,7 +16,7 @@ class Settings_Vtiger_List_View extends Settings_Vtiger_Index_View {
 		parent::__construct();
 	}
 
-	function preProcess(Vtiger_Request $request, $display=true):void {
+	function preProcess(Vtiger_Request $request, bool $display=true):void {
 		parent::preProcess($request, false);
 
 		$viewer = $this->getViewer($request);
