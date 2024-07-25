@@ -80,7 +80,7 @@ class Vtiger_Dashboard_View extends Vtiger_Index_View {
 		$moduleName = $request->getModule();
 
 		$jsFileNames = array(
-			'~/libraries/jquery/gridstack/dist/gridstack-all.js',
+			'~/libraries/jquery/gridster/jquery.gridster.min.js',
 			'~/libraries/jquery/jqplot/jquery.jqplot.min.js',
 			'~/libraries/jquery/jqplot/plugins/jqplot.canvasTextRenderer.min.js',
 			'~/libraries/jquery/jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js',
@@ -111,7 +111,7 @@ class Vtiger_Dashboard_View extends Vtiger_Index_View {
 		$parentHeaderCssScriptInstances = parent::getHeaderCss($request);
 
 		$headerCss = array(
-			'~/libraries/jquery/gridstack/dist/gridstack.min.css',
+			'~/libraries/jquery/gridster/jquery.gridster.min.css',
 			'~/libraries/jquery/jqplot/jquery.jqplot.min.css',
 		);
 		$cssScripts = $this->checkAndConvertCssStyles($headerCss);
