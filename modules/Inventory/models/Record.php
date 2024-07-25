@@ -194,6 +194,18 @@ class Inventory_Record_Model extends Vtiger_Record_Model {
                 $fileName = getModuleSequenceNumber($moduleName, $recordId);
 		$controller->Output($fileName.'.pdf', 'D');
 	}
+	
+	/**
+	 * Function to get this record and details as PDF
+	 */
+	public function getPDF2($mode) {
+		$recordId = $this->getId();
+		$moduleName = $this->getModuleName();
+
+		vimport("~~/modules/$moduleName/pdfcreator.php");
+		global $adb,$app_strings,$focus,$current_user;
+		createpdffile($recordId, $mode);
+	}
 
     /**
      * Function to get the pdf file name . This will convert quote, orders and invoices in to pdf and saves the file
