@@ -79,16 +79,24 @@ class Users_SaveAjax_Action extends Vtiger_SaveAjax_Action {
 	public function getRecordModelFromRequest(Vtiger_Request $request) {
 		$recordModel = parent::getRecordModelFromRequest($request);
 		$fieldName = $request->get('field');
-                $currentUserModel=  Users_Record_Model::getCurrentUserModel();
+        $currentUserModel=  Users_Record_Model::getCurrentUserModel();
 		if ($fieldName === 'is_admin' && (!$currentUserModel->isAdminUser()||!$request->get('value'))) {
 			$recordModel->set($fieldName, 'off');
-                        $recordModel->set('is_owner',0);
+			$recordModel->set('is_owner',0);
 		}
-                else if($fieldName === 'is_admin' && $currentUserModel->isAdminUser()){
-                    $recordModel->set($fieldName, 'on');
-                    $recordModel->set('is_owner',1);
-                }       
-                return $recordModel;
+		else if($fieldName === 'is_admin' && $currentUserModel->isAdminUser()){
+			$recordModel->set($fieldName, 'on');
+			$recordModel->set('is_owner',1);
+		// prevent non-admin users from changing crucial values by themselves
+		} elseif (!$currentUserModel->isAdminUser() && ($fieldName === 'roleid' || $fieldName === 'user_name' || $fieldName === 'status')) {
+			$moduleName = $request->getModule();
+			$recordId = $request->get('record');
+			if (!empty($recordId)) {
+				$oldRecordModel = Vtiger_Record_Model::getInstanceById($recordId, $moduleName);
+				$recordModel->set($fieldName, $oldRecordModel->get($fieldName));
+			}
+		}
+		return $recordModel;
 	}
 	
 		

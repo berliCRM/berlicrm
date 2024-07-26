@@ -66,16 +66,19 @@ class Users_Save_Action extends Vtiger_Save_Action {
 			$fieldValue = $request->get($fieldName, null);
 
 			if ($fieldName === 'is_admin') {
-                            if (!$currentUserModel->isAdminUser() && (!$fieldValue)) {
-				$fieldValue = 'off';
-                            } else if ($currentUserModel->isAdminUser() && ($fieldValue || $fieldValue === 'on')) {
-                                $fieldValue = 'on';
-                                $recordModel->set('is_owner', 1);
-                            } else {
-                                $fieldValue = 'off';
-                                $recordModel->set('is_owner', 0);
-                            }
-                        }
+				if (!$currentUserModel->isAdminUser() && (!$fieldValue)) {
+					$fieldValue = 'off';
+				} else if ($currentUserModel->isAdminUser() && ($fieldValue || $fieldValue === 'on')) {
+					$fieldValue = 'on';
+					$recordModel->set('is_owner', 1);
+				} else {
+					$fieldValue = 'off';
+					$recordModel->set('is_owner', 0);
+				}
+			// prevent non-admin users from changing crucial values by themselves
+			} elseif (!$currentUserModel->isAdminUser() && ($fieldName === 'roleid' || $fieldName === 'user_name' || $fieldName === 'status')) {
+				$fieldValue = $recordModel->get($fieldName);
+			}
 			if($fieldValue !== null) {
 				if(!is_array($fieldValue)) {
 					$fieldValue = trim($fieldValue);
