@@ -202,6 +202,12 @@ class ADODB_DataDict {
 	*/
 	public $blobAllowsDefaultValue;
 
+
+	/**
+	 * @var string String to use to quote identifiers and names
+	 */
+	public $quote;
+
 	function getCommentSQL($table,$col)
 	{
 		return false;
@@ -1007,15 +1013,20 @@ class ADODB_DataDict {
 	}
 
 	/**
-	"Florian Buzin [ easywe ]" <florian.buzin#easywe.de>
-
-	This function changes/adds new fields to your table. You don't
-	have to know if the col is new or not. It will check on its own.
-	*/
+	 * This function changes/adds new fields to your table.
+	 *
+	 * You don't have to know if the col is new or not. It will check on its own.
+	 *
+	 * @param string   $tablename
+	 * @param string   $flds
+	 * @param string[] $tableoptions
+	 * @param bool     $dropOldFlds
+	 *
+	 * @return string[] Array of SQL Commands
+	 */
 	function changeTableSQL($tablename, $flds, $tableoptions = false, $dropOldFlds=false)
 	{
 	global $ADODB_FETCH_MODE;
-
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 		if ($this->connection->fetchMode !== false) $savem = $this->connection->setFetchMode(false);
@@ -1062,45 +1073,27 @@ class ADODB_DataDict {
 					if ($mt == 'X') $ml = $v['SIZE'];
 					if (($mt != $v['TYPE']) || ($ml != $fsize || $sc != $fprec) || (isset($v['AUTOINCREMENT']) && $v['AUTOINCREMENT'] != $obj->auto_increment)) {
 						$holdflds[$k] = $v;
+						$fields_to_alter[$k] = $v;
 					}
 				} else {
+					$fields_to_add[$k] = $v;
 					$holdflds[$k] = $v;
 				}
 			}
 			$flds = $holdflds;
 		}
 
-
-		// already exists, alter table instead
-		list($lines,$pkey,$idxs) = $this->_genFields($flds);
-		// genfields can return FALSE at times
-		if ($lines == null) $lines = array();
-		$alter = 'ALTER TABLE ' . $this->tableName($tablename);
-		$sql = array();
-
-		foreach ( $lines as $id => $v ) {
-			if ( isset($cols[$id]) && is_object($cols[$id]) ) {
-
-				$flds = lens_ParseArgs($v,',');
-
-				//  We are trying to change the size of the field, if not allowed, simply ignore the request.
-				// $flds[1] holds the type, $flds[2] holds the size -postnuke addition
-				if ($flds && in_array(strtoupper(substr($flds[0][1],0,4)),$this->invalidResizeTypes4)
-				 && (isset($flds[0][2]) && is_numeric($flds[0][2]))) {
-					if ($this->debug) ADOConnection::outp(sprintf("<h3>%s cannot be changed to %s currently</h3>", $flds[0][0], $flds[0][1]));
-					#echo "<h3>$this->alterCol cannot be changed to $flds currently</h3>";
-					continue;
-	 			}
-				$sql[] = $alter . $this->alterCol . ' ' . $v;
-			} else {
-				$sql[] = $alter . $this->addCol . ' ' . $v;
-			}
-		}
+		$sql = array_merge(
+			$this->addColumnSQL($tablename, $fields_to_add),
+			$this->alterColumnSql($tablename, $fields_to_alter)
+		);
 
 		if ($dropOldFlds) {
-			foreach ( $cols as $id => $v )
-			    if ( !isset($lines[$id]) )
-					$sql[] = $alter . $this->dropCol . ' ' . $v->name;
+			foreach ($cols as $id => $v) {
+				if (!isset($lines[$id])) {
+					$sql[] = $this->dropColumnSQL($tablename, $flds);
+				}
+			}
 		}
 		return $sql;
 	}
