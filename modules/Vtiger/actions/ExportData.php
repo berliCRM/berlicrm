@@ -245,7 +245,7 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 			
 			fclose($fp);
 		} elseif ($exportType == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-			$fileName .= '.xls';
+			$fileName .= '.xlsx';
 			header("Content-Disposition:attachment;filename=$fileName");
 			require_once("libraries/PHPExcel/PHPExcel.php");
 
