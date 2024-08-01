@@ -593,7 +593,7 @@ function vtlib_purify($input, $ignore=false) {
 
 	static $purified_cache = array();
     $value = $input;
-    
+    $md5OfInput = '';
 	if(!is_array($input)) {
 		$md5OfInput = md5($input); 
 		if (array_key_exists($md5OfInput, $purified_cache)) { 
@@ -618,6 +618,8 @@ function vtlib_purify($input, $ignore=false) {
 	    	$config->set('Core.Encoding', $use_charset);
 	    	$config->set('Cache.SerializerPath', "$use_root_directory/test/vtlib");
             $config->set('URI.AllowedSchemes', array('http' => true,'https' => true,'mailto' => true,'ftp' => true,'nntp' => true,'news' => true,'data' => true));
+			$def = $config->getHTMLDefinition(true);
+			$def->addAttribute('a', 'target', 'Enum#_blank,_self,_target,_top');
 
 			$__htmlpurifier_instance = new HTMLPurifier($config);
 		}
