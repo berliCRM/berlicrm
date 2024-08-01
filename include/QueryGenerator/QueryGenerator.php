@@ -1125,6 +1125,11 @@ class QueryGenerator {
 				} elseif($value == 'no') {
 					$value = 0;
 				}
+				// CustomView fix
+				if ($value == 0) {
+					$sql[] = sprintf("IS NULL OR %s.%s = 0", $field->getTableName(), $field->getColumnName());
+					continue;
+				}
 			} elseif($this->isDateType($field->getFieldDataType())) {
                 // For "after" and "before" conditions
                 $values = explode(' ',$value);
