@@ -21,7 +21,9 @@ class HelpDeskHandler extends VTEventHandler {
 				$ticketId = $entityData->getId();
 				$fromPortalValue = $entityData->get('from_portal');
 				if ($fromPortalValue != 1) {
-					$adb->pquery('UPDATE vtiger_ticketcf SET from_portal=0 WHERE ticketid=?', array($ticketId));
+					$adb->pquery('UPDATE vtiger_ticketcf
+								  INNER JOIN vtiger_troubletickets ON vtiger_troubletickets.ticketid = vtiger_ticketcf.ticketid
+								  SET from_portal=0 WHERE vtiger_troubletickets.ticketid=?', array($ticketId));
 				}
 			}
 		}
