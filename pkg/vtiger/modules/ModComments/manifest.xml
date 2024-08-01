@@ -1,10 +1,10 @@
 <?xml version='1.0'?>
 <module>
-<exporttime>2019-03-01 13:35:11</exporttime>
+<exporttime>2024-05-16 13:35:11</exporttime>
 <name>ModComments</name>
 <label>Comments</label>
 <parent>Tools</parent>
-<version>2.12</version>
+<version>2.13</version>
 <dependencies>
 <vtiger_version>6.5.0</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>

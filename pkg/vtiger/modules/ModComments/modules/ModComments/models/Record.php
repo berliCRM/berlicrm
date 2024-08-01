@@ -39,7 +39,7 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 
 	public function getImagePath() {
 		$commentor = $this->getCommentedByModel();
-		if($commentor) {
+		if($commentor && isRecordExists($customer)) {
 			$customer = $this->get('customer');
             $isMailConverterType = $this->get('from_mailconverter');
 			if (!empty($customer) && $isMailConverterType != 1) {
@@ -112,7 +112,11 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 	public function getCommentedByModel() {
 		$customer = $this->get('customer');
 		if(!empty($customer)) {
-			return Vtiger_Record_Model::getInstanceById($customer, 'Contacts');
+			if (isRecordExists($customer)) {
+				return Vtiger_Record_Model::getInstanceById($customer, 'Contacts');
+			} else {
+				return false;
+			}
 		} else {
 			$commentedBy = $this->get('smownerid');
 			if($commentedBy) {
