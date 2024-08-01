@@ -712,8 +712,8 @@ class Reports_Record_Model extends Vtiger_Record_Model {
 		$rootDirectory = vglobal('root_directory');
 		$tmpDir = vglobal('tmp_dir');
 
-		$tempFileName = tempnam($rootDirectory.$tmpDir, 'xls');
-		$fileName = decode_html($this->getName()).'.xls';
+		$tempFileName = tempnam($rootDirectory.$tmpDir, 'xlsx');
+		$fileName = decode_html($this->getName()).'.xlsx';
 		$reportRun->writeReportToExcelFile($tempFileName, $advanceFilterSql);
 
 		if(isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE')) {

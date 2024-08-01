@@ -1257,6 +1257,9 @@ class ReportRun extends CRMEntity
 							 	$fieldSqls[] = $columnSql.$comparatorValue;
 							}
 							$fieldvalue = ' ('. implode(' OR ', $fieldSqls).') ';
+						// checkbox IS NULL exception
+						} elseif ($fieldInfo['uitype'] == '56' && $comparator == 'e' && $value == 0) {
+							$fieldvalue = "({$selectedfields[0]}.{$selectedfields[1]} = 0 OR {$selectedfields[0]}.{$selectedfields[1]} IS NULL)";
 						} else {
 							$fieldvalue = '('.$selectedfields[0].".".$selectedfields[1].$this->getAdvComparator($comparator,trim($value),$datatype, $selectedfields[0].".".$selectedfields[1]).')';
 						}
@@ -4356,15 +4359,17 @@ class ReportRun extends CRMEntity
 						$type = 'string';
 					}
 					if ($type == 'date') {
-						$date = new DateTimeField($value);
-						$value = PHPExcel_Shared_Date::PHPToExcel(strtotime($date->getDBInsertDateValue()));
+						if (!empty($value)) {
+							$date = new DateTimeField($value);
+							$value = PHPExcel_Shared_Date::PHPToExcel(strtotime($date->getDBInsertDateValue()));
+						}
 						
 						$worksheet->setCellValueByColumnAndRow($count, $rowcount, $value);
 						$worksheet->getStyleByColumnAndRow($count, $rowcount)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_XLSX14);
 					} elseif ($type == 'double' || $type == 'currency') {
 						//double is currently not in userformat
 						if (isset($currencySymbol)) $value = str_replace($currencySymbol, '', html_entity_decode($value));
-						$value = ($type == 'currency') ? CurrencyField::convertToDBFormat($value, null, true) : $value;
+						$value = CurrencyField::convertToDBFormat($value, null, true);
 						$worksheet->setCellValueByColumnAndRow($count, $rowcount, $value, PHPExcel_Cell_DataType::TYPE_NUMERIC);
 						if ($type == 'currency') $worksheet->getStyleByColumnAndRow($count, $rowcount)->getNumberFormat()->setFormatCode($currencyFormat);
 					} else {
@@ -4410,7 +4415,7 @@ class ReportRun extends CRMEntity
 			}
 		}
 
-		$workbookWriter = PHPExcel_IOFactory::createWriter($workbook, 'Excel5');
+		$workbookWriter = PHPExcel_IOFactory::createWriter($workbook, 'Excel2007');
 		$workbookWriter->save($fileName);
 	}
 
