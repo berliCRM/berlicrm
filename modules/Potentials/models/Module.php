@@ -119,12 +119,18 @@ class Potentials_Module_Model extends Vtiger_Module_Model {
 						'INNER JOIN vtiger_sales_stage ON vtiger_potential.sales_stage =  vtiger_sales_stage.sales_stage 
 						WHERE vtiger_potential.sales_stage NOT IN ("Closed Won", "Closed Lost")
 						GROUP BY smownerid, sales_stage ORDER BY vtiger_sales_stage.sortorderid', $params);
-		for($i=0; $i<$db->num_rows($result); $i++) {
-			$row = $db->query_result_rowdata($result, $i);
-                        $row['last_name'] = decode_html($row['last_name']);
-			$data[] = $row;
+		if (($db->num_rows($result))) {
+			for($i=0; $i<$db->num_rows($result); $i++) {
+				$row = $db->query_result_rowdata($result, $i);
+				$row['last_name'] = decode_html($row['last_name']);
+				$data[] = $row;
+			}
+			return $data;
 		}
-		return $data;
+		else {
+			$data = array();
+			return $data;
+		}
 	}
 
 	/**
