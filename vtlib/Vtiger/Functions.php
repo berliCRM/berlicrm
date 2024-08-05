@@ -575,20 +575,6 @@ class Vtiger_Functions {
 		return $filepath;
 	}
 
-	static function validateImageMetadata($data, $short=true) {
-		if (is_array($data)) {
-			foreach ($data as $key => $value) {
-				$ok = self::validateImageMetadata($value);
-				if (!$ok) return false;
-			}
-		} else {
-			if (stripos($data, $short ? "<?" : "<?php") !== false) { // suspicious dynamic content 
-				return false;
-			}
-		}
-		return true;
-	}
-
 	static function validateImage($file_details) {
 		global $app_strings;
 		$allowedImageFormats = array('jpeg', 'png', 'jpg', 'pjpeg', 'x-png', 'gif', 'bmp', 'xcf');
@@ -611,15 +597,6 @@ class Vtiger_Functions {
 		$mimeTypeContents = explode('/', $mimeType);
 		if (!$file_details['size'] || strtolower($mimeTypeContents[0]) !== 'image' || !in_array($mimeTypeContents[1], $mimeTypesList)) {
 			$saveimage = 'false';
-		}
-
-		//metadata check
-		$shortTagSupported = ini_get('short_open_tag') ? true : false;
-		if ($saveimage == 'true' && in_array($filetype, array('jpeg', 'jpg', 'pjpeg', 'xcf'))) {
-			$exifdata = exif_read_data($file_details['tmp_name']);
-			if ($exifdata && !self::validateImageMetadata($exifdata, $shortTagSupported)) {
-				$saveimage = 'false';
-			}
 		}
 
 		// Check for php code injection
