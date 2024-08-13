@@ -56,7 +56,7 @@ class Vtiger_QuickCreateAjax_View extends Vtiger_IndexAjax_View {
 	}
 	
 	
-	public function getHeaderScripts(Vtiger_Request $request) {
+	public function getHeaderScripts(Vtiger_Request $request):array {
 		
 		$moduleName = $request->getModule();
 		
@@ -68,7 +68,7 @@ class Vtiger_QuickCreateAjax_View extends Vtiger_IndexAjax_View {
 		return $jsScriptInstances;
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
-            $request->validateWriteAccess(); 
+        public function validateRequest(Vtiger_Request $request):bool { 
+            return $request->validateWriteAccess(); 
         } 
 }

@@ -45,7 +45,7 @@ class Vtiger_Popup_View extends Vtiger_Footer_View {
 		$viewer->view('Popup.tpl', $moduleName);
 	}
 
-	function postProcess(Vtiger_Request $request) {
+	function postProcess(Vtiger_Request $request):void {
 		$viewer = $this->getViewer ($request);
 		$moduleName = $this->getModule($request);
 		$viewer->view('PopupFooter.tpl', $moduleName);
@@ -56,7 +56,7 @@ class Vtiger_Popup_View extends Vtiger_Footer_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 
