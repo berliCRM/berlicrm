@@ -11,7 +11,7 @@
 
 class Services_Detail_View extends Products_Detail_View {
 	
-	public function getHeaderScripts(Vtiger_Request $request) {
+	public function getHeaderScripts(Vtiger_Request $request):array {
 		parent::getHeaderScripts($request);
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();

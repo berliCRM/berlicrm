@@ -19,7 +19,7 @@ class MailManager_List_View extends MailManager_Abstract_View {
 			'search'  =>array( 'file' => 'controllers/SearchController.php',	'class'=> 'MailManager_Search_View'	 ),
 	);
 
-	public function getHeaderScripts(Vtiger_Request $request) {
+	public function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

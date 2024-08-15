@@ -21,7 +21,7 @@ class PBXManager_Detail_View extends Vtiger_Detail_View{
     /*
      * Overided to convert totalduration to minutes
      */
-    function preProcess(Vtiger_Request $request, $display=true) {
+    function preProcess(Vtiger_Request $request, $display=true):void {
 		$recordId = $request->get('record');
 		$moduleName = $request->getModule();
 		if(!$this->record){
@@ -33,6 +33,6 @@ class PBXManager_Detail_View extends Vtiger_Detail_View{
         if($recordModel->get('callstatus') != 'completed') { 
             $recordModel->set('recordingurl', ''); 
         }
-        return parent::preProcess($request, true);
+        parent::preProcess($request, true);
 	}
 }

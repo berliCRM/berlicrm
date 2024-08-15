@@ -10,7 +10,7 @@
 
 class Portal_List_View extends Vtiger_Index_View {
 
-    function preProcess(Vtiger_Request $request, $display=true) {
+    function preProcess(Vtiger_Request $request, $display=true):void {
         parent::preProcess($request);
 
         $viewer = $this->getViewer($request);
@@ -87,7 +87,7 @@ class Portal_List_View extends Vtiger_Index_View {
         $viewer->assign('PAGING_INFO', $listViewModel->calculatePageRange($listviewEntries, $pagingModel));
     }
 
-    function getHeaderScripts(Vtiger_Request $request) {
+    function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

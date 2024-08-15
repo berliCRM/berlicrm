@@ -77,7 +77,10 @@ class Documents_Folder_Action extends Vtiger_Action_Controller {
 		$response->emit();
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
+        public function validateRequest(Vtiger_Request $request):bool { 
             $request->validateWriteAccess(); 
-        } 
+        }
+
+		public function getViewer(Vtiger_Request $request){
+		}
 }

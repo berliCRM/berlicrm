@@ -57,7 +57,7 @@ class berlimap_List_View extends Vtiger_Index_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		if($this->googlecheck) {
 			$moduleName = $request->getModule();
@@ -73,7 +73,7 @@ class berlimap_List_View extends Vtiger_Index_View {
 		return $headerScriptInstances;
 	}
 	
-	public function getHeaderCss(Vtiger_Request $request) {
+	public function getHeaderCss(Vtiger_Request $request):array {
 		$headerCssInstances = parent::getHeaderCss($request);
 		$moduleName = $request->getModule();
 

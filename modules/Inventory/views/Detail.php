@@ -9,7 +9,7 @@
  *************************************************************************************/
 
 class Inventory_Detail_View extends Vtiger_Detail_View {
-	function preProcess(Vtiger_Request $request, $display = true) {
+	function preProcess(Vtiger_Request $request, $display = true):void {
 		$viewer = $this->getViewer($request);
 		$viewer->assign('NO_SUMMARY', true);
 		parent::preProcess($request);
@@ -119,7 +119,7 @@ class Inventory_Detail_View extends Vtiger_Detail_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 
 		$moduleName = $request->getModule();
