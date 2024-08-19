@@ -8,10 +8,18 @@
  ************************************************************************************/-->*}
 
 {strip}
-<input id="iconpath" value="modules/berlimap/icons/blueIcon.png" type="hidden">
 <input id="myiconpath" value="modules/berlimap/icons/red-dot.png" type="hidden">
-<style>
-      .map {
+   <style>
+	/* Ensure the map container has dimensions */
+	#map {
+	 height: 800px; 
+	 width: 100%;
+	}
+	#map1 {
+	 height: 800px; 
+	 width: 100%;
+	}
+   .map {
         height: 100%;
         width: 100%;
       }
@@ -57,7 +65,7 @@
       .ol-popup-closer:after {
         content: "✖";
       }
-</style>
+    </style>
 <input type="hidden" id="geoapikey" value="{$GEOAPIKEY}" />
 <div >
 <br>
@@ -77,7 +85,7 @@
 	</tr>
 <tr>
 	<td class="fieldLabel" style="width:20%">
-		<button class="btn btn-success" id='showButton'  name='showButton'><strong>{vtranslate('LBL_VIEW_MAP', $MODULE)}</strong></button>
+		<button class="btn btn-success" id='showButton'  name='showButton'><strong>Anzeigen</strong></button>
 	</td>
 </tr>
  </table>

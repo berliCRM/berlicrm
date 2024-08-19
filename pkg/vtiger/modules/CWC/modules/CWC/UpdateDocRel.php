@@ -124,6 +124,7 @@ function vtws_update_document_relations($docid, $relids, $preserve=true)
 	}
 	//fill new relations
 	foreach ($arr_relids as $id) {
+		$id = str_replace("'", "", $id);
 		$mod = vtws_getName($id, $current_user);
 		if (!isset($arr_metas[$mod])) {
 			$handler = vtws_getModuleHandlerFromId($id, $current_user);

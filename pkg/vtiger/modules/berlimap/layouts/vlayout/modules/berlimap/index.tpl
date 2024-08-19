@@ -8,10 +8,18 @@
  ************************************************************************************/-->*}
 
 {strip}
-<input id="iconpath" value="modules/berlimap/icons/blueIcon.png" type="hidden">
 <input id="myiconpath" value="modules/berlimap/icons/red-dot.png" type="hidden">
-<style>
-      .map {
+   <style>
+	/* Ensure the map container has dimensions */
+	#map {
+	 height: 800px; 
+	 width: 100%;
+	}
+	#map1 {
+	 height: 800px; 
+	 width: 100%;
+	}
+   .map {
         height: 100%;
         width: 100%;
       }
@@ -57,7 +65,7 @@
       .ol-popup-closer:after {
         content: "✖";
       }
-</style>
+    </style>
 <input type="hidden" id="geoapikey" value="{$GEOAPIKEY}" />
 <div >
 <br>
