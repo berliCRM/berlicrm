@@ -46,5 +46,4 @@ class Emails_DownloadFile_Action extends Vtiger_Action_Controller {
         }
     }
 }
-
 ?>

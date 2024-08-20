@@ -71,8 +71,5 @@ class Vtiger_BasicAjax_Action extends Vtiger_Action_Controller {
 		$response->setResult($result);
 		$response->emit();
 	}
-
-    public function getViewer(Vtiger_Request $request): Vtiger_Viewer {
-
-    }
 }
+?>

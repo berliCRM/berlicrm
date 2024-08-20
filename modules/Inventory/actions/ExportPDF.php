@@ -27,3 +27,4 @@ class Inventory_ExportPDF_Action extends Vtiger_Action_Controller {
 		$recordModel->getPDF();
 	}
 }
+?>

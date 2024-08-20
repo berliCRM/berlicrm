@@ -21,7 +21,6 @@ abstract class Vtiger_Controller {
         return true;
     }
 
-    abstract public function getViewer(Vtiger_Request $request);
     abstract public function process(Vtiger_Request $request);
 
     abstract public function validateRequest(Vtiger_Request $request): bool;
@@ -54,8 +53,6 @@ abstract class Vtiger_Action_Controller extends Vtiger_Controller {
     public function __construct() {
         parent::__construct();
     }
-
-    abstract public function getViewer(Vtiger_Request $request);
 
     public function validateRequest(Vtiger_Request $request): bool {
         return $request->validateReadAccess();

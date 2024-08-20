@@ -19,10 +19,6 @@ class PBXManager_IncomingCallPoll_Action extends Vtiger_Action_Controller{
             $this->exposeMethod('checkModuleViewPermission');
             $this->exposeMethod('checkPermissionForPolling');
    	}
-    
-
-	public function getViewer(Vtiger_Request $request) {
-	}
 
     public function process(Vtiger_Request $request) {
 		$mode = $request->getMode();
@@ -169,7 +165,5 @@ class PBXManager_IncomingCallPoll_Action extends Vtiger_Action_Controller{
         $response->setResult($result);
         $response->emit();
     }
-
 }
-
 ?>

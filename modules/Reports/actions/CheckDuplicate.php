@@ -39,3 +39,4 @@ class Reports_CheckDuplicate_Action extends Vtiger_Action_Controller {
 		$response->emit();
 	}
 }
+?>

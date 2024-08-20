@@ -64,7 +64,5 @@ class Users_Login_Action extends Vtiger_Action_Controller {
 		}
         exit();
 	}
-
-	public function getViewer(Vtiger_Request $request) {
-	}
 }
+?>

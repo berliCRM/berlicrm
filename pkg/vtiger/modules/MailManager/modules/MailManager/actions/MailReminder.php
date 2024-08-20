@@ -5,9 +5,6 @@ class MailManager_MailReminder_Action extends Vtiger_Action_Controller{
 		$this->exposeMethod('checkForNewMails');
 	}
 
-	public function getViewer(Vtiger_Request $request) {
-	}
-
 	public function checkPermission(Vtiger_Request $request) {
 		$moduleName = $request->getModule();
 		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
@@ -49,3 +46,4 @@ class MailManager_MailReminder_Action extends Vtiger_Action_Controller{
 		$response->emit();
 	}
 }
+?>

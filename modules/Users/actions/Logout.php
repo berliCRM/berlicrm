@@ -27,3 +27,4 @@ class Users_Logout_Action extends Vtiger_Action_Controller {
 		header ('Location: index.php');
 	}
 }
+?>

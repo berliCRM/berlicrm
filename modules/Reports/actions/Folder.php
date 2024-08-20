@@ -90,7 +90,8 @@ class Reports_Folder_Action extends Vtiger_Action_Controller {
 		}
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
-            $request->validateWriteAccess(); 
-        }
+	public function validateRequest(Vtiger_Request $request):bool { 
+		return $request->validateWriteAccess(); 
+	}
 }
+?>

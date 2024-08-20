@@ -737,5 +737,4 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 		}
 	}
 }
-
 ?>

@@ -125,5 +125,5 @@ class Invoice_MassExportPDF_Action extends Vtiger_Action_Controller {
 		}
 		$response->emit();
 	}
-
 }
+?>

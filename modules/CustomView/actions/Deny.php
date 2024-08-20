@@ -22,7 +22,8 @@ class CustomView_Deny_Action extends Vtiger_Action_Controller {
 		header("Location: $listViewUrl");
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
-            $request->validateWriteAccess(); 
-        } 
+	public function validateRequest(Vtiger_Request $request):bool { 
+		return $request->validateWriteAccess(); 
+	} 
 }
+?>

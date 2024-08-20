@@ -38,3 +38,4 @@ class HelpDesk_ConvertFAQ_Action extends Vtiger_Action_Controller {
 		}
 	}
 }
+?>
