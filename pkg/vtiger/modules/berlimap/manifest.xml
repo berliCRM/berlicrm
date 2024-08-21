@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <module>
-<exporttime>2023-02-01 16:00:00</exporttime>
+<exporttime>2024-08-18 13:00:00</exporttime>
 <name>berlimap</name>
 <label>Map</label>
 <parent>Tools</parent>
-<version>2.2</version>
+<version>3.0</version>
 <type>extension</type>
 <dependencies>
 <vtiger_version>6.5.0</vtiger_version>
