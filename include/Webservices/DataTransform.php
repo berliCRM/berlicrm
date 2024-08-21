@@ -48,6 +48,7 @@
 			
 			$newRow = DataTransform::sanitizeReferences($newRow,$meta);
 			$newRow = DataTransform::sanitizeOwnerFields($newRow,$meta,$t);
+			$newRow = DataTransform::sanitizeBooleanFields($newRow, $meta);
 			$newRow = DataTransform::sanitizeFields($newRow,$meta);
 			return $newRow;
 		}
@@ -293,6 +294,18 @@
 			foreach($moduleFields as $fieldName=>$fieldObj){
 				if($fieldObj->getFieldDataType()=="double" && !empty($row[$fieldName])) {
 					$row[$fieldName] = NumberField::convertToUserFormat($row[$fieldName],$current_user);
+				}
+			}
+			return $row;
+		}
+		
+		public static function sanitizeBooleanFields($row, $meta) {
+			$moduleFields = $meta->getModuleFields();
+			foreach ($moduleFields AS $fieldName => $fieldObj) {
+				if (array_key_exists($fieldName, $row)) {
+					if ($fieldObj->getFieldDataType() == "boolean" && $row[$fieldName] == '') {
+						$row[$fieldName] = '0';
+					}
 				}
 			}
 			return $row;
