@@ -20,7 +20,7 @@ class PriceBooks_ListPriceUpdate_View extends Vtiger_View_Controller {
 		}
 	}
 
-	function preProcess(Vtiger_Request $request, $display = true) {
+	function preProcess(Vtiger_Request $request, bool $display = true): void {
 	}
 
 	function process(Vtiger_Request $request) {
@@ -38,8 +38,7 @@ class PriceBooks_ListPriceUpdate_View extends Vtiger_View_Controller {
 		$viewer->view('ListPriceUpdate.tpl', $moduleName);
 	}
 
-	function postProcess(Vtiger_Request $request) {
+	function postProcess(Vtiger_Request $request): void {
 	}
 }
-
 ?>

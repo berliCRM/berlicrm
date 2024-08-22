@@ -20,7 +20,7 @@ class Reports_showCampaignList_View extends Vtiger_View_Controller {
 		}
 	}
  
-	function preProcess(Vtiger_Request $request, $display = true) {
+	function preProcess(Vtiger_Request $request, bool $display = true): void {
 	}
 
 
@@ -57,5 +57,4 @@ class Reports_showCampaignList_View extends Vtiger_View_Controller {
 		$viewer->view('ShowCampaignListforReports.tpl', $module);
 	}
 }
-
 ?>

@@ -20,9 +20,8 @@ class Reports_showVerteilerList_View extends Vtiger_View_Controller {
 		}
 	}
  
-	function preProcess(Vtiger_Request $request, $display = true) {
+	function preProcess(Vtiger_Request $request, bool $display = true): void {
 	}
-
 
 	public function process(Vtiger_Request $request) {
 		$db = PearDatabase::getInstance();

@@ -30,12 +30,12 @@ class Reports_ExportReport_View extends Vtiger_View_Controller {
 		}
 	}
 
-	function preProcess(Vtiger_Request $request, $display=false) {
-		return false;
+	function preProcess(Vtiger_Request $request, $display=false): void {
+		return;
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return false;
+	function postProcess(Vtiger_Request $request): void {
+		return;
 	}
 
 	function process(Vtiger_request $request) {
@@ -89,3 +89,4 @@ class Reports_ExportReport_View extends Vtiger_View_Controller {
 		$viewer->view('PrintReport.tpl', $moduleName);
 	}
 }
+?>
