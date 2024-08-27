@@ -781,6 +781,7 @@ class Install_InitSchema_Model {
 		self::translateSettings();
 		self::translateWorkflowstasks();
 		self::removeGroups();
+		self::addingSalutation();
 
 		//last step, set info this system was installed
 		$path = Install_Utils_Model::INSTALL_FINISHED;
@@ -1104,6 +1105,21 @@ class Install_InitSchema_Model {
 		foreach ($standardWidgets AS $widgetId => $infos) {
 			$adb->pquery($queryWidget,array($widgetId, $infos[0], $infos[1], $infos[2], $infos[3], $infos[4], $infos[5]));
 		}
+	}
+
+	// adding a missing salutetype
+	private static function addingSalutation():void {
+		$pickListFieldName = 'Sehr geehrte Frau Prof.'; 
+		$pickListName = 'salutationtype';
+		$moduleName = 'Contacts';
+		$moduleModel = Settings_Picklist_Module_Model::getInstance($moduleName);
+		$fieldModel = Settings_Picklist_Field_Model::getInstance($pickListName, $moduleModel);
+		$rolesSelected = array();
+		$roleRecordList = Settings_Roles_Record_Model::getAll(true);
+		foreach($roleRecordList AS $roleRecord) {
+			$rolesSelected[] = $roleRecord->getId();
+		}
+		$moduleModel->addPickListValues($fieldModel, $pickListFieldName, $rolesSelected);
 	}
 
 }
