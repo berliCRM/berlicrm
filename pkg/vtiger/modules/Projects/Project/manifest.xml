@@ -556,7 +556,7 @@
 <customlinks>
 <customlink>
 <linktype>DETAILVIEWBASIC</linktype>
-<linklabel>Add Project Task</linklabel>
+<linklabel>LBL_ADD_RECORD</linklabel>
 <linkurl><![CDATA[index.php?module=ProjectTask&action=EditView&projectid=$RECORD$&return_module=Project&return_action=DetailView&return_id=$RECORD$]]></linkurl>
 <linkicon><![CDATA[]]></linkicon>
 <sequence>0</sequence>
