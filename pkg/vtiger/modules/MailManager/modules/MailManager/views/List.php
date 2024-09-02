@@ -35,11 +35,12 @@ class MailManager_List_View extends MailManager_Abstract_View {
 		return $headerScriptInstances;
 	}
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$request = MailManager_Request::getInstance($request);
 
 		if (!$request->has('_operation')) {
-			return $this->processRoot($request);
+			$this->processRoot($request);
+			return;
 		}
 		$operation = $request->getOperation();
 		$controllerInfo = self::$controllers[$operation];
@@ -48,19 +49,18 @@ class MailManager_List_View extends MailManager_Abstract_View {
 		//checkFileAccessForInclusion($controllerFile);
 		//include_once $controllerFile;
 		$controller = new $controllerInfo['class'];
-
+		
 		// Making sure to close the open connection
 		if ($controller) $controller->closeConnector();
 		if($controller->validateRequest($request)) { 
-                    $response = $controller->process($request); 
-                    if ($response) $response->emit(); 
-	        } 
-		
+			$response = $controller->process($request); 
+			if ($response) $response->emit(); 
+		} 
 		unset($request);
 		unset($response);
 	}
 
-	public function processRoot(Vtiger_Request $request) {
+	public function processRoot(Vtiger_Request $request):void {
 		$moduleName = $request->getModule();
 		$viewer = $this->getViewer($request);
 		$viewer->assign('MODULE', $moduleName);
