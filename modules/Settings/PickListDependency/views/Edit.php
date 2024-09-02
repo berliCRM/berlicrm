@@ -10,7 +10,7 @@
 
 class Settings_PickListDependency_Edit_View extends Settings_Vtiger_Index_View {
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request): void{
 		$moduleName = $request->getModule();
 		$qualifiedModuleName = $request->getModule(false);
 
@@ -41,7 +41,7 @@ class Settings_PickListDependency_Edit_View extends Settings_Vtiger_Index_View {
 		$viewer->view('EditView.tpl', $qualifiedModuleName);
 	}
     
-    public function getDependencyGraph(Vtiger_Request $request) {
+    public function getDependencyGraph(Vtiger_Request $request): object{
         $qualifiedName = $request->getModule(false);
         $module = $request->get('sourceModule');
         $sourceField = $request->get('sourcefield');

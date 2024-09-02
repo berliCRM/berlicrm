@@ -19,7 +19,7 @@ class Settings_PickListDependency_List_View extends Settings_Vtiger_List_View {
 		parent::preProcess($request, $display);
 	}
 	
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request): void{
        if($request->isAjax()) {
 			$moduleModelList = Settings_PickListDependency_Module_Model::getPicklistSupportedModules();
 			$forModule = $request->get('formodule');

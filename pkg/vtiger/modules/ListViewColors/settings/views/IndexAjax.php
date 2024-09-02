@@ -20,7 +20,7 @@ class Settings_ListViewColors_IndexAjax_View extends Settings_Vtiger_IndexAjax_V
 		$this->exposeMethod('getSupportedUITypes');
     }
 
-    public function process(Vtiger_Request $request) {
+    public function process(Vtiger_Request $request): void{
         $mode = $request->get('mode');
         if($this->isMethodExposed($mode)) {
             $this->invokeExposedMethod($mode, $request);
@@ -29,7 +29,7 @@ class Settings_ListViewColors_IndexAjax_View extends Settings_Vtiger_IndexAjax_V
 
 	
 	//provides the content of the select field based on selected module
-	public function getColorFieldsForModule(Vtiger_Request $request) {
+	public function getColorFieldsForModule(Vtiger_Request $request): void{
         $sourceModule = $request->get('source_module');
 		$moduleInstance = Vtiger_Module_Model::getInstance($sourceModule);
 		$moduleFieldInstances = $moduleInstance->getFields();
@@ -52,7 +52,7 @@ class Settings_ListViewColors_IndexAjax_View extends Settings_Vtiger_IndexAjax_V
 		
 	}
 	
-    public function getColorValuesForField(Vtiger_Request $request) {
+    public function getColorValuesForField(Vtiger_Request $request): void{
 		$sourceModule = $request->get('source_module');
 		$selectedFieldId = $request->get('selectedField');
 		$fieldModel = Settings_ListViewColors_Field_Model::getInstance($selectedFieldId);
@@ -70,7 +70,7 @@ class Settings_ListViewColors_IndexAjax_View extends Settings_Vtiger_IndexAjax_V
 		$viewer->view('ColorFieldsValueDetail.tpl',$qualifiedName);
    }
    
-    public function saveColorValuesForField(Vtiger_Request $request) {
+    public function saveColorValuesForField(Vtiger_Request $request): void{
 		$db = PearDatabase::getInstance();
 		$recordValue = $request->get('recordValue');
 		$selectedColor = $request->get('selectedColor');
@@ -99,7 +99,7 @@ class Settings_ListViewColors_IndexAjax_View extends Settings_Vtiger_IndexAjax_V
 	//list of supported UI types
 	// 15,16,55 picklists
 	// 56 checkbox
-    public static function getSupportedUITypes() {
+    public static function getSupportedUITypes(): array{
         $supporteduis = array (15,16,55,56);
 		return $supporteduis;
     }

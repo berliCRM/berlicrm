@@ -18,7 +18,7 @@ class Settings_ModuleManager_ModuleImport_View extends Settings_Vtiger_Index_Vie
 		$this->exposeMethod('updateUserModuleStep3');
 	}
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request): void{
 		$mode = $request->getMode();
 		if(!empty($mode)) {
 			$this->invokeExposedMethod($mode, $request);
@@ -107,5 +107,6 @@ class Settings_ModuleManager_ModuleImport_View extends Settings_Vtiger_Index_Vie
 
 	public function validateRequest(Vtiger_Request $request):bool { 
             $request->validateReadAccess(); 
+			return true;
         }
 }

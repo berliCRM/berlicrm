@@ -10,11 +10,12 @@
 
 class Users_List_View extends Settings_Vtiger_List_View {
 
-	function checkPermission(Vtiger_Request $request) {
+	function checkPermission(Vtiger_Request $request): bool{
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		if(!$currentUserModel->isAdminUser()) {
 			throw new AppException(vtranslate('LBL_PERMISSION_DENIED', 'Vtiger'));
 		}
+		return true;
 	}
     
 	function getHeaderScripts(Vtiger_Request $request):array {
@@ -30,7 +31,7 @@ class Users_List_View extends Settings_Vtiger_List_View {
 		return $headerScriptInstances;
 	}
 	
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request): void{
 		$viewer = $this->getViewer($request);
 		$this->initializeListViewContents($request, $viewer);
 		$viewer->view('ListViewContents.tpl', $request->getModule(false));
@@ -39,7 +40,7 @@ class Users_List_View extends Settings_Vtiger_List_View {
 	/*
 	 * Function to initialize the required data in smarty to display the List View Contents
 	 */
-	public function initializeListViewContents(Vtiger_Request $request, Vtiger_Viewer $viewer) {
+	public function initializeListViewContents(Vtiger_Request $request, Vtiger_Viewer $viewer): void{
 		$moduleName = $request->getModule();
 		$cvId = $request->get('viewname');
 		$pageNumber = $request->get('page');
@@ -142,7 +143,7 @@ class Users_List_View extends Settings_Vtiger_List_View {
 	 * Function returns the number of records for the current filter
 	 * @param Vtiger_Request $request
 	 */
-	function getRecordsCount(Vtiger_Request $request) {
+	function getRecordsCount(Vtiger_Request $request): void{
 		$moduleName = $request->getModule();
 		$cvId = $request->get('viewname');
 		$count = $this->getListViewCount($request);
@@ -162,7 +163,7 @@ class Users_List_View extends Settings_Vtiger_List_View {
 	 * Function to get listView count
 	 * @param Vtiger_Request $request
 	 */
-	function getListViewCount(Vtiger_Request $request){
+	function getListViewCount(Vtiger_Request $request): object{
 		$moduleName = $request->getModule();
 		$cvId = $request->get('viewname');
 		if(empty($cvId)) {

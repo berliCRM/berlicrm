@@ -10,7 +10,7 @@
 
 class Settings_Vtiger_CompanyDetails_View extends Settings_Vtiger_Index_View {
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request): void{
 		$qualifiedModuleName = $request->getModule(false);
 		$moduleModel = Settings_Vtiger_CompanyDetails_Model::getInstance();
 		

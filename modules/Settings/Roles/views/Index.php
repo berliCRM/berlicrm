@@ -10,7 +10,7 @@
 
 class Settings_Roles_Index_View extends Settings_Vtiger_Index_View {
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request): void{
 		$viewer = $this->getViewer($request);
 		$qualifiedModuleName = $request->getModule(false);
 		$rootRole = Settings_Roles_Record_Model::getBaseRole();
