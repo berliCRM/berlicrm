@@ -10,7 +10,7 @@
 
 class Settings_Workflows_EditTask_View extends Settings_Vtiger_Index_View {
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$currentUser = Users_Record_Model::getCurrentUserModel();
 		$viewer = $this->getViewer($request);
 		$moduleName = $request->getModule();
@@ -52,7 +52,7 @@ class Settings_Workflows_EditTask_View extends Settings_Vtiger_Index_View {
 				$relationModuleModel = Vtiger_Module_Model::getInstance($taskObject->entity_type);
 				$ownerFieldModels = $relationModuleModel->getFieldsByType('owner');
 
-				$fieldMapping = json_decode($taskObject->field_value_mapping);
+				$fieldMapping = json_decode($taskObject->field_value_mapping, true);
 				foreach ($fieldMapping as $key => $mappingInfo) {
 					if (array_key_exists($mappingInfo['fieldname'], $ownerFieldModels)) {
 						$userRecordModel = Users_Record_Model::getInstanceByName(html_entity_decode($mappingInfo['value']));

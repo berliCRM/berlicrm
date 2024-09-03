@@ -25,7 +25,7 @@ class Settings_Workflows_TaskAjax_Action extends Settings_Vtiger_IndexAjax_View 
 		}
 	}
 
-	public function Delete(Vtiger_Request $request){
+	public function Delete(Vtiger_Request $request):void {
 		$record = $request->get('task_id');
 		if(!empty($record)) {
 			$taskRecordModel = Settings_Workflows_TaskRecord_Model::getInstance($record);
@@ -36,7 +36,7 @@ class Settings_Workflows_TaskAjax_Action extends Settings_Vtiger_IndexAjax_View 
 		}
 	}
 
-	public function ChangeStatus(Vtiger_Request $request) {
+	public function ChangeStatus(Vtiger_Request $request):void {
 		$record = $request->get('task_id');
 		if(!empty($record)) {
 			$taskRecordModel = Settings_Workflows_TaskRecord_Model::getInstance($record);
@@ -52,7 +52,7 @@ class Settings_Workflows_TaskAjax_Action extends Settings_Vtiger_IndexAjax_View 
 		}
 	}
 
-	public function Save(Vtiger_Request $request) {
+	public function Save(Vtiger_Request $request):void {
 
 		$workflowId = $request->get('for_workflow');
 		if(!empty($workflowId)) {
@@ -102,7 +102,7 @@ class Settings_Workflows_TaskAjax_Action extends Settings_Vtiger_IndexAjax_View 
 				$relationModuleModel = Vtiger_Module_Model::getInstance($taskObject->entity_type);
 				$ownerFieldModels = $relationModuleModel->getFieldsByType('owner');
 
-				$fieldMapping = json_decode($taskObject->field_value_mapping);
+				$fieldMapping = json_decode($taskObject->field_value_mapping, true);
 				foreach ($fieldMapping as $key => $mappingInfo) {
 					if (array_key_exists($mappingInfo['fieldname'], $ownerFieldModels)) {
 						$userRecordModel = Users_Record_Model::getInstanceById($mappingInfo['value'], 'Users');
@@ -125,7 +125,7 @@ class Settings_Workflows_TaskAjax_Action extends Settings_Vtiger_IndexAjax_View 
 		}
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
-            $request->validateWriteAccess(); 
+        public function validateRequest(Vtiger_Request $request):bool { 
+            return $request->validateWriteAccess(); 
         } 
 }
