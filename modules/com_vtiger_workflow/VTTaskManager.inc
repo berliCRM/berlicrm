@@ -264,7 +264,7 @@ class VTTaskType {
 			$taskName = $rawData['tasktypename'];
 			$moduleslist = $rawData['modules'];
 			$sourceModule = $rawData['sourcemodule'];
-			$modules = json_decode($moduleslist);
+			$modules = json_decode($moduleslist, true);
 			$includeModules = $modules['include'];
 			$excludeModules = $modules['exclude'];
 
