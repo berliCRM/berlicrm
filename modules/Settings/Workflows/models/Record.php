@@ -170,7 +170,7 @@ class Settings_Workflows_Record_Model extends Settings_Vtiger_Record_Model {
 		$workflowModel = new self();
 
 		$workflowModel->set('summary', $wf->description);
-		$workflowModel->set('conditions', json_decode($wf->test));
+		$workflowModel->set('conditions', json_decode($wf->test, true));
 		$workflowModel->set('execution_condition', $wf->executionCondition);
 		$workflowModel->set('module_name', $wf->moduleName);
 		$workflowModel->set('workflow_id', $wf->id);
