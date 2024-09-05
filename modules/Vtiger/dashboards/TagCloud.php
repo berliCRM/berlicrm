@@ -15,8 +15,7 @@ class Vtiger_TagCloud_Dashboard extends Vtiger_IndexAjax_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	public function getHeaderScripts(Vtiger_Request $request) {
-
+	public function getHeaderScripts(Vtiger_Request $request):array {
 		$jsFileNames = array(
 			'~/libraries/jquery/jquery.tagcloud.js'
 		);
@@ -25,7 +24,7 @@ class Vtiger_TagCloud_Dashboard extends Vtiger_IndexAjax_View {
 		return $headerScriptInstances;
 	}
 	
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$currentUser = Users_Record_Model::getCurrentUserModel();
 		$viewer = $this->getViewer($request);
 		$moduleName = $request->getModule();
