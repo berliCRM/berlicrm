@@ -11,7 +11,7 @@
 Class Settings_Groups_Detail_View extends Settings_Vtiger_Index_View {
     
     
-    public function process(Vtiger_Request $request) {
+    public function process(Vtiger_Request $request): void{
         
         $groupId = $request->get('record');		
         $qualifiedModuleName = $request->getModule(false);
