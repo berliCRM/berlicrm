@@ -49,9 +49,7 @@ if(empty($from)) {
 // Get the list of activity for which reminder needs to be sent
 
 global $adb;
-global $log, $default_language;
-$log = LoggerManager::getLogger('SendReminder');
-$log->debug(" invoked SendReminder ");
+global $default_language;
 
 // retrieve the translated strings.
 if(empty($current_language)) {
@@ -110,7 +108,6 @@ if($adb->num_rows($result) >= 1) {
 		$activity_time = strtotime($dBFomatedDate.' '.$timeFormatedString);
 		$differenceOfActivityTimeAndCurrentTime = ($activity_time - $curr_time);
 		if (($differenceOfActivityTimeAndCurrentTime > 0) && (($differenceOfActivityTimeAndCurrentTime <= $reminder_time) || ($differenceOfActivityTimeAndCurrentTime <= $reminderFrequency))) {
-			$log->debug(" InSide  REMINDER");
 			$query_user="SELECT vtiger_users.email1,vtiger_salesmanactivityrel.smid FROM vtiger_salesmanactivityrel inner join vtiger_users on vtiger_users.id=vtiger_salesmanactivityrel.smid where vtiger_salesmanactivityrel.activityid =? and vtiger_users.deleted=0";
 			$user_result = $adb->pquery($query_user, array($activity_id));
 			$invitedUsersList = array();
@@ -146,11 +143,11 @@ if($adb->num_rows($result) >= 1) {
 				$dont_forget = "Nicht vergessen";
 				$relatedto = "in Bezug auf den CRM Eintrag";
 				$linktoevent = "Link zum CRM System";
-				$date_time = "Fälligkeitstermin";
-				$was_sent = "Diese Erinnerung wurde Ihnen von Ihrem CRM System gesendet. Bitte loggen Sie sich ein und klicken Sie auf den nachfolgenden Link, um die damit verbundene Aktivität und weitere Informationen zu sehen";
+				$date_time = "Fï¿½lligkeitstermin";
+				$was_sent = "Diese Erinnerung wurde Ihnen von Ihrem CRM System gesendet. Bitte loggen Sie sich ein und klicken Sie auf den nachfolgenden Link, um die damit verbundene Aktivitï¿½t und weitere Informationen zu sehen";
 				$hint = "Hinweis";
 				$hint2 ="Nachricht aus Ihrem CRM System";
-				$reminds = "Erinnerungsbenachrichtigungen werden alle 15 Minuten versendet. Dadurch kann sich eine Benachrichtigung um bis zu 15 Minuten verspäten.";
+				$reminds = "Erinnerungsbenachrichtigungen werden alle 15 Minuten versendet. Dadurch kann sich eine Benachrichtigung um bis zu 15 Minuten verspï¿½ten.";
 				//crm-now: added more details
 				if($parent_content!='') {
 					$parent_module = getSalesEntityType($parent_type);
@@ -334,8 +331,6 @@ if($adb->num_rows($result) >= 1) {
 */
 function send_email($to,$from,$subject,$contents,$mail_server,$mail_server_username,$mail_server_password, $alt_body) {
 	global $adb;
-	global $log;
-    $log->info("This is send_mail function in SendReminder.php(vtiger home).");
 	global $root_directory;
 
 	$mail = new PHPMailer();
@@ -347,15 +342,13 @@ function send_email($to,$from,$subject,$contents,$mail_server,$mail_server_usern
 
 	$mail->IsSMTP();                                      // set mailer to use SMTP
 
-		$mailserverresult=$adb->pquery("select * from vtiger_systems where server_type='email'", array());
-		$mail_server = $adb->query_result($mailserverresult,0,'server');
-		$mail_server_username = $adb->query_result($mailserverresult,0,'server_username');
-		$mail_server_password = $adb->query_result($mailserverresult,0,'server_password');
-		$smtp_auth = $adb->query_result($mailserverresult,0,'smtp_auth');
+	$mailserverresult=$adb->pquery("select * from vtiger_systems where server_type='email'", array());
+	$mail_server = $adb->query_result($mailserverresult,0,'server');
+	$mail_server_username = $adb->query_result($mailserverresult,0,'server_username');
+	$mail_server_password = $adb->query_result($mailserverresult,0,'server_password');
+	$smtp_auth = $adb->query_result($mailserverresult,0,'smtp_auth');
 
-		$_REQUEST['server']=$mail_server;
-		$log->info("Mail Server Details => '".$mail_server."','".$mail_server_username."','".$mail_server_password."'");
-
+	$_REQUEST['server']=$mail_server;
 
 	$mail->Host = $mail_server;			// specify main and backup server
 	if($smtp_auth == 'true' || $smtp_auth == '1')
@@ -366,12 +359,9 @@ function send_email($to,$from,$subject,$contents,$mail_server,$mail_server_usern
 	$mail->Password = $mail_server_password ;	// SMTP password
 	$mail->From = $from;
 	$mail->FromName = $initialfrom;
-	$log->info("Mail sending process : From Name & email id => '".$initialfrom."','".$from."'");
 	foreach($to as $pos=>$addr)
 	{
 		$mail->AddAddress($addr);                  // name is optional
-		$log->info("Mail sending process : To Email id = '".$addr."' (set in the mail object)");
-
 	}
 	$mail->WordWrap = 50;                                 // set word wrap to 50 characters
 
@@ -380,7 +370,6 @@ function send_email($to,$from,$subject,$contents,$mail_server,$mail_server_usern
 	$mail->AltBody = $alt_body;
 
 	$flag = MailSend($mail);
-	$log->info("After executing the mail->Send() function.");
 }
 
 /**

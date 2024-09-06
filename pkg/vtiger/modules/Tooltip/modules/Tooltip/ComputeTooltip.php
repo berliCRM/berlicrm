@@ -13,7 +13,7 @@ require_once 'include/Webservices/DescribeObject.php';
 require_once 'include/Webservices/Query.php';
 require_once 'modules/Tooltip/TooltipUtils.php';
 
-global $current_user,$log;
+global $current_user;
 
 $modname = vtlib_purify($_REQUEST['modname']);
 $id = vtlib_purify($_REQUEST['id']);

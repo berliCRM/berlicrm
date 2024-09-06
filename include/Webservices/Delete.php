@@ -9,14 +9,14 @@
  *************************************************************************************/
 	
 	function vtws_delete($id,$user){
-		global $log,$adb;
+		global $adb;
 		$webserviceObject = VtigerWebserviceObject::fromId($adb,$id);
 		$handlerPath = $webserviceObject->getHandlerPath();
 		$handlerClass = $webserviceObject->getHandlerClass();
 		
 		require_once $handlerPath;
 		
-		$handler = new $handlerClass($webserviceObject,$user,$adb,$log);
+		$handler = new $handlerClass($webserviceObject,$user,$adb);
 		$meta = $handler->getMeta();
 		$entityName = $meta->getObjectEntityName($id);
 		

@@ -21,7 +21,6 @@
  * Contributor(s): ______________________________________..
  ********************************************************************************/
 class Quotes extends CRMEntity {
-	var $log;
 	var $db;
 
 	var $table_name = "vtiger_quotes";
@@ -105,7 +104,6 @@ class Quotes extends CRMEntity {
 	/**	Constructor which will set the column_fields in this object
 	 */
 	function __construct() {
-		$this->log =LoggerManager::getLogger('quote');
 		$this->db = PearDatabase::getInstance();
 		$this->column_fields = getColumnFields('Quotes');
 	}
@@ -141,8 +139,7 @@ class Quotes extends CRMEntity {
 	 */
 	function get_salesorder($id)
 	{
-		global $log,$singlepane_view;
-		$log->debug("Entering get_salesorder(".$id.") method ...");
+		global $singlepane_view;
 		require_once('modules/SalesOrder/SalesOrder.php');
 	        $focus = new SalesOrder();
 
@@ -169,7 +166,6 @@ class Quotes extends CRMEntity {
 		LEFT JOIN vtiger_soshipads ON vtiger_soshipads.soshipaddressid = vtiger_salesorder.salesorderid
 		left join vtiger_users on vtiger_users.id=vtiger_crmentity.smownerid
 		where vtiger_crmentity.deleted=0 and vtiger_salesorder.quoteid = ".$id;
-		$log->debug("Exiting get_salesorder method ...");
 		return GetRelatedList('Quotes','SalesOrder',$focus,$query,$button,$returnset);
 	}
 
@@ -178,8 +174,7 @@ class Quotes extends CRMEntity {
 	 *	@return array - return an array which will be returned from the function GetRelatedList
 	 */
 	function get_activities($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_activities(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -239,7 +234,6 @@ class Quotes extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_activities method ...");
 		return $return_value;
 	}
 
@@ -249,8 +243,6 @@ class Quotes extends CRMEntity {
 	 */
 	function get_history($id)
 	{
-		global $log;
-		$log->debug("Entering get_history(".$id.") method ...");
 		$userNameSql = getSqlForNameInDisplayFormat(array('first_name'=>
 							'vtiger_users.first_name', 'last_name' => 'vtiger_users.last_name'), 'Users');
 		$query = "SELECT vtiger_activity.activityid, vtiger_activity.subject, vtiger_activity.status,
@@ -272,7 +264,6 @@ class Quotes extends CRMEntity {
                                 and vtiger_crmentity.deleted = 0";
 		//Don't add order by, because, for security, one more condition will be added with this query in include/RelatedListView.php
 
-		$log->debug("Exiting get_history method ...");
 		return getHistory('Quotes',$query,$id);
 	}
 
@@ -286,9 +277,6 @@ class Quotes extends CRMEntity {
 	 */
 	function get_quotestagehistory($id)
 	{
-		global $log;
-		$log->debug("Entering get_quotestagehistory(".$id.") method ...");
-
 		global $adb;
 		global $mod_strings;
 		global $app_strings;
@@ -334,8 +322,6 @@ class Quotes extends CRMEntity {
 		}
 
 		$return_data = Array('header'=>$header,'entries'=>$entries_list);
-
-	 	$log->debug("Exiting get_quotestagehistory method ...");
 
 		return $return_data;
 	}
@@ -446,7 +432,6 @@ class Quotes extends CRMEntity {
 
 	// Function to unlink an entity with given Id from another entity
 	function unlinkRelationship($id, $return_module, $return_id) {
-		global $log;
 		if(empty($return_module) || empty($return_id)) return;
 
 		if($return_module == 'Accounts' ) {
@@ -511,9 +496,7 @@ class Quotes extends CRMEntity {
 	*/
 	function create_export_query($where)
 	{
-		global $log;
 		global $current_user;
-		$log->debug("Entering create_export_query(".$where.") method ...");
 
 		include("include/utils/ExportUtils.php");
 
@@ -548,10 +531,8 @@ class Quotes extends CRMEntity {
 			$query .= " where ".$where_auto;
 		}
 
-		$log->debug("Exiting create_export_query method ...");
 		return $query;
 	}
-
 }
 
 ?>

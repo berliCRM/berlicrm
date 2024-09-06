@@ -16,8 +16,7 @@ require_once('include/database/PearDatabase.php');
  */
 function getComboArray($combofieldNames)
 {
-	global $log,$mod_strings;
-        $log->debug("Entering getComboArray(".$combofieldNames.") method ...");
+	global $mod_strings;
 	global $adb,$current_user;
         $roleid=$current_user->roleid;
 	$comboFieldArray = Array();
@@ -51,7 +50,6 @@ function getComboArray($combofieldNames)
 		}
 		$comboFieldArray[$fldArrName] = $arrayName;
 	}
-	$log->debug("Exiting getComboArray method ...");
 	return $comboFieldArray;	
 }
 function getUniquePicklistID()

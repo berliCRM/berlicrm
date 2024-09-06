@@ -27,8 +27,7 @@ class ListViewSession {
 */
 
 	function __construct() {
-		global $log,$currentModule;
-		$log->debug("Entering ListViewSession() method ...");
+		global $currentModule;
 
 		$this->module = $currentModule;
 		$this->sortby = 'ASC';
@@ -55,7 +54,7 @@ class ListViewSession {
 	}
 
 	public static function getListViewNavigation($currentRecordId){
-		global $currentModule,$current_user,$adb,$log,$list_max_entries_per_page;
+		global $currentModule,$current_user,$adb,$list_max_entries_per_page;
 		$reUseData = false;
 		$displayBufferRecordCount = 10;
 		$bufferRecordCount = 15;

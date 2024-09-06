@@ -39,8 +39,6 @@ class Settings_Search_RecordSearchLabelUpdater_Handler extends VTEventHandler {
 	}
 
 	public function computeCRMRecordLabelsForSearch($module, $ids) {
-		$log = vglobal('log');
-		$log->debug("Entering Settings_Search_Handlers_Model::computeCRMRecordLabelsForSearch() method ...");
 		$adb = PearDatabase::getInstance();
 		if (!is_array($ids))
 			$ids = array($ids);
@@ -149,6 +147,5 @@ class Settings_Search_RecordSearchLabelUpdater_Handler extends VTEventHandler {
 			}
 			return $entityDisplay;
 		}
-		$log->debug("Exiting Settings_Search_Handlers_Model::computeCRMRecordLabelsForSearch() method ...");
 	}
 }

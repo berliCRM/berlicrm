@@ -11,7 +11,7 @@
 include_once 'modules/Vtiger/CRMEntity.php';
 
 class Mailchimp extends Vtiger_CRMEntity {
-	var $db, $log; // Used in class functions of CRMEntity
+	var $db; // Used in class functions of CRMEntity
 	
 	/** Mandatory for supporting custom fields in related lists -> get_dependents_list (CRMEntity.php */
 	var $related_tables = array ('vtiger_mailchimpcf' => Array('mailchimpid'));
@@ -101,10 +101,9 @@ class Mailchimp extends Vtiger_CRMEntity {
 	var $mandatory_fields = Array('createdtime', 'modifiedtime', 'mailchimpname');
 	
 	function __construct() {
-		global $log, $currentModule;
+		global $currentModule;
 		$this->column_fields = getColumnFields(get_class($this));
 		$this->db = PearDatabase::getInstance();
-		$this->log = $log;
 	}
 
 	function save_module($module){
@@ -338,7 +337,6 @@ class Mailchimp extends Vtiger_CRMEntity {
 
 	// Function to unlink all the dependent entities of the given Entity by Id
 	function unlinkDependencies($module, $id) {
-		global $log;
 		parent::unlinkDependencies($module, $id);
 	}
 	
@@ -415,8 +413,7 @@ class Mailchimp extends Vtiger_CRMEntity {
 	 * returns related Contacts record in array format
 	 */
 	function get_contacts($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule;
-		$log->debug("Entering get_contacts(".$id.") method ...");
+		global $singlepane_view,$currentModule;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -504,7 +501,6 @@ class Mailchimp extends Vtiger_CRMEntity {
 
 		$return_value['CUSTOM_BUTTON'] = $button;
 		
-		$log->debug("Exiting get_contacts method ...");		
 		return $return_value;
 	}
         

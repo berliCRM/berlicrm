@@ -118,9 +118,8 @@ class Vtiger_Utils {
 	 * @param Boolean true to append end-of-line, false otherwise
 	 */
 	static function Log($message, $delimit=true) {
-		global $Vtiger_Utils_Log, $log;
+		global $Vtiger_Utils_Log;
 		
-		$log->debug($message);
 		if(!isset($Vtiger_Utils_Log) || $Vtiger_Utils_Log == false) return;
 
 		print_r($message);

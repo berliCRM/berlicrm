@@ -14,7 +14,7 @@ include_once 'data/CRMEntity.php';
 @session_start();
 
 if(isset($_REQUEST['username']) && isset($_REQUEST['password'])){
-	global $root_directory, $log;
+	global $root_directory;
 	$userName = $_REQUEST['username'];
 	$password = $_REQUEST['password'];
 

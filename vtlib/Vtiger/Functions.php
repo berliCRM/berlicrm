@@ -52,7 +52,7 @@ class Vtiger_Functions {
 	}
 
 	static function currentUserDisplayDateNew() {
-		global $log, $current_user;
+		global $current_user;
 		$date = new DateTimeField(null);
 		return $date->getDisplayDate($current_user);
 	}

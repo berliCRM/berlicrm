@@ -15,7 +15,7 @@ function vtws_create($elementType, $element, $user) {
         throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, "Permission to perform the operation is denied");
     }
 
-    global $log, $adb;
+    global $adb;
 
     // Cache the instance for re-use
 	if(!isset($vtws_create_cache[$elementType]['webserviceobject'])) {
@@ -31,7 +31,7 @@ function vtws_create($elementType, $element, $user) {
 
     require_once $handlerPath;
 
-    $handler = new $handlerClass($webserviceObject, $user, $adb, $log);
+    $handler = new $handlerClass($webserviceObject, $user, $adb);
     $meta = $handler->getMeta();
     if ($meta->hasCreateAccess() !== true) {
         throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, "Permission to write is denied");

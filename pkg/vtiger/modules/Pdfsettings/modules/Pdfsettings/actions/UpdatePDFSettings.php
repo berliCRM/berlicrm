@@ -11,8 +11,7 @@
 require_once('include/database/PearDatabase.php');
 require_once('include/utils/UserInfoUtil.php');
 require_once('include/utils/utils.php');
-global $adb,$log;
-$log->debug("Entering into UpdatePDF Settings");
+global $adb;
 // all modules available
 $pdfmodule = array ('Quotes','Invoice','SalesOrder','PurchaseOrder');
 $entrylevel = $_REQUEST['fld_module'];
@@ -115,27 +114,23 @@ echo "OK";
 exit;
 
 function getPDFSetList($fld_module) {
-	global $adb, $log;
+	global $adb;
 	global $image_path;
-	$log->debug("Entering into the function getPDFSetList in UpdatePDFSettings for: ".$fld_module);
 	$pdfsettings_query="select * from berli_pdfsettings where pdfmodul='".$fld_module."'";
 	$pdfsettings = $adb->pquery($pdfsettings_query,array());
 	$noofpickrows = $adb->num_rows($pdfsettings);
 	for($j = 0; $j < $noofpickrows; $j++) {
 		$pdffieldlist[$adb->query_result($pdfsettings,$j,'pdfieldid')]= $adb->query_result($pdfsettings,$j,'pdffieldname');
 	}
-	$log->debug("Exit getPDFSetList in UpdatePDFSettings with: ".$pdffieldlist);
 	return $pdffieldlist;
 }
 
 function getPDFConfigList($fld_module) {
-	global $adb, $log;
+	global $adb;
 	global $image_path;
-	$log->debug("Entering into the function getPDFConfigList in UpdatePDFSettings for: ".$fld_module);
 	$pdfconfig_query="select * from berli_pdfconfiguration where pdfmodul=?";
 	$pdfconfig_result = $adb->pquery($pdfconfig_query,array($fld_module));
 	$pdfconfiglist = $adb->getFieldsArray($pdfconfig_result);
-	$log->debug("Exit getPDFConfigList in UpdatePDFSettings with: ".$pdffieldlist);
 	return $pdfconfiglist;
 }
 

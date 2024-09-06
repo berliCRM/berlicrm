@@ -9,7 +9,6 @@
 *
  ********************************************************************************/
 class Vendors extends CRMEntity {
-	var $log;
 	var $db;
 	var $table_name = "vtiger_vendor";
 	var $table_index= 'vendorid';
@@ -65,11 +64,8 @@ class Vendors extends CRMEntity {
 	/**	Constructor which will set the column_fields in this object
 	 */
 	function __construct() {
-		$this->log =LoggerManager::getLogger('vendor');
-		$this->log->debug("Entering Vendors() method ...");
 		$this->db = PearDatabase::getInstance();
 		$this->column_fields = getColumnFields('Vendors');
-		$this->log->debug("Exiting Vendor method ...");
 	}
 
 	function save_module($module)
@@ -144,9 +140,7 @@ class Vendors extends CRMEntity {
         */
         function create_export_query($where)
         {
-                global $log;
                 global $current_user;
-                $log->debug("Entering create_export_query(".$where.") method ...");
 
                 include("include/utils/ExportUtils.php");
 
@@ -173,7 +167,6 @@ class Vendors extends CRMEntity {
                 else
                    $query .= "  WHERE ".$where_auto;
 
-                $log->debug("Exiting create_export_query method ...");
                 return $query;
         }
 
@@ -215,8 +208,7 @@ class Vendors extends CRMEntity {
 	 * @param Integer Id of the the Record to which the related records are to be moved
 	 */
 	function transferRelatedRecords($module, $transferEntityIds, $entityId) {
-		global $adb,$log;
-		$log->debug("Entering function transferRelatedRecords ($module, $transferEntityIds, $entityId)");
+		global $adb;
 
 		$rel_table_arr = Array("Products"=>"vtiger_products","PurchaseOrder"=>"vtiger_purchaseorder","Contacts"=>"vtiger_vendorcontactrel");
 
@@ -242,7 +234,6 @@ class Vendors extends CRMEntity {
 				}
 			}
 		}
-		$log->debug("Exiting transferRelatedRecords...");
 	}
 
 	/** Returns a list of the associated emails
@@ -357,7 +348,6 @@ class Vendors extends CRMEntity {
 
 	// Function to unlink all the dependent entities of the given Entity by Id
 	function unlinkDependencies($module, $id) {
-		global $log;
 		//Deleting Vendor related PO.
 		$po_q = 'SELECT vtiger_crmentity.crmid FROM vtiger_crmentity
 			INNER JOIN vtiger_purchaseorder ON vtiger_crmentity.crmid=vtiger_purchaseorder.purchaseorderid
@@ -438,7 +428,6 @@ class Vendors extends CRMEntity {
 
     // Function to unlink an entity with given Id from another entity
 	function unlinkRelationship($id, $return_module, $return_id) {
-		global $log;
 		if(empty($return_module) || empty($return_id)) return;
         if($return_module == 'Contacts') {
 			$sql = 'DELETE FROM vtiger_vendorcontactrel WHERE vendorid=? AND contactid=?';
@@ -476,9 +465,6 @@ class Vendors extends CRMEntity {
 		WHERE vtiger_crmentity.deleted = 0 AND vtiger_crmentityrel.crmid = $id ";
 
 		return array('query' => $query);
-
 	}
-
-
 }
 ?>

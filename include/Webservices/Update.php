@@ -10,7 +10,7 @@
 	
 function vtws_update($element,$user){
     
-    global $log,$adb;
+    global $adb;
     $idList = vtws_getIdComponents($element['id']);
     $webserviceObject = VtigerWebserviceObject::fromId($adb,$idList[0]);
     $handlerPath = $webserviceObject->getHandlerPath();
@@ -18,7 +18,7 @@ function vtws_update($element,$user){
     
     require_once $handlerPath;
     
-    $handler = new $handlerClass($webserviceObject,$user,$adb,$log);
+    $handler = new $handlerClass($webserviceObject,$user,$adb);
     $meta = $handler->getMeta();
     $entityName = $meta->getObjectEntityName($element['id']);
 	

@@ -9,9 +9,8 @@
 class Settings_Vtiger_listpdftexttemplates_View extends Settings_Vtiger_Index_View {
 
 
-	public function process(Vtiger_Request $request): void{
+	public function process(Vtiger_Request $request) {
 		global $adb;
-		global $log;
 		$qualifiedModuleName = $request->getModule(false);
 		$moduleModel = Settings_Vtiger_listpdftexttemplates_Model::getInstance();
 		// get existig entries

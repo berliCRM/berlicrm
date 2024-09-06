@@ -12,14 +12,14 @@
 
 	function vtws_describe_partial($elementType,$user){
 		
-		global $log,$adb;
+		global $adb;
 		$webserviceObject = VtigerWebserviceObject::fromName($adb,$elementType);
 		$handlerPath = $webserviceObject->getHandlerPath();
 		$handlerClass = $webserviceObject->getHandlerClass();
 		
 		require_once $handlerPath;
 		
-		$handler = new $handlerClass($webserviceObject,$user,$adb,$log);
+		$handler = new $handlerClass($webserviceObject,$user,$adb);
 		$meta = $handler->getMeta();
 		
 		$types = vtws_listtypes(null, $user);

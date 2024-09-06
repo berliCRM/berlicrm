@@ -12,13 +12,13 @@ include_once 'include/Webservices/Query.php';
 include_once 'include/Webservices/RelatedTypes.php';
 
 function vtws_query_related($query, $id, $relatedLabel, $user, $filterClause = null) {
-    global $log, $adb;
+    global $adb;
 
     $webserviceObject = VtigerWebserviceObject::fromId($adb, $id);
     $handlerPath  = $webserviceObject->getHandlerPath();
     $handlerClass = $webserviceObject->getHandlerClass();
     require_once $handlerPath;
-    $handler = new $handlerClass($webserviceObject, $user, $adb, $log);
+    $handler = new $handlerClass($webserviceObject, $user, $adb);
     $meta = $handler->getMeta();
     $entityName = $meta->getObjectEntityName($id);
 
@@ -49,7 +49,7 @@ function vtws_query_related($query, $id, $relatedLabel, $user, $filterClause = n
     $relatedHandlerPath  = $relatedWebserviceObject->getHandlerPath();
     $relatedHandlerClass = $relatedWebserviceObject->getHandlerClass();
     require_once $relatedHandlerPath;
-    $relatedHandler = new $relatedHandlerClass($relatedWebserviceObject, $user, $adb, $log);
+    $relatedHandler = new $relatedHandlerClass($relatedWebserviceObject, $user, $adb);
     $relatedIds = $handler->relatedIds($id, $relatedType, $relatedLabel, $relatedHandler);
 
 	// Initialize return value

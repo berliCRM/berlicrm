@@ -85,24 +85,18 @@ class Search {
      * To delete Settings link
     */
     function removeSettingsLinks(){
-		global $log;
 		$db = PearDatabase::getInstance();
         $db->pquery('DELETE FROM vtiger_settings_field WHERE name=?', array($this->LBL_SEARCH));
-        $log->fatal('Settings Field Removed');
-        
     }
     function disableSearchHandler(){
-		global $log;
 		$db = PearDatabase::getInstance();
         $db->pquery('Update vtiger_eventhandlers set is_active = 0 WHERE handler_class=?', array('Settings_Search_RecordSearchLabelUpdater_Handler'));
     }
     function activateSearchHandler(){
-		global $log;
 		$db = PearDatabase::getInstance();
         $db->pquery('Update vtiger_eventhandlers set is_active = 1 WHERE handler_class=?', array('Settings_Search_RecordSearchLabelUpdater_Handler'));
     }
     function removeSearchHandler(){
-		global $log;
 		$db = PearDatabase::getInstance();
         $db->pquery('Delete from vtiger_eventhandlers WHERE handler_class=?', array('Settings_Search_RecordSearchLabelUpdater_Handler'));
     }

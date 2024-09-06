@@ -8,7 +8,7 @@
  * All Rights Reserved.
  ************************************************************************************/
 class gdpr extends CRMEntity {
-	var $db, $log; // Used in class functions of CRMEntity
+	var $db; // Used in class functions of CRMEntity
 
 	var $related_tables = array ('vtiger_gdprcf' => Array('gdprid'));
 	var $table_name = 'vtiger_gdpr';
@@ -102,10 +102,8 @@ class gdpr extends CRMEntity {
 	/**	Constructor which will set the column_fields in this object
 	 */
 	function __construct() {
-		global $log;
 		$this->column_fields = getColumnFields(get_class($this));
 		$this->db = PearDatabase::getInstance();
-		$this->log = $log;
 	}
 
 	function save_module($module){
@@ -342,7 +340,6 @@ class gdpr extends CRMEntity {
 
 	// Function to unlink all the dependent entities of the given Entity by Id
 	function unlinkDependencies($module, $id) {
-		global $log;
 		parent::unlinkDependencies($module, $id);
 	}
 
@@ -471,19 +468,15 @@ class gdpr extends CRMEntity {
      * To deactivate Settings link
     */
     function deactivateSettingsLinks(){
-		global $log;
 		$db = PearDatabase::getInstance();
         $db->pquery('UPDATE vtiger_settings_field set active = 1 WHERE name=?', array('gdpr'));
-        $log->debug('Settings Field Removed');
     }
     /**
      * To activate Settings link
     */
     function activateSettingsLinks(){
-		global $log;
 		$db = PearDatabase::getInstance();
         $db->pquery('UPDATE vtiger_settings_field set active = 0 WHERE name=?', array('gdpr'));
-        $log->debug('Settings Field Removed');
     }
 }
 ?>

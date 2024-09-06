@@ -19,7 +19,7 @@ require_once 'includes/runtime/Cache.php';
  * $fieldlist = Array(Array('fieldlabel'=>$fieldlabel,'generatedtype'=>$generatedtype,'columnname'=>$columnname,'fieldname'=>$fieldname,'value'=>picklistvalues))
  */
 function getUserFldArray($fld_module,$roleid){
-	global $adb, $log;
+	global $adb;
 	$user_fld = Array();
 	$tabid = getTabid($fld_module);
 

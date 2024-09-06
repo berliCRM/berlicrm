@@ -2,13 +2,10 @@
 /*This function returns the pdf_strings for the current language (crm-now extension)
 */
 function return_module_language_pdf($language, $module) {
-	global $log;
-	$log->debug("Entering return_module_language_pdf(".$language.",". $module.") method ...");
-	global $default_language, $log;
+	global $default_language;
 
 	@include("modules/$module/language/$language.lang.pdf.php");
 	if(!isset($pdf_strings)) {
-		$log->warn("Unable to find the module language file for language: ".$language." and module: ".$module);
 		require("modules/$module/language/$default_language.lang.pdf.php");
 		$language_used = $default_language;
 	}
@@ -17,18 +14,14 @@ function return_module_language_pdf($language, $module) {
 		$pdf_strings[$entry_key] = $entry_value;
 	}
 
-	$log->debug("Exiting return_module_language_pdf method ...");
 	return $pdf_strings;
 }
 /*This function returns the pdf_strings for the current language related to a specific module
 */
 function return_specific_language_pdf($language, $module) {
-	global $log;
-	$log->debug("Entering return_specific_language_pdf(".$language.",". $module.") method ...");
-	global $default_language, $log;
+	global $default_language;
 	@include("modules/Pdfsettings/languages/$language/$language.$module.lang.pdf.php");
 	if(!isset($pdf_setting_strings)) {
-		$log->warn("Unable to find the module language file for language: ".$language." and module: ".$module);
 		require("modules/Pdfsettings/languages/$default_language/$default_language.$module.lang.pdf.php");
 		$language_used = $default_language;
 	}
@@ -42,8 +35,7 @@ function return_specific_language_pdf($language, $module) {
  */
 function getAllPDFDetails ($module)
 {
-	global $adb, $log;
-	$log->debug("Entering into the function getAllPDFDetails($module)");
+	global $adb;
 	$pdfsettings = Array();
 	$pdfsettings_result=$adb->pquery("select * from berli_pdfconfiguration where pdfmodul=?",array($module));
 	$pdfsettings['pdfid'] = $adb->query_result($pdfsettings_result,0,'pdfid');
@@ -72,7 +64,6 @@ function getAllPDFDetails ($module)
 	$pdfsettings['clientid'] = $adb->query_result($pdfsettings_result,0,'clientid');
 	$pdfsettings['carrier'] = $adb->query_result($pdfsettings_result,0,'carrier');
 	$pdfsettings['paperf'] = $adb->query_result($pdfsettings_result,0,'paperf');
-	$log->debug("Exit from the function getAllPDFDetails($module)");
 	return $pdfsettings;
 }
 
@@ -83,8 +74,7 @@ function getAllPDFDetails ($module)
 */
 function getAllPDFColums ($module)
 {
-	global $adb, $log;
-	$log->debug("Entering into the function getAllPDFColums($module)");
+	global $adb;
 	$pdfcolumnsettings = Array();
 	for($i=0;$i<2;$i++) {
 	$pdfcolumnsettings_result=$adb->pquery("
@@ -244,7 +234,6 @@ WHERE pdfmodul =? and `berli_pdf_fields`.pdffieldname =?",array($module,'LineTot
 		'selected' => $queryselectfield
 		);
 	}
-	$log->debug("Exit from the function getAllPDFColums($module)");
 	return $pdfcolumnsettings;
 }
 
@@ -255,8 +244,7 @@ WHERE pdfmodul =? and `berli_pdf_fields`.pdffieldname =?",array($module,'LineTot
  */
 function getAllPDFFonts ()
 {
-	global $adb, $log;
-	$log->debug("Entering into the function getAllPDFFonts");
+	global $adb;
 	$pdffonts = Array();
 	$pdffonts_result=$adb->pquery("select * from berli_pdffonts",'');
 	$noofrows = $adb->num_rows($pdffonts_result);
@@ -266,7 +254,6 @@ function getAllPDFFonts ()
 		$pdffonts[$i]['tcpdfname'] = $adb->query_result($pdffonts_result,$i,'tcpdfname');
 		$pdffonts[$i]['namedisplay'] = $adb->query_result($pdffonts_result,$i,'namedisplay');
 	}
-	$log->debug("Exit from the function getAllPDFFonts ($pdffonts)");
 	return $pdffonts;
 }
 
@@ -277,12 +264,10 @@ function getAllPDFFonts ()
  */
 function getTCPDFFontsname ($fontsid)
 {
-	global $adb, $log;
-	$log->debug("Entering into the function getTCPDFFontsname ($fontsid)");
+	global $adb;
 	$pdffonts = Array();
 	$pdffonts_name=$adb->pquery("SELECT * FROM `berli_pdffonts` WHERE `fontid` =?",array($fontsid));
 	$fontsname = $adb->query_result($pdffonts_name,0,'tcpdfname');
-	$log->debug("Exit from the function getAllPDFFonts ($fontsname)");
 	return $fontsname;
 }
 
@@ -293,8 +278,7 @@ function getTCPDFFontsname ($fontsid)
  */
 function getAllPDFlanguages ($module)
 {
-	global $adb, $log;
-	$log->debug("Entering into the function getAllPDFlanguages");
+	global $adb;
 	$pdflanguages = Array();
 	$pdflangdir = "modules/".$module."/language/";
 	if ( is_dir ( $pdflangdir )) {
@@ -312,7 +296,6 @@ function getAllPDFlanguages ($module)
 	        closedir($handle);
 	    }
 	}
-	$log->debug("Exit from the function getAllPDFlanguages");
 	return $pdflanguages;
 }
 /**
@@ -323,10 +306,6 @@ function getAllPDFlanguages ($module)
 
 function getContactforPDF($contact_id)
 {
-	global $log;
-	$log->debug("Entering getContactName(".$contact_id.") method ...");
-	$log->info("in getContactName ".$contact_id);
-
     global $adb;
 	$contact_name = '';
 	if($contact_id != '')
@@ -357,7 +336,6 @@ function getContactforPDF($contact_id)
 				$contact_name = $contact_salutation.' '.$lastname;
 			}
 	}
-	$log->debug("Exiting getContactName method ...");
     return $contact_name;
 }
 /** Function to get the field label/permission array to construct the default orgnization field UI for the specified profile 
@@ -370,8 +348,7 @@ function getContactforPDF($contact_id)
 
 function getPDFFieldList($module)
 {
-	global $adb, $log;
-	$log->debug("Entering into the function getPDFFieldList($module)");
+	global $adb;
 	$tabid=getTabid($module);
 	$pdfsettings = Array();
 	$pdfsettings_query="select * from berli_pdfsettings where pdfmodul='".$module."'";

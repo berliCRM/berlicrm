@@ -24,8 +24,6 @@ require_once('libraries/nusoap/nusoap.php');
 
 require_once('modules/Contacts/Contacts.php');
 
-$log = &LoggerManager::getLogger('thunderbirdplugin');
-
 $accessDenied = "You are not authorized for performing this action";
 $NAMESPACE = 'http://www.vtiger.com/products/crm';
 $server = new soap_server;
@@ -230,7 +228,6 @@ function track_email($user_name,$password,$contact_ids, $date_sent, $email_subje
 	{
 		global $current_user;
 		global $adb;
-		global $log;
 		require_once('modules/Users/Users.php');
 		require_once('modules/Emails/Emails.php');
 		$current_user = new Users();
@@ -240,7 +237,6 @@ function track_email($user_name,$password,$contact_ids, $date_sent, $email_subje
 		$user_emailid = $adb->query_result($result,0,"email1");
 		$current_user = $current_user->retrieveCurrentUserInfoFromFile($user_id);
 		$email = new Emails();
-		//$log->debug($msgdtls['contactid']);
 		$emailbody = str_replace("'", "''", $email_body);
 		$emailsubject = str_replace("'", "''",$email_subject);
 		$datesent = substr($date_sent,1,10);
@@ -282,7 +278,6 @@ function GetContacts($username,$password)
 	if(authentication($username,$password))
 	{
 		global $adb;
-		global $log;
 		require_once('modules/Contacts/Contacts.php');
 	
 		$seed_contact = new Contacts();
@@ -507,7 +502,6 @@ function AddLead($user_name, $first_name, $last_name, $email_address ,$account_n
 		$Lead->column_fields[country]=in_array('country',$permitted_lists) ? $alt_address_country : "";
 		$Lead->column_fields[assigned_user_id]=in_array('assigned_user_id',$permitted_lists) ? $user_id : "";
 		$Lead->column_fields[description]= "";
-	//	$log->fatal($Lead->column_fields);
 		$Lead->save("Leads");
 	
 	  	$Lead = $Lead;
@@ -517,7 +511,7 @@ function AddLead($user_name, $first_name, $last_name, $email_address ,$account_n
 
 function create_session($user_name, $password,$version)
 {
-  global $adb,$log;
+  global $adb;
   $return_access = 'FALSES';
   include('vtigerversion.php');
  
@@ -539,28 +533,24 @@ function create_session($user_name, $password,$version)
 			if($adb->num_rows($result) > 0)
 			{
 				$return_access = 'TRUES';
-				$log->debug("Logged in sucessfully from thunderbirdplugin");
 			}else
 			{
 				$return_access = 'FALSES';
-				$log->debug("Logged in failure from thunderbirdplugin");
 			}
 		}
 		else
 		{
 			$return_access = 'LOGIN';
-			$log->debug("Logged in failure from thunderbirdplugin");	
 		}
 	}else
 	{
 		$return_access = 'FALSES';
-		$log->debug("Logged in failure from thunderbirdplugin");
 	}
 	return $return_access;
 }
 function authentication($user_name,$password)
 {
-	global $adb,$log;
+	global $adb;
 	require_once('modules/Users/Users.php');
 	$objuser = new Users();
 	if($password != "" && $user_name != '')
@@ -570,7 +560,6 @@ function authentication($user_name,$password)
 		if($objuser->load_user($password) && $objuser->is_authenticated())
 		{
 			$query = "select id from vtiger_users where user_name=? and user_password=?";
-			$log->DEBUG("Running Query is ".$query);
 			$result = $adb->pquery($query, array($user_name, $encrypted_password));
 			if($adb->num_rows($result) > 0)
 			{
@@ -619,7 +608,7 @@ function CheckContactEmailPerm($user_name,$password)
 {
 	if(authentication($user_name,$password))
 	{
-		global $current_user,$log;
+		global $current_user;
 		require_once('modules/Users/Users.php');
 		$seed_user = new Users();
 		$user_id = $seed_user->retrieve_user_id($user_name);
@@ -638,7 +627,7 @@ function CheckContactViewPerm($user_name,$password)
 {
 	if(authentication($user_name,$password))
 	{
-		global $current_user,$log;
+		global $current_user;
 		require_once('modules/Users/Users.php');
 		$seed_user = new Users();
 		$user_id = $seed_user->retrieve_user_id($user_name);
@@ -656,7 +645,7 @@ function CheckContactViewPerm($user_name,$password)
 
 function CheckLeadViewPerm($user_name)
 {
-  global $current_user,$log;
+  global $current_user;
 	require_once('modules/Users/Users.php');
 	$seed_user = new Users();
 	$user_id = $seed_user->retrieve_user_id($user_name);

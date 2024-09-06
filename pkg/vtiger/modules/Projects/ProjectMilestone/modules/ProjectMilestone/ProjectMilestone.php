@@ -8,7 +8,7 @@
  * All Rights Reserved.
  ************************************************************************************/
 class ProjectMilestone extends CRMEntity {
-	var $db, $log; // Used in class functions of CRMEntity
+	var $db; // Used in class functions of CRMEntity
 
 	var $table_name = 'vtiger_projectmilestone';
 	var $table_index= 'projectmilestoneid';
@@ -97,10 +97,9 @@ class ProjectMilestone extends CRMEntity {
 	var $mandatory_fields = Array('createdtime', 'modifiedtime', 'projectmilestonename', 'projectid', 'assigned_user_id');
 
 	function __construct() {
-		global $log, $currentModule;
+		global $currentModule;
 		$this->column_fields = getColumnFields(get_class($this));
 		$this->db = PearDatabase::getInstance();
-		$this->log = $log;
 	}
 
 	function save_module($module) {

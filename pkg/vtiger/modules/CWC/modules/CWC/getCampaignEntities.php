@@ -19,7 +19,7 @@ All Rights Reserved.
 ************************************************************************************************************************************************************ */
 
 function vtws_get_campaign_entities($campaignid, $returnresults='Both') {
-  global $log, $adb, $current_user;
+  global $adb, $current_user;
   
   if ($returnresults!='Leads' && $returnresults!='Contacts'  && $returnresults!='Accounts' && $returnresults!='Both') {
     $returnresults = 'Both';
@@ -31,7 +31,7 @@ function vtws_get_campaign_entities($campaignid, $returnresults='Both') {
   
   require_once $handlerPath;
   
-  $handler = new $handlerClass($webserviceObject, $current_user, $adb, $log);
+  $handler = new $handlerClass($webserviceObject, $current_user, $adb);
   $meta = $handler->getMeta();
   $entityName = $meta->getObjectEntityName($campaignid);
   //crm-now: careful, 5.2.1 doesn't have the argument up front
@@ -74,7 +74,7 @@ function vtws_get_campaign_entities($campaignid, $returnresults='Both') {
   
   // Check access permissions
   // $leadsHandler = new $handlerClass($leadsWsObject, $current_user, $adb, $log);
-  $contactsHandler = new $handlerClass($contactsWsObject, $current_user, $adb, $log);
+  $contactsHandler = new $handlerClass($contactsWsObject, $current_user, $adb);
   // $accountsHandler = new $handlerClass($accountsWsObject, $current_user, $adb, $log);
   // $leadsMeta = $leadsHandler->getMeta();
   $contactsMeta = $contactsHandler->getMeta();

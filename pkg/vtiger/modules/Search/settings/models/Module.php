@@ -13,8 +13,6 @@
 class Settings_Search_Module_Model extends Settings_Vtiger_Module_Model {
 
 	public static function getModulesEntity($tabid = false) {
-		$log = vglobal('log');
-		$log->debug("Entering Settings_Search_Module_Model::getModulesEntity() method ...");
 		$adb = PearDatabase::getInstance();
 		//this query is necessary to get new installed module into the search settings
 		$adb->pquery("INSERT IGNORE INTO berli_globalsearch_settings (gstabid) (SELECT vtiger_entityname.tabid FROM vtiger_entityname LEFT JOIN berli_globalsearch_settings ON vtiger_entityname.tabid = berli_globalsearch_settings.gstabid where vtiger_entityname.modulename !='Users' AND vtiger_entityname.modulename !='PBXManager')");
@@ -35,7 +33,6 @@ class Settings_Search_Module_Model extends Settings_Vtiger_Module_Model {
 		}
 
 		return $moduleEntity;
-		$log->debug("Exiting Settings_Search_Module_Model::getModulesEntity() method ...");
 	}
 
 	public static function getFieldFromModule() 	{
@@ -84,8 +81,6 @@ class Settings_Search_Module_Model extends Settings_Vtiger_Module_Model {
 	}
 
 	public static function UpdateLabels($params) {
-		$log = vglobal('log');
-		$log->debug("Entering Settings_Search_Module_Model::UpdateLabels(" . $params . ") method ...");
 		$adb = PearDatabase::getInstance();
 		$tabid = (int) $params['tabid'];
 		$modulesEntity = self::getModulesEntity($tabid);
@@ -168,12 +163,9 @@ class Settings_Search_Module_Model extends Settings_Vtiger_Module_Model {
 		$sql .= " SET vtiger_crmentity.label = CONCAT_WS(' |', $sql_searchcolumn), berli_globalsearch_data.searchlabel = CONCAT_WS(' |', $sql_searchcolumn)";
 		$sql .= " WHERE vtiger_crmentity.setype = '$modulename'";
 		$adb->query($sql);
-		$log->debug("Exiting Settings_Search_Module_Model::UpdateLabels() method ...");
 	}
 
 	public static function updateSequenceNumber($modulesSequence) {
-		$log = vglobal('log');
-		$log->debug("Entering Settings_Search_Module_Model::updateSequenceNumber(" . $modulesSequence . ") method ...");
 		$tabIdList = array();
 		$db = PearDatabase::getInstance();
 
@@ -191,6 +183,5 @@ class Settings_Search_Module_Model extends Settings_Vtiger_Module_Model {
 
 		$query .= ' WHERE tabid IN (' . generateQuestionMarks($tabIdList) . ')';
 		$db->pquery($query, array($tabIdList));
-		$log->debug("Exiting Settings_Search_Module_Model::updateSequenceNumber() method ...");
 	}
 }
