@@ -63,7 +63,7 @@ class Users_DeleteAjax_Action extends Vtiger_Delete_Action {
      * @param <type> $id
      */
     function set_user_active($id) {
-		global $log, $current_user, $adb;
+		global $current_user, $adb;
 		$date_var = date('Y-m-d H:i:s');
 		$query = "UPDATE vtiger_users set status=?,date_modified=?,modified_user_id=? where id=?";
 		$adb->pquery($query, array('Active', $adb->formatDate($date_var, true),$current_user->id, $id), true,"Error user record change status ");
@@ -73,7 +73,7 @@ class Users_DeleteAjax_Action extends Vtiger_Delete_Action {
      * @param <type> $id
      */
     function set_user_inactive($id) {
-		global $log, $current_user, $adb;
+		global $current_user, $adb;
         $date_var = date('Y-m-d H:i:s');
 		$query = "UPDATE vtiger_users set status=?,date_modified=?,modified_user_id=? where id=?";
 		$adb->pquery($query, array('Inactive', $adb->formatDate($date_var, true),$current_user->id, $id), true,"Error user record change status");

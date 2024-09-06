@@ -232,10 +232,6 @@ class Vtiger_WebUI extends Vtiger_EntryPoint {
 			}
 		} catch(Exception $e) {
 			if ($view) {
-				// log for development
-				global $log;
-				$log->debug($e->getMessage().":".$e->getTraceAsString());
-
 				$viewer = new Vtiger_Viewer();
 				$viewer->assign('MESSAGE', $e->getMessage());
 				$viewer->view('OperationNotPermitted.tpl', 'Vtiger');

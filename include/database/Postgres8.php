@@ -14,7 +14,7 @@
  ********************************************************************************/
 
 //Fix postgres queries
-function fixPostgresQuery($query,$log,$debug)
+function fixPostgresQuery($query,$debug)
 {
     // First select the query fields from the remaining query
     $queryFields = substr($query, strlen('SELECT'), stripos($query,'FROM')-strlen('SELECT'));
@@ -23,7 +23,6 @@ function fixPostgresQuery($query,$log,$debug)
     $orderClause = "";
 
     if( $debug)
-	$log->info( "fixPostgresQuery: ".$query);
 
     // If we already have an order or group cluase separate ist for later use
     if( stripos($queryRecord,'GROUP BY') > 0)
@@ -70,16 +69,15 @@ function fixPostgresQuery($query,$log,$debug)
 		$groupClause =$groupClause.",".$groupFields;
 	else
 		$groupClause =$groupFields;
-    $query .= expandStar($groupClause,$log)." ".$orderClause;
+    $query .= expandStar($groupClause)." ".$orderClause;
 
     if( $debug)
-	$log->info( "fixPostgresQuery result: ".$query);
 
     return( $query);
 }
 
 // Postgres8 will not accept a "tablename.*" entry in the GROUP BY clause
-function expandStar($fieldlist,$log)
+function expandStar($fieldlist)
 {
     $expanded="";
     $field = strtok( $fieldlist, ",");
@@ -101,7 +99,7 @@ function expandStar($fieldlist,$log)
 
 			//do we need to expand?
 			if( $subfield == "*")
-		   	 $field = expandRecord($table,$log);
+		   	 $field = expandRecord($table);
 	      }
 
 	   	  //add the propably expanded field to the querylist
@@ -121,10 +119,9 @@ function expandStar($fieldlist,$log)
 }
 
 //return an expanded table field list
-function expandRecord($table,$log)
+function expandRecord($table)
 {
     $result = "";
-    $log->info( "Debug: expandRecord");
     $subfields = array();
 
     //vtiger_products table
@@ -210,7 +207,6 @@ function expandRecord($table,$log)
 
 	//fields of the requested array still undefined
     else
-	$log->info("function expandRecord: please add structural information for table '".$table."'");
 
     //construct an entity string
     for( $i=0; $i<count($subfields); $i++)

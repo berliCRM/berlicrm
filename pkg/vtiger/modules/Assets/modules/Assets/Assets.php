@@ -8,7 +8,7 @@
  * All Rights Reserved.
  ************************************************************************************/
 class Assets extends CRMEntity {
-	var $db, $log; // Used in class functions of CRMEntity
+	var $db; // Used in class functions of CRMEntity
 
 	var $table_name = 'vtiger_assets';
 	var $table_index= 'assetsid';
@@ -101,10 +101,8 @@ class Assets extends CRMEntity {
 	/**	Constructor which will set the column_fields in this object
 	 */
 	function __construct() {
-		global $log;
 		$this->column_fields = getColumnFields(get_class($this));
 		$this->db = PearDatabase::getInstance();
-		$this->log = $log;
 	}
 
 	function save_module($module){
@@ -341,7 +339,6 @@ class Assets extends CRMEntity {
 
 	// Function to unlink all the dependent entities of the given Entity by Id
 	function unlinkDependencies($module, $id) {
-		global $log;
 		parent::unlinkDependencies($module, $id);
 	}
 
@@ -374,13 +371,13 @@ class Assets extends CRMEntity {
 			$assetLabel = 'Assets';
 
 			$accountInstance = Vtiger_Module::getInstance('Accounts');
-			$accountInstance->setRelatedlist($assetInstance,$assetLabel,array(ADD),'get_dependents_list');
+			$accountInstance->setRelatedlist($assetInstance,$assetLabel,array('ADD'),'get_dependents_list');
 
 			$productInstance = Vtiger_Module::getInstance('Products');
-			$productInstance->setRelatedlist($assetInstance,$assetLabel,array(ADD),'get_dependents_list');
+			$productInstance->setRelatedlist($assetInstance,$assetLabel,array('ADD'),'get_dependents_list');
 
 			$InvoiceInstance = Vtiger_Module::getInstance('Invoice');
-			$InvoiceInstance->setRelatedlist($assetInstance,$assetLabel,array(ADD),'get_dependents_list');
+			$InvoiceInstance->setRelatedlist($assetInstance,$assetLabel,array('ADD'),'get_dependents_list');
 
 			$result = $adb->pquery("SELECT 1 FROM vtiger_modentity_num WHERE semodule = ? AND active = 1", array($moduleName));
 			if (!($adb->num_rows($result))) {
@@ -434,8 +431,7 @@ class Assets extends CRMEntity {
 	 * @param Integer Id of the the Record to which the related records are to be moved
 	 */
 	function transferRelatedRecords($module, $transferEntityIds, $entityId) {
-		global $adb,$log;
-		$log->debug("Entering function transferRelatedRecords ($module, $transferEntityIds, $entityId)");
+		global $adb;
 
 		$rel_table_arr = Array("Documents"=>"vtiger_senotesrel","Attachments"=>"vtiger_seattachmentsrel");
 
@@ -462,7 +458,6 @@ class Assets extends CRMEntity {
 			}
 		}
 		parent::transferRelatedRecords($module, $transferEntityIds, $entityId);
-		$log->debug("Exiting transferRelatedRecords...");
 	}
 }
 ?>

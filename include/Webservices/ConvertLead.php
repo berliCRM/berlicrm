@@ -18,7 +18,7 @@ vimport ('includes.runtime.BaseModel');
 
 function vtws_convertlead($entityvalues, $user) {
 
-	global $adb, $log;
+	global $adb;
 	if (empty($entityvalues['assignedTo'])) {
 		$entityvalues['assignedTo'] = vtws_getWebserviceEntityId('Users', $user->id);
 	}
@@ -33,7 +33,7 @@ function vtws_convertlead($entityvalues, $user) {
 
 	require_once $handlerPath;
 
-	$leadHandler = new $handlerClass($leadObject, $user, $adb, $log);
+	$leadHandler = new $handlerClass($leadObject, $user, $adb);
 
 
 	$leadInfo = vtws_retrieve($entityvalues['leadId'], $user);
@@ -68,7 +68,7 @@ function vtws_convertlead($entityvalues, $user) {
 
 			require_once $handlerPath;
 
-			$entityHandler = new $handlerClass($entityObject, $user, $adb, $log);
+			$entityHandler = new $handlerClass($entityObject, $user, $adb);
 
 			$entityObjectValues = array();
 			$entityObjectValues['assigned_user_id'] = $entityvalues['assignedTo'];
@@ -153,7 +153,7 @@ function vtws_convertlead($entityvalues, $user) {
  */
 
 function vtws_populateConvertLeadEntities($entityvalue, $entity, $entityHandler, $leadHandler, $leadinfo) {
-	global $adb, $log;
+	global $adb;
 	$column;
 	$entityName = $entityvalue['name'];
 	$sql = "SELECT * FROM vtiger_convertleadmapping";
@@ -227,7 +227,7 @@ function vtws_validateConvertLeadEntityMandatoryValues($entity, $entityHandler, 
 }
 
 function vtws_getConvertLeadFieldInfo($module, $fieldname) {
-	global $adb, $log, $current_user;
+	global $adb, $current_user;
 	$describe = vtws_describe($module, $current_user);
 	foreach ($describe['fields'] as $index => $fieldInfo) {
 		if ($fieldInfo['name'] == $fieldname) {
@@ -251,7 +251,7 @@ function vtws_convertLeadTransferHandler($leadIdComponents, $entityIds, $entityv
 }
 
 function vtws_updateConvertLeadStatus($entityIds, $leadId, $user) {
-	global $adb, $log;
+	global $adb;
 	$leadIdComponents = vtws_getIdComponents($leadId);
 	if ($entityIds['Accounts'] != '' || $entityIds['Contacts'] != '') {
 		$sql = "UPDATE vtiger_leaddetails SET converted = 1 where leadid=?";

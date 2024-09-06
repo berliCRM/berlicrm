@@ -26,8 +26,7 @@ class RelatedListViewSession {
 
     // class has only public static functions, constructor probably not needed at all?!
 	function __construct() {
-		global $log,$currentModule;
-		$log->debug("Entering RelatedListViewSession() method ...");
+		global $currentModule;
 
 		// $this->module = $currentModule;
 		// $this->start =1;

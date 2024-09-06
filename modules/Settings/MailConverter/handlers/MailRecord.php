@@ -52,9 +52,7 @@ class Vtiger_MailRecord {
 	function log($message=false) {
 		if(!$message) $message = $this->__toString();
 
-		global $log;
-		if($log && $this->debug) { $log->debug($message); }
-		else if($this->debug) {
+		if($this->debug) {
 			echo var_export($message, true) . "\n";
 		}
 	}

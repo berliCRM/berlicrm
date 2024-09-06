@@ -30,7 +30,6 @@ class OutlookSyncServer extends SyncServer{
      * Function overrided to deal duplication handling 
      */
      function put($key, $element, $user) {
-        global $log;
         $db = PearDatabase::getInstance();
         $appid = parent::appid_with_key($key);
         if (empty($appid)) {
@@ -116,8 +115,6 @@ class OutlookSyncServer extends SyncServer{
         $response['created'] = array();
         $response['updated'] = array();
         $response['deleted'] = array();
-
-        $log->fatal($result['updated']);
 
         $nextSyncDeleteRecords = $this->destHandler->getAssignToChangedRecords();
         foreach ($result['created'] as $clientRecordId => $record) {

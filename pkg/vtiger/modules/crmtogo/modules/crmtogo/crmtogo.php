@@ -40,20 +40,16 @@ class crmtogo {
 	 * @param String Event Type (module.postinstall, module.disabled, module.enabled, module.preuninstall)
 	 */
 	function vtlib_handler($modulename, $event_type) {
-		global $log;
 		if($event_type == 'module.postinstall') {
 			$db = PearDatabase::getInstance();
 			$db->pquery("INSERT INTO `berli_crmtogo_defaults` (`fetch_limit`, `crmtogo_lang`, `defaulttheme`, `crm_version`) VALUES (?, ?, ?, ?)", array('99','de_de', 'a', '6.3'));
-			$log->fatal('crmtogo default config settings are created');
 			$db->pquery("INSERT INTO `berli_crmtogo_config` (`crmtogouser`, `navi_limit`, `theme_color`, `compact_cal`) VALUES (?, ?, ?, ?)", array('1','25', 'a', '1'));
-			$log->fatal('crmtogo admin config settings are created');
 			$seq = 0;
 			$supported_module = array ('Contacts','Accounts','Leads','Calendar','Potentials','HelpDesk','Vendors','Assets','Faq','Documents','Quotes','SalesOrder','Invoice','Products','Project','ProjectMilestone','ProjectTask','Events');
 			foreach ($supported_module as $mdulename) {
 				$db->pquery("INSERT INTO `berli_crmtogo_modules` (`crmtogo_user`, `crmtogo_module`, `crmtogo_active`, `order_num`) VALUES (?, ?, ?, ?)", array('1',$mdulename, '1', $seq));
 				$seq = $seq + 1;
 			}
-			$log->fatal('crmtogo admin module settings are created');
 		} 
 		else if($event_type == 'module.disabled') {
 			// TODO Handle actions when this module is disabled.
@@ -87,26 +83,21 @@ class crmtogo {
 				  `order_num` int(3) NOT NULL,
 				   CONSTRAINT `fk_1_berli_crmtogo_modules` FOREIGN KEY (`crmtogo_user`) REFERENCES `vtiger_users` (`id`) ON DELETE CASCADE
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8", array());
-			$log->fatal('crmtogo tables created');
 		} 
 		else if($event_type == 'module.postupdate') {
 			$db = PearDatabase::getInstance();
 			$res = $db->pquery("SELECT * FROM berli_crmtogo_config WHERE crmtogouser =?", array('1'));
 			if ($db->num_rows($res) ==0 )	{
 				$db->pquery("INSERT INTO `berli_crmtogo_defaults` (`fetch_limit`, `crmtogo_lang`, `defaulttheme`, `crm_version`) VALUES (?, ?, ?, ?)", array('99','en_us', 'a', '6.3'));
-				$log->fatal('crmtogo default config settings are created');
 				$db->pquery("INSERT INTO `berli_crmtogo_config` (`crmtogouser`, `navi_limit`, `theme_color`, `compact_cal`) VALUES (?, ?, ?, ?)", array('1','25', 'a', '1'));
-				$log->fatal('crmtogo admin config settings are created');
 				$seq = 0;
 				$supported_module = array ('Contacts','Accounts','Leads','Calendar','Potentials','HelpDesk','Vendors','Assets','Faq','Documents','Quotes','SalesOrder','Invoice','Products','Project','ProjectMilestone','ProjectTask','Events');
 				foreach ($supported_module as $mdulename) {
 					$db->pquery("INSERT INTO `berli_crmtogo_modules` (`crmtogo_user`, `crmtogo_module`, `crmtogo_active`, `order_num`) VALUES (?, ?, ?, ?)", array('1',$mdulename, '1', $seq));
 					$seq = $seq + 1;
 				}
-				$log->fatal('crmtogo admin module settings are created');
 			}
 			else {
-				$log->fatal('crmtogo admin module settings did already exist');
 			}
 			
 		}

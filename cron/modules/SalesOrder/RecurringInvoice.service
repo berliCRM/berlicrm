@@ -24,10 +24,7 @@ if(file_exists($servicePIDFile)) {
 	$servicePIDFp = fopen($servicePIDFile, 'a');
 }
 
-global $adb, $log;
-$log =& LoggerManager::getLogger('RecurringInvoice');
-$log->debug("invoked RecurringInvoice");
-
+global $adb;
 $sql="SELECT vtiger_salesorder.salesorderid, recurring_frequency, start_period, end_period, last_recurring_date,
 		 payment_duration, invoice_status FROM vtiger_salesorder
 		 INNER JOIN vtiger_crmentity ON vtiger_salesorder.salesorderid = vtiger_crmentity.crmid AND vtiger_crmentity.deleted = 0
@@ -122,7 +119,7 @@ function createInvoice($salesorder_id) {
 	require_once('modules/Invoice/Invoice.php');
 	require_once('modules/Users/Users.php');
 
-	global $log, $adb;
+	global $adb;
 	global $current_user;
 
 	// Payment duration in days
@@ -183,7 +180,4 @@ function createInvoice($salesorder_id) {
 	$focus->_recurring_mode = 'recurringinvoice_from_so';
 	$focus->save("Invoice");
 }
-
-
-
 ?>

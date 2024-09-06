@@ -45,7 +45,6 @@ require_once 'includes/runtime/Cache.php';
  *
  */
 class Users extends CRMEntity {
-    var $log;
     /**
      * @var PearDatabase
      */
@@ -140,8 +139,6 @@ class Users extends CRMEntity {
      */
 
     function __construct() {
-        $this->log = LoggerManager::getLogger('user');
-        $this->log->debug("Entering Users() method ...");
         $this->db = PearDatabase::getInstance();
         //$this->DEFAULT_PASSWORD_CRYPT_TYPE = 'MD5';
         $this->DEFAULT_PASSWORD_CRYPT_TYPE = (version_compare(PHP_VERSION, '5.3.0') >= 0)?
@@ -151,7 +148,6 @@ class Users extends CRMEntity {
         $this->column_fields['currency_code'] = '';
         $this->column_fields['currency_symbol'] = '';
         $this->column_fields['conv_rate'] = '';
-        $this->log->debug("Exiting Users() method ...");
     }
 
     // Mike Crowe Mod --------------------------------------------------------Default ordering for us
@@ -160,13 +156,10 @@ class Users extends CRMEntity {
      * return string  $sorder    - sortorder string either 'ASC' or 'DESC'
      */
     function getSortOrder() {
-        global $log;
-        $log->debug("Entering getSortOrder() method ...");
         if(isset($_REQUEST['sorder']))
             $sorder = $this->db->sql_escape_string($_REQUEST['sorder']);
         else
             $sorder = (($_SESSION['USERS_SORT_ORDER'] != '')?($_SESSION['USERS_SORT_ORDER']):($this->default_sort_order));
-        $log->debug("Exiting getSortOrder method ...");
         return $sorder;
     }
 
@@ -175,9 +168,6 @@ class Users extends CRMEntity {
      * return string  $order_by    - fieldname(eg: 'subject')
      */
     function getOrderBy() {
-        global $log;
-        $log->debug("Entering getOrderBy() method ...");
-
         $use_default_order_by = '';
         if(PerformancePrefs::getBoolean('LISTVIEW_DEFAULT_SORTING', true)) {
             $use_default_order_by = $this->default_order_by;
@@ -187,7 +177,6 @@ class Users extends CRMEntity {
             $order_by = $this->db->sql_escape_string($_REQUEST['order_by']);
         else
             $order_by = (($_SESSION['USERS_ORDER_BY'] != '')?($_SESSION['USERS_ORDER_BY']):($use_default_order_by));
-        $log->debug("Exiting getOrderBy method ...");
         return $order_by;
     }
     // Mike Crowe Mod --------------------------------------------------------
@@ -205,7 +194,6 @@ class Users extends CRMEntity {
                 $this->user_preferences = array();
         }
         if(!array_key_exists($name,$this->user_preferences )|| $this->user_preferences[$name] != $value) {
-            $this->log->debug("Saving To Preferences:". $name."=".$value);
             $this->user_preferences[$name] = $value;
             $this->savePreferecesToDB();
 
@@ -224,7 +212,6 @@ class Users extends CRMEntity {
         $data = base64_encode(serialize($this->user_preferences));
         $query = "UPDATE $this->table_name SET user_preferences=? where id=?";
         $result =& $this->db->pquery($query, array($data, $this->id));
-        $this->log->debug("SAVING: PREFERENCES SIZE ". strlen($data)."ROWS AFFECTED WHILE UPDATING USER PREFERENCES:".$this->db->getAffectedRowCount($result));
         $_SESSION["USER_PREFERENCES"] = $this->user_preferences;
     }
 
@@ -234,15 +221,10 @@ class Users extends CRMEntity {
     function loadPreferencesFromDB($value) {
 
         if(isset($value) && !empty($value)) {
-            $this->log->debug("LOADING :PREFERENCES SIZE ". strlen($value));
             $this->user_preferences = unserialize(base64_decode($value));
             $_SESSION = array_merge($this->user_preferences, $_SESSION);
-            $this->log->debug("Finished Loading");
             $_SESSION["USER_PREFERENCES"] = $this->user_preferences;
-
-
         }
-
     }
 
 	protected function get_user_hash($input) {
@@ -300,7 +282,6 @@ class Users extends CRMEntity {
         $result = $this->db->requirePsSingleResult($query, $params, false);
 
         if(empty($result)) {
-            $this->log->fatal("SECURITY: failed login by $usr_name");
             return false;
         }
 
@@ -353,7 +334,6 @@ class Users extends CRMEntity {
 
         switch (strtoupper($AUTHCFG['authType'])) {
             case 'LDAP':
-                $this->log->debug("Using LDAP authentication");
                 require_once('modules/Users/authTypes/LDAP.php');
                 $result = ldapAuthenticate($this->column_fields["user_name"], $user_password);
                 if ($result == NULL) {
@@ -364,7 +344,6 @@ class Users extends CRMEntity {
                 break;
 
             case 'AD':
-                $this->log->debug("Using Active Directory authentication");
                 require_once('modules/Users/authTypes/adLDAP.php');
                 $adldap = new adLDAP();
                 if ($adldap->authenticate($this->column_fields["user_name"],$user_password)) {
@@ -377,7 +356,6 @@ class Users extends CRMEntity {
             default:
 				$currentLanguage = Vtiger_Language_Handler::getLanguage();
 				include 'languages/'.$currentLanguage.'/Users.php';
-                $this->log->debug("Using integrated/SQL authentication");
                 $query = "SELECT crypt_type, user_name ,user_password FROM $this->table_name WHERE user_name=?";
                 $result = $this->db->requirePsSingleResult($query, array($usr_name), false);
                 if (empty($result)) {
@@ -435,7 +413,6 @@ class Users extends CRMEntity {
 					$query = "SELECT `status` FROM `vtiger_users` WHERE `user_name`='".$usr_name . "'";
 					$result = $this->db->requireSingleResult($query, false);
 					if (!$result) {
-						$this->log->warn("MySQL error: (".$query.")"); 
 					}
 					$row = $this->db->fetchByAssoc($result);
 					if($row['status']=='Active') {
@@ -443,9 +420,6 @@ class Users extends CRMEntity {
 						if ($this->db->num_rows($tablecheck) > 0) {
 							$query = "DELETE FROM `berli_failed_logins` WHERE  `user_name` = '".$usr_name."'";
 							$result = $this->db->requireSingleResult($query, false);
-							if (!$result) {
-								$this->log->warn("MySQL error: (".$query.")"); 
-							}
 						}
 					}
                     return true;
@@ -470,10 +444,6 @@ class Users extends CRMEntity {
         }else {
             $_SESSION['loginattempts'] = 1;
         }
-        if($_SESSION['loginattempts'] > 5) {
-            $this->log->warn("SECURITY: " . $usr_name . " has attempted to login ". 	$_SESSION['loginattempts'] . " times.");
-        }
-        $this->log->debug("Starting user load for $usr_name");
 
         if( !isset($this->column_fields["user_name"]) || $this->column_fields["user_name"] == "" || !isset($user_password) || $user_password == "")
             return null;
@@ -482,7 +452,6 @@ class Users extends CRMEntity {
         $authCheck = $this->doLogin($user_password);
 
         if(!$authCheck) {
-            $this->log->warn("User authentication for $usr_name failed");
             return null;
         }
 
@@ -559,7 +528,6 @@ class Users extends CRMEntity {
         $usr_name = $this->column_fields["user_name"];
         global $mod_strings;
         global $current_user;
-        $this->log->debug("Starting password change for $usr_name");
 
         if( !isset($new_password) || $new_password == "") {
             $this->error_string = $mod_strings['ERR_PASSWORD_CHANGE_FAILED_1'].$user_name.$mod_strings['ERR_PASSWORD_CHANGE_FAILED_2'];
@@ -570,7 +538,6 @@ class Users extends CRMEntity {
               #commenting this as the the transaction is already started in vtws_changepassword
 //            $this->db->startTransaction();
             if(!$this->verifyPassword($user_password)) {
-                $this->log->warn("Incorrect old password for $usr_name");
                 $this->error_string = $mod_strings['ERR_PASSWORD_INCORRECT_OLD'];
                 return false;
             }
@@ -638,8 +605,6 @@ class Users extends CRMEntity {
         $query = "SELECT user_name,user_password,crypt_type FROM {$this->table_name} WHERE id=?";
         $result =$this->db->pquery($query, array($this->id));
         $row = $this->db->fetchByAssoc($result);
-        $this->log->debug("select old password query: $query");
-        $this->log->debug("return result of $row");
         if($row['crypt_type'] != "SHA512")
         {
           $encryptedPassword = $this->encrypt_password($password, $row['crypt_type']);
@@ -695,9 +660,6 @@ class Users extends CRMEntity {
         $result =$this->db->pquery($query, array(), true, "Error selecting possible duplicate vtiger_users: ");
         $last_admin = $this->db->fetchByAssoc($result);
 
-        $this->log->debug("last admin length: ".count($last_admin));
-        $this->log->debug($last_admin['user_name']." == ".$usr_name);
-
         $verified = true;
         if($dup_users != null) {
             $this->error_string .= $mod_strings['ERR_USER_NAME_EXISTS_1'].$usr_name.''.$mod_strings['ERR_USER_NAME_EXISTS_2'];
@@ -706,8 +668,6 @@ class Users extends CRMEntity {
         if(!isset($_REQUEST['is_admin']) &&
                 count($last_admin) == 1 &&
                 $last_admin['user_name'] == $usr_name) {
-            $this->log->debug("last admin length: ".count($last_admin));
-
             $this->error_string .= $mod_strings['ERR_LAST_ADMIN_1'].$usr_name.$mod_strings['ERR_LAST_ADMIN_2'];
             $verified = false;
         }
@@ -738,7 +698,6 @@ class Users extends CRMEntity {
         $result =$this->db->pquery($query, array($this->id), true, "Error filling in additional detail vtiger_fields") ;
 
         $row = $this->db->fetchByAssoc($result);
-        $this->log->debug("additional detail query results: $row");
 
         if($row != null) {
             $this->reports_to_name = stripslashes(getFullNameFromArray('Users', $row));
@@ -863,13 +822,10 @@ class Users extends CRMEntity {
     }
 
     function createAccessKey() {
-        global $adb,$log;
+        global $adb;
 
-        $log->info("Entering Into function createAccessKey()");
         $updateQuery = "update vtiger_users set accesskey=? where id=?";
         $insertResult = $adb->pquery($updateQuery,array(vtws_generateRandomAccessKey(16),$this->id));
-        $log->info("Exiting function createAccessKey()");
-
     }
 
     /** 
@@ -879,8 +835,6 @@ class Users extends CRMEntity {
 		 * @param $fileid
      */
     function insertIntoEntityTable($table_name, $module, $fileid = '') {
-        global $log;
-        $log->info("function insertIntoEntityTable ".$module.' vtiger_table name ' .$table_name);
         global $adb, $current_user;
         $insertion_mode = $this->mode;
         //Checkin whether an entry is already is present in the vtiger_table to update
@@ -1067,17 +1021,12 @@ class Users extends CRMEntity {
      * @param $module -- module:: Type varchar
      */
     function insertIntoAttachment($id,$module) {
-        global $log;
-        $log->debug("Entering into insertIntoAttachment($id,$module) method.");
-
         foreach($_FILES as $fileindex => $files) {
             if($files['name'] != '' && $files['size'] > 0) {
                 $files['original_name'] = vtlib_purify($_REQUEST[$fileindex.'_hidden']);
                 $this->uploadAndSaveFile($id,$module,$files);
             }
         }
-
-        $log->debug("Exiting from insertIntoAttachment($id,$module) method.");
     }
 
     /** Function to retreive the user info of the specifed user id The user info will be available in $this->column_fields array
@@ -1085,11 +1034,9 @@ class Users extends CRMEntity {
      * @param $module -- module:: Type varchar
      */
     function retrieve_entity_info($record, $module) {
-        global $adb,$log;
-        $log->debug("Entering into retrieve_entity_info($record, $module) method.");
+        global $adb;
 
         if($record == '') {
-            $log->debug("record is empty. returning null");
             return null;
         }
 
@@ -1143,7 +1090,6 @@ class Users extends CRMEntity {
 		}
 
 		$this->id = $record;
-		$log->debug("Exit from retrieve_entity_info($record, $module) method.");
 
         return $this;
     }
@@ -1155,9 +1101,6 @@ class Users extends CRMEntity {
      * @param $file_details -- file details array:: Type array
      */
     function uploadAndSaveFile($id,$module,$file_details, $attachmentType = '', $internal = false) {
-        global $log;
-        $log->debug("Entering into uploadAndSaveFile($id,$module,$file_details) method.");
-
         global $current_user;
         global $upload_badext;
 
@@ -1214,9 +1157,7 @@ class Users extends CRMEntity {
             $this->db->pquery("update vtiger_users set imagename=? where id=?", array($filename, $id));
         }
         else {
-            $log->debug("Skip the save attachment process.");
         }
-        $log->debug("Exiting from uploadAndSaveFile($id,$module,$file_details) method.");
 
         return;
     }
@@ -1227,7 +1168,7 @@ class Users extends CRMEntity {
      * @param $fileid
      */
     function save($module_name, $fileid = '') {
-        global $log, $adb;
+        global $adb;
         //Save entity being called with the modulename as parameter
         $this->saveentity($module_name);
 
@@ -1437,8 +1378,7 @@ class Users extends CRMEntity {
      */
 	 function saveHomeStuffOrder($id)
 	 {
-        global $log,$adb;
-        $log->debug("Entering in function saveHomeOrder($id)");
+        global $adb;
 
 		 if($this->mode == 'edit')
 		 {
@@ -1464,7 +1404,6 @@ class Users extends CRMEntity {
             $this->insertUserdetails('postinstall');
 
         }
-        $log->debug("Exiting from function saveHomeOrder($id)");
     }
 
     /**
@@ -1475,8 +1414,6 @@ class Users extends CRMEntity {
      * Contributor(s): ______________________________________..
      */
     function track_view($user_id, $current_module,$id='') {
-        $this->log->debug("About to call vtiger_tracker (user_id, module_name, item_id)($user_id, $current_module, $this->id)");
-
         $tracker = new Tracker();
         $tracker->track_view($user_id, $current_module, $id, '');
     }
@@ -1545,7 +1482,7 @@ class Users extends CRMEntity {
 
     /** Function to delete an entity with given Id */
     function trash($module, $id) {
-        global $log, $current_user;
+        global $current_user;
 
         $this->mark_deleted($id);
     }
@@ -1577,7 +1514,7 @@ class Users extends CRMEntity {
      * @param <type> $id
      */
     function mark_deleted($id) {
-        global $log, $current_user, $adb;
+        global $current_user, $adb;
         $date_var = date('Y-m-d H:i:s');
         $query = "UPDATE vtiger_users set status=?,date_modified=?,modified_user_id=? where id=?";
         $adb->pquery($query, array('Inactive', $adb->formatDate($date_var, true),

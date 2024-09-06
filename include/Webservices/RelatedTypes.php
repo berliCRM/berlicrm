@@ -9,7 +9,7 @@
  *************************************************************************************/
 
 function vtws_relatedtypes($elementType, $user) {
-    global $adb, $log;
+    global $adb;
 
     $allowedTypes = vtws_listtypes(null, $user);
 
@@ -18,7 +18,7 @@ function vtws_relatedtypes($elementType, $user) {
     $handlerClass = $webserviceObject->getHandlerClass();
 
     require_once $handlerPath;
-    $handler = new $handlerClass($webserviceObject, $user, $adb, $log);
+    $handler = new $handlerClass($webserviceObject, $user, $adb);
     $meta = $handler->getMeta();
     $tabid = $meta->getTabId();
 

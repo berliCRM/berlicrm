@@ -162,7 +162,7 @@ class Webforms_Model {
 	}
 
 	function generatePublicId($name) {
-		global $adb, $log;
+		global $adb;
 		$uid = md5(microtime(true) + $name);
 		return $uid;
 	}
@@ -177,7 +177,7 @@ class Webforms_Model {
 	}
 
 	function save() {
-		global $adb, $log;
+		global $adb;
 
 		$isNew = !$this->hasId();
 
@@ -212,7 +212,7 @@ class Webforms_Model {
 	}
 
 	function delete() {
-		global $adb, $log;
+		global $adb;
 
 		$adb->pquery("DELETE from vtiger_webforms_field where webformid=?", array($this->getId()));
 		$adb->pquery("DELETE from vtiger_webforms where id=?", array($this->getId()));
@@ -220,7 +220,7 @@ class Webforms_Model {
 	}
 
 	static function retrieveWithPublicId($publicid) {
-		global $adb, $log;
+		global $adb;
 
 		$model = false;
 		// Retrieve model and populate information
@@ -233,7 +233,7 @@ class Webforms_Model {
 	}
 
 	static function retrieveWithId($data) {
-		global $adb, $log;
+		global $adb;
 
 		$id = $data;
 		$model = false;
@@ -247,7 +247,7 @@ class Webforms_Model {
 	}
 
 	static function listAll() {
-		global $adb, $log;
+		global $adb;
 		$webforms = array();
 
 		$sql = "SELECT * FROM vtiger_webforms";
@@ -263,7 +263,7 @@ class Webforms_Model {
 	}
 
 	static function isWebformField($webformid, $fieldname) {
-		global $adb, $log;
+		global $adb;
 
 		$checkSQL = "SELECT 1 from vtiger_webforms_field where webformid=? AND fieldname=?";
 		$result = $adb->pquery($checkSQL, array($webformid, $fieldname));

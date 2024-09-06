@@ -198,7 +198,7 @@
 		}
 		
 		public static function sanitizeReferences($row,$meta){
-			global $adb,$log;
+			global $adb;
 			$references = $meta->getReferenceFieldDetails();
 			foreach($references as $field=>$typeList){
 				if(strtolower($meta->getEntityName()) == "emails"){
@@ -215,7 +215,7 @@
 						
 						require_once $handlerPath;
 						
-						$handler = new $handlerClass($webserviceObject,$meta->getUser(),$adb,$log);
+						$handler = new $handlerClass($webserviceObject,$meta->getUser(),$adb);
 						$entityMeta = $handler->getMeta();
 						if($entityMeta->exists($row[$field])){
 							$tmpId = $row[$field];

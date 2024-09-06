@@ -23,7 +23,6 @@
 // Email is used to store customer information.
 class Emails extends CRMEntity {
 
-	var $log;
 	var $db;
 	var $table_name = "vtiger_activity";
 	var $table_index = 'activityid';
@@ -68,12 +67,8 @@ class Emails extends CRMEntity {
 	/** This function will set the columnfields for Email module
 	 */
 	function __construct() {
-		$this->log = LoggerManager::getLogger('email');
-		$this->log->debug("Entering Emails() method ...");
-		$this->log = LoggerManager::getLogger('email');
 		$this->db = PearDatabase::getInstance();
 		$this->column_fields = getColumnFields('Emails');
-		$this->log->debug("Exiting Email method ...");
 	}
 
 	function save_module($module) {
@@ -141,8 +136,7 @@ class Emails extends CRMEntity {
 	}
 
 	function insertIntoAttachment($id, $module) {
-		global $log, $adb;
-		$log->debug("Entering into insertIntoAttachment($id,$module) method.");
+		global $adb;
 
 		$file_saved = false;
 
@@ -191,12 +185,9 @@ class Emails extends CRMEntity {
 				}
 			}
 		}
-		$log->debug("Exiting from insertIntoAttachment($id,$module) method.");
 	}
 
 	function saveForwardAttachments($id, $module, $file_details) {
-		global $log;
-		$log->debug("Entering into saveForwardAttachments($id,$module,$file_details) method.");
 		global $adb, $current_user;
 		global $upload_badext;
 		require_once('modules/Webmails/MailBox.php');
@@ -240,7 +231,6 @@ class Emails extends CRMEntity {
 		$sql3 = 'insert into vtiger_seattachmentsrel values(?,?)';
 		$adb->pquery($sql3, array($id, $current_id));
 		return true;
-		$log->debug("exiting from  saveforwardattachment function.");
 	}
 
 	/** Returns a list of the associated contacts
@@ -249,8 +239,7 @@ class Emails extends CRMEntity {
 	 * Contributor(s): ______________________________________..
 	 */
 	function get_contacts($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view, $currentModule, $current_user;
-		$log->debug("Entering get_contacts(" . $id . ") method ...");
+		global $singlepane_view, $currentModule, $current_user;
 		$this_module = $currentModule;
 
 		$related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -286,7 +275,6 @@ class Emails extends CRMEntity {
 			$return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_contacts method ...");
 		return $return_value;
 	}
 
@@ -296,14 +284,11 @@ class Emails extends CRMEntity {
 	 * Contributor(s): Mike Crowe
 	 */
 	function getSortOrder() {
-		global $log;
-		$log->debug("Entering getSortOrder() method ...");
 		if (isset($_REQUEST['sorder']))
 			$sorder = $this->db->sql_escape_string($_REQUEST['sorder']);
 		else
 			$sorder = (($_SESSION['EMAILS_SORT_ORDER'] != '') ? ($_SESSION['EMAILS_SORT_ORDER']) : ($this->default_sort_order));
 
-		$log->debug("Exiting getSortOrder method ...");
 		return $sorder;
 	}
 
@@ -313,9 +298,6 @@ class Emails extends CRMEntity {
 	 * Contributor(s): Mike Crowe
 	 */
 	function getOrderBy() {
-		global $log;
-		$log->debug("Entering getOrderBy() method ...");
-
 		$use_default_order_by = '';
 		if (PerformancePrefs::getBoolean('LISTVIEW_DEFAULT_SORTING', true)) {
 			$use_default_order_by = $this->default_order_by;
@@ -326,7 +308,6 @@ class Emails extends CRMEntity {
 		else
 			$order_by = (($_SESSION['EMAILS_ORDER_BY'] != '') ? ($_SESSION['EMAILS_ORDER_BY']) : ($use_default_order_by));
 
-		$log->debug("Exiting getOrderBy method ...");
 		return $order_by;
 	}
 
@@ -338,8 +319,6 @@ class Emails extends CRMEntity {
 	 * Contributor(s): ______________________________________..
 	 */
 	function get_users($id) {
-		global $log;
-		$log->debug("Entering get_users(" . $id . ") method ...");
 		global $adb;
 		global $mod_strings;
 		global $app_strings;
@@ -406,7 +385,6 @@ class Emails extends CRMEntity {
 			$return_data = Array();
 		$return_data['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_users method ...");
 		return $return_data;
 	}
 
@@ -414,9 +392,7 @@ class Emails extends CRMEntity {
 	 * Returns a list of the Emails to be exported
 	 */
 	function create_export_query(&$order_by, &$where) {
-		global $log;
 		global $current_user;
-		$log->debug("Entering create_export_query(" . $order_by . "," . $where . ") method ...");
 
 		include("include/utils/ExportUtils.php");
 
@@ -449,7 +425,6 @@ class Emails extends CRMEntity {
 		$query .= getNonAdminAccessControlQuery('Emails', $current_user);
 		$query .= "WHERE vtiger_activity.activitytype='Emails' AND vtiger_crmentity.deleted=0 ";
 
-		$log->debug("Exiting create_export_query method ...");
 		return $query;
 	}
 
@@ -457,38 +432,28 @@ class Emails extends CRMEntity {
 	 * Used to releate email and contacts -- Outlook Plugin
 	 */
 	function set_emails_contact_invitee_relationship($email_id, $contact_id) {
-		global $log;
-		$log->debug("Entering set_emails_contact_invitee_relationship(" . $email_id . "," . $contact_id . ") method ...");
 		$query = "insert into $this->rel_contacts_table (contactid,activityid) values(?,?)";
 		$this->db->pquery($query, array($contact_id, $email_id), true, "Error setting email to contact relationship: " . "<BR>$query");
-		$log->debug("Exiting set_emails_contact_invitee_relationship method ...");
 	}
 
 	/**
 	 * Used to releate email and salesentity -- Outlook Plugin
 	 */
 	function set_emails_se_invitee_relationship($email_id, $contact_id) {
-		global $log;
-		$log->debug("Entering set_emails_se_invitee_relationship(" . $email_id . "," . $contact_id . ") method ...");
 		$query = "insert into $this->rel_serel_table (crmid,activityid) values(?,?)";
 		$this->db->pquery($query, array($contact_id, $email_id), true, "Error setting email to contact relationship: " . "<BR>$query");
-		$log->debug("Exiting set_emails_se_invitee_relationship method ...");
 	}
 
 	/**
 	 * Used to releate email and Users -- Outlook Plugin
 	 */
 	function set_emails_user_invitee_relationship($email_id, $user_id) {
-		global $log;
-		$log->debug("Entering set_emails_user_invitee_relationship(" . $email_id . "," . $user_id . ") method ...");
 		$query = "insert into $this->rel_users_table (smid,activityid) values (?,?)";
 		$this->db->pquery($query, array($user_id, $email_id), true, "Error setting email to user relationship: " . "<BR>$query");
-		$log->debug("Exiting set_emails_user_invitee_relationship method ...");
 	}
 
 	// Function to unlink an entity with given Id from another entity
 	function unlinkRelationship($id, $return_module, $return_id) {
-		global $log;
 
 		$sql = 'DELETE FROM vtiger_seactivityrel WHERE activityid=? AND crmid = ?';
 		$this->db->pquery($sql, array($id, $return_id));
@@ -618,9 +583,6 @@ class Emails extends CRMEntity {
 
 //added for attach the generated pdf with email
 function pdfAttach($obj, $module, $file_name, $id) {
-	global $log;
-	$log->debug("Entering into pdfAttach() method.");
-
 	global $adb, $current_user;
 	global $upload_badext;
 	$date_var = date('Y-m-d H:i:s');
@@ -655,7 +617,6 @@ function pdfAttach($obj, $module, $file_name, $id) {
 
 		return true;
 	} else {
-		$log->debug("pdf not attached");
 		return false;
 	}
 }

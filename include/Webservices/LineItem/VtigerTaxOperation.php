@@ -27,8 +27,8 @@ require_once 'modules/Emails/mail.php';
  */
 class VtigerTaxOperation  extends VtigerActorOperation {
 
-	public function __construct($webserviceObject, $user, $adb, $log) {
-		parent::__construct($webserviceObject,$user,$adb,$log);
+	public function __construct($webserviceObject, $user, $adb) {
+		parent::__construct($webserviceObject,$user,$adb);
 		$this->entityTableName = $this->getActorTables();
 		if($this->entityTableName === null){
 			throw new WebServiceException(WebServiceErrorCode::$UNKOWNENTITY,"Entity is not associated with any tables");

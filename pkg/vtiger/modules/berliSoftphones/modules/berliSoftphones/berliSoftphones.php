@@ -92,11 +92,8 @@ class berliSoftphones {
      * To delete Settings link
     */
     function removeSettingsLinks(){
-		global $log;
 		$db = PearDatabase::getInstance();
         $db->pquery('DELETE FROM vtiger_settings_field WHERE name=?', array($this->LBL_SOFTPHONES));
-        $log->fatal('Settings Field Removed');
-        
     }
 	public function getNonAdminAccessControlQuery($module, $user,$scope='') {
 		require('user_privileges/user_privileges_'.$user->id.'.php');

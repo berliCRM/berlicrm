@@ -228,8 +228,6 @@ class Inventory_Record_Model extends Vtiger_Record_Model {
 	
 	//crm-now: added for letter and conclusion text
 	public static function getAssociatedLetterText() {
-		global $log;
-		$log->debug("Entering getAssociatedStartText method ...");
 		global $adb;
 		$Letter_Details = Array();
 		$Letter_Details[0] = array (0,vtranslate('LBL_SELECT_OPTION'),'');
@@ -243,8 +241,6 @@ class Inventory_Record_Model extends Vtiger_Record_Model {
 		return $Letter_Details;
 	}
 	public static function getAssociatedConclusionText() {
-		global $log;
-		$log->debug("Entering getAssociatedConclusionText method ...");
 		global $adb;
 		$Conclusion_Details = Array();
 		$Conclusion_Details[0] = array (0,vtranslate('LBL_SELECT_OPTION'),'');

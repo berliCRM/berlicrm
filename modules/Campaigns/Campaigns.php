@@ -13,7 +13,6 @@
  * Contributor(s): ______________________________________.
  ********************************************************************************/
 class Campaigns extends CRMEntity {
-	var $log;
 	var $db;
 	var $table_name = "vtiger_campaign";
 	var $table_index= 'campaignid';
@@ -70,7 +69,6 @@ class Campaigns extends CRMEntity {
 	var $def_basicsearch_col = 'campaignname';
 
 	function __construct() {
-		$this->log =LoggerManager::getLogger('campaign');
 		$this->db = PearDatabase::getInstance();
 		$this->column_fields = getColumnFields('Campaigns');
 	}
@@ -88,8 +86,7 @@ class Campaigns extends CRMEntity {
 	 * returns related Accounts record in array format
 	 */
 	function get_accounts($id, $cur_tab_id, $rel_tab_id, $actions = false) {
-		global $log, $singlepane_view,$currentModule;
-		$log->debug("Entering get_accounts(".$id.") method ...");
+		global $singlepane_view,$currentModule;
 		$this_module = $currentModule;
 
 		$related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -183,7 +180,6 @@ class Campaigns extends CRMEntity {
 
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_accounts method ...");
 		return $return_value;
 	}
 
@@ -193,8 +189,7 @@ class Campaigns extends CRMEntity {
 	 * returns related Contacts record in array format
 	 */
 	function get_contacts($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule;
-		$log->debug("Entering get_contacts(".$id.") method ...");
+		global $singlepane_view,$currentModule;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -288,7 +283,6 @@ class Campaigns extends CRMEntity {
 
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_contacts method ...");
 		return $return_value;
 	}
 
@@ -298,8 +292,7 @@ class Campaigns extends CRMEntity {
 	 * returns related Leads record in array format
 	 */
 	function get_leads($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view, $currentModule;
-        $log->debug("Entering get_leads(".$id.") method ...");
+		global $singlepane_view, $currentModule;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -389,7 +382,6 @@ class Campaigns extends CRMEntity {
 
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_leads method ...");
 		return $return_value;
 	}
 
@@ -399,8 +391,7 @@ class Campaigns extends CRMEntity {
 	 * returns related potentials record in array format
 	 */
 	function get_opportunities($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_opportunities(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -450,7 +441,6 @@ class Campaigns extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_opportunities method ...");
 		return $return_value;
 	}
 
@@ -460,8 +450,7 @@ class Campaigns extends CRMEntity {
 	 * returns related activities record in array format
 	 */
 	function get_activities($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_activities(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -534,9 +523,7 @@ class Campaigns extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_activities method ...");
 		return $return_value;
-
 	}
 	/*
 	 * Function populate the status columns' HTML
@@ -632,7 +619,6 @@ class Campaigns extends CRMEntity {
 
 	// Function to unlink an entity with given Id from another entity
 	function unlinkRelationship($id, $return_module, $return_id) {
-		global $log;
 		if(empty($return_module) || empty($return_id)) return;
 
 		if($return_module == 'Leads') {

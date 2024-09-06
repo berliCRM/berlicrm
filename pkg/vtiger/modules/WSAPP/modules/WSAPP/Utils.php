@@ -78,7 +78,7 @@ function wsapp_getRecordEntityNameIds($entityNames,$modules,$user){
  */
 
 function wsapp_convertDateTimeToTimeZone($dateTime,$toTimeZone){
-    global $log,$default_timezone;
+    global $default_timezone;
     $time_zone = $default_timezone;
     $source_time = date_default_timezone_set($time_zone);
     $sourceDate = date("Y-m-d H:i:s");

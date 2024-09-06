@@ -368,7 +368,7 @@ function vtws_addActorTypeName($entityId,$fieldNames,$indexColumn,$tableName){
 }
 
 function vtws_getName($id,$user){
-	global $log,$adb;
+	global $adb;
 
 	$webserviceObject = VtigerWebserviceObject::fromId($adb,$id);
 	$handlerPath = $webserviceObject->getHandlerPath();
@@ -376,7 +376,7 @@ function vtws_getName($id,$user){
 
 	require_once $handlerPath;
 
-	$handler = new $handlerClass($webserviceObject,$user,$adb,$log);
+	$handler = new $handlerClass($webserviceObject,$user,$adb);
 	$meta = $handler->getMeta();
 	return $meta->getName($id);
 }
@@ -459,32 +459,31 @@ function vtws_addWebserviceOperationParam($operationId,$paramName,$paramType,$se
 /**
  *
  * @global PearDatabase $adb
- * @global <type> $log
  * @param <type> $name
  * @param <type> $user
  * @return WebserviceEntityOperation
  */
 function vtws_getModuleHandlerFromName($name,$user){
-	global $adb, $log;
+	global $adb;
 	$webserviceObject = VtigerWebserviceObject::fromName($adb,$name);
 	$handlerPath = $webserviceObject->getHandlerPath();
 	$handlerClass = $webserviceObject->getHandlerClass();
 
 	require_once $handlerPath;
 
-	$handler = new $handlerClass($webserviceObject,$user,$adb,$log);
+	$handler = new $handlerClass($webserviceObject,$user,$adb);
 	return $handler;
 }
 
 function vtws_getModuleHandlerFromId($id,$user){
-	global $adb, $log;
+	global $adb;
 	$webserviceObject = VtigerWebserviceObject::fromId($adb,$id);
 	$handlerPath = $webserviceObject->getHandlerPath();
 	$handlerClass = $webserviceObject->getHandlerClass();
 
 	require_once $handlerPath;
 
-	$handler = new $handlerClass($webserviceObject,$user,$adb,$log);
+	$handler = new $handlerClass($webserviceObject,$user,$adb);
 	return $handler;
 }
 
@@ -591,7 +590,7 @@ function vtws_getConvertLeadFieldMapping(){
  *	@param integer $relatedId -  related entity id (accountid / contactid)
  */
 function vtws_getRelatedNotesAttachments($id,$relatedId) {
-	global $adb,$log;
+	global $adb;
 
 	$sql = "select * from vtiger_senotesrel where crmid=?";
 	$result = $adb->pquery($sql, array($id));
@@ -1305,7 +1304,7 @@ function vtws_validateConvertEntityMandatoryValues($entity, $entityHandler, $mod
 }
 
 function vtws_getConvertEntityFieldInfo($module, $fieldname) {
-	global $adb, $log, $current_user;
+	global $adb, $current_user;
 	$describe = vtws_describe($module, $current_user);
 	foreach ($describe['fields'] as $index => $fieldInfo) {
 		if ($fieldInfo['name'] == $fieldname) {
@@ -1340,7 +1339,7 @@ function vtws_recordExists($recordId) {
 // create a new modtracker entry
 //
 function createModTrackerEntry($oldvalue,$newvalue, $recordid, $module, $fieldname) {
-	global $current_user, $log;
+	global $current_user;
 	$adb = PearDatabase::getInstance();
 	if(file_exists('modules/ModTracker/ModTrackerUtils.php')) {
 		require_once 'modules/ModTracker/ModTracker.php';

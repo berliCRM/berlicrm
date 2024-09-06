@@ -230,7 +230,7 @@ class VTSimpleTemplate{
 	 * @return <String> $fieldValue
 	 */
 	public function transformToUserFormat($moduleName, $fieldName, $fieldValue) {
-		global $adb, $log, $current_user;
+		global $adb, $current_user;
 
 		//getting owner info
 		$referenceId = $this->parent->get('assigned_user_id');
@@ -259,7 +259,7 @@ class VTSimpleTemplate{
 
 		require_once $handlerPath;
 
-		$entityHandler = new $handlerClass($entityObject, $current_user, $adb, $log);
+		$entityHandler = new $handlerClass($entityObject, $current_user, $adb);
 		$entityMeta = $entityHandler->getMeta();
 		$entityFields = $entityMeta->getModuleFields();
 		//crm-now: prevent unknown fields to cause a crash and enable $id for links
@@ -359,7 +359,7 @@ class VTSimpleTemplate{
 	 * @return <String> $comments
 	 */
 	public function getComments($moduleName, $fieldName, $fieldValue) {
-		global $adb, $log, $current_user;
+		global $adb, $current_user;
 
 		$sql = 'SELECT commentcontent FROM vtiger_modcomments WHERE related_to = ? ORDER BY modcommentsid DESC';
 

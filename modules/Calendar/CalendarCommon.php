@@ -75,11 +75,10 @@ function getaddEventPopupTime($starttime,$endtime,$format)
  */
 function getActivityDetails($description,$user_id,$from='',$linkid='')
 {
-	global $log,$current_user,$current_language;
+	global $current_user,$current_language;
 	global $adb, $site_URL;
 	require_once 'include/utils/utils.php';
 	$mod_strings = return_module_language($current_language, 'Calendar');
-	$log->debug("Entering getActivityDetails(".$description.") method ...");
 	$updated = $mod_strings['LBL_UPDATED'];
 	$created = $mod_strings['LBL_CREATED'];
     $reply = (($description['mode'] == 'edit')?"$updated":"$created");
@@ -134,7 +133,6 @@ function getActivityDetails($description,$user_id,$from='',$linkid='')
     $list .= '<br><br>'.$mod_strings["LBL_REGARDS_STRING"].'.';
     $list .= '<br>'.$current_username.'';
 
-    $log->debug("Exiting getActivityDetails method ...");
 	return $list;
 }
 

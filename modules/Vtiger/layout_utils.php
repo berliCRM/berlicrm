@@ -22,8 +22,6 @@
 require_once('include/logging.php');
 global $app_strings;
 
-$log = LoggerManager::getLogger('layout_utils');	
-
 /**
  * Create HTML to display formatted form title of a form in the left pane
  * param $left_title - the string to display as the title in the header

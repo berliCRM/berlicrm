@@ -55,12 +55,10 @@ function getKeyMetrics($maxval,$calCnt)
 
 	global $app_strings;
 	global $adb;
-	global $log;
 	global $current_language;
 	$metricviewnames = "'Hot Leads'";
 
 	$current_module_strings = return_module_language($current_language, "CustomView");
-	$log = LoggerManager::getLogger('metrics');
 
 	$metriclists = getMetricList();
 	
@@ -69,7 +67,6 @@ function getKeyMetrics($maxval,$calCnt)
 		return count($metriclists);
 	}
 	
-	$log->info("Metrics :: Successfully got MetricList to be displayed");
 	if(isset($metriclists))
 	{
 		global $current_user;
@@ -99,7 +96,6 @@ function getKeyMetrics($maxval,$calCnt)
 				}
 			}
 		}
-		$log->info("Metrics :: Successfully build the Metrics");
 	}
 	$title=array();
 	$title[]='keyMetrics.gif';

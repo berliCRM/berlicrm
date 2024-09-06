@@ -51,7 +51,7 @@ class Vtiger_DependencyPicklist {
 	}
 
 	static function getAvailablePicklists($module) {
-		global $adb, $log;
+		global $adb;
 		$tabId = getTabid($module);
 
 		$query="select vtiger_field.fieldlabel,vtiger_field.fieldname" .

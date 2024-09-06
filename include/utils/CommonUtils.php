@@ -507,13 +507,10 @@ return Vtiger_Functions::get_group_options();
   * @returns $setype -- setype:: Type text
   */
 function getSetypeForRecord($record_id) {
-	global $log;
-	$log->debug("Entering getSetypeForRecord(".$record_id.") method ...");
 	global $adb;
 	$query = "SELECT setype FROM vtiger_crmentity where crmid =?";
 	$result = $adb->pquery($query, array($record_id));
 	$setype=$adb->query_result($result,0,'setype');
-	$log->debug("Exiting getSetypeForRecord method ...");
 	return $setype;
 }
 

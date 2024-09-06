@@ -10,7 +10,7 @@
 	
 function vtws_revise($element,$user){
     
-    global $log,$adb;
+    global $adb;
     $idList = vtws_getIdComponents($element['id']);
     
     $webserviceObject = VtigerWebserviceObject::fromId($adb,$idList[0]);
@@ -19,7 +19,7 @@ function vtws_revise($element,$user){
     
     require_once $handlerPath;
     
-    $handler = new $handlerClass($webserviceObject,$user,$adb,$log);
+    $handler = new $handlerClass($webserviceObject,$user,$adb);
     $meta = $handler->getMeta();
     $entityName = $meta->getObjectEntityName($element['id']);
 	

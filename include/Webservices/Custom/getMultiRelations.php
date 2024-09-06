@@ -14,8 +14,6 @@ All Rights Reserved.
 ************************************************************************************************************************************************************ */
 
 function berli_get_multi_relations($id, $user) {
-	global $log;
-	$log->debug("Entering berli_get_multi_relations(".$id.") method ...");
 	$db = PearDatabase::getInstance();
 
 	$webserviceObject = VtigerWebserviceObject::fromId($db,$id);
@@ -24,7 +22,7 @@ function berli_get_multi_relations($id, $user) {
 		
 	require_once $handlerPath;
 		
-	$handler = new $handlerClass($webserviceObject,$user,$db,$log);
+	$handler = new $handlerClass($webserviceObject,$user,$db);
 	$meta = $handler->getMeta();
 	$entityName = $meta->getObjectEntityName($id);
 	$types = vtws_listtypes(null, $user);
@@ -136,20 +134,17 @@ function berli_get_multi_relations($id, $user) {
 	$result = $rel;
 
 	VTWS_PreserveGlobal::flush();
-	$log->debug("Leaving berli_get_multi_relations(".$id.") method ...");
 	return $result;
 }
 
 function multi_relations_check_permissions ($wsid, $user) {
-	global $log;
-	$log->debug("Entering multi_relations_check_permissions(".$wsid.") method ...");
 	$db = PearDatabase::getInstance();
 	$rel_webserviceObject = VtigerWebserviceObject::fromId($db,$wsid);
 	$rel_handlerPath = $rel_webserviceObject->getHandlerPath();
 	$rel_handlerClass = $rel_webserviceObject->getHandlerClass();
 	require_once $rel_handlerPath;
 		
-	$rel_handler = new $rel_handlerClass($rel_webserviceObject,$user,$db,$log);
+	$rel_handler = new $rel_handlerClass($rel_webserviceObject,$user,$db);
 	$rel_meta = $rel_handler->getMeta();
 	$rel_entityName = $rel_meta->getObjectEntityName($wsid);
 	$types = vtws_listtypes(null, $user);
@@ -157,11 +152,9 @@ function multi_relations_check_permissions ($wsid, $user) {
 	//validate access
 	$idComponents = vtws_getIdComponents($wsid);
 	if(in_array($rel_entityName,$types['types']) && $rel_meta->hasReadAccess()==true && $rel_entityName == $rel_webserviceObject->getEntityName() && $rel_meta->hasPermission(EntityMeta::$RETRIEVE,$wsid) && $rel_meta->exists($idComponents[1])){
-		$log->debug("Leaving multi_relations_check_permissions(".$wsid.") method with TRUE...");
 		return true;
 	}
 	else {
-		$log->debug("Leaving multi_relations_check_permissions(".$wsid.") method with FALSE...");
 		return false;
 	}
 }

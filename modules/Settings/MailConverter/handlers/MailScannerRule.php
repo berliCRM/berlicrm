@@ -53,9 +53,7 @@ class Vtiger_MailScannerRule {
 	/** DEBUG functionality **/
 	var $debug     = false;
     function log($message) {
-	global $log;
-		if($log && $this->debug) { $log->debug($message); }
-		else if($this->debug) echo "$message\n";
+		if($this->debug) echo "$message\n";
     }
 
     /**

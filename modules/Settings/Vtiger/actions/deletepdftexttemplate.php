@@ -11,9 +11,7 @@
 class Settings_Vtiger_deletepdftexttemplate_Action extends Settings_Vtiger_Basic_Action {
     
 	function __construct() {
-		global $log;
 		$this->db = new PearDatabase();
-		$this->log = $log;
 	}
 
     public function process(Vtiger_Request $request) {

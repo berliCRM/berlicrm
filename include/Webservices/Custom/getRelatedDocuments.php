@@ -14,14 +14,12 @@ All Rights Reserved.
 
 function berli_get_document_relations($id, $user) {
 	include_once ('include/Webservices/Retrieve.php');
-	global $log;
-	$log->debug("Entering berli_get_document_relations(".$id.") method ...");
 	$db = PearDatabase::getInstance();
 	$webserviceObject = VtigerWebserviceObject::fromId($db,$id);
 	$handlerPath = $webserviceObject->getHandlerPath();
 	$handlerClass = $webserviceObject->getHandlerClass();
 	require_once $handlerPath;
-	$handler = new $handlerClass($webserviceObject,$user,$db,$log);
+	$handler = new $handlerClass($webserviceObject,$user,$db);
 	$meta = $handler->getMeta();
 	$entityName = $meta->getObjectEntityName($id);
 	$types = vtws_listtypes(null, $user);
@@ -92,7 +90,6 @@ function berli_get_document_relations($id, $user) {
 	$result = array('Documents' => json_encode($relID));
 
 	VTWS_PreserveGlobal::flush();
-	$log->debug("Leaving berli_get_document_relations(".$id.") method ...");
 	return $result;
 }	
 ?>

@@ -33,7 +33,7 @@ require_once 'include/utils/VTCacheUtils.php';
 function send_mail($module,$to_email,$from_name,$from_email,$subject,$contents,$cc='',$bcc='',$attachment='',$emailid='',$logo='', $useGivenFromEmailAddress=false)
 {
 
-	global $adb, $log;
+	global $adb;
 	global $root_directory;
 	global $HELPDESK_SUPPORT_EMAIL_ID, $HELPDESK_SUPPORT_NAME;
 
@@ -341,7 +341,7 @@ function addAttachment($mail,$filename,$record)
   */
 function addAllAttachments($mail,$record)
 {
-	global $adb,$log, $root_directory;
+	global $adb, $root_directory;
         $adb->println("Inside the function addAllAttachments");
 
 	//Retrieve the vtiger_files from database where avoid the file which has been currently selected
@@ -402,16 +402,12 @@ function setCCAddress($mail,$cc_mod,$cc_val)
   */
 function MailSend($mail)
 {
-	global $log;
-         $log->info("Inside of Send Mail function.");
 	if(!$mail->Send())
         {
-		$log->debug("Error in Mail Sending : Error log = '".$mail->ErrorInfo."'");
 		return $mail->ErrorInfo;
         }
 	else
 	{
-		 $log->info("Mail has been sent from the vtigerCRM system : Status : '".$mail->ErrorInfo."'");
 		return 1;
 	}
 }

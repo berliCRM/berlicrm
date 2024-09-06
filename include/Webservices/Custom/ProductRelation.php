@@ -15,7 +15,7 @@ All Rights Reserved.
 ************************************************************************************************************************************************************ */
 
 function vtws_update_product_relations($productid, $relids, $preserve='true') {
-	global $log, $adb, $current_user;
+	global $adb, $current_user;
 	if (!isset($preserve) || $preserve == "" || strtolower($preserve) == "true") {
 		$preserve=true;
 	}
@@ -29,7 +29,7 @@ function vtws_update_product_relations($productid, $relids, $preserve='true') {
 
 	require_once $handlerPath;
   
-	$handler = new $handlerClass($webserviceObject, $current_user, $adb, $log);
+	$handler = new $handlerClass($webserviceObject, $current_user, $adb);
 	$meta = $handler->getMeta();
 	$entityName = $meta->getObjectEntityName($productid);
 	//crm-now: careful, 5.2.1 doesn't have the argument up front

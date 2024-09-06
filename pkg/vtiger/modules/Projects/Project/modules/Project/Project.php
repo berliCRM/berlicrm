@@ -8,7 +8,7 @@
  * All Rights Reserved.
  ************************************************************************************/
 class Project extends CRMEntity {
-    var $db, $log; // Used in class functions of CRMEntity
+    var $db; // Used in class functions of CRMEntity
 
     var $table_name = 'vtiger_project';
     var $table_index= 'projectid';
@@ -101,10 +101,9 @@ class Project extends CRMEntity {
 	var $mandatory_fields = Array('createdtime', 'modifiedtime', 'projectname', 'assigned_user_id');
 
 	function __construct() {
-	    global $log, $currentModule;
+	    global $currentModule;
 	    $this->column_fields = getColumnFields(get_class($this));
 	    $this->db = PearDatabase::getInstance();
-	    $this->log = $log;
 	}
 
 	function save_module($module) {
@@ -554,7 +553,7 @@ class Project extends CRMEntity {
 
 	/** Function to unlink an entity with given Id from another entity */
 	function unlinkRelationship($id, $return_module, $return_id) {
-		global $log, $currentModule;
+		global $currentModule;
 
 		if($return_module == 'Accounts') {
 			$focus = CRMEntity::getInstance($return_module);
@@ -594,8 +593,7 @@ class Project extends CRMEntity {
 	 * @param Integer Id of the the Record to which the related records are to be moved
 	 */
 	function transferRelatedRecords($module, $transferEntityIds, $entityId) {
-		global $adb,$log;
-		$log->debug("Entering function transferRelatedRecords ($module, $transferEntityIds, $entityId)");
+		global $adb;
 
 		$rel_table_arr = Array("ProjectTask"=>"vtiger_projecttask",'ProjectMilestone'=>'vtiger_projectmilestone',
                                 "Documents"=>"vtiger_senotesrel","Attachments"=>"vtiger_seattachmentsrel");
@@ -625,7 +623,6 @@ class Project extends CRMEntity {
 			}
 		}
 		parent::transferRelatedRecords($module, $transferEntityIds, $entityId);
-		$log->debug("Exiting transferRelatedRecords...");
 	}
 
 }

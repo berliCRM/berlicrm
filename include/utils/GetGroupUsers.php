@@ -28,8 +28,7 @@ class GetGroupUsers {
          */
 	function getAllUsersInGroup($groupid)
 	{
-		global $adb,$log;
-		$log->debug("Entering getAllUsersInGroup(".$groupid.") method...");
+		global $adb;
 		//Retreiving from the user2grouptable
 		$query="select * from vtiger_users2group where groupid=?";
 		$result = $adb->pquery($query, array($groupid));
@@ -123,11 +122,6 @@ class GetGroupUsers {
 			}
  
                 }
-		$log->debug("Exiting getAllUsersInGroup method...");	
-	
 	}
-
-	
 }
-
 ?>

@@ -22,7 +22,7 @@ class crmtogo_WS_saveSignature extends crmtogo_WS_Controller {
 		$parentid = $request->get('recordid');
 		$parentrecordid = vtws_getIdComponents($parentid);
 		$parentrecordid = $parentrecordid[1];
-		global $adb,$log;
+		global $adb;
 
 		$response = new crmtogo_API_Response();
 		if (isset($signature) && !empty($signature)) {

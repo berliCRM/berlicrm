@@ -3,7 +3,7 @@
 class PickListHandler extends VTEventHandler {
 
 	function handleEvent($eventName, $entityData) {
-		global $log, $adb;
+		global $adb;
 
 		if($eventName == 'vtiger.picklist.afterrename') {
 			$this->operationsAfterPicklistRename($entityData);

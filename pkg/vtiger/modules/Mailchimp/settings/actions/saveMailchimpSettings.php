@@ -12,8 +12,7 @@
 require_once('include/database/PearDatabase.php');
 require_once('include/utils/UserInfoUtil.php');
 require_once('include/utils/utils.php');
-global $adb,$log;
-$log->debug("Entering into Mailchimp Settings Saving");
+global $adb;
 // all modules available
 $apikey=vtlib_purify($_REQUEST['apikey']);
 $createtype=vtlib_purify($_REQUEST['newsubscriber']);

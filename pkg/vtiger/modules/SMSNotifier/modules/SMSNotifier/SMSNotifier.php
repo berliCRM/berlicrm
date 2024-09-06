@@ -9,7 +9,6 @@
  ************************************************************************************/
 include_once dirname(__FILE__) . '/SMSNotifierBase.php';
 include_once dirname(__FILE__) . '/models/ISMSProvider.php';
-include_once 'include/Zend/Json.php';
 
 class SMSNotifier extends SMSNotifierBase {
 
@@ -33,8 +32,7 @@ class SMSNotifier extends SMSNotifierBase {
 	 * @param String $linktoModule Modulename of CRM record to link with (if not provided lookup it will be calculated)
 	 */
 	static function sendsms($message, $tonumbers, $ownerid = false, $linktoids = false, $linktoModule = '') {
-		global $current_user, $adb, $log;
-		$log->debug("Entering sendsms (Message: ".$message."|"." To Numbers: ".implode(",", $tonumbers)."|"." Owner ID: ".$ownerid."|"." Link to Ids: ".implode(",", $linktoids)."|"." Link to Module: ".$linktoModule.") method  of SMSNotifier.php ...");
+		global $current_user, $adb;
 
 		if($ownerid === false) {
 			if(isset($current_user) && !empty($current_user)) {
@@ -69,16 +67,13 @@ class SMSNotifier extends SMSNotifierBase {
 		}
 		$responses = self::fireSendSMS($message, $tonumbers);
 		$focus->processFireSendSMSResponse($responses);
-		$log->debug("Exiting sendsms method of SMSNotifier.php ...");
- 
 	}
 
 	/**
 	 * Detect the related modules based on the entity relation information for this instance.
 	 */
 	function detectRelatedModules() {
-		global $current_user, $adb, $log;
-		$log->debug("Entering detectRelatedModules method of SMSNotifier.php ...");
+		global $current_user, $adb;
 
 		// Pick the distinct modulenames based on related records.
 		$result = $adb->pquery("SELECT distinct setype FROM vtiger_crmentity WHERE crmid in (
@@ -109,10 +104,7 @@ class SMSNotifier extends SMSNotifierBase {
 				}
 			}
 		}
-		$log->debug("Exiting detectRelatedModules method of SMSNotifier.php ...");
-
 		return $relatedModules;
-
 	}
 
 	protected function isUserOrGroup($id) {
@@ -222,8 +214,6 @@ class SMSNotifier extends SMSNotifierBase {
 	}
 
 	static function fireSendSMS($message, $tonumbers) {
-		global $log;
-		$log->debug("Entering fireSendSMS (".$message.",".implode(",", $tonumbers).") method ...");
 		$provider = SMSNotifierManager::getActiveProviderInstance();
 		if($provider) {
 			return $provider->send($message, $tonumbers);
@@ -245,8 +235,7 @@ class SMSNotifier extends SMSNotifierBase {
 	
 	//crm-now: added for proper phone number formating
 	static function formatPhoneNumber($ph_number) {
-		global $adb, $log;
-		$log->debug("Entering formatPhoneNumber (".$ph_number.") method ...");
+		global $adb;
 		//crm-now: check whether a country prefix from settings must get added
 		$resultprefix = $adb->pquery("SELECT countryprefix FROM vtiger_smsnotifier_servers WHERE isactive = ? LIMIT 1", array(1));
 		if (!$resultprefix || $adb->num_rows($resultprefix) < 1) {
@@ -280,7 +269,6 @@ class SMSNotifier extends SMSNotifierBase {
 				$smsGoesTo = $prefix.$smsGoesTo;
 			}
 		}	
-		$log->debug("Exiting formatPhoneNumber method, formatted phone number: ".$smsGoesTo);
 		return $smsGoesTo;
 	}
 	
@@ -307,7 +295,7 @@ class SMSNotifierManager extends SMSNotifierBase {
 			$provider = SMSNotifier_Provider_Model::getInstance($resultrow['providertype']);
 			$parameters = array();
 			if(!empty($resultrow['parameters'])) {
-				$parameters = Zend_Json::decode(decode_html($resultrow['parameters']));
+				$parameters = json_decode(decode_html($resultrow['parameters']));
 			}
 			foreach($parameters as $k=>$v) {
 				$provider->setParameter($k, $v);
