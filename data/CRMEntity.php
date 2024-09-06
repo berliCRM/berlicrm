@@ -74,7 +74,6 @@ class CRMEntity {
 			die("<center>" .getTranslatedString('LBL_MANDATORY_FIELD_MISSING')."</center>");
 		}
 
-		$this->db->println("TRANS saveentity starts $module");
 		$this->db->startTransaction();
 
 
@@ -91,7 +90,6 @@ class CRMEntity {
 		$this->save_module($module);
 
 		$this->db->completeTransaction();
-		$this->db->println("TRANS saveentity ends");
 
 		// vtlib customization: Hook provide to enable generic module relation.
 		if ($_REQUEST['createmode'] == 'link') {
@@ -1071,7 +1069,6 @@ class CRMEntity {
 				if (isset($rowid))
 					$this->retrieve_entity_info($rowid, $this->module_name);
 				else
-					$this->db->println("rowid not set unable to retrieve");
 
 
 
@@ -1407,7 +1404,6 @@ class CRMEntity {
 	function restore($module, $id) {
 		global $current_user, $adb;
 
-		$this->db->println("TRANS restore starts $module");
 		$this->db->startTransaction();
 
 		$date_var = date("Y-m-d H:i:s");
@@ -1431,7 +1427,6 @@ class CRMEntity {
 		//Event triggering code ends
 
 		$this->db->completeTransaction();
-		$this->db->println("TRANS restore ends");
 	}
 
 	/** Function to restore all the related records of a given record by id */
