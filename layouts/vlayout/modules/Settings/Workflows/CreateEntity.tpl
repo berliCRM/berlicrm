@@ -98,7 +98,7 @@
 					{assign var=FIELD_INFO value=$FIELD_MODEL->getFieldInfo()}
 					{if !$FIELD_MODEL->isMandatory() && $FIELD_MODEL->getFieldDataType() neq 'reference'}
 					<option value="{$FIELD_MODEL->get('name')}" data-fieldtype="{$FIELD_MODEL->getFieldType()}"  data-field-name="{$FIELD_MODEL->get('name')}" data-fieldinfo='{json_encode($FIELD_INFO)}' >
-						{vtranslate($FIELD_MODEL->get('label'), $SOURCE_MODULE)}
+						{vtranslate($FIELD_MODEL->get('label'), $RELATED_MODULE_MODEL->get('name'))}
 					</option>
 					{/if}
 				{/foreach}
