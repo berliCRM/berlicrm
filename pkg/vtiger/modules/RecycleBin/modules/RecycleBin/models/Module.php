@@ -145,17 +145,17 @@ class RecycleBin_Module_Model extends Vtiger_Module_Model {
 	 */
 	public function deleteRecords($recordIds){
 	    $db = PearDatabase::getInstance(); 
+
+		// Delete entries of attachments from vtiger_attachments and vtiger_seattachmentsrel
+		$this->deleteFiles($recordIds);
+        $this->logDeletions($recordIds);
+
 		//Delete the records in vtiger crmentity and relatedlists.
 		$query = 'DELETE FROM vtiger_crmentity WHERE deleted = ? and crmid in('.generateQuestionMarks($recordIds).')';
 		$db->pquery($query, array(1, $recordIds));
 		
 		$query = 'DELETE FROM vtiger_relatedlists_rb WHERE entityid in('.generateQuestionMarks($recordIds).')';
 		$db->pquery($query, array($recordIds));
-
-		// Delete entries of attachments from vtiger_attachments and vtiger_seattachmentsrel
-		$this->deleteFiles($recordIds);
-        $this->logDeletions($recordIds);
-		// TODO - Remove records from module tables and other related stores.
 	}
 
 	/**Function to delete files from CRM.
