@@ -44,6 +44,7 @@ $languageStrings = array(
 	'LBL_RESET_PRICE' => 'Preis zurücksetzen',
 	'LBL_RESET' => 'zurücksetzen',
 	'LBL_STOCK_INFORMATION' => 'Lagerinformation',
+	'LBL_VAT' => 'MwSt.',
 	'Manufacturer' => 'Hersteller',
 	'Mfr PartNo' => 'Hrst. Teilnr.',
 	'M'=>'Meter',
