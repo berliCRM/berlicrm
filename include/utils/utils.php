@@ -41,7 +41,7 @@ require_once 'vtlib/Vtiger/Deprecated.php';
 require_once 'includes/runtime/Cache.php';
 require_once 'modules/Vtiger/helpers/Util.php';
 
-require_once 'vendor/autoload.php'; 
+include_once 'vendor/autoload.php'; 
 
 // Constants to be defined here
 
