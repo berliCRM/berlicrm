@@ -421,6 +421,7 @@ class Install_Utils_Model {
 		$fh = fopen($path, 'a+');
 		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Require Package, Module und utils PHP files\n");
 		ob_start();
+		shell_exec('composer install');
 		require_once('vtlib/Vtiger/Package.php');
 		require_once('vtlib/Vtiger/Module.php');
 		require_once('include/utils/utils.php');

@@ -2,3 +2,4 @@
 test
 config.inc.php
 config.csfr-secret.php
+/vendor/
