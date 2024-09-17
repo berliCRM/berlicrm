@@ -25,17 +25,20 @@
                     {/if}
                     <div class="control-group">
                         <div class="controls">
-                            <label class="control-label" for="username"><b>Nutzername / User Name</b></label>
-                            <input type="text" id="username" name="username" placeholder="Username">
+                            <label class="control-label" for="username"><b>{vtranslate('User Name', 'Users')}</b></label>
+                            <input type="text" id="username" name="username" placeholder="{vtranslate('User Name', 'Users')}">
                         </div>
                     </div>
                     <div class="control-group">
                         <div class="controls">
-                            <label class="control-label" for="password"><b>Passwort / Password </b></label>
-                            <input type="password" id="password" name="password" placeholder="Password">
+                            <label class="control-label" for="password"><b>{vtranslate('Password', 'Users')}</b></label>
+                            <input type="password" id="password" name="password" placeholder="{vtranslate('Password', 'Users')}">
                         </div>
                     </div>
                     <div class="control-group signin-button">
+                        <div class="controls pull-right">
+                            <a href="requestPasswordReset.php" class="btn btn-link">{vtranslate('ForgotPassword', 'Users')}?</a>
+                        </div>
                         <div class="controls" id="login">
                             <button type="submit" class="btn btn-primary sbutton">Login</button>
                         </div>
@@ -44,4 +47,4 @@
             </tr>
     </table>
 </div>
-{/strip}
+{/strip}    

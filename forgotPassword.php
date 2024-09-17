@@ -8,6 +8,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  * ********************************************************************************** */
+ini_set('display_errors','on'); version_compare(PHP_VERSION, '5.5.0') <= 0 ? error_reporting(E_WARNING & ~E_NOTICE & ~E_DEPRECATED) : error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT);   // DEBUGGING
 require_once 'include/utils/utils.php';
 require_once 'include/utils/VtlibUtils.php';
 require_once 'modules/Emails/mail.php';
@@ -43,7 +44,6 @@ if (isset($_REQUEST['user_name']) && isset($_REQUEST['emailId'])) {
                             This request was made on ' . date("Y-m-d H:i:s") . ' and will expire in next 24 hours.<br><br> 
 		            Regards,<br> 
 		            Support Team.<br>' ;
-        $mail = new PHPMailer();
         $query = "select from_email_field,server_username from vtiger_systems where server_type=?";
         $params = array('email');
         $result = $adb->pquery($query,$params);
