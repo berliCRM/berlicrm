@@ -10,7 +10,6 @@
  * ********************************************************************************** */
 require_once 'include/utils/utils.php';
 require_once 'include/utils/VtlibUtils.php';
-require_once 'modules/Emails/class.phpmailer.php';
 require_once 'modules/Emails/mail.php';
 require_once 'modules/Vtiger/helpers/ShortURL.php';
 global $adb;
@@ -52,8 +51,7 @@ if (isset($_REQUEST['user_name']) && isset($_REQUEST['emailId'])) {
         if($from == '') {$from =$adb->query_result($result,0,'server_username'); }
         $subject='Request : ForgotPassword - vtigercrm';
         
-        setMailerProperties($mail,$subject, $content, $from, $username, $email);
-        $status = MailSend($mail);
+        $status = send_mail('', $email, $username, $from, $subject, $content);
         if ($status === 1)
             header('Location:  index.php?modules=Users&view=Login&status=1');
         else

@@ -32,7 +32,6 @@ require_once 'includes/Loader.php';
 
 //file modified by richie
 require_once('include/utils/utils.php');
-require_once("modules/Emails/class.phpmailer.php");
 require_once("modules/Emails/mail.php");
 require_once('include/logging.php');
 require_once("config.php");
@@ -304,7 +303,7 @@ if($adb->num_rows($result) >= 1) {
 				$alt_body .= "\n\n";
 				$alt_body .= $hint."\n".$reminds;
 				//mail compose ends			
-				send_email($to_addr,$from,utf8_encode(html_entity_decode($subject)),utf8_encode($contents),$mail_server,$mail_server_username,$mail_server_password, $alt_body);
+				send_mail('', $to_addr, '', $from, utf8_encode(html_entity_decode($subject)), utf8_encode($contents));
 				$upd_query = "UPDATE vtiger_activity_reminder SET reminder_sent=1 where activity_id=?";
 				$upd_params = array($activity_id);
 
@@ -315,61 +314,6 @@ if($adb->num_rows($result) >= 1) {
 				$adb->pquery($upd_query, $upd_params);
 		}
 	}
-}
-
-/**
- This function is used to assign parameters to the mail object and send it.
- It takes the following as parameters.
-	$to as string - to address
-	$from as string - from address
-	$subject as string - subject if the mail
-	$contents as text - content of the mail
-	$mail_server as string - sendmail server name
-	$mail_server_username as string - sendmail server username
-	$mail_server_password as string - sendmail server password
-
-*/
-function send_email($to,$from,$subject,$contents,$mail_server,$mail_server_username,$mail_server_password, $alt_body) {
-	global $adb;
-	global $root_directory;
-
-	$mail = new PHPMailer();
-
-
-	$mail->Subject = $subject;
-	$mail->Body    = nl2br($contents);//"This is the HTML message body <b>in bold!</b>";
-
-
-	$mail->IsSMTP();                                      // set mailer to use SMTP
-
-	$mailserverresult=$adb->pquery("select * from vtiger_systems where server_type='email'", array());
-	$mail_server = $adb->query_result($mailserverresult,0,'server');
-	$mail_server_username = $adb->query_result($mailserverresult,0,'server_username');
-	$mail_server_password = $adb->query_result($mailserverresult,0,'server_password');
-	$smtp_auth = $adb->query_result($mailserverresult,0,'smtp_auth');
-
-	$_REQUEST['server']=$mail_server;
-
-	$mail->Host = $mail_server;			// specify main and backup server
-	if($smtp_auth == 'true' || $smtp_auth == '1')
-		$mail->SMTPAuth = true;
-	else
-		$mail->SMTPAuth = false;
-	$mail->Username = $mail_server_username ;	// SMTP username
-	$mail->Password = $mail_server_password ;	// SMTP password
-	$mail->From = $from;
-	$mail->FromName = $initialfrom;
-	foreach($to as $pos=>$addr)
-	{
-		$mail->AddAddress($addr);                  // name is optional
-	}
-	$mail->WordWrap = 50;                                 // set word wrap to 50 characters
-
-	$mail->IsHTML(true);                                  // set email format to HTML
-
-	$mail->AltBody = $alt_body;
-
-	$flag = MailSend($mail);
 }
 
 /**
