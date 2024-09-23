@@ -10,7 +10,7 @@
 
 class Portal_Detail_View extends Vtiger_Index_View {
     
-    function preProcess(Vtiger_Request $request, $display=true) {
+    function preProcess(Vtiger_Request $request, $display=true): void {
         parent::preProcess($request);
     }
     
@@ -31,7 +31,7 @@ class Portal_Detail_View extends Vtiger_Index_View {
         $viewer->view('DetailView.tpl', $module);
     }
     
-    function getHeaderScripts(Vtiger_Request $request) {
+    function getHeaderScripts(Vtiger_Request $request): array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

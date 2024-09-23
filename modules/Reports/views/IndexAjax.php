@@ -16,12 +16,12 @@ class Reports_IndexAjax_View extends Vtiger_Index_View {
 		$this->exposeMethod('showScheduledReports');
 	}
 
-	function preProcess(Vtiger_Request $request, $display=false) {
-		return true;
+	function preProcess(Vtiger_Request $request, $display=false): void {
+		return;
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return true;
+	function postProcess(Vtiger_Request $request): void {
+		return;
 	}
 
 	function process(Vtiger_Request $request) {

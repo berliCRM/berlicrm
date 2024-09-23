@@ -21,7 +21,7 @@ class Reports_ListAjax_View extends Reports_List_View {
 		$this->exposeMethod('getPageCount');
 	}
 
-	function preProcess(Vtiger_Request $request, $display=false) {
+	function preProcess(Vtiger_Request $request, $display=false): void {
 		
 	}
 

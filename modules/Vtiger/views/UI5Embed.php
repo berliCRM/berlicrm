@@ -10,7 +10,7 @@
 
 class Vtiger_UI5Embed_View extends Vtiger_Index_View {
 	
-	protected function preProcessDisplay(Vtiger_Request $request) {}
+	protected function preProcessDisplay(Vtiger_Request $request): void {}
 	
 	protected function getUI5EmbedURL(Vtiger_Request $request) {
 		return '../index.php?action=index&module=' . $request->getModule();

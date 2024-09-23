@@ -66,7 +66,7 @@ class Reports_SaveAjax_View extends Vtiger_IndexAjax_View {
 		$viewer->view('ReportContents.tpl', $moduleName);
 	}
 
-        public function validateRequest(Vtiger_Request $request) { 
-            $request->validateWriteAccess(); 
-        } 
+	public function validateRequest(Vtiger_Request $request): bool { 
+		return $request->validateWriteAccess(); 
+	} 
 }
