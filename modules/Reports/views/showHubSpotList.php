@@ -2,7 +2,7 @@
 class Reports_showHubSpotList_View extends Vtiger_View_Controller {
 	public $log_text = array();
 	
-	function loginRequired() {
+	function loginRequired(): bool {
 		return true;
 	}
 

@@ -12,7 +12,7 @@ require_once('include/utils/utils.php');
 
 class Verteiler_showCheckVerteilerEmails_View extends Vtiger_View_Controller {
 
-	function loginRequired() {
+	function loginRequired(): bool {
 		return true;
 	}
 
