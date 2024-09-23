@@ -10,29 +10,29 @@
 
 class Verteiler_ExcelExport_Action extends Vtiger_BasicAjax_Action {
 
-	function preProcess(Vtiger_Request $request, $display=false) {
-		return false;
+	function preProcess(Vtiger_Request $request, $display=false): void {
+        return;
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return false;
+	function postProcess(Vtiger_Request $request): void {
+		return;
 	}
     
     function process(Vtiger_Request $request) {
-            include_once("modules/Reports/ReportRun.php");
-            $record = $request->get('record');
-            
-            $filter = array(
-                    array("columns" => array (
-                        array ( "columnname" => "vtiger_verteiler:verteilerid:Verteiler_VerteilerID:verteilerid:V",
-                                "comparator" => "e",
-                                "value" => $record,
-                                "column_condition" => "")
-                                )));
+        include_once("modules/Reports/ReportRun.php");
+        $record = $request->get('record');
+        
+        $filter = array(
+                array("columns" => array (
+                    array ( "columnname" => "vtiger_verteiler:verteilerid:Verteiler_VerteilerID:verteilerid:V",
+                            "comparator" => "e",
+                            "value" => $record,
+                            "column_condition" => "")
+                            )));
 
-            $reportModel = Reports_Record_Model::getInstanceById(74); // hardwired report id
-            $reportModel->set('advancedFilter', $filter);
-            $reportModel->getReportXLS();
+        $reportModel = Reports_Record_Model::getInstanceById(74); // hardwired report id
+        $reportModel->set('advancedFilter', $filter);
+        $reportModel->getReportXLS();
 
     }
 }

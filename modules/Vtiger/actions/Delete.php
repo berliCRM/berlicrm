@@ -42,8 +42,7 @@ class Vtiger_Delete_Action extends Vtiger_Action_Controller {
 	}
         
 	public function validateRequest(Vtiger_Request $request):bool { 
-		$request->validateWriteAccess(); 
-		return true;
+		return $request->validateWriteAccess();
 	}
 }
 ?>

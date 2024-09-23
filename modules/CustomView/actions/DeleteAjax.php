@@ -10,12 +10,12 @@
 
 class CustomView_DeleteAjax_Action extends Vtiger_Action_Controller {
 
-	function preProcess(Vtiger_Request $request) {
-		return true;
+	function preProcess(Vtiger_Request $request): void {
+		return;
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return true;
+	function postProcess(Vtiger_Request $request): void {
+		return;
 	}
 
 	public function process(Vtiger_Request $request) {

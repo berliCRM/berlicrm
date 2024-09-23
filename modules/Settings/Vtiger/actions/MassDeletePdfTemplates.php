@@ -14,12 +14,12 @@ class Settings_Vtiger_MassDeletePdfTemplates_Action extends Vtiger_Mass_Action {
 		return true;
 	}
 
-	function preProcess(Vtiger_Request $request) {
-		return true;
+	function preProcess(Vtiger_Request $request): void {
+		return;
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return true;
+	function postProcess(Vtiger_Request $request): void {
+		return;
 	}
 
 	public function process(Vtiger_Request $request) {
