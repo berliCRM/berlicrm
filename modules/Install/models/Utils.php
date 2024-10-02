@@ -421,7 +421,11 @@ class Install_Utils_Model {
 		$fh = fopen($path, 'a+');
 		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Require Package, Module und utils PHP files\n");
 		ob_start();
-		shell_exec('composer install');
+		if (function_exists('shell_exec')) {
+			shell_exec('composer install');
+		} else {
+			throw new Exception('Die Funktion shell_exec existiert nicht oder ist deaktiviert.');
+		}
 		require_once('vtlib/Vtiger/Package.php');
 		require_once('vtlib/Vtiger/Module.php');
 		require_once('include/utils/utils.php');
