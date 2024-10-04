@@ -31,7 +31,7 @@ class Settings_ModuleManager_Basic_Action extends Settings_Vtiger_IndexAjax_View
         
         $moduleManagerModel = new Settings_ModuleManager_Module_Model();
         
-        if($updateStatus == 'true') {
+        if($updateStatus == true) {
             $moduleManagerModel->enableModule($moduleName);
         }else{
             $moduleManagerModel->disableModule($moduleName);
