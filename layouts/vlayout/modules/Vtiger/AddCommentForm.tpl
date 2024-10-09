@@ -13,7 +13,6 @@
 
 {* Change to this also refer: RecentComments.tpl *}
 {assign var="COMMENT_TEXTAREA_DEFAULT_ROWS" value="2"}
-{"ahasdhashasjkdkvlkfldlkfkldf"|@print_r}
 <div id="addCommentContainer" class='modelContainer'>
 	<div class="modal-header contentsBackground">
         <button data-dismiss="modal" class="close" title="{vtranslate('LBL_CLOSE')}">&times;</button>
