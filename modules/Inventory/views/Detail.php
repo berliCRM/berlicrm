@@ -64,6 +64,7 @@ class Inventory_Detail_View extends Vtiger_Detail_View {
 
 		//Final shipping tax details convertion started
 		$shippingTaxDetails = $finalDetails['sh_taxes'];
+		$taxCount = $shippingTaxDetails ? count($shippingTaxDetails) : 0;
 		$taxCount = count($shippingTaxDetails);
 		for($i=0; $i<$taxCount; $i++) {
 			$shippingTaxDetails[$i]['amount'] = Vtiger_Currency_UIType::transformDisplayValue($shippingTaxDetails[$i]['amount'], null, true);
