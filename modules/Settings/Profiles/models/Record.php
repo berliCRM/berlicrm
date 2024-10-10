@@ -512,10 +512,11 @@ class Settings_Profiles_Record_Model extends Settings_Vtiger_Record_Model {
 				}
 
 				foreach ($availableActionIds as $actionId) {
-					if ($actionId === 0) {
+					if ($actionId == 0) {
 						//Save action permissions = Permissions of Create/Editview action
 						$actionPermissions[$actionId] = $actionPermissions[1];
-					} else {
+					} 
+					else {
 						$actionPermissions[$actionId] = $actionPermissions[$actionId];
 					}
 				}
@@ -531,23 +532,26 @@ class Settings_Profiles_Record_Model extends Settings_Vtiger_Record_Model {
 				}
 
 				//Update process
-				if ($profileActionPermissions && $moduleModel->getName() != 'Reports') {
+				if (is_array($profileActionPermissions) && count ($profileActionPermissions) > 0 && $moduleModel->getName() != 'Reports') {
 					//Standard permissions
 					$actionsUpdateQuery = 'UPDATE vtiger_profile2standardpermissions SET permissions = CASE ';
+					$params = [];
 					foreach ($actionsIdsList as $actionId => $permission) {
 						$permissionValue = $this->tranformInputPermissionValue($permission);
-						if(isset(Vtiger_Action_Model::$standardActions[$actionId])) {
-							if($permission == Settings_Profiles_Module_Model::IS_PERMITTED_VALUE) {
+						if (isset(Vtiger_Action_Model::$standardActions[$actionId])) {
+							if ($permissionValue == Settings_Profiles_Module_Model::IS_PERMITTED_VALUE) {
 								$actionEnabled = true;
 							}
-							$actionsUpdateQuery .= " WHEN operation = $actionId THEN $permissionValue ";
+							$actionsUpdateQuery .= " WHEN operation = ? THEN ? ";
+							$params[] = $actionId;
+							$params[] = $permissionValue;
 						}
 					}
 					$actionsUpdateQuery .= 'ELSE permissions END WHERE profileid = ? AND tabid = ?';
-					if ($actionsIdsList) {
-						$db->pquery($actionsUpdateQuery, array($profileId, $tabId));
-					}
-					
+					$params[] = $profileId;
+					$params[] = $tabId;
+
+					$db->pquery($actionsUpdateQuery, $params);
 					foreach (Vtiger_Action_Model::$utilityActions as $utilityActionId => $utilityActionName) {
 						if(!isset($utilityIdsList[$utilityActionId])) {
 							$utilityIdsList[$utilityActionId] = 'off';
