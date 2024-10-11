@@ -27,7 +27,7 @@ function updateStk($product_id,$qty,$mode,$ext_prod_arr,$module)
 	$prod_name = getProductName($product_id);
 	$qtyinstk= getPrdQtyInStck($product_id);
 
-	$upd_qty = $qtyinstk-$qty;
+	$upd_qty = floatval($qtyinstk)-floatval($qty);
 	sendPrdStckMail($product_id,$upd_qty,$prod_name,$qtyinstk,$qty,$module);
 }
 
