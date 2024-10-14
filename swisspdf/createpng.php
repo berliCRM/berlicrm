@@ -6,7 +6,7 @@ use Sprain\SwissQrBill as QrBill;
 
 function createpng($pdfDataObj) {
 
-    require ('libraries/qrcode/autoload.php');
+    require ('vendor/autoload.php');
 
     // This is an example how to create a typical qr bill:
     // - with reference number
@@ -47,7 +47,7 @@ function createpng($pdfDataObj) {
             $pdfDataObj['contact']['zip'],
             $pdfDataObj['contact']['state'],
             $pdfDataObj['contact']['country'],
-            $pdfDataObj['contact']['org'],
+            //$pdfDataObj['contact']['org'],
         ));
 
     // Add payment amount information

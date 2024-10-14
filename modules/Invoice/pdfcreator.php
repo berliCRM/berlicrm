@@ -1,4 +1,4 @@
-<?php
+ <?php
 /*********************************************************************************
 ** The contents of this file are subject to the vtiger CRM Public License Version 1.0
  * ("License"); You may not use this file except in compliance with the License
@@ -532,7 +532,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 
 		if(empty($org_name) || empty($org_address) || empty($org_code) || empty($org_city) || empty($bill_country_code)|| empty($contact_firstname) || empty($contact_lastname) || empty($ship_street) || empty($ship_code) || empty($ship_city) || empty($ship_country_code)) {
     		// Ausgabe der Fehlermeldung
-    		var_dump('Fehler: Bitte füllen Sie alle Adressfelder für Rechung und Lieferung aus. (Adresse, Ort, Bundesland, PLZ und Land)');
+    		var_dump('Fehler: Bitte füllen Sie alle Adressfelder für Rechnung und Lieferung bei Organisationen und Personen aus. (Adresse, Ort, Bundesland, PLZ und Land)');
 		} else {
 			$pdfDataObj['organisation']['name'] = $org_name;
 			$pdfDataObj['organisation']['hnr+street'] = $org_address;
@@ -642,7 +642,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 		$pdf->Ln(2);
 		$pdf->MultiCell(65, 5,'', 0, 'L', 0, 0, '', '', true); $pdf->MultiCell(55, 5,"<b>Beschreibung</b><br>".$pdfDataObj['description'], 0, 'L', 0, 1, '', '', true, 0, true);
 		$pdf->Ln(2);
-		$pdf->MultiCell(65, 5,'', 0, 'L', 0, 0, '', '', true); $pdf->MultiCell(55, 5,"<b>Zahlung von</b><br>".$pdfDataObj['contact']['org']."<br>".$pdfDataObj['contact']['name']."<br>".$pdfDataObj['contact']['street'].' '.$pdfDataObj['contact']['hnr']."<br>".$pdfDataObj['contact']['zip'].' '.$pdfDataObj['contact']['state'], 0, 'L', 0, 1, '', '', true, 0, true);
+		$pdf->MultiCell(65, 5,'', 0, 'L', 0, 0, '', '', true); $pdf->MultiCell(70, 5,"<b>Zahlung von</b><br>".$pdfDataObj['contact']['org']." ".$pdfDataObj['contact']['name']."<br>".$pdfDataObj['contact']['street'].' '.$pdfDataObj['contact']['hnr']."<br>".$pdfDataObj['contact']['zip'].' '.$pdfDataObj['contact']['state'], 0, 'L', 0, 1, '', '', true, 0, true);
 		$pdf->Ln(5);
 		$pdf->MultiCell(40, 0,'<b>Währung</b>', 0, 'C', 0, 0, '', '', true, 0, true);
 		$pdf->MultiCell(15, 0,'<b>Betrag</b>', 0, 'C', 0, 1, '', '', true, 0, true);
@@ -676,9 +676,11 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	// issue pdf
 	elseif ($purpose=='print' || $purpose=='printsn'){
 		if ($purpose=='printsn') {
+			ob_end_clean();
 			$pdf->Output($export_org.'_'.$pdf_strings['SALESNOTE'].'_'.$date_issued.'.pdf','D');
 		}
 		else {
+			ob_end_clean();
 			$pdf->Output($export_org.'_'.$pdf_strings['FACTURE'].'_'.$date_issued.'.pdf','D');
 		}
 		exit;
