@@ -4228,8 +4228,6 @@ class ReportRun extends CRMEntity
 		global $currentModule, $current_language, $current_user;
 		$mod_strings = return_module_language($current_language, $currentModule);
 
-		require_once('libraries/PhpSpreadsheet/autoloader.php');
-
 		$spreadsheet = new Spreadsheet();
 		$activeWorksheet = $spreadsheet->setActiveSheetIndex(0);
 

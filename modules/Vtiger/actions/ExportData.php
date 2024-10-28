@@ -240,9 +240,6 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT" );
 		header("Cache-Control: post-check=0, pre-check=0", false );
 
-		require_once("libraries/PhpSpreadsheet/autoloader.php");
-
-
 		if ($exportType == 'text/csv') {
 			$fileName .= '.csv';
 			header("Content-Disposition:attachment;filename=$fileName");
