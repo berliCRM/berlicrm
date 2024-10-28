@@ -428,10 +428,10 @@ class Install_Utils_Model {
 		 	throw new Exception('Function shell_exec does not exist or is deactivated.');
 		}
 
-		if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
+		if (!file_exists('vendor/autoload.php')) {
 			throw new Exception('Error: Composer dependencies were not installed.');
 		}
-		require __DIR__ . '/vendor/autoload.php';
+		require 'vendor/autoload.php';
 
 		$composer_classes = array("QrBill", "Spreadsheet");
 
