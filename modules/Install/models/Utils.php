@@ -7,6 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  * *********************************************************************************** */
+ use Sprain\SwissQrBill;
 
 class Install_Utils_Model {
 
