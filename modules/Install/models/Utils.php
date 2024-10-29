@@ -439,8 +439,6 @@ class Install_Utils_Model {
 
 		foreach ($composer_classes as $class) {
 			if (!class_exists($class)) {
-				$allClasses = get_declared_classes();
-				print_r($allClasses);
 				throw new Exception('Error: '. $class .' was not found. Please Install dependencies via composer.');
 			}
 		}
