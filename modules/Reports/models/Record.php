@@ -714,7 +714,7 @@ class Reports_Record_Model extends Vtiger_Record_Model {
 
 		//Changed Format from xls to xlsx
 		$tempFileName = tempnam($rootDirectory.$tmpDir, 'xlsx');
-		$fileName = decode_html($this->getName()).'.xlsx';
+		$fileName = decode_html(trim($this->getName())).'.xlsx';
 		$reportRun->writeReportToExcelFile($tempFileName, $advanceFilterSql);
 
 		if(isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE')) {
