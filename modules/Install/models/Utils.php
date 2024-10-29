@@ -7,7 +7,8 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  * *********************************************************************************** */
- use Sprain\SwissQrBill;
+use Sprain\SwissQrBill;
+use PhpOffice\PhpSpreadsheet;
 
 class Install_Utils_Model {
 
@@ -434,10 +435,12 @@ class Install_Utils_Model {
 		}
 		require 'vendor/autoload.php';
 
-		$composer_classes = array("QrBill", "Spreadsheet");
+		$composer_classes = array("\Sprain\SwissQrBill\QrBill", "\PhpOffice\PhpSpreadsheet\Spreadsheet");
 
 		foreach ($composer_classes as $class) {
 			if (!class_exists($class)) {
+				$allClasses = get_declared_classes();
+				print_r($allClasses);
 				throw new Exception('Error: '. $class .' was not found. Please Install dependencies via composer.');
 			}
 		}
