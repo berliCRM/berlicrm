@@ -714,6 +714,7 @@ class Reports_Record_Model extends Vtiger_Record_Model {
 
 		$tempFileName = tempnam($rootDirectory.$tmpDir, 'xlsx');
 		$fileName = decode_html($this->getName()).'.xlsx';
+		$fileName = str_replace('?', '_', $fileName);
 		$reportRun->writeReportToExcelFile($tempFileName, $advanceFilterSql);
 
 		if(isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE')) {
@@ -725,8 +726,7 @@ class Reports_Record_Model extends Vtiger_Record_Model {
 		header('Content-Length: '.@filesize($tempFileName));
 		header('Content-disposition: attachment; filename="'.$fileName.'"');
 
-		$fp = fopen($tempFileName, 'rb');
-		fpassthru($fp);
+		readfile($tempFileName);
 		unlink($tempFileName);
 	}
 
