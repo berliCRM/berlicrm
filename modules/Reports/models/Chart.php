@@ -575,7 +575,7 @@ class VerticalbarChart extends Base_Chart {
 		$data = array(	'labels' => $labels,
 						'values' => $values,
 						'links' => $links,
-						'type' => (count($values[0]) == 1) ? 'singleBar' : 'multiBar',
+						'type' =>  (is_countable($values[0])) ? (count($values[0]) == 1) ? 'singleBar' : 'multiBar' : "",
 						'data_labels' => $this->getDataLabels(),
 						'graph_label' => $this->getGraphLabel()
 					);
