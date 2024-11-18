@@ -134,7 +134,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 		$org_phone = $adb->query_result($result,0,"phone");
 		$org_fax = $adb->query_result($result,0,"fax");
 		$org_taxid = $adb->query_result($result,0,"tax_id");
-		$org_irs = $adb->query_result($result,0,"irs");
+		$org_irs = $adb->query_result($result,0,"irsname");
 		$org_website = $adb->query_result($result,0,"website");
 
 		$logo_name = decode_html($adb->query_result($result,0,"logoname"));
@@ -376,10 +376,6 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 		$producttotal = $taxable_total;
 		$total_taxes = '0.00';
 		
-		$datei = fopen("test/final_details.txt","a+");
-		fwrite($datei, print_r($final_details, TRUE));
-		fclose($datei);
-		
 		if($focus->column_fields["hdnTaxType"] == "individual") {
 			$total_tax_percent = '0.00';
 			//This loop is to get all tax percentage and then calculate the total of all taxes
@@ -479,7 +475,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 
 	if($qr_feature == true) {
 		//$bank_iban
-// 		//Funktion zur Generierung einer zufälligen IBAN
+// 		//Function for generating a random IBAN
 // 		function generateUniqueIBAN() {
 // 			// Ländercode und Prüfziffer
 // 			$qriban = 'CH'; // Schweiz
@@ -507,39 +503,32 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 		'Schweiz' => 'CH',
 		'DEUTSCHLAND' => 'DE',
 		'Deutschland' => 'DE',
-
 		);
 
-
-			
 		foreach ($countrylist as $country => $country_code) {
 			if(strtoupper($org_country) == $country) {
 				$bill_country_code = $country_code;
 			}
-
 			if(strtoupper($ship_country) == $country) {
 				$ship_country_code = $country_code;
 			}
 		}
 
-		// Überprüfung, ob die Postleitzahl Buchstaben enthält
+		// Check if the postal code contains letters
 		if (preg_match('/[a-zA-Z]/', $org_code)) {
-			// Buchstaben entfernen und nur Zahlen beibehalten
 			$org_code = preg_replace('/[^0-9]/', '', $org_code);
 		}
 	
 		//create QR-Code
 
 		if(empty($org_name) || empty($org_address) || empty($org_code) || empty($org_city) || empty($bill_country_code)|| empty($contact_firstname) || empty($contact_lastname) || empty($ship_street) || empty($ship_code) || empty($ship_city) || empty($ship_country_code)) {
-    		// Ausgabe der Fehlermeldung
+    		// Output of the error message
     		var_dump('Fehler: Bitte füllen Sie alle Adressfelder für Rechnung und Lieferung bei Organisationen und Personen aus. (Adresse, Ort, Bundesland, PLZ und Land)');
 		} else {
 			$pdfDataObj['organisation']['name'] = $org_name;
 			$pdfDataObj['organisation']['hnr+street'] = $org_address;
 			$pdfDataObj['organisation']['zip+state'] = $org_code.' '.$org_city;
 			$pdfDataObj['organisation']['country'] = $bill_country_code;
-
-
 
 			$pdfDataObj['contact']['name'] = $contact_firstname.' '.$contact_lastname;
 			$pdfDataObj['contact']['street'] = explode(' ', $ship_street)[0];
@@ -557,17 +546,8 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 			$pdfDataObj['bill_number'] = strval($current_id);
 			$pdfDataObj['description'] = strval($focus->column_fields['description']);
 		}
-
-
 		if($pdfDataObj['payment']['currency'] != " ") {
-			// $datei = fopen("test/testData.txt","a+");
-			// fwrite($datei, print_r($pdfDataObj, TRUE));
-			// fclose($datei);
 			$createpngpath = createpng($pdfDataObj);
-			// $datei = fopen("test/testData.txt","a+");
-			// fwrite($datei, print_r('\ndone', TRUE));
-			// fclose($datei);
-
 		}
 	}
 	//************************BEGIN PDF FORMATING**************************
