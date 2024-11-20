@@ -163,7 +163,7 @@ class Users_List_View extends Settings_Vtiger_List_View {
 	 * Function to get listView count
 	 * @param Vtiger_Request $request
 	 */
-	function getListViewCount(Vtiger_Request $request): object{
+	function getListViewCount(Vtiger_Request $request): int{
 		$moduleName = $request->getModule();
 		$cvId = $request->get('viewname');
 		if(empty($cvId)) {
