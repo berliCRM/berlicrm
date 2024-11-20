@@ -15,12 +15,10 @@ class EmailTemplates_ListAjax_View extends EmailTemplates_List_View {
 		$this->exposeMethod('getPageCount');
 	}
 
-	function preProcess(Vtiger_Request $request) {
-		return true;
+	function preProcess(Vtiger_Request $request, $display=false):void {
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return true;
+	function postProcess(Vtiger_Request $request):void {
 	}
 
 	function process(Vtiger_Request $request) {
