@@ -115,7 +115,7 @@ var Vtiger_CustomView_Js = {
 			var chosenOption = jQuery(element);
 			selectedOptions.each(function(optionIndex, domOption){
 				var option = jQuery(domOption);
-				if(option.html() == chosenOption.html()) {
+				if(option.text() == chosenOption.text()) {
 					selectedValuesByOrder.push(option.val());
 					return false;
 				}
@@ -141,7 +141,7 @@ var Vtiger_CustomView_Js = {
 			var option = selectedOptions.filter('[value="'+selectedValue+'"]');
 			choicesList.each(function(choiceListIndex,element){
 				var liElement = jQuery(element);
-				if(liElement.find('div').html() == option.html()){
+				if(liElement.find('div').text() == option.text()){
 					choicesContainer.prepend(liElement);
 					return false;
 				}
