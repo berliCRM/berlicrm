@@ -33,6 +33,11 @@ class Portal_ListView_Model extends Vtiger_ListView_Model {
         
 		$listResult = $db->pquery($listQuery, array());
 
+        if($db->num_rows($listResult) === 0) {
+            $listViewRecordModels = array();
+            return $listViewRecordModels;
+        }
+
 		$listViewEntries = array();
         
         for($i = 0; $i < $db->num_rows($listResult); $i++) {
