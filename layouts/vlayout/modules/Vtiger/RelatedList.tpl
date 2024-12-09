@@ -26,9 +26,7 @@
                         <div class="btn-group">
                             {assign var=IS_SELECT_BUTTON value={$RELATED_LINK->get('_selectRelation')}}
                             <button type="button" class="btn addButton
-                                {if $IS_SELECT_BUTTON eq true} 
-                                    selectRelation 
-                                {/if} "
+                                {if $IS_SELECT_BUTTON eq true} selectRelation{/if}"
                                 {if $IS_SELECT_BUTTON eq true} 
                                     data-moduleName={$RELATED_LINK->get('_module')->get('name')} 
                                 {/if}
@@ -186,12 +184,16 @@
                                     {else if $RELATED_HEADERNAME eq 'filename'}
                                         {$RELATED_RECORD->get($RELATED_HEADERNAME)}
                                     {else if $HEADER_FIELD->get('uitype') eq '19' or $HEADER_FIELD->get('uitype') eq '21'}
-                                        {if {$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)|trim} neq '' && strlen($RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)) > 30  }
+                                        {assign var="NOLINEBREAKS_DISPLAYVALUE" value=(str_replace(array('\n','\r','\r\n','\t','<br>','<br >','<br/>','<br />'),array('','','','','','','',''),$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)))|trim}
+                                        <!-- we need the DisplayValue text without ' in it, because we need it to define data-content -->
+                                        {assign var="NOQUO_DISPLAYVALUE" value=(str_replace("'","&rsquo;",$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)))|trim}
+                                        {if $NOLINEBREAKS_DISPLAYVALUE neq '' && strlen($NOLINEBREAKS_DISPLAYVALUE) > 30 }
                                             <!--- RELATED_RECORD->getRawData()} -- rawData not exist --->
-                                            {substr($RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME),0,30)}...
-                                            <a style="margin-left: 2px;" href="#"  rel="popover" title="{vtranslate('Description', $MODULE)}" 
+                                            {substr($NOLINEBREAKS_DISPLAYVALUE,0,30)}...
+                                            <a style="margin-left: 2px;" href="#"  rel="popover" title="{vtranslate('Description', $MODULE)}"
+                                             
                                                 data-placement="bottom" data-trigger="hover" 
-                                                data-content="{$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}">
+                                                data-content='{$NOQUO_DISPLAYVALUE}'>
                                                 <i class="icon-info-sign"></i>
                                             </a>
                                         {else}
