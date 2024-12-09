@@ -62,7 +62,7 @@ class Vtiger_BasicAjax_Action extends Vtiger_Action_Controller {
             if(is_array($records)){
                 foreach($records as $moduleName=>$recordModels) {
                     foreach($recordModels as $recordModel) {
-                        $result[] = array('label'=>decode_html($recordModel->getName()), 'value'=>decode_html($recordModel->getName()), 'id'=>$recordModel->getId());
+                        $result[] = array('label'=>html_entity_decode($recordModel->getName(), ENT_QUOTES | ENT_HTML5), 'value'=>html_entity_decode($recordModel->getName(), ENT_QUOTES | ENT_HTML5), 'id'=>$recordModel->getId());
                     }
                 }
             }
