@@ -194,7 +194,15 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 			$entityInfo = null;
 			$fieldData = array();
 			foreach ($fieldMapping as $fieldName => $index) {
-				$fieldData[$fieldName] = $row[$fieldName];
+				$rowValue = $row[$fieldName];
+				// to prevent bug with low-up-case name of fields.
+				if(empty($row[$fieldName]) ){
+					$fieldNameLower = strtolower($fieldName);
+					if(!empty($row[$fieldNameLower]) ){
+						$rowValue = $row[$fieldNameLower];
+					}
+				}
+				$fieldData[$fieldName] = $rowValue;
 			}
 
 			$mergeType = $this->mergeType;
