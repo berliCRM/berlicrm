@@ -1301,7 +1301,7 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 			function(data) {
 				if (data.success == false) {
 					var params = {};
-					params['text'] = app.vtranslate('JS_DUPLICATE_LABEL');
+					params['text'] = app.vtranslate(data.error.message);
 					Settings_Vtiger_Index_Js.showMessage(params);
 					progressIndicatorElement.progressIndicator({'mode' : 'hide'});
 					aDeferred.reject();

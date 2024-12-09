@@ -1104,6 +1104,9 @@ $jsLanguageStrings = array(
     //Copy in CustomView
     'JS_COPY_APPENDIX'=>' (Kopie)',
 
+	//field label settings edit menue response
+	'JS_DUPLICATE_LABEL' => 'keine Umbenennung, Duplikat erkannt',
+	'JS_LENGTHEXCEEDED' => 'der Feldname ist zu lang, bis zu 50 Zeichen sind erlaubt',
 
 );
 ?>
