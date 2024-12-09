@@ -117,7 +117,7 @@ class CRMEntity {
 	 *      @param array $file_details  - array which contains the file information(name, type, size, tmp_name and error)
 	 *      return void
 	 */
-	function uploadAndSaveFile($id, $module, $file_details, $attachmentType='Attachment') {
+	function uploadAndSaveFile($id, $module, $file_details, $attachmentType='Attachment', $internalFile = false) {
 		global $log;
 		$log->debug("Entering into uploadAndSaveFile($id,$module,$file_details) method.");
 
@@ -174,7 +174,11 @@ class CRMEntity {
 		$upload_file_path = decideFilePath();
 
 		//upload the file in server
-		$upload_status = move_uploaded_file($filetmp_name, $upload_file_path . $current_id . "_" . $binFile);
+		if ($internalFile) {
+						$upload_status = rename($filetmp_name, $upload_file_path . $current_id . "_" . $binFile);
+		} else {
+						$upload_status = move_uploaded_file($filetmp_name, $upload_file_path . $current_id . "_" . $binFile);
+		}
 
 		if ($save_file == 'true' && $upload_status == 'true') {
 			//This is only to update the attached filename in the vtiger_notes vtiger_table for the Notes module
