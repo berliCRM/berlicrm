@@ -21,7 +21,7 @@ class Leads_SaveConvertLead_View extends Vtiger_View_Controller {
 		}
 	}
 
-	public function preProcess(Vtiger_Request $request) {
+	public function preProcess(Vtiger_Request $request, $display=true) {
 	}
 
 	public function process(Vtiger_Request $request) {
