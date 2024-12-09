@@ -136,7 +136,8 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 
 		if ($currentUserModel->get('default_record_view') === 'Summary') {
 			echo $this->showModuleBasicView($request);
-		} else {
+		}
+		else {
 			echo $this->showModuleDetailView($request);
 		}
 	}
@@ -157,10 +158,12 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		if(empty($selectedTabLabel)) {
             if($currentUserModel->get('default_record_view') === 'Detail') {
                 $selectedTabLabel = vtranslate('SINGLE_'.$moduleName, $moduleName).' '. vtranslate('LBL_DETAILS', $moduleName);
-            } else{
+            } 
+			else{
                 if($moduleModel->isSummaryViewSupported()) {
                     $selectedTabLabel = vtranslate('SINGLE_'.$moduleName, $moduleName).' '. vtranslate('LBL_SUMMARY', $moduleName);
-                } else {
+                } 
+				else {
                     $selectedTabLabel = vtranslate('SINGLE_'.$moduleName, $moduleName).' '. vtranslate('LBL_DETAILS', $moduleName);
                 }
             }
@@ -415,11 +418,13 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		// Added to support related list view from the related module, rather than the base module.
 		try {
 			$targetControllerClass = Vtiger_Loader::getComponentClassName('View', 'In'.$moduleName.'Relation', $relatedModuleName);
-		}catch(AppException $e) {
+		}
+		catch(AppException $e) {
 			try {
 				// If any module wants to have same view for all the relation, then invoke this.
 				$targetControllerClass = Vtiger_Loader::getComponentClassName('View', 'InRelation', $relatedModuleName);
-			}catch(AppException $e) {
+			}
+			catch(AppException $e) {
 				// Default related list
 				$targetControllerClass = Vtiger_Loader::getComponentClassName('View', 'RelatedList', $moduleName);
 			}
@@ -437,6 +442,9 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 	 */
 	function showChildComments(Vtiger_Request $request) {
 		$parentCommentId = $request->get('commentid');
+		
+		$moduleName = $request->getModule();
+
 		$parentCommentModel = ModComments_Record_Model::getInstanceById($parentCommentId);
 		$childComments = $parentCommentModel->getChildComments();
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();

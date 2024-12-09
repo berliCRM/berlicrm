@@ -24,7 +24,15 @@
 					<div class="span11 commentorInfo">
 						{assign var=COMMENTOR value=$COMMENT->getCommentedByModel()}
 						<div class="inner">
-							<span class="commentorName pull-left"><strong>{if $COMMENTOR}{$COMMENTOR->getName()}{else}{vtranslate('LBL_DELETED')}{/if}</strong></span>
+							<span class="commentorName pull-left">
+								<strong>
+									{if $COMMENTOR}
+										{$COMMENTOR->getName()}
+									{else}
+										{vtranslate('LBL_DELETED')}
+									{/if}
+								</strong>
+							</span>
 							<span class="pull-right">
 								<p class="muted"><small title="{Vtiger_Util_Helper::formatDateTimeIntoDayString($COMMENT->getCommentedTime())}">{Vtiger_Util_Helper::formatDateDiffInStrings($COMMENT->getCommentedTime())}&nbsp;&nbsp; ({Vtiger_Util_Helper::convertDateTimeIntoUsersDisplayFormat($COMMENT->getCommentedTime())})</small></p>
 							</span>
@@ -65,7 +73,8 @@
 							<a class="cursorPointer replyComment"><i class="icon-share-alt"></i>{vtranslate('LBL_REPLY',$MODULE_NAME)}</a>
 						{/if}
 						{if $CURRENTUSER->getId() eq $COMMENT->get('userid') && $EDIT_PERMISSION}
-							{if $CREATE_PERMISSION}&nbsp;<span style="color:black">|</span>&nbsp;{/if}
+							{if $CREATE_PERMISSION}&nbsp;<span style="color:black">|</span>&nbsp;
+							{/if}
 							<a class="cursorPointer editComment feedback">
 								{vtranslate('LBL_EDIT',$MODULE_NAME)}
 							</a>
@@ -73,7 +82,8 @@
 					</span>
 					{assign var=CHILD_COMMENTS_COUNT value=$COMMENT->getChildCommentsCount()}
 					{if $CHILD_COMMENTS_MODEL neq null and ($CHILDS_ROOT_PARENT_ID neq $PARENT_COMMENT_ID)}
-						{if $EDIT_PERMISSION}&nbsp;<span style="color:black">|</span>&nbsp;{/if}
+						{if $EDIT_PERMISSION}&nbsp;<span style="color:black">|</span>&nbsp;
+						{/if}
 						<span class="viewThreadBlock" data-child-comments-count="{$CHILD_COMMENTS_COUNT}">
 							<a class="cursorPointer viewThread">
 								{if $CHILD_COMMENTS_COUNT eq 1}
@@ -94,9 +104,14 @@
 								&nbsp;<img class="alignMiddle" src="{vimage_path('downArrowSmall.png')}" />
 							</a>
 						</span>
-
 					{elseif $CHILD_COMMENTS_MODEL neq null and ($CHILDS_ROOT_PARENT_ID eq $PARENT_COMMENT_ID)}
-						{if $CREATE_PERMISSION || $EDIT_PERMISSION}&nbsp;<span style="color:black">|</span>&nbsp;{/if}
+						{if $CREATE_PERMISSION || $EDIT_PERMISSION}
+							&nbsp;
+							<span style="color:black">
+								|
+							</span>
+							&nbsp;
+						{/if}
 						<span class="hide viewThreadBlock" data-child-comments-count="{$CHILD_COMMENTS_COUNT}">
 							<a class="cursorPointer viewThread">
 								{if $CHILD_COMMENTS_COUNT eq 1}
