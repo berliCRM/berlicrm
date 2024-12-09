@@ -218,6 +218,8 @@ class Vtiger_ModuleBasic {
 		if($this->isentitytype) {
 			$this->unsetEntityIdentifier();
 			$this->deleteRelatedLists();
+			$this->deleteTables();
+			$this->deleteModuleFiles();
 		}
 
 		$adb->pquery("DELETE FROM vtiger_tab WHERE tabid=?", Array($this->id));
@@ -326,6 +328,7 @@ class Vtiger_ModuleBasic {
 	function unsetEntityIdentifier() {
 		global $adb;
 		$adb->pquery("DELETE FROM vtiger_entityname WHERE tabid=?", Array($this->id));
+		$adb->pquery("DELETE FROM vtiger_modentity_num WHERE semodule = ?", array($this->name));
 		self::log("Unsetting entity identifier ... DONE");
 	}
 
@@ -334,7 +337,7 @@ class Vtiger_ModuleBasic {
 	 */
 	function deleteRelatedLists() {
 		global $adb;
-		$adb->pquery("DELETE FROM vtiger_relatedlists WHERE tabid=?", Array($this->id));
+		$adb->pquery("DELETE FROM vtiger_relatedlists WHERE tabid = ? OR related_tabid = ?", Array($this->id, $this->id));
 		self::log("Deleting related lists ... DONE");
 	}
 
@@ -442,6 +445,51 @@ class Vtiger_ModuleBasic {
 		self::log("Updating tabdata file ... ", false);
 		create_tab_data_file();
 		self::log("DONE");
+	}
+	
+	private function deleteTables() {
+		global $adb;
+		
+		$baseTable = $this->basetable;
+		if (!empty($baseTable)) {
+			$cfTable = $baseTable.'cf';
+			$query = "DROP TABLE $cfTable;";
+			$adb->pquery($query, array());
+			$query = "DROP TABLE $baseTable;";
+			$adb->pquery($query, array());
+			// todo: find the time to drop picklist tables
+		}
+		
+		return true;
+	}
+	
+	private function deleteModuleFiles() {
+		if (!empty($this->name)) {
+			$path = "modules/{$this->name}/";
+			$this->recDelDir($path);
+			$path = "layouts/vlayout/modules/{$this->name}/";
+			$this->recDelDir($path);
+			// todo: delete language files
+		}
+		return true;
+	}
+	
+	private function recDelDir($path) {
+		if (!empty($path) && is_dir($path)) {
+			$it = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
+			$files = new RecursiveIteratorIterator($it,
+						 RecursiveIteratorIterator::CHILD_FIRST);
+			foreach($files AS $file) {
+				if ($file->isDir()){
+					rmdir($file->getPathname());
+				} else {
+					unlink($file->getPathname());
+				}
+			}
+			rmdir($path);
+		}
+		
+		return true;
 	}
 }
 ?>
