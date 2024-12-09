@@ -212,6 +212,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", Array($this->getModuleId(),
         Vtiger_Profile::deleteForField($this);
 
         $adb->pquery("DELETE FROM vtiger_field WHERE fieldid=?", Array($this->id));
+        $adb->pquery("ALTER TABLE ".$this->table." DROP ".$this->name." ", Array());
         self::log("Deleteing Field $this->name ... DONE");
     }
 
