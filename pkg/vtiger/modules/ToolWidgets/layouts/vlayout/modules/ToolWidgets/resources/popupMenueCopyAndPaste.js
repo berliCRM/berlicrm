@@ -19,6 +19,20 @@ jQuery.Class("ToolWidgets_popupMenueCopyAndPaste_Js",{
 		});
 	},
 
+	registerCopyButton: function () {
+		jQuery('#copy-button').on('click', function () {
+			var textToCopy = jQuery('#copy-text').value;
+			navigator.clipboard.writeText(textToCopy);
+			jQuery('#copied').show();
+		})
+	},
+
+	registerCloseCopied: function () {
+		jQuery('#close-copied').on('click', function () {
+			$("#copied").hide();
+		})
+	},
+
 	showmenu: function(element) {
 		var recordid = jQuery('#recordid').val();
 		var sourcemodule = jQuery('#sourcemodule').val();
@@ -45,20 +59,9 @@ jQuery.Class("ToolWidgets_popupMenueCopyAndPaste_Js",{
 						});
 					}
 					app.showModalWindow(data, function(data){
-						$("#copied").hide();
-						const copyButton = document.getElementById("copy-button");
-						const textToCopy = document.getElementById("copy-text").value;
-
 						if(typeof callbackFunction == 'function' && jQuery('#transferPopupScroll').height() > 400){
 							callbackFunction(data);
-							console.log(data.toString());
 						}
-						copyButton.addEventListener("click", function() {
-							navigator.clipboard.writeText(textToCopy)
-								.then(() => $("#copied").show())
-								.catch(err => console.log("could not copy text: ",err));
-
-						});		
 					});
 			},
 			function(error){
@@ -70,6 +73,8 @@ jQuery.Class("ToolWidgets_popupMenueCopyAndPaste_Js",{
 	
 	registerEvents : function(){
 		this.registerCopyPasteButtonEvent();
+		this.registerCopyButton();
+		this.registerCloseCopied();
 	}
 
 },{
