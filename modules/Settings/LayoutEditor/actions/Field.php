@@ -49,7 +49,7 @@ class Settings_LayoutEditor_Field_Action extends Settings_Vtiger_Index_Action {
 	
 		if ($request->get("changelabel") && $request->get("newlabelValue") != '') {
 		
-			if (strlen($request->get("newlabelValue"))>32) {
+			if (strlen($request->get("newlabelValue"))>50) {
 				$response = new Vtiger_Response();
 				$response->setError('JS_LENGTHEXCEEDED');
 				$response->emit();
