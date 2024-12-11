@@ -147,21 +147,11 @@ abstract class Vtiger_View_Controller extends Vtiger_Action_Controller {
 		$currentUser = Users_Record_Model::getCurrentUserModel();
 		$viewer = $this->getViewer($request);
 
-		// es gib da ein unterschied. Sobald die Signatur einmal mit cke-Editor mit "Quellcode" bearbeitet wurde, wird es /n geben. Davor aber nicht.
 		$signatureUnformatted = $currentUser->get('signature');
-		if(!empty($signatureUnformatted) && strpos($signatureUnformatted, '\n') !== false ){
-			// <pre> tag darf nicht im Signatur sein, da dort keine <br> dazu erscheinen, und deswegen es hier in "einer Zeile" erscheinen wird.
-			// kann nur mit viel Aufwand abgefangen werden, aber wenn es mehrere <pre> tag gibt, verkompliziert es das ganze.
-			$signaturetext=(str_replace(array('\r\n', '\n'),'',$signatureUnformatted ));
-		}
-		else{
-			// wenn \n nicht gefunden wurde, ist es entweder ohne umbruche oder anders formatiert und wir sollten nichts entfernen.
-			$signaturetext = $signatureUnformatted;
-		}
-		// da es dort am Anfang der Umbruch fehlen kann (und es unschön an Antworttext kleben kann), diesen dazu addieren.
-		$signaturetext = '&lt;br /&gt;'.$signaturetext;
-		$viewer->assign('SIGNATURETEXT', $signaturetext);
+		// Decode the escaped characters (\n -> actual newline)
+		$signaturetext = str_replace('\n', "\n", $signatureUnformatted);
 
+		$viewer->assign('SIGNATURETEXT', $signaturetext);
 
 		$viewer->assign('PAGETITLE', $this->getPageTitle($request));
 		$viewer->assign('SCRIPTS',$this->getHeaderScripts($request));
