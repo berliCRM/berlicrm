@@ -133,26 +133,29 @@ class Users_SaveAjax_Action extends Vtiger_SaveAjax_Action {
          * @param Vtiger_Request Object
          */
         public function restoreUser(Vtiger_Request $request) {
-                $moduleName = $request->getModule();
-                $record = $request->get('userid');
-                
-                $recordModel = Users_Record_Model::getInstanceById($record, $moduleName);
-                $recordModel->set('status', 'Active');
-                $recordModel->set('id', $record);
-                $recordModel->set('mode', 'edit');
-                $recordModel->set('user_hash', $recordModel->getUserHash());
-                $recordModel->save();
-                
-                $db = PearDatabase::getInstance();
-				$date_var = date('Y-m-d H:i:s');
-                $db->pquery("UPDATE vtiger_users SET deleted=?, date_modified=? WHERE id=?", array(0,$db->formatDate($date_var, true),$record));
-                
-                $userModuleModel = Users_Module_Model::getInstance($moduleName);
-		$listViewUrl = $userModuleModel->getListViewUrl();
-		
-		$response = new Vtiger_Response();
-		$response->setResult(array('message'=>vtranslate('LBL_USER_RESTORED_SUCCESSFULLY', $moduleName), 'listViewUrl' => $listViewUrl));
-		$response->emit();
+			$moduleName = $request->getModule();
+			$record = $request->get('userid');
+			
+			$recordModel = Users_Record_Model::getInstanceById($record, $moduleName);
+			$recordModel->set('status', 'Active');
+			$recordModel->set('id', $record);
+			$recordModel->set('mode', 'edit');
+			$recordModel->set('user_hash', $recordModel->getUserHash());
+			$recordModel->save();
+			
+			$db = PearDatabase::getInstance();
+			$date_var = date('Y-m-d H:i:s');
+			$db->pquery("UPDATE vtiger_users SET deleted=?, date_modified=? WHERE id=?", array(0,$db->formatDate($date_var, true),$record));
+			// reset brute force protection
+			$query = "DELETE FROM berli_failed_logins WHERE user_name = ?;";
+			$db->pquery($query, array($recordModel->get('user_name')));
+			
+			$userModuleModel = Users_Module_Model::getInstance($moduleName);
+			$listViewUrl = $userModuleModel->getListViewUrl();
+			
+			$response = new Vtiger_Response();
+			$response->setResult(array('message'=>vtranslate('LBL_USER_RESTORED_SUCCESSFULLY', $moduleName), 'listViewUrl' => $listViewUrl));
+			$response->emit();
         }
 	
 	public function changeAccessKey(Vtiger_Request $request) {
