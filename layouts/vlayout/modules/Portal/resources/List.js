@@ -112,6 +112,7 @@ Vtiger_List_Js("Portal_List_Js",{
             });
             jQuery('#listViewContents').html(data);
             Portal_List_Js.updatePagination();
+            Portal_List_Js.getInstance().registerEvents();
         });
     },
     
@@ -166,6 +167,7 @@ Vtiger_List_Js("Portal_List_Js",{
     registerEditBookmark : function() {
         jQuery('.editRecord').on('click', function(e) {
             e.stopPropagation();
+            e.preventDefault();
             var currentTarget = jQuery(e.currentTarget);
             var id = currentTarget.closest('.listViewEntries').data('id');
             var params = {

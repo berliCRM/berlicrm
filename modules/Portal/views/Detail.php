@@ -17,9 +17,10 @@ class Portal_Detail_View extends Vtiger_Index_View {
     public function process(Vtiger_Request $request) {
         $recordId = $request->get('record');
         $module = $request->getModule();
+        $moduleModel = Vtiger_Module_Model::getInstance($module);
         
-        $url = Portal_Module_Model::getWebsiteUrl($recordId);
-        $recordList = Portal_Module_Model::getAllRecords();
+        $url = $moduleModel->getWebsiteUrl($recordId);
+        $recordList = $moduleModel->getAllRecords();
         
         $viewer = $this->getViewer($request);
         
