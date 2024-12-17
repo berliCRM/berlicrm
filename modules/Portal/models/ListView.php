@@ -13,7 +13,7 @@
  */
 class Portal_ListView_Model extends Vtiger_ListView_Model {
     
-	public function getListViewEntries($pagingModel) {
+	public function getListViewEntries($pagingModel):array {
         $db = PearDatabase::getInstance();
         $moduleModel = Vtiger_Module_Model::getInstance('Portal');
         
@@ -25,10 +25,9 @@ class Portal_ListView_Model extends Vtiger_ListView_Model {
         $orderBy = $this->get('orderby');
         $sortOrder = $this->get('sortorder');
 
-        if(!empty($orderBy))
+        if(!empty($orderBy)) {
             $listQuery .= ' ORDER BY '.$orderBy.' '.$sortOrder;
-        
-
+        }
 		$listQuery .= " LIMIT $startIndex,".($pageLimit);
         
 		$listResult = $db->pquery($listQuery, array());
@@ -39,7 +38,6 @@ class Portal_ListView_Model extends Vtiger_ListView_Model {
         }
 
 		$listViewEntries = array();
-        
         for($i = 0; $i < $db->num_rows($listResult); $i++) {
             $row = $db->fetch_row($listResult, $i);
             $listViewEntries[$row['portalid']] = array();

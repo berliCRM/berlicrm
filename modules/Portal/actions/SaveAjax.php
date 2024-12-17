@@ -10,7 +10,7 @@
 
 class Portal_SaveAjax_Action extends Vtiger_SaveAjax_Action {
     
-    public function process(Vtiger_Request $request) {
+    public function process(Vtiger_Request $request):void {
         $module = $request->getModule();
         $moduleModel = Vtiger_Module_Model::getInstance($module);
         $recordId = $request->get('record');

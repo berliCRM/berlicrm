@@ -20,7 +20,7 @@ class Portal_MassDelete_Action extends Vtiger_MassDelete_Action {
 		}
 	}
 
-    public function process(Vtiger_Request $request) {
+    public function process(Vtiger_Request $request):void {
         $module = $request->getModule();
         $moduleModel = Vtiger_Module_Model::getInstance($module);
 
