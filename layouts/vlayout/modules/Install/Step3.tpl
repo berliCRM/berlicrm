@@ -53,11 +53,13 @@
 									</td>
 									<td 
 										{if $INFO.2 eq false} class="no" >
-											{if $CONFIG_NAME = 'LBL_PHP_VERSION'}
+											{if $CONFIG_NAME eq 'LBL_PHP_VERSION'}
 												{$INFO.0}
 											{else}
 												{vtranslate('LBL_NO', 'Install')}
 											{/if}
+										{else if ($INFO.2 eq true and $INFO.1 === true and $CONFIG_NAME eq 'LBL_COMPOSER_LIBRARIES')} id="composer" > 
+											<img src="{vimage_path("vtbusy.gif")}">
 										{else if ($INFO.2 eq true and $INFO.1 === true)} > 
 											{vtranslate('LBL_YES', 'Install')} 
 										{else} > 
@@ -96,7 +98,7 @@
 				<div class="span8">
 					<div class="button-container">
 						<input type="button" class="btn btn-large" value="{vtranslate('LBL_BACK', 'Install')}" name="back"/>
-						<input type="button" class="btn btn-large btn-primary" value="{vtranslate('LBL_NEXT', 'Install')}" name="step4"/>
+						<input type="button" disabled class="btn btn-large btn-primary" value="{vtranslate('LBL_NEXT', 'Install')}" name="step4"/>
 					</div>
 				</div>
 			</div>

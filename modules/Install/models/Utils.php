@@ -124,14 +124,15 @@ class Install_Utils_Model {
 		$preInstallConfig = array();
 		// Name => array( System Value, Recommended value, supported or not(true/false) );
 		$preInstallConfig['LBL_PHP_VERSION']	= array(phpversion(), '5.4.0', (version_compare(phpversion(), '5.4.0', '>=')));
+		$preInstallConfig['LBL_COMPOSER_LIBRARIES']	= array('', true, true);
 		$preInstallConfig['LBL_IMAP_SUPPORT']	= array(function_exists('imap_open'), true, (function_exists('imap_open') == true));
 		$preInstallConfig['LBL_ZLIB_SUPPORT']	= array(function_exists('gzinflate'), true, (function_exists('gzinflate') == true));
-                if ($preInstallConfig['LBL_PHP_VERSION'] >= '5.5.0') {
-                    $preInstallConfig['LBL_MYSQLI_CONNECT_SUPPORT'] = array(extension_loaded('mysqli'), true, extension_loaded('mysqli'));
-                }
-                $preInstallConfig['LBL_OPEN_SSL'] = array(extension_loaded('openssl'), true, extension_loaded('openssl'));
-                $preInstallConfig['LBL_CURL'] = array(extension_loaded('curl'), true, extension_loaded('curl'));
-                $gnInstalled = false;
+			if ($preInstallConfig['LBL_PHP_VERSION'] >= '5.5.0') {
+				$preInstallConfig['LBL_MYSQLI_CONNECT_SUPPORT'] = array(extension_loaded('mysqli'), true, extension_loaded('mysqli'));
+			}
+			$preInstallConfig['LBL_OPEN_SSL'] = array(extension_loaded('openssl'), true, extension_loaded('openssl'));
+			$preInstallConfig['LBL_CURL'] = array(extension_loaded('curl'), true, extension_loaded('curl'));
+			$gnInstalled = false;
 		if(!function_exists('gd_info')) {
 			eval(self::$gdInfoAlternate);
 		}
@@ -424,16 +425,10 @@ class Install_Utils_Model {
 		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Require Package, Module und utils PHP files\n");
 		ob_start();
 
-		if (function_exists('shell_exec')) {
-		shell_exec('composer install');
-		} else {
-		 	throw new Exception('Function shell_exec does not exist or is deactivated.');
-		}
-
 		if (!file_exists('vendor/autoload.php')) {
 			throw new Exception('Error: Composer dependencies were not installed.');
 		}
-		require 'vendor/autoload.php';
+		require_once 'vendor/autoload.php';
 
 		$composer_classes = array("\Sprain\SwissQrBill\QrBill", "\PhpOffice\PhpSpreadsheet\Spreadsheet");
 
@@ -483,5 +478,22 @@ class Install_Utils_Model {
 		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." $tmp\n");
 		fclose($fh);
 		return true;
+	}
+
+	public static function installComposer() {
+		$cmd = 'composer install 2>&1';
+
+		$output = [];
+		$returnCode = 0;
+		exec($cmd, $output, $returnCode);
+		
+		file_put_contents(Install_Utils_Model::INSTALL_LOG, implode(PHP_EOL, $output), FILE_APPEND);
+
+		try {
+			require_once 'vendor/autoload.php';
+		} catch (\Throwable $th) {
+			$returnCode = 1;
+		}
+		return $returnCode === 0;
 	}
 }
