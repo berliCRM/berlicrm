@@ -691,19 +691,25 @@ function popup_decode_html($str) {
 //function added to check the text length in the listview.
 function textlength_check($field_val) {
 	global $listview_max_textlength, $default_charset;
+	
+	// Ensure default charset is UTF-8
+	$charset = $default_charset ?: 'UTF-8';
+	
 	if ($listview_max_textlength && $listview_max_textlength > 0) {
-		$temp_val = strip_tags(html_entity_decode($field_val));
-		if (function_exists('mb_strlen')) {
-			if (mb_strlen($temp_val) > $listview_max_textlength) {
-				$temp_val = mb_substr($temp_val, 0, $listview_max_textlength, $default_charset) . '...';
-			}
-		} elseif (strlen($field_val) > $listview_max_textlength) {
-			$temp_val = substr($temp_val, 0, $listview_max_textlength) . '...';
-		}
-	} else {
-		$temp_val = $field_val;
+	// Decode HTML entities and strip tags
+	$processedValue = strip_tags(html_entity_decode($field_val, ENT_QUOTES, $charset));
+	
+	// Check length of string in terms of UTF-8 characters
+	$charArray = preg_split('//u', $processedValue, -1, PREG_SPLIT_NO_EMPTY);
+	if (count($charArray) > $listview_max_textlength) {
+	$truncatedArray = array_slice($charArray, 0, $listview_max_textlength);
+	$processedValue = implode('', $truncatedArray) . '...';
 	}
-	return $temp_val;
+	} else {
+	$processedValue = $field_val;
+	}
+	
+	return $processedValue;
 }
 
 /**
