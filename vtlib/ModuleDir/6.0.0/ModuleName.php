@@ -97,7 +97,7 @@ class ModuleName extends Vtiger_CRMEntity {
 			include_once('vtlib/Vtiger/Module.php');
 			//adds sharing access
 			$moduleInstance  = Vtiger_Module::getInstance($moduleName);
-			Vtiger_Access::setDefaultSharing($moduleInstance);
+			// Vtiger_Access::setDefaultSharing($moduleInstance);
 			
 			$blockInstance = Vtiger_Block::getInstance('LBL_DESCRIPTION_INFORMATION', $moduleInstance);
 			if (!$blockInstance) {
