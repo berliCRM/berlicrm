@@ -4361,7 +4361,11 @@ class ReportRun extends CRMEntity
 					if ($type == 'date') {
 						if (!empty($value)) {
 							$date = new DateTimeField($value);
+							// fix issues with strtotime and date without time fields if default_time_zone isn't UTC
+							$prevTimezone = date_default_timezone_get();
+							date_default_timezone_set('UTC');
 							$value = PHPExcel_Shared_Date::PHPToExcel(strtotime($date->getDBInsertDateValue()));
+							date_default_timezone_set($prevTimezone);
 						}
 						
 						$worksheet->setCellValueByColumnAndRow($count, $rowcount, $value);
