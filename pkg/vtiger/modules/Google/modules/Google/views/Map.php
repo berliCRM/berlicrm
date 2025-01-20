@@ -12,21 +12,21 @@
 class Google_Map_View extends Vtiger_Detail_View {
 
     /**
-     * must be overridden
-     * @param Vtiger_Request $request
-     * @return boolean 
+     * must be overridden.
+     * @param Vtiger_Request $request 
+     * @param bool $display
+     * @return void 
      */
-    function preProcess(Vtiger_Request $request, $display=false) {
-        return true;
+    function preProcess(Vtiger_Request $request, $display=false):void {
     }
 
     /**
-     * must be overridden
-     * @param Vtiger_Request $request
-     * @return boolean 
+     * must be overridden.
+     * @param Vtiger_Request $request 
+     * @param bool $display
+     * @return void 
      */
-    function postProcess(Vtiger_Request $request) {
-        return true;
+    function postProcess(Vtiger_Request $request):void {
     }
 
     /**
@@ -35,7 +35,7 @@ class Google_Map_View extends Vtiger_Detail_View {
      * TODO : if viewtype : list then show the optimal route.    
      * @param Vtiger_Request $request 
      */
-    function process(Vtiger_Request $request) {
+    function process(Vtiger_Request $request):void {
         switch ($request->get('viewtype')) {
             case 'detail':$this->showLocation($request);
                 break;
@@ -47,7 +47,7 @@ class Google_Map_View extends Vtiger_Detail_View {
      * display the template.
      * @param Vtiger_Request $request 
      */
-    function showLocation(Vtiger_Request $request) {
+    function showLocation(Vtiger_Request $request):void {
 		$user = Users_Record_Model::getCurrentUserModel();
 		$viewer = $this->getViewer($request);
         // record and source_module values to be passed to populate the values in the template,

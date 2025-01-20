@@ -10,10 +10,10 @@
 
 class Calendar_Export_View extends Vtiger_Export_View {
 
-	public function preprocess(Vtiger_Request $request,$display=false) {
+	public function preprocess(Vtiger_Request $request,$display=false):void {
 	}
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$moduleName = $request->getModule();
 		$selected_ids = $request->get('selected_ids');
 
@@ -25,6 +25,6 @@ class Calendar_Export_View extends Vtiger_Export_View {
 		$viewer->view('Export.tpl', $moduleName);
 	}
 
-	public function postprocess(Vtiger_Request $request) {
+	public function postprocess(Vtiger_Request $request):void {
 	}
 }

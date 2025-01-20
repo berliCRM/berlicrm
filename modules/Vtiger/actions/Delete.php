@@ -35,7 +35,7 @@ class Vtiger_Delete_Action extends Vtiger_Action_Controller {
 		if($ajaxDelete) {
 			$response = new Vtiger_Response();
 			$response->setResult($listViewUrl);
-			$response;
+			$response->emit();
 		} else {
 			header("Location: $listViewUrl");
 		}
