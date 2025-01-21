@@ -295,6 +295,9 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	else {
 		$price_discount = "0.00";
 	}
+	// calculate netto price
+	$nettoprice = $price_subtotal - $price_discount;
+	$nettoprice_formated = number_format($nettoprice,$decimal_precision,$decimals_separator,$thousands_separator);
 	//Adjustment
 	$price_adjustment = $final_details["adjustment"];
 	$price_adjustment_formated = number_format($price_adjustment,$decimal_precision,$decimals_separator,$thousands_separator);

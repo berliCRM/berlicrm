@@ -249,6 +249,12 @@ If ($summaryradio == 'true') {
 			$pdf->SetXY( 144 , $line_y_location );
 			$pdf->Cell(54, $line_distance, decode_html($price_discount_formated),0,1,'R',0,1);
 			$line_y_location = $pdf->GetY();
+			// netto price
+			$pdf->SetXY( 105 , $line_y_location );
+			$pdf->Cell(110, $line_distance, $pdf_strings['LBL_NETTO_PRICE'],0,0,'L',0,0);
+			$pdf->SetXY( 144 , $line_y_location );
+			$pdf->Cell(54, $line_distance, $nettoprice_formated,0,1,'R',0,1);
+			$line_y_location = $pdf->GetY();
 		}
 
 		//line & text $price_salestax
