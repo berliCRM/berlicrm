@@ -1105,7 +1105,7 @@ class ReportRun extends CRMEntity
                         }
 						$valuearray = explode(",",trim($value));
 						$datatype = (isset($selectedfields[4])) ? $selectedfields[4] : "";
-						if(isset($valuearray) && count($valuearray) > 1 && $comparator != 'bw' && $comparator != 'y' && $comparator != 'ny') {
+						if(isset($valuearray) && count($valuearray) > 1 && $comparator != 'bw' && $comparator != 'y' && $comparator != 'ny' && !($fieldInfo['uitype'] == '10' || isReferenceUIType($fieldInfo['uitype']))) {
 
 							$advcolumnsql = "";
 							for($n=0;$n<count($valuearray);$n++) {
@@ -1228,7 +1228,19 @@ class ReportRun extends CRMEntity
                                 $fieldvalue = "(".$selectedfields[0].".".$selectedfields[1]." IS NULL OR ".$selectedfields[0].".".$selectedfields[1]." = '')";
 						} elseif($selectedfields[0] == 'vtiger_inventoryproductrel' ) {
 							if($selectedfields[1] == 'productid'){
-									$fieldvalue = "vtiger_products$moduleName.productname ".$this->getAdvComparator($comparator,trim($value),$datatype);
+									$advcolsql = array();
+									foreach ($valuearray AS $tmpVal) {
+										$advcolsql[] = "vtiger_products$moduleName.productname ".$this->getAdvComparator($comparator,trim($tmpVal),$datatype);
+									}
+									
+									//If negative logic filter ('not equal to', 'does not contain') is used, 'and' condition should be applied instead of 'or'
+									if($comparator == 'n' || $comparator == 'k') {
+										$advcolumnsql = implode(" AND ",$advcolsql);
+									} else {
+										$advcolumnsql = implode(" OR ",$advcolsql);
+									}
+									$fieldvalue = " (".$advcolumnsql.") ";
+									
 									$this->queryPlanner->addTable("vtiger_products$moduleName");
 							} else if($selectedfields[1] == 'serviceid'){
 								$fieldvalue = "vtiger_service$moduleName.servicename ".$this->getAdvComparator($comparator,trim($value),$datatype);
@@ -1248,15 +1260,25 @@ class ReportRun extends CRMEntity
 								$fieldvalue = $selectedfields[0].".".$selectedfields[1].$this->getAdvComparator($comparator, $value, $datatype);
 							}
 						} elseif($fieldInfo['uitype'] == '10' || isReferenceUIType($fieldInfo['uitype'])) {
-
+							$advcolsql = array();
 							$fieldSqlColumns = $this->getReferenceFieldColumnList($moduleName, $fieldInfo);
-							$comparatorValue = $this->getAdvComparator($comparator,trim($value),$datatype,$fieldSqlColumns[0]);
-							$fieldSqls = array();
+							foreach ($valuearray AS $tmpVal) {
+								$comparatorValue = $this->getAdvComparator($comparator,trim($tmpVal),$datatype,$fieldSqlColumns[0]);
+								$fieldSqls = array();
 
-							foreach($fieldSqlColumns as $columnSql) {
-							 	$fieldSqls[] = $columnSql.$comparatorValue;
+								foreach($fieldSqlColumns as $columnSql) {
+									$fieldSqls[] = $columnSql.$comparatorValue;
+								}
+								$advcolsql[] = ' ('. implode(' OR ', $fieldSqls).') ';
+								
+								//If negative logic filter ('not equal to', 'does not contain') is used, 'and' condition should be applied instead of 'or'
+								if($comparator == 'n' || $comparator == 'k') {
+									$advcolumnsql = implode(" AND ",$advcolsql);
+								} else {
+									$advcolumnsql = implode(" OR ",$advcolsql);
+								}
+								$fieldvalue = " (".$advcolumnsql.") ";
 							}
-							$fieldvalue = ' ('. implode(' OR ', $fieldSqls).') ';
 						// checkbox IS NULL exception
 						} elseif ($fieldInfo['uitype'] == '56' && $comparator == 'e' && $value == 0) {
 							$fieldvalue = "({$selectedfields[0]}.{$selectedfields[1]} = 0 OR {$selectedfields[0]}.{$selectedfields[1]} IS NULL)";
