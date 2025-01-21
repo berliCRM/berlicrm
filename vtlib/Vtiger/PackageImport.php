@@ -489,36 +489,75 @@ class Vtiger_PackageImport extends Vtiger_PackageExport {
 
 		$vtigerMinVersion = (string) $this->_modulexml->dependencies->vtiger_version;
 		$vtigerMaxVersion = (string) $this->_modulexml->dependencies->vtiger_max_version;
+		
+		try {
+		
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname Install START");
 
-		$moduleInstance = new Vtiger_Module();
-		$moduleInstance->name = $tabname;
-		$moduleInstance->label= $tablabel;
-        $moduleInstance->parent=$parenttab;
-		$moduleInstance->isentitytype = ($isextension != true);
-		$moduleInstance->version = (!$tabversion)? 0 : $tabversion;
-		$moduleInstance->minversion = (!$vtigerMinVersion)? false : $vtigerMinVersion;
-		$moduleInstance->maxversion = (!$vtigerMaxVersion)?  false : $vtigerMaxVersion;
-		$moduleInstance->save();
+			$moduleInstance = new Vtiger_Module();
+			$moduleInstance->name = $tabname;
+			$moduleInstance->label= $tablabel;
+			$moduleInstance->parent=$parenttab;
+			$moduleInstance->isentitytype = ($isextension != true);
+			$moduleInstance->version = (!$tabversion)? 0 : $tabversion;
+			$moduleInstance->minversion = (!$vtigerMinVersion)? false : $vtigerMinVersion;
+			$moduleInstance->maxversion = (!$vtigerMaxVersion)?  false : $vtigerMaxVersion;
+			$moduleInstance->save();
 
-		if(!empty($parenttab)) {
-			$menuInstance = Vtiger_Menu::getInstance($parenttab);
-			$menuInstance->addModule($moduleInstance);
+			if(!empty($parenttab)) {
+				$menuInstance = Vtiger_Menu::getInstance($parenttab);
+				$menuInstance->addModule($moduleInstance);
+			}
+			
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname Tables START");
+			$this->import_Tables($this->_modulexml);
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname Tables END");
+			
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname Blocks START");
+			$this->import_Blocks($this->_modulexml, $moduleInstance);
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname Blocks END");
+			
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname CustomViews START");
+			$this->import_CustomViews($this->_modulexml, $moduleInstance);
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname CustomViews END");
+			
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname SharingAccess START");
+			$this->import_SharingAccess($this->_modulexml, $moduleInstance);
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname SharingAccess END");
+			
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname Events START");
+			$this->import_Events($this->_modulexml, $moduleInstance);
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname Events END");
+			
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname Actions START");
+			$this->import_Actions($this->_modulexml, $moduleInstance);
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname Actions END");
+			
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname RelatedLists START");
+			$this->import_RelatedLists($this->_modulexml, $moduleInstance);
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname RelatedLists END");
+			
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname CustomLinks START");
+			$this->import_CustomLinks($this->_modulexml, $moduleInstance);
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname CustomLinks END");
+			
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname CronTasks START");
+			$this->import_CronTasks($this->_modulexml);
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname CronTasks END");
+			
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname POST.INSTALL START");
+			Vtiger_Module::fireEvent($moduleInstance->name,
+				Vtiger_Module::EVENT_MODULE_POSTINSTALL);
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname POST.INSTALL END");
+			
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname InitWebservices START");
+			$moduleInstance->initWebservice();
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname InitWebservices END");
+			
+			Vtiger_Utils::ModuleLog('PackageImport', "$tabname INSTALL FINISHED");
+		} catch (Exception $e) {
+			Vtiger_Utils::ModuleLog('PackageImport', $e);
 		}
-
-		$this->import_Tables($this->_modulexml);
-		$this->import_Blocks($this->_modulexml, $moduleInstance);
-		$this->import_CustomViews($this->_modulexml, $moduleInstance);
-		$this->import_SharingAccess($this->_modulexml, $moduleInstance);
-		$this->import_Events($this->_modulexml, $moduleInstance);
-		$this->import_Actions($this->_modulexml, $moduleInstance);
-		$this->import_RelatedLists($this->_modulexml, $moduleInstance);
-		$this->import_CustomLinks($this->_modulexml, $moduleInstance);
-		$this->import_CronTasks($this->_modulexml);
-
-		Vtiger_Module::fireEvent($moduleInstance->name,
-			Vtiger_Module::EVENT_MODULE_POSTINSTALL);
-
-		$moduleInstance->initWebservice();
 	}
 
 	/**
