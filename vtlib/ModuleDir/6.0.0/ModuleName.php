@@ -101,9 +101,9 @@ class ModuleName extends Vtiger_CRMEntity {
 			
 			$blockInstance = Vtiger_Block::getInstance('LBL_DESCRIPTION_INFORMATION', $moduleInstance);
 			if (!$blockInstance) {
-				$blockcf = new Vtiger_Block();
-				$blockcf->label = 'LBL_DESCRIPTION_INFORMATION';
-				$moduleInstance->addBlock($blockcf);
+				$blockInstance = new Vtiger_Block();
+				$blockInstance->label = 'LBL_DESCRIPTION_INFORMATION';
+				$moduleInstance->addBlock($blockInstance);
 			}
 			$description = Vtiger_Field::getInstance('description', $moduleInstance);
 			
