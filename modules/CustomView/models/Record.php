@@ -197,7 +197,7 @@ class CustomView_Record_Model extends Vtiger_Base_Model {
         $queryGenerator->parseAdvFilterList($transformedSearchParams, $glue);
 		
 		if ($moduleName == 'Documents') {
-			$folderValue = $this->get('folder_value');
+			$folderValue = $this->get('folderid');
 			if(!empty($folderValue)) {
 				$queryGenerator->addCondition('folderid', $folderValue, 'e');
 			}
