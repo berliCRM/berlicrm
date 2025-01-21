@@ -49,5 +49,7 @@ $pdf_strings = Array(
 	'MISSING_IMAGE' => 'Logo nicht zugewiesen',
 	'CREDITNUMBER' => 'Gutschriftnummer:',
 	'CREDITDATE' => 'Gutschriftdatum:',
+	'MANAGEMENT' => 'Geschäftsführung:',
+	'LBL_NETTO_PRICE' => 'Nettopreis:',
 	);
 ?>

@@ -50,5 +50,6 @@ $pdf_strings = Array(
 	'CREDITNUMBER' => 'Credit Number',
 	'CREDITDATE' => 'Credit Date',
 	'MANAGEMENT' => 'CEO:',
+	'LBL_NETTO_PRICE' => 'Netto price:',
 	);
 ?>
