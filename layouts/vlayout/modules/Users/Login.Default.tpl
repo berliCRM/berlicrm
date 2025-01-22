@@ -36,6 +36,9 @@
                         </div>
                     </div>
                     <div class="control-group signin-button">
+                        <div class="controls pull-right">
+                            <a href="requestPasswordReset.php" class="btn btn-link">{vtranslate('ForgotPassword', 'Users')}?</a>
+                        </div>
                         <div class="controls" id="login">
                             <button type="submit" class="btn btn-primary sbutton">Login</button>
                         </div>
