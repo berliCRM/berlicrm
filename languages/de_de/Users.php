@@ -338,7 +338,15 @@ $languageStrings = array(
 	//user's setup
 	'LBL_PREFERENCES'=>'Voreinstellungen',
 	'LBL_USERSIGNATUR' => 'Signatur',
-	
+	//password reset
+	'LBL_PASSWORD_RESET_REQUEST_SUBJECT' => 'CRM-Passwort zurücksetzen',
+	'LBL_PASSWORD_RESET_REQUEST_HELLO' => 'Hallo',
+	'LBL_PASSWORD_RESET_REQUEST_FIRST' => 'wir haben eine Anfrage erhalten, dein Passwort für dein CRM-Konto zurückzusetzen. 
+										Falls du diese Anfrage gestellt hast, klicke bitte auf den unten stehenden Link, um ein neues Passwort zu erstellen: ',
+	'LBL_PASSWORD_RESET_REQUEST_SECOND' => 'Der Link wurde am '.date("Y-m-d H:i:s").' erstellt und ist aus Sicherheitsgründen nur für 24 Stunden gültig. <br>
+											Sollte der Link abgelaufen sein, kannst du jederzeit eine neue Anfrage stellen. <br><br>
+											Falls du keine Anfrage zur Zurücksetzung deines Passworts gestellt hast, kannst du diese E-Mail ignorieren – dein Passwort bleibt unverändert. <br>
+											Solltest du Fragen haben oder Hilfe benötigen, wende dich gerne an unser Support-Team (info@crm-now.de).',
 );
 
 $jsLanguageStrings = array(
