@@ -22,7 +22,7 @@
                     <td>
                         <img src="test/logo/start_main.jpg" style="float:left;margin:3px;width:440px;">
                     <td>
-                    <form class="login-form" style="margin:0;" action="forgotPassword.php" method="POST">
+                    <form class="login-form" style="margin:0;" action="modules/Users/actions/RequestPassword.php" method="POST">
                         <div class="control-group">
                             <div class="controls">
                                 <label class="control-label" for="username"><b>Username</b></label>

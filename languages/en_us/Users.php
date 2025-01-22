@@ -338,6 +338,15 @@ $languageStrings = array(
 	//user's setup
 	'LBL_PREFERENCES'=>'Preferences',
 	'LBL_USERSIGNATUR' => 'Signature',
+	//password reset
+	'LBL_PASSWORD_RESET_REQUEST_SUBJECT' => 'Reset your CRM password',
+	'LBL_PASSWORD_RESET_REQUEST_HELLO' => 'Hello',
+	'LBL_PASSWORD_RESET_REQUEST_FIRST' => 'we have received a request to reset your password for your CRM account.
+										If you made this request, please click the link below to create a new password: ',
+	'LBL_PASSWORD_RESET_REQUEST_SECOND' => 'The link was created on '.date("Y-m-d H:i:s").' and is valid for 24 hours for security reasons. <br>
+											If the link has expired, you can request a new one at any time. <br><br>
+											If you did not request a password reset, you can ignore this email – your password remains unchanged. <br>
+											If you have any questions or need assistance, feel free to contact our support team (info@crm-now.de).',
 	
 );
 
