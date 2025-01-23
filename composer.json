@@ -4,6 +4,7 @@
     "type": "project",
     "require": {
         "sprain/swiss-qr-bill": "^3.2",
-        "phpoffice/phpspreadsheet": "^1.29"
+        "phpoffice/phpspreadsheet": "^1.29",
+        "adodb/adodb-php": "^5.22"
     }
 }

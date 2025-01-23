@@ -14,8 +14,8 @@
  ********************************************************************************/
 
 require_once 'include/logging.php';
-include_once 'libraries/adodb/adodb.inc.php';
-require_once 'libraries/adodb/adodb-xmlschema03.inc.php';
+include_once 'vendor/adodb/adodb-php/adodb.inc.php';
+require_once 'vendor/adodb/adodb-php/adodb-xmlschema03.inc.php';
 
 // Callback class useful to convert PreparedStatement Question Marks to SQL value
 // See function convertPS2Sql in PearDatabase below

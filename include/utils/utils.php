@@ -19,6 +19,7 @@
  * All Rights Reserved.
  * Contributor(s): ______________________________________..
  ********************************************************************************/
+include_once 'vendor/autoload.php';
 require_once('include/database/PearDatabase.php');
 require_once('include/ComboUtil.php'); //new
 require_once('include/utils/ListViewUtils.php');
@@ -40,8 +41,6 @@ require_once 'vtlib/Vtiger/Deprecated.php';
 
 require_once 'includes/runtime/Cache.php';
 require_once 'modules/Vtiger/helpers/Util.php';
-
-include_once 'vendor/autoload.php'; 
 
 // Constants to be defined here
 
