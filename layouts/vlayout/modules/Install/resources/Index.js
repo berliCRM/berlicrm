@@ -9,22 +9,6 @@
 jQuery.Class('Install_Index_Js', {}, {
 
 	registerEventForStep3 : function() {
-		var params = {
-			module : 'Install',
-			action : 'composerInstall'
-		}
-
-		AppConnector.request(params).then(function(response) {
-			if(response.result.success) {
-				jQuery('#composer').html(jQuery('#composer').prev().text());
-				jQuery('input[name="step4"]').removeAttr('disabled');
-			}
-			else {
-				jQuery('#composer').addClass('no');
-				jQuery('#composer').html('Failed installing composer. Run "Recheck" to retry installing composer!');
-			}
-		})
-
 		jQuery('#recheck').on('click', function() {
 			window.location.reload();
 		});
