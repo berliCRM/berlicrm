@@ -31,6 +31,7 @@ class Verteiler_showExportOptions_View extends Vtiger_View_Controller {
 		$recordid = $request->get('recordid');
 		
 		$viewer = new Vtiger_Viewer();
+		$viewer->registerPlugin('modifier', 'vtranslate', 'vtranslate');
 		$active_destination_module = array ();
 		
 		if(vtlib_isModuleActive('Campaigns')) {

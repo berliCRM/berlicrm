@@ -233,6 +233,7 @@ class Vtiger_WebUI extends Vtiger_EntryPoint {
 		} catch(Exception $e) {
 			if ($view) {
 				$viewer = new Vtiger_Viewer();
+				$viewer->registerPlugin('modifier', 'vtranslate', 'vtranslate');
 				$viewer->assign('MESSAGE', $e->getMessage());
 				$viewer->view('OperationNotPermitted.tpl', 'Vtiger');
 			} else {

@@ -7,8 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-
-vimport ('~/libraries/Smarty/libs/Smarty.class.php');
+use Smarty\Smarty;
 
 class Vtiger_Viewer extends Smarty {
 

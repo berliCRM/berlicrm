@@ -90,6 +90,16 @@ abstract class Vtiger_View_Controller extends Vtiger_Action_Controller {
         if (!$this->viewer) {
             global $vtiger_current_version;
             $viewer = new Vtiger_Viewer();
+
+            //register PHP functions to be used in template
+            $functionsArray = array('vtemplate_path', 'vtranslate', 'vresource_url', 'array_keys', 'vimage_path', 'ucfirst', 'stripos', 'date', 'decode_html', 'getPurifiedSmartyParameters',
+                                    'method_exists', 'trim', 'array_merge', 'array_map', 'array_key_exists', 'decimalFormat', 'isPermitted', 'sprintf', 'strpos', 'end', 'html_entity_decode', 
+                                    'getEntityName', 'json_decode', 'array_shift', 'getOwnerName', 'array_push', 'get_class', 'file_exists');
+
+            foreach ($functionsArray as $function) {
+                $viewer->registerPlugin('modifier', $function, $function);
+            }
+
             $viewer->assign('APPTITLE', getTranslatedString('APPTITLE'));
             $viewer->assign('VTIGER_VERSION', $vtiger_current_version);
             if (isset($_SESSION['svn_tag'])) {
