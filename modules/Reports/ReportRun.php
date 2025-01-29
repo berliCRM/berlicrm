@@ -4116,7 +4116,6 @@ class ReportRun extends CRMEntity
 	}
 
 	function getReportPDF($filterlist=false) {
-		require_once 'libraries/tcpdf/tcpdf.php';
 
 		$reportData = $this->GenerateReport("PDF",$filterlist);
         $arr_val = $reportData['data'];

@@ -89,5 +89,79 @@ class MYPDF extends TCPDF
 			//reset colors
 			$this->SetTextColor(0,0,0);
 	}
+	
+	/**
+	* formats a given text
+	* @param srting $maxwidth to which the text is formated, $text to be formated
+	* @return count
+	* @access public
+	*/
+	function WordWrapText(&$text, $maxwidth) {
+		$text = trim($text);
+		if ($text==='')
+			return 0;
+		$space = $this->GetStringWidth(' ');
+		$lines = explode("\n", $text);
+		$text = '';
+		$count = 0;
+
+		foreach ($lines as $line) {
+			$words = preg_split('/ +/', $line);
+			$width = 0;
+
+			foreach ($words as $word)
+			{
+			//special condition for empty lines
+			if ((bin2hex($word) == '0d') OR ($word == '')) $word = "&nbsp;";
+			$wordwidth = $this->GetStringWidth($word);
+			if ($width + $wordwidth <= $maxwidth) {
+					$width += $wordwidth + $space;
+					$text .= $word.' ';
+				}
+				else {
+					$width = $wordwidth + $space;
+					$text = rtrim($text)."\n".$word.' ';
+					$count++;
+				}
+			}
+			$text = rtrim($text)."\n";
+			$count++;
+		}
+		$text = rtrim($text);
+		return $count;
+	}
+
+	/**
+	* checks whether a new page must be added
+	* @param srting $y_location current location
+	* @return true/false
+	* @access public
+	*/
+	function CheckPageBreakPDF($y_location) {
+		//If the next line would cause an overflow, add a new page immediately
+		if($y_location >$this->PageBreakTrigger) {
+			$this->AddPage($this->CurOrientation);
+			return (true);
+		}
+		else {
+			return (false);
+		}
+	}
+	/**
+	* checks whether a new page must be added to have enough space for the summary
+	* @param srting $h hight of the summary
+	* @return true/false
+	* @access public
+	*/
+	function CheckPageBreakSummary($h) {
+		//If the height h would cause an overflow, add a new page immediately
+		if($this->GetY()+$h>($this->PageBreakTrigger)) {
+			$this->AddPage($this->CurOrientation);
+			return (true);
+		}
+		else {
+			return (false);
+		}
+	}
 }
 ?>

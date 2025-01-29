@@ -8,8 +8,6 @@
  *
  ********************************************************************************/
 function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
-	require_once('libraries/tcpdf/tcpdf.php');
-	require_once('libraries/tcpdf/config/tcpdf_config.php');
 	require_once('modules/Invoice/Invoice.php');
 	require_once('modules/Invoice/pdf_templates/footer.php');
 	require_once('include/database/PearDatabase.php');

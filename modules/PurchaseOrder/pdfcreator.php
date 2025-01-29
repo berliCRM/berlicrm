@@ -8,8 +8,6 @@
  *
  ********************************************************************************/
 function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
-	require_once('libraries/tcpdf/tcpdf.php');
-	require_once('libraries/tcpdf/config/tcpdf_config.php');
 	require_once('modules/PurchaseOrder/PurchaseOrder.php');
 	require_once('modules/PurchaseOrder/pdf_templates/footer.php');
 	require_once('include/database/PearDatabase.php');
@@ -491,7 +489,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	//formating company name for file name
 	$export_org = utf8_decode($vendor_name);
 	$export_org = decode_html(strtolower($export_org));
-    $export_org = str_replace(array(" ","ö","ä","ü","ß","Ö","Ä","Ü","/","\\"),array("_","oe","ae","ue","ss","Oe","Ae","Ue","_","_"),$export_org);
+    $export_org = str_replace(array(" ","ï¿½","ï¿½","ï¿½","ï¿½","ï¿½","ï¿½","ï¿½","/","\\"),array("_","oe","ae","ue","ss","Oe","Ae","Ue","_","_"),$export_org);
 	//remove not printable ascii char
 	$export_org = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $export_org);
 
