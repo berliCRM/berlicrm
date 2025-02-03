@@ -466,7 +466,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 			this.rowSequenceHolder = 1;
 			var parentO = this;
 			jQuery('.' + this.rowClass, this.getLineItemContentsContainer()).each(function (key, ele) {
-				var tmpIdNo = jQuery(ele).attr('id').replace(/row/, '');
+				var tmpIdNo = parseInt(jQuery(ele).attr('id').replace(/row/, ''), 0);
 				if (tmpIdNo > parentO.rowSequenceHolder) {
 					parentO.rowSequenceHolder = tmpIdNo;
 				}
