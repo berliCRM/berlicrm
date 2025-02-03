@@ -9,6 +9,64 @@
 
 Vtiger_Detail_Js("Documents_Detail_Js", {
 	
+	document: addEventListener('DOMContentLoaded', function () {
+		const previewBox = document.createElement('div');
+		previewBox.id = 'pdf-preview-box';
+		previewBox.style.position = 'absolute';
+		previewBox.style.display = 'none';
+		previewBox.style.border = '1px solid #ccc';
+		previewBox.style.background = '#fff';
+		previewBox.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+		previewBox.style.padding = '10px';
+		previewBox.style.zIndex = '1000';
+		previewBox.style.overflow = 'auto';
+		document.body.appendChild(previewBox);
+
+		const closePreviewButton = document.createElement('button');
+		closePreviewButton.textContent = '×';
+		closePreviewButton.style.position = 'absolute';
+		closePreviewButton.style.top = '8px';
+		closePreviewButton.style.right = '8px';
+		closePreviewButton.style.background = 'white';
+		closePreviewButton.style.border = 'none';
+		closePreviewButton.style.fontSize = '25px';
+		closePreviewButton.style.cursor = 'pointer';
+		closePreviewButton.style.color = '#333';
+		const linkElement = $('[id$="_filename"]');
+
+		// Button zur Box hinzufügen
+		previewBox.appendChild(closePreviewButton);
+		document.body.appendChild(previewBox);
+	
+		// Event-Listener für Schließen-Button
+		closePreviewButton.addEventListener('click', function () {
+			previewBox.style.display = 'none';
+		});
+
+		linkElement.on('mouseenter', function (e) {
+
+			const pdfUrl = this.dataset.pdfPreview;
+			console.log(linkElement.find('a'));
+
+			previewBox.innerHTML = `<iframe id="preview" src="`+linkElement.find('a').attr('href')+`" width="300" height="400" frameborder="0"></iframe>`;
+			previewBox.appendChild(closePreviewButton);
+			previewBox.style.display = 'block';
+			const linkRect = this.getBoundingClientRect();
+			previewBox.style.left = `${linkRect.right + 10}px`; // Rechts neben dem Link
+			previewBox.style.top = `${linkRect.top}px`;
+		});
+
+		linkElement.on('click', function (e) {
+			e.preventDefault();
+			const downloadLink = document.createElement('a');
+			downloadLink.href = this.href;
+			downloadLink.download = '';
+			document.body.appendChild(downloadLink);
+			downloadLink.click(); 
+			document.body.removeChild(downloadLink);
+		});
+	}),
+
 	//It stores the CheckFileIntegrity response data
 	checkFileIntegrityResponseCache : {},
 	

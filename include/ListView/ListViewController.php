@@ -240,23 +240,23 @@ class ListViewController {
 					$fileIdQuery = "select attachmentsid from vtiger_seattachmentsrel where crmid=?";
 					$fileIdRes = $db->pquery($fileIdQuery,array($recordId));
 					$fileId = $db->query_result($fileIdRes,0,'attachmentsid');
-					if($fileName != '' && $status == 1) {
-						if($downloadType == 'I' ) {
-							$value = '<a onclick="Javascript:Documents_Index_Js.updateDownloadCount(\'index.php?module=Documents&action=UpdateDownloadCount&record='.$recordId.'\');"'.
-									' href="index.php?module=Documents&action=DownloadFile&record='.$recordId.'&fileid='.$fileId.'"'.
-									' title="'.	getTranslatedString('LBL_DOWNLOAD_FILE',$module).
-									'" >'.textlength_check($value).
-									'</a>';
-						} elseif($downloadType == 'E') {
-							$value = '<a onclick="Javascript:Documents_Index_Js.updateDownloadCount(\'index.php?module=Documents&action=UpdateDownloadCount&record='.$recordId.'\');"'.
-									' href="'.$fileName.'" target="_blank"'.
-									' title="'.	getTranslatedString('LBL_DOWNLOAD_FILE',$module).
-									'" >'.textlength_check($value).
-									'</a>';
+					if ($fileName != '' && $status == 1) {
+						if ($downloadType == 'I') {
+							$value = '<a onclick="Javascript:Documents_Index_Js.updateDownloadCount(\'index.php?module=Documents&action=UpdateDownloadCount&record=' . $recordId . '\');"' .
+								' href="index.php?module=Documents&action=DownloadFile&record=' . $recordId . '&fileid=' . $fileId . '"' .
+								' title="' . getTranslatedString('LBL_DOWNLOAD_FILE', $module) . '" class="pdf-link" data-pdf-preview="index.php?module=Documents&action=DownloadFile&record=' . $recordId . '&fileid=' . $fileId . '">' .
+								textlength_check($value) .
+								'</a>';
+						} elseif ($downloadType == 'E') {
+							$value = '<a onclick="Javascript:Documents_Index_Js.updateDownloadCount(\'index.php?module=Documents&action=UpdateDownloadCount&record=' . $recordId . '\');"' .
+								' href="' . $fileName . '" target="_blank"' .
+								' title="' . getTranslatedString('LBL_DOWNLOAD_FILE', $module) . '" class="pdf-link" data-pdf-preview="' . $fileName . '">' .
+								textlength_check($value) .
+								'</a>';
 						} else {
 							$value = ' --';
 						}
-					}
+					}										
 					$value = $fileicon.$value;
 				} elseif($module == 'Documents' && $fieldName == 'filesize') {
 					$downloadType = $db->query_result($result,$i,'filelocationtype');

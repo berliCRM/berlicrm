@@ -73,6 +73,8 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 			$filePath = $fileDetails['path'];
 			$fileName = $fileDetails['name'];
 
+			$contentType = explode(".", $fileName)[1];
+			
 			if ($this->get('filelocationtype') == 'I') {
 				$fileName = html_entity_decode($fileName, ENT_QUOTES, vglobal('default_charset'));
 				// Include the attachmentsid in the saved file name
@@ -89,8 +91,18 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 				header("Cache-Control:");
 				header("Cache-Control: public");
 				header("Accept-Ranges: bytes");
-				header('Content-Disposition: attachment; filename="' . basename($downloadFileName) . '"');
-				header("Content-type: application/octet-stream");
+				if($contentType == 'pdf'){
+					header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
+					header("Content-type: application/pdf");
+				}
+				elseif($contentType == 'jpg' || 'png'){
+					header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
+					header("Content-type: image/jpg");
+				}
+				else{
+					header('Content-Disposition: attachment; filename="' . basename($downloadFileName) . '"');
+					header("Content-type: application/octet-stream");
+				}
 				header("Connection: close");
 
 				//check if http_range is sent by browser (or download manager)
