@@ -1519,17 +1519,7 @@ jQuery.Class("Vtiger_Detail_Js",{
 		closePreviewButton.style.fontSize = '25px';
 		closePreviewButton.style.cursor = 'pointer';
 		closePreviewButton.style.color = '#333';
-		var linkElements = $('[id$="_filename"]');
-
-		if (linkElements.length <1) {
-
-			linkElements =jQuery('.pdf-link');
-			console.log(linkElements);
-			
-		}
-		else{
-			linkElements = linkElements.find('a');
-		}
+		var linkElements = $('[id$="fieldValue_filename"]');
 
 		//add Button to Box 
 		previewBox.appendChild(closePreviewButton);
@@ -1540,11 +1530,40 @@ jQuery.Class("Vtiger_Detail_Js",{
 			previewBox.style.display = 'none';
 		});
 
-		document.querySelectorAll('.pdf-link').forEach(linkElement => {
+		if (linkElements.length <1) {
 
+			linkElements =jQuery('.pdf-link');
+			document.querySelectorAll('.pdf-link').forEach(linkElement => {
+
+				$(linkElement).on('mouseenter', function (e) {
+					// const pdfUrl = this.dataset.pdfPreview;
+					if(!(linkElement instanceof jQuery)){
+						linkElement = jQuery(linkElement);
+					}
+					previewBox.innerHTML = `<iframe id="preview" src="`+linkElement.attr('href')+`" width="300" height="400" frameborder="0"></iframe>`;
+					previewBox.appendChild(closePreviewButton);
+					previewBox.style.display = 'block';
+					const linkRect = this.getBoundingClientRect();
+					previewBox.style.left = `${linkRect.right + 10}px`;
+					previewBox.style.top = `${linkRect.top}px`;
+				});
+	
+				$(linkElement).on('click', function (e) {
+					e.preventDefault();
+					const downloadLink = document.createElement('a');
+					downloadLink.href = this.href;
+					downloadLink.download = '';
+					document.body.appendChild(downloadLink);
+					downloadLink.click(); 
+					document.body.removeChild(downloadLink);
+				});
+			});
+			
+		}
+		else{
+			var linkElement = linkElements.find('a');
 			$(linkElement).on('mouseenter', function (e) {
 				// const pdfUrl = this.dataset.pdfPreview;
-				console.log(linkElement);
 				if(!(linkElement instanceof jQuery)){
 					linkElement = jQuery(linkElement);
 				}
@@ -1565,7 +1584,7 @@ jQuery.Class("Vtiger_Detail_Js",{
 				downloadLink.click(); 
 				document.body.removeChild(downloadLink);
 			});
-		});
+		}
 	},
 
 	/**
