@@ -13,7 +13,7 @@ global $adb,$app_strings,$focus,$current_user;
 // Request from Customer Portal for downloading the file.
 if(isset($_REQUEST['savemode']) && $_REQUEST['savemode'] == 'file') {
 	$quote_id = vtlib_purify($_REQUEST['record']);
-	$filepath='test/product/';
+	$filepath=__DIR__.'/../../test/product/';
 	createpdffile ($_REQUEST['record'],'customerportal',$filepath,$quote_id);
 }
 else {

@@ -34,6 +34,7 @@ class Invoice_MassExportPDF_Action extends Vtiger_Action_Controller {
 		if(isset($selectedId) AND $savemode == 'file') {
 			// print all pdf records  to file
 			$filepath = decideFilePath();
+			$filepath = __DIR__.'/../../../'.$filepath;
 			$filename = createpdffile ($selectedId,'save',$filepath,$selectedId);
 			$full_filesname = $selectedId.'_'.$filename;
 			if (!empty($filename)) {

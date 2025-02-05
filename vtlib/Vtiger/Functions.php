@@ -540,7 +540,7 @@ class Vtiger_Functions {
 	}
 
 	static function initStorageFileDirectory() {
-		$filepath = __DIR__.'/../../storage/';
+		$filepath = 'storage/';
 
 		$year  = date('Y');
 		$month = date('F');

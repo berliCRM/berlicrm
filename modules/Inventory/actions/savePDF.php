@@ -24,6 +24,7 @@ class Inventory_savePDF_Action extends Vtiger_BasicAjax_Action{
 		if ($recordModel AND Users_Privileges_Model::isPermitted('Documents', 'CreateView')) {
 			$subject = $recordModel->get('subject');
 			$upload_filepath = decideFilePath();
+			$upload_filepath = __DIR__.'/../../../'.$upload_filepath;
 			$new_unique_id = $db->getUniqueID("vtiger_crmentity");
 			if ($request->get('printmode')=='shipping') {
 				$pdf_desc = 'LBL_PDFSUBJECT_SHN';
