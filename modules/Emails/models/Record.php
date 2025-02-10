@@ -500,7 +500,7 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 		$emailRelatedModules = $moduleModel->getEmailRelatedModules();
 		$relatedModule = '';
 		if (!empty($id)) {
-			$sql = "SELECT setype FROM vtiger_crmentity WHERE crmid=?";
+			$sql = "SELECT setype FROM vtiger_crmentity WHERE crmid=? AND deleted = 0";
 			$result = $db->pquery($sql, array($id));
 			$relatedModule = $db->query_result($result, 0, "setype");
 
