@@ -82,7 +82,7 @@ abstract class WebserviceEntityOperation{
 			case 'file':
 				$typeDetails['maxUploadFileSize'] = Vtiger_Util_Helper::getMaxUploadSizeInBytes();
 				break;
-			case 'date': $typeDetails['format'] = $this->user->date_format;
+			case 'date': $typeDetails['format'] = 'yyyy-mm-dd';
 		}
 		return $typeDetails;
 	}
