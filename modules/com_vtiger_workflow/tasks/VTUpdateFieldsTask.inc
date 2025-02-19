@@ -18,7 +18,7 @@ class VTUpdateFieldsTask extends VTTask {
 		return array('field_value_mapping');
 	}
 
-	public function doTask($entity) {
+	public function doTask($entity, $scheduled = false) {
 		global $adb, $current_user, $default_charset;
 
 		$util = new VTWorkflowUtils();
@@ -193,8 +193,12 @@ class VTUpdateFieldsTask extends VTTask {
 
 			// For workflows update field tasks is deleted all the lineitems.
 			$focus->isLineItemUpdate = false;
-
-			$focus->saveentity($moduleName);
+			// workaround to trigger ModTracker
+			if (!$scheduled) {
+				$focus->saveentity($moduleName);
+			} else {
+				$focus->save($moduleName);
+			}
 
 			// Reverting back the action name as there can be some dependencies on this.
 			$_REQUEST['action'] = $actionName;
