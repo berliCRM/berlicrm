@@ -61,7 +61,7 @@ function vtRunTaskJob($adb){
             $entity = new VTWorkflowEntity($adminUser, $entityId);
         }
 
-		$task->doTask($entity);
+		$task->doTask($entity, true);
 	}
 }
 $adb = PearDatabase::getInstance();
