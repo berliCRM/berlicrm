@@ -864,4 +864,14 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 		return $id_Label_arr;
 	}
 
+	// function to set module fields default values, this can be useful e.g. after getCleanInstance() is used
+	public function setDefaultFieldValues() {
+		$fieldModelList = $this->getModule()->getFields();
+		foreach ($fieldModelList AS $fieldName => $fieldModel) {
+			if($fieldModel->getDefaultFieldValue() != '') {
+				$this->set($fieldName, $fieldModel->getDefaultFieldValue());
+			}
+		}
+	}
+
 }
