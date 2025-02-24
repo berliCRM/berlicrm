@@ -17,7 +17,7 @@ class MailManager_MailReminder_Action extends Vtiger_Action_Controller{
 		}
 	}
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$mode = $request->getMode();
 		if(!empty($mode) && $this->isMethodExposed($mode)) {
 			$this->invokeExposedMethod($mode, $request);

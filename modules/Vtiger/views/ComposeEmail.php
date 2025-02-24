@@ -28,11 +28,11 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		}
 	}
 
-    function preProcess(Vtiger_Request $request, $display=true) {
+    function preProcess(Vtiger_Request $request, $display=true):void {
         if($request->getMode() == 'previewPrint'){
             return;
         }
-        return parent::preProcess($request,$display);
+        parent::preProcess($request,$display);
     }
 
 	public function composeMailData($request){
@@ -110,7 +110,8 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		if ($sourceRecordId) {
 			$sourceRecordModel = Vtiger_Record_Model::getInstanceById($sourceRecordId);
 			if ($sourceRecordModel->get('email_flag') === 'SAVED') {
-				$selectIds = explode('|', $sourceRecordModel->get('parent_id'));
+				$selectIds = (string) $sourceRecordModel->get('parent_id');
+				$selectIds = explode('|', $selectIds);
 			}
 		}
 		foreach($selectIds as $id) {
@@ -207,8 +208,9 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		$viewer->assign('PARENT_RECORD', $request->get('parentId'));
 	}
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
             ini_set('error_reporting', '6135');
+			$moduleName = $request->getModule();
 		$mode = $request->getMode();
 		if(!empty($mode)) {
 			echo $this->invokeExposedMethod($mode, $request);
@@ -224,7 +226,7 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		echo $viewer->view('ComposeEmailForm.tpl', $moduleName, true);
 	}
 
-	function postProcess(Vtiger_Request $request) {
+	function postProcess(Vtiger_Request $request):void {
 		return;
 	}
 
@@ -267,7 +269,7 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

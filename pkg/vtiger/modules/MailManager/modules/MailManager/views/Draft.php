@@ -14,7 +14,7 @@ class MailManager_Draft_View extends MailManager_Abstract_View {
 	 * Function to process request, currently not used
 	 * @param Vtiger_Request $request
 	 */
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 	}
 
 	/**

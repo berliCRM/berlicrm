@@ -54,7 +54,9 @@ class MailManager_List_View extends MailManager_Abstract_View {
 		if ($controller) $controller->closeConnector();
 		if($controller->validateRequest($request)) { 
 			$response = $controller->process($request); 
-			if ($response) $response->emit(); 
+			if ($response) {
+				$response->emit();
+			} 
 		} 
 		unset($request);
 		unset($response);

@@ -26,7 +26,7 @@ class MailManager_Relate_Action extends Vtiger_MailScannerAction {
 	 * @param CRMEntity $linkfocus
 	 * @return Integer
 	 */
-	public function __CreateNewEmail($mailrecord, $module, $linkfocus) {
+	public function __CreateNewEmail($mailrecord, $module, $linkfocus, $mailscannerrule) {
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$handler = vtws_getModuleHandlerFromName('Emails', $currentUserModel);
 		$meta = $handler->getMeta();
@@ -73,7 +73,7 @@ class MailManager_Relate_Action extends Vtiger_MailScannerAction {
 	 * @param String $basemodule
 	 * @param Vtiger_Record_Model $recordModel
 	 */
-	public function __SaveAttachements($mailrecord, $basemodule, $recordModel) {
+	public function __SaveAttachements($mailrecord, $basemodule, $recordModel, $folderid = 1) {
 		$db = PearDatabase::getInstance();
 
 		// If there is no attachments return
@@ -135,7 +135,7 @@ class MailManager_Relate_Action extends Vtiger_MailScannerAction {
 		$linkfocus->retrieve_entity_info($linkto, $modulename);
 		$linkfocus->id = $linkto;
 
-		$emailid = $instance->__CreateNewEmail($mailrecord, $modulename, $linkfocus);
+		$emailid = $instance->__CreateNewEmail($mailrecord, $modulename, $linkfocus, "");
 
 		if (!empty($emailid)) {
 			MailManager::updateMailAssociation($mailrecord->uniqueid(), $emailid, $linkfocus->id);

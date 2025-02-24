@@ -16,7 +16,7 @@ class MailManager_Folder_View extends MailManager_Abstract_View {
 	 * @param Vtiger_Request $request
 	 * @return MailManager_Response
 	 */
-	public function process(Vtiger_Request $request):object {
+	public function process(Vtiger_Request $request):void {
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$maxEntriesPerPage = vglobal('list_max_entries_per_page');
 
@@ -111,7 +111,7 @@ class MailManager_Folder_View extends MailManager_Abstract_View {
 			$response->isJSON(true);
 			$response->setError(101, $error);
 		}
-		return $response;
+		$response->emit();
 	}
 
 	/**

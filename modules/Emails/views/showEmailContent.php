@@ -9,17 +9,18 @@ class Emails_showEmailContent_View extends Vtiger_Edit_View {
 		}
 	}
 
-	function postProcess(Vtiger_Request $request) {
+	function postProcess(Vtiger_Request $request):void {
 		return;
 	}
-    function preProcess(Vtiger_Request $request, $display=true) {
+
+    function preProcess(Vtiger_Request $request, $display=true):void {
         if($request->getMode() == 'previewEmail'){
             return;
         }
-        return parent::preProcess($request,$display);
+		parent::preProcess($request,$display);
     }
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$viewer = $this->getViewer ($request);
 		$moduleName = $request->getModule();
 		

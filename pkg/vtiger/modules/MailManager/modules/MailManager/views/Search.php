@@ -16,7 +16,7 @@ class MailManager_Search_View extends MailManager_Relation_View {
 	 * @param Vtiger_Request $request
 	 * @return boolean
 	 */
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 
 		$response = new Vtiger_Response(true);
 		$viewer = $this->getViewer($request);
@@ -32,9 +32,9 @@ class MailManager_Search_View extends MailManager_Relation_View {
 			$filteredResult = MailManager::lookupMailInVtiger($searchTerm, Users_Record_Model::getCurrentUserModel());
 
 			MailManager_Utils_Helper::emitJSON($filteredResult);
-			$response = false;
+			$response->setResult(false);
 		}
-		return $response;
+		$response->emit();
 	}
 }
 

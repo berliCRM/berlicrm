@@ -18,7 +18,7 @@ class Vtiger_EmailsRelatedModulePopup_View extends Vtiger_Popup_View {
 		return parent::checkPermission($request);
 	}
 	
-	function process (Vtiger_Request $request) {
+	function process (Vtiger_Request $request):void {
 		$viewer = $this->getViewer ($request);
 		$moduleName = $request->getModule();
 		$companyDetails = Vtiger_CompanyDetails_Model::getInstanceById();
@@ -28,8 +28,6 @@ class Vtiger_EmailsRelatedModulePopup_View extends Vtiger_Popup_View {
 
 		$viewer->assign('MODULE_NAME',$moduleName);
 		$viewer->assign('COMPANY_LOGO',$companyLogo);
-
-
 		$viewer->view('Popup.tpl', $moduleName);
 	}
 	
@@ -158,7 +156,7 @@ class Vtiger_EmailsRelatedModulePopup_View extends Vtiger_Popup_View {
 		}
 		$viewer->assign('MODULE', $moduleName);
 
-                $viewer->assign('SELECT_FIELDS',$selectFields); 
+		$viewer->assign('SELECT_FIELDS',$selectFields); 
 		$viewer->assign('SOURCE_MODULE', $sourceModule);
 		$viewer->assign('SOURCE_FIELD', $sourceField);
 		$viewer->assign('SOURCE_RECORD', $sourceRecord);
@@ -209,7 +207,7 @@ class Vtiger_EmailsRelatedModulePopup_View extends Vtiger_Popup_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

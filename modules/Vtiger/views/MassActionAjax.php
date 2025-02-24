@@ -288,7 +288,7 @@ class Vtiger_MassActionAjax_View extends Vtiger_IndexAjax_View {
         $phoneFields = $moduleModel->getFieldsByType('phone');
 		$viewer = $this->getViewer($request);
 		
-		if(count($selectedIds) == 1){
+		if(count([$selectedIds]) == 1){
 			$recordId = $selectedIds[0];
 			$selectedRecordModel = Vtiger_Record_Model::getInstanceById($recordId, $sourceModule);
 			$viewer->assign('SINGLE_RECORD', $selectedRecordModel);
