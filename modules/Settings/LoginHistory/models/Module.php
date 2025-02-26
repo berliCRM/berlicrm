@@ -20,7 +20,8 @@ class Settings_LoginHistory_Module_Model extends Settings_Vtiger_Module_Model {
 			'user_ip'=> 'LBL_USER_IP_ADDRESS', 
 			'login_time' => 'LBL_LOGIN_TIME',
 		    'logout_time' => 'LBL_LOGGED_OUT_TIME', 
-			'status' => 'LBL_STATUS'
+			'status' => 'LBL_STATUS',
+			'rolename' => 'LBL_ROLE'
 		);
 
 	var $name = 'LoginHistory';
