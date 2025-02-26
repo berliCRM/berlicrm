@@ -840,6 +840,38 @@ foreach($moduleFolders as $moduleFolder) {
 }
 echo '<br>module update Toolwidget done <br>';
 
+echo '<br>module Verteiler update start<br>';
+//update Verteiler module
+$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
+foreach($moduleFolders as $moduleFolder) {
+	if ($handle = opendir($moduleFolder)) {
+		while (false !== ($file = readdir($handle))) {
+			$packageNameParts = explode(".",$file);
+			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
+				continue;
+			}
+			array_pop($packageNameParts);
+			$packageName = implode("",$packageNameParts);
+			if ($packageName =='Verteiler') {
+				$packagepath = "$moduleFolder/$file";
+				$package = new Vtiger_Package();
+				$module = $package->getModuleNameFromZip($packagepath);
+				if($module != null) {
+					$moduleInstance = Vtiger_Module::getInstance($module);
+					if(false) {
+						updateVtlibModule($module, $packagepath);
+					} 
+					else {
+						installVtlibModule($module, $packagepath);
+					}
+				}
+			}
+		}
+		closedir($handle);
+	}
+}
+echo '<br>module update Verteiler done <br>';
+
 
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
 $adb->pquery($query, array($current_release_tag));
