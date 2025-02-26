@@ -116,7 +116,7 @@
                                                                 {/if}
                                                             </span>
                                                             <div class="span11 marginLeftZero" style="word-wrap: break-word;">
-                                                                <span class="fieldLabel">{vtranslate($FIELD_MODEL->get('label'), $SELECTED_MODULE_NAME)}&nbsp;
+                                                                <span class="fieldLabel no-drag">{vtranslate($FIELD_MODEL->get('label'), $SELECTED_MODULE_NAME)}&nbsp;
                                                                 {if $IS_MANDATORY}<span class="redColor">*</span>{/if}</span>
 																
                                                             <span class="btn-group pull-right actions">
@@ -314,7 +314,7 @@
                                 </a>
                             {/if}
                         </span>
-						<span class="pull-right" style="opacity:0.50;">({$FIELD_MODEL->getName()})</span>
+						<span class="pull-right no-drag" style="opacity:0.50;">({$FIELD_MODEL->getName()})</span>
                     </div>
                 </div>
             </div>
@@ -338,7 +338,7 @@
                             {/if}
                         </span>
                         <div class="span11 marginLeftZero" style="word-wrap: break-word;">
-                            <span class="fieldLabel">
+                            <span class="fieldLabel no-drag">
                                 {if $IS_MANDATORY}
                                     <span class="redColor">*</span>
                                 {/if}
@@ -533,7 +533,7 @@
     </a>
 {/if}
 </span>
-<span class="pull-right" style="opacity:0.50;">({$FIELD_MODEL->getName()})</span>
+<span class="pull-right no-drag" style="opacity:0.50;">({$FIELD_MODEL->getName()})</span>
 </div>
 </div>
 </div>
@@ -601,7 +601,7 @@
                 {/if}
             </span>
             <div class="span11 marginLeftZero" style="word-wrap: break-word;">
-                <span class="fieldLabel"></span>
+                <span class="fieldLabel no-drag"></span>
                 <span class="btn-group pull-right actions">
                     {if $IS_SORTABLE}
                         <a href="javascript:void(0)" class="dropdown-toggle editFieldDetails" data-toggle="dropdown">

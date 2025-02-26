@@ -57,9 +57,19 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 			'revert' : true,
 			'tolerance':'pointer',
 			'cursor' : 'move',
-			'update' : function(e, ui) {
+			'start' : function(e, ui) {
+				ui.helper.css("user-select", "none");
+			},
+			'stop': function(e, ui) {
+				ui.item.css("user-select", "");
+			},
+			'update': function(e, ui) {
 				thisInstance.updateBlockSequence();
 			}
+		});
+	
+		contents.find('.blockSortable .no-drag').on('mousedown', function(event) {
+			event.stopPropagation();
 		});
 	},
 
