@@ -146,14 +146,13 @@ class Vtiger_PackageExport {
 		if(file_exists("layouts/vlayout/skins/images/".$module.".png")) {
 			$zip->copyFileFromDisk ("layouts/vlayout/skins/images/","layouts/vlayout/skins/images/",$module.".png");		
 		}
+		elseif(file_exists("layouts/vlayout/skins/images/$module.png")) {
+			$zip->copyFileFromDisk ("layouts/vlayout/skins/images/","layouts/vlayout/skins/images/","summary_".$module.".png");
+		}
 		else{ 
 			$zip->copyFileFromDisk ("layouts/vlayout/skins/images/","layouts/vlayout/skins/images/","DefaultModule.png");
 		}
 
-		if(file_exists("layouts/vlayout/skins/images/$module.png")) {
-			$zip->copyFileFromDisk ("layouts/vlayout/skins/images/","layouts/vlayout/skins/images/","summary_".$module.".png");
-		}
-		
 		//Copy Settings module templates files, if any
 		if(is_dir("layouts/vlayout/modules/Settings/$module"))
 			$zip->copyDirectoryFromDisk ("layouts/vlayout/modules/Settings/$module", "settings/templates");
