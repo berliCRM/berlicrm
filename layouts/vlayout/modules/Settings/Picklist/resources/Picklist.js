@@ -607,9 +607,19 @@ var Settings_Picklist_Js = {
 			},
 			'containment' : tbody,
 			'revert' : true,
+			'start' : function(e, ui) {
+				ui.helper.css("user-select", "none");
+			},
+			'stop': function(e, ui) {
+				ui.item.css("user-select", "");
+			},
 			update: function(e, ui ) {
 				jQuery('#saveSequence').removeAttr('disabled');
 			}
+		});
+			
+		tbody.find('.no-drag').on('mousedown', function(event) {
+			event.stopPropagation();
 		});
 	},
 

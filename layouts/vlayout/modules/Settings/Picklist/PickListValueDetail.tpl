@@ -33,7 +33,9 @@
 					{assign var=PICKLIST_VALUES value=$SELECTED_PICKLISTFIELD_ALL_VALUES}
 					{foreach key=PICKLIST_KEY item=PICKLIST_VALUE from=$PICKLIST_VALUES}
 						<tr class="pickListValue" data-key-id="{$PICKLIST_KEY}" data-key="{Vtiger_Util_Helper::toSafeHTML($PICKLIST_VALUE)}">
-							<td class="textOverflowEllipsis"><img class="alignMiddle" src="{vimage_path('drag.png')}"/>&nbsp;&nbsp;{vtranslate($PICKLIST_VALUE,$SELECTED_MODULE_NAME)}</td>
+							<td class="textOverflowEllipsis"><img class="alignMiddle" src="{vimage_path('drag.png')}"/>&nbsp;&nbsp;
+								<span class="no-drag">{vtranslate($PICKLIST_VALUE,$SELECTED_MODULE_NAME)}</span>
+							</td>
 						</tr>
 					{/foreach}
 					</tbody>
