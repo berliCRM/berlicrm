@@ -29,7 +29,7 @@ class Verteiler_Module_Model extends Vtiger_Module_Model {
 			$queryGenerator->setFields($relatedListFields);
 			$selectColumnSql = $queryGenerator->getSelectClauseColumnSQL();
 			$newQuery = preg_split("/from/i", $query);
-			$newQuery[0] = "SELECT vtiger_crmentity.crmid, $selectColumnSql, users2.user_name as added_by_user_name, users2.id as added_by_user_id, vtiger_verteilercontrel.parent, vtiger_account.accountname ";
+			$newQuery[0] = "SELECT vtiger_crmentity.crmid, $selectColumnSql, users2.user_name as added_by_user_name, vtiger_verteilercontrel.addedbyuserid as added_by_user_id, vtiger_verteilercontrel.parent, vtiger_account.accountname ";
 			$query = implode("FROM", $newQuery);
 		}
 
