@@ -10,7 +10,7 @@
 $languageStrings = array(
 	'LBL_EXPORT_BY_TIME' => 'Export sorted by time',
 	'LBL_EXPORT_BY_USER' => 'Export sorted by user',
-	
+	'LBL_ROLE' => 'role',
 );
 
 $jsLanguageStrings = array(
@@ -19,4 +19,5 @@ $jsLanguageStrings = array(
 	'JS_SIGN_IN' => 'sign in time',
 	'JS_SIGN_OUT' => 'sign out time',
 	'JS_STATUS' => 'status',
+	'JS_ROLE' => 'role',
 );

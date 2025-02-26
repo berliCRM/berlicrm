@@ -72,37 +72,59 @@ Settings_Vtiger_List_Js("Settings_LoginHistory_List_Js",{},{
 	 * Function for Export Buttons
 	 */
 	registerButtonsForLoginHistory : function(){
-        jQuery("#exportUserByTime").on("click",function(e){
-			exportCsvFile('exportUserByTime');
-        });
-        jQuery("#exportUserByName").on("click",function(e){
-			exportCsvFile('exportUserByName');
-        });
-		function exportCsvFile(mode) {
+		let offset = 0;
+		let buttonCSVsortTime = jQuery("#exportUserByTime");
+		let buttonCSVsortName = jQuery("#exportUserByName");
+		let usersFilter = jQuery("#usersFilter");
+        let filetyp = "csv"; 
+
+		buttonCSVsortTime.click(function(e) {
+			buttonCSVsortTime.prop('disabled',true);
+			buttonCSVsortName.prop('disabled',true);
+			let selecteduser = usersFilter.val();
+			exportCsvFile('exportUserByTime', offset ,selecteduser );
+		});
+
+		buttonCSVsortName.click(function(e) {
+			buttonCSVsortTime.prop('disabled',true);
+			buttonCSVsortName.prop('disabled',true);
+			let selecteduser = usersFilter.val();
+			exportCsvFile('exportUserByName', offset ,selecteduser);
+		});
+
+		function exportCsvFile(mode, offset, selecteduser) {
+
 			var progressIndicatorElement = jQuery.progressIndicator({
 				'position' : 'html',
 				'blockInfo' : {
 					'enabled' : true
 				}
 			});
-			var params = 'index.php?module=LoginHistory&view=List&parent=Settings&action=exportLoginHistory&mode='+mode;
+   
+			var params = 'index.php?module=LoginHistory&view=List&parent=Settings&action=exportLoginHistory&mode='+mode+'&offset='+offset+'&selecteduser='+selecteduser+"&filetyp="+filetyp;
+
 			AppConnector.request(params).then(
 				function(response) {
 					progressIndicatorElement.progressIndicator({'mode' : 'hide'});
 					if(response) {
 						var exportedData = jQuery.parseJSON(response);
-						var data = exportedData.result.data;
-						var csv = 'Nutzername,IP Adresse des Nutzers,Anmeldezeit,Abmeldezeit,Status\n';
-						var csv = app.vtranslate('JS_USER_NAME')+","+app.vtranslate('JS_IP_ADDRESS')+","+app.vtranslate('JS_SIGN_IN')+","+app.vtranslate('JS_SIGN_OUT')+","+app.vtranslate('JS_STATUS')+"\n";
 
-						for (index = 0; index < data.length; ++index) {
-								csv += data[index];
-						};
-						var hiddenElement = document.createElement('a');
-						hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
-						hiddenElement.target = '_blank';
-						hiddenElement.download = 'LoginHistory'+mode+'.csv';
-						hiddenElement.click();
+						var startednow = exportedData.result.startednow;
+						var offset = exportedData.result.recordnum;
+						var wiederholen = exportedData.result.wiederholen;
+
+						if (startednow ==  1 && wiederholen == 1)  {
+							// we have start and have not reacht the end. On start we have set the Labels, but now it will be set in php.
+							exportCsvFile(mode, offset, selecteduser);
+						}
+						else if (wiederholen == 1){
+							//the start was allready and we have now many repetitions, until we reach the end.
+							exportCsvFile(mode, offset, selecteduser);
+						}
+						else{
+							// the end is reached, and we need to download the file. 
+							downloadfile(filetyp, mode, selecteduser, offset);
+						}	
 					}
 					else {
 						var  params = {
@@ -119,8 +141,22 @@ Settings_Vtiger_List_Js("Settings_LoginHistory_List_Js",{},{
 					alert ('internal CRM problem');
 				}
 			)
+            
 		}
+
+		function downloadfile(filetyp, mode, selecteduser, offset) {
+			// here download the file, and then delete it."loaddel"
+			let turn  = "loaddel";
+			let params = "index.php?module=LoginHistory&view=List&parent=Settings&action=DownloadFile"+"&filetyp="+filetyp+"&mode="+mode+"&selecteduser="+selecteduser+"&offset="+offset+"&turn="+turn ;            
+            window.location.href = params;
+
+			// and set the buttons enabled.
+			buttonCSVsortTime.prop('disabled',false);
+            buttonCSVsortName.prop('disabled',false);
+		}
+
 	},
+
 	
 	
 	registerEvents : function() {

@@ -17,8 +17,12 @@ class Settings_LoginHistory_ListView_Model extends Settings_Vtiger_ListView_Mode
         $module = $this->getModule();
 		$userNameSql = getSqlForNameInDisplayFormat(array('first_name'=>'vtiger_users.first_name', 'last_name' => 'vtiger_users.last_name'), 'Users');
 		
-		$query = "SELECT login_id, $userNameSql AS user_name, user_ip, logout_time, login_time, vtiger_loginhistory.status FROM $module->baseTable 
-				INNER JOIN vtiger_users ON vtiger_users.user_name = $module->baseTable.user_name";
+		$query = "SELECT login_id, $userNameSql 
+		AS user_name, user_ip, logout_time, login_time, vtiger_loginhistory.status, vtiger_role.rolename 
+		FROM $module->baseTable 
+		INNER JOIN vtiger_users ON vtiger_users.user_name = $module->baseTable.user_name 
+		INNER JOIN vtiger_user2role ON vtiger_user2role.userid = vtiger_users.id 
+		INNER JOIN vtiger_role ON vtiger_user2role.roleid = vtiger_role.roleid ";
 		
 		$search_key = $this->get('search_key');
 		$value = $this->get('search_value');
@@ -27,8 +31,8 @@ class Settings_LoginHistory_ListView_Model extends Settings_Vtiger_ListView_Mode
 			$query .= " WHERE $module->baseTable.$search_key = '$value'";
 		}
 		//Fix for http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7996
-         $query .= " ORDER BY login_time DESC"; 
- 	 return $query; 
+        $query .= " ORDER BY login_time DESC"; 
+ 	 	return $query; 
     }
 
 	public function getListViewLinks() {
