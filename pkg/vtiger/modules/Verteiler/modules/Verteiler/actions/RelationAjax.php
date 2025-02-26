@@ -19,9 +19,9 @@ class Verteiler_RelationAjax_Action extends Vtiger_RelationAjax_Action {
 	}
 
     /**
-	 * Function to copy relations from another verteiler, returns number of relations added
-	 * @param Vtiger_Request $request
-	 */
+     * Function to copy relations from another verteiler, returns number of relations added
+     * @param Vtiger_Request $request
+     */
 	public function addRelationsFromOtherVerteiler(Vtiger_Request $request) {
         $sourceRecordId = $request->get('sourceRecord');
         $copyFromId = $request->get('verteilerId');
@@ -86,7 +86,14 @@ class Verteiler_RelationAjax_Action extends Vtiger_RelationAjax_Action {
         $response->emit();
 	}
     
-    // delete entry from related contacts
+	/**
+	 * Function to delete a relation between Verteiler and Contact records.
+	 * If the relation is tied to a specific user (added_by_user_id), it checks for that first.
+	 * If no specific user is found, it deletes the relation regardless of the user.
+	 * Also tracks the "unlink" action using ModTracker.
+	 * 
+	 * @param Vtiger_Request $request The request object containing src_record, related_record_list, and added_by_user_id.
+	 */
     function deleteRelation($request) {
         $adb = PearDatabase::getInstance();
         $src_record = $request->get("src_record");
@@ -94,7 +101,8 @@ class Verteiler_RelationAjax_Action extends Vtiger_RelationAjax_Action {
         $added_by_user_id = $request->get("added_by_user_id");
         $related_record = $related_records[0];
         $sql = 'DELETE FROM vtiger_verteilercontrel WHERE verteilerid=? AND contactid=? AND addedbyuserid=?';
-        $adb->pquery($sql, array($src_record, $related_record, $added_by_user_id));
+        $result = $adb->pquery($sql, array($src_record, $related_record, $added_by_user_id));
+
         // modtracking "unlink"
         require_once "modules/ModTracker/ModTracker.php";
         ModTracker::trackRelation("Verteiler", $src_record, "Contacts", $related_record, ModTracker::$UNLINK);
@@ -103,22 +111,37 @@ class Verteiler_RelationAjax_Action extends Vtiger_RelationAjax_Action {
         $response->emit();
     }
     
-    // mass delete entries from related contacts
-    function massDeleteRelation($request) {
-        $adb = PearDatabase::getInstance();
-        $src_record = $request->get("src_record");
-        $related_records = $request->get("related_records");
-        
-        foreach ($related_records as $related_record) {
-            $sql = 'DELETE FROM vtiger_verteilercontrel WHERE verteilerid=? AND contactid=? AND addedbyuserid=?';
-			$adb->pquery($sql, array($src_record, $related_record[0], $related_record[1]));
-            // modtracking "unlink"
-            require_once "modules/ModTracker/ModTracker.php";
-            ModTracker::trackRelation("Verteiler", $src_record, "Contacts", $related_record[0], ModTracker::$UNLINK);
-        }
-        $response = new Vtiger_Response();
-        $response->setResult(true);
-        $response->emit();
-    }
+	/**
+	 * Function to mass delete relations between a Verteiler and multiple Contact records.
+	 * It checks for each relation if it was added by a specific user.
+	 * If no user is found, it deletes the relation regardless of the user.
+	 * Tracks each "unlink" action using ModTracker.
+	 * 
+	 * @param Vtiger_Request $request The request object containing src_record and related_records.
+	 */
+	function massDeleteRelation($request) {
+		$adb = PearDatabase::getInstance();
+		
+		// Get the source record (Verteiler) ID
+		$src_record = $request->get("src_record");
+		
+		// Get the list of related records to be deleted
+		$related_records = $request->get("related_records");
 
+		// Loop through each related record
+		foreach ($related_records as $related_record) {
+			// Try to delete the relation considering the user who added it
+			$sql = 'DELETE FROM vtiger_verteilercontrel WHERE verteilerid=? AND contactid=? AND addedbyuserid=?';
+			$result = $adb->pquery($sql, array($src_record, $related_record[0], $related_record[1]));
+
+			// modtracking "unlink"
+			require_once "modules/ModTracker/ModTracker.php";
+			ModTracker::trackRelation("Verteiler", $src_record, "Contacts", $related_record[0], ModTracker::$UNLINK);
+		}
+
+		// Prepare the response
+		$response = new Vtiger_Response();
+		$response->setResult(true);
+		$response->emit();
+	}
 }
