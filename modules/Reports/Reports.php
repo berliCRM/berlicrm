@@ -508,7 +508,7 @@ class Reports extends CRMEntity{
 		$result = $adb->pquery($sql, $params);
 
 		$report = $adb->fetch_array($result);
-		if(count($report)>0)
+		if(count((array) $report)>0)
 		{
 			$tQuery = "SELECT * FROM berli_track_report_usage WHERE reportid = ?;";
 			do
