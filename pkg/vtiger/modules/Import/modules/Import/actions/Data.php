@@ -33,6 +33,7 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 	var $importedRecordInfo = array();
     protected $allPicklistValues = array();
 	var $batchImport = true;
+	var $batchMassImport = false;
     public $entitydata = array();
 	private $failedReason = '';
 
@@ -174,10 +175,10 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 		$sql = 'SELECT * FROM ' . $tableName . ' WHERE status = '. Import_Data_Action::$IMPORT_RECORD_NONE;
 
 		if($this->batchImport) {
-			$configReader = new Import_Config_Model();
-			$importBatchLimit = $configReader->get('importBatchLimit');
+			$importBatchLimit = self::getImportLimiter();
 			$sql .= ' LIMIT '. $importBatchLimit;
 		}
+		
 		$result = $adb->query($sql);
 		$numberOfRecords = $adb->num_rows($result);
 
@@ -670,31 +671,34 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 		$vtigerMailer->IsHTML(true);
 		foreach ($scheduledImports as $scheduledId => $importDataController) {
 			$current_user = $importDataController->user;
-			$importDataController->batchImport = false;
+
+			// commented out to load import package by package
+			// $importDataController->batchImport = false;
+			$importDataController->setMassimportMode(true);
 
 			if(!$importDataController->initializeImport()) { continue; }
 			$importDataController->importData();
-
 			$importStatusCount = $importDataController->getImportStatusCount();
 
-			$emailSubject = getTranslatedString('LBL_POST_IMPORT_MAIL_SUBJECT','Import').getTranslatedString($importDataController->module);
-            $viewer = new Vtiger_Viewer();
-			$viewer->assign('FOR_MODULE', $importDataController->module);
-            $viewer->assign('INVENTORY_MODULES', getInventoryModules());
-			$viewer->assign('IMPORT_RESULT', $importStatusCount);
-			$viewer->assign('MODULE', 'Import');
-			$importResult = $viewer->view('Import_Result_Details.tpl','Import',true);
-			$importResult = str_replace('align="center"', '', $importResult);
-			$emailData = getTranslatedString('LBL_POST_IMPORT_MAIL_INTRO','Import').'<br/><br/>'.$importResult;
-			$userName = decode_html(getFullNameFromArray('Users', $importDataController->user->column_fields));
-			$userEmail = $importDataController->user->email1;
-			$vtigerMailer->addAddress($userEmail, $userName);
-			$vtigerMailer->setFrom($HELPDESK_SUPPORT_EMAIL_ID, $HELPDESK_SUPPORT_NAME);
-			$vtigerMailer->Subject = $emailSubject;
-			$vtigerMailer->Body    = $emailData;
-			$vtigerMailer->Send();
-
-			$importDataController->finishImport();
+			if($importStatusCount['PENDING'] == 0) {
+				$emailSubject = getTranslatedString('LBL_POST_IMPORT_MAIL_SUBJECT','Import').getTranslatedString($importDataController->module);
+				$viewer = new Vtiger_Viewer();
+				$viewer->assign('FOR_MODULE', $importDataController->module);
+				$viewer->assign('INVENTORY_MODULES', getInventoryModules());
+				$viewer->assign('IMPORT_RESULT', $importStatusCount);
+				$viewer->assign('MODULE', 'Import');
+				$importResult = $viewer->view('Import_Result_Details.tpl','Import',true);
+				$importResult = str_replace('align="center"', '', $importResult);
+				$emailData = getTranslatedString('LBL_POST_IMPORT_MAIL_INTRO','Import').'<br/><br/>'.$importResult;
+				$userName = decode_html(getFullNameFromArray('Users', $importDataController->user->column_fields));
+				$userEmail = $importDataController->user->email1;
+				$vtigerMailer->addAddress($userEmail, $userName);
+				$vtigerMailer->setFrom($HELPDESK_SUPPORT_EMAIL_ID, $HELPDESK_SUPPORT_NAME);
+				$vtigerMailer->Subject = $emailSubject;
+				$vtigerMailer->Body    = $emailData;
+				$vtigerMailer->Send();
+				$importDataController->finishImport();
+			}
 		}
 		Vtiger_Mailer::dispatchQueue(null);
 	}
@@ -762,6 +766,28 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 		}
 		return $status;
 	}
+
+	public function setMassimportMode($mode) {
+        $this->batchMassimport = $mode;
+    }
+
+	public function getMassimportMode() {
+        $massimportStatus = $this->batchMassimport;
+		return $massimportStatus;
+    }
+
+	public function getImportLimiter() {
+		$configReader = new Import_Config_Model();
+		$massimportMode = $this->getMassimportMode();
+		if($massimportMode) {
+			$importBatchLimit = $configReader->get('massimportBatchLimit');
+		}
+		else {
+			$importBatchLimit = $configReader->get('importBatchLimit');
+		}
+		return $importBatchLimit;
+	}
+
 }
 
 ?>
