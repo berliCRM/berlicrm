@@ -15,8 +15,6 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	require_once('include/database/PearDatabase.php');
 	require_once('include/utils/InventoryUtils.php');
 	require_once('modules/Pdfsettings/helpers/PDFutils.php');
-	require_once('swisspdf/createpng.php');
-	include('config.inc.php');
 	global $FOOTER_PAGE, $default_font, $font_size_footer, $NUM_FACTURE_NAME, $pdf_strings, $quote_no, $footer_margin;
 	global $org_name, $org_address, $org_city, $org_code, $org_country, $org_vatid, $org_state, $org_taxid, $org_phone, $org_fax, $org_website;
 	global $ORG_POSITION,$VAR_PAGE, $VAR_OF, $invoice_status;
@@ -27,7 +25,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	global $columns, $logoradio, $logo_name, $footerradio, $pageradio;
 	global $adb,$app_strings,$focus,$current_user,$invoice_no, $purposefooter;
 	$module = 'Invoice';
-	$current_id = $adb->getUniqueID("vtiger_crmentity");
+	$billnumber_id = $adb->getUniqueID("vtiger_crmentity");
 
 	//get the stored configuration values
 	$pdf_config_details = getAllPDFDetails('Invoice');
@@ -475,7 +473,9 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	}
 	// ************************ END POPULATE DATA ***************************
 
-	if($qr_feature == true) {
+	if($currency_code == 'CHF') {
+		require_once('swisspdf/createpng.php');
+		
 		//$bank_iban
 // 		//Funktion zur Generierung einer zufälligen IBAN
 // 		function generateUniqueIBAN() {
@@ -552,20 +552,13 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 
 			$pdfDataObj['qriban'] = 'CH4431999123000889012';
 			$pdfDataObj['invoice_number'] = strval($focus->column_fields['invoice_no']);
-			$pdfDataObj['bill_number'] = strval($current_id);
+			$pdfDataObj['bill_number'] = strval($billnumber_id);
 			$pdfDataObj['description'] = strval($focus->column_fields['description']);
 		}
 
 
 		if($pdfDataObj['payment']['currency'] != " ") {
-			// $datei = fopen("test/testData.txt","a+");
-			// fwrite($datei, print_r($pdfDataObj, TRUE));
-			// fclose($datei);
 			$createpngpath = createpng($pdfDataObj);
-			// $datei = fopen("test/testData.txt","a+");
-			// fwrite($datei, print_r('\ndone', TRUE));
-			// fclose($datei);
-
 		}
 	}
 	//************************BEGIN PDF FORMATING**************************
@@ -624,7 +617,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	//remove not printable ascii char
 	$export_org = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $export_org);
 
-	if($qr_feature == true) {
+	if($currency_code == 'CHF') {
 		$pdf->AddPage();
 		$imagewidth=50;
 		$imageheight=50;
