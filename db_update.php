@@ -807,39 +807,6 @@ foreach($moduleFolders as $moduleFolder) {
 }
 echo '<br>module update berlimap done <br>';
 
-
-echo '<br>module Toolwidget update start<br>';
-//update Toolwidget module
-$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-foreach($moduleFolders as $moduleFolder) {
-	if ($handle = opendir($moduleFolder)) {
-		while (false !== ($file = readdir($handle))) {
-			$packageNameParts = explode(".",$file);
-			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-				continue;
-			}
-			array_pop($packageNameParts);
-			$packageName = implode("",$packageNameParts);
-			if ($packageName =='ToolWidgets') {
-				$packagepath = "$moduleFolder/$file";
-				$package = new Vtiger_Package();
-				$module = $package->getModuleNameFromZip($packagepath);
-				if($module != null) {
-					$moduleInstance = Vtiger_Module::getInstance($module);
-					if(false) {
-						updateVtlibModule($module, $packagepath);
-					} 
-					else {
-						installVtlibModule($module, $packagepath);
-					}
-				}
-			}
-		}
-		closedir($handle);
-	}
-}
-echo '<br>module update Toolwidget done <br>';
-
 echo '<br>module Verteiler update start<br>';
 //update Verteiler module
 $moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
@@ -871,6 +838,63 @@ foreach($moduleFolders as $moduleFolder) {
 	}
 }
 echo '<br>module update Verteiler done <br>';
+
+echo '<br>module Toolwidget update start<br>';
+
+function checkAndAddLink($moduleName, $label, $url) {
+    global $adb;
+    
+    $query = "SELECT 1 FROM vtiger_links WHERE tabid = (SELECT tabid FROM vtiger_tab WHERE name = ?) AND linklabel = ? AND linkurl = ?";
+    $result = $adb->pquery($query, array($moduleName, $label, $url));
+    
+    if ($adb->num_rows($result) == 0) {
+        $module = Vtiger_Module::getInstance($moduleName);
+        if ($module) {
+            $module->addLink('DETAILVIEWSIDEBARWIDGET', $label, $url);
+            echo "Link hinzugefügt für Modul: $moduleName<br>";
+        } else {
+            echo "Modul nicht gefunden: $moduleName<br>";
+        }
+    } else {
+        echo "Link existiert bereits für Modul: $moduleName<br>";
+    }
+}
+
+// check and add links
+checkAndAddLink('Contacts', 'LBL_COPY_CONTACTDETAILS', 'module=ToolWidgets&view=showCopyPasteDataWidget&mode=showEntries&source_module=Contacts&viewtype=detail');
+checkAndAddLink('Accounts', 'LBL_COPY_CONTACTDETAILS', 'module=ToolWidgets&view=showCopyPasteDataWidget&mode=showEntries&source_module=Accounts&viewtype=detail');
+
+// Update Toolwidget module
+$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
+foreach ($moduleFolders as $moduleFolder) {
+    if ($handle = opendir($moduleFolder)) {
+        while (false !== ($file = readdir($handle))) {
+            $packageNameParts = explode(".", $file);
+            if ($packageNameParts[count($packageNameParts) - 1] != 'zip') {
+                continue;
+            }
+            array_pop($packageNameParts);
+            $packageName = implode("", $packageNameParts);
+            if ($packageName == 'ToolWidgets') {
+                $packagepath = "$moduleFolder/$file";
+                $package = new Vtiger_Package();
+                $module = $package->getModuleNameFromZip($packagepath);
+                if ($module != null) {
+                    $moduleInstance = Vtiger_Module::getInstance($module);
+                    if (false) {
+                        updateVtlibModule($module, $packagepath);
+                    } else {
+                        installVtlibModule($module, $packagepath);
+                    }
+                }
+            }
+        }
+        closedir($handle);
+    }
+}
+
+echo '<br>module update Toolwidget done <br>';
+
 
 
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
