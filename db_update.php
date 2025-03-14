@@ -860,9 +860,32 @@ function checkAndAddLink($moduleName, $label, $url) {
     }
 }
 
-// check and add links
-checkAndAddLink('Contacts', 'LBL_COPY_CONTACTDETAILS', 'module=ToolWidgets&view=showCopyPasteDataWidget&mode=showEntries&source_module=Contacts&viewtype=detail');
-checkAndAddLink('Accounts', 'LBL_COPY_CONTACTDETAILS', 'module=ToolWidgets&view=showCopyPasteDataWidget&mode=showEntries&source_module=Accounts&viewtype=detail');
+function deleteOldLinks($moduleName, $correctUrlPattern) {
+    global $adb;
+
+    // Ermittelt die tabid für das Modul
+    $tabidQuery = "SELECT tabid FROM vtiger_tab WHERE name = ?";
+    $tabidResult = $adb->pquery($tabidQuery, array($moduleName));
+    if ($adb->num_rows($tabidResult) == 0) {
+        echo "Modul nicht gefunden: $moduleName<br>";
+        return;
+    }
+    $tabid = $adb->query_result($tabidResult, 0, 'tabid');
+
+    // Lösche alle fehlerhaften Links, die nicht exakt dem gewünschten Muster entsprechen
+    $deleteQuery = "DELETE FROM vtiger_links 
+                    WHERE tabid = ? 
+                    AND linklabel = 'LBL_COPY_CONTACTDETAILS'
+                    AND linkurl LIKE 'module=ToolWidgets&view=showCopyPasteDataW%'
+                    AND linkurl NOT LIKE ?";
+    
+    $adb->pquery($deleteQuery, array($tabid, $correctUrlPattern));
+
+    echo "Alte fehlerhafte Links für Modul $moduleName wurden entfernt.<br>";
+}
+
+$correctContactsUrl = 'module=ToolWidgets&view=showCopyPasteData&mode=showEntries&source_module=Contacts&viewtype=detail';
+$correctAccountsUrl = 'module=ToolWidgets&view=showCopyPasteData&mode=showEntries&source_module=Accounts&viewtype=detail';
 
 // Update Toolwidget module
 $moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
@@ -891,6 +914,26 @@ foreach ($moduleFolders as $moduleFolder) {
         }
         closedir($handle);
     }
+}
+
+// check and add links
+checkAndAddLink('Contacts', 'LBL_COPY_CONTACTDETAILS', 'module=ToolWidgets&view=showCopyPasteData&mode=showEntries&source_module=Contacts&viewtype=detail');
+checkAndAddLink('Accounts', 'LBL_COPY_CONTACTDETAILS', 'module=ToolWidgets&view=showCopyPasteData&mode=showEntries&source_module=Accounts&viewtype=detail');
+
+// deletes old links for "Contacts" and "Accounts"
+deleteOldLinks('Contacts', $correctContactsUrl);
+deleteOldLinks('Accounts', $correctAccountsUrl);
+
+$filePath = 'modules/ToolWidgets/views/showCopyPasteDataWidget.php';
+
+if (file_exists($filePath)) {
+    if (unlink($filePath)) {
+        echo "Veraltete Datei erfolgreich gelöscht.";
+    } else {
+        echo "Fehler beim Löschen der Datei.";
+    }
+} else {
+    echo "Datei existiert nicht.";
 }
 
 echo '<br>module update Toolwidget done <br>';
