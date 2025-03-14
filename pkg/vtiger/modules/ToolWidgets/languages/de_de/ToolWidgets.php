@@ -12,7 +12,8 @@ $languageStrings = array(
     'LBL_CONTACTDETAILS' => 'Kontaktdaten',
 	'LBL_COPY' => 'Kopieren',
 	'LBL_SHOW_CONTACTDETAILS' => 'Zeige Kontaktdaten',
-	'LBL_TEXT_COPIED' => 'Text kopiert',
+	'LBL_COPY_CONTACTDETAILS' => 'Kopiere Kontaktdaten',
+	'LBL_TEXT_COPIED' => 'Text kopiert.',
 );
 
 $jsLanguageStrings = array(
