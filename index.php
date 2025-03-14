@@ -10,6 +10,8 @@
 
 //Overrides GetRelatedList : used to get related query
 //TODO : Eliminate below hacking solution
+
+require_once 'installComposer.php';
 include_once 'include/Webservices/Relation.php';
 include_once 'vtlib/Vtiger/Module.php';
 include_once 'includes/main/WebUI.php';
