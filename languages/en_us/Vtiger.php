@@ -188,6 +188,7 @@ $languageStrings = array(
 	'LBL_CONTAINS' => 'contains', //Duplicated key-value pairs
 	'LBL_COPY_BILLING_ADDRESS' => 'Billing Address',
 	'LBL_COPY_SHIPPING_ADDRESS' => 'Shipping Address',
+	'LBL_COPY_CONTACTDETAILS' => 'Copy Contact Details',
 	'LBL_CREATE' => 'Create',
 	'LBL_CREATED' => 'created',
 	'LBL_CREATED_ON' => 'Created On',
