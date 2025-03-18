@@ -898,7 +898,7 @@ foreach ($moduleFolders as $moduleFolder) {
             }
             array_pop($packageNameParts);
             $packageName = implode("", $packageNameParts);
-            if ($packageName == 'ToolWidgets') {
+            if ($packageName == 'ToolWidgets' || $packageName == 'RecycleBin') {
                 $packagepath = "$moduleFolder/$file";
                 $package = new Vtiger_Package();
                 $module = $package->getModuleNameFromZip($packagepath);
