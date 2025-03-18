@@ -5,7 +5,7 @@
 <label>Recycle Bin</label>
 <parent>Tools</parent>
 <type>extension</type>
-<version>1.51</version>
+<version>1.52</version>
 <dependencies>
 <vtiger_version>6.0.0rc</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>
