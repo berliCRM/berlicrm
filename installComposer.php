@@ -1,9 +1,10 @@
 <?php
 putenv("HOME=" . getcwd());
 
-if (!file_exists('vendor/autoload.php') && !file_exists('logs/composerDone.php')) {
+if (!file_exists('vendor/autoload.php') && !file_exists('logs/composerDone.txt')) {
     file_put_contents('logs/composerDone.txt', '');
     installComposer();
+    header('Location: index.php');
 }
 
 function installComposer() {
