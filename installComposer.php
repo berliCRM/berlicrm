@@ -1,4 +1,6 @@
 <?php
+putenv("HOME=" . getcwd());
+
 if (!file_exists('vendor/autoload.php') && !file_exists('logs/composerDone.php')) {
     file_put_contents('logs/composerDone.txt', '');
     installComposer();
@@ -43,15 +45,15 @@ function getComposerCommand() {
 function installComposerLocally() {
     echo "Composer is not installed. Installing locally...\n";
 
-    exec("php -r \"copy('https://getcomposer.org/installer', 'composer-setup.php');\"", $output, $returnCode);
+    exec("php -r \"copy('https://getcomposer.org/installer', 'test/composer-setup.php');\"", $output, $returnCode);
     print_r($output);
     if ($returnCode !== 0) {
         die("Failed to download Composer setup script.\n");
     }
 
     // Run the setup script to install Composer locally
-    exec("php composer-setup.php", $output, $returnCode);
-    unlink('composer-setup.php'); // Remove setup script after installation
+    exec("php test/composer-setup.php", $output, $returnCode);
+    unlink('test/composer-setup.php'); // Remove setup script after installation
 
     if ($returnCode !== 0) {
         die("Failed to install Composer.\n");
