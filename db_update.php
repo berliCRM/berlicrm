@@ -1,4 +1,11 @@
-<!DOCTYPE html><html><head><title>BerliCRM updater</title><style>body { font-family: Open sans,sans-serif;}</style>
+<!DOCTYPE html><html>
+<meta http-equiv="cache-control" content="no-cache, must-revalidate, post-check=0, pre-check=0" />
+<meta http-equiv="cache-control" content="max-age=0" />
+<meta http-equiv="expires" content="0" />
+<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+<meta http-equiv="pragma" content="no-cache" />
+
+<head><title>BerliCRM updater</title><style>body { font-family: Open sans,sans-serif;}</style>
 <?php
 require_once 'includes/main/WebUI.php';
 require_once 'include/utils/utils.php';
@@ -838,6 +845,38 @@ foreach($moduleFolders as $moduleFolder) {
 	}
 }
 echo '<br>module update Verteiler done <br>';
+
+echo '<br>module Import update start<br>';
+//update Verteiler module
+$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
+foreach($moduleFolders as $moduleFolder) {
+	if ($handle = opendir($moduleFolder)) {
+		while (false !== ($file = readdir($handle))) {
+			$packageNameParts = explode(".",$file);
+			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
+				continue;
+			}
+			array_pop($packageNameParts);
+			$packageName = implode("",$packageNameParts);
+			if ($packageName =='Import') {
+				$packagepath = "$moduleFolder/$file";
+				$package = new Vtiger_Package();
+				$module = $package->getModuleNameFromZip($packagepath);
+				if($module != null) {
+					$moduleInstance = Vtiger_Module::getInstance($module);
+					if(false) {
+						updateVtlibModule($module, $packagepath);
+					} 
+					else {
+						installVtlibModule($module, $packagepath);
+					}
+				}
+			}
+		}
+		closedir($handle);
+	}
+}
+echo '<br>module update Import done <br>';
 
 echo '<br>module Toolwidget update start<br>';
 

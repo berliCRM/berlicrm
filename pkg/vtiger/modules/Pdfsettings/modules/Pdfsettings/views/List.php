@@ -118,6 +118,10 @@ class Pdfsettings_List_View extends Vtiger_Index_View {
 			// general information
 			//font type
 			$selected_fontid[$fld_module] = $pdf_details[$fld_module]['fontid'];
+			// set default font = Free Sans is no font has been set before
+			if ($selected_fontid[$fld_module] == '' && $selected_fontid[$fld_module] != 0 && $selected_fontid[$fld_module] != '0') {
+				$selected_fontid[$fld_module]= 27;
+			}
 			// available fonts
 			$pdf_fonts = getAllPDFFonts();
 			for($j=0;$j<count($pdf_fonts);$j++) {

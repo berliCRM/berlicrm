@@ -68,7 +68,7 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 		$defaultValues = array();
 		if (!empty($this->defaultValues)) {
 			if(!is_array($this->defaultValues)) {
-				$this->defaultValues = json_encode(json_decode($this->defaultValues, true));
+				$this->defaultValues = json_decode($this->defaultValues, true);
 			}
 			if($this->defaultValues != null) {
 				$defaultValues = $this->defaultValues;
