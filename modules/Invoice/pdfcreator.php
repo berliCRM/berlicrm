@@ -25,7 +25,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	global $columns, $logoradio, $logo_name, $footerradio, $pageradio;
 	global $adb,$app_strings,$focus,$current_user,$invoice_no, $purposefooter;
 	$module = 'Invoice';
-	$billnumber_id = $adb->getUniqueID("vtiger_crmentity");
+	$billnumber_id = $idnumber;
 
 	//get the stored configuration values
 	$pdf_config_details = getAllPDFDetails('Invoice');

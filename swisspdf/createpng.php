@@ -85,18 +85,23 @@ $qrBill->setAdditionalInformation(
 
 // Now get the QR code image and save it as a file.
     try{
-        $filepath = 'storage/temp';
-        if (!file_exists($filepath)) {
+	    $filepath = 'storage/temp';
+	    $filename = $filepath . '/qr' . $pdfDataObj['bill_number'] . '.png';
+    
+	    // Check if the directory exists, if not, create it
+	    if (!file_exists($filepath)) {
             if (!mkdir($filepath,0777,true)) {
-                var_dump('Fehler beim Erstellen des Dateipfads: '. $filepath);
-            }
-        }
-    $qrBill->getQrCode()->writeFile('storage/temp/qr'.$pdfDataObj['bill_number'].'.png');
-    } catch (Exception $e) {
+	            throw new Exception('Error creating directory: ' . $filepath);
+	        }
+	    }
+	    // Generate and save the QR code if the file does not exist
+	    $qrBill->getQrCode()->writeFile($filename);
+    
+	} catch (Exception $e) {
+	    // Log errors
+        throw new Exception('Error creating QR-Code file.');
+	}
 
-        $datei = fopen("test/testData.txt","a+");
-    fwrite($datei, print_r($qrBill->getViolations(), TRUE));
-    fclose($datei);
-    }
-return 'storage/temp/qr'.$pdfDataObj['bill_number'].'.png';
+	// Return the file path
+	return $filename;
 }
