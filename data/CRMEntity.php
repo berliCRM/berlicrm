@@ -185,7 +185,11 @@ class CRMEntity {
 			$params2 = array($current_id, $filename, $this->column_fields['description'], $filetype, $upload_file_path);
 			$result = $adb->pquery($sql2, $params2);
 
-			if ($_REQUEST['mode'] == 'edit') {
+			if ($_REQUEST['mode'] == 'edit') {	
+				$attachmentRow = Vtiger_Functions::getAttachmentInfo($id);
+				if($attachmentRow) {
+					Vtiger_Functions::deleteAttachment($attachmentRow);
+				}
 				if ($id != '' && vtlib_purify($_REQUEST['fileid']) != '') {
 					$delquery = 'delete from vtiger_seattachmentsrel where crmid = ? and attachmentsid = ?';
 					$delparams = array($id, vtlib_purify($_REQUEST['fileid']));

@@ -74,41 +74,43 @@ class Documents extends CRMEntity {
 		$this->column_fields = getColumnFields('Documents');
 	}
 
-	function save_module($module)
-	{
+	function save_module($module) {
 		global $adb,$upload_badext;
 		$insertion_mode = $this->mode;
-		if(isset($this->parentid) && $this->parentid != '')
+		if(isset($this->parentid) && $this->parentid != '') {
 			$relid =  $this->parentid;
+		}
 		//inserting into vtiger_senotesrel
-		if(isset($relid) && $relid != '')
-		{
+		if(isset($relid) && $relid != '') {
 			$this->insertintonotesrel($relid,$this->id);
 		}
 		$filetype_fieldname = $this->getFileTypeFieldName();
 		$filename_fieldname = $this->getFile_FieldName();
-		if($this->column_fields[$filetype_fieldname] == 'I' ){
-			if($_FILES[$filename_fieldname]['name'] != ''){
+		if($this->column_fields[$filetype_fieldname] == 'I' ) {
+			if($_FILES[$filename_fieldname]['name'] != '') {
 				$errCode=$_FILES[$filename_fieldname]['error'];
-					if($errCode == 0){
-						foreach($_FILES as $fileindex => $files)
-						{
-							if($files['name'] != '' && $files['size'] > 0){
-								$filename = $_FILES[$filename_fieldname]['name'];
-								$filename = from_html(preg_replace('/\s+/', '_', $filename));
-								$filetype = $_FILES[$filename_fieldname]['type'];
-								$filesize = $_FILES[$filename_fieldname]['size'];
-								$filelocationtype = 'I';
-								$binFile = sanitizeUploadFileName($filename, $upload_badext);
-								$filename = ltrim(basename(" ".$binFile)); //allowed filename like UTF-8 characters
-							}
-						}
-
+				if($errCode == 0) {
+					$attachmentRow = Vtiger_Functions::getAttachmentInfo($this->id);
+					if($attachmentRow) {
+						Vtiger_Functions::deleteAttachment($attachmentRow);
 					}
-			}elseif($this->mode == 'edit') {
+					foreach($_FILES as $fileindex => $files) {
+						if($files['name'] != '' && $files['size'] > 0) {
+							$filename = $_FILES[$filename_fieldname]['name'];
+							$filename = from_html(preg_replace('/\s+/', '_', $filename));
+							$filetype = $_FILES[$filename_fieldname]['type'];
+							$filesize = $_FILES[$filename_fieldname]['size'];
+							$filelocationtype = 'I';
+							$binFile = sanitizeUploadFileName($filename, $upload_badext);
+							//allowed filename like UTF-8 characters
+							$filename = ltrim(basename(" ".$binFile));
+						}
+					}
+				}
+			}
+			elseif($this->mode == 'edit') {
 				$fileres = $adb->pquery("select filetype, filesize,filename,filedownloadcount,filelocationtype from vtiger_notes where notesid=?", array($this->id));
 				$bDeleteAttachment = vtlib_purify($_REQUEST['bdeleteAttachment']);
-				// file_put_contents('test/debug.txt', serialize($_REQUEST), FILE_APPEND);
 				if ($adb->num_rows($fileres) > 0 && ($bDeleteAttachment == 'false' || empty($bDeleteAttachment))) {
 					$filename = $adb->query_result($fileres, 0, 'filename');
 					$filetype = $adb->query_result($fileres, 0, 'filetype');
@@ -116,19 +118,30 @@ class Documents extends CRMEntity {
 					$filedownloadcount = $adb->query_result($fileres, 0, 'filedownloadcount');
 					$filelocationtype = $adb->query_result($fileres, 0, 'filelocationtype');
 				}
-			}elseif($this->column_fields[$filename_fieldname]) {
+
+				if($bDeleteAttachment == 'true' || !empty($bDeleteAttachment)) {
+					$attachmentRow = Vtiger_Functions::getAttachmentInfo($this->id);
+					if($attachmentRow) {
+						Vtiger_Functions::deleteAttachment($attachmentRow);
+					}
+				}
+					
+			}
+			elseif($this->column_fields[$filename_fieldname]) {
 				$filename = $this->column_fields[$filename_fieldname];
 				$filesize = $this->column_fields['filesize'];
 				$filetype = $this->column_fields['filetype'];
 				$filelocationtype = $this->column_fields[$filetype_fieldname];
 				$filedownloadcount = 0;
-			} else {
+			}
+			else {
 				$filelocationtype = 'I';
 				$filetype = '';
 				$filesize = 0;
 				$filedownloadcount = null;
 			}
-		} else if($this->column_fields[$filetype_fieldname] == 'E' ){
+		} 
+		else if($this->column_fields[$filetype_fieldname] == 'E' ) {
 			$filelocationtype = 'E';
 			$filename = $this->column_fields[$filename_fieldname];
 			// If filename does not has the protocol prefix, default it to http://
@@ -145,7 +158,8 @@ class Documents extends CRMEntity {
 		//Inserting into attachments table
 		if($filelocationtype == 'I') {
 			$this->insertIntoAttachment($this->id,'Documents');
-		}else{
+		}
+		else {
 			$query = "delete from vtiger_seattachmentsrel where crmid = ?";
 			$qparams = array($this->id);
 			$adb->pquery($query, $qparams);
