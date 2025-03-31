@@ -35,7 +35,7 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
         parent::preProcess($request,$display);
     }
 
-	public function composeMailData($request){
+	public function composeMailData(Vtiger_Request $request){
 		$moduleName = 'Emails';
         $fieldModule = $request->get('fieldModule');
 		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);

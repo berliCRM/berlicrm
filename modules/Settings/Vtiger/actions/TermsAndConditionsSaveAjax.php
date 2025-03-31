@@ -19,7 +19,7 @@ class Settings_Vtiger_TermsAndConditionsSaveAjax_Action extends Settings_Vtiger_
         $response->emit();
     }
     
-    public function validateRequest(Vtiger_Request $request) { 
-        $request->validateWriteAccess(); 
+    public function validateRequest(Vtiger_Request $request):bool { 
+        return $request->validateWriteAccess(); 
     } 
 }

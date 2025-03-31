@@ -48,11 +48,11 @@ class Migration_Index_View extends Vtiger_Basic_View {
 	}
 
 
-	public function preProcess(Vtiger_Request $request, $display = true) {
+	public function preProcess(Vtiger_Request $request, $display = true):void {
 		parent::preProcess($request, false);
 	}
 
-	public function getHeaderCss(Vtiger_Request $request) {
+	public function getHeaderCss(Vtiger_Request $request):array {
 		$headerCssInstances = array();
 		$cssFileNames = array(
 			'~/layouts/vlayout/modules/Migration/css/style.css',
@@ -65,7 +65,7 @@ class Migration_Index_View extends Vtiger_Basic_View {
 		return $headerCssInstances;
 	}
 
-	public function getHeaderScripts(Vtiger_Request $request) {
+	public function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = array();
 		$moduleName = $request->getModule();
 

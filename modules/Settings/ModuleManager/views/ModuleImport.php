@@ -106,7 +106,6 @@ class Settings_ModuleManager_ModuleImport_View extends Settings_Vtiger_Index_Vie
 	}
 
 	public function validateRequest(Vtiger_Request $request):bool { 
-            $request->validateReadAccess(); 
-			return true;
-        }
+		return $request->validateReadAccess(); 
+	}
 }

@@ -36,7 +36,7 @@ Class Settings_Profiles_EditAjax_View extends Settings_Profiles_Edit_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$moduleName = $request->getModule();
 
 		$jsFileNames = array(

@@ -33,7 +33,7 @@ class Settings_MailConverter_DeleteMailBox_Action extends Settings_Vtiger_Index_
 		$response->emit();
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
-            $request->validateWriteAccess(); 
+        public function validateRequest(Vtiger_Request $request):bool { 
+            return $request->validateWriteAccess(); 
         }
 }
