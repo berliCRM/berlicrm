@@ -119,7 +119,7 @@ class Documents extends CRMEntity {
 					$filelocationtype = $adb->query_result($fileres, 0, 'filelocationtype');
 				}
 
-				if($bDeleteAttachment == 'true' || !empty($bDeleteAttachment)) {
+				if($bDeleteAttachment == 'true' && !empty($bDeleteAttachment)) {
 					$attachmentRow = Vtiger_Functions::getAttachmentInfo($this->id);
 					if($attachmentRow) {
 						Vtiger_Functions::deleteAttachment($attachmentRow);
