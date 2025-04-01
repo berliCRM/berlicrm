@@ -20,8 +20,10 @@ jQuery.Class("Vtiger_List_Js",{
 		previewBox.style.padding = '10px';
 		previewBox.style.zIndex = '1000';
 		previewBox.style.overflow = 'auto';
-		document.body.appendChild(previewBox);
+		previewBox.style.resize = 'both';
 
+		document.body.appendChild(previewBox);
+	
 		const closePreviewButton = document.createElement('button');
 		closePreviewButton.textContent = '×';
 		closePreviewButton.style.position = 'absolute';
@@ -32,8 +34,7 @@ jQuery.Class("Vtiger_List_Js",{
 		closePreviewButton.style.fontSize = '25px';
 		closePreviewButton.style.cursor = 'pointer';
 		closePreviewButton.style.color = '#333';
-
-
+	
 		// Button zur Box hinzufügen
 		previewBox.appendChild(closePreviewButton);
 		document.body.appendChild(previewBox);
@@ -42,25 +43,59 @@ jQuery.Class("Vtiger_List_Js",{
 		closePreviewButton.addEventListener('click', function () {
 			previewBox.style.display = 'none';
 		});
+	
 		document.querySelectorAll('.pdf-link').forEach(link => {
-
 			link.addEventListener('mouseenter', function (e) {
 				const pdfUrl = this.dataset.pdfPreview;
-				previewBox.innerHTML = `<iframe id="preview" src="${pdfUrl}" width="300" height="400" frameborder="0"></iframe>`;
+				if (!pdfUrl) {
+					previewBox.style.display = "none";
+					return;
+				}
+	
+				const iframe = document.createElement('iframe');
+				iframe.id = "preview";
+				iframe.src = pdfUrl;
+				iframe.width = "100%";
+				iframe.height = "100%";
+				iframe.frameBorder = "0";
+				iframe.style.overflow = "auto";
+				iframe.style.border = "1px solid #ccc";
+	
+				iframe.onerror = function () {
+					previewBox.style.display = "none";
+				};
+	
+				previewBox.innerHTML = '';
+				previewBox.appendChild(iframe);
 				previewBox.appendChild(closePreviewButton);
-				previewBox.style.display = 'block';
+	
+				iframe.onload = function () {
+					try {
+						var elmnt = iframe.contentWindow.document.getElementsByTagName("IMG")[0];
+					} catch (error) {}
+					if (elmnt != undefined) {
+						if (elmnt.src == elmnt.alt) {
+							previewBox.style.display = 'block';
+						} else {
+							previewBox.style.display = 'none';
+						}
+					} else {
+						previewBox.style.display = 'block';
+					}
+				};
+	
 				const linkRect = this.getBoundingClientRect();
-				previewBox.style.left = `${linkRect.right + 10}px`; // Rechts neben dem Link
+				previewBox.style.left = `${linkRect.right + 10}px`;
 				previewBox.style.top = `${linkRect.top}px`;
 			});
-
+	
 			link.addEventListener('click', function (e) {
 				e.preventDefault();
 				const downloadLink = document.createElement('a');
 				downloadLink.href = this.href;
 				downloadLink.download = '';
 				document.body.appendChild(downloadLink);
-				downloadLink.click(); 
+				downloadLink.click();
 				document.body.removeChild(downloadLink);
 			});
 		});
