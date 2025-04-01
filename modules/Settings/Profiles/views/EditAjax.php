@@ -10,15 +10,15 @@
 
 Class Settings_Profiles_EditAjax_View extends Settings_Profiles_Edit_View {
 
-    public function preProcess(Vtiger_Request $request, $display=false) {
-        return true;
+    public function preProcess(Vtiger_Request $request, $display=false):void {
+        return;
     }
     
-    public function postProcess(Vtiger_Request $request, $display=false) {
-        return true;
+    public function postProcess(Vtiger_Request $request, $display=false):void {
+        return;
     }
     
-    public function process(Vtiger_Request $request) {
+    public function process(Vtiger_Request $request):void {
         echo $this->getContents($request);
     }
     
