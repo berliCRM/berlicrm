@@ -1601,11 +1601,14 @@ jQuery.Class("Vtiger_Detail_Js",{
 		else{
 			var linkElement = linkElements.find('a');
 			$(linkElement).on('mouseenter', function (e) {
-				// const pdfUrl = this.dataset.pdfPreview;
 				if(!(linkElement instanceof jQuery)){
 					linkElement = jQuery(linkElement);
 				}
 
+				if (document.querySelector('#pdf-preview-box')) {
+					removeIframe();
+				}
+				document.body.appendChild(previewBox);
 				const iframe = document.createElement('iframe');
 				iframe.id = "preview";
 				iframe.src = linkElement.attr('href');
@@ -1641,17 +1644,17 @@ jQuery.Class("Vtiger_Detail_Js",{
 				const linkRect = this.getBoundingClientRect();
 				previewBox.style.left = `${linkRect.right + 10}px`;
 				previewBox.style.top = `${linkRect.top}px`;
-				});
-	
-				$(linkElement).on('click', function (e) {
-					e.preventDefault();
-					const downloadLink = document.createElement('a');
-					downloadLink.href = this.href;
-					downloadLink.download = '';
-					document.body.appendChild(downloadLink);
-					downloadLink.click(); 
-					document.body.removeChild(downloadLink);
-				});
+			});
+
+			$(linkElement).on('click', function (e) {
+				e.preventDefault();
+				const downloadLink = document.createElement('a');
+				downloadLink.href = this.href;
+				downloadLink.download = '';
+				document.body.appendChild(downloadLink);
+				downloadLink.click(); 
+				document.body.removeChild(downloadLink);
+			});
 		}
 	},
 
