@@ -1508,6 +1508,8 @@ jQuery.Class("Vtiger_Detail_Js",{
 		previewBox.style.zIndex = '1000';
 		previewBox.style.overflow = 'auto';
 		previewBox.style.resize = 'both';
+		previewBox.style.width = '250px';
+		previewBox.style.height = '400px';
 	
 		const closePreviewButton = document.createElement('button');
 		closePreviewButton.textContent = '×';
@@ -1521,16 +1523,15 @@ jQuery.Class("Vtiger_Detail_Js",{
 		closePreviewButton.style.color = '#333';
 		var linkElements = $('[id$="fieldValue_filename"]');
 
-		// Function to remove the existing iframe if any
-		function removeIframe() {
-			const existingIframe = document.querySelector('#pdf-preview-box iframe');
-			if (existingIframe) {
-				existingIframe.remove();
-			}
-		}
-			
-		//add Button to Box 
-		document.body.appendChild(previewBox);
+    // Function to remove the existing iframe if any
+    function removeIframe() {
+        const existingIframe = document.querySelector('#pdf-preview-box iframe');
+        const existingPreviewBox = document.querySelector('#pdf-preview-box');
+        if (existingIframe) {
+            existingIframe.remove();
+            existingPreviewBox.remove();
+        }
+    }
 	
 		// Event-Listener for close-Button
 		closePreviewButton.addEventListener('click', function () {
@@ -1544,7 +1545,11 @@ jQuery.Class("Vtiger_Detail_Js",{
 					if(!(linkElement instanceof jQuery)){
 						linkElement = jQuery(linkElement);
 					}
-					removeIframe();
+
+					if (document.querySelector('#pdf-preview-box')) {
+						removeIframe();
+					}
+					document.body.appendChild(previewBox);
 					const iframe = document.createElement('iframe');
 					iframe.id = "preview";
 					iframe.src = linkElement.attr('href');
