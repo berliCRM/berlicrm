@@ -1521,8 +1521,15 @@ jQuery.Class("Vtiger_Detail_Js",{
 		closePreviewButton.style.color = '#333';
 		var linkElements = $('[id$="fieldValue_filename"]');
 
+		// Function to remove the existing iframe if any
+		function removeIframe() {
+			const existingIframe = document.querySelector('#pdf-preview-box iframe');
+			if (existingIframe) {
+				existingIframe.remove();
+			}
+		}
+			
 		//add Button to Box 
-		previewBox.appendChild(closePreviewButton);
 		document.body.appendChild(previewBox);
 	
 		// Event-Listener for close-Button
@@ -1534,47 +1541,45 @@ jQuery.Class("Vtiger_Detail_Js",{
 			linkElements =jQuery('.pdf-link');
 			document.querySelectorAll('.pdf-link').forEach(linkElement => {
 				$(linkElement).on('mouseenter', function (e) {
-				const pdfUrl = this.dataset.pdfPreview;
-				if (!pdfUrl) {
-					previewBox.style.display = "none";
-					return;
-				}
-	
-				const iframe = document.createElement('iframe');
-				iframe.id = "preview";
-				iframe.src = pdfUrl;
-				iframe.width = "100%";
-				iframe.height = "100%";
-				iframe.frameBorder = "0";
-				iframe.style.overflow = "auto";
-				iframe.style.border = "1px solid #ccc";
-	
-				iframe.onerror = function () {
-					previewBox.style.display = "none";
-				};
-	
-				previewBox.innerHTML = '';
-				previewBox.appendChild(iframe);
-				previewBox.appendChild(closePreviewButton);
-	
-				iframe.onload = function () {
-					try {
-						var elmnt = iframe.contentWindow.document.getElementsByTagName("IMG")[0];
-					} catch (error) {}
-					if (elmnt != undefined) {
-						if (elmnt.src == elmnt.alt) {
-							previewBox.style.display = 'block';
-						} else {
-							previewBox.style.display = 'none';
-						}
-					} else {
-						previewBox.style.display = 'block';
+					if(!(linkElement instanceof jQuery)){
+						linkElement = jQuery(linkElement);
 					}
-				};
-	
-				const linkRect = this.getBoundingClientRect();
-				previewBox.style.left = `${linkRect.right + 10}px`;
-				previewBox.style.top = `${linkRect.top}px`;
+					removeIframe();
+					const iframe = document.createElement('iframe');
+					iframe.id = "preview";
+					iframe.src = linkElement.attr('href');
+					iframe.width = "100%";
+					iframe.height = "100%";
+					iframe.frameBorder = "0";
+					iframe.style.overflow = "auto";
+					iframe.style.border = "1px solid #ccc";
+		
+					iframe.onerror = function () {
+						previewBox.style.display = "none";
+					};
+		
+					previewBox.innerHTML = '';
+					previewBox.appendChild(iframe);
+					previewBox.appendChild(closePreviewButton);
+		
+					iframe.onload = function () {
+						try {
+							var elmnt = iframe.contentWindow.document.getElementsByTagName("IMG")[0];
+						} catch (error) {}
+						if (elmnt != undefined) {
+							if (elmnt.src == elmnt.alt) {
+								previewBox.style.display = 'block';
+							} else {
+								previewBox.style.display = 'none';
+							}
+						} else {
+							previewBox.style.display = 'block';
+						}
+					};
+		
+					const linkRect = this.getBoundingClientRect();
+					previewBox.style.left = `${linkRect.right + 10}px`;
+					previewBox.style.top = `${linkRect.top}px`;
 				});
 	
 				$(linkElement).on('click', function (e) {
@@ -1595,15 +1600,10 @@ jQuery.Class("Vtiger_Detail_Js",{
 				if(!(linkElement instanceof jQuery)){
 					linkElement = jQuery(linkElement);
 				}
-				const pdfUrl = this.dataset.pdfPreview;
-				if (!pdfUrl) {
-					previewBox.style.display = "none";
-					return;
-				}
-	
+
 				const iframe = document.createElement('iframe');
 				iframe.id = "preview";
-				iframe.src = pdfUrl;
+				iframe.src = linkElement.attr('href');
 				iframe.width = "100%";
 				iframe.height = "100%";
 				iframe.frameBorder = "0";
