@@ -1508,8 +1508,10 @@ jQuery.Class("Vtiger_Detail_Js",{
 		previewBox.style.zIndex = '1000';
 		previewBox.style.overflow = 'auto';
 		previewBox.style.resize = 'both';
-		previewBox.style.width = '250px';
-		previewBox.style.height = '400px';
+		// Load saved preview size
+		const savedSize = loadPreviewSize();
+		previewBox.style.width = savedSize.width;
+		previewBox.style.height = savedSize.height;
 	
 		const closePreviewButton = document.createElement('button');
 		closePreviewButton.textContent = '×';
@@ -1523,16 +1525,38 @@ jQuery.Class("Vtiger_Detail_Js",{
 		closePreviewButton.style.color = '#333';
 		var linkElements = $('[id$="fieldValue_filename"]');
 
-    // Function to remove the existing iframe if any
-    function removeIframe() {
-        const existingIframe = document.querySelector('#pdf-preview-box iframe');
-        const existingPreviewBox = document.querySelector('#pdf-preview-box');
-        if (existingIframe) {
-            existingIframe.remove();
-            existingPreviewBox.remove();
-        }
-    }
-	
+		// Function to remove the existing iframe if any
+		function removeIframe() {
+			const existingIframe = document.querySelector('#pdf-preview-box iframe');
+			const existingPreviewBox = document.querySelector('#pdf-preview-box');
+			if (existingIframe) {
+				existingIframe.remove();
+				existingPreviewBox.remove();
+			}
+		}
+		
+		// Function to save preview box size to session storage
+		function savePreviewSize(width, height) {
+			sessionStorage.setItem('previewBoxWidth', width);
+			sessionStorage.setItem('previewBoxHeight', height);
+		}
+
+		// Function to load preview box size from session storage
+		function loadPreviewSize() {
+			return {
+				width: sessionStorage.getItem('previewBoxWidth') || '300px',
+				height: sessionStorage.getItem('previewBoxHeight') || '400px'
+			};
+		}
+
+		// Observe size changes and save them
+		const resizeObserver = new ResizeObserver(entries => {
+			for (let entry of entries) {
+				savePreviewSize(entry.target.style.width, entry.target.style.height);
+			}
+		});
+		resizeObserver.observe(previewBox);
+
 		// Event-Listener for close-Button
 		closePreviewButton.addEventListener('click', function () {
 			previewBox.style.display = 'none';
@@ -1583,7 +1607,7 @@ jQuery.Class("Vtiger_Detail_Js",{
 					};
 		
 					const linkRect = this.getBoundingClientRect();
-					previewBox.style.left = `${linkRect.right + 10}px`;
+					previewBox.style.left = `${linkRect.right - 50}px`;
 					previewBox.style.top = `${linkRect.top}px`;
 				});
 	

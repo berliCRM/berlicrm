@@ -21,6 +21,10 @@ jQuery.Class("Vtiger_List_Js",{
 		previewBox.style.zIndex = '1000';
 		previewBox.style.overflow = 'auto';
 		previewBox.style.resize = 'both';
+		// Load saved preview size
+		const savedSize = loadPreviewSize();
+		previewBox.style.width = savedSize.width;
+		previewBox.style.height = savedSize.height;
 
 		document.body.appendChild(previewBox);
 	
@@ -39,6 +43,29 @@ jQuery.Class("Vtiger_List_Js",{
 		previewBox.appendChild(closePreviewButton);
 		document.body.appendChild(previewBox);
 	
+		// Function to save preview box size to session storage
+		function savePreviewSize(width, height) {
+			sessionStorage.setItem('previewBoxWidth', width);
+			sessionStorage.setItem('previewBoxHeight', height);
+		}
+
+		// Function to load preview box size from session storage
+		function loadPreviewSize() {
+			return {
+				width: sessionStorage.getItem('previewBoxWidth') || '300px',
+				height: sessionStorage.getItem('previewBoxHeight') || '400px'
+			};
+		}
+
+		// Observe size changes and save them
+		const resizeObserver = new ResizeObserver(entries => {
+			for (let entry of entries) {
+				savePreviewSize(entry.target.style.width, entry.target.style.height);
+			}
+		});
+		resizeObserver.observe(previewBox);
+
+
 		// Event-Listener für Schließen-Button
 		closePreviewButton.addEventListener('click', function () {
 			previewBox.style.display = 'none';
