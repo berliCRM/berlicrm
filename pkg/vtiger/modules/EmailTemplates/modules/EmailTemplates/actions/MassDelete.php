@@ -10,7 +10,7 @@
 
 class EmailTemplates_MassDelete_Action extends Vtiger_Mass_Action {
 
-	function checkPermission(){
+	function checkPermission(Vtiger_Request $request):bool {
 		return true;
 	}
 

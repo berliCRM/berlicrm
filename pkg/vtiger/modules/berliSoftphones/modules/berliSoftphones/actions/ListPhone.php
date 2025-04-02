@@ -10,15 +10,16 @@
 
 class berliSoftphones_ListPhone_Action extends Vtiger_IndexAjax_View {
     
-	public function validateRequest(Vtiger_Request $request) { 
-            $request->validateReadAccess(); 
+	public function validateRequest(Vtiger_Request $request):bool { 
+        return $request->validateReadAccess(); 
 	}
-	public function loginRequired() {
+	public function loginRequired():bool {
 		return true;
 	}
-	public function checkPermission() { }
+	public function checkPermission(Vtiger_Request $request) {
+	}
 	
-	protected function preProcessDisplay(Vtiger_Request $request) {
+	protected function preProcessDisplay(Vtiger_Request $request):void {
 		$viewer = new Vtiger_Viewer();
 		//$displayed = $viewer->view($this->preProcessTplName($request), $request->getModule());
 		$menuModelsList = Vtiger_Menu_Model::getAll(true);
@@ -64,12 +65,12 @@ class berliSoftphones_ListPhone_Action extends Vtiger_IndexAjax_View {
     /*
      * Override default preProcess
      */
-	function preProcess(Vtiger_Request $request, $display=true) {
-			$this->preProcessDisplay($request);
+	function preProcess(Vtiger_Request $request, $display=true):void {
+		$this->preProcessDisplay($request);
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return true;
+	function postProcess(Vtiger_Request $request):void {
+		return;
 	}
 
 	

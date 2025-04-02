@@ -1,10 +1,10 @@
 <?xml version='1.0'?>
 <module>
-<exporttime>2022-09-15 15:00:22</exporttime>
+<exporttime>2025-04-02 12:30:00</exporttime>
 <name>PBXManager</name>
 <label>PBXManager</label>
 <parent>Tools</parent>
-<version>2.4</version>
+<version>2.5</version>
 <dependencies>
 <vtiger_version>6.0.0</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>

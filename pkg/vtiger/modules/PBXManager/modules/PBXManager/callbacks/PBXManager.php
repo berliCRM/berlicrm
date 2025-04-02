@@ -15,7 +15,7 @@ vimport('includes.http.Request');
 
 class PBXManager_PBXManager_Callbacks {
     
-    function validateRequest($vtigersecretkey,$request) {
+    function validateRequest($vtigersecretkey,$request):bool {
         if($vtigersecretkey == $request->get('vtigersignature')){
             return true;
         }

@@ -34,7 +34,7 @@ class Settings_ListViewColors_Index_View extends Settings_Vtiger_Index_View {
 		return $headerScriptInstances;
 	}
 	
-	public function getHeaderScripts(Vtiger_Request $request) {
+	public function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$jsFileNames = array(
 			"~/libraries/jquery/colorpicker/js/colorpicker.js"
@@ -44,7 +44,7 @@ class Settings_ListViewColors_Index_View extends Settings_Vtiger_Index_View {
 		return $headerScriptInstances;
 	}
 
-	public function getHeaderCss(Vtiger_Request $request) {
+	public function getHeaderCss(Vtiger_Request $request):array {
 		$headerCssInstances = parent::getHeaderCss($request);
 		$cssFileNames = array(
 			'~/libraries/jquery/colorpicker/css/colorpicker.css'
