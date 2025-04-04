@@ -116,10 +116,10 @@ class Vtiger_WebUI extends Vtiger_EntryPoint {
 			$request_URL = "https://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 		}
  
-      if ($site_URL && stripos($request_URL, $site_URL) !== 0){
-            header("Location: $site_URL",TRUE,301);
-            exit;
-        }
+		if ($site_URL && stripos($request_URL, $site_URL) !== 0){
+		header("Location: $site_URL" . ltrim($_SERVER['REQUEST_URI'], '/'),TRUE,301);
+		exit;
+		}
 
 		global $default_language;
 		vglobal('default_language', $default_language);
