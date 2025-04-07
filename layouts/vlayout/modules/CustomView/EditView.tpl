@@ -67,10 +67,9 @@
                             {else}
                                 <optgroup label='{vtranslate($BLOCK_LABEL, $SOURCE_MODULE)}'>
                             {/if}
-                                
                                 {foreach key=FIELD_NAME item=FIELD_MODEL from=$BLOCK_FIELDS}
                                     {if $FIELD_MODEL->isMandatory()}
-                                        {array_push($MANDATORY_FIELDS, $FIELD_MODEL->getCustomViewColumnName())}
+                                        {assign var="MANDATORY_FIELDS" value=$MANDATORY_FIELDS|@array_merge:[$MANDATORY_FIELDS, $FIELD_MODEL->getCustomViewColumnName()]}
                                     {/if}
                                     <option value="{$FIELD_MODEL->getCustomViewColumnName()}" data-field-name="{$FIELD_NAME}"
                                             {if in_array($FIELD_MODEL->getCustomViewColumnName(), $SELECTED_FIELDS)}
@@ -87,7 +86,7 @@
 					<optgroup label='{vtranslate($BLOCK_LABEL, 'Events')}'>
 					{foreach key=FIELD_NAME item=FIELD_MODEL from=$BLOCK_FIELDS}
 						{if $FIELD_MODEL->isMandatory()}
-							{array_push($MANDATORY_FIELDS, $FIELD_MODEL->getCustomViewColumnName())}
+							{assign var="MANDATORY_FIELDS" value=$MANDATORY_FIELDS|@array_merge:[$MANDATORY_FIELDS, $FIELD_MODEL->getCustomViewColumnName()]}
 						{/if}
 						<option value="{$FIELD_MODEL->getCustomViewColumnName()}" data-field-name="{$FIELD_NAME}"
 						{if in_array($FIELD_MODEL->getCustomViewColumnName(), $SELECTED_FIELDS)}
