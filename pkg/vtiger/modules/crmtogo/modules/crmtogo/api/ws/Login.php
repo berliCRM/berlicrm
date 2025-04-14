@@ -48,6 +48,12 @@ class crmtogo_WS_Login extends crmtogo_WS_Controller {
 			$current_user->id = $current_user->retrieve_user_id($username);
 			$current_user= $current_user->retrieveCurrentUserInfoFromFile($current_user->id);
 			$this->setActiveUser($current_user);
+			// default to de_de if language file doesn't exist
+			$language = $current_user->column_fields['language'];
+			$path = "layouts/vlayout/modules/crmtogo/resources/lang/{$language}.lang.js";
+			if (!file_exists($path)) {
+				$language = 'de_de';
+			}
 			
 			//one day
 			$_SESSION["__HTTP_Session_Expire_TS"]== time() + (60 * 60 * 24);
@@ -57,7 +63,7 @@ class crmtogo_WS_Login extends crmtogo_WS_Controller {
 			$_SESSION["_authenticated_user_id"]=$current_user->id;
 			$_SESSION["username"]=$username;
 			$_SESSION["password"]=$password;
-			$_SESSION["language"]= $current_user->column_fields['language'];
+			$_SESSION["language"]= $language;
 			$_SESSION["user_tz"]=$current_user->column_fields['time_zone'];
 			$result = array();
 			$result['login'] = array(
@@ -67,7 +73,7 @@ class crmtogo_WS_Login extends crmtogo_WS_Controller {
 				'crm_tz' => DateTimeField::getDBTimeZone(),
 				'user_tz' => $current_user->time_zone,
 				'session'=> $sessionid,
-				'language' => $current_user->column_fields['language'],
+				'language' => $language,
 				'vtiger_version' => crmtogo_WS_Utils::getVtigerVersion(),
 				'crmtogo_module_version' => crmtogo_WS_Utils::getVersion()
 			);
