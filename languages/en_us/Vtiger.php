@@ -1008,6 +1008,7 @@ $jsLanguageStrings = array(
 	'SHOULD_BE_LESS_THAN_TODAY' => 'Must occur before today',
 	'SINGLE_Accounts' => 'Organization',
 	'SINGLE_Contacts' => 'Contact',
+	'SINGLE_Vendors' => 'Vendor Name', 
     
         //Promotion translations
         'JS_HIDE_PROMOTION' => 'Hide Promotion',
