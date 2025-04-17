@@ -611,19 +611,19 @@ foreach($moduleToUpdateArr as $moduleToUpdate){
 	}
 }
 
-//  for db create new table for email tracking   add email tracking to send function
+//  for db create new table for email tracking   add email tracking to send function. Was last changed on 2025.03.24 tag 101
 echo "new table for email tracking<br>";
 $query = 'CREATE TABLE IF NOT EXISTS `berlicrm_mailtracker` (
-	`id` int(11) NOT NULL AUTO_INCREMENT,
-	`subject` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-	`reciever` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-	`send_date` datetime NOT NULL,
-	`send_user` int(11) NOT NULL,
-	`smtp_answer` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-	`messageid` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-	PRIMARY KEY (`id`)
-	) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
-';
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `subject` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+    `receiver` text COLLATE utf8_unicode_ci NOT NULL,
+    `send_date` datetime NOT NULL,
+    `send_user` int(11) NOT NULL,
+    `crmid` int(11) DEFAULT NULL,
+    `smtp_answer` text COLLATE utf8_unicode_ci NOT NULL,
+    `messageid` text COLLATE utf8_unicode_ci,
+    PRIMARY KEY (`id`)
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
 $res = $adb->pquery($query, array());
 if(!$res) {
 	echo "Error: ".$adb->database->errorMsg();
@@ -734,13 +734,21 @@ if ($adb->num_rows($checkRes) === 0) {
 	}
 	echo "sortoder done<br>";
 
-	$query = "INSERT INTO vtiger_payment_duration (payment_duration_id, payment_duration, sortorderid, presence) VALUES (1, 'Net 14 days', 1, 1)";
+    $query0 = "SELECT max( payment_duration_id ) AS maxid FROM `vtiger_payment_duration` ";
+    $res0 = $adb->pquery($query0, array());
+    $maxid = 0;
+    if($adb->num_rows($res0) == 1){
+        $maxid = intval($adb->query_result($res0,0,"maxid"));
+    }
+    $maxid = $maxid + 1;
+
+    $query = "INSERT INTO vtiger_payment_duration (payment_duration_id, payment_duration, sortorderid, presence) VALUES ($maxid, 'Net 14 days', 1, 1)";
 	$res = $adb->pquery($query, array());
 	if(!$res) {
 		echo "Error: ".$adb->database->errorMsg();
 	}
 
-	$query = "UPDATE `vtiger_payment_duration_seq` SET id = 4";
+	$query = "UPDATE `vtiger_payment_duration_seq` SET id = $maxid";
 	$res = $adb->pquery($query, array());
 	if(!$res) {
 		echo "Error: ".$adb->database->errorMsg();

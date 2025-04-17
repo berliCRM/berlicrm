@@ -47,6 +47,7 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 	public function send() {
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$rootDirectory =  vglobal('root_directory');
+		$db = PearDatabase::getInstance();
 
 		$mailer = Emails_Mailer_Model::getInstance();
 		$mailer->IsHTML(true);
@@ -181,9 +182,14 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 				}
 			}
 
-			$status = $mailer->Send(true);
+			$errorMsg = 1;
+			try {
+				$status = $mailer->Send(true);
+			} catch (Exception $e) {
+				$errorMsg = $e->getMessage();
+			}
 			if(!$status) {
-				$status = $mailer->getError();
+				$status = $errorMsg = $mailer->getError();
 			} else {
                 $mailString=$mailer->getMailString();
                 $mailBoxModel = MailManager_Mailbox_Model::activeInstance();
@@ -192,14 +198,18 @@ class Emails_Record_Model extends Vtiger_Record_Model {
                     $connector = MailManager_Connector_Connector::connectorWithModel($mailBoxModel, '');
                     imap_append($connector->mBox, $connector->mBoxUrl.$folderName, $mailString, "\\Seen");
                 }
-
-				$mtQuery = "INSERT INTO berlicrm_mailtracker VALUES(?,?,?,?,?,?,?);";
-				$cDT = date('Y-m-d H:i:s');
-				$currentUserModel = Users_Record_Model::getCurrentUserModel();
-				$to_email = $this->get('saved_toid');
-				$adb = PearDatabase::getInstance();
-				$adb->pquery($mtQuery, array(NULL, $subject, serialize($to_email), $cDT, $currentUserModel->getId(), json_encode($status), $mailer->getLastMessageID()));
             }
+			
+			// track emails here
+			// auto_inc ID, subject, receiver, send_date, send_user, crmid, smtp_answer, messageId
+			$mtQuery = "INSERT INTO berlicrm_mailtracker VALUES(?,?,?,?,?,?,?,?);";
+			$cDT = date('Y-m-d H:i:s');
+			$allReveivers = json_encode($mailer->getAllRecipientAddresses());
+			$messageId = '';
+			if ($errorMsg == 1) {
+				$messageId = $mailer->getLastMessageID();
+			}
+			$db->pquery($mtQuery, array(NULL, $subject, $allReveivers, $cDT, $currentUserModel->getId(), $id, $errorMsg, $messageId));
 		}
 		return $status;
 	}
