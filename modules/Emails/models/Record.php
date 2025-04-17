@@ -47,6 +47,10 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 	public function send() {
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$rootDirectory =  vglobal('root_directory');
+		// add slash should it be missing
+		if (substr($rootDirectory, -1) != '/') {
+			$rootDirectory .= '/';
+		}
 		$db = PearDatabase::getInstance();
 
 		$mailer = Emails_Mailer_Model::getInstance();
@@ -201,6 +205,20 @@ class Emails_Record_Model extends Vtiger_Record_Model {
             }
 			
 			// track emails here
+			$query = 'CREATE TABLE IF NOT EXISTS `berlicrm_mailtracker` (
+			 `id` int(11) NOT NULL AUTO_INCREMENT,
+			 `subject` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+			 `receiver` text COLLATE utf8_unicode_ci NOT NULL,
+			 `send_date` datetime NOT NULL,
+			 `send_user` int(11) NOT NULL,
+			 `crmid` int(11) DEFAULT NULL,
+			 `smtp_answer` text COLLATE utf8_unicode_ci NOT NULL,
+			 `messageid` text COLLATE utf8_unicode_ci,
+			 PRIMARY KEY (`id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
+
+			$res = $db->pquery($query, array());
+			
 			// auto_inc ID, subject, receiver, send_date, send_user, crmid, smtp_answer, messageId
 			$mtQuery = "INSERT INTO berlicrm_mailtracker VALUES(?,?,?,?,?,?,?,?);";
 			$cDT = date('Y-m-d H:i:s');
