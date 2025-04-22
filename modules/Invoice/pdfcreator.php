@@ -17,38 +17,42 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 {
 	global $qr_feature; // hast to be set in config.inc.php
 
-	define('PDF_MARGIN_FOOTER', 40);
 	// needed for e-invoice extension
 	$eInvoice = false;
 	if (is_dir('vendor/horstoeko')) {
 		$eInvoice = true;
 		$eInvoiceXmlFile = "modules/Invoice/xrechnung.xml";
-		// require_once('vendor/autoload.php');
+		require_once('vendor/autoload.php');
 		// e-invoice settings from config.inc.php
 		global $default_export_e_invoice, $e_invoice_watermark_pdf;
 		if (empty($default_export_e_invoice)) {
 			$default_export_e_invoice = 'zugferd'; // defaults to zugferd
 		}
 	}
+	if (!is_dir('tecnickcom/tcpdf')) {
+		require_once('libraries/tcpdf/tcpdf.php');
+		require_once('libraries/tcpdf/config/tcpdf_config.php');
+	} else {
+		define('PDF_MARGIN_FOOTER', 40);
+	}
 	require_once('modules/Invoice/Invoice.php');
 	require_once('modules/Invoice/pdf_templates/footer.php');
 	require_once('include/database/PearDatabase.php');
 	require_once('include/utils/InventoryUtils.php');
 	require_once('modules/Pdfsettings/helpers/PDFutils.php');
-	// include('config.inc.php');
 
 	// try to auto-set $qr_feature if not already set in config.inc.php
 	if (!isset($qr_feature)) {
-		if (is_dir('vendor/sprain/swiss-qr-bill')) {
-			$qr_feature = true;
-		} else {
-			$qr_feature = false;
-		}
+		/*
+																											  if (is_dir('vendor/sprain/swiss-qr-bill')) {
+																												  $qr_feature = true;
+																											  } else {
+																												  $qr_feature = false;
+																											  }
+																											  */
+		$qr_feature = false;
 	}
 
-	// if ($qr_feature) {
-	// require_once('swisspdf/createpng.php');
-	// }
 	global $FOOTER_PAGE, $default_font, $font_size_footer, $NUM_FACTURE_NAME, $pdf_strings, $quote_no, $footer_margin;
 
 	// these vars for company details will be set as globals later on ...
@@ -83,7 +87,6 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 	global $columns, $logoradio, $logo_name, $footerradio, $pageradio;
 	global $adb, $app_strings, $focus, $current_user, $invoice_no, $purposefooter;
 	$module = 'Invoice';
-	$current_id = $adb->getUniqueID("vtiger_crmentity");
 
 	//get the stored configuration values
 	$pdf_config_details = getAllPDFDetails('Invoice');
@@ -404,14 +407,6 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 		} else {
 			$document = horstoeko\zugferd\ZugferdDocumentBuilder::CreateNew(horstoeko\zugferd\ZugferdProfiles::PROFILE_XRECHNUNG_3);
 		}
-		//var_dump($invoice_date);
-		//var_dump(DateTime::createFromFormat("d.m.Y", $invoice_date));
-		//var_dump($valid_till);
-		//var_dump(DateTime::createFromFormat("d.m.Y", $valid_till));
-		if (empty($valid_till))
-			$valid_till = $invoice_date;
-		error_reporting(E_ALL);
-		ini_set('display_errors', 'On');
 		$document
 			->setDocumentInformation($invoice_no, "380", \DateTime::createFromFormat('d.m.Y', $invoice_date), "EUR")
 			->addDocumentNote($org_name . ' | ' . $org_address . ' | ' . $org_code . ' ' . $org_city . ' | ' . $org_country . ' | ' . $org_management . ' | ' . $org_taxid, null, 'REG')
@@ -582,24 +577,24 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 	if ($qr_feature == true) {
 		//$bank_iban
 		// 		//Function for generating a random IBAN
-		// 		function generateUniqueIBAN() {
-		// 			// Ländercode und Prüfziffer
-		// 			$qriban = 'CH'; // Schweiz
-		// 			$qriban .= sprintf('%02d', mt_rand(10, 99)); // Zufällige Prüfziffer
+// 		function generateUniqueIBAN() {
+// 			// Ländercode und Prüfziffer
+// 			$qriban = 'CH'; // Schweiz
+// 			$qriban .= sprintf('%02d', mt_rand(10, 99)); // Zufällige Prüfziffer
 
 		// 			// Bankleitzahl
-		// 			$qriban .= sprintf('%05d', mt_rand(30000, 31999));
+// 			$qriban .= sprintf('%05d', mt_rand(30000, 31999));
 
 		// 			// Kontonummer
-		// 			$qriban .= sprintf('%010d', mt_rand(0, 9999999999));
+// 			$qriban .= sprintf('%010d', mt_rand(0, 9999999999));
 
 		// 			// IBAN-Prüfziffer berechnen
-		// 			$ibanWithoutChecksum = $qriban . '271500';
-		// 			$checksum = 98 - bcmod($ibanWithoutChecksum, '97');
-		// 			$qriban .= sprintf('%02d', $checksum);
+// 			$ibanWithoutChecksum = $qriban . '271500';
+// 			$checksum = 98 - bcmod($ibanWithoutChecksum, '97');
+// 			$qriban .= sprintf('%02d', $checksum);
 
 		// 			return $qriban;
-		// 		}
+// 		}
 
 		// 		$pdfDataObj['qriban'] = generateUniqueIBAN();
 
@@ -609,6 +604,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 			'Schweiz' => 'CH',
 			'DEUTSCHLAND' => 'DE',
 			'Deutschland' => 'DE',
+			'Germany' => 'DE',
 		);
 
 		foreach ($countrylist as $country => $country_code) {
@@ -619,6 +615,10 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 				$ship_country_code = $country_code;
 			}
 		}
+		if (empty($bill_country_code))
+			$bill_country_code = 'DE';
+		if (empty($ship_country_code))
+			$ship_country_code = 'DE';
 
 		// Check if the postal code contains letters
 		if (preg_match('/[a-zA-Z]/', $org_code)) {
@@ -659,7 +659,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 		// $pdfDataObj['qriban'] = $bank_iban; // ! special QR-IBAN is needed here
 		// see https://github.com/sprain/php-swiss-qr-bill?tab=readme-ov-file
 		$pdfDataObj['invoice_number'] = strval($focus->column_fields['invoice_no']);
-		$pdfDataObj['bill_number'] = strval($current_id);
+		$pdfDataObj['bill_number'] = strval($idnumber);
 		$pdfDataObj['description'] = strval($focus->column_fields['description']);
 		// }
 		if ($pdfDataObj['payment']['currency'] != " ") {
@@ -757,6 +757,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 		//imagedestroy($imageData); // only needed in PHP < 8.0
 		// $pdf->Image($tempimagepath, 30, 30, $imagewidth, $imageheight, 'JPEG');
 		$pdf->Image($imagepath, 25, 35, $imagewidth, $imageheight, 'PNG');
+		unlink($imagepath);
 	}
 
 	$createdOutputPdfName = '';
@@ -850,13 +851,13 @@ function swissQrCreatepng($pdfDataObj)
 			$pdfDataObj['organisation']['name'],
 			$pdfDataObj['organisation']['hnr+street'],
 			$pdfDataObj['organisation']['zip+state'],
-			$pdfDataObj['organisation']['country'],
+			$pdfDataObj['organisation']['country']
 		)
 	);
 
 	$qrBill->setCreditorInformation(
 		QrBill\DataGroup\Element\CreditorInformation::create(
-			$pdfDataObj['qriban'], // This is a special QR-IBAN. Classic IBANs will not be valid here.
+			$pdfDataObj['qriban'] // This is a special QR-IBAN. Classic IBANs will not be valid here.
 		)
 	);
 
@@ -872,7 +873,7 @@ function swissQrCreatepng($pdfDataObj)
 			$pdfDataObj['contact']['hnr'],
 			$pdfDataObj['contact']['zip'],
 			$pdfDataObj['contact']['state'],
-			$pdfDataObj['contact']['country'],
+			$pdfDataObj['contact']['country']
 			//$pdfDataObj['contact']['org'],
 		)
 	);
@@ -882,7 +883,7 @@ function swissQrCreatepng($pdfDataObj)
 	$qrBill->setPaymentAmountInformation(
 		QrBill\DataGroup\Element\PaymentAmountInformation::create(
 			$pdfDataObj['payment']['currency'],
-			floatval(str_replace(",", ".", $pdfDataObj['payment']['amount'])),
+			floatval(str_replace(",", ".", $pdfDataObj['payment']['amount']))
 		)
 	);
 
@@ -892,7 +893,7 @@ function swissQrCreatepng($pdfDataObj)
 	$referenceNumber = QrBill\Reference\QrPaymentReferenceGenerator::generate(
 		NULL,  // You receive this number from your bank (BESR-ID). Unless your bank is PostFinance, in that case use NULL.
 		//'313947143000901' // A number to match the payment with your internal data, e.g. an invoice number
-		$pdfDataObj['bill_number'],
+		$pdfDataObj['bill_number']
 	);
 
 	$qrBill->setPaymentReference(
@@ -906,7 +907,6 @@ function swissQrCreatepng($pdfDataObj)
 	$qrBill->setAdditionalInformation(
 		QrBill\DataGroup\Element\AdditionalInformation::create(
 			$pdfDataObj['invoice_number'] . ' ' . $pdfDataObj['description']
-
 		)
 	);
 
@@ -921,9 +921,9 @@ function swissQrCreatepng($pdfDataObj)
 		$qrBill->getQrCode()->writeFile('storage/temp/qr' . $pdfDataObj['bill_number'] . '.png');
 	} catch (Exception $e) {
 
-		$datei = fopen("test/testData.txt", "a+");
-		fwrite($datei, print_r($qrBill->getViolations(), TRUE));
-		fclose($datei);
+		// $datei = fopen("test/testData.txt", "a+");
+		// fwrite($datei, print_r($qrBill->getViolations(), TRUE));
+		// fclose($datei);
 
 	}
 	return 'storage/temp/qr' . $pdfDataObj['bill_number'] . '.png';
