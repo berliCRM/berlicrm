@@ -1593,15 +1593,29 @@ jQuery.Class("Vtiger_Detail_Js",{
 		
 					iframe.onload = function () {
 						try {
-							var elmnt = iframe.contentWindow.document.getElementsByTagName("IMG")[0];
-						} catch (error) {}
-						if (elmnt != undefined) {
-							if (elmnt.src == elmnt.alt) {
-								previewBox.style.display = 'block';
+							const imgEl = iframe.contentWindow.document.getElementsByTagName("IMG")[0];
+							if (imgEl) {
+								// If there is an <img>, check if it's valid by reloading it outside the iframe
+								const testImg = new Image();
+								testImg.onload = function () {
+									// Image loaded fine → show the image instead of the iframe
+									const cleanImg = document.createElement("img");
+									cleanImg.src = imgEl.src;
+									previewBox.innerHTML = '';
+									previewBox.appendChild(cleanImg);
+									previewBox.appendChild(closePreviewButton);
+									previewBox.style.display = 'block';
+								};
+								testImg.onerror = function () {
+									// Broken image → don't show anything
+									previewBox.style.display = 'none';
+								};
+								testImg.src = imgEl.src;
 							} else {
-								previewBox.style.display = 'none';
+								// No <img> found → assume it's a PDF or another supported preview → show the iframe
+								previewBox.style.display = 'block';
 							}
-						} else {
+						} catch (error) {
 							previewBox.style.display = 'block';
 						}
 					};
