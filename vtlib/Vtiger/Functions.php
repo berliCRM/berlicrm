@@ -632,7 +632,7 @@ class Vtiger_Functions {
 	}
 
 	static function getMergedDescriptionCustomVars($fields, $description) {
-		global $current_user;
+		global $current_user, $default_timezone;
 		date_default_timezone_set($current_user->time_zone);
 		
 		$dateFormat = new IntlDateFormatter(
@@ -663,6 +663,7 @@ class Vtiger_Functions {
 			}
 			$description = str_replace($token_data, $token_value, $description);
 		}
+		date_default_timezone_set($default_timezone);
 		return $description;
 	}
 	
