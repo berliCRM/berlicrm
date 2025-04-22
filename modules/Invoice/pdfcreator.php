@@ -751,10 +751,10 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 		$pdf->MultiCell(15, 0, $pdfDataObj['payment']['amount'], 0, 'C', 0, 1, '', '', true, 0, true);
 
 		$imagepath = 'storage/temp/qr' . $pdfDataObj['bill_number'] . '.png';
-		$imageData = imagecreatefrompng($imagepath);
-		$tempimagepath = __DIR__ . '/' . $createpngpath;
-		imagejpeg($imageData, $tempimagepath, 100);
-		imagedestroy($imageData); // only needed in PHP < 8.0
+		//$imageData = imagecreatefrompng($imagepath);
+		//$tempimagepath = __DIR__ . '/' . $createpngpath;
+		//imagejpeg($imageData, $tempimagepath, 100);
+		//imagedestroy($imageData); // only needed in PHP < 8.0
 		// $pdf->Image($tempimagepath, 30, 30, $imagewidth, $imageheight, 'JPEG');
 		$pdf->Image($imagepath, 25, 35, $imagewidth, $imageheight, 'PNG');
 	}
