@@ -29,7 +29,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 			$default_export_e_invoice = 'zugferd'; // defaults to zugferd
 		}
 	}
-	if (!is_dir('tecnickcom/tcpdf')) {
+	if (!is_dir('vendor/tecnickcom/tcpdf')) {
 		require_once('libraries/tcpdf/tcpdf.php');
 		require_once('libraries/tcpdf/config/tcpdf_config.php');
 	} else {
