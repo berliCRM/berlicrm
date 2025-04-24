@@ -29,7 +29,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 			$default_export_e_invoice = 'zugferd'; // defaults to zugferd
 		}
 	}
-	if (!is_dir('tecnickcom/tcpdf')) {
+	if (!is_dir('vendor/tecnickcom/tcpdf')) {
 		require_once('libraries/tcpdf/tcpdf.php');
 		require_once('libraries/tcpdf/config/tcpdf_config.php');
 	} else {
@@ -44,12 +44,12 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 	// try to auto-set $qr_feature if not already set in config.inc.php
 	if (!isset($qr_feature)) {
 		/*
-																											  if (is_dir('vendor/sprain/swiss-qr-bill')) {
-																												  $qr_feature = true;
-																											  } else {
-																												  $qr_feature = false;
-																											  }
-																											  */
+																														  if (is_dir('vendor/sprain/swiss-qr-bill')) {
+																															  $qr_feature = true;
+																														  } else {
+																															  $qr_feature = false;
+																														  }
+																														  */
 		$qr_feature = false;
 	}
 
@@ -406,6 +406,9 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 			$document = horstoeko\zugferd\ZugferdDocumentBuilder::CreateNew(horstoeko\zugferd\ZugferdProfiles::PROFILE_EXTENDED);
 		} else {
 			$document = horstoeko\zugferd\ZugferdDocumentBuilder::CreateNew(horstoeko\zugferd\ZugferdProfiles::PROFILE_XRECHNUNG_3);
+		}
+		if (empty($valid_till)) {
+			$valid_till = $invoice_date;
 		}
 		$document
 			->setDocumentInformation($invoice_no, "380", \DateTime::createFromFormat('d.m.Y', $invoice_date), "EUR")
