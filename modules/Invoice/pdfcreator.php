@@ -407,6 +407,9 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 		} else {
 			$document = horstoeko\zugferd\ZugferdDocumentBuilder::CreateNew(horstoeko\zugferd\ZugferdProfiles::PROFILE_XRECHNUNG_3);
 		}
+		if (empty($valid_till)) {
+			$valid_till = $invoice_date;
+		}		
 		$document
 			->setDocumentInformation($invoice_no, "380", \DateTime::createFromFormat('d.m.Y', $invoice_date), "EUR")
 			->addDocumentNote($org_name . ' | ' . $org_address . ' | ' . $org_code . ' ' . $org_city . ' | ' . $org_country . ' | ' . $org_management . ' | ' . $org_taxid, null, 'REG')
