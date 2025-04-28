@@ -281,6 +281,7 @@ jQuery.Class("Vtiger_List_Js",{
 					};
 				} 
 				else {
+					progressIndicatorElement.progressIndicator({'mode' : 'hide'});
 					alert(app.vtranslate('JS_SMS_SERVER_CONFIGURATION'));
 				}
 			});
