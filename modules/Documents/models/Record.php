@@ -69,6 +69,66 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 		$fileDetails = $this->getFileDetails();
 		$fileContent = false;
 
+		if (!empty ($fileDetails)) {
+			$filePath = $fileDetails['path'];
+			$fileName = $fileDetails['name'];
+
+			if ($this->get('filelocationtype') == 'I') {
+				$fileName = html_entity_decode($fileName, ENT_QUOTES, vglobal('default_charset'));
+				// Include the attachmentsid in the saved file name
+				$savedFileName = $fileDetails['attachmentsid'] . "_" . $fileName; 
+				// Use only $fileName for the download name
+				$downloadFileName = $fileName; 
+
+				$FN = $filePath . $savedFileName;
+				if (!file_exists($FN)) {
+					throw new Exception('Attachment not present!');
+				}
+				$size=filesize($FN);
+				//Begin writing headers
+				header("Cache-Control:");
+				header("Cache-Control: public");
+				header("Accept-Ranges: bytes");
+				header('Content-Disposition: attachment; filename="'.basename($downloadFileName).'"');
+				header("Content-type: application/octet-stream");
+				header("Connection: close");
+
+				//check if http_range is sent by browser (or download manager)
+				if(isset($_SERVER['HTTP_RANGE'])) {
+					list($a, $range)=explode("=",$_SERVER['HTTP_RANGE']);
+					//if yes, download missing part
+					str_replace($range, "-", $range);
+					$size2=$size-1;
+					$new_length=$size2-$range;
+					header("HTTP/1.1 206 Partial Content");
+					header("Content-Length: $new_length");
+					header("Content-Range: bytes $range$size2/$size");
+				} 
+				else {
+					$range=0;
+					$size2=$size-1;
+					header("Content-Range: bytes 0-$size2/$size");
+					header("Content-Length: ".$size);
+				}
+
+				$fd=fopen($FN,"rb");
+				fseek($fd,$range);
+
+				$bytes=0;
+				while(!feof($fd)) {
+					$fileContent=fread($fd, 4096);
+					$bytes+=strlen($fileContent);
+					print $fileContent;
+					flush();
+				}
+				fclose($fd);
+			}
+		}
+	}
+
+	function previewFile() {
+		$fileDetails = $this->getFileDetails();
+
 		if (!empty($fileDetails)) {
 			$filePath = $fileDetails['path'];
 			$fileName = $fileDetails['name'];
@@ -91,61 +151,75 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 				header("Cache-Control:");
 				header("Cache-Control: public");
 				header("Accept-Ranges: bytes");
-				$datei = fopen("test/test.txt","a+");
-				fwrite($datei, print_r($contentType, TRUE));
-				fclose($datei);
 
-				if($contentType == 'pdf'){
-					header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
-					header("Content-type: application/pdf");
-				}
-				elseif($contentType == 'txt') {
-					header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
-					header("Content-Type: text/plain; charset=UTF-8");
-				}
-				elseif($contentType == 'csv') {
-					header('Content-Type: text/plain; charset=UTF-8');
-					header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
-				}
-				elseif($contentType == 'jpg' || 'png'){
-					header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
-					header("Content-type: image/jpg");
-				}
-				else{
-					header('Content-Disposition: attachment; filename="' . basename($downloadFileName) . '"');
-					header("Content-type: application/octet-stream");
-				}
-				header("Connection: close");
-
-				//check if http_range is sent by browser (or download manager)
+					switch ($contentType) {
+						case 'pdf':
+							header('Content-Type: application/pdf');
+							header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
+							break;
+						case 'txt':
+							header('Content-Type: text/plain; charset=UTF-8');
+							header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
+							break;
+						case 'csv':
+							header('Content-Type: text/csv; charset=UTF-8');
+							header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
+							break;
+						case 'jpg':
+						case 'jpeg':
+							header('Content-Type: image/jpeg');
+							header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
+							break;
+						case 'png':
+							header('Content-Type: image/png');
+							header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
+							break;
+						default:
+							header("HTTP/1.1 204 No Content");
+							header("Content-Length: 0");
+							break;
+					}
+					
+				header('Content-Description: File Transfer');
+				header('Content-Transfer-Encoding: binary');
+				header('Accept-Ranges: bytes');
+				header('Connection: close');
+	
+				$fd = fopen($FN, 'rb');
+				$start = 0;
+				$length = $size;
+	
 				if (isset($_SERVER['HTTP_RANGE'])) {
-					list($a, $range) = explode("=", $_SERVER['HTTP_RANGE']);
-					//if yes, download missing part
-					str_replace($range, "-", $range);
-					$size2 = $size - 1;
-					$new_length = $size2 - $range;
-					header("HTTP/1.1 206 Partial Content");
-					header("Content-Length: $new_length");
-					header("Content-Range: bytes $range$size2/$size");
-				} 
-				else {
-					$range = 0;
-					$size2 = $size - 1;
-					header("Content-Range: bytes 0-$size2/$size");
-					header("Content-Length: " . $size);
+					if (preg_match('/bytes=(\d+)-?(\d*)/', $_SERVER['HTTP_RANGE'], $matches)) {
+						$start = intval($matches[1]);
+						$end = ($matches[2] !== '') ? intval($matches[2]) : $size - 1;
+						if ($end >= $size) $end = $size - 1;
+						if ($start > $end) {
+							header("HTTP/1.1 416 Requested Range Not Satisfiable");
+							exit;
+						}
+						$length = $end - $start + 1;
+						header("HTTP/1.1 206 Partial Content");
+						header("Content-Range: bytes $start-$end/$size");
+						header("Content-Length: $length");
+					}
+				} else {
+					header("Content-Length: $length");
+					header("Content-Range: bytes 0-" . ($size - 1) . "/$size");
 				}
-
-				$fd = fopen($FN, "rb");
-				fseek($fd, $range);
-
-				$bytes = 0;
-				while (!feof($fd)) {
-					$fileContent = fread($fd, 4096);
-					$bytes += strlen($fileContent);
-					print $fileContent;
+	
+				fseek($fd, $start);
+				$bufferSize = 8192;
+				$bytesSent = 0;
+	
+				while (!feof($fd) && $bytesSent < $length) {
+					$buffer = fread($fd, min($bufferSize, $length - $bytesSent));
+					echo $buffer;
 					flush();
+					$bytesSent += strlen($buffer);
 				}
 				fclose($fd);
+				exit;
 			}
 		}
 	}
@@ -161,7 +235,7 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 		$notesId = $this->get('id');
 
 		$result = $db->pquery("SELECT filedownloadcount FROM vtiger_notes WHERE notesid = ?", array($notesId));
-		$downloadCount = (int)$db->query_result($result, 0, 'filedownloadcount') + 1;
+		$downloadCount = $db->query_result($result, 0, 'filedownloadcount') + 1;
 
 		$db->pquery("UPDATE vtiger_notes SET filedownloadcount = ? WHERE notesid = ?", array($downloadCount, $notesId));
 	}

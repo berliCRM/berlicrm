@@ -1570,13 +1570,26 @@ jQuery.Class("Vtiger_Detail_Js",{
 						linkElement = jQuery(linkElement);
 					}
 
+					const previewUrl = new URL(linkElement.attr('href'), window.location.origin);
+					previewUrl.searchParams.set('mode', 'preview');
+
+					fetch(previewUrl)
+					.then(response => {
+						if (response.status === 204) {
+							previewBox.style.display = "none";
+						} else {
+							previewBox.style.display = "block";
+	
+						}
+					});
+
 					if (document.querySelector('#pdf-preview-box')) {
 						removeIframe();
 					}
 					document.body.appendChild(previewBox);
 					const iframe = document.createElement('iframe');
 					iframe.id = "preview";
-					iframe.src = linkElement.attr('href');
+					iframe.src = previewUrl;
 					iframe.width = "100%";
 					iframe.height = "100%";
 					iframe.frameBorder = "0";
@@ -1624,16 +1637,6 @@ jQuery.Class("Vtiger_Detail_Js",{
 					previewBox.style.left = `${linkRect.right - 50}px`;
 					previewBox.style.top = `${linkRect.top}px`;
 				});
-	
-				$(linkElement).on('click', function (e) {
-					e.preventDefault();
-					const downloadLink = document.createElement('a');
-					downloadLink.href = this.href;
-					downloadLink.download = '';
-					document.body.appendChild(downloadLink);
-					downloadLink.click(); 
-					document.body.removeChild(downloadLink);
-				});
 			});
 		}
 		else{
@@ -1642,14 +1645,25 @@ jQuery.Class("Vtiger_Detail_Js",{
 				if(!(linkElement instanceof jQuery)){
 					linkElement = jQuery(linkElement);
 				}
+				const previewUrl = new URL(linkElement.attr('href'), window.location.origin);
+				previewUrl.searchParams.set('mode', 'preview');
 
+				fetch(previewUrl)
+				.then(response => {
+					if (response.status === 204) {
+						previewBox.style.display = "none";
+					} else {
+						previewBox.style.display = "block";
+
+					}
+				});
 				if (document.querySelector('#pdf-preview-box')) {
 					removeIframe();
 				}
 				document.body.appendChild(previewBox);
 				const iframe = document.createElement('iframe');
 				iframe.id = "preview";
-				iframe.src = linkElement.attr('href');
+				iframe.src = previewUrl;
 				iframe.width = "100%";
 				iframe.height = "100%";
 				iframe.frameBorder = "0";
@@ -1666,15 +1680,29 @@ jQuery.Class("Vtiger_Detail_Js",{
 	
 				iframe.onload = function () {
 					try {
-						var elmnt = iframe.contentWindow.document.getElementsByTagName("IMG")[0];
-					} catch (error) {}
-					if (elmnt != undefined) {
-						if (elmnt.src == elmnt.alt) {
-							previewBox.style.display = 'block';
+						const imgEl = iframe.contentWindow.document.getElementsByTagName("IMG")[0];
+						if (imgEl) {
+							// If there is an <img>, check if it's valid by reloading it outside the iframe
+							const testImg = new Image();
+							testImg.onload = function () {
+								// Image loaded fine → show the image instead of the iframe
+								const cleanImg = document.createElement("img");
+								cleanImg.src = imgEl.src;
+								previewBox.innerHTML = '';
+								previewBox.appendChild(cleanImg);
+								previewBox.appendChild(closePreviewButton);
+								previewBox.style.display = 'block';
+							};
+							testImg.onerror = function () {
+								// Broken image → don't show anything
+								previewBox.style.display = 'none';
+							};
+							testImg.src = imgEl.src;
 						} else {
-							previewBox.style.display = 'none';
+							// No <img> found → assume it's a PDF or another supported preview → show the iframe
+							previewBox.style.display = 'block';
 						}
-					} else {
+					} catch (error) {
 						previewBox.style.display = 'block';
 					}
 				};
@@ -1682,16 +1710,6 @@ jQuery.Class("Vtiger_Detail_Js",{
 				const linkRect = this.getBoundingClientRect();
 				previewBox.style.left = `${linkRect.right + 10}px`;
 				previewBox.style.top = `${linkRect.top}px`;
-			});
-
-			$(linkElement).on('click', function (e) {
-				e.preventDefault();
-				const downloadLink = document.createElement('a');
-				downloadLink.href = this.href;
-				downloadLink.download = '';
-				document.body.appendChild(downloadLink);
-				downloadLink.click(); 
-				document.body.removeChild(downloadLink);
 			});
 		}
 	},
