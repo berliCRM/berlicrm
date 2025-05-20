@@ -129,10 +129,7 @@ jQuery.Class("Vtiger_List_Js",{
 							};
 							testImg.src = imgEl.src;
 						} else {
-							// No <img> found → assume it's a PDF or another supported preview → show the iframe
-							previewBox.innerHTML = '';
-							previewBox.appendChild(iframe);
-							previewBox.appendChild(closePreviewButton);			
+							// No <img> found → assume it's a PDF or another supported preview → show the iframe		
 							previewBox.style.display = 'block';
 						}
 					} catch (error) {

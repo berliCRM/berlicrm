@@ -161,10 +161,6 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 							header('Content-Type: text/plain; charset=UTF-8');
 							header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
 							break;
-						case 'csv':
-							header('Content-Type: text/csv; charset=UTF-8');
-							header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
-							break;
 						case 'jpg':
 						case 'jpeg':
 							header('Content-Type: image/jpeg');
@@ -184,29 +180,10 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 				header('Content-Transfer-Encoding: binary');
 				header('Accept-Ranges: bytes');
 				header('Connection: close');
-	
+
 				$fd = fopen($FN, 'rb');
 				$start = 0;
 				$length = $size;
-	
-				if (isset($_SERVER['HTTP_RANGE'])) {
-					if (preg_match('/bytes=(\d+)-?(\d*)/', $_SERVER['HTTP_RANGE'], $matches)) {
-						$start = intval($matches[1]);
-						$end = ($matches[2] !== '') ? intval($matches[2]) : $size - 1;
-						if ($end >= $size) $end = $size - 1;
-						if ($start > $end) {
-							header("HTTP/1.1 416 Requested Range Not Satisfiable");
-							exit;
-						}
-						$length = $end - $start + 1;
-						header("HTTP/1.1 206 Partial Content");
-						header("Content-Range: bytes $start-$end/$size");
-						header("Content-Length: $length");
-					}
-				} else {
-					header("Content-Length: $length");
-					header("Content-Range: bytes 0-" . ($size - 1) . "/$size");
-				}
 	
 				fseek($fd, $start);
 				$bufferSize = 8192;
@@ -216,7 +193,6 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 					$buffer = fread($fd, min($bufferSize, $length - $bytesSent));
 					echo $buffer;
 					flush();
-					$bytesSent += strlen($buffer);
 				}
 				fclose($fd);
 				exit;

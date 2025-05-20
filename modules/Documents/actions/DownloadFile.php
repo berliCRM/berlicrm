@@ -37,9 +37,6 @@ class Documents_DownloadFile_Action extends Vtiger_Action_Controller {
 			//Update the Download Count
 			$documentRecordModel->updateDownloadCount();
 		}
-
-
-
 	}
 }
 ?>
