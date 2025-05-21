@@ -5,7 +5,7 @@
 <label>Import</label>
 <parent></parent>
 <type>extension</type>
-<version>1.11</version>
+<version>1.12</version>
 <dependencies>
 <vtiger_version>6.0.0rc</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>
