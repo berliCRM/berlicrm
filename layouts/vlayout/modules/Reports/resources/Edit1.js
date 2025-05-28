@@ -198,6 +198,8 @@ Reports_Edit_Js("Reports_Edit1_Js",{},{
 				element.val(element.is(':checked'));
 				scheduleBoxContainer.addClass('hide');
 			}
+			jQuery('#sendMail').prop('checked', true);
+			jQuery('#sendMail').trigger('change');
 		});
 		app.registerEventForTimeFields('#schtime', true);
 		app.registerEventForDatePickerFields('#scheduleByDate', true);
