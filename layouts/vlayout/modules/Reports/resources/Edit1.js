@@ -130,7 +130,6 @@ Reports_Edit_Js("Reports_Edit1_Js",{},{
 		var aDeferred = jQuery.Deferred();
 		var form = this.getContainer();
 		var formData = form.serializeFormData();
-		
 		var params = {};
 		var reportName = jQuery.trim(formData.reportname);
 		var reportId = formData.record;
@@ -199,6 +198,8 @@ Reports_Edit_Js("Reports_Edit1_Js",{},{
 				element.val(element.is(':checked'));
 				scheduleBoxContainer.addClass('hide');
 			}
+			jQuery('#sendMail').prop('checked', true);
+			jQuery('#sendMail').trigger('change');
 		});
 		app.registerEventForTimeFields('#schtime', true);
 		app.registerEventForDatePickerFields('#scheduleByDate', true);
@@ -316,6 +317,56 @@ Reports_Edit_Js("Reports_Edit1_Js",{},{
 		});
 	},
 
+	registerEventForChangeSendMail : function() {
+		var thisInstance = this;
+		jQuery('#sendMail').on('change', function(e) {
+			var element = jQuery(e.currentTarget);
+			if(element.is(':checked')) {
+				thisInstance.showSendMail();
+			} else {
+				if (!jQuery('#safeAsDoc').is(':checked')) {
+					jQuery('#safeAsDoc').prop('checked', true);
+					thisInstance.showSafeAsDoc();
+				}
+				thisInstance.hideSendMail();
+			}
+		});
+	},
+
+	registerEventForChangeSafeAsDoc : function() {
+		var thisInstance = this;
+		jQuery('#safeAsDoc').on('change', function(e) {
+			var element = jQuery(e.currentTarget);
+			if(element.is(':checked')) {
+				thisInstance.showSafeAsDoc();
+			} else {
+				if (!jQuery('#sendMail').is(':checked')) {
+					jQuery('#sendMail').prop('checked', true);
+					thisInstance.showSendMail();
+				}
+				thisInstance.hideSafeAsDoc();
+			}
+		});
+	},
+
+	hideSendMail : function() {
+		jQuery('#recipientsList').addClass('hide');
+		jQuery('#specificemailsids').addClass('hide');
+	},
+
+	showSendMail : function() {
+		jQuery('#recipientsList').removeClass('hide');
+		jQuery('#specificemailsids').removeClass('hide');
+	},
+
+	hideSafeAsDoc : function() {
+		jQuery('#selectFolderId').addClass('hide');
+	},
+
+	showSafeAsDoc : function() {
+		jQuery('#selectFolderId').removeClass('hide');
+	},
+
 	hideScheduledTime : function() {
 		jQuery('#scheduledTime').addClass('hide');
 	},
@@ -373,5 +424,7 @@ Reports_Edit_Js("Reports_Edit1_Js",{},{
 		this.registerEventForScheduledReprots();
 		this.registerEventForChangeInScheduledType();
 		this.registerEventForRemoveAnnualDates();
+		this.registerEventForChangeSendMail();
+		this.registerEventForChangeSafeAsDoc();
 	}
 });
