@@ -288,7 +288,7 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 			$db->pquery($sql3, array($documents->id,$new_attachmentid));
 			// relationship between quote and document
 			$sql4="insert into vtiger_senotesrel values(?,?)";
-			$db->pquery($sql4, array('7',$documents->id));
+			$db->pquery($sql4, array('1',$documents->id));
 			// set file active
 			$sql5 = "update vtiger_notes set filestatus = 1 where notesid= ?";
 			$db->pquery($sql5,array($documents->id));
