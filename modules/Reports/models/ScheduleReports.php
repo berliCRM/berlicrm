@@ -210,6 +210,11 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		$baseFileName = str_replace(':', '_', $baseFileName);
 		$baseFileName = str_replace('/', '_', $baseFileName);
 
+		$db = PearDatabase::getInstance();
+		$new_attachmentid = $db->getUniqueID("vtiger_crmentity");
+
+		$baseFileName = $new_attachmentid . '_' . $baseFileName;
+
 		$oReportRun = ReportRun::getInstance($this->get('reportid'));
 		$reportFormat = $this->scheduledFormat;
 		$attachments = array();
@@ -238,7 +243,7 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		foreach ($attachments as $attachmentName => $path) {
 			if ($attfolderid != '' && $attfolderid != '0') {
 				try {
-					$status = $this->saveFile($subject, $attachmentName, filesize($path), $path, $reportFormat, $attfolderid);
+					$status = $this->saveFile($new_attachmentid, $subject, str_replace($new_attachmentid.'_', '', $attachmentName), filesize($path), $path, $reportFormat, $attfolderid);
 				} catch (\Throwable $th) {
 					file_put_contents('test/0debug.txt', "Debug: " . var_export($th, true) . "\n\n", FILE_APPEND);
 				}
@@ -250,10 +255,10 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		return $status;
 	}
 
-	private function saveFile($subject, $filename, $filesize, $filePath, $filetype, $fid) {
+	private function saveFile($new_attachmentid, $subject, $filename, $filesize, $filePath, $filetype, $fid) {
 		require_once('modules/Documents/Documents.php');
-		$cur_datetime = new DateTime(null);
 		$db = PearDatabase::getInstance();
+		$cur_datetime = new DateTime(null);
 		$desc = "";
 
 		//save document
@@ -270,20 +275,19 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		$documents->save("Documents");
 
 		if (!empty ($documents->id)) {
-			$new_unique_id = $db->getUniqueID("vtiger_crmentity");
 			// create a new entry for attachment
 			// crm entity
 			$sql1 = "insert into vtiger_crmentity (crmid,smcreatorid,smownerid,setype,description,createdtime,modifiedtime) values(?, ?, ?, ?, ?, ?, ?)";
-			$db->pquery($sql1, array($new_unique_id, Users::getActiveAdminId(), Users::getActiveAdminId(), "Reports Attachment", $desc, $cur_datetime->format('Y-m-d H:i:s'), $cur_datetime->format('Y-m-d H:i:s')));
+			$db->pquery($sql1, array($new_attachmentid, Users::getActiveAdminId(), Users::getActiveAdminId(), "Reports Attachment", $desc, $cur_datetime->format('Y-m-d H:i:s'), $cur_datetime->format('Y-m-d H:i:s')));
 			// attachment
 			$sql2="insert into vtiger_attachments(attachmentsid, name, description, type, path) values(?, ?, ?, ?, ?)";
-			$db->pquery($sql2, array($new_unique_id, $filename, $desc, $filetype, $filePath));
+			$db->pquery($sql2, array($new_attachmentid, $filename, $desc, $filetype, __DIR__.'/../../../storage/'));
 			// relationship between attachment and document
 			$sql3="insert into vtiger_seattachmentsrel values(?,?)";
-			$db->pquery($sql3, array($documents->id,$new_unique_id));
+			$db->pquery($sql3, array($documents->id,$new_attachmentid));
 			// relationship between quote and document
 			$sql4="insert into vtiger_senotesrel values(?,?)";
-			$db->pquery($sql4, array($new_unique_id,$documents->id));
+			$db->pquery($sql4, array('7',$documents->id));
 			// set file active
 			$sql5 = "update vtiger_notes set filestatus = 1 where notesid= ?";
 			$db->pquery($sql5,array($documents->id));
