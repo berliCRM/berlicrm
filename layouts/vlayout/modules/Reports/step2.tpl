@@ -34,6 +34,7 @@
 		<input type="hidden" name="recipients" value={json_encode($REPORT_MODEL->get('recipients'))}>
         <input type="hidden" name="specificemails" value={json_encode($REPORT_MODEL->get('specificemails'))}>
 		<input type="hidden" name="schtypeid" value="{$REPORT_MODEL->get('schtypeid')}">
+		<input type="hidden" name="attfolderid" value="{$REPORT_MODEL->get('attfolderid')}">
 
 		<input type="hidden" class="step" value="2" />
 		<div class="well padding1per contentsBackground">
