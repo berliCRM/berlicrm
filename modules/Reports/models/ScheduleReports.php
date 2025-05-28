@@ -237,6 +237,7 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		//Added cc to account owner
 		// $accountOwnerId = Users::getActiveAdminId();
 		// $vtigerMailer->AddCC(getUserEmail($accountOwnerId), getUserFullName($accountOwnerId));
+		$status = false;
 		if (!empty($recipientEmails)) $status = $vtigerMailer->Send(true);
 
 		$attfolderid = $this->get('attfolderid');
