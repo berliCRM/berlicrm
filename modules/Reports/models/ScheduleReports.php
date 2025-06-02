@@ -218,15 +218,16 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		$oReportRun = ReportRun::getInstance($this->get('reportid'));
 		$reportFormat = $this->scheduledFormat;
 		$attachments = array();
+		$filePath = decideFilePath();
 
 		if ($reportFormat == 'CSV') {
 			$fileName = $baseFileName . '.csv';
-			$filePath = 'storage/' . $fileName;
+			$filePath .= $fileName;
 			$attachments[$fileName] = $filePath;
 			$oReportRun->writeReportToCSVFile($filePath);
 		} elseif ($reportFormat == 'XLS') {
 			$fileName = $baseFileName . '.xls';
-			$filePath = 'storage/' . $fileName;
+			$filePath .= $fileName;
 			$attachments[$fileName] = $filePath;
 			$oReportRun->writeReportToExcelFile($filePath);
 		}
@@ -243,11 +244,7 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		$attfolderid = $this->get('attfolderid');
 		foreach ($attachments as $attachmentName => $path) {
 			if ($attfolderid != '' && $attfolderid != '0') {
-				try {
-					$status = $this->saveFile($new_attachmentid, $subject, str_replace($new_attachmentid.'_', '', $attachmentName), filesize($path), $path, $reportFormat, $attfolderid);
-				} catch (\Throwable $th) {
-					file_put_contents('test/0debug.txt', "Debug: " . var_export($th, true) . "\n\n", FILE_APPEND);
-				}
+				$status = $this->saveFile($new_attachmentid, $subject, str_replace($new_attachmentid.'_', '', $attachmentName), filesize($path), $path, $reportFormat, $attfolderid);
 			}
 			else {
 				unlink($path);
@@ -282,7 +279,7 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 			$db->pquery($sql1, array($new_attachmentid, Users::getActiveAdminId(), Users::getActiveAdminId(), "Reports Attachment", $desc, $cur_datetime->format('Y-m-d H:i:s'), $cur_datetime->format('Y-m-d H:i:s')));
 			// attachment
 			$sql2="insert into vtiger_attachments(attachmentsid, name, description, type, path) values(?, ?, ?, ?, ?)";
-			$db->pquery($sql2, array($new_attachmentid, $filename, $desc, $filetype, __DIR__.'/../../../storage/'));
+			$db->pquery($sql2, array($new_attachmentid, $filename, $desc, $filetype, decideFilePath()));
 			// relationship between attachment and document
 			$sql3="insert into vtiger_seattachmentsrel values(?,?)";
 			$db->pquery($sql3, array($documents->id,$new_attachmentid));
