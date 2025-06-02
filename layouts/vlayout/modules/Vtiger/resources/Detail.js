@@ -1570,7 +1570,7 @@ jQuery.Class("Vtiger_Detail_Js",{
 						linkElement = jQuery(linkElement);
 					}
 
-					const previewUrl = new URL(linkElement.attr('href'), window.location.origin);
+					const previewUrl = new URL(pdfUrl, window.location.href.split("index.php")[0]);
 					previewUrl.searchParams.set('mode', 'preview');
 
 					fetch(previewUrl)
@@ -1645,7 +1645,7 @@ jQuery.Class("Vtiger_Detail_Js",{
 				if(!(linkElement instanceof jQuery)){
 					linkElement = jQuery(linkElement);
 				}
-				const previewUrl = new URL(linkElement.attr('href'), window.location.origin);
+				const previewUrl = new URL(linkElement.attr('href'), window.location.href.split("index.php")[0]);
 				previewUrl.searchParams.set('mode', 'preview');
 
 				fetch(previewUrl)

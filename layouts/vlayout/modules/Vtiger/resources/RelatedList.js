@@ -74,7 +74,7 @@ jQuery.Class("Vtiger_RelatedList_Js",{},{
 		document.querySelectorAll('.pdf-link').forEach(link => {
 			link.addEventListener('mouseenter', function (e) {
 				const pdfUrl = this.dataset.pdfPreview;
-				const previewUrl = new URL(pdfUrl, window.location.origin);
+				const previewUrl = new URL(pdfUrl, window.location.href.split("index.php")[0]);
 				previewUrl.searchParams.set('mode', 'preview');
 				if (!previewUrl) {
 					previewBox.style.display = "none";
