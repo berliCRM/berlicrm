@@ -28,7 +28,7 @@ class Emails_showEmailContent_View extends Vtiger_Edit_View {
 		$receivers = $request->get('receivers');
 
 		$firstid = key($receivers); 
-		$pmodule = getSalesEntityType($firstid);
+		$pmodule = resolveRecordSource($firstid);
 		$recordModel = Vtiger_Record_Model::getInstanceById($firstid,$pmodule);
 		
 		$column_fields = $recordModel->entity->column_fields;

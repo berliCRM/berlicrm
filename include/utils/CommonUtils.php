@@ -67,6 +67,17 @@ function getTabOwnedBy($module) {
 	return Vtiger_Functions::getModuleOwner($module);
 }
 
+/**
+ * Wrapper for resolving the source module of a record ID.
+ * Delegates to Vtiger_Functions::resolveRecordSource().
+ *
+ * @param int $crmid The record ID to resolve.
+ * @return string|null The module name (e.g. 'Users', 'Leads'), or null if not found.
+ */
+function resolveRecordSource($crmid) {
+	return Vtiger_Functions::resolveRecordSource($crmid);
+}
+
 function getSalesEntityType($crmid) {
 	return Vtiger_Functions::getCRMRecordType($crmid);
 }

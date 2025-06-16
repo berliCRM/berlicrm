@@ -1385,6 +1385,28 @@ class Vtiger_Functions {
         return false;
     }
 
+	/**
+	 * Resolves the source module of a given record ID.
+	 * Checks whether the ID belongs to a user or a CRM module record.
+	 *
+	 * @param int $recordId The record ID to resolve.
+	 * @return string|null The module name (e.g. 'Users', 'Contacts'), or null if not found.
+	 */
+	public static function resolveRecordSource($recordId) {
+		$adb = PearDatabase::getInstance();
+
+		$queryUserId = "SELECT id FROM vtiger_users WHERE id = ?";
+		$result = $adb->pquery($queryUserId, array($recordId));
+		if ($result && $adb->num_rows($result) > 0) {
+			return 'Users';
+		}
+		$setype = self::getCRMRecordType($recordId);
+		if ($setype !== null) {
+			return $setype;
+		}
+		return null;
+	}
+
 
 
 }
