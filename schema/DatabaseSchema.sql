@@ -12589,6 +12589,7 @@ CREATE TABLE IF NOT EXISTS `vtiger_schedulereports` (
   `scheduleid` int(3) DEFAULT NULL,
   `recipients` text,
   `attfolderid` int(19) DEFAULT NULL,
+  `savetype` varchar(30) DEFAULT NULL,
   `schdate` varchar(20) DEFAULT NULL,
   `schtime` time DEFAULT NULL,
   `schdayoftheweek` varchar(100) DEFAULT NULL,

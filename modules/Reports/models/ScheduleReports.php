@@ -92,6 +92,7 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 
 		$recipients = json_encode($this->get('recipients'));
 		$attfolderid = $this->get('attfolderid');
+		$savetype = $this->get('savetype');
 		$specificemails = json_encode($this->get('specificemails'));
 		$isReportScheduled = $this->get('isReportScheduled');
 
@@ -104,11 +105,11 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		} else {
 			$checkScheduledResult = $adb->pquery('SELECT 1 FROM vtiger_schedulereports WHERE reportid=?', array($reportid));
 			if ($adb->num_rows($checkScheduledResult) > 0) {
-				$scheduledReportSql = 'UPDATE vtiger_schedulereports SET scheduleid=?, recipients=?, schdate=?, schtime=?, schdayoftheweek=?, schdayofthemonth=?, schannualdates=?, specificemails=?, next_trigger_time=?, attfolderid=? WHERE reportid=?';
-				$adb->pquery($scheduledReportSql, array($scheduleid, $recipients, $schdate, $schtime, $schdayoftheweek, $schdayofthemonth, $schannualdates, $specificemails, $nextTriggerTime, $attfolderid, $reportid));
+				$scheduledReportSql = 'UPDATE vtiger_schedulereports SET scheduleid=?, recipients=?, schdate=?, schtime=?, schdayoftheweek=?, schdayofthemonth=?, schannualdates=?, specificemails=?, next_trigger_time=?, attfolderid=?, savetype=? WHERE reportid=?';
+				$adb->pquery($scheduledReportSql, array($scheduleid, $recipients, $schdate, $schtime, $schdayoftheweek, $schdayofthemonth, $schannualdates, $specificemails, $nextTriggerTime, $attfolderid, $savetype, $reportid));
 			} else {
-				$scheduleReportSql = 'INSERT INTO vtiger_schedulereports (reportid,scheduleid,recipients,schdate,schtime,schdayoftheweek,schdayofthemonth,schannualdates,next_trigger_time,specificemails,attfolderid) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
-				$adb->pquery($scheduleReportSql, array($reportid, $scheduleid, $recipients, $schdate, $schtime, $schdayoftheweek, $schdayofthemonth, $schannualdates, $nextTriggerTime, $specificemails, $attfolderid));
+				$scheduleReportSql = 'INSERT INTO vtiger_schedulereports (reportid,scheduleid,recipients,schdate,schtime,schdayoftheweek,schdayofthemonth,schannualdates,next_trigger_time,specificemails,attfolderid,savetype) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)';
+				$adb->pquery($scheduleReportSql, array($reportid, $scheduleid, $recipients, $schdate, $schtime, $schdayoftheweek, $schdayofthemonth, $schannualdates, $nextTriggerTime, $specificemails, $attfolderid, $savetype));
 			}
 		}
 	}
@@ -229,7 +230,7 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		}
 
 		if ($saveFile) {
-			if (true) {
+			if ($this->get('savetype') == 'sameDoc') {
 				$query = "SELECT notesid FROM vtiger_notes WHERE title = ? ORDER BY notesid DESC LIMIT 1";
 				$result = $db->pquery($query, array('REPORT: '.$subject));
 				$noteid = $db->fetchByAssoc($result)['notesid'];
@@ -263,6 +264,13 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 						$attachments[$fileName] = $filePath . $new_attachmentid . '_' . $fileName;
 					}
 				}
+			}
+			else {
+				$fileExists = false;
+				$new_attachmentid = $db->getUniqueID("vtiger_crmentity");
+
+				rename($filePath.$fileName, $filePath . $new_attachmentid . '_' . $fileName);
+				$attachments[$fileName] = $filePath . $new_attachmentid . '_' . $fileName;
 			}
 		}
 

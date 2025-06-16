@@ -240,7 +240,7 @@
                     {* show all the attatchment folders*}
                     <div class='row-fluid {if $attfolderid eq '' || $attfolderid eq 0}hide{/if}' id='selectFolderId' style='padding:5px 0px 10px 0px;'>
                         <div class='span3' style='position:relative;top:5px;'>
-                            Verzeichnis wählen<span class="redColor">*</span>
+                            Verzeichnis wählen
                         </div>
                         <div class='span4'>
                             <select class="chzn-select" id='attfolderid' name='attfolderid'>
@@ -248,6 +248,21 @@
                                     <option value="{$FOLDER_MODEL->get('folderid')}" {if $attfolderid eq $FOLDER_MODEL->get('folderid')}selected{/if}> {$FOLDER_MODEL->get('foldername')} </option>
                                 {/foreach}
                             </select>
+                        </div>
+                    </div>
+                    <div class='row-fluid {if $attfolderid eq '' || $attfolderid eq 0}hide{/if}' id='selectFolderId' style='padding:5px 0px 10px 0px;'>
+                        <div class='span3' style='position:relative;top:5px;'>
+                            Speicherart<span class="redColor">*</span>
+                        </div>
+                        <div class="span4">
+                            <div style="display:inline-block; margin-right:20px;">
+                                <input type="radio" id="sameDoc" value="sameDoc" name="savetype" class="alignTop" {if $SCHEDULEDREPORTS->get('savetype') == 'sameDoc'}checked{/if} data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]">&nbsp;
+                                <label for="sameDoc" style="display:inline;">Selbes Dokument</label>
+                            </div>
+                            <div style="display:inline-block;">
+                                <input type="radio" id="newDoc" value="newDoc" name="savetype" class="alignTop" {if $SCHEDULEDREPORTS->get('savetype') == 'newDoc'}checked{/if} data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]">&nbsp;
+                                <label for="newDoc" style="display:inline;">neues Dokument erstellen</label>
+                            </div>
                         </div>
                     </div>
                     {if $SCHEDULEDREPORTS->get('next_trigger_time')}
