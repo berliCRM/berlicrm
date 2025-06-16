@@ -280,6 +280,10 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 				if (!$fileExists) {
 					$status = $this->saveFile($new_attachmentid, $subject, str_replace($new_attachmentid.'_', '', $attachmentName), filesize($path), $path, $reportFormat, $attfolderid);
 				}
+				else {
+					// if file already exists, we do not save it again
+					$status = true;
+				}
 			}
 			else {
 				unlink($path);
@@ -470,7 +474,7 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 				$status = $scheduledReport->sendEmail();
 				Vtiger_Utils::ModuleLog('ScheduleReprot Send Mail Status ', $status);
 				if($status) {
-					// $scheduledReport->updateNextTriggerTime();
+					$scheduledReport->updateNextTriggerTime();
 					// remove entry from tracking table
 					$adb->pquery($deleteQuery, array($reportId));
 				}
