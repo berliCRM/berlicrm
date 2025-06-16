@@ -180,7 +180,7 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 
 	public function sendEmail() {
 		require_once 'vtlib/Vtiger/Mailer.php';
-
+		$db = PearDatabase::getInstance();
 		$vtigerMailer = new Vtiger_Mailer();
 
 		$recipientEmails = $this->getRecipientEmails();
@@ -193,10 +193,11 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		}
 		vimport('~modules/Report/models/Record.php');
 		$reportRecordModel = Reports_Record_Model::getInstanceById($this->get('reportid'));
-		$currentTime = date('Y-m-d H:i:s');
+		$currentTime = date('Y-m-d_H:i:s');
         Vtiger_Utils::ModuleLog('ScheduleReprots Send Mail Start ::', $currentTime);
 		$reportname = decode_html($reportRecordModel->getName());
         $subject = $reportname;
+		$reportname = str_replace(' ', '_', $reportname);
         Vtiger_Utils::ModuleLog('ScheduleReprot Name ::', $reportname);
 		$vtigerMailer->Subject = $subject;
 		$vtigerMailer->Body = $this->getEmailContent($reportRecordModel);
@@ -210,26 +211,59 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		$baseFileName = str_replace(':', '_', $baseFileName);
 		$baseFileName = str_replace('/', '_', $baseFileName);
 
-		$db = PearDatabase::getInstance();
-		$new_attachmentid = $db->getUniqueID("vtiger_crmentity");
-
-		$baseFileName = $new_attachmentid . '_' . $baseFileName;
-
 		$oReportRun = ReportRun::getInstance($this->get('reportid'));
 		$reportFormat = $this->scheduledFormat;
 		$attachments = array();
+		$attfolderid = $this->get('attfolderid');
+		$saveFile = ($attfolderid != '' && $attfolderid != '0');
 		$filePath = decideFilePath();
 
 		if ($reportFormat == 'CSV') {
 			$fileName = $baseFileName . '.csv';
-			$filePath .= $fileName;
-			$attachments[$fileName] = $filePath;
-			$oReportRun->writeReportToCSVFile($filePath);
+			$attachments[$fileName] = $filePath.$fileName;
+			$oReportRun->writeReportToCSVFile($filePath.$fileName);
 		} elseif ($reportFormat == 'XLS') {
 			$fileName = $baseFileName . '.xls';
-			$filePath .= $fileName;
-			$attachments[$fileName] = $filePath;
-			$oReportRun->writeReportToExcelFile($filePath);
+			$attachments[$fileName] = $filePath.$fileName;
+			$oReportRun->writeReportToExcelFile($filePath.$fileName);
+		}
+
+		if ($saveFile) {
+			if (true) {
+				$query = "SELECT notesid FROM vtiger_notes WHERE title = ? ORDER BY notesid DESC LIMIT 1";
+				$result = $db->pquery($query, array('REPORT: '.$subject));
+				$noteid = $db->fetchByAssoc($result)['notesid'];
+
+				$query = "SELECT attachmentsid FROM vtiger_seattachmentsrel WHERE crmid = ?";
+				$result = $db->pquery($query, array($noteid));
+				$attid = $db->fetchByAssoc($result)['attachmentsid'];
+
+				$query = "SELECT name, path FROM vtiger_attachments WHERE attachmentsid = ?";
+				$result = $db->pquery($query, array($attid));
+				$attArr = $db->fetchByAssoc($result);
+				$existingFile = $attArr['path'] . $attid . '_' .$attArr['name'];
+				if (!empty($existingFile)) {
+					if (file_exists($existingFile)) {
+						$fileExists = true;
+						unlink($existingFile);
+
+						$query = "UPDATE vtiger_attachments SET path = ?, name = ? WHERE attachmentsid = ?";
+						$db->pquery($query, array(decideFilePath(), $fileName, $attid));
+						$query = "UPDATE vtiger_notes SET filename = ?, filesize = ? WHERE notesid = ?";
+						$db->pquery($query, array($fileName, filesize($filePath), $noteid));
+						$attachments[$fileName] = $filePath . $attid . '_' . $fileName;
+
+						rename($filePath . $fileName, $filePath . $attid . '_' . $fileName);
+					}
+					else {
+						$fileExists = false;
+						$new_attachmentid = $db->getUniqueID("vtiger_crmentity");
+
+						rename($filePath.$fileName, $filePath . $new_attachmentid . '_' . $fileName);
+						$attachments[$fileName] = $filePath . $new_attachmentid . '_' . $fileName;
+					}
+				}
+			}
 		}
 
 		foreach ($attachments as $attachmentName => $path) {
@@ -241,10 +275,11 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		$status = false;
 		if (!empty($recipientEmails)) $status = $vtigerMailer->Send(true);
 
-		$attfolderid = $this->get('attfolderid');
 		foreach ($attachments as $attachmentName => $path) {
-			if ($attfolderid != '' && $attfolderid != '0') {
-				$status = $this->saveFile($new_attachmentid, $subject, str_replace($new_attachmentid.'_', '', $attachmentName), filesize($path), $path, $reportFormat, $attfolderid);
+			if ($saveFile) {
+				if (!$fileExists) {
+					$status = $this->saveFile($new_attachmentid, $subject, str_replace($new_attachmentid.'_', '', $attachmentName), filesize($path), $path, $reportFormat, $attfolderid);
+				}
 			}
 			else {
 				unlink($path);
@@ -262,11 +297,11 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		//save document
 		$documents = new Documents();
 		$documents->column_fields['assigned_user_id'] = Users::getActiveAdminId();
-		$documents->column_fields['notes_title'] 	= 	$subject;
-		$documents->column_fields['filename']	=	$filename;
-		$documents->column_fields['filesize']	=	$filesize;
-		$documents->column_fields['filetype']	=	$filetype;
-		$documents->column_fields['smownerid']	=	Users::getActiveAdminId();
+		$documents->column_fields['notes_title'] 	= 	'REPORT: '.$subject;
+		$documents->column_fields['filename']		=	$filename;
+		$documents->column_fields['filesize']		=	$filesize;
+		$documents->column_fields['filetype']		=	$filetype;
+		$documents->column_fields['smownerid']		=	Users::getActiveAdminId();
 		$documents->column_fields['filelocationtype'] =	'I';
 		$documents->column_fields['description'] = $desc;
 		$documents->column_fields['folderid'] = $fid;
@@ -435,7 +470,7 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 				$status = $scheduledReport->sendEmail();
 				Vtiger_Utils::ModuleLog('ScheduleReprot Send Mail Status ', $status);
 				if($status) {
-					$scheduledReport->updateNextTriggerTime();
+					// $scheduledReport->updateNextTriggerTime();
 					// remove entry from tracking table
 					$adb->pquery($deleteQuery, array($reportId));
 				}
