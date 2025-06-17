@@ -207,7 +207,7 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		global $HELPDESK_SUPPORT_EMAIL_ID, $HELPDESK_SUPPORT_NAME;
 		$vtigerMailer->SetFrom($HELPDESK_SUPPORT_EMAIL_ID, $HELPDESK_SUPPORT_NAME);
 
-		$baseFileName = $reportname . '_' . $currentTime;
+		$baseFileName = $this->get('reportid') . '_' . $currentTime;
 		//remove : for windows systems
 		$baseFileName = str_replace(':', '_', $baseFileName);
 		$baseFileName = str_replace('/', '_', $baseFileName);
