@@ -224,7 +224,7 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 			$attachments[$fileName] = $filePath.$fileName;
 			$oReportRun->writeReportToCSVFile($filePath.$fileName);
 		} elseif ($reportFormat == 'XLS') {
-			$fileName = $baseFileName . '.xls';
+			$fileName = $baseFileName . '.xlsx';
 			$attachments[$fileName] = $filePath.$fileName;
 			$oReportRun->writeReportToExcelFile($filePath.$fileName);
 		}
@@ -305,6 +305,9 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		$db = PearDatabase::getInstance();
 		$cur_datetime = new DateTime(null);
 		$desc = "";
+		if (pathinfo($filename, PATHINFO_EXTENSION) == 'xlsx') {
+			$filetype = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+		}
 
 		//save document
 		$documents = new Documents();
