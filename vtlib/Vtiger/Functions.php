@@ -1395,14 +1395,14 @@ class Vtiger_Functions {
 	public static function resolveRecordSource($recordId) {
 		$adb = PearDatabase::getInstance();
 
+		$setype = self::getCRMRecordType($recordId);
+		if ($setype !== null) {
+			return $setype;
+		}
 		$queryUserId = "SELECT id FROM vtiger_users WHERE id = ?";
 		$result = $adb->pquery($queryUserId, array($recordId));
 		if ($result && $adb->num_rows($result) > 0) {
 			return 'Users';
-		}
-		$setype = self::getCRMRecordType($recordId);
-		if ($setype !== null) {
-			return $setype;
 		}
 		return null;
 	}

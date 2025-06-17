@@ -14,7 +14,7 @@ $languageStrings = array(
 	'Documents' => 'Dokumente',
 	'Download Count' => 'Download-Anzahl',
 	'Download Type' => 'Download Typ',
-	'File Name' => 'Dateiname',
+	'File Name' => 'Dateiname / Dateipfad',
 	'File Size' => 'Dateigröße',
 	'File Type' => 'Dateityp',
 	'Folder Name' => 'Verzeichnisname',
@@ -62,6 +62,8 @@ $jsLanguageStrings = array(
 	'JS_NOT_ALLOWED' => 'sind nicht zulässig',
 	'JS_OPERATION_DENIED' => 'Operation nicht möglich',
 	'JS_SPECIAL_CHARACTERS' => 'Spezielle Zeichen wie',
+	'JS_Intern_FILE_NAME' => 'Dateiname',
+	'JS_Extern_FILE_NAME' => 'Dateipfad',
 	'of' => 'von',
 	'to' => 'bis',
 );
