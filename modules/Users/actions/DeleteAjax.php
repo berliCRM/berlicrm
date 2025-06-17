@@ -11,7 +11,7 @@ vimport('~~/include/Webservices/DeleteUser.php');
 
 class Users_DeleteAjax_Action extends Vtiger_Delete_Action {
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$moduleName = $request->getModule();
         $ownerId = $request->get('userid');
         $newOwnerId = $request->get('transfer_user_id');
