@@ -21,11 +21,12 @@ jQuery.Class("Vtiger_List_Js",{
 		previewBox.style.zIndex = '1000';
 		previewBox.style.overflow = 'auto';
 		previewBox.style.resize = 'both';
+	
 		// Load saved preview size
 		const savedSize = loadPreviewSize();
 		previewBox.style.width = savedSize.width;
 		previewBox.style.height = savedSize.height;
-
+	
 		document.body.appendChild(previewBox);
 	
 		const closePreviewButton = document.createElement('button');
@@ -39,7 +40,6 @@ jQuery.Class("Vtiger_List_Js",{
 		closePreviewButton.style.cursor = 'pointer';
 		closePreviewButton.style.color = '#333';
 	
-		// Button zur Box hinzufügen
 		previewBox.appendChild(closePreviewButton);
 		document.body.appendChild(previewBox);
 	
@@ -48,7 +48,7 @@ jQuery.Class("Vtiger_List_Js",{
 			sessionStorage.setItem('previewBoxWidth', width);
 			sessionStorage.setItem('previewBoxHeight', height);
 		}
-
+	
 		// Function to load preview box size from session storage
 		function loadPreviewSize() {
 			return {
@@ -56,7 +56,17 @@ jQuery.Class("Vtiger_List_Js",{
 				height: sessionStorage.getItem('previewBoxHeight') || '400px'
 			};
 		}
-
+	
+		function showUnsupportedFormatMessage() {
+			previewBox.innerHTML = `
+				<div style="padding: 20px; color: #a00; font-weight: bold;">
+					Keine Preview für dieses Dateiformat verfügbar.
+				</div>
+			`;
+			previewBox.appendChild(closePreviewButton);
+			previewBox.style.display = 'block';
+		}
+	
 		// Observe size changes and save them
 		const resizeObserver = new ResizeObserver(entries => {
 			for (let entry of entries) {
@@ -64,8 +74,7 @@ jQuery.Class("Vtiger_List_Js",{
 			}
 		});
 		resizeObserver.observe(previewBox);
-
-
+	
 		// Event-Listener für Schließen-Button
 		closePreviewButton.addEventListener('click', function () {
 			previewBox.style.display = 'none';
@@ -80,17 +89,16 @@ jQuery.Class("Vtiger_List_Js",{
 					previewBox.style.display = "none";
 					return;
 				}
-	
+				
 				fetch(previewUrl)
 				.then(response => {
 					if (response.status === 204) {
-						previewBox.style.display = "none";
+						showUnsupportedFormatMessage();
 					} else {
 						previewBox.style.display = "block";
-
 					}
 				});
-
+	
 				const iframe = document.createElement('iframe');
 				iframe.id = "preview";
 				iframe.src = previewUrl;
@@ -101,7 +109,7 @@ jQuery.Class("Vtiger_List_Js",{
 				iframe.style.border = "1px solid #ccc";
 	
 				iframe.onerror = function () {
-					previewBox.style.display = "none";
+					showUnsupportedFormatMessage();
 				};
 	
 				previewBox.innerHTML = '';
@@ -112,10 +120,8 @@ jQuery.Class("Vtiger_List_Js",{
 					try {
 						const imgEl = iframe.contentWindow.document.getElementsByTagName("IMG")[0];
 						if (imgEl) {
-							// If there is an <img>, check if it's valid by reloading it outside the iframe
 							const testImg = new Image();
 							testImg.onload = function () {
-								// Image loaded fine → show the image instead of the iframe
 								const cleanImg = document.createElement("img");
 								cleanImg.src = imgEl.src;
 								previewBox.innerHTML = '';
@@ -124,16 +130,13 @@ jQuery.Class("Vtiger_List_Js",{
 								previewBox.style.display = 'block';
 							};
 							testImg.onerror = function () {
-								// Broken image → don't show anything
-								previewBox.style.display = 'none';
+								showUnsupportedFormatMessage();
 							};
 							testImg.src = imgEl.src;
 						} else {
-							// No <img> found → assume it's a PDF or another supported preview → show the iframe		
 							previewBox.style.display = 'block';
 						}
 					} catch (error) {
-						// Something went wrong → hide preview
 						previewBox.style.display = 'block';
 					}
 				};
@@ -144,6 +147,7 @@ jQuery.Class("Vtiger_List_Js",{
 			});
 		});
 	}),
+	
 
 	listInstance : false,
     FindDuplicatesinstance : false,

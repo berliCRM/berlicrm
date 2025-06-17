@@ -38,6 +38,17 @@ jQuery.Class("Vtiger_RelatedList_Js",{},{
 		closePreviewButton.style.fontSize = '25px';
 		closePreviewButton.style.cursor = 'pointer';
 		closePreviewButton.style.color = '#333';
+
+		function removeIframe() {
+			const existingIframe = document.querySelectorAll('#pdf-preview-box iframe');
+			const existingPreviewBox = document.querySelectorAll('#pdf-preview-box');
+			existingIframe.forEach(element => {
+				element.remove();
+			});
+			existingPreviewBox.forEach(element => {
+				element.remove();
+			});
+		}
 	
 		// Button zur Box hinzufügen
 		previewBox.appendChild(closePreviewButton);
@@ -57,6 +68,17 @@ jQuery.Class("Vtiger_RelatedList_Js",{},{
 			};
 		}
 
+		function showUnsupportedFormatMessage() {
+			previewBox.innerHTML = `
+				<div style="padding: 20px; color: #a00; font-weight: bold;">
+					Keine Preview für dieses Dateiformat verfügbar.
+				</div>
+			`;
+			previewBox.appendChild(closePreviewButton);
+			previewBox.style.display = 'block';
+		}
+		
+
 		// Observe size changes and save them
 		const resizeObserver = new ResizeObserver(entries => {
 			for (let entry of entries) {
@@ -74,23 +96,27 @@ jQuery.Class("Vtiger_RelatedList_Js",{},{
 		document.querySelectorAll('.pdf-link').forEach(link => {
 			link.addEventListener('mouseenter', function (e) {
 				const pdfUrl = this.dataset.pdfPreview;
-				const previewUrl = new URL(pdfUrl, window.location.href.split("index.php")[0]);
+				const previewUrl = new URL(pdfUrl, window.location.origin);
 				previewUrl.searchParams.set('mode', 'preview');
 				if (!previewUrl) {
 					previewBox.style.display = "none";
 					return;
 				}
+
+				if (document.querySelector('#pdf-preview-box')) {
+					removeIframe();
+				}
 	
 				fetch(previewUrl)
 				.then(response => {
 					if (response.status === 204) {
-						previewBox.style.display = "none";
+						showUnsupportedFormatMessage();
 					} else {
 						previewBox.style.display = "block";
 
 					}
 				});
-
+			
 				const iframe = document.createElement('iframe');
 				iframe.id = "preview";
 				iframe.src = previewUrl;
@@ -101,7 +127,8 @@ jQuery.Class("Vtiger_RelatedList_Js",{},{
 				iframe.style.border = "1px solid #ccc";
 	
 				iframe.onerror = function () {
-					previewBox.style.display = "none";
+					showUnsupportedFormatMessage();
+
 				};
 	
 				previewBox.innerHTML = '';
@@ -125,7 +152,7 @@ jQuery.Class("Vtiger_RelatedList_Js",{},{
 							};
 							testImg.onerror = function () {
 								// Broken image → don't show anything
-								previewBox.style.display = 'none';
+								showUnsupportedFormatMessage();
 							};
 							testImg.src = imgEl.src;
 						} else {

@@ -250,7 +250,7 @@ class ListViewController {
 						} elseif ($downloadType == 'E') {
 							$value = '<a onclick="Javascript:Documents_Index_Js.updateDownloadCount(\'index.php?module=Documents&action=UpdateDownloadCount&record=' . $recordId . '\');"' .
 								' href="' . $fileName . '" target="_blank"' .
-								' title="' . getTranslatedString('LBL_DOWNLOAD_FILE', $module) . '" class="pdf-link" data-pdf-preview="' . $fileName . '">' .
+								' title="' . getTranslatedString('LBL_DOWNLOAD_FILE', $module) . '' . $fileName . '">' .
 								textlength_check($value) .
 								'</a>';
 						} else {
