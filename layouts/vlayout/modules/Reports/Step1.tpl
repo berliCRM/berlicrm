@@ -186,15 +186,15 @@
                     {assign var=attfolderid value=$SCHEDULEDREPORTS->get('attfolderid')}
                     {assign var=recipients value=json_decode($SCHEDULEDREPORTS->get('recipients'))}
                     <div class="row-fluid" style='padding:5px 0px 10px 0px;'>
-                        <div class="span3" style='position:relative;top:5px;'>Speichern / Senden: </div>
+                        <div class="span3" style='position:relative;top:5px;'>{vtranslate('LBL_SAVE_SEND', $MODULE)}: </div>
                         <div class="span4">
                             <div style="display:inline-block; margin-right:20px;">
                                 <input type="checkbox" id="sendMail" name="sendMail" class="alignTop" {if is_array($recipients) && $recipients[0] != ''}checked{/if}>&nbsp;
-                                <label for="sendMail" style="display:inline;">Bericht per Mail senden</label>
+                                <label for="sendMail" style="display:inline;">{vtranslate('LBL_SEND_MAIL', $MODULE)}</label>
                             </div>
                             <div style="display:inline-block;">
                                 <input type="checkbox" id="safeAsDoc" name="safeAsDoc" class="alignTop" {if ($attfolderid neq '') && ($attfolderid neq 0)}checked{/if}>&nbsp;
-                                <label for="safeAsDoc" style="display:inline;">Bericht unter Dokumenten speichern</label>
+                                <label for="safeAsDoc" style="display:inline;">{vtranslate('LBL_SAVE_AS_DOCUMENT', $MODULE)}</label>
                             </div>
                         </div>
                     </div>
@@ -240,7 +240,7 @@
                     {* show all the attatchment folders*}
                     <div class='row-fluid {if $attfolderid eq '' || $attfolderid eq 0}hide{/if}' id='selectFolderId' style='padding:5px 0px 10px 0px;'>
                         <div class='span3' style='position:relative;top:5px;'>
-                            Verzeichnis wählen
+                            {vtranslate('LBL_FOLDER_NAME', $MODULE)}
                         </div>
                         <div class='span4'>
                             <select class="chzn-select" id='attfolderid' name='attfolderid'>
@@ -252,16 +252,16 @@
                     </div>
                     <div class='row-fluid {if $attfolderid eq '' || $attfolderid eq 0}hide{/if}' id='selectFolderId' style='padding:5px 0px 10px 0px;'>
                         <div class='span3' style='position:relative;top:5px;'>
-                            Speicherart<span class="redColor">*</span>
+                            {vtranslate('LBL_SAVE_TYPE', $MODULE)}<span class="redColor">*</span>
                         </div>
                         <div class="span4">
                             <div style="display:inline-block; margin-right:20px;">
                                 <input type="radio" id="sameDoc" value="sameDoc" name="savetype" class="alignTop" {if $SCHEDULEDREPORTS->get('savetype') == 'sameDoc'}checked{/if} data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]">&nbsp;
-                                <label for="sameDoc" style="display:inline;">Selbes Dokument</label>
+                                <label for="sameDoc" style="display:inline;">{vtranslate('LBL_SAME_DOCUMENT', $MODULE)}</label>
                             </div>
                             <div style="display:inline-block;">
                                 <input type="radio" id="newDoc" value="newDoc" name="savetype" class="alignTop" {if $SCHEDULEDREPORTS->get('savetype') == 'newDoc'}checked{/if} data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]">&nbsp;
-                                <label for="newDoc" style="display:inline;">neues Dokument erstellen</label>
+                                <label for="newDoc" style="display:inline;">{vtranslate('LBL_NEW_DOCUMENT', $MODULE)}</label>
                             </div>
                         </div>
                     </div>
