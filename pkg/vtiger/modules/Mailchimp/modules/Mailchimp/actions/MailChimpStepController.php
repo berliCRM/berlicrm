@@ -619,8 +619,8 @@ class Mailchimp_MailChimpStepController_Action extends Vtiger_Action_Controller{
 							// create if not found
 							require_once('modules/Accounts/Accounts.php');
 							$account = new Accounts();
-							$account->column_fields[accountname] = $company;
-							$account->column_fields[assigned_user_id]=$current_user->id;
+							$account->column_fields['accountname'] = $company;
+							$account->column_fields['assigned_user_id'] = $current_user->id;
 							$account->save("Accounts");
 							$accountid = $account->id;
 						}
