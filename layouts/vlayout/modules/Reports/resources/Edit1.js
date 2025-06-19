@@ -361,10 +361,12 @@ Reports_Edit_Js("Reports_Edit1_Js",{},{
 
 	hideSafeAsDoc : function() {
 		jQuery('#selectFolderId').addClass('hide');
+		jQuery('#selectSaveType').addClass('hide');
 	},
 
 	showSafeAsDoc : function() {
 		jQuery('#selectFolderId').removeClass('hide');
+		jQuery('#selectSaveType').removeClass('hide');
 	},
 
 	hideScheduledTime : function() {

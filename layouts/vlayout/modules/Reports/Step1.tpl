@@ -250,7 +250,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class='row-fluid {if $attfolderid eq '' || $attfolderid eq 0}hide{/if}' id='selectFolderId' style='padding:5px 0px 10px 0px;'>
+                    <div class='row-fluid {if $attfolderid eq '' || $attfolderid eq 0}hide{/if}' id='selectSaveType' style='padding:5px 0px 10px 0px;'>
                         <div class='span3' style='position:relative;top:5px;'>
                             {vtranslate('LBL_SAVE_TYPE', $MODULE)}<span class="redColor">*</span>
                         </div>
