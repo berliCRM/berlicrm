@@ -207,7 +207,7 @@ class Condition extends Component
             }
 
             if (in_array($token->value, $expr->identifiers)) {
-                continue;
+                // continue;
             }
 
             $expr->identifiers[] = $token->value;
