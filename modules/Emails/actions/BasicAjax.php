@@ -21,7 +21,7 @@ class Emails_BasicAjax_Action extends Vtiger_Action_Controller {
 
 		$emailsResult = array();
 		if ($searchValue) {
-			$emailsResult = $moduleModel->searchEmails($request->get('searchValue'));
+			$emailsResult = $moduleModel->searchEmails($searchValue);
 		}
 
 		$response = new Vtiger_Response();

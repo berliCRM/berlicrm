@@ -26,10 +26,20 @@ class Emails_showEmailContent_View extends Vtiger_Edit_View {
 		
 		$emailbody = $request->get('emailbody');
 		$receivers = $request->get('receivers');
+		$relModule = $request->get('relModule');
 
-		$firstid = key($receivers); 
-		$pmodule = resolveRecordSource($firstid);
-		$recordModel = Vtiger_Record_Model::getInstanceById($firstid,$pmodule);
+		$firstid = key($receivers);
+		$firstRelId = key($relModule);
+		$pmodule = $relModule[$firstid];
+
+		if($firstRelId && $pmodule) {
+			$recordModel = Vtiger_Record_Model::getInstanceById($firstRelId,$pmodule);
+		}
+		else {
+			// Try to resolve record
+			$pmodule = resolveRecordSource($firstid);
+			$recordModel = Vtiger_Record_Model::getInstanceById($firstid,$pmodule);
+		}
 		
 		$column_fields = $recordModel->entity->column_fields;
 		$emailbody =str_replace('\n', '', $emailbody);
