@@ -1635,8 +1635,12 @@ jQuery.Class("Vtiger_Detail_Js",{
 					};
 	
 					const linkRect = this.getBoundingClientRect();
-					previewBox.style.left = `${linkRect.right - 50}px`;
-					previewBox.style.top = `${linkRect.top}px`;
+					const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+					const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+					previewBox.style.position = 'absolute';
+					previewBox.style.left = `${linkRect.right + 10 + scrollLeft}px`;
+					previewBox.style.top = `${linkRect.top + scrollTop}px`;
 				});
 			});
 		} else {
@@ -1704,8 +1708,12 @@ jQuery.Class("Vtiger_Detail_Js",{
 				};
 	
 				const linkRect = this.getBoundingClientRect();
-				previewBox.style.left = `${linkRect.right + 10}px`;
-				previewBox.style.top = `${linkRect.top}px`;
+				const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+				const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+				previewBox.style.position = 'absolute';
+				previewBox.style.left = `${linkRect.right + 10 + scrollLeft}px`;
+				previewBox.style.top = `${linkRect.top + scrollTop}px`;
 			});
 		}
 	},
