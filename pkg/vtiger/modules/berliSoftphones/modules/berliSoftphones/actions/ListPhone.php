@@ -21,6 +21,7 @@ class berliSoftphones_ListPhone_Action extends Vtiger_IndexAjax_View {
 	
 	protected function preProcessDisplay(Vtiger_Request $request):void {
 		$viewer = new Vtiger_Viewer();
+		$viewer->registerSmartyPlugins();
 		//$displayed = $viewer->view($this->preProcessTplName($request), $request->getModule());
 		$menuModelsList = Vtiger_Menu_Model::getAll(true);
 		$selectedModule = 'Contacts';
@@ -82,6 +83,7 @@ class berliSoftphones_ListPhone_Action extends Vtiger_IndexAjax_View {
 		$records = berliSoftphones_Record_Model:: getSoftphoneCaller($phonenumber,$current_user);
 		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
 		$viewer = new Vtiger_Viewer();
+		$viewer->registerSmartyPlugins();
         $viewer->assign('RECORDS', $records);
         $viewer->assign('MODULE_MODEL', $moduleModel);
 		$viewer->assign('CALLERPHONE', $phonenumber);

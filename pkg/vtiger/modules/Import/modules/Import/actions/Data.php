@@ -683,6 +683,7 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 			if($importStatusCount['PENDING'] == 0) {
 				$emailSubject = getTranslatedString('LBL_POST_IMPORT_MAIL_SUBJECT','Import').getTranslatedString($importDataController->module);
 				$viewer = new Vtiger_Viewer();
+				$viewer->registerSmartyPlugins();
 				$viewer->assign('FOR_MODULE', $importDataController->module);
 				$viewer->assign('INVENTORY_MODULES', getInventoryModules());
 				$viewer->assign('IMPORT_RESULT', $importStatusCount);

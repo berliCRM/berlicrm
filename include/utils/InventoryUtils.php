@@ -1470,6 +1470,7 @@ function undoLastImport($obj, $user) {
 
 	if(!is_admin($user) && $user->id != $owner->id) {
 		$viewer = new Vtiger_Viewer();
+		$viewer->registerSmartyPlugins();
 		$viewer->view('OperationNotPermitted.tpl', 'Vtiger');
 		exit;
 	}
@@ -1488,6 +1489,7 @@ function undoLastImport($obj, $user) {
 	}
 
 	$viewer = new Vtiger_Viewer();
+	$viewer->registerSmartyPlugins();
 	$viewer->assign('FOR_MODULE', $moduleName);
 	$viewer->assign('TOTAL_RECORDS', $noOfRecords);
 	$viewer->assign('DELETED_RECORDS_COUNT', $noOfRecordsDeleted);

@@ -32,6 +32,7 @@ class Reports_showVerteilerList_View extends Vtiger_View_Controller {
 			return;
 		}
 		$viewer = new Vtiger_Viewer();
+		$viewer->registerSmartyPlugins();
 		$module = $request->getModule();
 		$moduleName = $request->get('modulename');
 		$reportid = $request->get('reportid');

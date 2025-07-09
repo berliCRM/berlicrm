@@ -2,7 +2,7 @@
 class Reports_showCampaignList_View extends Vtiger_View_Controller {
 	public $log_text = array();
 	
-	function loginRequired() {
+	function loginRequired():bool {
 		return true;
 	}
 
@@ -33,6 +33,7 @@ class Reports_showCampaignList_View extends Vtiger_View_Controller {
 			return;
 		}
 		$viewer = new Vtiger_Viewer();
+		$viewer->registerSmartyPlugins();
 		$module = $request->getModule();
 		$moduleName = $request->get('modulename');
 		$reportid = $request->get('reportid');
