@@ -91,6 +91,7 @@ class Emails_Record_Model extends Vtiger_Record_Model {
                 $mergedSubject = getMergedDescription($this->get('subject'),$currentUserModel->getId(), 'Users');
                 
 		foreach($toEmailInfo as $id => $emails) {
+			set_time_limit(0);
 			$mailer->reinitialize();
 			$mailer->ConfigSenderInfo($fromEmail, $userName, $replyTo);
 			$old_mod_strings = vglobal('mod_strings');
