@@ -158,6 +158,7 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 							header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
 							break;
 						case 'txt':
+						case 'csv':
 							header('Content-Type: text/plain; charset=UTF-8');
 							header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
 							break;

@@ -24,14 +24,45 @@
 
 	{foreach item=RECORD from=$MINILIST_WIDGET_RECORDS}
 	<div class="row-fluid" style="padding:5px">
-		{foreach item=FIELD from=$MINILIST_WIDGET_MODEL->getHeaders() name="minilistWidgetModelRowHeaders"}
-			<div class="span{$SPANSIZE} textOverflowEllipsis" title="{strip_tags($RECORD->get($FIELD->get('name')))}">
-				{if $smarty.foreach.minilistWidgetModelRowHeaders.last}
-					<a href="{$RECORD->getDetailViewUrl()}" class="pull-right"><i title="{vtranslate('LBL_SHOW_COMPLETE_DETAILS',$MODULE_NAME)}" class="icon-th-list alignMiddle"></i></a>
-				{/if}
-				{$RECORD->get($FIELD->get('name'))}&nbsp;
-			</div>
-		{/foreach}
+
+	{foreach item=FIELD from=$MINILIST_WIDGET_MODEL->getHeaders() name="minilistWidgetModelRowHeaders"}
+		{assign var=fieldName value=$FIELD->get('name')}
+		{assign var=fieldValue value=$RECORD->get($fieldName)}
+
+		<div class="span{$SPANSIZE}">
+			{if $fieldName eq 'filename'}
+				{assign var=recordId value=$RECORD->getId()}
+				{assign var=fileDetails value=$RECORD->getFileDetails()}
+				{assign var=previewUrl value="index.php?module=Documents&action=DownloadFile&record=`$recordId`&fileid=`$fileDetails.attachmentsid`&mode=preview"}
+
+				<a href="{$previewUrl}"
+				class="pdf-link"
+				data-pdf-preview="{$previewUrl}">
+					{$fieldValue}
+				</a>
+			{else}
+				{$fieldValue}
+			{/if}
+		</div>
+	{/foreach}
+
+	<script src="layouts/vlayout/modules/Vtiger/resources/List.js"></script>
+	{literal}
+	<script>
+	jQuery(function() {
+		const listInstance = Vtiger_List_Js.getInstance();
+		console.log('List.js geladen:', listInstance);
+
+		if (typeof listInstance.registerPreviewEvents === 'function') {
+			console.log('Preview Events werden registriert');
+			listInstance.registerPreviewEvents();
+		} else {
+			console.warn('registerPreviewEvents nicht verfügbar');
+		}
+	});
+	</script>
+	{/literal}
+
 	</div>
 	{/foreach}
 
