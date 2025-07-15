@@ -17,7 +17,7 @@ class Vtiger_Text_UIType extends Vtiger_Base_UIType {
 	 */
 	public function getDisplayValue($value, $record = false, $recordInstance = false) {
 		global $default_charset;
-		return decode_html(nl2br(htmlspecialchars($value, ENT_HTML5 | ENT_QUOTES, $default_charset, false)));
+		return (nl2br(htmlspecialchars($value, ENT_HTML5 | ENT_QUOTES, $default_charset, false)));
 	}
     
     /**
