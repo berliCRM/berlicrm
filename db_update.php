@@ -1007,13 +1007,12 @@ echo "<br>vtiger_schedulereports table updated successfully<br>";
 // ######################################################## Adding extra fields for eInvoice ... Rev.25134
 echo "start";
 
-
 $arrFields = array(
     'Accounts' => array(
         'LBL_CUSTOM_INFORMATION' => array(
             array('Leitweg-ID', 'buyerreference', 'V~O', 1, 'VARCHAR(50)', '', 'Die Leitweg-ID ist ein Kennzeichen einer elektronischen Rechnung zur eindeutigen Adressierung von öffentlichen Auftraggebern in Deutschland (Beispiele: Behörden, Kommunen, Ministerien).'),
         )
-    ),
+        ),
     'Invoice' => array(
         'LBL_INVOICE_INFORMATION' => array(
             // array('Statusdatum', 'statusdate', 'D~O', 5, 'DATE', '', 'Datum des letzten Status, nicht ändern, wird vom automatischen Mahnwesen verwendet.'), // Datum
@@ -1180,6 +1179,61 @@ foreach ($newValues as $value) {
         printf("Assigned picklist value '%s' to role '%s' for picklist wiht id '%s'.\n", $picklistValueId, $roleId, $picklistid);
     }
 }
+
+if (isComposerUsed('../..')) {
+    echo '<pre>Composer config found, try to update project ...</pre>';
+    putenv("COMPOSER_HOME=../..");
+    $composerCmd = '';
+
+    // Try 'composer --version' (works on Linux, macOS, and Windows if in PATH)
+    exec('composer --version 2>&1', $output, $returnVar);
+    if ($returnVar === 0 && isset($output[0]) && stripos($output[0], 'composer') !== false) {
+        $composerCmd = 'composer -d ../.. -n update';
+        echo '<pre>' . $composerCmd . ' found: ' . $output[0] . '</pre>';
+    } else {
+        unset($output);
+        exec('php ../../composer.phar --version 2>&1', $output, $returnVar);
+        if ($returnVar === 0 && isset($output[0]) && stripos($output[0], 'composer') !== false) {
+            $composerCmd = 'php ../../composer.phar -d ../.. -n update';
+            echo '<pre>' . $composerCmd . ' found: ' . $output[0] . '</pre>';
+        }
+    }
+    if (!empty($composerCmd)) {
+        echo '<pre>Running ' . $composerCmd . ' update ...</pre>';
+        $cmd = "$composerCmd update 2>&1";
+        $output = [];
+        $returnCode = 0;
+        exec($cmd, $output, $returnCode);
+        if ($returnCode === 0) {
+            echo '<pre>Composer update completed successfully.</pre>';
+        } else {
+            echo '<pre>Composer update failed with return code: ' . $returnCode . '</pre>';
+            echo '<pre>' . implode(PHP_EOL, $output) . '</pre>';
+        }
+    }
+} else {
+    echo '<pre>Composer is not installed. Please run installComposer.php first.</pre>';
+}
+
+
+$tagDir = basename(__DIR__);
+
+if (strpos($tagDir, '1.0') === 0) {
+    $newTag = 'berlicrm-'. $tagDir;
+} elseif (strpos($tagDir, '25.4') === 0) {
+    $newTag = 'crm-now-'. $tagDir;
+} else {
+    $newTag = 'unknown-'. $tagDir;
+}
+
+function isComposerUsed(string $projectPath = __DIR__): bool
+{
+    $composerJson = $projectPath . DIRECTORY_SEPARATOR . 'composer.json';
+    $composerLock = $projectPath . DIRECTORY_SEPARATOR . 'composer.lock';
+
+    return file_exists($composerJson) && file_exists($composerLock);
+}
+
 echo "end";
 // ######################################################## Adding extra fields for eInvoice ... 
 
