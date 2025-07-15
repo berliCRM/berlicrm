@@ -90,9 +90,11 @@
                                                                 <a href="javascript:void(0)">{vtranslate('LBL_DELETE_BLOCK', $QUALIFIED_MODULE)}</a>
                                                             </li>
                                                         {/if}
+                                                        {if $BLOCK_MODEL->isBlockRenamingEnabled()}
 								                        <li class="renameBlock">
 															<a href="javascript:void(0)">{vtranslate('LBL_RENAME_BLOCK', $QUALIFIED_MODULE)}</a>
 														</li>
+                                                        {/if}
                                                     </ul>
                                                 </div>
                                             {/if}
