@@ -1359,6 +1359,38 @@ class Vtiger_Functions {
 		}
 	}
 
+	public static function deleteAttachment($attachment) {
+		global $adb;
+		$attachId = $attachment['attachmentsid'];
+		$attachPath = $attachment['path'];
+		$attachName = $attachment['name'];
+		$fullPath = $attachPath . $attachId . "_" . $attachName;
+		if (file_exists($fullPath)) {
+			$delQuery = "DELETE attachments, crmentity FROM vtiger_attachments attachments 
+				INNER JOIN vtiger_crmentity crmentity ON attachments.attachmentsid = crmentity.crmid 
+				WHERE attachments.attachmentsid = ?";
+			$adb->pquery($delQuery, array($attachId));
+			unlink($fullPath);
+		}
+    }
+
+    public static function getAttachmentInfo($id) {
+		$adb = PearDatabase::getInstance();
+        $query = "SELECT * FROM vtiger_seattachmentsrel 
+            INNER JOIN vtiger_attachments ON vtiger_attachments.attachmentsid = vtiger_seattachmentsrel.attachmentsid
+            WHERE vtiger_seattachmentsrel.crmid = ?";
+        
+        $attachIdResult = $adb->pquery($query, array($id));
+
+        if ($attachIdResult && $adb->num_rows($attachIdResult) > 0) {
+			$attachRow = $adb->getNextRow($attachIdResult, false);
+            return $attachRow;
+        }
+
+        return false;
+    }
+
 }
+
 
 
