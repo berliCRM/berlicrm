@@ -75,9 +75,12 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 
 			if ($this->get('filelocationtype') == 'I') {
 				$fileName = html_entity_decode($fileName, ENT_QUOTES, vglobal('default_charset'));
-				$savedFile = $fileDetails['attachmentsid']."_".$fileName;
+				// Include the attachmentsid in the saved file name
+				$savedFileName = $fileDetails['attachmentsid'] . "_" . $fileName; 
+				// Use only $fileName for the download name
+				$downloadFileName = $fileName; 
 
-				$FN = $filePath.$savedFile;
+				$FN = $filePath . $savedFileName;
 				if (!file_exists($FN)) {
 					throw new Exception('Attachment not present!');
 				}
@@ -86,7 +89,7 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 				header("Cache-Control:");
 				header("Cache-Control: public");
 				header("Accept-Ranges: bytes");
-				header('Content-Disposition: attachment; filename="'.basename($FN).'"');
+				header('Content-Disposition: attachment; filename="'.basename($downloadFileName).'"');
 				header("Content-type: application/octet-stream");
 				header("Connection: close");
 
@@ -123,6 +126,81 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 		}
 	}
 
+	function previewFile() {
+		$fileDetails = $this->getFileDetails();
+
+		if (!empty($fileDetails)) {
+			$filePath = $fileDetails['path'];
+			$fileName = $fileDetails['name'];
+
+			$contentType = pathinfo($fileName, PATHINFO_EXTENSION); 
+
+			if ($this->get('filelocationtype') == 'I') {
+				$fileName = html_entity_decode($fileName, ENT_QUOTES, vglobal('default_charset'));
+				// Include the attachmentsid in the saved file name
+				$savedFileName = $fileDetails['attachmentsid'] . "_" . $fileName; 
+				// Use only $fileName for the download name
+				$downloadFileName = $fileName; 
+
+				$FN = $filePath . $savedFileName;
+				if (!file_exists($FN)) {
+					throw new Exception('Attachment not present!');
+				}
+				$size = filesize($FN);
+				//Begin writing headers
+				header("Cache-Control:");
+				header("Cache-Control: public");
+				header("Accept-Ranges: bytes");
+
+					switch ($contentType) {
+						case 'pdf':
+							header('Content-Type: application/pdf');
+							header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
+							break;
+						case 'txt':
+						case 'csv':
+							header('Content-Type: text/plain; charset=UTF-8');
+							header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
+							break;
+						case 'jpg':
+						case 'jpeg':
+							header('Content-Type: image/jpeg');
+							header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
+							break;
+						case 'png':
+							header('Content-Type: image/png');
+							header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
+							break;
+						default:
+							header("HTTP/1.1 204 No Content");
+							header("Content-Length: 0");
+							break;
+					}
+					
+				header('Content-Description: File Transfer');
+				header('Content-Transfer-Encoding: binary');
+				header('Accept-Ranges: bytes');
+				header('Connection: close');
+	
+				$fd = fopen($FN, 'rb');
+				$start = 0;
+				$length = $size;
+	
+				fseek($fd, $start);
+				$bufferSize = 8192;
+				$bytesSent = 0;
+	
+				while (!feof($fd) && $bytesSent < $length) {
+					$buffer = fread($fd, min($bufferSize, $length - $bytesSent));
+					echo $buffer;
+					flush();
+				}
+				fclose($fd);
+				exit;
+			}
+		}
+	}
+
 	function updateFileStatus($status) {
 		$db = PearDatabase::getInstance();
 
@@ -134,7 +212,7 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 		$notesId = $this->get('id');
 
 		$result = $db->pquery("SELECT filedownloadcount FROM vtiger_notes WHERE notesid = ?", array($notesId));
-		$downloadCount = $db->query_result($result, 0, 'filedownloadcount') + 1;
+		$downloadCount = (int) $db->query_result($result, 0, 'filedownloadcount') + 1;
 
 		$db->pquery("UPDATE vtiger_notes SET filedownloadcount = ? WHERE notesid = ?", array($downloadCount, $notesId));
 	}
