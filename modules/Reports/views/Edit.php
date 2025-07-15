@@ -112,6 +112,8 @@ Class Reports_Edit_View extends Vtiger_Edit_View {
 		}
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 
+		$attatchmentFolders = Documents_Module_Model::getAllFolders();
+		$viewer->assign('ATTACHMENT_FOLDERS', $attatchmentFolders);
 		$viewer->assign('SCHEDULEDREPORTS', $reportModel->getScheduledReport());
         $viewer->assign('MODULELIST', $modulesList);
 		$viewer->assign('RELATED_MODULES', $relatedModules);
@@ -151,6 +153,15 @@ Class Reports_Edit_View extends Vtiger_Edit_View {
 			}
 			$reportModel->set($name, $value);
 		}
+
+		if(!$data['sendMail'] == 'on') {
+			$reportModel->set('recipients', null);
+			$reportModel->set('specificemails', null);
+		}
+		if(!$data['safeAsDoc'] == 'on') {
+			$reportModel->set('attfolderid', null);
+		}
+
 		$primaryModule = $request->get('primary_module');
 		$secondaryModules = $request->get('secondary_modules');
 
