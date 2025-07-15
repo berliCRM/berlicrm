@@ -108,15 +108,24 @@ class Settings_Workflows_ListView_Model extends Settings_Vtiger_ListView_Model {
 			$workflow_id = $row['workflow_id'];
 			$tm = new VTTaskManager($db);
 			$tasks = $tm->getTasksForWorkflow($workflow_id);
-			$tasksummary = '';
-			foreach ($tasks as $key => $taskobj) {
-				if ($taskobj->active == 1 AND empty($tasksummary)) {
-					$tasksummary = $taskobj->summary;
-				}
-				else if ($taskobj->active == 1) {
-					$tasksummary = $tasksummary.', '.$taskobj->summary;
+			$tasksummary = array();
+			foreach ($tasks AS $key => $taskobj) {
+				if ($taskobj->active) {
+					$summary = $taskobj->summary;
+					if (empty($summary)) {
+						$summary = $taskobj->methodName;
+					}
+					if (empty($summary)) {
+						$summary = get_class($taskobj);
+					}
+					// shouldn't happen, but add fallback anyway
+					if (empty($summary)) {
+						$summary = 'Info: '.vtranslate('LBL_SUMMARY').' '.vtranslate('LBL_IS_EMPTY');
+					}
+					$tasksummary[] = $summary;
 				}
 			}
+			$tasksummary = implode(', ', $tasksummary);
 			
 			if (!empty ($tasksummary)) {
 				$tasktitles = $tasksummary;			}
