@@ -36,9 +36,9 @@ class Reports_DetailAjax_Action extends Vtiger_BasicAjax_Action{
         
         $advFilterSql = $reportModel->getAdvancedFilterSQL();
         $query = $reportModel->getReportSQL($advFilterSql, 'PDF');
-        $countQuery = $reportModel->generateCountQuery($query);
+        // $countQuery = $reportModel->generateCountQuery($query);
 
-        $count = $reportModel->getReportsCount($countQuery);
+        $count = $reportModel->getReportsCount($query);
         $response = new Vtiger_Response();
         $response->setResult($count);
         $response->emit();

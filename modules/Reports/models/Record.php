@@ -692,8 +692,8 @@ class Reports_Record_Model extends Vtiger_Record_Model {
         global $adb;
         $count = 0;
         $result = $adb->query($query, array());
-        if($adb->num_rows($result) > 0 ){
-            $count = $adb->query_result($result, 0, 'count');
+        if ($result) {
+            $count = $adb->num_rows($result);
         }
         return $count;
     }
