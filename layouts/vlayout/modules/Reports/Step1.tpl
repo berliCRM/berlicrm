@@ -181,15 +181,31 @@
                             </div>
                         </div>
                     </div>
+
+                    {* select save report as document or send it via mail *}
+                    {assign var=attfolderid value=$SCHEDULEDREPORTS->get('attfolderid')}
+                    {assign var=recipients value=json_decode($SCHEDULEDREPORTS->get('recipients'))}
+                    <div class="row-fluid" style='padding:5px 0px 10px 0px;'>
+                        <div class="span3" style='position:relative;top:5px;'>{vtranslate('LBL_SAVE_SEND', $MODULE)}: </div>
+                        <div class="span4">
+                            <div style="display:inline-block; margin-right:20px;">
+                                <input type="checkbox" id="sendMail" name="sendMail" class="alignTop" {if is_array($recipients) && $recipients[0] != ''}checked{/if}>&nbsp;
+                                <label for="sendMail" style="display:inline;">{vtranslate('LBL_SEND_MAIL', $MODULE)}</label>
+                            </div>
+                            <div style="display:inline-block;">
+                                <input type="checkbox" id="safeAsDoc" name="safeAsDoc" class="alignTop" {if ($attfolderid neq '') && ($attfolderid neq 0)}checked{/if}>&nbsp;
+                                <label for="safeAsDoc" style="display:inline;">{vtranslate('LBL_SAVE_AS_DOCUMENT', $MODULE)}</label>
+                            </div>
+                        </div>
+                    </div>
                     {* show all the users,groups,roles and subordinat roles*}
-                    <div class='row-fluid' id='recipientsList' style='padding:5px 0px 10px 0px;'>
+                    <div class='row-fluid {if !is_array($recipients) || $recipients[0] == ''}hide{/if}' id='recipientsList' style='padding:5px 0px 10px 0px;'>
                         <div class='span3' style='position:relative;top:5px;'>
                             {vtranslate('LBL_SELECT_RECIEPIENTS', $MODULE)}<span class="redColor">*</span>
                         </div>
                         <div class='span4'>
                             {assign var=ALL_ACTIVEUSER_LIST value=$CURRENT_USER->getAccessibleUsers()}
                             {assign var=ALL_ACTIVEGROUP_LIST value=$CURRENT_USER->getAccessibleGroups()}
-                            {assign var=recipients value=Zend_Json::decode($SCHEDULEDREPORTS->get('recipients'))}
                             <select multiple class="chosen-select span6" id='recipients' name='recipients' data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" style="width: 281px !important;">
                                 <optgroup label="{vtranslate('LBL_USERS')}">
                                     {foreach key=USER_ID item=USER_NAME from=$ALL_ACTIVEUSER_LIST}
@@ -212,13 +228,41 @@
                             </select>
                         </div>
                     </div>
-                    <div class='row-fluid' id='specificemailsids' style='padding:5px 0px 10px 0px;'>
+                    <div class='row-fluid {if !is_array($recipients) || $recipients[0] == ''}hide{/if}' id='specificemailsids' style='padding:5px 0px 10px 0px;'>
                         <div class='span3' style='position:relative;top:5px;'>
                             {vtranslate('LBL_SPECIFIC_EMAIL_ADDRESS', $MODULE)}
                         </div>
                         <div class='span4'>
                             {assign var=specificemailids value=Zend_Json::decode($SCHEDULEDREPORTS->get('specificemails'))}
                             <input id="specificemails" style="width: 281px !important;" class="span6" type="text" value="{$specificemailids}" name="specificemails" data-validation-engine="validate[funcCall[Vtiger_MultiEmails_Validator_Js.invokeValidation]]"></input>
+                        </div>
+                    </div>
+                    {* show all the attatchment folders*}
+                    <div class='row-fluid {if $attfolderid eq '' || $attfolderid eq 0}hide{/if}' id='selectFolderId' style='padding:5px 0px 10px 0px;'>
+                        <div class='span3' style='position:relative;top:5px;'>
+                            {vtranslate('LBL_FOLDER_NAME', $MODULE)}
+                        </div>
+                        <div class='span4'>
+                            <select class="chzn-select" id='attfolderid' name='attfolderid'>
+                                {foreach key=KEY item=FOLDER_MODEL from=$ATTACHMENT_FOLDERS}
+                                    <option value="{$FOLDER_MODEL->get('folderid')}" {if $attfolderid eq $FOLDER_MODEL->get('folderid')}selected{/if}> {$FOLDER_MODEL->get('foldername')} </option>
+                                {/foreach}
+                            </select>
+                        </div>
+                    </div>
+                    <div class='row-fluid {if $attfolderid eq '' || $attfolderid eq 0}hide{/if}' id='selectSaveType' style='padding:5px 0px 10px 0px;'>
+                        <div class='span3' style='position:relative;top:5px;'>
+                            {vtranslate('LBL_SAVE_TYPE', $MODULE)}<span class="redColor">*</span>
+                        </div>
+                        <div class="span4">
+                            <div style="display:inline-block; margin-right:20px;">
+                                <input type="radio" id="sameDoc" value="sameDoc" name="savetype" class="alignTop" {if $SCHEDULEDREPORTS->get('savetype') == 'sameDoc'}checked{/if} data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]">&nbsp;
+                                <label for="sameDoc" style="display:inline;">{vtranslate('LBL_SAME_DOCUMENT', $MODULE)}</label>
+                            </div>
+                            <div style="display:inline-block;">
+                                <input type="radio" id="newDoc" value="newDoc" name="savetype" class="alignTop" {if $SCHEDULEDREPORTS->get('savetype') == 'newDoc'}checked{/if} data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]">&nbsp;
+                                <label for="newDoc" style="display:inline;">{vtranslate('LBL_NEW_DOCUMENT', $MODULE)}</label>
+                            </div>
                         </div>
                     </div>
                     {if $SCHEDULEDREPORTS->get('next_trigger_time')}

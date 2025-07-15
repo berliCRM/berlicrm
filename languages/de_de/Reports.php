@@ -273,7 +273,12 @@ $languageStrings = array(
 	'FAILED_REPORTS' => 'geplante Berichte, die seit 24 Stunden nicht erzeugt werden konnten:',
 	'FAILED_REPORTS_SUBJECT' => 'fehlerhafte geplante Berichte',
 	'LBL_SCHEDULED_ERROR' => 'Fehlermeldung',
-	
+	'LBL_SAVE_SEND' => 'Speichern / Senden',
+	'LBL_SEND_MAIL' => 'E-Mail senden',
+	'LBL_SAVE_AS_DOCUMENT' => 'Als Dokument speichern',
+	'LBL_SAVE_TYPE' => 'Speicherart',
+	'LBL_SAME_DOCUMENT' => 'Als dasselbe Dokument speichern',
+	'LBL_NEW_DOCUMENT' => 'Als neues Dokument speichern',
 );
 
 $jsLanguageStrings = array(

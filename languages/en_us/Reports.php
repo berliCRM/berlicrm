@@ -273,7 +273,12 @@ $languageStrings = array(
 	'FAILED_REPORTS' => "Scheduled Reports that couldn't be created in 24 hours:",
 	'FAILED_REPORTS_SUBJECT' => 'failed Scheduled Reports',
 	'LBL_SCHEDULED_ERROR' => 'Error Message',
-
+	'LBL_SAVE_SEND' => 'Save / Send',
+	'LBL_SEND_MAIL' => 'Send Mail',
+	'LBL_SAVE_AS_DOCUMENT' => 'Save as Document',
+	'LBL_SAVE_TYPE' => 'Save Type',
+	'LBL_SAME_DOCUMENT' => 'Save as same Document',
+	'LBL_NEW_DOCUMENT' => 'Save as new Document',
 );
 
 $jsLanguageStrings = array(
