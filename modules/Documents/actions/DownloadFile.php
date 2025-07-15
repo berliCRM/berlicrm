@@ -22,9 +22,20 @@ class Documents_DownloadFile_Action extends Vtiger_Action_Controller {
 		$moduleName = $request->getModule();
 
 		$documentRecordModel = Vtiger_Record_Model::getInstanceById($request->get('record'), $moduleName);
-		//Download the file
-		$documentRecordModel->downloadFile();
-		//Update the Download Count
-		$documentRecordModel->updateDownloadCount();
+
+		$mode = $request->get('mode');
+
+		if ($mode === 'preview') {
+			//Preview the File
+			$documentRecordModel->previewFile();
+			//Update the Download Count
+			$documentRecordModel->updateDownloadCount();
+		}
+		else {
+			//Download the file
+			$documentRecordModel->downloadFile();
+			//Update the Download Count
+			$documentRecordModel->updateDownloadCount();
+		}
 	}
 }
