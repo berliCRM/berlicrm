@@ -33,8 +33,16 @@
 
                 for (const [key, value] of Object.entries(dataObj)) {
                     // decode entity: It works by creating a <textarea> element and injecting your encoded HTML into it. 
-                    let decodedValue = $('<textarea />').html(value.name).text();
-                    value.name = decodedValue;
+                    let decodedValue = '';
+                    if (value && typeof value === 'object' && 'name' in value && value.name) {
+                        try {
+                            decodedValue = $('<textarea />').html(value.name).text();
+                            value.name = decodedValue;
+                        } 
+                        catch(error){
+                            console.log('Fehler beim Verarbeiten von value.name');
+                        }
+                    }
                 }
                 // build again a string
                 data = JSON.stringify(dataObj);
