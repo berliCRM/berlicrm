@@ -197,11 +197,20 @@ class Vtiger_Response {
 	 */
 	protected function emitText() {
 		if ($this->result === NULL) {
-			if (is_string($this->error)) echo $this->error;
-			else echo json_encode($this->prepareResponse());
-		} else {
-			if (is_string($this->result)) echo $this->result;
-			else echo json_encode($this->prepareResponse());
+			if (is_string($this->error)) {
+				echo $this->error;
+			}
+			else {
+				echo json_decode($this->prepareResponse(), true);
+			}
+		} 
+		else {
+			if (is_string($this->result)) {
+				echo $this->result;
+			}
+			else {
+				echo json_decode($this->prepareResponse(), true);
+			}
 		}
 	}
 
