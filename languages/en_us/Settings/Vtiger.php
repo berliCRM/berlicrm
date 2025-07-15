@@ -297,6 +297,11 @@ $languageStrings = array(
 	'LBL_SEARCH_SETUP' => 'Search Setup',
 	
 	'LBL_INACTIVE_USERS' => 'inactive Users',
+
+    //ADDED FOR BACKUP DOWNLOAD
+    'LBL_DOWNLOAD_BACKUP_FILE' => 'Download Backup Archive',
+    'LBL_BACKUP_INSTRUCTIONS' => 'You can download a complete, daily backup of your CRM\'s content as ZIP-archive.<br><b>It\'s strongly adviced to store the file on a secure device.</b>',
+    'LBL_DOWNLOAD' => 'Start download'
 		
 );
 

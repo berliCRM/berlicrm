@@ -4,7 +4,7 @@ $pdf_strings = Array(
 	'NUM_FACTURE_NAME' =>  'Order No.:',
     'FACTURE' =>  'PO Confirmation',
     'VALID_TILL' =>  'valid till:',
-    'SODATE' =>  'Delivery Date:',
+    'SODATE' =>  'Appr. Delivery Date:',
     'IDCLIENT_NAME' =>  'Customer#:',
     'AGENT' =>  'Agent:',
     'OrderCode' => 'Order#',
@@ -25,9 +25,8 @@ $pdf_strings = Array(
 	'LineTotal' =>  'Total',
 	'Discount' =>  'Discount',	
 	'VAR_TAXID' =>  'Tax ID#:',
-	'VAR_VATID'=>'IRS#:',
 	'VAR_ADJUSTMENT' =>  'Adjustment',
-	'Tax_NAME' =>  '% VAT => ',
+	'Tax_NAME' =>  '% Tax => ',
 	'INCLUDE_NAME' =>  ' included',
 	'Unit' =>  'Unit',
 	'ORG_POSITION' =>  'CEO',
@@ -44,5 +43,7 @@ $pdf_strings = Array(
 	'DATE' => 'Date:',
 	'MISSING_IMAGE' => 'Logo not assigned',
     'FACTURE1' =>  'PO_Confirmation',
+	'MANAGEMENT' => 'CEO:',
+	'VAR_VATID'=>'IRS#:',
 	);
 ?>
