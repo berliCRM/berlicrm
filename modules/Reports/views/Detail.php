@@ -56,8 +56,8 @@ class Reports_Detail_View extends Vtiger_Index_View {
             $this->count = $count;
         }else{
             $query = $reportModel->getReportSQL(false, 'PDF');
-            $countQuery = $reportModel->generateCountQuery($query);
-            $this->count = $reportModel->getReportsCount($countQuery);
+            // $countQuery = $reportModel->generateCountQuery($query);
+            $this->count = $reportModel->getReportsCount($query);
         }
 
 		$primaryModule = $reportModel->getPrimaryModule();
@@ -177,8 +177,8 @@ class Reports_Detail_View extends Vtiger_Index_View {
 			$this->id_list = $reportData['id_list'];
             $advFilterSql = $reportModel->getAdvancedFilterSQL();
             $query = $reportModel->getReportSQL($advFilterSql, 'PDF');
-            $countQuery = $reportModel->generateCountQuery($query);
-            $this->count = $reportModel->getReportsCount($countQuery);
+            // $countQuery = $reportModel->generateCountQuery($query);
+            $this->count = $reportModel->getReportsCount($query);
 		}
 		//crm-now: added for hidden record id list in report
 		$viewer->assign('IDLIST', $this->id_list);
