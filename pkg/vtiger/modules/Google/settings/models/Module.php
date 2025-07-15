@@ -82,8 +82,8 @@ class Settings_Google_Module_Model extends Vtiger_Module_Model {
 	
 	// default address for checks
 	static function getDefaultAddress() {
-		$street = 'Stromstrasse 5';
-		$postalCode = '10555';
+		$street = 'Karl-Heinrich-Ulrichs-Str. 20c';
+		$postalCode = '10785';
 		$city = 'Berlin';
 		$country = 'Germany';
 		$state = 'Berlin';
