@@ -1458,11 +1458,11 @@ Thanks,
 									<tbody>
 										<tr>
 											<td align="center">
-												crm-now GmbH, Stromstrasse5, 10555 Berlin, Deutschland</td>
+												crm-now GmbH, 	Karl-Heinrich-Ulrichs-Str. 20c, 10785 Berlin, Deutschland</td>
 										</tr>
 										<tr>
 											<td align="center">
-												Tel.: +49 (0)30 3900 1800 Fax: +49 (0)30 451 9036</td>
+												Tel.: +49 30 3900 1800 Fax: +49 30 3900 1899</td>
 										</tr>
 										<tr>
 											<td align="center">
@@ -1555,8 +1555,8 @@ Thanks,
 		</tr><tr><td style="background-color:rgb(0,56,154);" width="4%"> </td>
 			<td style="background-color:rgb(0,56,154);" width="92%">
 			<p align="center"><font color="#ffffff" face="Arial" size="2"><b>crm-now GmbH<br />
-			Stromstrasse 5<br />
-			10555 Berlin<br />
+			Karl-Heinrich-Ulrichs-Str. 20c<br />
+			10785 Berlin<br />
 			Germany</b></font></p>
 
 			<p align="center"><b><font color="#ffffff" face="Arial" size="2"><span><font size="2">0049 30 39001800 </font></span><br /><a href="mailto:support@crm-now.com"><font color="#ffffff">support@crm-now.com</font></a></font></b></p>
@@ -1577,8 +1577,8 @@ Thanks,
 		//Insert into vtiger_organizationdetails vtiger_table
 		$organizationId = $this->db->getUniqueID('vtiger_organizationdetails');
 	    $this->db->query("insert into vtiger_organizationdetails(organization_id,organizationname,address,city,state,country,code,phone,fax,website,logoname,vatid) 
-								values ($organizationId,'crm-now','Stromstr. 5','Berlin',
-										'Berlin','Deutschland','10555','+49 (0)30 39001800','+49 (0)30 4519037','www.crm-now.de','crm-now-logo.jpg','1234-5678-9012')");
+								values ($organizationId,'crm-now','Karl-Heinrich-Ulrichs-Str. 20c','Berlin',
+										'Berlin','Deutschland','10785','+49 30 3900 1800','+49 30 3900 1899','www.crm-now.de','crm-now-logo.jpg','1234-5678-9012')");
 
 		$this->db->query("insert into vtiger_actionmapping values(0,'Save',0)");
 		$this->db->query("insert into vtiger_actionmapping values(1,'EditView',0)");
