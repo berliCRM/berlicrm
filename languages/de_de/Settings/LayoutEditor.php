@@ -122,7 +122,7 @@ $languageStrings = array(
 	'LBL_UI83' =>'ein Feld für Mehrwertsteuerklassen',
 	'LBL_UI117' =>'ein Referenzfeld für eine Währung',
 
-	'LBL_RENAME_BLOCK'=>'Diesen Block umbenennen',
+	'LBL_RENAME_BLOCK'=>'diesen Block umbenennen',
 	'LBL_NOEDITVIEW'=>'Dieses Feld erscheint nicht in der Bearbeiten-Ansicht',
 	'LBL_MAXLEN'=>'Maximale Länge',
 	'LBL_CHARS'=>'Zeichen',

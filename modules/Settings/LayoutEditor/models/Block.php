@@ -119,4 +119,27 @@ class Settings_LayoutEditor_Block_Model extends Vtiger_Block_Model {
 		}
 		return $activeFields;
 	}
+	
+    /**
+	 * Function to disable block label renaming for certain block names
+	 * @return <Boolean> true/false
+	 */
+	public function isBlockRenamingEnabled() {
+        $actionNotSupportedModules = array('Quotes','SalesOrder','Invoice', 'PurchaseOrder');
+		$blocksEliminatedArray = array('Quotes' => array('LBL_CONCLUSION', 'LBL_LETTER'),
+									'SalesOrder' =>  array('LBL_CONCLUSION', 'LBL_LETTER'),
+									'Invoice'=>array('LBL_CONCLUSION', 'LBL_LETTER'),
+                                    'PurchaseOrder' => array('LBL_CONCLUSION', 'LBL_LETTER'));
+        if(in_array($this->module->name, $actionNotSupportedModules)) {
+			if(!empty($blocksEliminatedArray[$this->module->name])) {
+				if(in_array($this->get('label'), $blocksEliminatedArray[$this->module->name])) {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		}
+        return true;
+    }
+
 }
