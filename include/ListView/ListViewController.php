@@ -164,7 +164,7 @@ class ListViewController {
 					}
 				}
 				if(count($idList) > 0) {
-					if(isset ($this->ownerNameList[$fieldName]) && !is_array($this->ownerNameList[$fieldName])) {
+					if(!is_array($this->ownerNameList[$fieldName])) {
 						$this->ownerNameList[$fieldName] = getOwnerNameList($idList);
 					} 
 					else {
@@ -241,19 +241,19 @@ class ListViewController {
 					$fileIdQuery = "select attachmentsid from vtiger_seattachmentsrel where crmid=?";
 					$fileIdRes = $db->pquery($fileIdQuery,array($recordId));
 					$fileId = $db->query_result($fileIdRes,0,'attachmentsid');
-					if($fileName != '' && $status == 1) {
-						if($downloadType == 'I' ) {
-							$value = '<a onclick="Javascript:Documents_Index_Js.updateDownloadCount(\'index.php?module=Documents&action=UpdateDownloadCount&record='.$recordId.'\');"'.
-									' href="index.php?module=Documents&action=DownloadFile&record='.$recordId.'&fileid='.$fileId.'"'.
-									' title="'.	getTranslatedString('LBL_DOWNLOAD_FILE',$module).
-									'" >'.textlength_check($value).
-									'</a>';
-						} elseif($downloadType == 'E') {
-							$value = '<a onclick="Javascript:Documents_Index_Js.updateDownloadCount(\'index.php?module=Documents&action=UpdateDownloadCount&record='.$recordId.'\');"'.
-									' href="'.$fileName.'" target="_blank"'.
-									' title="'.	getTranslatedString('LBL_DOWNLOAD_FILE',$module).
-									'" >'.textlength_check($value).
-									'</a>';
+					if ($fileName != '' && $status == 1) {
+						if ($downloadType == 'I') {
+							$value = '<a onclick="Javascript:Documents_Index_Js.updateDownloadCount(\'index.php?module=Documents&action=UpdateDownloadCount&record=' . $recordId . '\');"' .
+								' href="index.php?module=Documents&action=DownloadFile&record=' . $recordId . '&fileid=' . $fileId . '"' .
+								' title="' . getTranslatedString('LBL_DOWNLOAD_FILE', $module) . '" class="pdf-link" data-pdf-preview="index.php?module=Documents&action=DownloadFile&record=' . $recordId . '&fileid=' . $fileId . '">' .
+								textlength_check($value) .
+								'</a>';
+						} elseif ($downloadType == 'E') {
+							$value = '<a onclick="Javascript:Documents_Index_Js.updateDownloadCount(\'index.php?module=Documents&action=UpdateDownloadCount&record=' . $recordId . '\');"' .
+								' href="' . $fileName . '" target="_blank"' .
+								' title="' . getTranslatedString('LBL_DOWNLOAD_FILE', $module) . '' . $fileName . '">' .
+								textlength_check($value) .
+								'</a>';
 						} else {
 							$value = ' --';
 						}
@@ -463,7 +463,7 @@ class ListViewController {
 					} else {
 						$parentModule = $this->typeList[$value];
 					}
-					if(!empty($value) && !empty($this->nameList[$fieldName]) && !empty($parentModule) && (isRecordExists($value) || ($module == 'Documents' && $fieldName == 'folderid') || $fieldName == 'smcreatorid' || $fieldName == 'modifiedby')) {
+					if(!empty($value) && !empty($this->nameList[$fieldName]) && !empty($parentModule) && (isRecordExists($value) || ($module == 'Documents' && $fieldName == 'folderid') || $fieldName == 'smcreatorid')) {
 						$parentMeta = $this->queryGenerator->getMeta($parentModule);
 						$value = textlength_check($this->nameList[$fieldName][$value]);
 						if ($module == 'Documents' && $fieldName == 'folderid') {
@@ -493,10 +493,12 @@ class ListViewController {
 						$value = 0;
 					}
 				} elseif($field->getUIType() == 8){
-					if(!empty($value)){
-						$temp_val = html_entity_decode($value,ENT_QUOTES,$default_charset);
-						$json = new Zend_Json();
-						$value = vt_suppressHTMLTags(implode(',',$json->decode($temp_val)));
+					if (!empty($value)) {
+						$temp_val = html_entity_decode($value, ENT_QUOTES, $default_charset);
+						$decodedValue = json_decode($temp_val, true);
+						if ($decodedValue !== null) {
+							$value = vt_suppressHTMLTags(implode(',', $decodedValue));
+						}
 					}
 				} 
 				elseif($field->getUIType() == 7){
