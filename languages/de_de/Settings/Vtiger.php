@@ -304,6 +304,10 @@ $languageStrings = array(
 	
 	'LBL_INACTIVE_USERS' => 'inaktive Nutzer',
 	
+    //ADDED FOR BACKUP DOWNLOAD
+    'LBL_DOWNLOAD_BACKUP_FILE' => 'Backup-Archiv herunterladen',
+    'LBL_BACKUP_INSTRUCTIONS' => 'Hier können Sie eine vollständige, täglich aktualisierte Sicherung der Daten ihres CRMs als ZIP-Archiv herunterladen.<br><b>Bitte verwahren Sie die Datei unbedingt an einem sicheren Ort.</b>',
+    'LBL_DOWNLOAD' => 'Download starten'
 	
 );
 
