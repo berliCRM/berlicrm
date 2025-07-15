@@ -330,9 +330,9 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
                             if ($downloadType == 'I') {
 
                                 $val = '<a onclick="Javascript:Documents_Index_Js.updateDownloadCount(\'index.php?module=Documents&action=UpdateDownloadCount&record=' . $recordId . '\');"' .
-                                        ' href="index.php?module=Documents&action=DownloadFile&record=' . $recordId . '&fileid=' . $fileId . '"' .
-                                        ' title="' . getTranslatedString('LBL_DOWNLOAD_FILE', $relationModuleName) .
-                                        '" >' . textlength_check($val) .
+								' href="index.php?module=Documents&action=DownloadFile&record=' . $recordId . '&fileid=' . $fileId . '"' .
+								' title="' . getTranslatedString('LBL_DOWNLOAD_FILE', $relationModuleName) . '" class="pdf-link" data-pdf-preview="index.php?module=Documents&action=DownloadFile&record=' . $recordId . '&fileid=' . $fileId . '">' .
+								textlength_check($val) .
                                         '</a>';
                             } elseif ($downloadType == 'E') {
                                 $val = '<a onclick="Javascript:Documents_Index_Js.updateDownloadCount(\'index.php?module=Documents&action=UpdateDownloadCount&record=' . $recordId . '\');"' .
