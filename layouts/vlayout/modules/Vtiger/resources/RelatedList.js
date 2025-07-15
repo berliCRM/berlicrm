@@ -8,7 +8,7 @@
  *************************************************************************************/
 
 jQuery.Class("Vtiger_RelatedList_Js",{},{
-	
+
 	selectedRelatedTabElement : false,
 	parentRecordId : false,
 	parentModuleName : false,
