@@ -805,7 +805,7 @@ class Vtiger_Module_Model extends Vtiger_Module {
 			$moduleName = $moduleModel->getName();
 			$showIt = true;
 			for($b = 0; $b < count($notDisplayModuleNames_arr) ; ++$b){
-				if($moduleName == $notDisplayModuleNames_arr[$b]){
+				if(array_key_exists($b, $notDisplayModuleNames_arr) && $moduleName == $notDisplayModuleNames_arr[$b]){
 					$showIt = false;
 					break;
 				}
