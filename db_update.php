@@ -985,6 +985,24 @@ if (file_exists($filePath)) {
 
 echo '<br>module update Toolwidget done <br>';
 
+// Update entries for projects in vtiger_relatedlists
+$query = "UPDATE vtiger_relatedlists SET actions = 'ADD'
+WHERE relation_id IN (
+    SELECT vtiger_relatedlists.relation_id
+    FROM vtiger_relatedlists
+    INNER JOIN vtiger_tab ON vtiger_relatedlists.tabid = vtiger_tab.tabid
+    WHERE vtiger_relatedlists.name = 'get_dependents_list'
+    AND vtiger_relatedlists.label = 'Projects'
+    AND vtiger_tab.name IN ('Contacts', 'Accounts')";
+$result = $adb->pquery($query, array());
+echo "<br>Updated vtiger_relatedlists successfully<br>";
+
+$query = "ALTER TABLE `vtiger_schedulereports` 
+ADD COLUMN `attfolderid` INT(19) DEFAULT NULL,
+ADD COLUMN `savetype` VARCHAR(30) DEFAULT NULL;";
+$result = $adb->pquery($query, array());
+echo "<br>vtiger_schedulereports table updated successfully<br>";
+
 
 
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
