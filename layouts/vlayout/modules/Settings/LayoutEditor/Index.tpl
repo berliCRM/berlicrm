@@ -60,7 +60,11 @@
                                 <div class="row-fluid layoutBlockHeader">
                                     <div class="blockLabel span5 padding10 marginLeftZero">
                                         <img class="alignMiddle" src="{vimage_path('drag.png')}" />&nbsp;&nbsp;
-                                        <strong>{vtranslate($BLOCK_LABEL_KEY, $SELECTED_MODULE_NAME)}</strong>
+                                        {assign var=BLOCK_LABEL_TRANS value=vtranslate($BLOCK_LABEL_KEY, $SELECTED_MODULE_NAME)}
+                                        <strong>{$BLOCK_LABEL_TRANS}</strong>
+					{if $BLOCK_LABEL_TRANS != $BLOCK_LABEL_KEY}
+						<span class="no-drag" style="opacity:0.50;">&nbsp;&nbsp;({$BLOCK_LABEL_KEY})</span>
+					{/if}
                                     </div>
                                     <div class="span6 marginLeftZero" style="float:right !important;"><div class="pull-right btn-toolbar blockActions" style="margin: 4px;">
                                             {if $BLOCK_MODEL->isAddCustomFieldEnabled()}
