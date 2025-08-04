@@ -47,7 +47,7 @@
                                     <div class="controls">
                                         {if $FIELD_NAME == 'hour_format' || $FIELD_NAME == 'activity_view'}
                                             {foreach key=ID item=LABEL from=$FIELD_MODEL->getPicklistValues()}
-                                                {if $LABEL neq 'This Year' }
+                                                {if $ID neq 'This Year' }
                                                     <input type="radio" value="{$ID}" {if $FIELD_VALUE eq $ID}checked=""{/if} name="{$FIELD_NAME}" class="alignTop" />&nbsp;{vtranslate($LABEL,$MODULE)}&nbsp;{if $FIELD_NAME eq 'hour_format'}{vtranslate('LBL_HOURS',$MODULE)}{/if}&nbsp;&nbsp;&nbsp;
                                                 {/if}
                                             {/foreach}	
