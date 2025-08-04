@@ -114,8 +114,11 @@ class Import_Main_View extends Vtiger_View_Controller{
 		$moduleName = $importInfo['module'];
 		$ownerId = $importInfo['user_id'];
 
-        $viewer = new Vtiger_Viewer();
-        $viewer->registerSmartyPlugins();
+		$plugins = array(
+			array('type' => 'modifier', 'name' => 'vtemplate_path', 'callback' => 'vtemplate_path'),
+		);
+		$viewer = new Vtiger_Viewer();
+		$viewer->registerSmartyPlugins($plugins);
 		$viewer->assign('SKIPPED_RECORDS',$skippedRecords);
         $viewer->assign('FOR_MODULE', $moduleName);
 		$viewer->assign('MODULE', 'Import');

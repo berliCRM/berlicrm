@@ -157,8 +157,11 @@ class Vtiger_Import_View extends Vtiger_Index_View {
 	}
 
 	function undoImport(Vtiger_Request $request) {
+		$plugins = array(
+			array('type' => 'modifier', 'name' => 'vtemplate_path', 'callback' => 'vtemplate_path'),
+		);
 		$viewer = new Vtiger_Viewer();
-		$viewer->registerSmartyPlugins();
+		$viewer->registerSmartyPlugins($plugins);
 		$db = PearDatabase::getInstance();
 
 		$moduleName = $request->getModule();
