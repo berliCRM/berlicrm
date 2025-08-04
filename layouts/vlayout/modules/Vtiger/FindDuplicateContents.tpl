@@ -55,7 +55,7 @@
 		</thead>
 		{assign var=mergeRecordCount value=0}
 		{foreach item=LISTVIEW_ENTRY key=GROUP_NAME from=$LISTVIEW_ENTRIES}
-			{assign var=groupCount value=$LISTVIEW_ENTRY|@sizeof}
+			{assign var=groupCount value=$LISTVIEW_ENTRY|count}
 			{assign var=recordCount value=0}
 			{foreach item=RECORD from=$LISTVIEW_ENTRY name=listview}
 				<tr class="listViewEntries" data-id='{$RECORD.recordid}' id="{$MODULE}_listView_row_{$smarty.foreach.listview.index+1}">
