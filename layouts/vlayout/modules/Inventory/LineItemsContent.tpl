@@ -17,6 +17,8 @@
     {assign var="comment" value="comment"|cat:$row_no}
     {assign var="productDescription" value="productDescription"|cat:$row_no}
     {assign var="qtyInStock" value="qtyInStock"|cat:$row_no}
+	{assign var="currentStock" value=$data["qtyinstock{$row_no}"]}
+	{assign var="originalstock" value=$data["original_stock`$row_no`"]}
     {assign var="qty" value="qty"|cat:$row_no}
     {assign var="listPrice" value="listPrice"|cat:$row_no}
     {assign var="productTotal" value="productTotal"|cat:$row_no}
@@ -86,6 +88,8 @@
 			{/if}
 		</div>
 		<input type="hidden" value="{$data.$subproduct_ids}" id="{$subproduct_ids}" name="{$subproduct_ids}" class="subProductIds" />
+		<input type="hidden" value="{$currentStock}" id="{$qtyInStock}" name="{$qtyInStock}" class="qtyInStock" />
+		<input type="hidden" value="{$originalstock}" id="originalStock`$row_no" name="originalStock`$row_no" class="originalStock" />
 		<div id="{$subprod_names}" name="{$subprod_names}" class="subInformation"><span class="subProductsContainer">{$data.$subprod_names}</span></div>
 		{if $data.$productDeleted}
 			<div class="row-fluid deletedItem redColor">
@@ -102,18 +106,18 @@
 	</td>
 	<td>
 		<input id="{$qty}" name="{$qty}" type="text" class="qty smallInputBox" data-validation-engine="validate[required,funcCall[Vtiger_GreaterThanZero_Validator_Js.invokeValidation]]" value="{if !empty($data.$qty)}{$data.$qty}{else}1{/if}"/>
-		{if $MODULE neq 'PurchaseOrder'}
+		{if $MODULE neq 'PurchaseOrder' && $entityType neq 'Services'}
 		<br>
-		<span class="stockAlert redColor {if $data.$qty <= $data.$qtyInStock}hide{/if}" >
-			{vtranslate('LBL_STOCK_NOT_ENOUGH',$MODULE)}
+		<span class="stockAlert redColor {if intval($currentStock) > 0}hide{/if}">
+			{vtranslate('LBL_MAX_QTY_SELECT',$MODULE)}&nbsp;<span class="maxQuantity">{intval($currentStock)}</span>
 			<br>
-			{vtranslate('LBL_MAX_QTY_SELECT',$MODULE)}&nbsp;<span class="maxQuantity">{$data.$qtyInStock}</span>
+			{vtranslate('LBL_STOCK_NOT_ENOUGH',$MODULE)}
 		</span>
 		{/if}
 	</td>
 	<td>
 		<div>
-			<input id="{$listPrice}" name="{$listPrice}" value="{if !empty($data.$listPrice)}{$data.$listPrice}{else}0{/if}" type="text" data-validation-engine="validate[required,funcCall[Vtiger_PositiveNumber_Validator_Js.invokeValidation]]" class="listPrice smallInputBox" list-info='{if !empty($data.$listPrice)}{json_encode($listPriceValues)}{/if}'/>
+			<input id="{$listPrice}" name="{$listPrice}" value="{if !empty($data.$listPrice)}{$data.$listPrice}{else}0{/if}" type="text" data-validation-engine="validate[required,funcCall[Vtiger_PositiveNumber_Validator_Js.invokeValidation]]" class="listPrice smallInputBox" list-info='{if !empty($data.$listPrice)}{Zend_Json::encode($listPriceValues)}{/if}'/>
 			&nbsp;
 			{assign var=PRICEBOOK_MODULE_MODEL value=Vtiger_Module_Model::getInstance('PriceBooks')}
 			{if $PRICEBOOK_MODULE_MODEL->isPermitted('DetailView')}

@@ -950,6 +950,58 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
            jQuery('#shAmountForTax').text(shippingAndHandlingValue);
            return this;
 	},
+
+	updateStockAlerts: function() {
+		var thisInstance = this;
+		var lineItemTable = this.getLineItemContentsContainer();
+		var productTotals = {};
+
+		lineItemTable.find('tr.' + thisInstance.rowClass).each(function(index, row) {
+			var $row = jQuery(row);
+			var lineItemType = $row.find('input.lineItemType').val();
+			
+			if(lineItemType !== 'Products') {
+				return;
+			}
+			var productId = $row.find('.selectedModuleId').val();
+			if(!productId) {
+				return;
+			}
+
+			var qty = parseFloat($row.find('.qty').val());
+			var stock = parseFloat($row.find('.qtyInStock').val())
+			var originalStock = parseFloat($row.find('.originalStock').val());
+
+			if(!productTotals[productId]) {
+				productTotals[productId] = {
+					totalQty: 0,
+					totalStock: 0,
+					totaloriginalStock: 0,
+					rows: []
+				};
+			}
+
+			productTotals[productId].totalQty += qty;
+			productTotals[productId].totalStock = stock;
+			productTotals[productId].totaloriginalStock = originalStock;
+			productTotals[productId].rows.push($row);
+		});
+
+		jQuery.each(productTotals, function(productId, data) {
+			var showAlert = data.totalQty >= data.totaloriginalStock;
+
+			jQuery.each(data.rows, function(i, $row) {
+				var $alert = $row.find('.stockAlert');
+				if(showAlert) {
+					var remainingStock = data.totaloriginalStock - data.totalQty;
+					$alert.removeClass('hide');
+					$alert.find('.maxQuantity').text(remainingStock);
+				} else {
+					$alert.addClass('hide');
+				}
+			});
+		});
+	},
     
 	registerFinalDiscountShowEvent : function(){
 		var thisInstance = this;
@@ -1256,7 +1308,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 	 /*
 	  * Function which will register event for quantity change (focusout event)
 	  */
-	 registerQuantityChangeEventHandler : function() {
+	registerQuantityChangeEventHandler : function() {
 		var thisInstance = this;
 		var lineItemTable = this.getLineItemContentsContainer();
 
@@ -1264,16 +1316,29 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 			var element = jQuery(e.currentTarget);
 			var lineItemRow = element.closest('tr.'+thisInstance.rowClass);
 			var quantityInStock = lineItemRow.data('quantityInStock');
-			if(typeof quantityInStock  != 'undefined') {
+			var lineItemType = lineItemRow.find('input.lineItemType').val();
+
+			if(lineItemType === 'Products' && typeof quantityInStock  != 'undefined') {
 				if(parseFloat(element.val()) > parseFloat(quantityInStock)) {
 					lineItemRow.find('.stockAlert').removeClass('hide').find('.maxQuantity').text(quantityInStock);
 				}else{
 					lineItemRow.find('.stockAlert').addClass('hide');
 				}
+			} else {
+				lineItemRow.find('.stockAlert').addClass('hide');
 			}
 			thisInstance.quantityChangeActions(lineItemRow);
+			thisInstance.updateStockAlerts();
 		});
-	 },
+
+		lineItemTable.find('tr.'+thisInstance.rowClass).each(function(index, domElement){
+			var lineItemRow = jQuery(domElement);
+			var lineItemType = lineItemRow.find('input.lineItemType').val();
+			if(lineItemType !== 'Products') {
+				lineItemRow.find('.stockAlert').addClass('hide');
+			}
+		});
+	},
 
 	 /**
 	  * Function which will register event for list price event change

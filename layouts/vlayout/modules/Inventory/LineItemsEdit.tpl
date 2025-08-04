@@ -24,6 +24,15 @@
         {assign var="IS_GROUP_TAX_TYPE" value=false}
         {assign var="IS_INDIVIDUAL_TAX_TYPE" value=true}
     {/if}
+
+    {assign var="sumQty" value=0}
+    {foreach from=$RELATED_PRODUCTS key=row_no item=row}
+        {if isset($row["entityType{$row_no}"]) && $row["entityType{$row_no}"] == 'Products'}
+            {if isset($row["qty{$row_no}"]) && $row["qty{$row_no}"] != '' && $row["qty{$row_no}"] > 0}
+                {assign var="sumQty" value=$sumQty + $row["qty{$row_no}"]}
+            {/if}
+        {/if}
+    {/foreach}
     
     <input type="hidden" class="numberOfCurrencyDecimal" value="{$USER_MODEL->get('no_of_currency_decimals')}" />
 
@@ -90,7 +99,7 @@
                 {include file="LineItemsContent.tpl"|@vtemplate_path:'Inventory' row_no=$row_no data=$data}
             </tr>
         {/foreach}
-        {if is_array($RELATED_PRODUCTS) && count($RELATED_PRODUCTS) eq 0}
+        {if count($RELATED_PRODUCTS) eq 0}
             <tr id="row1" class="lineItemRow">
                 {include file="LineItemsContent.tpl"|@vtemplate_path:'Inventory' row_no=1 data=[]}
             </tr>
