@@ -26,8 +26,8 @@ class Settings_Vtiger_Basic_Action extends Settings_Vtiger_IndexAjax_View {
         $fieldId = $request->get('fieldid');
         $menuItemModel = Settings_Vtiger_MenuItem_Model::getInstanceById($fieldId);
         
-        $pin = $request->get('pin');
-        if($pin == 'true') {
+        (bool) $pin = $request->get('pin');
+        if($pin == 'true' || $pin == true) {
             $menuItemModel->markPinned();
         }else{
             $menuItemModel->unMarkPinned();
