@@ -770,7 +770,6 @@ $languageStrings = array(
 	'RecycleBin' => 'Recycle Bin',
 	'Pdfsettings' => 'PDF Settings',
 	'EmailTemplates' => 'Email Templates',
-	'PBXManager' => 'PBX Manager',
 
 	// Clever Reach
 	'LBL_CLEVERREACH' => 'Clever Reach',
@@ -931,11 +930,6 @@ $jsLanguageStrings = array(
 	'JS_NO_VIEW_PERMISSION_AFTER_SAVE' => 'You will not have the permissions to view this record after save. Would you like to continue?',
 	'JS_NUMBER_SHOULD_BE_LESS_THAN_32' => 'Number should be fewer than 32',
 	'JS_PAGE_NOT_EXIST' => 'Page not exist',
-	'JS_PBX_CALL_FROM' => 'Call From',
-	'JS_PBX_FILL_ALL_FIELDS'=>'Please fill all the fields',
-	'JS_PBX_INCOMING_CALL' => 'Incoming Call',
-	'JS_PBX_OUTGOING_FAILURE'=>'Call Failed',
-	'JS_PBX_OUTGOING_SUCCESS'=>'Pick up the extension receiver to dial the number',
 	'JS_PERCENTAGE_VALUE_SHOULD_BE_LESS_THAN_100' => 'Percentage value should be fewer than 100',
 	'JS_PHONE_NUMBER_LENGTH_EXCEEDED' => 'phone number length exceeded limit',
 	'JS_PLEASE_ENABLE_BASE_CURRENCY_FOR_PRODUCT' => 'Please enable base currency for product',

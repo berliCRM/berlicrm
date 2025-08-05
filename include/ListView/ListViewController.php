@@ -185,13 +185,6 @@ class ListViewController {
 				$this->setupAccessiblePicklistValueList($fieldName);
 			}
 		}
-        
-        $moduleInstance = Vtiger_Module_Model::getInstance("PBXManager");
-        if($moduleInstance && $moduleInstance->isActive()) {
-            $outgoingCallPermission = PBXManager_Server_Model::checkPermissionForOutgoingCall();
-        }
-
-		$useAsterisk = get_use_asterisk($this->user->id);
 
 		$data = array();
 		for ($i = 0; $i < $rowCount; ++$i) {
@@ -446,12 +439,7 @@ class ListViewController {
 					if($SoftphonePrefix && !empty($value)) {
 						$replaced = preg_replace('/[-()\s]/', '', $value);
 						$value = '<a class="phoneField" data-value="'.$replaced.'" record="'.$recordId.'" href="'.$SoftphonePrefix.($replaced).'">'.textlength_check($value).'</a>';
-					}
- 					
-                    else if($outgoingCallPermission && !empty($value)) {
-                        $phoneNumber = preg_replace('/[-()\s+]/', '',$value);
-                        $value = '<a class="phoneField" data-value="'.$phoneNumber.'" record="'.$recordId.'" onclick="Vtiger_PBXManager_Js.registerPBXOutboundCall(\''.$phoneNumber.'\', '.$recordId.')">'.textlength_check($value).'</a>';
-                    }else {
+					} else {
                         $value = textlength_check($value);
                     }
 				} elseif($field->getFieldDataType() == 'reference') {
