@@ -511,7 +511,7 @@ function createpdffile($idnumber, $purpose = '', $path = '', $current_id = '')
     } elseif ($purpose == 'send') {
         // send pdf with mail
         $translatedName = vtranslate('SINGLE_Quotes', 'Quotes');
-        $pdf->Output('storage/'.$translatedName.'_'.$quote_no.'.pdf', 'F');
+        $pdf->Output(dirname(__DIR__, 2).'/storage/'.$translatedName.'_'.$quote_no.'.pdf', 'F');
         return;
         exit;
     } elseif ($purpose == 'customerportal') {
