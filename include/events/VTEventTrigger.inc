@@ -15,7 +15,7 @@
 		private static $cache = array();
 		private static $cacheLookupType = '';
 
-		private static $mandatoryEventClass = array('VTEntityDelta', 'ModTrackerHandler', 'PBXManagerBatchHandler');
+		private static $mandatoryEventClass = array('VTEntityDelta', 'ModTrackerHandler');
 
 		const CACHE_LOOKUP_TYPE_ALL = 'ALL';
 

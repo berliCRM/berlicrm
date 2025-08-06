@@ -122,7 +122,6 @@ $languageStrings = array(
     'LBL_OUTGOING_SERVER_NOTE' => 'Hinweise: Für verschlüsselte Verbindungen nutzen Sie ggf. die Formate: ssl://smtp.meineadresse.de oder tls://smtp.meineadresse.de als Servename. Einige Server verlangen einen speziellen Port. Den können Sie im folgenden Format angeben: ssl://smtp.meineadresse.de:Portnummer. Wenn das  "von E-Mail" Feld leer bleibt, wird die E-Mail Adresse als Absender genutzt, welche bei dem jeweiligen CRM Nutzer eingetragen wurde. An die E-Mail Adresse des CRM Administrators wird nach dem Speichern eine E-Mail aus dem CRM zur Bestätigung der Verbindung zu Ihrem Server gesendet.',
 	'LBL_OUTGOING_SERVER' => 'E-Mail Server Einstellungen',
 	'LBL_PASSWORD' => 'Passwort',
-	'LBL_PBXMANAGER' => 'PBX Manager',
 	'LBL_PICKLIST_DEPENDENCY_DESCRIPTION' => 'Einstellungen von Auswahllistenabhängigkeiten für jedes Modul vornehmen',
 	'LBL_PICKLIST_DEPENDENCY_SETUP' => 'verkettete Auswahllisten',
 	'LBL_PICKLIST_DESCRIPTION' => 'Einstellung der Abhängigkeiten für verkettete Auswahllisten für jedes Modul',
