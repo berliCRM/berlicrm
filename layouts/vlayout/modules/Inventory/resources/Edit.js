@@ -988,7 +988,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 		});
 
 		jQuery.each(productTotals, function(productId, data) {
-			var showAlert = data.totalQty >= data.totaloriginalStock;
+			var showAlert = data.totalQty > data.totaloriginalStock;
 
 			jQuery.each(data.rows, function(i, $row) {
 				var $alert = $row.find('.stockAlert');
