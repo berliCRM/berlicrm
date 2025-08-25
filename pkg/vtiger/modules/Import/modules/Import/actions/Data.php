@@ -68,7 +68,12 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 		$defaultValues = array();
 		if (!empty($this->defaultValues)) {
 			if(!is_array($this->defaultValues)) {
-				$this->defaultValues = json_encode(json_decode($this->defaultValues, true));
+				if(is_object($this->defaultValues)) {
+					$this->defaultValues = (array) $this->defaultValues;
+				}
+				else {
+					$this->defaultValues = json_encode(json_decode($this->defaultValues, true));
+				}
 			}
 			if($this->defaultValues != null) {
 				$defaultValues = $this->defaultValues;
@@ -403,7 +408,6 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 				} else {
 					$explodedValue = explode(' |##| ',$trimmedValue);
 				}
-
 				foreach($explodedValue as $key=>$value){
 					$explodedValue[$key] = trim($value);
 				}
@@ -418,7 +422,7 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 					} else if (strpos($fieldValue, ':::') > 0) {
 						$fieldValueDetails = explode(':::', $fieldValue);
 					} else {
-						$fieldValueDetails = $fieldValue;
+						$fieldValueDetails = [$fieldValue];
 					}
 					if (count($fieldValueDetails) > 1) {
 						$referenceModuleName = trim($fieldValueDetails[0]);
