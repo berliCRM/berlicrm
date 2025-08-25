@@ -424,7 +424,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 			->setDocumentBuyer($account_name, $account_no)
 			->setDocumentBuyerReference($owner_id)
 			->setDocumentBuyerAddress($bill_street, "", "", $bill_code, $bill_city, $bill_country)
-			->addDocumentTax("S", "VAT", $price_subtotal, ($price_total - $price_subtotal), number_format($group_total_tax_percent, 0))
+			->addDocumentTax("S", "VAT", $price_subtotal, ($price_total - $price_subtotal), (float) number_format($group_total_tax_percent, 0))
 			->setDocumentSummation($price_total, $price_total, $price_subtotal, 0.0, 0.0, $price_subtotal, ($price_total - $price_subtotal), null, 0.0)
 			->addDocumentPaymentMean(horstoeko\zugferd\codelists\ZugferdPaymentMeans::UNTDID_4461_58, null, null, null, null, null, $bank_iban, null, null, null);
 		// ->addDocumentPaymentTerm($description);
@@ -551,7 +551,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 				->setDocumentPositionProductDetails($product_name[$i], "", $product_code[$i])
 				->setDocumentPositionNetPrice((float) $list_price[$i] - (float) $discount_total[$i])
 				->setDocumentPositionQuantity((float) $qty_formated[$i], "H87")
-				->addDocumentPositionTax('S', 'VAT', number_format($group_total_tax_percent, 0))
+				->addDocumentPositionTax('S', 'VAT', (float) number_format($group_total_tax_percent, 0))
 				->setDocumentPositionLineSummation((float) $prod_total[$i]);
 		}
 	}
