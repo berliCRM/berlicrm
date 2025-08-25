@@ -200,14 +200,6 @@ class Vtiger_Import_View extends Vtiger_Index_View {
 				$noOfRecordsDeleted++;
 			}
 		}
-		$functionsArray = array('vtemplate_path', 'vtranslate', 'vresource_url', 'array_keys', 'vimage_path', 'ucfirst', 'stripos', 'date', 'decode_html', 'getPurifiedSmartyParameters',
-		'method_exists', 'trim', 'array_merge', 'array_map', 'array_key_exists', 'decimalFormat', 'isPermitted', 'sprintf', 'strpos', 'end', 'html_entity_decode', 
-		'getEntityName', 'json_decode', 'array_shift', 'getOwnerName', 'array_push', 'get_class', 'file_exists', 'str_replace', 'function_exists', 
-		'getTranslatedCurrencyString', 'abs', 'strstr', 'urlencode', 'strcasecmp', 'textlength_check', 'array_slice');
-	
-		foreach ($functionsArray as $function) {
-		$viewer->registerPlugin('modifier', $function, $function);
-		}
 		
         $entity = new VTEventsManager($db);        
         $entity->triggerEvent('vtiger.batchevent.delete',$entityData);
