@@ -790,7 +790,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 	} elseif ($purpose == 'send') {
 		// option: send pdf with mail
 		$createdOutputPdfName = vtranslate('SINGLE_Invoice', 'Invoice') . '_' . $invoice_no . '.pdf';
-		$createdOutputPdfPath = 'storage/' . $createdOutputPdfName;
+		$createdOutputPdfPath = dirname(__DIR__, 2).'/storage/' . $createdOutputPdfName;
 	} elseif ($purpose == 'customerportal') {
 		// option: use for portal
 		$createdOutputPdfName = $current_id . "_Invoice.pdf";
