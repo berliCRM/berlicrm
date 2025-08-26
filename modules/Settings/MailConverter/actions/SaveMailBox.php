@@ -50,6 +50,7 @@ class Settings_MailConverter_SaveMailBox_Action extends Settings_Vtiger_Index_Ac
 		else {
 			$response->setError(vtranslate('LBL_ERROR_NOT_EXPECTED_RETURN_VALUE', $qualifiedModuleName));
 		}
+		ob_clean();
 		$response->emit();
 	}
         
