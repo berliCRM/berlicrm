@@ -1014,6 +1014,10 @@ $jsLanguageStrings = array(
         'LBL_SYNCRONIZING' => 'Synchronisiere',
     
         'JS_RECORDS_TRANSFERRED_SUCCESSFULLY' => 'Die Zuständigkeit wurde erfolgreich geändert.',
+
+		//Document module for relatedlist translations
+		'JS_Intern_FILE_NAME' => 'Dateiname',	// duplicated key-value pairs
+		'JS_Extern_FILE_NAME' => 'Dateipfad',	// duplicated key-value pairs
     
     //Edit view mode Translations
         'JS_CHANGES_WILL_BE_LOST' => 'Ihre Änderungen werden verloren gehen!',
