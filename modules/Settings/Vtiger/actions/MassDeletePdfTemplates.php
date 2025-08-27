@@ -33,7 +33,7 @@ class Settings_Vtiger_MassDeletePdfTemplates_Action extends Vtiger_Mass_Action {
 		if($selectedIds == 'all' && empty($excludedIds)){
 			$recordModel->deleteAllRecords();
 		}else{
-			$recordIds = $this->getRecordsListFromRequest($request, $recordModel);
+			$recordIds = $this->getRecordsListForRecordModel($request, $recordModel);
 			foreach($recordIds as $recordId) {
 				$recordModel = EmailTemplates_Record_Model::getInstanceById($recordId);
 				$recordModel->delete();
@@ -45,7 +45,7 @@ class Settings_Vtiger_MassDeletePdfTemplates_Action extends Vtiger_Mass_Action {
 		$response->emit();
 	}
 	
-	public function getRecordsListFromRequest(Vtiger_Request $request, $recordModel) {
+	public function getRecordsListForRecordModel(Vtiger_Request $request, $recordModel) {
 		$selectedIds = $request->get('selected_ids');
 		$excludedIds = $request->get('excluded_ids');
 		
@@ -60,4 +60,9 @@ class Settings_Vtiger_MassDeletePdfTemplates_Action extends Vtiger_Mass_Action {
 			return $recordIds;
 		}
 	}
+
+		protected function getRecordsListFromRequest(Vtiger_Request $request) {
+        return parent::getRecordsListFromRequest($request);
+    }
+
 }

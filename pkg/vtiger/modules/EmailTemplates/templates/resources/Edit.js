@@ -61,7 +61,7 @@ Vtiger_Edit_Js("EmailTemplates_Edit_Js",{},{
 		}
 		
 		if(options == '')
-			options = '<option value="">NONE</option>';
+			options = '<option value="">' + app.vtranslate('LBL_NONE') + '</option>';
 		
 		fieldSelectElement.empty().html(options).trigger("liszt:updated");
 		return fieldSelectElement;

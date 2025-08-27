@@ -995,6 +995,7 @@ $jsLanguageStrings = array(
 	'LBL_MASS_DELETE_CONFIRMATION' => 'Sind Sie sicher, dass Sie die ausgewählten Daten löschen wollen?',
 	'LBL_NO' => 'nein',
 	'LBL_YES' => 'ja',
+	'LBL_NONE' => 'Ohne',	// Duplicated key-value pairs
 	'NONE_OF_THE_FIELD_VALUES_ARE_CHANGED_IN_MASS_EDIT' => 'Die Massenbearbeitung hat nichts verändert',
 	'OVERWRITE_EXISTING_MSG1' => 'Überschreibe die Adresse mit ',
 	'OVERWRITE_EXISTING_MSG2' => 'Adressdetails?',
