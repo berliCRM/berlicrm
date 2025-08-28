@@ -860,28 +860,56 @@ jQuery.Class("Vtiger_Detail_Js",{
 			}
 			var selectedTabElement = thisInstance.getSelectedTab();
 			var relatedModuleName = thisInstance.getRelatedModuleName();
-			var relatedController = new Vtiger_RelatedList_Js(thisInstance.getRecordId(), app.getModuleName(), selectedTabElement, relatedModuleName);
-			relatedController.nextPageHandler();
+			var relatedController = new Vtiger_RelatedList_Js(
+				thisInstance.getRecordId(), 
+				app.getModuleName(), 
+				selectedTabElement, 
+				relatedModuleName
+			);
+			relatedController.nextPageHandler().then(function(){
+				thisInstance.registerPreviewEvent();
+			});
 		});
 		detailContentsHolder.on('click','#relatedListPreviousPageButton',function(){
 			var selectedTabElement = thisInstance.getSelectedTab();
 			var relatedModuleName = thisInstance.getRelatedModuleName();
-			var relatedController = new Vtiger_RelatedList_Js(thisInstance.getRecordId(), app.getModuleName(), selectedTabElement, relatedModuleName);
-			relatedController.previousPageHandler();
+			var relatedController = new Vtiger_RelatedList_Js(
+				thisInstance.getRecordId(), 
+				app.getModuleName(), 
+				selectedTabElement, 
+				relatedModuleName
+			);
+			relatedController.previousPageHandler().then(function(){
+				thisInstance.registerPreviewEvent();
+			});
 		});
 		detailContentsHolder.on('click','#relatedListPageJump',function(e){
 			var selectedTabElement = thisInstance.getSelectedTab();
 			var relatedModuleName = thisInstance.getRelatedModuleName();
-			var relatedController = new Vtiger_RelatedList_Js(thisInstance.getRecordId(), app.getModuleName(), selectedTabElement, relatedModuleName);
-			relatedController.getRelatedPageCount();
+			var relatedController = new Vtiger_RelatedList_Js(
+				thisInstance.getRecordId(), 
+				app.getModuleName(), 
+				selectedTabElement, 
+				relatedModuleName
+			);
+			relatedController.getRelatedPageCount().then(function(){
+				thisInstance.registerPreviewEvent();
+			});
 		});
 		detailContentsHolder.on('click','#relatedListPageJumpDropDown > li',function(e){
 			e.stopImmediatePropagation();
 		}).on('keypress','#pageToJump',function(e){
 			var selectedTabElement = thisInstance.getSelectedTab();
 			var relatedModuleName = thisInstance.getRelatedModuleName();
-			var relatedController = new Vtiger_RelatedList_Js(thisInstance.getRecordId(), app.getModuleName(), selectedTabElement, relatedModuleName);
-			relatedController.pageJumpHandler(e);
+			var relatedController = new Vtiger_RelatedList_Js(
+				thisInstance.getRecordId(), 
+				app.getModuleName(), 
+				selectedTabElement, 
+				relatedModuleName
+			);
+			relatedController.pageJumpHandler(e).then(function(){
+				thisInstance.registerPreviewEvent();
+			});
 		});
 	},
 
@@ -1496,167 +1524,95 @@ jQuery.Class("Vtiger_Detail_Js",{
 		)
 	},
 
-	registerPreviewEvent : function() {
-		const previewBox = document.createElement('div');
-		previewBox.id = 'pdf-preview-box';
-		previewBox.style.position = 'absolute';
+	registerPreviewEvent: function () {
+	const existingPreviewBox = document.getElementById('pdf-preview-box');
+    if (existingPreviewBox) {
+        existingPreviewBox.remove();
+    }
+	const previewBox = document.createElement('div');
+	previewBox.id = 'pdf-preview-box';
+	previewBox.style.position = 'absolute';
+	previewBox.style.display = 'none';
+	previewBox.style.border = '1px solid #ccc';
+	previewBox.style.background = '#fff';
+	previewBox.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+	previewBox.style.padding = '10px';
+	previewBox.style.zIndex = '1000';
+	previewBox.style.overflow = 'auto';
+	previewBox.style.resize = 'both';
+
+	const savedSize = loadPreviewSize();
+	previewBox.style.width = savedSize.width;
+	previewBox.style.height = savedSize.height;
+	document.body.appendChild(previewBox);
+
+	const closePreviewButton = document.createElement('button');
+	closePreviewButton.textContent = '×';
+	closePreviewButton.style.position = 'absolute';
+	closePreviewButton.style.top = '8px';
+	closePreviewButton.style.right = '8px';
+	closePreviewButton.style.background = 'white';
+	closePreviewButton.style.border = 'none';
+	closePreviewButton.style.fontSize = '25px';
+	closePreviewButton.style.cursor = 'pointer';
+	closePreviewButton.style.color = '#333';
+
+	function removeIframe() {
+		const existingIframe = document.querySelectorAll('#pdf-preview-box iframe');
+		existingIframe.forEach(element => {
+			element.remove();
+		});
+	}
+
+	previewBox.appendChild(closePreviewButton);
+	document.body.appendChild(previewBox);
+
+	function savePreviewSize(width, height) {
+		sessionStorage.setItem('previewBoxWidth', width);
+		sessionStorage.setItem('previewBoxHeight', height);
+	}
+
+	function loadPreviewSize() {
+		return {
+			width: sessionStorage.getItem('previewBoxWidth') || '300px',
+			height: sessionStorage.getItem('previewBoxHeight') || '400px'
+		};
+	}
+
+	function showUnsupportedFormatMessage() {
+		previewBox.innerHTML = `
+			<div style="padding: 20px; color: #a00; font-weight: bold;">
+				Keine Preview für dieses Dateiformat verfügbar.
+			</div>
+		`;
+		previewBox.appendChild(closePreviewButton);
+		previewBox.style.display = 'block';
+	}
+
+	const resizeObserver = new ResizeObserver(entries => {
+		for (let entry of entries) {
+			savePreviewSize(entry.target.style.width, entry.target.style.height);
+		}
+	});
+	resizeObserver.observe(previewBox);
+
+	closePreviewButton.addEventListener('click', function () {
 		previewBox.style.display = 'none';
-		previewBox.style.border = '1px solid #ccc';
-		previewBox.style.background = '#fff';
-		previewBox.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
-		previewBox.style.padding = '10px';
-		previewBox.style.zIndex = '1000';
-		previewBox.style.overflow = 'auto';
-		previewBox.style.resize = 'both';
-	
-		const savedSize = loadPreviewSize();
-		previewBox.style.width = savedSize.width;
-		previewBox.style.height = savedSize.height;
-	
-		const closePreviewButton = document.createElement('button');
-		closePreviewButton.textContent = '×';
-		closePreviewButton.style.position = 'absolute';
-		closePreviewButton.style.top = '8px';
-		closePreviewButton.style.right = '8px';
-		closePreviewButton.style.background = 'white';
-		closePreviewButton.style.border = 'none';
-		closePreviewButton.style.fontSize = '25px';
-		closePreviewButton.style.cursor = 'pointer';
-		closePreviewButton.style.color = '#333';
-		var linkElements = $('[id$="fieldValue_filename"]');
+	});
 
-		function removeIframe() {
-			const existingIframe = document.querySelectorAll('#pdf-preview-box iframe');
-			const existingPreviewBox = document.querySelectorAll('#pdf-preview-box');
-			existingIframe.forEach(element => {
-				element.remove();
-			});
-			existingPreviewBox.forEach(element => {
-				element.remove();
-			});
-		}
-	
-		function savePreviewSize(width, height) {
-			sessionStorage.setItem('previewBoxWidth', width);
-			sessionStorage.setItem('previewBoxHeight', height);
-		}
-	
-		function loadPreviewSize() {
-			return {
-				width: sessionStorage.getItem('previewBoxWidth') || '300px',
-				height: sessionStorage.getItem('previewBoxHeight') || '400px'
-			};
-		}
-	
-		function showUnsupportedFormatMessage() {
-			previewBox.innerHTML = `
-				<div style="padding: 20px; color: #a00; font-weight: bold;">
-					Keine Preview für dieses Dateiformat verfügbar.
-				</div>
-			`;
-			previewBox.appendChild(closePreviewButton);
-			previewBox.style.display = 'block';
-		}
-	
-		const resizeObserver = new ResizeObserver(entries => {
-			for (let entry of entries) {
-				savePreviewSize(entry.target.style.width, entry.target.style.height);
+	document.querySelectorAll('.pdf-link').forEach(link => {
+		link.addEventListener('mouseenter', function (e) {
+			const pdfUrl = this.dataset.pdfPreview;
+			if (!pdfUrl) {
+				previewBox.style.display = "none";
+				return;
 			}
-		});
-		resizeObserver.observe(previewBox);
-	
-		closePreviewButton.addEventListener('click', function () {
-			previewBox.style.display = 'none';
-		});
-	
-		if (linkElements.length < 1) {
-			linkElements = jQuery('.pdf-link');
-			document.querySelectorAll('.pdf-link').forEach(linkElement => {
-				$(linkElement).on('mouseenter', function (e) {
-					if (!(linkElement instanceof jQuery)) {
-						linkElement = jQuery(linkElement);
-					}
-	
-					const previewUrl = new URL(linkElement.attr('href'), window.location.href.split("index.php")[0]);
-					previewUrl.searchParams.set('mode', 'preview');
 
-					if (document.querySelector('#pdf-preview-box')) {
-						removeIframe();
-					}
-	
-					fetch(previewUrl).then(response => {
-						if (response.status === 204) {
-							showUnsupportedFormatMessage();
-						} else {
-							previewBox.style.display = "block";
-						}
-					});
-	
-					document.body.appendChild(previewBox);	
-					const iframe = document.createElement('iframe');
-					iframe.id = "preview";
-					iframe.src = previewUrl;
-					iframe.width = "100%";
-					iframe.height = "100%";
-					iframe.frameBorder = "0";
-					iframe.style.overflow = "auto";
-					iframe.style.border = "1px solid #ccc";
-	
-					iframe.onerror = function () {
-						showUnsupportedFormatMessage();
-					};
-	
-					previewBox.innerHTML = '';
-					previewBox.appendChild(iframe);
-					previewBox.appendChild(closePreviewButton);
-					iframe.onload = function () {
-						try {
-							const imgEl = iframe.contentWindow.document.getElementsByTagName("IMG")[0];
-							if (imgEl) {
-								const testImg = new Image();
-								testImg.onload = function () {
-									const cleanImg = document.createElement("img");
-									cleanImg.src = imgEl.src;
-									previewBox.innerHTML = '';
-									previewBox.appendChild(cleanImg);
-									previewBox.appendChild(closePreviewButton);
-									previewBox.style.display = 'block';
-								};
-								testImg.onerror = function () {
-									showUnsupportedFormatMessage();
-								};
-								testImg.src = imgEl.src;
-							} else {
-								previewBox.style.display = 'block';
-							}
-						} catch (error) {
-							previewBox.style.display = 'block';
-						}
-					};
-	
-					const linkRect = this.getBoundingClientRect();
-					const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-					const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+			const previewUrl = new URL(pdfUrl, window.location.href.split("index.php")[0]);
+			previewUrl.searchParams.set('mode', 'preview');
 
-					previewBox.style.position = 'absolute';
-					previewBox.style.left = `${linkRect.right + 10 + scrollLeft}px`;
-					previewBox.style.top = `${linkRect.top + scrollTop}px`;
-				});
-			});
-		} else {
-			var linkElement = linkElements.find('a');
-			$(linkElement).on('mouseenter', function (e) {
-				if (!(linkElement instanceof jQuery)) {
-					linkElement = jQuery(linkElement);
-				}
-				const previewUrl = new URL(linkElement.attr('href'), window.location.href.split("index.php")[0]);
-				previewUrl.searchParams.set('mode', 'preview');
-
-				if (document.querySelector('#pdf-preview-box')) {
-					removeIframe();
-				}
-	
-				fetch(previewUrl).then(response => {
+			fetch(previewUrl)
+				.then(response => {
 					if (response.status === 204) {
 						showUnsupportedFormatMessage();
 					} else {
@@ -1664,59 +1620,56 @@ jQuery.Class("Vtiger_Detail_Js",{
 					}
 				});
 
-				document.body.appendChild(previewBox);
-				const iframe = document.createElement('iframe');
-				iframe.id = "preview";
-				iframe.src = previewUrl;
-				iframe.width = "100%";
-				iframe.height = "100%";
-				iframe.frameBorder = "0";
-				iframe.style.overflow = "auto";
-				iframe.style.border = "1px solid #ccc";
-	
-				iframe.onerror = function () {
-					showUnsupportedFormatMessage();
-				};
-	
-				previewBox.innerHTML = '';
-				previewBox.appendChild(iframe);
-				previewBox.appendChild(closePreviewButton);
-	
-				iframe.onload = function () {
-					try {
-						const imgEl = iframe.contentWindow.document.getElementsByTagName("IMG")[0];
-						if (imgEl) {
-							const testImg = new Image();
-							testImg.onload = function () {
-								const cleanImg = document.createElement("img");
-								cleanImg.src = imgEl.src;
-								previewBox.innerHTML = '';
-								previewBox.appendChild(cleanImg);
-								previewBox.appendChild(closePreviewButton);
-								previewBox.style.display = 'block';
-							};
-							testImg.onerror = function () {
-								showUnsupportedFormatMessage();
-							};
-							testImg.src = imgEl.src;
-						} else {
+			const iframe = document.createElement('iframe');
+			iframe.id = "preview";
+			iframe.src = previewUrl;
+			iframe.width = "100%";
+			iframe.height = "100%";
+			iframe.frameBorder = "0";
+			iframe.style.overflow = "auto";
+			iframe.style.border = "1px solid #ccc";
+
+			iframe.onerror = function () {
+				showUnsupportedFormatMessage();
+			};
+
+			previewBox.innerHTML = '';
+			previewBox.appendChild(iframe);
+			previewBox.appendChild(closePreviewButton);
+
+			iframe.onload = function () {
+				try {
+					const imgEl = iframe.contentWindow.document.getElementsByTagName("IMG")[0];
+					if (imgEl) {
+						const testImg = new Image();
+						testImg.onload = function () {
+							const cleanImg = document.createElement("img");
+							cleanImg.src = imgEl.src;
+							previewBox.innerHTML = '';
+							previewBox.appendChild(cleanImg);
+							previewBox.appendChild(closePreviewButton);
 							previewBox.style.display = 'block';
-						}
-					} catch (error) {
+						};
+						testImg.onerror = function () {
+							showUnsupportedFormatMessage();
+						};
+						testImg.src = imgEl.src;
+					} else {
 						previewBox.style.display = 'block';
 					}
-				};
-	
-				const linkRect = this.getBoundingClientRect();
-				const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-				const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+				} catch (error) {
+					previewBox.style.display = 'block';
+				}
+			};
 
-				previewBox.style.position = 'absolute';
-				previewBox.style.left = `${linkRect.right + 10 + scrollLeft}px`;
-				previewBox.style.top = `${linkRect.top + scrollTop}px`;
-			});
-		}
-	},
+			const linkRect = this.getBoundingClientRect();
+			previewBox.style.left = `${linkRect.right + 10 + window.scrollX}px`;
+			previewBox.style.top = `${linkRect.top + window.scrollY}px`;
+		});
+	});
+
+	this.removeIframe = removeIframe;
+},
 	
 
 	/**
