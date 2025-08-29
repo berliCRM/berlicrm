@@ -519,7 +519,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	elseif ($purpose=='send'){
 		// send pdf with mail
 		$translatedName = vtranslate('SINGLE_SalesOrder', 'SalesOrder');
-		$pdf->Output('storage/'.$translatedName.'_'.$SalesOrder_no.'.pdf','F'); 
+		$pdf->Output(dirname(__DIR__, 2).'/storage/'.$translatedName.'_'.$SalesOrder_no.'.pdf','F'); 
 		return;
 	}
 	exit;

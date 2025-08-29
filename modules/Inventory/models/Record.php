@@ -272,7 +272,7 @@ class Inventory_Record_Model extends Vtiger_Record_Model {
         // $filePath = "storage/$translatedName"."_".$sequenceNo.".pdf";
         //added file name to make it work in IE, also forces the download giving the user the option to save
         // $controller->Output($filePath,'F');
-		$filePath = 'storage/'.$translatedName.'_'.$record_no.'.pdf';
+		$filePath = dirname(__DIR__, 3).'/storage/'.$translatedName.'_'.$record_no.'.pdf';
         return $filePath;
     }
 	
