@@ -41,7 +41,7 @@ class Settings_PickListDependency_Edit_View extends Settings_Vtiger_Index_View {
 		$viewer->view('EditView.tpl', $qualifiedModuleName);
 	}
     
-    public function getDependencyGraph(Vtiger_Request $request): object{
+    public function getDependencyGraph(Vtiger_Request $request) {
         $qualifiedName = $request->getModule(false);
         $module = $request->get('sourceModule');
         $sourceField = $request->get('sourcefield');
@@ -57,7 +57,6 @@ class Settings_PickListDependency_Edit_View extends Settings_Vtiger_Index_View {
         $viewer->assign('NON_MAPPED_SOURCE_VALUES', $nonMappedSourceValues);
 		$viewer->assign('QUALIFIED_MODULE', $qualifiedName);
 		$viewer->assign('RECORD_MODEL', $recordModel);
-		
         return $viewer->view('DependencyGraph.tpl',$qualifiedName, true);
     }
 	
