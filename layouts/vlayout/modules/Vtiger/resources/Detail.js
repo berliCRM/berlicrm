@@ -936,6 +936,7 @@ jQuery.Class("Vtiger_Detail_Js",{
 				if(emailEnabledModule){
 					thisInstance.registerEventToEditRelatedStatus();
 				}
+				thisInstance.registerPreviewEvent();
 			});
 		});
 
