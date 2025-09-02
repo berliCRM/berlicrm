@@ -73,11 +73,14 @@ class Settings_SharingAccess_Module_Model extends Vtiger_Module_Model {
 	}
 
 	public function save() {
-		$db = PearDatabase::getInstance();
+		// prevent issue with Accounts & Contacts relation that would set NULL value for Contacts if Accounts is disabled and create a broken array
+		if ($this->get('permission') != '' && $this->get('permission') != NULL) {
+			$db = PearDatabase::getInstance();
 
-		$sql = 'UPDATE vtiger_def_org_share SET permission = ? WHERE tabid = ?';
-		$params = array($this->get('permission'), $this->getId());
-		$db->pquery($sql, $params);
+			$sql = 'UPDATE vtiger_def_org_share SET permission = ? WHERE tabid = ?';
+			$params = array($this->get('permission'), $this->getId());
+			$db->pquery($sql, $params);
+		}
 	}
 
 	/**
