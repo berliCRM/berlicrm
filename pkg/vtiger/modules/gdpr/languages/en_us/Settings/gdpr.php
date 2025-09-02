@@ -20,13 +20,13 @@ $languageStrings = array(
 	'LBL_OPERATION_DEACTIVATED' => 'deactivated',
 	'LBL_OPERATION_MANUAL' => 'manually',
 	'LBL_NOTIFICATION_TIME' => 'How long in advance would you like to be informed about required deletions?',
-	'LBL_SELECT_NOTIFICATION_TIME' => 'wähle Benachrichtigungszeit',
+	'LBL_SELECT_NOTIFICATION_TIME' => 'wï¿½hle Benachrichtigungszeit',
 	'LBL_ONE_DAY' => '1 day in advance',
 	'LBL_ONE_WEEK' => '1 week in advance',
 	'LBL_TWO_WEEKS' => '2 week in advance',
 	'LBL_THREE_WEEKS' => '3 week in advance',
 	'LBL_FOUR_WEEKS' => '4 week in advance',
-	'LBL_DELETE_WHAT' => 'was soll gelöscht werden',
+	'LBL_DELETE_WHAT' => 'was soll gelï¿½scht werden',
 	
 	'LBL_MODULES_RELATED' => 'List of active CRM modules',
 	'LBL_GDPR_RELEVANT' => 'Does contain personal data?',
@@ -49,6 +49,8 @@ $languageStrings = array(
 	'LBL_GDPR_IMPORTANT' => 'Please note:',
 	'LBL_GDPR_IMPORTANT1' => "According to the GDPR all personal data must be deleted after six months unless there's expicit reason or consent to store them. The CRM will use the \"created\" date-field for this calculation.<br><b>Automatic deletion has not yet been implemented!</b>",	
 	
+	'LBL_GRDPR_SETUP_DESCRIPTION' => 'Manage GDPR settings for consent, retention, and deletion',
+
 );
 $jsLanguageStrings = array(
 	'LBL_GDPR_CONFIGURATION' => 'Modulauswahl',

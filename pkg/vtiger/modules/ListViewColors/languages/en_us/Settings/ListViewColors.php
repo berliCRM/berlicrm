@@ -26,6 +26,9 @@ $languageStrings = array (
 	'LBL_PICKLIST' => 'Pick List',
 	'LBL_MULTIPICKLIST' => 'Multi Pick List',
 	'LBL_CHECKBOX' => 'Checkbox',
+
+	'LBL_LISTVIEWCOLORS_SETUP_DESCRIPTION' => 'Set colors for list view entries via master data',
+
 );
 
 $jsLanguageStrings = array (

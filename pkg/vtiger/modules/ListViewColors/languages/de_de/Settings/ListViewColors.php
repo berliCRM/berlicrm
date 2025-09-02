@@ -26,6 +26,9 @@ $languageStrings = array (
 	'LBL_PICKLIST' => 'Auswahlliste',
 	'LBL_MULTIPICKLIST' => 'Multiauswahlliste',
 	'LBL_CHECKBOX' => 'Checkbox',
+
+	'LBL_LISTVIEWCOLORS_SETUP_DESCRIPTION' => 'Farben für Einträge in der Listenansicht über Stammdaten festlegen',
+
 );
 
 $jsLanguageStrings = array (

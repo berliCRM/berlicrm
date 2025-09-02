@@ -35,6 +35,8 @@ $languageStrings = array(
 	'LBL_PHONE_HINT3' => 'The CRM identifies phone numbers which are entered in the same format as the format used by your softphone. They must have at least 4 digits. You may consult the CRM Journal for general hints: <a href="https://blog.crm-now.de/2009/07/22/format-von-telefonnummern/?lang=en" target=_blank>phone number formats</a>',
 	'LBL_CONFIG_SAVED'=>'Your settings has been saved.',
 
+	'LBL_SOFTPHONES_SETUP_DESCRIPTION' => 'Select and configure a softphone for internet telephony',
+
 );
 
 $jsLanguageStrings = array(

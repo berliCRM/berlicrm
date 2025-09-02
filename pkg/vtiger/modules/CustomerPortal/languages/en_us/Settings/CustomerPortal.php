@@ -20,6 +20,9 @@ $languageStrings = array(
 	'LBL_PREVILEGES_MESSAGE' => "This Role's privileges will be applied to the Portal User.",
 	'LBL_PRIVILEGES' => 'Privileges',
 	'LBL_VIEW_ALL_RECORDS' => 'See Records across Organization',
+
+	'LBL_CUSTOMER_PORTAL' => 'Customer Portal',
+	'PORTAL_EXTENSION_DESCRIPTION' => 'Manage portal rights, modules, and records for customers',
 );
 
 $jsLanguageStrings = array(
