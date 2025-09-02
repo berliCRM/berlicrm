@@ -248,12 +248,21 @@
 			foreach($ownerFields as $index=>$field){
 				if(isset($row[$field]) && $row[$field]!=null){
 					try {
+						$error = false;
 						$ownerType = vtws_getOwnerType($row[$field]);
 						$webserviceObject = VtigerWebserviceObject::fromName($adb,$ownerType);
 					} catch (Exception $e) {
-						throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, "Error while trying to determine owner: Data-ID -> {$row['id']}, '$field' -> '{$row[$field]}'");
+						// make Exception for ModComments that belong to a user that no longer exists
+						if ($meta->getEntityName() != 'ModComments') {
+							throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, "Error while trying to determine owner: Data-ID -> {$row['id']}, '$field' -> '{$row[$field]}'");
+						} else {
+							$row[$field] = 'DELETED OR UNKNOWN USER/GROUP: '.$row[$field];
+							$error = true;
+						}
 					}
-					$row[$field] = vtws_getId($webserviceObject->getEntityId(),$row[$field]);
+					if (!$error) {
+						$row[$field] = vtws_getId($webserviceObject->getEntityId(),$row[$field]);
+					}
 				}
 			}
 			return $row;
