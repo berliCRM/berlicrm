@@ -877,7 +877,8 @@ $languageStrings = array(
 
 	// Send Mail from ModComment
 	'LBL_SEND_MAIL_AND_POST' => 'Mail senden und veröffentlichen',
-	'LBL_EXTERNAL_COMMENT' => 'Externer Kommentar'
+	'LBL_EXTERNAL_COMMENT' => 'Externer Kommentar',
+	'LBL_MAILTO'=> 'Mail an',
 );
 
 $jsLanguageStrings = array(

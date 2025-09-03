@@ -599,12 +599,14 @@ jQuery.Class("Vtiger_Detail_Js", {
 		var commentInfoHeader = closestCommentBlock.closest('.commentDetails').find('.commentInfoHeader');
 		var commentId = commentInfoHeader.data('commentid');
 		var parentCommentId = commentInfoHeader.data('parentcommentid');
+		var external = jQuery('#externalComment').is(':checked');
 		var postData = {
 			'commentcontent': commentContentValue,
 			'related_to': thisInstance.getRecordId(),
-			'module': 'ModComments'
+			'module': 'ModComments',
+			'external': external
 		}
-
+		console.log(external);
 		if (commentMode == "edit") {
 			postData['record'] = commentId;
 			postData['reasontoedit'] = editCommentReason;
