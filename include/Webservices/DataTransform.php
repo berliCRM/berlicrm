@@ -302,7 +302,7 @@
 			$moduleFields = $meta->getModuleFields();
 			foreach($moduleFields as $fieldName=>$fieldObj){
 				if($fieldObj->getFieldDataType()=="double" && !empty($row[$fieldName])) {
-					$row[$fieldName] = NumberField::convertToUserFormat($row[$fieldName],$current_user);
+					$row[$fieldName] = CurrencyField::convertToUserFormat($row[$fieldName],$current_user, true, false);
 				}
 			}
 			return $row;
