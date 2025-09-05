@@ -606,7 +606,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 			'module': 'ModComments',
 			'external': external
 		}
-		console.log(external);
+
 		if (commentMode == "edit") {
 			postData['record'] = commentId;
 			postData['reasontoedit'] = editCommentReason;

@@ -25,19 +25,23 @@
 							placeholder="{vtranslate('LBL_ADD_YOUR_COMMENT_HERE', $MODULE_NAME)}"
 							rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"></textarea>
 					</div>
-					<div style="display:inline-block; margin-right:20px;">
-						<input type="checkbox" id="externalComment" name="externalComment" class="alignTop">&nbsp;
-						<label for="externalComment"
-							style="display:inline;">{vtranslate('LBL_EXTERNAL_COMMENT', $MODULE_NAME)}</label>
-					</div>
+					{if $MODULE_NAME == 'HelpDesk'}
+						<div style="display:inline-block; margin-right:20px;">
+							<input type="checkbox" id="externalComment" name="externalComment" class="alignTop">&nbsp;
+							<label for="externalComment"
+								style="display:inline;">{vtranslate('LBL_EXTERNAL_COMMENT', $MODULE_NAME)}</label>
+						</div>
+					{/if}
 					<div class="pull-right">
 						<button class="btn btn-success detailViewSaveComment" type="button"
 							data-mode="add"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
 					</div>
-					<div class="pull-right">
-						<button class="btn saveButton detailViewSaveComment" type="button"
-							data-mode="sendMail"><strong>{vtranslate('LBL_SEND_MAIL_AND_POST', $MODULE_NAME)}</strong></button>
-					</div>
+					{if $MODULE_NAME == 'HelpDesk'}
+						<div class="pull-right">
+							<button class="btn saveButton detailViewSaveComment" type="button"
+								data-mode="sendMail"><strong>{vtranslate('LBL_SEND_MAIL_AND_POST', $MODULE_NAME)}</strong></button>
+						</div>
+					{/if}
 				</div>
 			{/if}
 		</div>
