@@ -1,10 +1,10 @@
 <?xml version='1.0'?>
 <module>
-<exporttime>2025-06-18 12:35:11</exporttime>
+<exporttime>2025-08-02 14:30:00</exporttime>
 <name>Mailchimp</name>
 <label>Mailchimp</label>
 <parent>Marketing</parent>
-<version>4.06</version>
+<version>4.07</version>
 <dependencies>
 <vtiger_version>6.5.0</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>

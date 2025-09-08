@@ -1,11 +1,11 @@
 <?xml version='1.0'?>
 <module>
-<exporttime>2025-04-02 12:30:00</exporttime>
+<exporttime>2025-08-02 14:30:00</exporttime>
 <name>berliSoftphones</name>
 <label>Softphones</label>
 <parent></parent>
 <type>extension</type>
-<version>1.4</version>
+<version>1.6</version>
 <dependencies>
 <vtiger_version>6.5.0</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>

@@ -1,10 +1,10 @@
 <?xml version='1.0'?>
 <module>
-    <exporttime>2024-05-10 11:28:36</exporttime>
+    <exporttime>2025-09-08 08:46:00</exporttime>
     <name>Search</name>
     <label>Global Search</label>
     <parent></parent>
-    <version>3.11</version>
+    <version>3.12</version>
     <dependencies>
 		<vtiger_version>6.0.0</vtiger_version>
 		<vtiger_max_version>6.*</vtiger_max_version>
