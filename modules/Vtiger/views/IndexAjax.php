@@ -37,6 +37,9 @@ class Vtiger_IndexAjax_View extends Vtiger_Index_View {
 	function showActiveRecords(Vtiger_Request $request) {
 		$viewer = $this->getViewer($request);
 		$moduleName = $request->getModule();
+		if($moduleName == 'Events') {
+			$moduleName = 'Calendar';
+		}
 
 		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
 		$recentRecords = $moduleModel->getRecentRecords();
