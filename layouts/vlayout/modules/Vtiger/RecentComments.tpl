@@ -91,6 +91,10 @@
 									</div>
 								</div>
 								<div class="row-fluid commentActionsContainer">
+									{assign var=EXTERNAL_COMMENT value=$COMMENT->getExternalCommentId()}
+									{if $MODULE_NAME == 'HelpDesk'}
+										<input type="hidden" name="external" value="{$EXTERNAL_COMMENT}">
+									{/if}
 
 									{assign var="REASON_TO_EDIT" value=$COMMENT->get('reasontoedit')}
 									<div class="row-fluid editStatus" name="editStatus">
@@ -190,6 +194,12 @@
 							rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"></textarea>
 					</div>
 				</div>
+				{if $MODULE_NAME == 'HelpDesk'}
+					<div style="display:inline-block; margin-right:20px;">
+						<input type="checkbox" id="externalComment" name="externalComment" class="alignTop">&nbsp;
+						<label style="display:inline;">{vtranslate('LBL_EXTERNAL_COMMENT', $MODULE_NAME)}</label>
+					</div>
+				{/if}
 				<div class="pull-right">
 					<button class="btn btn-success detailViewSaveComment" type="button"
 						data-mode="edit"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>

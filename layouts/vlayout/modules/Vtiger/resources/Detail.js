@@ -599,7 +599,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 		var commentInfoHeader = closestCommentBlock.closest('.commentDetails').find('.commentInfoHeader');
 		var commentId = commentInfoHeader.data('commentid');
 		var parentCommentId = commentInfoHeader.data('parentcommentid');
-		var external = jQuery('#externalComment').is(':checked');
+		var external = closestCommentBlock.find('#externalComment').is(':checked');
 		var postData = {
 			'commentcontent': commentContentValue,
 			'related_to': thisInstance.getRecordId(),
@@ -2273,9 +2273,15 @@ jQuery.Class("Vtiger_Detail_Js", {
 			var commentInfoBlock = currentTarget.closest('.singleComment');
 			var commentInfoContent = commentInfoBlock.find('.commentInfoContent');
 			var commentReason = commentInfoBlock.find('[name="editReason"]');
+			var externalComment = commentInfoBlock.find('[name="external"]').val();
 			var editCommentBlock = thisInstance.getEditCommentBlock();
 			editCommentBlock.find('.commentcontent').text(commentInfoContent.text());
 			editCommentBlock.find('[name="reasonToEdit"]').val(commentReason.text());
+			if (externalComment == '1') {
+				editCommentBlock.find('[name="externalComment"]').prop('checked', true);
+			} else {
+				editCommentBlock.find('[name="externalComment"]').prop('checked', false);
+			}
 			commentInfoContent.hide();
 			commentInfoBlock.find('.commentActionsContainer').hide();
 			editCommentBlock.appendTo(commentInfoBlock).show();

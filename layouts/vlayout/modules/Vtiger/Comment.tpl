@@ -50,6 +50,10 @@
 			</div>
 			<div class="row-fluid commentActionsContainer">
 				{if $EDIT_PERMISSION}
+					{assign var=EXTERNAL_COMMENT value=$COMMENT->getExternalCommentId()}
+					{if $MODULE_NAME == 'HelpDesk'}
+						<input type="hidden" name="external" value="{$EXTERNAL_COMMENT}">
+					{/if}
 					{assign var="REASON_TO_EDIT" value=$COMMENT->get('reasontoedit')}
 					<div class="row-fluid editedStatus" name="editStatus">
 						<div class="row-fluid">

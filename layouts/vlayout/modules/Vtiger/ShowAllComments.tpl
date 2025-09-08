@@ -81,6 +81,12 @@
 						rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"></textarea>
 				</div>
 			</div>
+			{if $MODULE_NAME == 'HelpDesk'}
+				<div style="display:inline-block; margin-right:20px;">
+					<input type="checkbox" id="externalComment" name="externalComment" class="alignTop">&nbsp;
+					<label style="display:inline;">{vtranslate('LBL_EXTERNAL_COMMENT', $MODULE_NAME)}</label>
+				</div>
+			{/if}
 			<div class="pull-right">
 				<button class="btn btn-success saveComment" type="button"
 					data-mode="edit"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>

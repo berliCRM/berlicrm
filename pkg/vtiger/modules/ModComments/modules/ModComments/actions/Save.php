@@ -18,6 +18,7 @@ class ModComments_Save_Action extends Vtiger_Save_Action {
 		$request->set('userid', $currentUserModel->getId());
 		
 		$recordModel = $this->saveRecord($request);
+		$this->saveModcommentsScope($request, $recordModel);
 		$responseFieldsToSent = array('reasontoedit','commentcontent');
 		$fieldModelList = $recordModel->getModule()->getFields();
 		foreach ($responseFieldsToSent as $fieldName) {
@@ -71,4 +72,13 @@ class ModComments_Save_Action extends Vtiger_Save_Action {
 		return $recordModel;
 	}
 	
+	protected function saveModcommentsScope(Vtiger_Request $request, Vtiger_Record_Model $recordModel) {
+		file_put_contents('test/0debug.txt', "Record ID: " . var_export($recordModel->getId(), true) . "\n\n", FILE_APPEND);
+		file_put_contents('test/0debug.txt', "External: " . var_export(json_decode($request->get('external')), true) . "\n\n", FILE_APPEND);
+		$adb = PearDatabase::getInstance();
+		$external = json_decode($request->get('external'));
+
+		$query = "UPDATE vtiger_modcommentsscope SET external = ? WHERE modcommentsid = ?";
+		$result = $adb->pquery($query, array($external, $recordModel->getId()));
+	}	
 }
