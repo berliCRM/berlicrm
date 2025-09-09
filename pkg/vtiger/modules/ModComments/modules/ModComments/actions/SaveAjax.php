@@ -94,34 +94,46 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 
 	public function sendMail(Vtiger_Request $request, Vtiger_Record_Model $recordModel)
 	{
-		require_once 'vtlib/Vtiger/Mailer.php';
 		global $site_URL;
-		$email= '';
+		$email = '';
 		$name = $request->get('username');
 		$relatedId = $recordModel->get('related_to');
 		$relatedRecordModel = Vtiger_Record_Model::getInstanceById($relatedId);
-		$accountModel = Vtiger_Record_Model::getInstanceById($relatedRecordModel->get('parent_id'));
-		$email = $accountModel->get('email1');
+		$parent_type = '';
+		$parent_id = '';
 
-		if(empty($email)) {
+		if (empty($email) && !empty($relatedRecordModel->get('contact_id')) && $relatedRecordModel->get('contact_id') != '0') {
 			$contactModel = Vtiger_Record_Model::getInstanceById($relatedRecordModel->get('contact_id'));
 			$email = $contactModel->get('email');
+			$parent_type = 'Contacts';
+			$parent_id = $relatedRecordModel->get('contact_id');
 		}
 
-		$vtigerMailer = new Vtiger_Mailer();
-
-		$vtigerMailer->AddAddress($email, $name);
+		if (empty($email)) {
+			$accountModel = Vtiger_Record_Model::getInstanceById($relatedRecordModel->get('parent_id'));
+			$email = $accountModel->get('email1');
+			$parent_type = 'Accounts';
+			$parent_id = $relatedRecordModel->get('parent_id');
+		}
 
 		$subject = $name . ' ' . vtranslate('LBL_COMMENTED', 'ModComments') . ' ' . $relatedRecordModel->get('ticket_no') . ' | ' . $relatedRecordModel->getName();
 
 		$contents = '<a href="' . $site_URL . $relatedRecordModel->getDetailViewUrl() . '"><h3>' . $name . ' ' . vtranslate('LBL_COMMENTED', 'ModComments') . ' ' . $relatedRecordModel->get('ticket_no') . ':</h3></a>';
 		$contents .= $recordModel->get('commentcontent');
 
-		$vtigerMailer->Subject = $subject;
-		$vtigerMailer->Body    = $contents;
-		$vtigerMailer->ContentType = "text/html";
-
-		return $vtigerMailer->Send(true) ? $email : $vtigerMailer->ErrorInfo;
+		$emailsRecordModel = Vtiger_Record_Model::getCleanInstance('Emails');
+		$emailsRecordModel->set('subject', $subject);
+		$emailsRecordModel->set('description', $contents);
+		$emailsRecordModel->set('email_flag', 'SENT');
+		$emailsRecordModel->set('assigned_user_id', Users_Record_Model::getCurrentUserModel()->getId());
+		$emailsRecordModel->set('parent_type', $parent_type);
+		$emailsRecordModel->set('parent_id', $parent_id);
+		$emailsRecordModel->set('toemailinfo', array($email));
+		$emailsRecordModel->set('toMailNamesList', array($name));
+		$emailsRecordModel->set('saved_toid', $email);
+		$emailsRecordModel->save();
+		$response = $emailsRecordModel->send();
+		return $response ? $email : $response;
 	}
 
 	public function saveModcommentsScope(Vtiger_Request $request, Vtiger_Record_Model $recordModel, $mailTo)
