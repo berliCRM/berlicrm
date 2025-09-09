@@ -614,6 +614,7 @@ $languageStrings = array(
 	'Tax2' => 'Steuer2',
 	'Tax3' => 'Steuer3',
 	'Tax:' => 'Steuer:',
+	'LBL_VAT' => 'MwSt.', //Duplicated key-value pairs
 	'Technology' => 'Technologie',
 	'Telecommunications' => 'Telekommunikation',
 	'Terms & Conditions' => 'Geschäftsbedingungen',
