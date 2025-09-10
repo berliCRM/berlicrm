@@ -1857,12 +1857,33 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 
 	showLineItemsDeleteIcon : function(){
 		var lineItemTable = this.getLineItemContentsContainer();
+		relationModule = this.getRealtionOperationBlock(lineItemTable);
 		lineItemTable.find('.deleteRow').show();
+		if(relationModule) {
+			lineItemTable.find('#'+relationModule).find('.deleteRow').hide();
+		}
 	},
 
 	hideLineItemsDeleteIcon : function(){
 		var lineItemTable = this.getLineItemContentsContainer();
 		lineItemTable.find('.deleteRow').hide();
+	},
+
+	getRealtionOperationBlock : function(lineItemTable) {
+		let foundRowId = null;
+		let RelSourceRecord = jQuery('#EditView input[name="sourceRecord"]').val();
+		let RelSourceModule = jQuery('#EditView input[name="sourceModule"]').val();
+		let foundRow = null;
+		lineItemTable.find('.lineItemRow').each(function(index,domElement) {
+			var lineItemRow = jQuery(domElement);
+			let recordId = lineItemRow.find('.selectedModuleId').val();
+			let sourceModule = lineItemRow.find('.lineItemType').val();
+			if(RelSourceRecord == recordId && RelSourceModule == sourceModule) {
+				foundRowId = lineItemRow.attr("id");
+				return false;
+			}
+		});
+		return foundRowId;
 	},
 
 	/**
