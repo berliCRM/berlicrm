@@ -40,7 +40,6 @@ class Mailchimp_showGroupOverlay_View extends Vtiger_Edit_View {
 		$viewer->assign('MODULE',$moduleName);
 		$viewer->assign('APILISTE',$lists);
 		$viewer->assign('ID', $record );
-		$viewer->registerPlugin('modifier', 'vtranslate', 'vtranslate');
 		$viewer->view('showGroupOverlay.tpl', $moduleName);
 	}
 }
