@@ -120,16 +120,20 @@ class VTUpdateFieldsTask extends VTTask {
 					require_once 'modules/com_vtiger_workflow/expression_engine/include.inc';
 
 					$parser = new VTExpressionParser(new VTExpressionSpaceFilter(new VTExpressionTokenizer($fieldValue)));
-					$expression = $parser->expression();
-					$exprEvaluater = new VTFieldExpressionEvaluater($expression);
-					$fieldValue = $exprEvaluater->evaluate($entity);
-                    $fieldValueInDB = $fieldValue;
-                    //for Product Unit Price value converted with based product currency
-                    if($fieldInstance && $fieldInstance->getFieldDataType() == 'currency' && $fieldName == 'unit_price') {
-                        $fieldValue = $this->calculateProductUnitPrice($fieldValue);
-                    }else{
-						$fieldValue = $this->convertValueToUserFormat($fieldInstance, $fieldValue);
-                    }
+					try {
+						$expression = $parser->expression();
+						$exprEvaluater = new VTFieldExpressionEvaluater($expression);
+						$fieldValue = $exprEvaluater->evaluate($entity);
+	                    $fieldValueInDB = $fieldValue;
+	                    //for Product Unit Price value converted with based product currency
+	                    if($fieldInstance && $fieldInstance->getFieldDataType() == 'currency' && $fieldName == 'unit_price') {
+	                        $fieldValue = $this->calculateProductUnitPrice($fieldValue);
+	                    }else{
+							$fieldValue = $this->convertValueToUserFormat($fieldInstance, $fieldValue);
+	                    }
+					} catch (Exception $e) {
+						throw new Exception("VTUpdateFieldsTask Workflow Error: ".$e->getMessage()." // Workflow ID: ".$this->workflowId." // Task ID: ".$this->id." // Summary: ".$this->summary);
+					}
 				} else {
 					if (preg_match('/([^:]+):boolean$/', $fieldValue, $match)) {
 						$fieldValue = $match[1];
