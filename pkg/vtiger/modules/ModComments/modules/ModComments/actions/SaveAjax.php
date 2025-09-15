@@ -121,6 +121,11 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 		$contents = '<a href="' . $site_URL . $relatedRecordModel->getDetailViewUrl() . '"><h3>' . $name . ' ' . vtranslate('LBL_COMMENTED', 'ModComments') . ' ' . $relatedRecordModel->get('ticket_no') . ':</h3></a>';
 		$contents .= $recordModel->get('commentcontent');
 		
+		$to = $email;
+		if(is_array($to)) {
+			$to = implode(',',$to);
+		}
+
 		$emailsRecordModel = Vtiger_Record_Model::getCleanInstance('Emails');
 		$emailsRecordModel->set('subject', $subject);
 		$emailsRecordModel->set('description', $contents);
@@ -129,12 +134,13 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 		$emailsRecordModel->set('parent_id', $relatedId . '@1|');
 		$emailsRecordModel->set('toemailinfo', array($relatedId => array($email)));
 		$emailsRecordModel->set('toMailNamesList', array($relatedId => array(array('label' => $name, 'value' => $email))));
-		$emailsRecordModel->set('saved_toid', $email);
+		$emailsRecordModel->set('saved_toid', $to);
 
 		$response = $emailsRecordModel->send();
 		if ($response === true) {
 			// This is needed to set vtiger_email_track table as it is used in email reporting
 			$emailsRecordModel->setAccessCountValue();
+			$emailsRecordModel->save();
 		} else {
 			$emailsRecordModel->set('email_flag', 'FAILED');
 			$emailsRecordModel->set('mode', 'edit');
