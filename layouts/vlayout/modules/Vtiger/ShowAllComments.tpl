@@ -20,11 +20,26 @@
 		{if $CREATE_PERMISSION}
 			<div class="addCommentBlock">
 				<div>
-					<textarea name="commentcontent" rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}" class="commentcontent"  placeholder="{vtranslate('LBL_ADD_YOUR_COMMENT_HERE', $MODULE_NAME)}"></textarea>
+					<textarea name="commentcontent" rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}" class="commentcontent"
+						placeholder="{vtranslate('LBL_ADD_YOUR_COMMENT_HERE', $MODULE_NAME)}"></textarea>
 				</div>
+				{if $MODULE_NAME == 'HelpDesk'}
+					<div style="display:inline-block; margin-right:20px;">
+						<input type="checkbox" id="externalComment" name="externalComment" class="alignTop">&nbsp;
+						<label for="externalComment"
+							style="display:inline;">{vtranslate('LBL_EXTERNAL_COMMENT', $MODULE_NAME)}</label>
+					</div>
+				{/if}
 				<div class="pull-right">
-					<button class="btn btn-success saveComment" type="button" data-mode="add"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
+					<button class="btn btn-success saveComment" type="button"
+						data-mode="add"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
 				</div>
+				{if $MODULE_NAME == 'HelpDesk'}
+					<div class="pull-right">
+						<button class="btn saveButton saveComment" type="button"
+							data-mode="sendMail"><strong>{vtranslate('LBL_SEND_MAIL_AND_POST', $MODULE_NAME)}</strong></button>
+					</div>
+				{/if}
 			</div>
 		{/if}
 	</div>
@@ -37,11 +52,14 @@
 			<div class="row-fluid">
 				<span class="span1">&nbsp;</span>
 				<div class="span11">
-					<textarea class="commentcontenthidden fullWidthAlways" rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}" name="commentcontent" placeholder="{vtranslate('LBL_ADD_YOUR_COMMENT_HERE', $MODULE_NAME)}"></textarea>
+					<textarea class="commentcontenthidden fullWidthAlways" rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"
+						name="commentcontent"
+						placeholder="{vtranslate('LBL_ADD_YOUR_COMMENT_HERE', $MODULE_NAME)}"></textarea>
 				</div>
 			</div>
 			<div class="pull-right">
-				<button class="btn btn-success saveComment" type="button" data-mode="add"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
+				<button class="btn btn-success saveComment" type="button"
+					data-mode="add"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
 				<a class="cursorPointer closeCommentBlock" type="reset">{vtranslate('LBL_CANCEL', $MODULE_NAME)}</a>
 			</div>
 		</div>
@@ -51,18 +69,29 @@
 			<div class="row-fluid">
 				<span class="span1">&nbsp;</span>
 				<div class="span11">
-					<input type="text" name="reasonToEdit" placeholder="{vtranslate('LBL_REASON_FOR_CHANGING_COMMENT', $MODULE_NAME)}" class="input-block-level"/>
+					<input type="text" name="reasonToEdit"
+						placeholder="{vtranslate('LBL_REASON_FOR_CHANGING_COMMENT', $MODULE_NAME)}"
+						class="input-block-level" />
 				</div>
 			</div>
 			<div class="row-fluid">
 				<span class="span1">&nbsp;</span>
 				<div class="span11">
-					<textarea class="commentcontenthidden fullWidthAlways" name="commentcontent" rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"></textarea>
+					<textarea class="commentcontenthidden fullWidthAlways" name="commentcontent"
+						rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"></textarea>
 				</div>
 			</div>
+			{if $MODULE_NAME == 'HelpDesk'}
+				<div style="display:inline-block; margin-right:20px;">
+					<input type="checkbox" id="externalComment" name="externalComment" class="alignTop">&nbsp;
+					<label style="display:inline;">{vtranslate('LBL_EXTERNAL_COMMENT', $MODULE_NAME)}</label>
+				</div>
+			{/if}
 			<div class="pull-right">
-				<button class="btn btn-success saveComment" type="button" data-mode="edit"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
-				<a class="cursorPointer closeCommentBlock cancelLink" type="reset">{vtranslate('LBL_CANCEL', $MODULE_NAME)}</a>
+				<button class="btn btn-success saveComment" type="button"
+					data-mode="edit"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
+				<a class="cursorPointer closeCommentBlock cancelLink"
+					type="reset">{vtranslate('LBL_CANCEL', $MODULE_NAME)}</a>
 			</div>
 		</div>
 	{/if}
