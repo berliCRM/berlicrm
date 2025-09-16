@@ -94,9 +94,8 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 
 	public function sendMail(Vtiger_Request $request, Vtiger_Record_Model $recordModel)
 	{
-		global $site_URL;
+		global $site_URL, $HELPDESK_SUPPORT_EMAIL_ID;
 		$email = '';
-		$name = $request->get('username');
 		$relatedId = $recordModel->get('related_to');
 		$relatedRecordModel = Vtiger_Record_Model::getInstanceById($relatedId);
 		$parent_type = '';
@@ -116,11 +115,19 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 			$parent_id = $relatedRecordModel->get('parent_id');
 		}
 
-		$subject = $name . ' ' . vtranslate('LBL_COMMENTED', 'ModComments') . ' ' . $relatedRecordModel->get('ticket_no') . ' | ' . $relatedRecordModel->getName();
+		$subject = $relatedRecordModel->get('ticket_no') . ' [ Ticket ID: ' . $recordModel->getId() . ' ] ' . $relatedRecordModel->getName();
 
-		$contents = '<a href="' . $site_URL . $relatedRecordModel->getDetailViewUrl() . '"><h3>' . $name . ' ' . vtranslate('LBL_COMMENTED', 'ModComments') . ' ' . $relatedRecordModel->get('ticket_no') . ':</h3></a>';
-		$contents .= $recordModel->get('commentcontent');
-		
+		$contents = '<h4>Ihr Vorgang hat einen neuen Kommentar / Your ticket has a new comment:</h4>';
+		$contents .= nl2br($recordModel->get('commentcontent'));
+		$contents .= '<br><br>----------------------------------------------------------------------------------------------------';
+
+		$contents .= '<h4>Ticket Details</h4>';
+		$contents .= '<b>Ticket ID:</b> ' . $recordModel->getId() . '<br>';
+		$contents .= '<b>Betreff / Subject:</b> ' . $relatedRecordModel->getName() . '<br>';
+		$contents .= '<b>Ticket Nr:</b> ' . $relatedRecordModel->get('ticket_no') . '<br>';
+		$contents .= '<b>Status:</b> ' . $relatedRecordModel->get('ticketstatus') . '<br>';
+		$contents .= '<b>Description / Beschreibung:</b><br>' . nl2br($relatedRecordModel->get('description')) . '<br>';
+
 		$to = $email;
 		if(is_array($to)) {
 			$to = implode(',',$to);
@@ -131,16 +138,18 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 		$emailsRecordModel->set('description', $contents);
 		$emailsRecordModel->set('email_flag', 'SENT');
 		$emailsRecordModel->set('assigned_user_id', Users_Record_Model::getCurrentUserModel()->getId());
-		$emailsRecordModel->set('parent_id', $relatedId . '@1|');
+		$emailsRecordModel->set('parent_id', $relatedId . '@1|' . $parent_id . '@1|');
 		$emailsRecordModel->set('toemailinfo', array($relatedId => array($email)));
 		$emailsRecordModel->set('toMailNamesList', array($relatedId => array(array('label' => $name, 'value' => $email))));
 		$emailsRecordModel->set('saved_toid', $to);
+		$emailsRecordModel->set('from_email', $HELPDESK_SUPPORT_EMAIL_ID);
+		$emailsRecordModel->fromAddress = $HELPDESK_SUPPORT_EMAIL_ID;
+		$emailsRecordModel->save();
 
 		$response = $emailsRecordModel->send();
 		if ($response === true) {
 			// This is needed to set vtiger_email_track table as it is used in email reporting
 			$emailsRecordModel->setAccessCountValue();
-			$emailsRecordModel->save();
 		} else {
 			$emailsRecordModel->set('email_flag', 'FAILED');
 			$emailsRecordModel->set('mode', 'edit');
