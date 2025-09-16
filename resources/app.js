@@ -463,83 +463,109 @@ var app = {
 		autosize(element);
 	},
 
-	registerEventForDatePickerFields : function(parentElement,registerForAddon,customParams){
-		if(typeof parentElement == 'undefined') {
+	registerEventForDatePickerFields : function(parentElement, registerForAddon, customParams){
+		if(typeof parentElement === 'undefined') {
 			parentElement = jQuery('body');
 		}
-		if(typeof registerForAddon == 'undefined'){
+		if(typeof registerForAddon === 'undefined'){
 			registerForAddon = true;
 		}
 
 		parentElement = jQuery(parentElement);
 
+		var element;
 		if(parentElement.hasClass('dateField')){
-			var element = parentElement;
-		}else{
-			var element = jQuery('.dateField', parentElement);
+			element = parentElement;
+		} else {
+			element = jQuery('.dateField', parentElement);
 		}
-		if(element.length == 0){
+		if(element.length === 0){
 			return;
 		}
-		if(registerForAddon == true){
+
+		// Handle click on addon (calendar icon)
+		if(registerForAddon === true){
 			var parentDateElem = element.closest('.date');
-			jQuery('.add-on',parentDateElem).on('click',function(e){
+			jQuery('.add-on', parentDateElem).on('click', function(e){
 				var elem = jQuery(e.currentTarget);
-				//Using focus api of DOM instead of jQuery because show api of datePicker is calling e.preventDefault
-				//which is stopping from getting focus to input element
+				// Use native focus because jQuery show API prevents default
 				elem.closest('.date').find('input.dateField').get(0).focus();
 			});
 		}
+
 		var dateFormat = element.data('dateFormat');
 		var vtigerDateFormat = app.convertToDatePickerFormat(dateFormat);
+
+		// --- FIX for "language is undefined" ---
 		var language = jQuery('body').data('language');
-		var lang = language.split('_');
-		
-		//Default first day of the week
+
+		// If still undefined, try hidden input
+		if(!language || language === '') {
+			language = jQuery('#language').val();
+		}
+
+		// If still undefined, fallback to app.language
+		if((!language || language === '') && typeof app !== 'undefined' && app.language) {
+			language = app.language;
+		}
+
+		// Final fallback to "en_us"
+		if(!language || language === '') {
+			console.warn("Language is undefined, falling back to en_us");
+			language = "en_us";
+		}
+
+		// Split language code safely
+		var lang = language.split(/[-_]/);
+
+		// Default first day of the week
 		var defaultFirstDay = jQuery('#start_day').val();
-		if(defaultFirstDay == '' || typeof(defaultFirstDay) == 'undefined'){
-			var convertedFirstDay = 1
+		var convertedFirstDay;
+		if(defaultFirstDay === '' || typeof(defaultFirstDay) === 'undefined'){
+			convertedFirstDay = 1; // Monday
 		} else {
 			convertedFirstDay = this.weekDaysArray[defaultFirstDay];
 		}
+
 		var params = {
 			format : vtigerDateFormat,
 			calendars: 1,
 			locale: $.fn.datepicker.dates[lang[0]],
 			starts: convertedFirstDay,
 			eventName : 'focus',
-            today: app.vtranslate('JS_TODAY'),
+			today: app.vtranslate('JS_TODAY'),
 			onChange: function(formated){
-                var element = jQuery(this).data('datepicker').el;
-                element = jQuery(element);
-                var datePicker = jQuery('#'+ jQuery(this).data('datepicker').id);
-                var viewDaysElement = datePicker.find('table.datepickerViewDays');
-                //If it is in day mode and the prev value is not eqaul to current value
-                //Second condition is manily useful in places where user navigates to other month
-                if(viewDaysElement.length > 0 && element.val() != formated) {
-                    element.DatePickerHide();
-                    element.blur();
-                }
+				var element = jQuery(this).data('datepicker').el;
+				element = jQuery(element);
+				var datePicker = jQuery('#'+ jQuery(this).data('datepicker').id);
+				var viewDaysElement = datePicker.find('table.datepickerViewDays');
+				// If it is in day mode and the prev value is not equal to current value
+				if(viewDaysElement.length > 0 && element.val() != formated) {
+					element.DatePickerHide();
+					element.blur();
+				}
 				element.val(formated).trigger('change').focusout();
 			}
+		};
+
+		if(typeof customParams !== 'undefined'){
+			params = jQuery.extend(params, customParams);
 		}
-		if(typeof customParams != 'undefined'){
-			var params = jQuery.extend(params,customParams);
-		}
-		element.each(function(index,domElement){
+
+		element.each(function(index, domElement){
 			var jQelement = jQuery(domElement);
 			var dateObj = new Date();
 			var selectedDate = app.getDateInVtigerFormat(dateFormat, dateObj);
-			//Take the element value as current date or current date
-			if(jQelement.val() != '') {
+			// Take the element value as current date if present
+			if(jQelement.val() !== '') {
 				selectedDate = jQelement.val();
 			}
 			params.date = selectedDate;
 			params.current = selectedDate;
-			jQelement.DatePicker(params)
+			jQelement.DatePicker(params);
 		});
-
 	},
+
 	registerEventForDateFields : function(parentElement) {
 		if(typeof parentElement == 'undefined') {
 			parentElement = jQuery('body');
@@ -868,30 +894,49 @@ var app = {
 		return (yiq >= 128) ? 'light' : 'dark';
 	},
     
-    updateRowHeight : function() {
-        var rowType = jQuery('#row_type').val();
-        if(rowType.length <=0 ){
-            //Need to update the row height
-            var widthType = app.cacheGet('widthType', 'mediumWidthType');
-            var serverWidth = widthType;
-            switch(serverWidth) {
-                case 'narrowWidthType' : serverWidth = 'narrow'; break;
-                case 'wideWidthType' : serverWidth = 'wide'; break;
-                default : serverWidth = 'medium';
-            }
+	updateRowHeight : function() {
+		// Get the input field for row_type
+		var rowType = jQuery('#row_type');
+		// Get the current value of the field
+		var rowTypeVal = rowType.val();
+
+		// If no value is set in the field
+		if(!rowTypeVal || rowTypeVal.length <= 0){
+			// Get cached width type, fallback to medium
+			var widthType = app.cacheGet('widthType', 'mediumWidthType');
+			var serverWidth = widthType;
+
+			// Map internal width types to simplified values
+			switch(serverWidth) {
+				case 'narrowWidthType': 
+					serverWidth = 'narrow'; 
+					break;
+				case 'wideWidthType': 
+					serverWidth = 'wide'; 
+					break;
+				default: 
+					serverWidth = 'medium';
+			}
+
+			// Get the current user id
 			var userid = jQuery('#current_user_id').val();
-            var params = {
-                'module' : 'Users',
-                'action' : 'SaveAjax',
-                'record' : userid,
-                'value' : serverWidth,
-                'field' : 'rowheight'
-            };
-            AppConnector.request(params).then(function(){
-                jQuery(rowType).val(serverWidth);
-            });
-        }
-    },
+
+			// Parameters for the Ajax request
+			var params = {
+				'module' : 'Users',
+				'action' : 'SaveAjax',
+				'record' : userid,
+				'value' : serverWidth,
+				'field' : 'rowheight'
+			};
+
+			// Send Ajax request and update the hidden field on success
+			AppConnector.request(params).then(function(){
+				rowType.val(serverWidth); // set the new value in the hidden input
+			});
+		}
+	},
+
 	
 	getCookie : function(c_name) {
 		var c_value = document.cookie;
