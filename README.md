@@ -7,10 +7,15 @@ With berliCRM, your marketing, sales and support teams can build and successfull
 
 Demo
 ------------
-Here you can find a demo.
+Here you can find a demo:
 https://berlicrm.co.crm-now.de
 Login with: Guest / Guest
 No administration privileges are provided in this demo.
+
+Docker
+------------
+Here you can find a dockerized version of berliCRM:
+[berliCRM in docker announcement](https://blog.crm-now.de/2025/09/19/english-berlicrm-now-available-as-a-docker-image-on-docker-hub/?lang=en)
 
 Requirements
 ------------
