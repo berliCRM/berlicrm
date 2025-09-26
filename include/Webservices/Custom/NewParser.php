@@ -188,7 +188,13 @@ class berliQueryParser {
 							}
 							$expr = preg_replace("/$fieldName/", $replaceWith, $expr, 1);
 						} else {
-							$expr = str_replace("'$fieldName'", '?', $expr);
+							// should ' characters be present they are most likely escaped in the value, so to properly replace them we need to match that string
+							if (strpos($expr, "\'") !== false) {
+								$replaceFieldName = str_replace("'", "\'", $fieldName);
+							} else {
+								$replaceFieldName = $fieldName;
+							}
+							$expr = str_replace("'$replaceFieldName'", '?', $expr);
 							if ($bReference) {
 								$fieldName = explode('x', $fieldName);
 								$fieldName = array_pop($fieldName);
