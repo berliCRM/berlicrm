@@ -94,6 +94,8 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		$attfolderid = $this->get('attfolderid');
 		$savetype = $this->get('savetype');
 		$specificemails = "";
+		$isReportScheduled = $this->get('isReportScheduled');
+
 		if ($this->get('specificemails') != 'false') {
 			$specificemails = Zend_Json::encode($this->get('specificemails'));
 		}
