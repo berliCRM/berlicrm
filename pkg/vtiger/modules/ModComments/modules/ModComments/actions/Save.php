@@ -73,8 +73,6 @@ class ModComments_Save_Action extends Vtiger_Save_Action {
 	}
 	
 	protected function saveModcommentsScope(Vtiger_Request $request, Vtiger_Record_Model $recordModel) {
-		file_put_contents('test/0debug.txt', "Record ID: " . var_export($recordModel->getId(), true) . "\n\n", FILE_APPEND);
-		file_put_contents('test/0debug.txt', "External: " . var_export(json_decode($request->get('external')), true) . "\n\n", FILE_APPEND);
 		$adb = PearDatabase::getInstance();
 		$external = json_decode($request->get('external'));
 
