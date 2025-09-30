@@ -313,7 +313,7 @@ class WebserviceField
 				$referenceTypes[] = 'Campaigns';
 			}
 
-			if ($this->tabid == 10 && $this->fieldName == 'parent_id') {
+			if ($this->tabid == getTabid('HelpDesk') && $this->fieldName == 'parent_id') {
 				$referenceTypes[] = 'HelpDesk';
 			}
 
