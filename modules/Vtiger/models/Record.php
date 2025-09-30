@@ -278,9 +278,11 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 
     // converts record fields to user format (excluding uitype 70, i.e. modifiedtime and createdtime)
     public function convertToUserFormat() {
+		$typesToConvert = array('currency', 'double', 'date');
         $fieldModelList = $this->getModule()->getFields();
         foreach ($fieldModelList as $fieldName => $fieldModel) {
-            if($fieldModel->get('uitype') != 70) {
+			$dataType = $fieldModel->getFieldDataType();
+            if($fieldModel->get('uitype') != 70 && in_array($dataType, $typesToConvert)) {
                 $uiTypeModel = $fieldModel->getUITypeModel();
                 $this->set($fieldName, $uiTypeModel->getUserRequestValue($this->get($fieldName)));
             }
