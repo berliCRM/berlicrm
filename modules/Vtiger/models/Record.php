@@ -417,192 +417,83 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 	 * @param <String> $searchKey
 	 * @return <Array> - List of Vtiger_Record_Model or Module Specific Record Model instances
 	 */
-	public static function getSearchResult($searchKey, $module=false) {
-		$db = PearDatabase::getInstance();
-		//decide search mode
-		$matchingRecords =array();
-        $starttime = microtime(true);
-		if ($module == false) {
-			//get all tabid settings for search
-			$searchdata = 'SELECT * FROM berli_globalsearch_settings LEFT JOIN vtiger_tab ON gstabid=tabid WHERE turn_off = 1 order by sequence ASC';
-			$searchdata_result = $db->pquery($searchdata, array());
-            while($bgsrow = $db->fetchByAssoc($searchdata_result)) {
-				if ($bgsrow["searchall"]==1) {
-					//search all activated
-					$tabid = $bgsrow["gstabid"];
-                    $moduleName = $bgsrow["name"];
-                    $serachcol_arr = Vtiger_Record_Model::getDisplayLabelsArray($tabid);
-                    //resolve related fields by uitype
-                    $moduleInfo = Vtiger_Functions::getModuleFieldInfos($moduleName);
-                    $moduleInfoExtend = array ();
-                    if (count($moduleInfo) > 0) {
-                        foreach ($moduleInfo as $field => $fieldInfo) {
-                            $moduleInfoExtend[$fieldInfo['columnname']]['uitype'] = $fieldInfo['uitype'];
-                        }
-                    }
-                    $moduleModel = Vtiger_Module_Model::getInstance($moduleName);
-                    $modelClassName = Vtiger_Loader::getComponentClassName('Model', 'Record', $moduleName);
-					$query = Vtiger_Record_Model::dofullmodulesearch($tabid, $searchKey);
-                    if (!empty($query)) {
-                        $tab_result = $db->pquery($query, array());
-                        while ($tab_result && $row = $db->fetchByAssoc($tab_result)) {
-                            $recordInstance = new $modelClassName();
-                            $label_name = array();
-                            foreach ($serachcol_arr as $columnName) {
-                                if ($moduleInfoExtend && in_array($moduleInfoExtend[$columnName]['uitype'], array(10, 51,73,76, 75, 81))) {
-                                    //get module of the related record
-                                    if ($row[$columnName] > 0) {
-                                        $setype = 'SELECT setype FROM vtiger_crmentity WHERE crmid = ?';
-                                        $setype_result = $db->pquery($setype, array($row[$columnName]));
-										if (!$setype_result || $db->num_rows($setype_result) == 0) continue;
-                                        $entityinfo = 'SELECT tablename, fieldname, entityidfield FROM vtiger_entityname WHERE modulename = ?';
-                                        $entityinfo_result = $db->pquery($entityinfo, array($db->query_result($setype_result, 0, "setype")));
-										if (!$entityinfo_result || $db->num_rows($entityinfo_result) == 0) continue;
-                                        $label_query = "Select ".$db->query_result($entityinfo_result, 0, "fieldname")." from ".$db->query_result($entityinfo_result, 0, "tablename")." where ".$db->query_result($entityinfo_result, 0, "entityidfield")." =?";
-                                        $label_result = $db->pquery($label_query, array($row[$columnName]));
-										if (!$label_result || $db->num_rows($label_result) == 0) continue;
-                                        $label_name[$columnName] = $db->query_result($label_result, 0, $db->query_result($entityinfo_result, 0, "fieldname"));
-                                    }
-                                    else {
-                                        $label_name[$columnName] ='';
-                                    }
-                                }
-                                else {
-                                    $label_name[$columnName] = $row[$columnName]; 
-                                }
-                            }
-                            $row['label'] ='';
-                            foreach ($serachcol_arr as $displaylabel) {
-                                if ($row['label'] =='') {
-                                    $row['label'] = $label_name[$displaylabel]; 
-                                }
-                                else {
-                                    $row['label'] .= ' |'.$label_name[$displaylabel];
-                                }
-                            }
-                            $row['id'] =$row['crmid'];
-                            $matchingRecords[$moduleName][$row['id']] = $recordInstance->setData($row)->setModuleFromInstance($moduleModel);
-                        }
-                    }
-				}
-
-				//"search all" is not activated
-				else if( isset($bgsrow["searchcolumn"]) && trim($bgsrow["searchcolumn"]) != '' ) {
+	public static function getSearchResult($searchKey, $moduleName = false) {
+		$adb = PearDatabase::getInstance();
+		$currentUserModel = Users_Record_Model::getCurrentUserModel();
+		$matchingRecords = array();
+		
+		// do nothing for empty search value
+		if (!empty($searchKey)) {
+			//decide search mode
+			if (empty($moduleName)) {
+				// global search through every module that isn't turned off
+				$query = "SELECT * FROM berli_globalsearch_settings
+						  INNER JOIN vtiger_tab ON vtiger_tab.tabid = berli_globalsearch_settings.gstabid
+						  WHERE berli_globalsearch_settings.turn_off = ?;";
+				$res = $adb->pquery($query, array(1));
+			}
+			else {
+				// individual module search
+				// if module is selected still search it even if turn_off flag is set
+				$query = "SELECT * FROM berli_globalsearch_settings
+						  INNER JOIN vtiger_tab ON vtiger_tab.tabid = berli_globalsearch_settings.gstabid
+						  WHERE vtiger_tab.name = ?;";
+				$res = $adb->pquery($query, array($moduleName));
+			}
+			if ($res) {
+				while ($row = $adb->getNextRow($res, false)) {
+					// each loop represents a module
+					$searchColumns = $row['searchcolumn'];
+					$iModuleName = $row['name'];
+					$searchAll = $row['searchall'];
 					
-					$tabid = $bgsrow["gstabid"];
-					$searchall = 0; // because: $bgsrow["searchall"]== 0 
-					$module = $bgsrow["name"];
-					$searchColumns = $bgsrow["searchcolumn"];
-					$searchColums_arr = explode(",",$searchColumns);
-					$searchColumns= '"'.implode('","' ,$searchColums_arr).'"';
-					require_once 'modules/'.$module.'/'.$module.'.php';
-					$obj = new $module;
-					$tab_name_index = $obj->tab_name_index;
-					$keys = array_keys($tab_name_index);
-
-					$hitIDs_arr = Vtiger_Record_Model::getHitIDs_arr($db, $searchall, $searchColumns, $tabid, $tab_name_index, $keys, $module, $searchKey); 
-					$hitIDs_str = implode(",", $hitIDs_arr); 
-					$id_Label_arr = Vtiger_Record_Model::getId_Label_arr($db, $tabid, $hitIDs_arr, $tab_name_index ); 
-
-					$query = 
-						"SELECT crmid, setype, createdtime 
-						FROM berli_globalsearch_data 
-						inner join vtiger_crmentity on vtiger_crmentity.crmid = berli_globalsearch_data.gscrmid 
-						WHERE berli_globalsearch_data.gscrmid IN ( $hitIDs_str ) AND vtiger_crmentity.deleted = 0 and setype = ?" ;
-					$params = array($module);
-					$result = $db->pquery($query, $params);
-					$noOfRows = $db->num_rows($result);
-					$moduleModels = $leadIdsList = $convertedInfo = array();
-					for($i=0, $recordsCount = 0; $i<$noOfRows && $recordsCount<100; ++$i) {
-						$row = $db->query_result_rowdata($result, $i);
-						for( $b = 0; $b < sizeof($id_Label_arr); $b++){
-							if($row['crmid'] == $id_Label_arr[$b][0]){
-								$row['label'] = $id_Label_arr[$b][1];
-								break;
-							}
+					// only search label fields if searchall isn't 1 and search isn't specified for certain module
+					if (empty($searchAll) && empty($moduleName)) {
+						$searchQuery = "SELECT crmid FROM vtiger_crmentity
+										LEFT JOIN berli_globalsearch_data ON berli_globalsearch_data.gscrmid = vtiger_crmentity.crmid
+										WHERE vtiger_crmentity.setype = ? AND (vtiger_crmentity.label LIKE ? OR berli_globalsearch_data.searchlabel LIKE ?)";
+						$searchRes = $adb->pquery($searchQuery, array($iModuleName, "%{$searchKey}%", "%{$searchKey}%"));
+					} else {
+						$queryGenerator = new QueryGenerator($iModuleName, $currentUserModel);
+						$queryGenerator->setFields(array('id'));
+						$fieldObjects = $queryGenerator->getModuleFields();
+						$queryGenerator->startGroup('');
+						// empty means search through every field
+						if (empty($searchColumns)) {
+							$fieldList = array_keys($fieldObjects);
+						} else {
+							$fieldList = explode(',', $searchColumns);
 						}
-						if ($row['setype'] == 'Leads') {
-							//exclude converted Leads from search results
-							$leadresult = $db->pquery("SELECT converted FROM vtiger_leaddetails WHERE leadid =? ", array($row['crmid']));
-							if ($db->query_result($leadresult, 0, 'converted') == 1) {
+						foreach ($fieldList AS $fieldName) {
+							// check for valid date values as it would create faulty conditions otherwise, e.g. createdtime LIKE '%%'
+							$fieldDataType = $fieldObjects[$fieldName]->getFieldDataType();
+							if ($fieldDataType == 'date' || $fieldDataType == 'datetime') {
+								$tmpVal = $value = getValidDBInsertDateTimeValue($searchKey);
+								if (empty($tmpVal)) {
+									continue;
+								}
+							// search values on numeric fields won't get '' around their value and thus be broken for string values
+							} elseif (($fieldDataType == 'double' || $fieldDataType == 'integer' || $fieldDataType == 'currency') && !is_numeric($searchKey)) {
+								continue;
+							} elseif ($fieldDataType == 'boolean') {
 								continue;
 							}
+							$queryGenerator->addWhereField($fieldName);
+							// operator 'c' will search for LIKE %VALUE%
+							$queryGenerator->addCondition($fieldName, $searchKey, 'c', 'OR', false, NULL, true);
 						}
-						if(Users_Privileges_Model::isPermitted($row['setype'], 'DetailView', $row['crmid'])) {
-							$row['id'] = $row['crmid'];
-							$moduleName = $row['setype'];
-							if(!array_key_exists($moduleName, $moduleModels)) {
-								$moduleModels[$moduleName] = Vtiger_Module_Model::getInstance($moduleName);
-							}
-							$moduleModel = $moduleModels[$moduleName];
-							$modelClassName = Vtiger_Loader::getComponentClassName('Model', 'Record', $moduleName);
-							$recordInstance = new $modelClassName();
-							$matchingRecords[$moduleName][$row['id']] = $recordInstance->setData($row)->setModuleFromInstance($moduleModel);
-							$recordsCount++;
+						$queryGenerator->endGroup();
+						$searchQuery = $queryGenerator->getQuery();
+						$searchRes = $adb->pquery($searchQuery, array());
+					}
+					if ($searchRes) {
+						while ($searchRow = $adb->getNextRow($searchRes, false)) {
+							// we only got one field, id, so we don't have to lookup it's fieldname
+							$crmId = $searchRow[0];
+							$recordModel = Vtiger_Record_Model::getInstanceById($crmId, $iModuleName);
+							$matchingRecords[$iModuleName][] = $recordModel;
 						}
 					}
-				}
-			}
-		}
-		else {
-			// individual module search
-			$query = 'SELECT gstabid, displayfield, searchcolumn, searchall FROM berli_globalsearch_settings LEFT JOIN vtiger_entityname ON gstabid = tabid 
-						WHERE berli_globalsearch_settings.turn_off = 1 AND vtiger_entityname.modulename  = ? ';
-
-			$result = $db->pquery($query, array($module));
-			$row = $db->query_result_rowdata($result, 0);
-			$searchall = $row["searchall"]; // 0 or 1
-			$tabid = $row['gstabid'];
-			$searchColumns = $row["searchcolumn"];
-			$searchColums_arr = explode(",",$searchColumns);
-			$searchColumns= '"'.implode('","' ,$searchColums_arr).'"';
-			require_once 'modules/'.$module.'/'.$module.'.php';
-			$obj = new $module;
-			$tab_name_index = $obj->tab_name_index;
-			$keys = array_keys($tab_name_index);
-
-			$hitIDs_arr = Vtiger_Record_Model::getHitIDs_arr($db, $searchall, $searchColumns, $tabid, $tab_name_index, $keys, $module, $searchKey); 
-			$hitIDs_str = implode(",", $hitIDs_arr); 
-			$id_Label_arr = Vtiger_Record_Model::getId_Label_arr($db, $tabid, $hitIDs_arr, $tab_name_index ); 
-			
-			$query = "SELECT label, searchlabel, crmid, setype, createdtime, smownerid FROM vtiger_crmentity crm 
-			INNER JOIN vtiger_entityname e ON crm.setype = e.modulename 
-			INNER JOIN berli_globalsearch_settings gs ON e.tabid = gs.gstabid 
-			LEFT JOIN berli_globalsearch_data ON crm.crmid = berli_globalsearch_data.gscrmid 
-			WHERE berli_globalsearch_data.gscrmid IN ( $hitIDs_str ) AND crm.deleted = 0 and gs.turn_off=1  AND setype = ?" ;
-
-			$params = array( $module);
-			$result = $db->pquery($query, $params);
-			$moduleModels = $matchingRecords = $leadIdsList = array();
-			$noOfRows = $db->num_rows($result); 
-			for($i=0, $recordsCount = 0; $i<$noOfRows && $recordsCount<100; ++$i) {
-				$row = $db->query_result_rowdata($result, $i);
-
-				for( $b = 0; $b < sizeof($id_Label_arr); $b++){
-					if($row['crmid'] == $id_Label_arr[$b][0]){
-						$row['label'] = $id_Label_arr[$b][1];
-						break;
-					}
-				}
-
-				if ($row['setype'] == 'Leads') {
-					//exclude converted Leads from search results
-					$leadresult = $db->pquery("SELECT converted FROM vtiger_leaddetails WHERE leadid =? ", array($row['crmid']));
-					if ($db->query_result($leadresult, 0, 'converted') == 1) {
-						continue;
-					}
-				}
-				if(Users_Privileges_Model::isPermitted($row['setype'], 'DetailView', $row['crmid'])) {
-					$row['id'] = $row['crmid'];
-					$moduleName = $row['setype'];
-					if(!array_key_exists($moduleName, $moduleModels)) {
-						$moduleModels[$moduleName] = Vtiger_Module_Model::getInstance($moduleName);
-					}
-					$moduleModel = $moduleModels[$moduleName];
-					$modelClassName = Vtiger_Loader::getComponentClassName('Model', 'Record', $moduleName);
-					$recordInstance = new $modelClassName();
-					$matchingRecords[$moduleName][$row['id']] = $recordInstance->setData($row)->setModuleFromInstance($moduleModel);
-					$recordsCount++;
 				}
 			}
 		}
@@ -765,107 +656,7 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 		
 		return $style;
 	}
-
-
-	/**
-	 * Function for search result to get the hitsIDs from specified table (or all tables of this module), with specified IDfield, 
-	 * where specified column (or all columns) have a string like the SearchKey.
-	 */
-	public static function getHitIDs_arr($db, $searchall, $searchColumns, $tabid, $tab_name_index, $keys, $module, $searchKey){
-		$hitIDs_arr = [];
-		for($a = 0; $a < count($keys); $a++){
-			$query = "";
-			if($searchall == 1){
-				$query = 'SELECT columnname, tablename FROM vtiger_field WHERE vtiger_field.tabid  = ? 
-				AND tablename ='.'"'.$keys[$a].'"';
-			}else{
-				$query = 'SELECT columnname, tablename FROM vtiger_field WHERE vtiger_field.tabid  = ? 
-				AND tablename ='.'"'.$keys[$a].'"'." AND vtiger_field.columnname IN (".$searchColumns.")";
-			}
-			
-			$result = $db->pquery($query, array($tabid));
-			$rows = $db->num_rows($result); 
-			if($rows !=0){
-				$columnnames_search_str = "";
-				for($b=0; $b < $rows ; ++$b){
-					$row = $db->query_result_rowdata($result, $b); 
-					$columnname = $row['columnname']; 
-					if($b==0){
-						$columnnames_search_str = $columnnames_search_str.$columnname." LIKE "."'%".$searchKey."%'";
-					}else{
-						$columnnames_search_str = $columnnames_search_str." OR ".$columnname." LIKE "."'%".$searchKey."%'";
-					}
-				}
-				$id = $tab_name_index[$keys[$a]];
-				if($keys[$a] == "vtiger_crmentity"){
-					$query = "SELECT DISTINCT $id FROM vtiger_crmentity WHERE vtiger_crmentity.deleted = 0 
-					AND vtiger_crmentity.setype = "."'".$module."'"." AND ($columnnames_search_str)";
-				}else{
-					$query = "SELECT DISTINCT $id FROM $keys[$a] INNER JOIN vtiger_crmentity 
-					ON vtiger_crmentity.crmid = $keys[$a].$id WHERE vtiger_crmentity.deleted = 0 
-					AND vtiger_crmentity.setype = "."'".$module."'"." AND ($columnnames_search_str)";
-				}
-				$result = $db->pquery($query);
-				$rows = $db->num_rows($result);
-				for($b = 0; $b < $rows ; ++$b){
-					$row = $db->query_result_rowdata($result, $b);
-					$hitIDs_arr[] = $row[$id];
-				}
-			}
-		}
-		return $hitIDs_arr;
-	}
-	/**
-	 * Function to get a array with IDs and associated labels for Search result. 
-	 */
-	public static function getId_Label_arr($db, $tabid, $hitIDs_arr, $tab_name_index ){
-		$id_Label_arr;
-		$displayFields_arr = Vtiger_Record_Model::getDisplayLabelsArray($tabid);
-		$displayFields_str = '"'.implode('","' ,$displayFields_arr).'"';
-		$displayTables_arr = [];
-		$displayTablesIDs_arr = [];
-		$query = "SELECT DISTINCT tablename FROM vtiger_field WHERE tabid = ? AND columnname IN (".$displayFields_str.")";
-		$result = $db->pquery($query, array($tabid));
-		$rows = $db->num_rows($result);
-		for($a = 0; $a < $rows ; ++$a){
-			$row = $db->query_result_rowdata($result, $a);
-			$hit = $row['tablename'];
-			$displayTables_arr[] = $hit;
-			$displayTablesIDs_arr[] = $tab_name_index[$hit];
-		}
-		$displayTables_str = implode(',' ,$displayTables_arr);
-		$displayFields_str = implode(',' ,$displayFields_arr);
-
-		for($a = 0; $a < count($hitIDs_arr); $a++){
-			$searchNumID_str = "";
-			for($b = 0; $b < count($displayTablesIDs_arr); $b++){
-				if($b==0){
-					$searchNumID_str = $displayTables_arr[$b].".".$displayTablesIDs_arr[$b]." = ".$hitIDs_arr[$a];
-				}else{
-					$searchNumID_str = $searchNumID_str." AND ".$displayTables_arr[$b].".".$displayTablesIDs_arr[$b]." = ".$hitIDs_arr[$a];
-				}
-			}
-			$query = 'SELECT DISTINCT '.$displayFields_str.' FROM '.$displayTables_str.' WHERE ('.$searchNumID_str.')';
-			$result = $db->pquery($query);
-			$row = $db->query_result_rowdata($result, 0);
-			$label = "";
-			for($b = 0; $b < count($displayFields_arr); $b++){
-				if($b == 0){
-					$label = trim($label.$row[$displayFields_arr[$b]]);
-				}else{
-					if (trim($label) !=''){
-						$label = trim($label." |".$row[$displayFields_arr[$b]]);
-					}else{
-						$label = trim($label.$row[$displayFields_arr[$b]]);
-					}
-				}
-			}
-			$id_Label_arr[$a][0] = $hitIDs_arr[$a];
-			$id_Label_arr[$a][1] = $label;
-		}
-		return $id_Label_arr;
-	}
-
+	
 	// function to set module fields default values, this can be useful e.g. after getCleanInstance() is used
 	public function setDefaultFieldValues() {
 		$fieldModelList = $this->getModule()->getFields();
