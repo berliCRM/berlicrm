@@ -15,7 +15,7 @@ class Potentials_FunnelAmount_Dashboard extends Vtiger_IndexAjax_View {
 	 * @param Vtiger_Request $request - request model
 	 * @return <array> - array of Vtiger_CssScript_Model
 	 */
-	function getHeaderCss(Vtiger_Request $request){
+	function getHeaderCss(Vtiger_Request $request):array {
 		$cssFileNames = array(
 			//Place your widget specific css files here
 		);
@@ -23,14 +23,14 @@ class Potentials_FunnelAmount_Dashboard extends Vtiger_IndexAjax_View {
 		return $headerCssScriptInstances;
 	}
     
-    function getSearchParams($stage) {
+    function getSearchParams($stage):string {
         $listSearchParams = array();
         $conditions = array(array("sales_stage","e",$stage));
         $listSearchParams[] = $conditions;
         return '&search_params='. json_encode($listSearchParams);
     }
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$currentUser = Users_Record_Model::getCurrentUserModel();
 		$viewer = $this->getViewer($request);
 		$moduleName = $request->getModule();

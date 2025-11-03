@@ -33,9 +33,7 @@ class Vtiger_MailBox {
 	/** DEBUG functionality. */
 	var $debug = false;
 	function log($message, $force=false) {
-		global $log;
-		if($log && ($force || $this->debug)) { $log->debug($message); }
-		else if( ($force || $this->debug) ) echo "$message\n";
+		if( ($force || $this->debug) ) echo "$message\n";
 	}
 
 	/**

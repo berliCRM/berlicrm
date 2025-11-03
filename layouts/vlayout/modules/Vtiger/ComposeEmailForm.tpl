@@ -23,6 +23,7 @@
 		<input type="hidden" name="selectedFields" value='{json_encode($SELECTED_FIELDS)}'/>
 		<input type="hidden" name="mode" value="massSave" />
 		<input type="hidden" name="toemailinfo" value='{json_encode($TOMAIL_INFO)}' />
+		<input type="hidden" name="toemailmoduleinfo" value={} />
 		<input type="hidden" name="view" value="MassSaveAjax" />
 		<input type="hidden" name="to" value='{json_encode($TO)}' />
 		<input type="hidden" name="toMailNamesList" value='{json_encode($TOMAIL_NAMES_LIST)}' />
@@ -201,7 +202,7 @@
                     {if !empty($PARENT_EMAIL_ID)}
                         <button type="button" class="btn" id="gotoPreview" title="{vtranslate('LBL_GO_TO_PREVIEW',$MODULE)}" style="margin-left: 5px;"><strong>{vtranslate('LBL_GO_TO_PREVIEW',$MODULE)}</strong></button>
                     {/if}
-                    <button type="button" class="btn" id="previewEmail" data-url="{$EMAIL_TEMPLATE_URL}"  style="margin-left: 5px;" title="{vtranslate('LBL_EMAIL_PREVIEW',$MODULE)}"><strong>{vtranslate('LBL_EMAIL_PREVIEW',$MODULE)}</strong></button>
+                    	<button type="button" class="btn" id="previewEmail" data-url="{$EMAIL_TEMPLATE_URL}"  style="margin-left: 5px;" title="{vtranslate('LBL_EMAIL_PREVIEW',$MODULE)}"><strong>{vtranslate('LBL_EMAIL_PREVIEW',$MODULE)}</strong></button>
                     {if $MODULE_IS_ACTIVE}
                         <button type="button" class="btn" style="float:none" id="selectEmailTemplate" data-url="{$EMAIL_TEMPLATE_URL}" title="{vtranslate('LBL_SELECT_EMAIL_TEMPLATE',$MODULE)}"><strong>{vtranslate('LBL_SELECT_EMAIL_TEMPLATE',$MODULE)}</strong></button>
                     {/if}

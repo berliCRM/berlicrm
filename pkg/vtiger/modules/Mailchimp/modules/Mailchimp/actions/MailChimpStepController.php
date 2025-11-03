@@ -39,8 +39,7 @@ class Mailchimp_MailChimpStepController_Action extends Vtiger_Action_Controller{
 
         $response = new Vtiger_Response();
 		
-		if ($this->step==1) {
-		
+		if ($this->step == 1) {
 			// clear used session variables
 			unset($_SESSION["mc"]);
 			unset($_SESSION["mcactions"]);
@@ -60,7 +59,7 @@ class Mailchimp_MailChimpStepController_Action extends Vtiger_Action_Controller{
                 return;
             }
 
-			if ($fieldsneeded==0) {
+			if ($fieldsneeded == 0) {
 				$response->setResult(array('',vtranslate('LBL_MAILCHIMP_ATTRIB_OK','Mailchimp'),2));
 			}
 			else {
@@ -70,19 +69,19 @@ class Mailchimp_MailChimpStepController_Action extends Vtiger_Action_Controller{
 			
 			// create Mailchimp interests group
 			self::initiateMcGroup($this->mcgroupid,$this->mcgroupname);
-			
-			
 		}
 
-		elseif ($this->step==2) {
-
+		elseif ($this->step == 2) {
 			// load entities from auxilliary table that have been synced to this group before to identify changes
 			$query = "SELECT crmid FROM `vtiger_mailchimp_synced_entities` LEFT JOIN `vtiger_crmentity` USING (crmid) WHERE mcgroupid = ? AND recordid = ? AND deleted = 0";
 			$result = $this->db->pquery($query,array($this->mcgroupid,$this->recordid));
-			while($row = $this->db->fetchByAssoc($result,-1,false)) {
-				$crmidsyncedbefore[$row["crmid"]]=true;
+			while($row = $this->db->fetchByAssoc($result, -1, false)) {
+				$crmidsyncedbefore[$row["crmid"]] = true;
 			}
-			$_SESSION['mc']['crmidsyncedbefore']=$crmidsyncedbefore;
+
+			if(isset($crmidsyncedbefore)) {
+				$_SESSION['mc']['crmidsyncedbefore'] = $crmidsyncedbefore;
+			}
 			
 			// load contacts from CRM database
 			$Contactquery = "SELECT DISTINCT
@@ -105,11 +104,10 @@ class Mailchimp_MailChimpStepController_Action extends Vtiger_Action_Controller{
 					AND vtiger_crmentity.deleted = 0";
 
 			$crm_data = array();
-
-			$result = $this->db->pquery($Contactquery,array($this->recordid,$this->recordid));
-			while($row = $this->db->fetchByAssoc($result,-1,false)) {
+			$result = $this->db->pquery($Contactquery,array($this->recordid, $this->recordid));
+			while($row = $this->db->fetchByAssoc($result, -1, false)) {
 				if (empty($row["email"])) {	
-					$_SESSION['mc']['brokenContacts'][$row["crmid"]]=$row["firstname"]." ".$row["lastname"];
+					$_SESSION['mc']['brokenContacts'][$row["crmid"]] = $row["firstname"]." ".$row["lastname"];
 				}
 				else {
 					$crm_data[$row["email"]] = array(
@@ -144,11 +142,11 @@ class Mailchimp_MailChimpStepController_Action extends Vtiger_Action_Controller{
                     WHERE (rel1.relcrmid = ? OR rel2.crmid = ?)
 					AND vtiger_crmentity.deleted = 0"; # AND converted <> 1
 
-			$result = $this->db->pquery($Leadquery,array($this->recordid,$this->recordid));
-			while($row = $this->db->fetchByAssoc($result,-1,false)) {
+			$result = $this->db->pquery($Leadquery,array($this->recordid, $this->recordid));
+			while($row = $this->db->fetchByAssoc($result, -1, false)) {
 				
 				// leads left over in CRM sync group after conversion are removed and skipped
-				if ($row["converted"]==1) {
+				if ($row["converted"] == 1) {
 					$this->removeFromSyncGroup($row["crmid"]);
 					$this->removeFromAuxtable($row["crmid"]);
 					unset($crmidsyncedbefore[$row["crmid"]]);
@@ -174,32 +172,31 @@ class Mailchimp_MailChimpStepController_Action extends Vtiger_Action_Controller{
 			}
 
 			// entity IDs left in $crmidsyncedbefore must have been removed locally since last sync
-			if (count($crmidsyncedbefore)>0) {
+			if (!empty($crmidsyncedbefore) && count($crmidsyncedbefore) > 0) {
 				$_SESSION['mc']['removedlocally']=array_keys($crmidsyncedbefore);
 			}
 
 			// store data in session for next steps
-			$_SESSION['mc']['localcontacts']=$crm_data;
+			$_SESSION['mc']['localcontacts'] = $crm_data;
 
-			if (count($crm_data)>0) $msg[] = sprintf(getTranslatedString('LBL_GOT_ALL_MEMBERS_CRM_MAILCHIMP','Mailchimp'),decode_html($this->crmgrouplabel),$this->crmgroupnr);
+			if (count($crm_data)>0) $msg[] = sprintf(getTranslatedString('LBL_GOT_ALL_MEMBERS_CRM_MAILCHIMP','Mailchimp'),decode_html($this->crmgrouplabel), $this->crmgroupnr);
 			
 			// load contacts from Mailchimp group (based on $this->mcgroupid) into array with email as associative index
 
-			$_SESSION['mc']['remotecontacts']=self::getMailChimpEntries();
+			$_SESSION['mc']['remotecontacts'] = self::getMailChimpEntries();
 
 			if (!is_array($_SESSION['mc']['remotecontacts'])) {
 				$response->setError(array(getTranslatedString('LBL_API_ERROR','Mailchimp')));
 			} 
 			else {
 				if (count($_SESSION['mc']['remotecontacts']) > 0) {
-					$msg[]= sprintf(getTranslatedString('LBL_GOT_ALL_MEMBERS_MAILCHIMP_API','Mailchimp'),decode_html($this->mcgroupname),$this->mcgroupid);
+					$msg[]= sprintf(getTranslatedString('LBL_GOT_ALL_MEMBERS_MAILCHIMP_API','Mailchimp'), decode_html($this->mcgroupname), $this->mcgroupid);
 				}
-				$response->setResult(array(getTranslatedString('LBL_STEP','Mailchimp').' 2',implode("<br>",$msg),3));
+				$response->setResult(array(getTranslatedString('LBL_STEP','Mailchimp').' 2',implode("<br>", $msg), 3));
 			}
 		}
 
-		elseif ($this->step==3) {
-
+		elseif ($this->step == 3) {
 			$msg = "";
 			
 			// data processing
@@ -210,7 +207,7 @@ class Mailchimp_MailChimpStepController_Action extends Vtiger_Action_Controller{
 				$q = "SELECT contactid,email FROM vtiger_contactdetails WHERE contactid IN (".implode(', ', $_SESSION["mc"]["removedlocally"]).")";
 				$result = $this->db->query($q);
 
-				while($row = $this->db->fetchByAssoc($result,-1,false)) {
+				while($row = $this->db->fetchByAssoc($result, -1, false)) {
 					$_SESSION["mcactions"]["delete"][$row["contactid"]]=$row["email"];
 
 					// remove from cached remotecontacts
@@ -222,13 +219,13 @@ class Mailchimp_MailChimpStepController_Action extends Vtiger_Action_Controller{
 				$q = "SELECT leadid,email FROM vtiger_leaddetails WHERE leadid IN (".implode(', ', $_SESSION["mc"]["removedlocally"]).")";
 				$result = $this->db->query($q);
 
-				while($row = $this->db->fetchByAssoc($result,-1,false)) {
+				while($row = $this->db->fetchByAssoc($result, -1, false)) {
 					$_SESSION["mcactions"]["delete"][$row["leadid"]]=$row["email"];
 
 					// remove from cached remotecontacts
 					unset($_SESSION["mc"]["remotecontacts"][strtolower ($row["email"])]);
 					if ($verbose) $msg .= "<br>".sprintf(getTranslatedString('LBL_VERBOSELOG_DELETE','Mailchimp'),$row["email"]);
-					}
+				}
 			}
 			
 			// iterate through CRM contacts, find new entries for export to Mailchimp
@@ -305,15 +302,15 @@ class Mailchimp_MailChimpStepController_Action extends Vtiger_Action_Controller{
 					if ($verbose) $msg .= "<br>".sprintf(getTranslatedString('LBL_VERBOSELOG_TEST4IMPORT','Mailchimp'),$remotecontact['email_address']);
 
 					// check if all attributes are set, if so import new entry to CRM
-					$imp =1;
+					$imp = 1;
 					if ($remotecontact['status'] != 'subscribed') {
 						if ($verbose) $msg .= getTranslatedString('LBL_VERBOSELOG_INACTIVE','Mailchimp');
-						$imp=0;
+						$imp = 0;
 					}
 					if (empty($remotecontact['merge_fields']['LNAME']) || empty($remotecontact['merge_fields']['FNAME']) || 
 						empty($remotecontact['merge_fields']['SALUTATION'])) {
 							if ($verbose) $msg .= getTranslatedString('LBL_VERBOSELOG_INCOMPLETE','Mailchimp');
-							$imp=0;
+							$imp = 0;
 					}
 
 					if ($imp) {
@@ -353,7 +350,7 @@ class Mailchimp_MailChimpStepController_Action extends Vtiger_Action_Controller{
 					}
 					else {
 						// compare attributes, update entry on Mailchimp if changed
-						$upd=0;
+						$upd = 0;
 						if ($remotecontact['merge_fields']['FNAME'] != $_SESSION["mc"]["localcontacts"][strtolower ($remotecontact['email_address'])]["firstname"] ||
 							$remotecontact['merge_fields']['LNAME'] != $_SESSION["mc"]["localcontacts"][strtolower ($remotecontact['email_address'])]["lastname"] ||
 							$remotecontact['merge_fields']['SALUTATION'] != $_SESSION["mc"]["localcontacts"][strtolower ($remotecontact['email_address'])]["salutation"] ||
@@ -402,7 +399,7 @@ class Mailchimp_MailChimpStepController_Action extends Vtiger_Action_Controller{
 		*   MUST expect to be called multiple times, so unset array entries if they're done
 		*/
 		
-		elseif ($this->step==4) {
+		elseif ($this->step == 4) {
 			$apikey= Mailchimp_Module_Model::getApikey();
 			$this->mc_api = new MailChimp($apikey);
 		
@@ -438,7 +435,7 @@ class Mailchimp_MailChimpStepController_Action extends Vtiger_Action_Controller{
 					$_SESSION["mc"]["progressstartcount"]=count($_SESSION["mcactions"]["export"]);
 				}	
 				
-				$batchsize=10;
+				$batchsize = 10;
 				
 				$newreceivers=array();
 				// we need to set the default for the related group (interests) by using the proper id
@@ -560,18 +557,18 @@ class Mailchimp_MailChimpStepController_Action extends Vtiger_Action_Controller{
 					$this->mc_api->patch("lists/".$this->mcgroupid."/members/".$subscriber_hash, $updreceiver);
 					
 					// explicitly calling "setinactive" since updating "active" attribute seems buggy/unsupported ("active"=>$_SESSION["mc"]["localcontacts"][$email]["emailoptout"]==1?"false":"true",)
-					if ($_SESSION["mc"]["localcontacts"][$email]["emailoptout"]>0 && $_SESSION["mc"]["remotecontacts"][$email]['status'] == 'subscribed') {
+					if ($_SESSION["mc"]["localcontacts"][$email]["emailoptout"] > 0 && $_SESSION["mc"]["remotecontacts"][$email]['status'] == 'subscribed') {
 						// $rest->put("/groups/{$this->mcgroupid}/receivers/".urlencode($email)."/setinactive");
 					}
 				
 					$batchsize--;
 					
-					$_SESSION["mc"]["updated"][]=$email;
+					$_SESSION["mc"]["updated"][] = $email;
 					unset($_SESSION["mcactions"]["update"][$key]);
 					
 					if ($batchsize < 1 || ( count($_SESSION["mcactions"]["update"]) == 0 && count($_SESSION["mc"]["updated"]) > $batchsize )) {
                     
-						$entriesleft = $_SESSION["mc"]["progressstartcount"]-count($_SESSION["mcactions"]["update"]);
+						$entriesleft = $_SESSION["mc"]["progressstartcount"] - count($_SESSION["mcactions"]["update"]);
 						$msg = sprintf(getTranslatedString('LBL_UPDATEPROGRESS','Mailchimp'),$entriesleft,$_SESSION["mc"]["progressstartcount"]);
 						$response->setResult(array(getTranslatedString('LBL_STEP','Mailchimp').' 4',$msg,4,"clvpr2"));
 						$response->emit();
@@ -619,8 +616,8 @@ class Mailchimp_MailChimpStepController_Action extends Vtiger_Action_Controller{
 							// create if not found
 							require_once('modules/Accounts/Accounts.php');
 							$account = new Accounts();
-							$account->column_fields[accountname] = $company;
-							$account->column_fields[assigned_user_id]=$current_user->id;
+							$account->column_fields['accountname'] = $company;
+							$account->column_fields['assigned_user_id'] = $current_user->id;
 							$account->save("Accounts");
 							$accountid = $account->id;
 						}
@@ -776,7 +773,7 @@ class Mailchimp_MailChimpStepController_Action extends Vtiger_Action_Controller{
 			unset($_SESSION["mc"]);
 			unset($_SESSION["mcactions"]);
 			
-			$response->setResult(array(getTranslatedString('LBL_STEP','Mailchimp').' 4',$msg,0));
+			$response->setResult(array(getTranslatedString('LBL_STEP','Mailchimp').' 4', $msg, 0));
 		}
 		else {
 			$response->setError(array('Error: step parameter out of bounds'));
@@ -794,7 +791,7 @@ class Mailchimp_MailChimpStepController_Action extends Vtiger_Action_Controller{
 		$mc_groupname = self::getGroupName();
 		if (is_array($groupinfo)) {
 			foreach ($groupinfo as $groupis => $groupname) {
-				if ($groupname==$mc_groupname) {
+				if ($groupname == $mc_groupname) {
 					$group_exists = true;
 				}
 			}

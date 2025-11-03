@@ -326,7 +326,7 @@ $languageStrings = array(
 	'LBL_EMPTY_FIELD' => 'Empty field',
 	'LBL_MATCHED_THIS_CRITERIA' => 'matched this criteria',
 	'LBL_MAX_NUMBER_FILTER_COLUMNS' => 'Max. 12',
-	'LBL_MAX_QTY_SELECT' => 'Maximum value is',
+	'LBL_MAX_QTY_SELECT' => 'Stock quantity remaining',
 	'LBL_MAX_UPLOAD_SIZE' => 'Maximum upload size is',
 	'LBL_May' => 'May',
 	'LBL_MERGE' => 'Merge',
@@ -466,7 +466,7 @@ $languageStrings = array(
 	'LBL_SMS_MAX_CHARACTERS_ALLOWED' => 'Maximum 160 characters are allowed for text message',
 	'LBL_SPECIAL_OPTIONS' => 'Special Options',
 	'LBL_STARTS_WITH' => 'starts with', //Duplicated key-value pairs
-	'LBL_STOCK_NOT_ENOUGH' => 'Not enough stock',
+	'LBL_STOCK_NOT_ENOUGH' => 'Order quantity exceeds available stock',
 	'LBL_SUBJECT' => 'Subject',
 	'LBL_SUB_PRODUCTS' => 'Sub Products',
 	'LBL_SUMMARY' => 'Summary',
@@ -616,6 +616,7 @@ $languageStrings = array(
 	'Tax2' => 'Tax2',
 	'Tax3' => 'Tax3',
 	'Tax:' => 'Tax:',
+	'LBL_VAT' => 'VAT', //Duplicated key-value pairs
 	'Technology' => 'Technology',
 	'Telecommunications' => 'Telecommunications',
 	'Terms & Conditions' => 'Terms & Conditions',
@@ -772,7 +773,6 @@ $languageStrings = array(
 	'RecycleBin' => 'Recycle Bin',
 	'Pdfsettings' => 'PDF Settings',
 	'EmailTemplates' => 'Email Templates',
-	'PBXManager' => 'PBX Manager',
 
 	// Clever Reach
 	'LBL_CLEVERREACH' => 'Clever Reach',
@@ -877,6 +877,12 @@ $languageStrings = array(
 
 	// SpecialWidgets
 	'LBL_COPY_CONTACTDETAILS' => 'Copy Contact Details',
+
+	// Send Mail from ModComment
+	'LBL_SEND_MAIL_AND_POST' => 'Send Mail and Post',
+	'LBL_EXTERNAL_COMMENT' => 'External Comment',
+	'LBL_MAILTO'=> 'Mail to',
+
 );
 
 $jsLanguageStrings = array(
@@ -933,11 +939,6 @@ $jsLanguageStrings = array(
 	'JS_NO_VIEW_PERMISSION_AFTER_SAVE' => 'You will not have the permissions to view this record after save. Would you like to continue?',
 	'JS_NUMBER_SHOULD_BE_LESS_THAN_32' => 'Number should be fewer than 32',
 	'JS_PAGE_NOT_EXIST' => 'Page not exist',
-	'JS_PBX_CALL_FROM' => 'Call From',
-	'JS_PBX_FILL_ALL_FIELDS'=>'Please fill all the fields',
-	'JS_PBX_INCOMING_CALL' => 'Incoming Call',
-	'JS_PBX_OUTGOING_FAILURE'=>'Call Failed',
-	'JS_PBX_OUTGOING_SUCCESS'=>'Pick up the extension receiver to dial the number',
 	'JS_PERCENTAGE_VALUE_SHOULD_BE_LESS_THAN_100' => 'Percentage value should be fewer than 100',
 	'JS_PHONE_NUMBER_LENGTH_EXCEEDED' => 'phone number length exceeded limit',
 	'JS_PLEASE_ENABLE_BASE_CURRENCY_FOR_PRODUCT' => 'Please enable base currency for product',
@@ -1010,6 +1011,7 @@ $jsLanguageStrings = array(
 	'SHOULD_BE_LESS_THAN_TODAY' => 'Must occur before today',
 	'SINGLE_Accounts' => 'Organization',
 	'SINGLE_Contacts' => 'Contact',
+	'SINGLE_Vendors' => 'Vendor Name', 
     
         //Promotion translations
         'JS_HIDE_PROMOTION' => 'Hide Promotion',
@@ -1021,6 +1023,10 @@ $jsLanguageStrings = array(
         'LBL_SYNCRONIZING' => 'Synchronizing',
     
         'JS_RECORDS_TRANSFERRED_SUCCESSFULLY' => 'Records ownership transferred successfully.',
+
+		//Document module for relatedlist translations
+		'JS_Intern_FILE_NAME' => 'file Name',	// duplicated key-value pairs
+		'JS_Extern_FILE_NAME' => 'file Path',	// duplicated key-value pairs
     
     //Edit view mode Translations
         'JS_CHANGES_WILL_BE_LOST' => 'Your Changes Will Be Lost!',

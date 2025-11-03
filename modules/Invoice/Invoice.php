@@ -22,7 +22,6 @@
  ********************************************************************************/
 
 class Invoice extends CRMEntity {
-	var $log;
 	var $db;
 
 	var $table_name = "vtiger_invoice";
@@ -105,11 +104,8 @@ class Invoice extends CRMEntity {
 	/**	Constructor which will set the column_fields in this object
 	 */
 	function __construct() {
-		$this->log =LoggerManager::getLogger('Invoice');
-		$this->log->debug("Entering Invoice() method ...");
 		$this->db = PearDatabase::getInstance();
 		$this->column_fields = getColumnFields('Invoice');
-		$this->log->debug("Exiting Invoice method ...");
 	}
 
 
@@ -189,9 +185,6 @@ class Invoice extends CRMEntity {
 	 */
 	function get_summary_text()
 	{
-		global $log;
-		$log->debug("Entering get_summary_text() method ...");
-		$log->debug("Exiting get_summary_text method ...");
 		return $this->name;
 	}
 
@@ -201,8 +194,7 @@ class Invoice extends CRMEntity {
 	 *	@return array - return an array which will be returned from the function GetRelatedList
 	 */
 	function get_activities($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_activities(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -255,7 +247,6 @@ class Invoice extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_activities method ...");
 		return $return_value;
 	}
 
@@ -265,8 +256,6 @@ class Invoice extends CRMEntity {
 	 */
 	function get_history($id)
 	{
-		global $log;
-		$log->debug("Entering get_history(".$id.") method ...");
 		$userNameSql = getSqlForNameInDisplayFormat(array('first_name'=>
 							'vtiger_users.first_name', 'last_name' => 'vtiger_users.last_name'), 'Users');
 		$query = "SELECT vtiger_contactdetails.lastname, vtiger_contactdetails.firstname,
@@ -287,7 +276,6 @@ class Invoice extends CRMEntity {
 					and vtiger_crmentity.deleted = 0";
 		//Don't add order by, because, for security, one more condition will be added with this query in include/RelatedListView.php
 
-		$log->debug("Exiting get_history method ...");
 		return getHistory('Invoice',$query,$id);
 	}
 
@@ -299,9 +287,6 @@ class Invoice extends CRMEntity {
 	 */
 	function get_invoicestatushistory($id)
 	{
-		global $log;
-		$log->debug("Entering get_invoicestatushistory(".$id.") method ...");
-
 		global $adb;
 		global $mod_strings;
 		global $app_strings;
@@ -346,8 +331,6 @@ class Invoice extends CRMEntity {
 		}
 
 		$return_data = Array('header'=>$header,'entries'=>$entries_list);
-
-	 	$log->debug("Exiting get_invoicestatushistory method ...");
 
 		return $return_data;
 	}
@@ -455,7 +438,6 @@ class Invoice extends CRMEntity {
 
 	// Function to unlink an entity with given Id from another entity
 	function unlinkRelationship($id, $return_module, $return_id) {
-		global $log;
 		if(empty($return_module) || empty($return_id)) return;
 
 		if($return_module == 'Accounts' || $return_module == 'Contacts') {
@@ -626,9 +608,7 @@ class Invoice extends CRMEntity {
 	*/
 	function create_export_query($where)
 	{
-		global $log;
 		global $current_user;
-		$log->debug("Entering create_export_query(".$where.") method ...");
 
 		include("include/utils/ExportUtils.php");
 
@@ -662,7 +642,6 @@ class Invoice extends CRMEntity {
 			$query .= " where ".$where_auto;
 		}
 
-		$log->debug("Exiting create_export_query method ...");
 		return $query;
 	}
 

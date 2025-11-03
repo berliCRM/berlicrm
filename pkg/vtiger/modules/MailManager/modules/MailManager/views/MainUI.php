@@ -16,14 +16,14 @@ class MailManager_MainUI_View extends MailManager_Abstract_View {
      * @param Vtiger_Request $request
      * @return MailManager_Response
      */
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$moduleName = $request->getModule();
 		$response = new Vtiger_Response();
 		$viewer = $this->getViewer($request);
 		if($this->getOperationArg($request) == "_quicklinks") {
 			$content = $viewer->view('MainuiQuickLinks.tpl', $moduleName, true);
 			$response->setResult( array('ui' => $content));
-			return $response;
+			$response->emit();
 		} else {
 			if ($this->hasMailboxModel()) {
 				$connector = $this->getConnector();
@@ -40,12 +40,12 @@ class MailManager_MainUI_View extends MailManager_Abstract_View {
 			$viewer->assign('MODULE', $moduleName);
 			$content = $viewer->view('Mainui.tpl', $moduleName, true);
 			$response->setResult( array('mailbox' => $this->hasMailboxModel(), 'ui' => $content));
-			return $response;
+			$response->emit();
 		}
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
-            return $request->validateReadAccess(); 
-        } 
+	public function validateRequest(Vtiger_Request $request):bool { 
+		return $request->validateReadAccess(); 
+	} 
 }
 ?>

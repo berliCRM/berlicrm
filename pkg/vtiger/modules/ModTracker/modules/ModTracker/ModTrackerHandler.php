@@ -13,7 +13,7 @@ require_once 'data/VTEntityDelta.php';
 class ModTrackerHandler extends VTEventHandler {
 
 	function handleEvent($eventName, $data) {
-		global $log, $current_module, $adb, $current_user;
+		global $current_module, $adb, $current_user;
 		$moduleName = $data->getModuleName();
 
 		$flag = ModTracker::isTrackingEnabledForModule($moduleName);

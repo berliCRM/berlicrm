@@ -9,26 +9,37 @@ class Emails_showEmailContent_View extends Vtiger_Edit_View {
 		}
 	}
 
-	function postProcess(Vtiger_Request $request) {
+	function postProcess(Vtiger_Request $request):void {
 		return;
 	}
-    function preProcess(Vtiger_Request $request, $display=true) {
+
+    function preProcess(Vtiger_Request $request, $display=true):void {
         if($request->getMode() == 'previewEmail'){
             return;
         }
-        return parent::preProcess($request,$display);
+		parent::preProcess($request,$display);
     }
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$viewer = $this->getViewer ($request);
 		$moduleName = $request->getModule();
 		
 		$emailbody = $request->get('emailbody');
 		$receivers = $request->get('receivers');
+		$relModule = $request->get('relModule');
 
-		$firstid = key($receivers); 
-		$pmodule = getSalesEntityType($firstid);
-		$recordModel = Vtiger_Record_Model::getInstanceById($firstid,$pmodule);
+		$firstid = key($receivers);
+		$firstRelId = key($relModule);
+		$pmodule = $relModule[$firstid];
+
+		if($firstRelId && $pmodule) {
+			$recordModel = Vtiger_Record_Model::getInstanceById($firstRelId,$pmodule);
+		}
+		else {
+			// Try to resolve record
+			$pmodule = resolveRecordSource($firstid);
+			$recordModel = Vtiger_Record_Model::getInstanceById($firstid,$pmodule);
+		}
 		
 		$column_fields = $recordModel->entity->column_fields;
 		$emailbody =str_replace('\n', '', $emailbody);

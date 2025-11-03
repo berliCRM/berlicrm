@@ -33,3 +33,4 @@ class Emails_CheckServerInfo_Action extends Vtiger_Action_Controller {
 		return $response;
 	}
 }
+?>

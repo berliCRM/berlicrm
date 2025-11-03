@@ -29,6 +29,8 @@ $languageStrings = array (
 	'LBL_SAVE_SETTINGS' => 'save settings',
 	'LBL_SEARCH_SETUP' => 'Search Setup',
 	
+	'LBL_SEARCH_SETUP_DESCRIPTION' => 'Define fields for global search and search results',
+	
 );
 
 $jsLanguageStrings = array(

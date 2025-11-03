@@ -106,12 +106,14 @@ Vtiger_List_Js("Portal_List_Js",{
                 'enabled' : true
             }
         });
+        var portalListInstance = this;
         AppConnector.requestPjax(url).then(function(data) {
             progressIndicatorElement.progressIndicator({
                 'mode' : 'hide'
             });
             jQuery('#listViewContents').html(data);
-            Portal_List_Js.updatePagination();
+            portalListInstance.updatePagination();
+            portalListInstance.getInstance().registerListEvents();
         });
     },
     
@@ -166,6 +168,7 @@ Vtiger_List_Js("Portal_List_Js",{
     registerEditBookmark : function() {
         jQuery('.editRecord').on('click', function(e) {
             e.stopPropagation();
+            e.preventDefault();
             var currentTarget = jQuery(e.currentTarget);
             var id = currentTarget.closest('.listViewEntries').data('id');
             var params = {
@@ -271,8 +274,7 @@ Vtiger_List_Js("Portal_List_Js",{
 		});
 	},
     
-    registerEvents : function(){
-		this._super();
+    registerListEvents : function(){
         this.registerAddBookmark();
         this.registerEditBookmark();
         this.registerDeleteBookmark();
@@ -281,5 +283,10 @@ Vtiger_List_Js("Portal_List_Js",{
         this.registerPreviousPageEvent();
         this.registerNextPageEvent();
         this.registerRowClickEvent();
+    },
+
+    registerEvents : function(){
+		this._super();
+        this.registerListEvents();
 	}
 });

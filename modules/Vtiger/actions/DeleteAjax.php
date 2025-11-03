@@ -10,7 +10,7 @@
 
 class Vtiger_DeleteAjax_Action extends Vtiger_Delete_Action {
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request): void{
 		$moduleName = $request->getModule();
 		$recordId = $request->get('record');
 		$operation = $request->get('operation');
@@ -69,7 +69,7 @@ class Vtiger_DeleteAjax_Action extends Vtiger_Delete_Action {
 		}
 	}
 
-	public function findRecurringreferencesIDs($idRef){
+	public function findRecurringreferencesIDs($idRef): array{
 		// if $idRef belong to RecurringEvent so this funktion find all IDs, that belong to it to.
 		global $adb;
 		$sqlRef1 = 'SELECT * FROM `berlicrm_recurringreferences` WHERE activityid = ?';

@@ -52,9 +52,7 @@ class Vtiger_MailRecord {
 	function log($message=false) {
 		if(!$message) $message = $this->__toString();
 
-		global $log;
-		if($log && $this->debug) { $log->debug($message); }
-		else if($this->debug) {
+		if($this->debug) {
 			echo var_export($message, true) . "\n";
 		}
 	}
@@ -147,7 +145,12 @@ class Vtiger_MailRecord {
 			if(strtolower(trim($to)) == strtolower(trim($from))) {                         
 					return $input;
 			} else {
-				return mb_convert_encoding($input, $to, $from);
+				if($from == "default"){
+					return mb_convert_encoding($input, $to, mb_internal_encoding());
+				} 
+				else {
+					return mb_convert_encoding($input, $to, $from);
+				}
 			}
 		}
 		return $input;

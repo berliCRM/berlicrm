@@ -106,5 +106,4 @@ class Reports_addContactsOrLeadsfromReportstoMailchimp_Action extends Vtiger_Act
 		$response->emit();
 	}
 }
-
 ?>

@@ -11,7 +11,6 @@
 // Note is used to store customer information.
 class Documents extends CRMEntity {
 
-	var $log;
 	var $db;
 	var $table_name = "vtiger_notes";
 	var $table_index= 'notesid';
@@ -71,48 +70,47 @@ class Documents extends CRMEntity {
 	var $default_order_by = 'title';
 	var $default_sort_order = 'ASC';
 	function __construct() {
-		$this->log = LoggerManager::getLogger('notes');
-		$this->log->debug("Entering Documents() method ...");
 		$this->db = PearDatabase::getInstance();
 		$this->column_fields = getColumnFields('Documents');
-		$this->log->debug("Exiting Documents method ...");
 	}
 
-	function save_module($module)
-	{
-		global $log,$adb,$upload_badext;
+	function save_module($module) {
+		global $adb,$upload_badext;
 		$insertion_mode = $this->mode;
-		if(isset($this->parentid) && $this->parentid != '')
+		if(isset($this->parentid) && $this->parentid != '') {
 			$relid =  $this->parentid;
+		}
 		//inserting into vtiger_senotesrel
-		if(isset($relid) && $relid != '')
-		{
+		if(isset($relid) && $relid != '') {
 			$this->insertintonotesrel($relid,$this->id);
 		}
 		$filetype_fieldname = $this->getFileTypeFieldName();
 		$filename_fieldname = $this->getFile_FieldName();
-		if($this->column_fields[$filetype_fieldname] == 'I' ){
-			if($_FILES[$filename_fieldname]['name'] != ''){
+		if($this->column_fields[$filetype_fieldname] == 'I' ) {
+			if($_FILES[$filename_fieldname]['name'] != '') {
 				$errCode=$_FILES[$filename_fieldname]['error'];
-					if($errCode == 0){
-						foreach($_FILES as $fileindex => $files)
-						{
-							if($files['name'] != '' && $files['size'] > 0){
-								$filename = $_FILES[$filename_fieldname]['name'];
-								$filename = from_html(preg_replace('/\s+/', '_', $filename));
-								$filetype = $_FILES[$filename_fieldname]['type'];
-								$filesize = $_FILES[$filename_fieldname]['size'];
-								$filelocationtype = 'I';
-								$binFile = sanitizeUploadFileName($filename, $upload_badext);
-								$filename = ltrim(basename(" ".$binFile)); //allowed filename like UTF-8 characters
-							}
-						}
-
+				if($errCode == 0) {
+					$attachmentRow = Vtiger_Functions::getAttachmentInfo($this->id);
+					if($attachmentRow) {
+						Vtiger_Functions::deleteAttachment($attachmentRow);
 					}
-			}elseif($this->mode == 'edit') {
+					foreach($_FILES as $fileindex => $files) {
+						if($files['name'] != '' && $files['size'] > 0) {
+							$filename = $_FILES[$filename_fieldname]['name'];
+							$filename = from_html(preg_replace('/\s+/', '_', $filename));
+							$filetype = $_FILES[$filename_fieldname]['type'];
+							$filesize = $_FILES[$filename_fieldname]['size'];
+							$filelocationtype = 'I';
+							$binFile = sanitizeUploadFileName($filename, $upload_badext);
+							//allowed filename like UTF-8 characters
+							$filename = ltrim(basename(" ".$binFile));
+						}
+					}
+				}
+			}
+			elseif($this->mode == 'edit') {
 				$fileres = $adb->pquery("select filetype, filesize,filename,filedownloadcount,filelocationtype from vtiger_notes where notesid=?", array($this->id));
 				$bDeleteAttachment = vtlib_purify($_REQUEST['bdeleteAttachment']);
-				// file_put_contents('test/debug.txt', serialize($_REQUEST), FILE_APPEND);
 				if ($adb->num_rows($fileres) > 0 && ($bDeleteAttachment == 'false' || empty($bDeleteAttachment))) {
 					$filename = $adb->query_result($fileres, 0, 'filename');
 					$filetype = $adb->query_result($fileres, 0, 'filetype');
@@ -120,19 +118,30 @@ class Documents extends CRMEntity {
 					$filedownloadcount = $adb->query_result($fileres, 0, 'filedownloadcount');
 					$filelocationtype = $adb->query_result($fileres, 0, 'filelocationtype');
 				}
-			}elseif($this->column_fields[$filename_fieldname]) {
+
+				if($bDeleteAttachment == 'true' && !empty($bDeleteAttachment)) {
+					$attachmentRow = Vtiger_Functions::getAttachmentInfo($this->id);
+					if($attachmentRow) {
+						Vtiger_Functions::deleteAttachment($attachmentRow);
+					}
+				}
+					
+			}
+			elseif($this->column_fields[$filename_fieldname]) {
 				$filename = $this->column_fields[$filename_fieldname];
 				$filesize = $this->column_fields['filesize'];
 				$filetype = $this->column_fields['filetype'];
 				$filelocationtype = $this->column_fields[$filetype_fieldname];
 				$filedownloadcount = 0;
-			} else {
+			}
+			else {
 				$filelocationtype = 'I';
 				$filetype = '';
 				$filesize = 0;
 				$filedownloadcount = null;
 			}
-		} else if($this->column_fields[$filetype_fieldname] == 'E' ){
+		} 
+		else if($this->column_fields[$filetype_fieldname] == 'E' ) {
 			$filelocationtype = 'E';
 			$filename = $this->column_fields[$filename_fieldname];
 			// If filename does not has the protocol prefix, default it to http://
@@ -149,7 +158,8 @@ class Documents extends CRMEntity {
 		//Inserting into attachments table
 		if($filelocationtype == 'I') {
 			$this->insertIntoAttachment($this->id,'Documents');
-		}else{
+		}
+		else {
 			$query = "delete from vtiger_seattachmentsrel where crmid = ?";
 			$qparams = array($this->id);
 			$adb->pquery($query, $qparams);
@@ -169,8 +179,7 @@ class Documents extends CRMEntity {
 	*/
 	function insertIntoAttachment($id,$module)
 	{
-		global $log, $adb;
-		$log->debug("Entering into insertIntoAttachment($id,$module) method.");
+		global $adb;
 
 		$file_saved = false;
 
@@ -182,8 +191,6 @@ class Documents extends CRMEntity {
 				$file_saved = $this->uploadAndSaveFile($id,$module,$files);
 			}
 		}
-
-		$log->debug("Exiting from insertIntoAttachment($id,$module) method.");
 	}
 
 	/**    Function used to get the sort order for Documents listview
@@ -191,13 +198,10 @@ class Documents extends CRMEntity {
 	*/
 	function getSortOrder()
 	{
-		global $log;
-		$log->debug("Entering getSortOrder() method ...");
 		if(isset($_REQUEST['sorder']))
 			$sorder = $this->db->sql_escape_string($_REQUEST['sorder']);
 		else
 			$sorder = (($_SESSION['NOTES_SORT_ORDER'] != '')?($_SESSION['NOTES_SORT_ORDER']):($this->default_sort_order));
-		$log->debug("Exiting getSortOrder() method ...");
 		return $sorder;
 	}
 
@@ -206,9 +210,6 @@ class Documents extends CRMEntity {
 	*/
 	function getOrderBy()
 	{
-		global $log;
-		$log->debug("Entering getOrderBy() method ...");
-
 		$use_default_order_by = '';
 		if(PerformancePrefs::getBoolean('LISTVIEW_DEFAULT_SORTING', true)) {
 			$use_default_order_by = $this->default_order_by;
@@ -218,7 +219,6 @@ class Documents extends CRMEntity {
 			$order_by = $this->db->sql_escape_string($_REQUEST['order_by']);
 		else
 			$order_by = (($_SESSION['NOTES_ORDER_BY'] != '')?($_SESSION['NOTES_ORDER_BY']):($use_default_order_by));
-		$log->debug("Exiting getOrderBy method ...");
 		return $order_by;
 	}
 
@@ -264,8 +264,7 @@ class Documents extends CRMEntity {
 	*/
 	function create_export_query($where)
 	{
-		global $log,$current_user;
-		$log->debug("Entering create_export_query(". $where.") method ...");
+		global $current_user;
 
 		include("include/utils/ExportUtils.php");
 		//To get the Permitted fields query and the permitted fields list
@@ -289,7 +288,6 @@ class Documents extends CRMEntity {
 		else
 			$query .= "  WHERE ".$where_auto;
 
-		$log->debug("Exiting create_export_query method ...");
 		        return $query;
 	}
 
@@ -406,7 +404,6 @@ class Documents extends CRMEntity {
 
 	// Function to unlink all the dependent entities of the given Entity by Id
 	function unlinkDependencies($module, $id) {
-		global $log;
 		/*//Backup Documents Related Records
 		$se_q = 'SELECT crmid FROM vtiger_senotesrel WHERE notesid = ?';
 		$se_res = $this->db->pquery($se_q, array($id));
@@ -426,7 +423,6 @@ class Documents extends CRMEntity {
 
 	// Function to unlink an entity with given Id from another entity
 	function unlinkRelationship($id, $return_module, $return_id) {
-		global $log;
 		if(empty($return_module) || empty($return_id)) return;
 
 		if($return_module == 'Accounts') {
@@ -446,7 +442,7 @@ class Documents extends CRMEntity {
 // Function to get fieldname for uitype 27 assuming that documents have only one file type field
 
 	function getFileTypeFieldName(){
-		global $adb,$log;
+		global $adb;
 		$query = 'SELECT fieldname from vtiger_field where tabid = ? and uitype = ?';
 		$tabid = getTabid('Documents');
 		$filetype_uitype = 27;
@@ -465,7 +461,7 @@ class Documents extends CRMEntity {
 //	Function to get fieldname for uitype 28 assuming that doc has only one file upload type
 
 	function getFile_FieldName(){
-		global $adb,$log;
+		global $adb;
 		$query = 'SELECT fieldname from vtiger_field where tabid = ? and uitype = ?';
 		$tabid = getTabid('Documents');
 		$filename_uitype = 28;

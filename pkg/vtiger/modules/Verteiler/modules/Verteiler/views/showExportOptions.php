@@ -2,7 +2,7 @@
 class Verteiler_showExportOptions_View extends Vtiger_View_Controller {
 	public $log_text = array();
 	
-	function loginRequired() {
+	function loginRequired(): bool {
 		return true;
 	}
 
@@ -20,7 +20,7 @@ class Verteiler_showExportOptions_View extends Vtiger_View_Controller {
 		}
 	}
  
-	function preProcess(Vtiger_Request $request, $display = true) {
+	function preProcess(Vtiger_Request $request, bool $display = true): void {
 	}
 
 
@@ -31,6 +31,7 @@ class Verteiler_showExportOptions_View extends Vtiger_View_Controller {
 		$recordid = $request->get('recordid');
 		
 		$viewer = new Vtiger_Viewer();
+		$viewer->registerPlugin('modifier', 'vtranslate', 'vtranslate');
 		$active_destination_module = array ();
 		
 		if(vtlib_isModuleActive('Campaigns')) {

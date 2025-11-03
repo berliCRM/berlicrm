@@ -21,7 +21,6 @@
  ********************************************************************************/
 // Contact is used to store customer information.
 class Contacts extends CRMEntity {
-	var $log;
 	var $db;
 
 	var $table_name = "vtiger_contactdetails";
@@ -145,7 +144,6 @@ class Contacts extends CRMEntity {
 	);
 
 	function __construct() {
-		$this->log = LoggerManager::getLogger('contact');
 		$this->db = PearDatabase::getInstance();
 		$this->column_fields = getColumnFields('Contacts');
 	}
@@ -157,15 +155,11 @@ class Contacts extends CRMEntity {
 	*/
 	function getCount($user_name)
 	{
-		global $log;
-		$log->debug("Entering getCount(".$user_name.") method ...");
 		$query = "select count(*) from vtiger_contactdetails  inner join vtiger_crmentity on vtiger_crmentity.crmid=vtiger_contactdetails.contactid inner join vtiger_users on vtiger_users.id=vtiger_crmentity.smownerid where user_name=? and vtiger_crmentity.deleted=0";
 		$result = $this->db->pquery($query,array($user_name),true,"Error retrieving contacts count");
 		$rows_found =  $this->db->getRowCount($result);
 		$row = $this->db->fetchByAssoc($result, 0);
 
-
-		$log->debug("Exiting getCount method ...");
 		return $row["count(*)"];
 	}
 
@@ -178,11 +172,8 @@ class Contacts extends CRMEntity {
 	*/
     function get_contacts($user_name,$from_index,$offset)
     {
-	global $log;
-	$log->debug("Entering get_contacts(".$user_name.",".$from_index.",".$offset.") method ...");
       $query = "select vtiger_users.user_name,vtiger_groups.groupname,vtiger_contactdetails.department department, vtiger_contactdetails.phone office_phone, vtiger_contactdetails.fax fax, vtiger_contactsubdetails.assistant assistant_name, vtiger_contactsubdetails.otherphone other_phone, vtiger_contactsubdetails.homephone home_phone,vtiger_contactsubdetails.birthday birthdate, vtiger_contactdetails.lastname last_name,vtiger_contactdetails.firstname first_name,vtiger_contactdetails.contactid as id, vtiger_contactdetails.salutation as salutation, vtiger_contactdetails.email as email1,vtiger_contactdetails.title as title,vtiger_contactdetails.mobile as phone_mobile,vtiger_account.accountname as account_name,vtiger_account.accountid as account_id, vtiger_contactaddress.mailingcity as primary_address_city,vtiger_contactaddress.mailingstreet as primary_address_street, vtiger_contactaddress.mailingcountry as primary_address_country,vtiger_contactaddress.mailingstate as primary_address_state, vtiger_contactaddress.mailingzip as primary_address_postalcode,   vtiger_contactaddress.othercity as alt_address_city,vtiger_contactaddress.otherstreet as alt_address_street, vtiger_contactaddress.othercountry as alt_address_country,vtiger_contactaddress.otherstate as alt_address_state, vtiger_contactaddress.otherzip as alt_address_postalcode  from vtiger_contactdetails inner join vtiger_crmentity on vtiger_crmentity.crmid=vtiger_contactdetails.contactid inner join vtiger_users on vtiger_users.id=vtiger_crmentity.smownerid left join vtiger_account on vtiger_account.accountid=vtiger_contactdetails.accountid left join vtiger_contactaddress on vtiger_contactaddress.contactaddressid=vtiger_contactdetails.contactid left join vtiger_contactsubdetails on vtiger_contactsubdetails.contactsubscriptionid = vtiger_contactdetails.contactid left join vtiger_groups on vtiger_groups.groupid=vtiger_crmentity.smownerid left join vtiger_users on vtiger_crmentity.smownerid=vtiger_users.id where user_name='" .$user_name ."' and vtiger_crmentity.deleted=0 limit " .$from_index ."," .$offset;
 
-	$log->debug("Exiting get_contacts method ...");
       return $this->process_list_query1($query);
     }
 
@@ -193,9 +184,6 @@ class Contacts extends CRMEntity {
     */
     function process_list_query1($query)
     {
-	global $log;
-	$log->debug("Entering process_list_query1(".$query.") method ...");
-
         $result =& $this->db->query($query,true,"Error retrieving $this->object_name list: ");
         $list = Array();
         $rows_found =  $this->db->getRowCount($result);
@@ -229,8 +217,6 @@ class Contacts extends CRMEntity {
         $response['next_offset'] = $next_offset;
         $response['previous_offset'] = $previous_offset;
 
-
-	$log->debug("Exiting process_list_query1 method ...");
         return $response;
     }
 
@@ -241,8 +227,7 @@ class Contacts extends CRMEntity {
     */
     function plugin_process_list_query($query)
     {
-          global $log,$adb,$current_user;
-          $log->debug("Entering process_list_query1(".$query.") method ...");
+          global $adb,$current_user;
           $permitted_field_lists = Array();
           require('user_privileges/user_privileges_'.$current_user->id.'.php');
           if($is_admin == true || $profileGlobalPermission[1] == 0 || $profileGlobalPermission[2] == 0)
@@ -293,7 +278,6 @@ class Contacts extends CRMEntity {
           $response['row_count'] = $rows_found;
           $response['next_offset'] = $next_offset;
           $response['previous_offset'] = $previous_offset;
-          $log->debug("Exiting process_list_query1 method ...");
           return $response;
     }
 
@@ -304,8 +288,7 @@ class Contacts extends CRMEntity {
 	 * Contributor(s): ______________________________________..
 	*/
 	function get_opportunities($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_opportunities(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -365,7 +348,6 @@ class Contacts extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_opportunities method ...");
 		return $return_value;
 	}
 
@@ -376,8 +358,7 @@ class Contacts extends CRMEntity {
 	 * Contributor(s): ______________________________________..
 	*/
 	function get_activities($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_activities(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -439,7 +420,6 @@ class Contacts extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_activities method ...");
 		return $return_value;
 	}
 	/**
@@ -449,8 +429,6 @@ class Contacts extends CRMEntity {
 	*/
 	function get_history($id)
 	{
-		global $log;
-		$log->debug("Entering get_history(".$id.") method ...");
 		$userNameSql = getSqlForNameInDisplayFormat(array('first_name'=>
 							'vtiger_users.first_name', 'last_name' => 'vtiger_users.last_name'), 'Users');
 		$query = "SELECT vtiger_activity.activityid, vtiger_activity.subject, vtiger_activity.status
@@ -472,7 +450,6 @@ class Contacts extends CRMEntity {
 				and vtiger_cntactivityrel.contactid=".$id."
                                 and vtiger_crmentity.deleted = 0";
 		//Don't add order by, because, for security, one more condition will be added with this query in include/RelatedListView.php
-		$log->debug("Entering get_history method ...");
 		return getHistory('Contacts',$query,$id);
 	}
 	/**
@@ -481,8 +458,7 @@ class Contacts extends CRMEntity {
 	* returns related Ticket records in array format
 	*/
 	function get_tickets($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_tickets(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -530,7 +506,6 @@ class Contacts extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_tickets method ...");
 		return $return_value;
 	}
 
@@ -540,8 +515,7 @@ class Contacts extends CRMEntity {
 	  * returns related Quotes record in array format
 	  */
 	 function get_quotes($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_quotes(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -580,7 +554,6 @@ class Contacts extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_quotes method ...");
 		return $return_value;
 	  }
 	/**
@@ -589,8 +562,7 @@ class Contacts extends CRMEntity {
 	 * returns related SalesOrder record in array format
 	 */
 	 function get_salesorder($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_salesorder(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -629,7 +601,6 @@ class Contacts extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_salesorder method ...");
 		return $return_value;
 	 }
 	 /**
@@ -638,8 +609,7 @@ class Contacts extends CRMEntity {
 	 * returns related Products record in array format
 	 */
 	 function get_products($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_products(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -692,7 +662,6 @@ class Contacts extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_products method ...");
 		return $return_value;
 	 }
 
@@ -702,8 +671,7 @@ class Contacts extends CRMEntity {
 	 * returns related PurchaseOrder record in array format
 	 */
 	 function get_purchase_orders($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_purchase_orders(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -742,7 +710,6 @@ class Contacts extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_purchase_orders method ...");
 		return $return_value;
 	 }
 
@@ -752,8 +719,7 @@ class Contacts extends CRMEntity {
 	 * Contributor(s): ______________________________________..
 	*/
 	function get_emails($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_emails(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -798,7 +764,6 @@ class Contacts extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_emails method ...");
 		return $return_value;
 	}
 
@@ -808,8 +773,7 @@ class Contacts extends CRMEntity {
 	  */
 
 	function get_campaigns($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_campaigns(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -857,7 +821,6 @@ class Contacts extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_campaigns method ...");
 		return $return_value;
 	}
 
@@ -867,8 +830,7 @@ class Contacts extends CRMEntity {
 	* returns related Invoices record in array format
 	*/
 	function get_invoices($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_invoices(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -930,7 +892,6 @@ class Contacts extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_invoices method ...");
 		return $return_value;
 	}
 
@@ -940,8 +901,7 @@ class Contacts extends CRMEntity {
 	* returns related vendor records in array format
 	*/
 	function get_vendors($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_vendors(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -987,7 +947,6 @@ class Contacts extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_vendors method ...");
 		return $return_value;
 	}
 
@@ -997,9 +956,7 @@ class Contacts extends CRMEntity {
 	*/
         function create_export_query($where)
         {
-		global $log;
 		global $current_user;
-		$log->debug("Entering create_export_query(".$where.") method ...");
 
 		include("include/utils/ExportUtils.php");
 
@@ -1028,8 +985,6 @@ class Contacts extends CRMEntity {
                 else
                    $query .= "  WHERE ".$where_auto;
 
-		$log->info("Export Query Constructed Successfully");
-		$log->debug("Exiting create_export_query method ...");
 		return $query;
         }
 
@@ -1040,8 +995,7 @@ class Contacts extends CRMEntity {
 */
 function getColumnNames()
 {
-	global $log, $current_user;
-	$log->debug("Entering getColumnNames() method ...");
+	global $current_user;
 	require('user_privileges/user_privileges_'.$current_user->id.'.php');
 	if($is_admin == true || $profileGlobalPermission[1] == 0 || $profileGlobalPermission[2] == 0)
 	{
@@ -1066,7 +1020,6 @@ function getColumnNames()
 	$custom_fields[$i] = strtoupper($custom_fields[$i]);
 	}
 	$mergeflds = $custom_fields;
-	$log->debug("Exiting getColumnNames method ...");
 	return $mergeflds;
 }
 //End
@@ -1078,7 +1031,6 @@ function getColumnNames()
 */
 function get_searchbyemailid($username,$emailaddress)
 {
-	global $log;
 	global $current_user;
 	require_once("modules/Users/Users.php");
 	$seed_user=new Users();
@@ -1087,7 +1039,6 @@ function get_searchbyemailid($username,$emailaddress)
 	$current_user->retrieve_entity_info($user_id, 'Users');
 	require('user_privileges/user_privileges_'.$current_user->id.'.php');
 	require('user_privileges/sharing_privileges_'.$current_user->id.'.php');
-	$log->debug("Entering get_searchbyemailid(".$username.",".$emailaddress.") method ...");
 	$query = "select vtiger_contactdetails.lastname,vtiger_contactdetails.firstname,
 					vtiger_contactdetails.contactid, vtiger_contactdetails.salutation,
 					vtiger_contactdetails.email,vtiger_contactdetails.title,
@@ -1110,7 +1061,6 @@ function get_searchbyemailid($username,$emailaddress)
 		"' and vtiger_contactdetails.email != '')";
 	}
 
-	$log->debug("Exiting get_searchbyemailid method ...");
 	return $this->plugin_process_list_query($query);
 }
 
@@ -1121,7 +1071,7 @@ function get_searchbyemailid($username,$emailaddress)
 
 function get_contactsforol($user_name)
 {
-	global $log,$adb;
+	global $adb;
 	global $current_user;
 	require_once("modules/Users/Users.php");
 	$seed_user=new Users();
@@ -1163,7 +1113,6 @@ function get_contactsforol($user_name)
 	   $column_table_lists[] = implode(".",$permitted_lists[$i]);
   }
 
-	$log->debug("Entering get_contactsforol(".$user_name.") method ...");
 	$query = "select vtiger_contactdetails.contactid as id, ".implode(',',$column_table_lists)." from vtiger_contactdetails
 						inner join vtiger_crmentity on vtiger_crmentity.crmid=vtiger_contactdetails.contactid
 						inner join vtiger_users on vtiger_users.id=vtiger_crmentity.smownerid
@@ -1175,7 +1124,6 @@ function get_contactsforol($user_name)
                         left join vtiger_campaignrelstatus on vtiger_campaignrelstatus.campaignrelstatusid = vtiger_campaigncontrel.campaignrelstatusid
 			      LEFT JOIN vtiger_groups ON vtiger_groups.groupid = vtiger_crmentity.smownerid
 						where vtiger_crmentity.deleted=0 and vtiger_users.user_name='".$user_name."'";
-  $log->debug("Exiting get_contactsforol method ...");
 	return $query;
 }
 
@@ -1194,8 +1142,7 @@ function get_contactsforol($user_name)
 	*/
 	function insertIntoAttachment($id,$module)
 	{
-		global $log, $adb,$upload_badext;
-		$log->debug("Entering into insertIntoAttachment($id,$module) method.");
+		global $adb,$upload_badext;
 
 		$file_saved = false;
 		//This is to added to store the existing attachment id of the contact where we should delete this when we give new image
@@ -1236,8 +1183,6 @@ function get_contactsforol($user_name)
 				}
 			}
 		}
-
-		$log->debug("Exiting from insertIntoAttachment($id,$module) method.");
 	}
 
 	/**
@@ -1247,8 +1192,7 @@ function get_contactsforol($user_name)
 	 * @param Integer Id of the the Record to which the related records are to be moved
 	 */
 	function transferRelatedRecords($module, $transferEntityIds, $entityId) {
-		global $adb,$log;
-		$log->debug("Entering function transferRelatedRecords ($module, $transferEntityIds, $entityId)");
+		global $adb;
 
 		$rel_table_arr = Array("Potentials"=>"vtiger_contpotentialrel","Potentials"=>"vtiger_potential","Activities"=>"vtiger_cntactivityrel",
 				"Emails"=>"vtiger_seactivityrel","HelpDesk"=>"vtiger_troubletickets","Quotes"=>"vtiger_quotes","PurchaseOrder"=>"vtiger_purchaseorder",
@@ -1295,7 +1239,6 @@ function get_contactsforol($user_name)
 			$adb->pquery($updateSql, array($entityId, $transferId));
 		}
 		parent::transferRelatedRecords($module, $transferEntityIds, $entityId);
-		$log->debug("Exiting transferRelatedRecords...");
 	}
 
 	/*
@@ -1380,7 +1323,6 @@ function get_contactsforol($user_name)
 
 	// Function to unlink all the dependent entities of the given Entity by Id
 	function unlinkDependencies($module, $id) {
-		global $log;
 
 		//Deleting Contact related Potentials.
 		$pot_q = 'SELECT vtiger_crmentity.crmid FROM vtiger_crmentity
@@ -1487,7 +1429,6 @@ function get_contactsforol($user_name)
 
 	// Function to unlink an entity with given Id from another entity
 	function unlinkRelationship($id, $return_module, $return_id) {
-		global $log;
 		if(empty($return_module) || empty($return_id)) {
 			return;
 		}

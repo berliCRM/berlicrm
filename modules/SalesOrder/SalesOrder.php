@@ -21,7 +21,6 @@
  * Contributor(s): ______________________________________..
  ********************************************************************************/
 class SalesOrder extends CRMEntity {
-	var $log;
 	var $db;
 
 	var $table_name = "vtiger_salesorder";
@@ -103,11 +102,9 @@ class SalesOrder extends CRMEntity {
 	var $isLineItemUpdate = true;
 
 	/** Constructor Function for SalesOrder class
-	 *  This function creates an instance of LoggerManager class using getLogger method
-	 *  creates an instance for PearDatabase class and get values for column_fields array of SalesOrder class.
+	 *  This function creates an instance for PearDatabase class and get values for column_fields array of SalesOrder class.
 	 */
 	function __construct() {
-		$this->log =LoggerManager::getLogger('SalesOrder');
 		$this->db = PearDatabase::getInstance();
 		$this->column_fields = getColumnFields('SalesOrder');
 	}
@@ -158,8 +155,7 @@ class SalesOrder extends CRMEntity {
 	 *  and sends the query and the id as arguments to renderRelatedActivities() method
 	 */
 	function get_activities($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_activities(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -199,7 +195,6 @@ class SalesOrder extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_activities method ...");
 		return $return_value;
 	}
 
@@ -209,8 +204,6 @@ class SalesOrder extends CRMEntity {
 	 */
 	function get_history($id)
 	{
-		global $log;
-		$log->debug("Entering get_history(".$id.") method ...");
 		$userNameSql = getSqlForNameInDisplayFormat(array('first_name'=>
 							'vtiger_users.first_name', 'last_name' => 'vtiger_users.last_name'), 'Users');
 		$query = "SELECT vtiger_contactdetails.lastname, vtiger_contactdetails.firstname,
@@ -231,7 +224,6 @@ class SalesOrder extends CRMEntity {
                                 and vtiger_crmentity.deleted = 0";
 		//Don't add order by, because, for security, one more condition will be added with this query in include/RelatedListView.php
 
-		$log->debug("Exiting get_history method ...");
 		return getHistory('SalesOrder',$query,$id);
 	}
 
@@ -243,8 +235,7 @@ class SalesOrder extends CRMEntity {
 	 */
 	function get_invoices($id)
 	{
-		global $log,$singlepane_view;
-		$log->debug("Entering get_invoices(".$id.") method ...");
+		global $singlepane_view;
 		require_once('modules/Invoice/Invoice.php');
 
 		$focus = new Invoice();
@@ -271,7 +262,6 @@ class SalesOrder extends CRMEntity {
 			left join vtiger_groups on vtiger_groups.groupid=vtiger_crmentity.smownerid
 			where vtiger_crmentity.deleted=0 and vtiger_salesorder.salesorderid=".$id;
 
-		$log->debug("Exiting get_invoices method ...");
 		return GetRelatedList('SalesOrder','Invoice',$focus,$query,$button,$returnset);
 
 	}
@@ -282,9 +272,6 @@ class SalesOrder extends CRMEntity {
 	 */
 	function get_sostatushistory($id)
 	{
-		global $log;
-		$log->debug("Entering get_sostatushistory(".$id.") method ...");
-
 		global $adb;
 		global $mod_strings;
 		global $app_strings;
@@ -330,8 +317,6 @@ class SalesOrder extends CRMEntity {
 		}
 
 		$return_data = Array('header'=>$header,'entries'=>$entries_list);
-
-	 	$log->debug("Exiting get_sostatushistory method ...");
 
 		return $return_data;
 	}
@@ -434,7 +419,6 @@ class SalesOrder extends CRMEntity {
 
 	// Function to unlink an entity with given Id from another entity
 	function unlinkRelationship($id, $return_module, $return_id) {
-		global $log;
 		if(empty($return_module) || empty($return_id)) return;
 
 		if($return_module == 'Accounts') {
@@ -516,9 +500,7 @@ class SalesOrder extends CRMEntity {
 	*/
 	function create_export_query($where)
 	{
-		global $log;
 		global $current_user;
-		$log->debug("Entering create_export_query(".$where.") method ...");
 
 		include("include/utils/ExportUtils.php");
 
@@ -553,8 +535,6 @@ class SalesOrder extends CRMEntity {
 		} else {
 			$query .= " where ".$where_auto;
 		}
-
-		$log->debug("Exiting create_export_query method ...");
 		return $query;
 	}
 

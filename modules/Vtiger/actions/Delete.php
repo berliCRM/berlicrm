@@ -10,7 +10,7 @@
 
 class Vtiger_Delete_Action extends Vtiger_Action_Controller {
 
-	function checkPermission(Vtiger_Request $request) {
+	function checkPermission(Vtiger_Request $request): bool{
 		$moduleName = $request->getModule();
 		$record = $request->get('record');
 
@@ -18,9 +18,10 @@ class Vtiger_Delete_Action extends Vtiger_Action_Controller {
 		if(!$currentUserPrivilegesModel->isPermitted($moduleName, 'Delete', $record)) {
 			throw new AppException(vtranslate('LBL_PERMISSION_DENIED'));
 		}
+		return true;
 	}
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request): void{
 		$moduleName = $request->getModule();
 		$recordId = $request->get('record');
 		$ajaxDelete = $request->get('ajaxDelete');
@@ -34,13 +35,14 @@ class Vtiger_Delete_Action extends Vtiger_Action_Controller {
 		if($ajaxDelete) {
 			$response = new Vtiger_Response();
 			$response->setResult($listViewUrl);
-			return $response;
+			$response->emit();
 		} else {
 			header("Location: $listViewUrl");
 		}
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
-            $request->validateWriteAccess(); 
-        } 
+	public function validateRequest(Vtiger_Request $request):bool { 
+		return $request->validateWriteAccess();
+	}
 }
+?>

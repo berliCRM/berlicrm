@@ -78,22 +78,22 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
             } else {
                 $this->set('next_trigger_time', date('Y-m-d H:i:s', strtotime('+10 year')));
             }
-			$schdate = Zend_Json::encode(array($dateDBFormat));
+			$schdate = json_encode(array($dateDBFormat));
 		} else if ($scheduleid == self::$SCHEDULED_WEEKLY) {
-			$schdayoftheweek = Zend_Json::encode($this->get('schdayoftheweek'));
+			$schdayoftheweek = json_encode($this->get('schdayoftheweek'));
             $this->set('schdayoftheweek', $schdayoftheweek);
 		} else if ($scheduleid == self::$SCHEDULED_MONTHLY_BY_DATE) {
-			$schdayofthemonth = Zend_Json::encode($this->get('schdayofthemonth'));
+			$schdayofthemonth = json_encode($this->get('schdayofthemonth'));
             $this->set('schdayofthemonth', $schdayofthemonth);
 		} else if ($scheduleid == self::$SCHEDULED_ANNUALLY) {
-			$schannualdates = Zend_Json::encode($this->get('schannualdates'));
+			$schannualdates = json_encode($this->get('schannualdates'));
             $this->set('schannualdates', $schannualdates);
 		}
 
-		$recipients = Zend_Json::encode($this->get('recipients'));
+		$recipients = json_encode($this->get('recipients'));
 		$attfolderid = $this->get('attfolderid');
 		$savetype = $this->get('savetype');
-		$specificemails = "";
+		$specificemails = json_encode($this->get('specificemails'));
 		$isReportScheduled = $this->get('isReportScheduled');
 
 		if ($this->get('specificemails') != 'false') {
@@ -123,7 +123,7 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 
 		if (!empty($recipientsInfo)) {
 			$recipients = array();
-			$recipientsInfo = Zend_Json::decode($recipientsInfo);
+			$recipientsInfo = json_decode($recipientsInfo);
 			foreach ($recipientsInfo as $key => $recipient) {
 				if (strpos($recipient,'USER') !== false) {
 					$id = explode('::', $recipient);
@@ -175,7 +175,7 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		}
 		}
 		//Added for specific email address.
-		$specificemails = Zend_Json::decode($this->get('specificemails'));
+		$specificemails = json_decode($this->get('specificemails'));
 		if (!empty($specificemails)) {
 			$recipientsEmails = array_merge($recipientsEmails, explode(',', $specificemails));
 		}

@@ -32,6 +32,8 @@ $languageStrings = array(
 	'LBL_GDPR_RELEVANT' => 'enthält personenbezogene Daten?',
 	'LBL_ACTIVATED_DELETE_ACTION' => 'automatisches Löschen von',
 	'LBL_GDPR_RELEVANT_FIELDS' => 'Felder mit personenbezogenen Daten',
+
+	'LBL_GRDPR_SETUP_DESCRIPTION' => 'DSGVO-Einstellungen zu Einwilligung, Aufbewahrung und Löschung verwalten',
     
 	// 'LBL_ACTIVATED' => 'automatisches Löschen aktivieren?',
 	// 'LBL_DELETE_ACTION' => 'Löschen von',

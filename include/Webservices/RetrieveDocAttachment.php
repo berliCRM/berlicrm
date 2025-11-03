@@ -15,11 +15,9 @@
 *************************************************************************************************/
 
 function berli_retrievedocattachment($all_ids, $returnfile, $user) {
-	global $log;
 	$db = PearDatabase::getInstance();
 	$entities=array();
 	$docWSId=berli_getWSEntityId('Documents');
-	$log->debug("Entering function vtws_retrievedocattachment");
         $all_ids="(".str_replace($docWSId,'',$all_ids).")";
         $query = "SELECT n.notesid, n.filename, n.filelocationtype
                   FROM vtiger_notes n
@@ -35,7 +33,7 @@ function berli_retrievedocattachment($all_ids, $returnfile, $user) {
 		
 		require_once $handlerPath;
 
-		$handler = new $handlerClass($webserviceObject,$user,$db,$log);
+		$handler = new $handlerClass($webserviceObject,$user,$db);
 		$meta = $handler->getMeta();
 		$entityName = $meta->getObjectEntityName($id);
 		$types = vtws_listtypes(null, $user);
@@ -74,14 +72,11 @@ function berli_retrievedocattachment($all_ids, $returnfile, $user) {
 		$entities[$id]=$entity;
 		VTWS_PreserveGlobal::flush();
     } 
-	$log->debug("Leaving function vtws_retrievedocattachment");
 	return $entities;
 }
 
 
 function vtws_retrievedocattachment_get_attachment($fileid,$nr=false,$returnfile=true,$base64encode = true) {
-	global $log;
-	$log->debug("Entering function vtws_retrievedocattachment_get_attachment($fileid)");
 	$db = PearDatabase::getInstance();
 	
 	$recordpdf=array();
@@ -103,7 +98,6 @@ function vtws_retrievedocattachment_get_attachment($fileid,$nr=false,$returnfile
 
 		$filesize = filesize($filepath.$saved_filename);
 		if(!fopen($filepath.$saved_filename, "r")) {
-			$log->debug('unable to open file');
 			return array();
 			throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED,"Unable to open file $saved_filename. Object is denied");
 		}
@@ -111,7 +105,6 @@ function vtws_retrievedocattachment_get_attachment($fileid,$nr=false,$returnfile
 			$fileContent = $returnfile ? fread(fopen($filepath.$saved_filename, "r"), $filesize) : '';
 		}
 		if($fileContent != '')	{
-			$log->debug('Updating download count');
 			$sql="update vtiger_notes set filedownloadcount=filedownloadcount+1 where notesid= ?";
 			$res=$db->pquery($sql,array($fileid));
 		}
@@ -127,7 +120,6 @@ function vtws_retrievedocattachment_get_attachment($fileid,$nr=false,$returnfile
 		}
 	}
 	
-	$log->debug("Leaving function vtws_retrievedocattachment_get_attachment($fileid)");
     return $recordpdf;
 }
 

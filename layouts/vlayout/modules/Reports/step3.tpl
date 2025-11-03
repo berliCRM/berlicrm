@@ -18,7 +18,7 @@
 		<input type="hidden" name="reportfolderid" value="{$REPORT_MODEL->get('reportfolderid')}" />
 		<input type="hidden" name="reports_description" value="{$REPORT_MODEL->get('description')}" />
 		<input type="hidden" name="primary_module" value="{$PRIMARY_MODULE}" />
-		<input type="hidden" name="secondary_modules" value={ZEND_JSON::encode($SECONDARY_MODULES)} />
+		<input type="hidden" name="secondary_modules" value={json_encode($SECONDARY_MODULES)} />
 		<input type="hidden" name="selected_fields" id="seleted_fields" value='{$REPORT_MODEL->get('selected_fields')}' />
 		<input type="hidden" name="selected_sort_fields" id="selected_sort_fields" value={$REPORT_MODEL->get('selected_sort_fields')} />
 		<input type="hidden" name="selected_calculation_fields" id="calculation_fields" value={$REPORT_MODEL->get('calculation_fields')} />
@@ -28,16 +28,16 @@
 		<input type="hidden" name="enable_schedule" value="{$REPORT_MODEL->get('enable_schedule')}">
 		<input type="hidden" name="schtime" value="{$REPORT_MODEL->get('schtime')}">
 		<input type="hidden" name="schdate" value="{$REPORT_MODEL->get('schdate')}">
-		<input type="hidden" name="schdayoftheweek" value={ZEND_JSON::encode($REPORT_MODEL->get('schdayoftheweek'))}>
-		<input type="hidden" name="schdayofthemonth" value={ZEND_JSON::encode($REPORT_MODEL->get('schdayofthemonth'))}>
-		<input type="hidden" name="schannualdates" value={ZEND_JSON::encode($REPORT_MODEL->get('schannualdates'))}>
-		<input type="hidden" name="recipients" value={ZEND_JSON::encode($REPORT_MODEL->get('recipients'))}>
-        <input type="hidden" name="specificemails" value={ZEND_JSON::encode($REPORT_MODEL->get('specificemails'))}>
+		<input type="hidden" name="schdayoftheweek" value={json_encode($REPORT_MODEL->get('schdayoftheweek'))}>
+		<input type="hidden" name="schdayofthemonth" value={json_encode($REPORT_MODEL->get('schdayofthemonth'))}>
+		<input type="hidden" name="schannualdates" value={json_encode($REPORT_MODEL->get('schannualdates'))}>
+		<input type="hidden" name="recipients" value={json_encode($REPORT_MODEL->get('recipients'))}>
+        <input type="hidden" name="specificemails" value={json_encode($REPORT_MODEL->get('specificemails'))}>
 		<input type="hidden" name="schtypeid" value="{$REPORT_MODEL->get('schtypeid')}">
 		<input type="hidden" name="attfolderid" value="{$REPORT_MODEL->get('attfolderid')}">
 		<input type="hidden" name="savetype" value="{$REPORT_MODEL->get('savetype')}" />
 
-        <input type="hidden" name="date_filters" data-value='{Vtiger_Util_Helper::toSafeHTML(ZEND_JSON::encode($DATE_FILTERS))}' />
+        <input type="hidden" name="date_filters" data-value='{Vtiger_Util_Helper::toSafeHTML(json_encode($DATE_FILTERS))}' />
 		{assign var=RECORD_STRUCTURE value=array()}
 		{assign var=PRIMARY_MODULE_LABEL value=vtranslate($PRIMARY_MODULE, $PRIMARY_MODULE)}
 		{foreach key=BLOCK_LABEL item=BLOCK_FIELDS from=$PRIMARY_MODULE_RECORD_STRUCTURE}

@@ -125,13 +125,11 @@ class crmtogo_Index_Controller {
 }
 
 /** Take care of stripping the slashes */
-function stripslashes_recursive($value) {
-       $value = is_array($value) ? array_map('stripslashes_recursive', $value) : stripslashes($value);
-       return $value;
-}
-if (get_magic_quotes_gpc()) {
-    //$_GET     = stripslashes_recursive($_GET   );
-    //$_POST    = stripslashes_recursive($_POST  );
+if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
+    function stripslashes_recursive($value) {
+        $result = is_array($value) ? array_map('stripslashes_recursive', $value) : stripslashes($value);
+        return $result;
+    }
     $_REQUEST = stripslashes_recursive($_REQUEST);
 }
 /** END **/

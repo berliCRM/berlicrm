@@ -24,12 +24,6 @@ function stripslashes_checkstrings($value){
 	return $value;
 }
 
-if(get_magic_quotes_gpc() == 1){
-	$_REQUEST = array_map("stripslashes_checkstrings", $_REQUEST);
-	$_POST = array_map("stripslashes_checkstrings", $_POST);
-	$_GET = array_map("stripslashes_checkstrings", $_GET);
-}
-
 include("include.php");
 include("version.php");
 if($_REQUEST){

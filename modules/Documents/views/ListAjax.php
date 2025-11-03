@@ -15,15 +15,13 @@ class Documents_ListAjax_View extends Documents_List_View {
 		$this->exposeMethod('getPageCount');
 	}
 
-	function preProcess(Vtiger_Request $request, $display=false) {
-		return true;
+	function preProcess(Vtiger_Request $request, $display=false):void {
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return true;
+	function postProcess(Vtiger_Request $request):void {
 	}
 
-	function process(Vtiger_Request $request) {
+	function process(Vtiger_Request $request):void {
 		$mode = $request->get('mode');
 		if(!empty($mode)) {
 			$this->invokeExposedMethod($mode, $request);

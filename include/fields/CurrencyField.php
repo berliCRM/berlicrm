@@ -202,7 +202,7 @@ class CurrencyField {
         $currencySeparator = $this->currencySeparator;
         $decimalSeparator  = $this->decimalSeparator;
         $currencyDecimalPlaces = $this->numberOfDecimal;
-        $value = number_format($value, $currencyDecimalPlaces,'.','');
+        $value = number_format((float) $value, (int) $currencyDecimalPlaces,'.','');
         if(empty($currencySeparator)) $currencySeparator = ' ';
         if(empty($decimalSeparator)) $decimalSeparator = ' ';
         

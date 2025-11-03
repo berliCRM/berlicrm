@@ -10,7 +10,6 @@
 
 abstract class WebserviceEntityOperation{
 	protected $user;
-	protected $log;
 	protected $webserviceObject;
 	protected $meta;
 	/**
@@ -21,9 +20,8 @@ abstract class WebserviceEntityOperation{
 	
 	protected static $metaCache = array();
 	
-	protected function __construct($webserviceObject,$user,$adb,$log){
+	protected function __construct($webserviceObject,$user,$adb){
 		$this->user = $user;
-		$this->log = $log;
 		$this->webserviceObject = $webserviceObject;
 		$this->pearDB = $adb;
 	}

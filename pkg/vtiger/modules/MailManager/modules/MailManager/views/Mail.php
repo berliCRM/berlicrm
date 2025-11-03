@@ -14,7 +14,7 @@ include_once 'vtlib/Vtiger/Version.php';
 
 class MailManager_Mail_View extends MailManager_Abstract_View {
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$db = PearDatabase::getInstance();
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$moduleName = $request->getModule();
@@ -224,7 +224,8 @@ class MailManager_Mail_View extends MailManager_Abstract_View {
 			$attachmentName = $request->get('_atname');
 			$attachmentName= str_replace(' ', '_', $attachmentName);
 
-			if (MailManager_Utils_Helper::allowedFileExtension($attachmentName)) {
+			$fileChecker = new MailManager_Utils_Helper;
+			if ($fileChecker->allowedFileExtension($attachmentName)) {
 				// This is to handle larger uploads
 				$memory_limit = MailManager_Config_Model::get('MEMORY_LIMIT');
 				ini_set('memory_limit', $memory_limit);
@@ -317,10 +318,10 @@ class MailManager_Mail_View extends MailManager_Abstract_View {
 			$response->isJson(true);
 			$response->setResult(array('attachments'=>$attachmentInfo, 'emailid'=>$draftId));
 		}
-		return $response;
+		$response->emit();
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
+        public function validateRequest(Vtiger_Request $request):bool { 
             return $request->validateReadAccess(); 
         } 
 }

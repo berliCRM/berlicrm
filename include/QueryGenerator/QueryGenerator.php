@@ -1352,7 +1352,7 @@ class QueryGenerator {
 	}
 
 	public function addUserSearchConditions($input) {
-		global $log,$default_charset;
+		global $default_charset;
 		if($input['searchtype']=='advance') {
 
 			$json = new Zend_Json();

@@ -7,8 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-require_once 'libraries/tcpdf/config/lang/eng.php';
-require_once 'libraries/tcpdf/tcpdf.php';
+require_once 'vendor/autoload.php';
 
 class Vtiger_PDF_TCPDF extends TCPDF {
 

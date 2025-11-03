@@ -154,10 +154,14 @@ class Vtiger_PackageExport
 			$zip->copyDirectoryFromDisk("layouts/vlayout/modules/$module", "templates");
 		}
 		//Copy module Icon files
-		if (file_exists("layouts/vlayout/skins/images/" . $module . ".png")) {
-			$zip->copyFileFromDisk("layouts/vlayout/skins/images/", "layouts/vlayout/skins/images/", $module . ".png");
-		} else {
-			$zip->copyFileFromDisk("layouts/vlayout/skins/images/", "layouts/vlayout/skins/images/", "DefaultModule.png");
+		if(file_exists("layouts/vlayout/skins/images/".$module.".png")) {
+			$zip->copyFileFromDisk ("layouts/vlayout/skins/images/","layouts/vlayout/skins/images/",$module.".png");		
+		}
+		elseif(file_exists("layouts/vlayout/skins/images/$module.png")) {
+			$zip->copyFileFromDisk ("layouts/vlayout/skins/images/","layouts/vlayout/skins/images/","summary_".$module.".png");
+		}
+		else{ 
+			$zip->copyFileFromDisk ("layouts/vlayout/skins/images/","layouts/vlayout/skins/images/","DefaultModule.png");
 		}
 		if (file_exists("layouts/vlayout/skins/images/summary_" . $module . ".png")) {
 			$zip->copyFileFromDisk("layouts/vlayout/skins/images/", "layouts/vlayout/skins/images/", "summary_" . $module . ".png");

@@ -10,7 +10,7 @@
 
 Class Settings_Roles_Edit_View extends Settings_Roles_Index_View {
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request): void{
 		$viewer = $this->getViewer ($request);
 		$moduleName = $request->getModule();
 		$qualifiedModuleName = $request->getModule(false);

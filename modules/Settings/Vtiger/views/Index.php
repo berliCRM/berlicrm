@@ -64,7 +64,7 @@ class Settings_Vtiger_Index_View extends Vtiger_Basic_View {
 		return '../index.php?' . $params;
 	}
 
-	public function preProcess (Vtiger_Request $request, $display=false) {
+	public function preProcess (Vtiger_Request $request, bool $display=false): void {
 		parent::preProcess($request, $display);
 		$this->preProcessSettings($request);
 	}
@@ -120,7 +120,7 @@ class Settings_Vtiger_Index_View extends Vtiger_Basic_View {
 		$viewer->view('SettingsMenuEnd.tpl', $qualifiedModuleName);
 	}
 
-	public function postProcess (Vtiger_Request $request) {
+	public function postProcess (Vtiger_Request $request): void {
 		$this->postProcessSettings($request);
 		parent::postProcess($request);
 	}
@@ -152,7 +152,7 @@ class Settings_Vtiger_Index_View extends Vtiger_Basic_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request): array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 
@@ -185,7 +185,7 @@ class Settings_Vtiger_Index_View extends Vtiger_Basic_View {
 		return false;
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
-            $request->validateReadAccess(); 
+        public function validateRequest(Vtiger_Request $request): bool {
+            return $request->validateReadAccess();
         }
 }

@@ -27,7 +27,7 @@ Class CustomReportUtils {
 	}
 
 	public static function getReportChart($reportid, $chartType) {
-		global $log, $adb;
+		global $adb;
 		$oReportRun = ReportRun::getInstance($reportid);
 		$groupBy = $oReportRun->getGroupingList($reportid);
 		foreach ($groupBy as $key => $value) {
@@ -173,7 +173,6 @@ Class CustomReportUtils {
 	}
 
 	public static function getXAxisDateFieldValue($dateFieldValue, $criteria) {
-		global $log;
 		$timeStamp = strtotime($dateFieldValue);
 		$year = date('Y', $timeStamp);
 		$month = date('m', $timeStamp);

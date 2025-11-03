@@ -13,12 +13,12 @@ class Users_ListAjax_Action extends Vtiger_BasicAjax_Action{
 		parent::__construct();
 	}
 
-	function preProcess(Vtiger_Request $request) {
-		return true;
+	function preProcess(Vtiger_Request $request): void {
+		return;
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return true;
+	function postProcess(Vtiger_Request $request): void {
+		return;
 	}
 
 	function process(Vtiger_Request $request) {
@@ -28,4 +28,4 @@ class Users_ListAjax_Action extends Vtiger_BasicAjax_Action{
 			return;
 		}
 	}
-		}
+}

@@ -132,6 +132,5 @@ class Calendar_CalendarUserActions_Action extends Vtiger_Action_Controller{
 		$response->setResult(array('success' => true));
 		$response->emit();
 	}
-	
-
 }
+?>

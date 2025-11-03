@@ -26,7 +26,7 @@ class VTEmailTask extends VTTask{
 		$admin = $util->adminUser();
 		$module = $entity->getModuleName();
 
-		$taskContents = Zend_Json::decode($this->getContents($entity));
+		$taskContents = json_decode($this->getContents($entity), true);
 		$from_email	= $taskContents['fromEmail'];
 		$from_name	= $taskContents['fromName'];
 		$to_email	= $taskContents['toEmail'];
@@ -190,7 +190,7 @@ class VTEmailTask extends VTTask{
             $utils->revertUser();
 		}
 		if(is_array($this->contents)) {
-			$this->contents = Zend_Json::encode($this->contents);
+			$this->contents = json_encode($this->contents);
 		}
 		return $this->contents;
 	}

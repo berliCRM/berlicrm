@@ -42,9 +42,6 @@ $userid = getPortalUserid();
 $user = new Users();
 $current_user = $user->retrieveCurrentUserInfoFromFile($userid);
 
-
-$log = LoggerManager::getLogger('customerportal');
-
 error_reporting(0);
 
 $NAMESPACE = 'http://www.vtiger.com/products/crm';
@@ -397,9 +394,7 @@ class Vtiger_Soap_CustomerPortal {
 */
 function get_ticket_comments($input_array)
 {
-	global $adb,$log,$current_user;
-	$adb->println("Entering customer portal function get_ticket_comments");
-	$adb->println($input_array);
+	global $adb,$current_user;
 
 	$id = $input_array['id'];
 	$sessionid = $input_array['sessionid'];
@@ -458,9 +453,7 @@ function _getTicketModComments($ticketId) {
 	*/
 function get_combo_values($input_array)
 {
-	global $adb,$log;
-	$adb->println("Entering customer portal function get_combo_values");
-	$adb->println($input_array);
+	global $adb;
 
 	$id = $input_array['id'];
 	$sessionid = $input_array['sessionid'];
@@ -552,9 +545,7 @@ function get_combo_values($input_array)
 	*/
 function get_KBase_details($input_array)
 {
-	global $adb,$log;
-	$adb->println("Entering customer portal function get_KBase_details");
-	$adb->println($input_array);
+	global $adb;
 
 	$id = $input_array['id'];
 	$sessionid = $input_array['sessionid'];
@@ -630,7 +621,6 @@ function get_KBase_details($input_array)
 			}
 		}
 	}
-	$adb->println($result);
 	return $result;
 }
 
@@ -645,8 +635,6 @@ function get_KBase_details($input_array)
 function save_faq_comment($input_array)
 {
 	global $adb;
-	$adb->println("Entering customer portal function save_faq_comment");
-	$adb->println($input_array);
 
 	$id = $input_array['id'];
 	$sessionid = $input_array['sessionid'];
@@ -696,9 +684,8 @@ function get_tickets_list($input_array) {
 	require_once('modules/HelpDesk/HelpDesk.php');
 	require_once('include/utils/UserInfoUtil.php');
 
-	global $adb,$log;
+	global $adb;
 	global $current_user;
-	$log->debug("Entering customer portal function get_ticket_list");
 
 	$user = new Users();
 	$userid = getPortalUserid();
@@ -812,7 +799,6 @@ function get_tickets_list($input_array) {
 			$i++;
 		}
 	}
-	$log->debug("Exiting customer portal function get_ticket_list");
 	return $output;
 }
 
@@ -833,9 +819,7 @@ function get_tickets_list($input_array) {
 	*/
 function create_ticket($input_array)
 {
-	global $adb,$log;
-	$adb->println("Inside customer portal function create_ticket");
-	$adb->println($input_array);
+	global $adb;
 
 	$id = $input_array['id'];
 	$sessionid = $input_array['sessionid'];
@@ -896,12 +880,10 @@ function create_ticket($input_array)
 	}
 	if($record_save == 1)
 	{
-		$adb->println("Ticket from Portal is saved with id => ".$ticket->id);
 		return $record_array;
 	}
 	else
 	{
-		$adb->println("There may be error in saving the ticket.");
 		return null;
 	}
 }
@@ -919,8 +901,6 @@ function update_ticket_comment($input_array)
 {
 	global $adb,$mod_strings,$current_language; 
         $mod_strings = return_module_language($current_language, 'HelpDesk');
-	$adb->println("Inside customer portal function update_ticket_comment");
-	$adb->println($input_array);
 
 	$id = $input_array['id'];
 	$sessionid = $input_array['sessionid'];
@@ -955,10 +935,8 @@ function update_ticket_comment($input_array)
 	*/
 function close_current_ticket($input_array)
 {
-	global $adb,$mod_strings,$log,$current_user;
+	global $adb,$mod_strings,$current_user;
 	require_once('modules/HelpDesk/HelpDesk.php');
-	$adb->println("Inside customer portal function close_current_ticket");
-	$adb->println($input_array);
 
 	//foreach($input_array as $fieldname => $fieldvalue)$input_array[$fieldname] = mysql_real_escape_string($fieldvalue);
 	$userid = getPortalUserid();
@@ -993,8 +971,7 @@ function close_current_ticket($input_array)
  */
 function authenticate_user($username,$password,$version,$login = 'true')
 {
-	global $adb,$log;
-	$adb->println("Inside customer portal function authenticate_user($username, $password, $login).");
+	global $adb;
 	include('vtigerversion.php');
 	if(version_compare($version,'5.1.0','>=') == 0){
 		$list[0] = "NOT COMPATIBLE";
@@ -1065,9 +1042,7 @@ function authenticate_user($username,$password,$version,$login = 'true')
 	*/
 function change_password($input_array)
 {
-	global $adb,$log;
-	$log->debug("Entering customer portal function change_password");
-	$adb->println($input_array);
+	global $adb;
 
 	$id = (int) $input_array['id'];
 	$sessionid = $input_array['sessionid'];
@@ -1085,7 +1060,6 @@ function change_password($input_array)
 	$sql = "update vtiger_portalinfo set user_password=?, cryptmode=? where id=? and user_name=?";
 	$result = $adb->pquery($sql, array(Vtiger_Functions::generateEncryptedPassword($password), 'CRYPT', $id, $username));
 
-	$log->debug("Exiting customer portal function change_password");
 	return $list;
 }
 
@@ -1098,10 +1072,7 @@ function change_password($input_array)
 	*/
 function update_login_details($input_array)
 {
-	global $adb,$log;
-	$log->debug("Entering customer portal function update_login_details");
-	$adb->println("INPUT ARRAY for the function update_login_details");
-	$adb->println($input_array);
+	global $adb;
 
 	$id = $input_array['id'];
 	$sessionid = $input_array['sessionid'];
@@ -1122,7 +1093,6 @@ function update_login_details($input_array)
 		$sql = "update vtiger_portalinfo set logout_time=?, last_login_time=login_time where id=?";
 		$result = $adb->pquery($sql, array($current_time, $id));
 	}
-	$log->debug("Exiting customer portal function update_login_details");
 }
 
 /**	function used to send mail to the customer when he forgot the password and want to retrieve the password
@@ -1131,9 +1101,7 @@ function update_login_details($input_array)
  */
 function send_mail_for_password($mailid)
 {
-	global $adb,$mod_strings,$log;
-	$log->debug("Entering customer portal function send_mail_for_password");
-	$adb->println("Inside the function send_mail_for_password($mailid).");
+	global $adb,$mod_strings;
 
 	$sql = "select * from vtiger_portalinfo  where user_name = ? ";
 	$res = $adb->pquery($sql, array($mailid));
@@ -1209,8 +1177,6 @@ function send_mail_for_password($mailid)
 		$ret_msg = "true@@@<b>".$mod_strings['LBL_MAIL_SENT']."</b>";
 	}
 
-	$adb->println("Exit from send_mail_for_password. $ret_msg");
-	$log->debug("Exiting customer portal function send_mail_for_password");
 	return $ret_msg;
 }
 
@@ -1223,10 +1189,7 @@ function send_mail_for_password($mailid)
 	*/
 function get_ticket_creator($input_array)
 {
-	global $adb,$log;
-	$log->debug("Entering customer portal function get_ticket_creator");
-	$adb->println("INPUT ARRAY for the function get_ticket_creator");
-	$adb->println($input_array);
+	global $adb;
 
 	$id = $input_array['id'];
 	$sessionid = $input_array['sessionid'];
@@ -1237,7 +1200,6 @@ function get_ticket_creator($input_array)
 
 	$res = $adb->pquery("select smcreatorid from vtiger_crmentity where crmid=?", array($ticketid));
 	$creator = $adb->query_result($res,0,'smcreatorid');
-	$log->debug("Exiting customer portal function get_ticket_creator");
 	return $creator;
 }
 
@@ -1250,10 +1212,7 @@ function get_ticket_creator($input_array)
 	*/
 function get_picklists($input_array)
 {
-	global $adb, $log;
-	$log->debug("Entering customer portal function get_picklists");
-	$adb->println("INPUT ARRAY for the function get_picklists");
-	$adb->println($input_array);
+	global $adb;
 
 	//To avoid SQL injection we are type casting as well as bound the id variable
 	$id = (int) vtlib_purify($input_array['id']);
@@ -1282,8 +1241,7 @@ function get_picklists($input_array)
 		$picklist_array[$i] = $picklist_val;
 	}
 
-	$adb->println($picklist_array);
-	$log->debug("Exiting customer portal function get_picklists($picklist_name)");
+	($picklist_array);
 	return $picklist_array;
 }
 
@@ -1296,10 +1254,7 @@ function get_picklists($input_array)
 	*/
 function get_ticket_attachments($input_array)
 {
-	global $adb,$log;
-	$log->debug("Entering customer portal function get_ticket_attachments");
-	$adb->println("INPUT ARRAY for the function get_ticket_attachments");
-	$adb->println($input_array);
+	global $adb;
 
 	$check = checkModuleActive('Documents');
 	if($check == false){
@@ -1346,7 +1301,6 @@ function get_ticket_attachments($input_array)
 		$output[$i]['filesize'] = $filesize;
 		$output[$i]['filelocationtype'] = $filelocationtype;
 	}
-	$log->debug("Exiting customer portal function get_ticket_attachments");
 	return $output;
 }
 
@@ -1360,10 +1314,7 @@ function get_ticket_attachments($input_array)
 	*/
 function get_filecontent($input_array)
 {
-	global $adb,$log;
-	$log->debug("Entering customer portal function get_filecontent");
-	$adb->println("INPUT ARRAY for the function get_filecontent");
-	$adb->println($input_array);
+	global $adb;
 	$id = $input_array['id'];
 	$sessionid = $input_array['sessionid'];
 	$fileid = $input_array['fileid'];
@@ -1384,7 +1335,6 @@ function get_filecontent($input_array)
 		$filenamewithpath = $adb->query_result($res,0,'path').$fileid."_".$filename;
 		$filecontents[$fileid] = base64_encode(file_get_contents($filenamewithpath));
 	}
-	$log->debug("Exiting customer portal function get_filecontent ");
 	return $filecontents;
 }
 
@@ -1401,11 +1351,8 @@ function get_filecontent($input_array)
 	*/
 function add_ticket_attachment($input_array)
 {
-	global $adb,$log;
+	global $adb;
 	global $root_directory, $upload_badext;
-	$log->debug("Entering customer portal function add_ticket_attachment");
-	$adb->println("INPUT ARRAY for the function add_ticket_attachment");
-	$adb->println($input_array);
 	$id = $input_array['id'];
 	$sessionid = $input_array['sessionid'];
 	$ticketid = $input_array['ticketid'];
@@ -1467,7 +1414,6 @@ function add_ticket_attachment($input_array)
 
 	$tic_doc = 'insert into vtiger_senotesrel values(?,?)';
 	$res = $adb->pquery($tic_doc,array($ticketid,$focus->id));
-	$log->debug("Exiting customer portal function add_ticket_attachment");
 }
 
 /**	Function used to validate the session
@@ -1478,19 +1424,16 @@ function add_ticket_attachment($input_array)
 function validateSession($id, $sessionid)
 {
 	global $adb;
-	$adb->println("Inside function validateSession($id, $sessionid)");
+	("Inside function validateSession($id, $sessionid)");
 
 	if(empty($sessionid)) return false;
 
 	$server_sessionid = getServerSessionId($id);
 
-	$adb->println("Checking Server session id and customer input session id ==> $server_sessionid == $sessionid");
 
 	if($server_sessionid == $sessionid) {
-		$adb->println("Session id match. Authenticated to do the current operation.");
 		return true;
 	} else {
-		$adb->println("Session id does not match. Not authenticated to do the current operation.");
 		return false;
 	}
 }
@@ -1503,7 +1446,6 @@ function validateSession($id, $sessionid)
 function getServerSessionId($id)
 {
 	global $adb;
-	$adb->println("Inside the function getServerSessionId($id)");
 
 	//To avoid SQL injection we are type casting as well as bound the id variable. In each and every function we will call this function
 	$id = (int) $id;
@@ -1525,15 +1467,12 @@ function getServerSessionId($id)
  **/
 function unsetServerSessionId($id)
 {
-	global $adb,$log;
-	$log->debug("Entering customer portal function unsetServerSessionId");
-	$adb->println("Inside the function unsetServerSessionId");
+	global $adb;
 
 	$id = (int) $id;
 	Vtiger_Soap_CustomerPortal::updateSessionId($id, false);
 
 	$adb->pquery("delete from vtiger_soapservice where type='customer' and id=?", array($id));
-	$log->debug("Exiting customer portal function unsetServerSessionId");
 	return;
 }
 
@@ -1544,11 +1483,9 @@ function unsetServerSessionId($id)
  */
 function get_account_name($accountid)
 {
-	global $adb,$log;
-	$log->debug("Entering customer portal function get_account_name");
+	global $adb;
 	$res = $adb->pquery("select accountname from vtiger_account where accountid=?", array($accountid));
 	$accountname=$adb->query_result($res,0,'accountname');
-	$log->debug("Exiting customer portal function get_account_name");
 	return $accountname;
 }
 
@@ -1558,8 +1495,7 @@ function get_account_name($accountid)
  */
 function get_contact_name($contactid)
 {
-	global $adb,$log;
-	$log->debug("Entering customer portal function get_contact_name");
+	global $adb;
 	$contact_name = '';
 	if($contactid != '')
 	{
@@ -1570,7 +1506,6 @@ function get_contact_name($contactid)
 		$contact_name = $firstname." ".$lastname;
 		return $contact_name;
 	}
-	$log->debug("Exiting customer portal function get_contact_name");
 	return false;
 }
 
@@ -1581,11 +1516,9 @@ function get_contact_name($contactid)
 
 function get_check_account_id($id)
 {
-	global $adb,$log;
-	$log->debug("Entering customer portal function get_check_account_id");
+	global $adb;
 	$res = $adb->pquery("select accountid from vtiger_contactdetails where contactid=?", array($id));
 	$accountid=$adb->query_result($res,0,'accountid');
-	$log->debug("Entering customer portal function get_check_account_id");
 	return $accountid;
 }
 
@@ -1597,11 +1530,9 @@ function get_check_account_id($id)
 
 function get_vendor_name($vendorid)
 {
-	global $adb,$log;
-	$log->debug("Entering customer portal function get_vendor_name");
+	global $adb;
 	$res = $adb->pquery("select vendorname from vtiger_vendor where vendorid=?", array($vendorid));
 	$name=$adb->query_result($res,0,'vendorname');
-	$log->debug("Exiting customer portal function get_vendor_name");
 	return $name;
 }
 
@@ -1616,8 +1547,7 @@ function get_list_values($id,$module,$sessionid,$only_mine='true')
 	checkFileAccessForInclusion('modules/'.$module.'/'.$module.'.php');
 	require_once('modules/'.$module.'/'.$module.'.php');
 	require_once('include/utils/UserInfoUtil.php');
-	global $adb,$log,$current_user;
-	$log->debug("Entering customer portal function get_list_values");
+	global $adb,$current_user;
 	$check = checkModuleActive($module);
 	if($check == false){
 		return array("#MODULE INACTIVE#");
@@ -1885,7 +1815,6 @@ function get_list_values($id,$module,$sessionid,$only_mine='true')
 			$i++;
 		}
 	}
-	$log->debug("Exiting customer portal function get_list_values");
 	return $output;
 
 }
@@ -1897,9 +1826,8 @@ function get_list_values($id,$module,$sessionid,$only_mine='true')
  */
 function get_filecontent_detail($id,$folderid,$module,$customerid,$sessionid)
 {
-	global $adb,$log;
+	global $adb;
 	global $site_URL;
-	$log->debug("Entering customer portal function get_filecontent_detail ");
 	$isPermitted = check_permission($customerid,$module,$id);
 	if($isPermitted == false) {
 		return array("#NOT AUTHORIZED#");
@@ -1949,7 +1877,6 @@ function get_filecontent_detail($id,$folderid,$module,$customerid,$sessionid)
 	$output[0]['filetype'] = $filetype;
 	$output[0]['filesize'] = $filesize;
 	$output[0]['filecontents']=base64_encode(file_get_contents($filenamewithpath));
-	$log->debug("Exiting customer portal function get_filecontent_detail ");
 	return $output;
 }
 
@@ -1957,10 +1884,8 @@ function get_filecontent_detail($id,$folderid,$module,$customerid,$sessionid)
  *
  */
 function updateCount($id){
-	global $adb,$log;
-	$log->debug("Entering customer portal function updateCount");
+	global $adb;
 	$result = updateDownloadCount($id);
-	$log->debug("Entering customer portal function updateCount");
 	return $result;
 
 }
@@ -1969,11 +1894,9 @@ function updateCount($id){
  * Function to update the download count of a file
  */
 function updateDownloadCount($id){
-	global $adb,$log;
-	$log->debug("Entering customer portal function updateDownloadCount");
+	global $adb;
 	$updateDownloadCount = "UPDATE vtiger_notes SET filedownloadcount = filedownloadcount+1 WHERE notesid = ?";
 	$countres = $adb->pquery($updateDownloadCount,array($id));
-	$log->debug("Entering customer portal function updateDownloadCount");
 	return true;
 }
 
@@ -1985,9 +1908,8 @@ function updateDownloadCount($id){
 function get_pdf($id,$block,$customerid,$sessionid)
 {
 	global $adb;
-	global $current_user,$log,$default_language;
+	global $current_user,$default_language;
 	global $currentModule,$mod_strings,$app_strings,$app_list_strings;
-	$log->debug("Entering customer portal function get_pdf");
 	$isPermitted = check_permission($customerid,$block,$id);
 	if($isPermitted == false) {
 		return array("#NOT AUTHORIZED#");
@@ -2026,7 +1948,6 @@ function get_pdf($id,$block,$customerid,$sessionid)
 	{
 		$filecontents = "failure";
 	}
-	$log->debug("Exiting customer portal function get_pdf");
 	return $filecontents;
 }
 
@@ -2037,11 +1958,9 @@ function get_pdf($id,$block,$customerid,$sessionid)
 
 function get_salesorder_name($id)
 {
-	global $adb,$log;
-	$log->debug("Entering customer portal function get_salesorder_name");
+	global $adb;
 	$res = $adb->pquery(" select subject from vtiger_salesorder where salesorderid=?", array($id));
 	$name=$adb->query_result($res,0,'subject');
-	$log->debug("Exiting customer portal function get_salesorder_name");
 	return $name;
 }
 
@@ -2050,8 +1969,7 @@ function get_invoice_detail($id,$module,$customerid,$sessionid)
 	require_once('include/utils/UserInfoUtil.php');
 	require_once('include/utils/utils.php');
 
-	global $adb,$site_URL,$log,$current_user;
-	$log->debug("Entering customer portal function get_invoice_details $id - $module - $customerid - $sessionid");
+	global $adb,$site_URL,$current_user;
 	$user = new Users();
 	$userid = getPortalUserid();
 	$current_user = $user->retrieveCurrentUserInfoFromFile($userid);
@@ -2125,7 +2043,6 @@ function get_invoice_detail($id,$module,$customerid,$sessionid)
 		$output[0][$module][$i]['fieldvalue'] = $fieldvalue;
 		$output[0][$module][$i]['blockname'] = getTranslatedString($blocklabel,$module);
 	}
-	$log->debug("Entering customer portal function get_invoice_detail ..");
 	return $output;
 }
 
@@ -2136,8 +2053,7 @@ function get_product_list_values($id,$modulename,$sessionid,$only_mine='true')
 {
 	require_once('modules/Products/Products.php');
 	require_once('include/utils/UserInfoUtil.php');
-	global $current_user,$adb,$log;
-	$log->debug("Entering customer portal function get_product_list_values ..");
+	global $current_user,$adb;
 	$check = checkModuleActive($modulename);
 	if($check == false){
 		return array("#MODULE INACTIVE#");
@@ -2261,7 +2177,6 @@ function get_product_list_values($id,$modulename,$sessionid,$only_mine='true')
 			}
 		}
 	}
-	$log->debug("Exiting function get_product_list_values.....");
 	return $output;
 }
 
@@ -2271,10 +2186,9 @@ function get_product_list_values($id,$modulename,$sessionid,$only_mine='true')
  */
 function get_details($id,$module,$customerid,$sessionid)
 {
-	global $adb,$log,$current_language,$default_language,$current_user;
+	global $adb,$current_language,$default_language,$current_user;
 	require_once('include/utils/utils.php');
 	require_once('include/utils/UserInfoUtil.php');
-	$log->debug("Entering customer portal function get_details ..");
 
 	$user = new Users();
 	$userid = getPortalUserid();
@@ -2590,7 +2504,6 @@ function get_details($id,$module,$customerid,$sessionid)
 			}
 		}
 	}
-	$log->debug("Existing customer portal function get_details ..");
 	return $output;
 }
 /* Function to check the permission if the customer can see the recorde details
@@ -2599,8 +2512,7 @@ function get_details($id,$module,$customerid,$sessionid)
  * 			$entityid :: INT Records Id
  */
 function check_permission($customerid, $module, $entityid) {
-	global $adb,$log;
-	$log->debug("Entering customer portal function check_permission ..");
+	global $adb;
 	$show_all= show_all($module);
 	$allowed_contacts_and_accounts = array();
 	$check = checkModuleActive($module);
@@ -2838,7 +2750,6 @@ function check_permission($customerid, $module, $entityid) {
 
 	}
 	return false;
-	$log->debug("Exiting customerportal function check_permission ..");
 }
 
 /* Function to get related Documents for faq
@@ -2848,8 +2759,7 @@ function check_permission($customerid, $module, $entityid) {
  */
 function get_documents($id,$module,$customerid,$sessionid)
 {
-	global $adb,$log;
-	$log->debug("Entering customer portal function get_documents ..");
+	global $adb;
 	$check = checkModuleActive($module);
 	if($check == false){
 		return array("#MODULE INACTIVE#");
@@ -2901,7 +2811,6 @@ function get_documents($id,$module,$customerid,$sessionid)
 			$i++;
 		}
 	}
-	$log->debug("Exiting customerportal function  get_faq_document ..");
 	return $output;
 }
 
@@ -2915,8 +2824,7 @@ function get_project_components($id,$module,$customerid,$sessionid) {
 	require_once("modules/$module/$module.php");
 	require_once('include/utils/UserInfoUtil.php');
 
-	global $adb,$log;
-	$log->debug("Entering customer portal function get_project_components ..");
+	global $adb;
 	$check = checkModuleActive($module);
 	if($check == false) {
 		return array("#MODULE INACTIVE#");
@@ -2972,7 +2880,6 @@ function get_project_components($id,$module,$customerid,$sessionid) {
 			$i++;
 		}
 	}
-	$log->debug("Exiting customerportal function  get_project_components ..");
 	return $output;
 }
 
@@ -2985,8 +2892,7 @@ function get_project_tickets($id,$module,$customerid,$sessionid) {
 	require_once('modules/HelpDesk/HelpDesk.php');
 	require_once('include/utils/UserInfoUtil.php');
 
-	global $adb,$log;
-	$log->debug("Entering customer portal function get_project_tickets ..");
+	global $adb;
 	$check = checkModuleActive($module);
 	if($check == false) {
 		return array("#MODULE INACTIVE#");
@@ -3052,7 +2958,6 @@ function get_project_tickets($id,$module,$customerid,$sessionid) {
 			$i++;
 		}
 	}
-	$log->debug("Exiting customerportal function  get_project_tickets ..");
 	return $output;
 }
 
@@ -3063,8 +2968,7 @@ function get_service_list_values($id,$modulename,$sessionid,$only_mine='true')
 {
 	require_once('modules/Services/Services.php');
 	require_once('include/utils/UserInfoUtil.php');
-	global $current_user,$adb,$log;
-	$log->debug("Entering customer portal Function get_service_list_values");
+	global $current_user,$adb;
 	$check = checkModuleActive($modulename);
 	if($check == false){
 		return array("#MODULE INACTIVE#");
@@ -3209,7 +3113,6 @@ function get_service_list_values($id,$modulename,$sessionid,$only_mine='true')
 			}
 		}
 	}
-	$log->debug("Exiting customerportal function get_product_list_values.....");
 	return $output;
 }
 
@@ -3218,8 +3121,7 @@ function get_service_list_values($id,$modulename,$sessionid,$only_mine='true')
  */
 function get_modules()
 {
-	global $adb,$log;
-	$log->debug("Entering customer portal Function get_modules");
+	global $adb;
 
 	// Check if information is available in cache?
 	$modules = Vtiger_Soap_CustomerPortal::lookupAllowedModules();
@@ -3238,7 +3140,6 @@ function get_modules()
 		}
 		Vtiger_Soap_CustomerPortal::updateAllowedModules($modules);
 	}
-	$log->debug("Exiting customerportal function get_modules");
 	return $modules;
 }
 
@@ -3246,8 +3147,7 @@ function get_modules()
  */
 function show_all($module){
 
-	global $adb,$log;
-	$log->debug("Entering customer portal Function show_all");
+	global $adb;
 	$tabid = getTabid($module);
 	if($module=='Tickets'){
 		$tabid = getTabid('HelpDesk');
@@ -3263,14 +3163,12 @@ function show_all($module){
 	}else {
 		return 'false';
 	}
-	$log->debug("Exiting customerportal function show_all");
 }
 
 /* Function to get ServiceContracts information in the tickets module if the ticket is related to ServiceContracts
  */
 function getRelatedServiceContracts($crmid){
-	global $adb,$log;
-	$log->debug("Entering customer portal function getRelatedServiceContracts");
+	global $adb;
 	$module = 'ServiceContracts';
 	$sc_info = array();
 	if(vtlib_isModuleActive($module) !== true){
@@ -3290,13 +3188,11 @@ function getRelatedServiceContracts($crmid){
 		$sc_info[$i]['Available Units'] = $adb->query_result($res,$i,'total_units')- $adb->query_result($res,$i,'used_units');
 	}
 	return $sc_info;
-	$log->debug("Exiting customerportal function getRelatedServiceContracts");
 }
 
 
 function getPortalUserid() {
-	global $adb,$log;
-	$log->debug("Entering customer portal function getPortalUserid");
+	global $adb;
 
 	// Look the value from cache first
 	$userid = Vtiger_Soap_CustomerPortal::lookupPrefValue('userid');
@@ -3310,11 +3206,10 @@ function getPortalUserid() {
 		}
 	}
 	return $userid;
-	$log->debug("Exiting customerportal function getPortalUserid");
 }
 
 function checkModuleActive($module){
-	global $adb,$log;
+	global $adb;
 
 	$isactive = false;
 	$modules = get_modules(true);
@@ -3345,7 +3240,6 @@ function getCurrencySymbol($result,$i,$column){
 
 function getDefaultAssigneeId() {
 	global $adb;
-	$adb->println("Entering customer portal function getPortalUserid");
 
 	// Look the value from cache first
 	$defaultassignee = Vtiger_Soap_CustomerPortal::lookupPrefValue('defaultassignee');

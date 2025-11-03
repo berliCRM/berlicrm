@@ -133,7 +133,7 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 			$filePath = $fileDetails['path'];
 			$fileName = $fileDetails['name'];
 
-			$contentType = pathinfo($fileName, PATHINFO_EXTENSION); 
+			$contentType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
 			if ($this->get('filelocationtype') == 'I') {
 				$fileName = html_entity_decode($fileName, ENT_QUOTES, vglobal('default_charset'));
@@ -181,7 +181,7 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 				header('Content-Transfer-Encoding: binary');
 				header('Accept-Ranges: bytes');
 				header('Connection: close');
-	
+
 				$fd = fopen($FN, 'rb');
 				$start = 0;
 				$length = $size;

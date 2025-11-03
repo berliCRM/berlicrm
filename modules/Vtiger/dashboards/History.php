@@ -30,6 +30,10 @@ class Vtiger_History_Dashboard extends Vtiger_IndexAjax_View {
 		$widget = Vtiger_Widget_Model::getInstance($linkId, $currentUser->getId());
 		$modCommentsModel = Vtiger_Module_Model::getInstance('ModComments'); 
 
+		if(!$history) {
+			$history = array();
+		}
+		
 		$viewer->assign('WIDGET', $widget);
 		$viewer->assign('MODULE_NAME', $moduleName);
 		$viewer->assign('HISTORIES', $history);

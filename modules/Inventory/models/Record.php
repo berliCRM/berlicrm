@@ -56,7 +56,7 @@ class Inventory_Record_Model extends Vtiger_Record_Model {
 	}
 
 	function getProducts() {
-                $numOfCurrencyDecimalPlaces = getCurrencyDecimalPlaces(); 
+		$numOfCurrencyDecimalPlaces = getCurrencyDecimalPlaces(); 
 		$relatedProducts = getAssociatedProducts($this->getModuleName(), $this->getEntity());
 		$productsCount = count($relatedProducts);
 
@@ -81,6 +81,14 @@ class Inventory_Record_Model extends Vtiger_Record_Model {
 			$productId = $product['hdnProductId'.$i];
 			$totalAfterDiscount = $product['totalAfterDiscount'.$i];
 
+			// set the product in stock
+			$qtyinstock = $this->getProductInStock($productId);
+    		$relatedProducts[$i]['qtyinstock'.$i] = $qtyinstock;
+
+			// set product in stock with the current stock in invoice
+			$qtyInstockWithInvoice = $this->getStockWithInvoice($productId, $this->getId());
+			$relatedProducts[$i]['original_stock'.$i] = $qtyInstockWithInvoice;
+
 			if ($taxtype == 'individual') {
 				$taxDetails = getTaxDetailsForProduct($productId, 'all');
 				$taxCount = count($taxDetails);
@@ -100,6 +108,48 @@ class Inventory_Record_Model extends Vtiger_Record_Model {
 			}
 		}
 		return $relatedProducts;
+	}
+
+	/**
+	 * Function to get inventory of products in stock
+	 * @param parent record model
+	 * @return <Model> returns Vtiger_Record_Model
+	 */
+	function getProductInStock($productId) {
+		global $adb;
+		$result = $adb->pquery("SELECT qtyinstock FROM vtiger_products WHERE productid = ?", array($productId));
+		if ($adb->num_rows($result)) {
+			return $adb->query_result($result, 0, 'qtyinstock');
+		}
+		return 0;
+	}
+
+	/**
+	 * Function to calculate the original stock of a product before invoice deduction.
+	 * Adds the quantity from the current invoice back to the current stock,
+	 * to determine the actual available stock at the time of invoice creation/edit.
+	 *
+	 * @param int $productId    ID of the product
+	 * @param int $invoiceId    ID of the invoice (record ID)
+	 * @return float            Original stock before invoice deduction
+	 */
+	function getStockWithInvoice($productId, $invoiceId) {
+		global $adb;
+		$currentStock = $this->getProductInStock($productId);
+		$invoiceQuantity = 0;
+
+		$checkService = $adb->pquery("SELECT serviceid FROM vtiger_service WHERE serviceid = ?", array($productId));
+		if ($adb->num_rows($checkService) > 0) {
+			return 0;
+		}
+		
+		$result = $adb->pquery("SELECT quantity FROM vtiger_inventoryproductrel WHERE id = ? AND productid = ?", array($invoiceId, $productId));
+		while ($row = $adb->fetchByAssoc($result)) {
+			$invoiceQuantity += (float)$row['quantity'];
+		}
+
+		$originalStock = $currentStock + $invoiceQuantity;
+		return $originalStock;
 	}
 
 	/**
@@ -234,14 +284,12 @@ class Inventory_Record_Model extends Vtiger_Record_Model {
         // $filePath = "storage/$translatedName"."_".$sequenceNo.".pdf";
         //added file name to make it work in IE, also forces the download giving the user the option to save
         // $controller->Output($filePath,'F');
-		$filePath = 'storage/'.$translatedName.'_'.$record_no.'.pdf';
+		$filePath = dirname(__DIR__, 3).'/storage/'.$translatedName.'_'.$record_no.'.pdf';
         return $filePath;
     }
 	
 	//crm-now: added for letter and conclusion text
 	public static function getAssociatedLetterText() {
-		global $log;
-		$log->debug("Entering getAssociatedStartText method ...");
 		global $adb;
 		$Letter_Details = Array();
 		$Letter_Details[0] = array (0,vtranslate('LBL_SELECT_OPTION'),'');
@@ -255,8 +303,6 @@ class Inventory_Record_Model extends Vtiger_Record_Model {
 		return $Letter_Details;
 	}
 	public static function getAssociatedConclusionText() {
-		global $log;
-		$log->debug("Entering getAssociatedConclusionText method ...");
 		global $adb;
 		$Conclusion_Details = Array();
 		$Conclusion_Details[0] = array (0,vtranslate('LBL_SELECT_OPTION'),'');

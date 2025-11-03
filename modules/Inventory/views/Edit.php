@@ -129,7 +129,7 @@ Class Inventory_Edit_View extends Vtiger_Edit_View {
 		$viewer->assign('CONCLUSIONINFO', $ConclusionInfo);
 		
 
-		$viewer->assign('PICKIST_DEPENDENCY_DATASOURCE',Zend_Json::encode($picklistDependencyDatasource));
+		$viewer->assign('PICKIST_DEPENDENCY_DATASOURCE',json_encode($picklistDependencyDatasource));
         $viewer->assign('RECORD',$recordModel);
 		$viewer->assign('RECORD_STRUCTURE_MODEL', $recordStructureInstance);
 		$viewer->assign('RECORD_STRUCTURE', $recordStructureInstance->getStructure());
@@ -158,7 +158,7 @@ Class Inventory_Edit_View extends Vtiger_Edit_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 
 		$moduleName = $request->getModule();

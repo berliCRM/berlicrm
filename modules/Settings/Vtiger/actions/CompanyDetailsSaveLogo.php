@@ -50,7 +50,7 @@ class Settings_Vtiger_CompanyDetailsSaveLogo_Action extends Settings_Vtiger_Basi
 		header('Location: ' . $reloadUrl);
 	}
 
-        public function validateRequest(Vtiger_Request $request) { 
-            $request->validateWriteAccess(); 
+        public function validateRequest(Vtiger_Request $request):bool { 
+            return $request->validateWriteAccess(); 
         } 
 }

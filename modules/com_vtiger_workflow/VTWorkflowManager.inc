@@ -226,7 +226,7 @@
 				unset($task->workflowId);
 				$exp['tasks'][] = serialize($task);
 			}
-			return  Zend_Json::encode($exp);
+			return  json_encode($exp);
 		}
 
 		/**
@@ -235,7 +235,7 @@
 		 * @return The Workflow instance representing the imported workflow.
 		 */
 		public function deserializeWorkflow($str){
-			$data =  Zend_Json::decode($str);
+			$data =  json_decode($str);
 			$workflow = $this->newWorkflow($data['moduleName']);
 			$workflow->description = $data['description'];
 			$workflow->test = $data['test'];
@@ -288,12 +288,12 @@
 
 			$commentSupportedWorkflowModels = array();
 			foreach ($workflowModels as $workflowId => $workflowModel) {
-				$conditions = Zend_Json::decode($workflowModel->test);
+				$conditions = json_decode($workflowModel->test);
 				if (is_array($conditions)) {
 					foreach ($conditions as $key => $conditionInfo) {
-						if ($conditionInfo['fieldname'] === '_VT_add_comment') {
+						if ($conditionInfo->fieldname === '_VT_add_comment') {
 							unset($conditions[$key]);
-							$workflowModel->test = Zend_Json::encode($conditions);
+							$workflowModel->test = json_encode($conditions);
 							$commentSupportedWorkflowModels[$workflowId] = $workflowModel;
 						}
 					}
@@ -515,7 +515,7 @@
 			$currentTime = time();
 			$currentWeekDay = date('N', $currentTime);
 			if ($scheduledDaysOfWeek) {
-				$scheduledDaysOfWeek = Zend_Json::decode($scheduledDaysOfWeek);
+				$scheduledDaysOfWeek = json_decode($scheduledDaysOfWeek);
 				if (is_array($scheduledDaysOfWeek)) {
 					// algorithm :
 					//1. First sort all the weekdays(stored as 0,1,2,3 etc in db) and find the closest weekday which is greater than currentWeekDay
@@ -568,7 +568,7 @@
 		function getNextTriggerTimeForMonthlyByDate($scheduledDayOfMonth, $scheduledTime){
 			$currentDayOfMonth = date('j', time());
 			if($scheduledDayOfMonth) {
-				$scheduledDaysOfMonth = Zend_Json::decode($scheduledDayOfMonth);
+				$scheduledDaysOfMonth = json_decode($scheduledDayOfMonth);
 				if(is_array($scheduledDaysOfMonth)) {
 					// algorithm :
 					//1. First sort all the days in ascending order and find the closest day which is greater than currentDayOfMonth
@@ -636,7 +636,7 @@
 		function getNextTriggerTimeForAnnualDates($annualDates, $scheduledTime){
 			if($annualDates) {
 				$today = date('Y-m-d');
-				$annualDates = Zend_Json::decode($annualDates);
+				$annualDates = json_decode($annualDates);
 				$nextTriggerDay = null;
 				// sort the dates
 				sort($annualDates);

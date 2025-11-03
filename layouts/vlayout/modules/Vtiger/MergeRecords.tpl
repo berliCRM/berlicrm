@@ -20,7 +20,7 @@
 	<form class="form-horizontal contentsBackground" name="massMerge" method="post" action="index.php">
 		<input type="hidden" name="module" value="{$MODULE}" />
 		<input type="hidden" name="action" value="ProcessDuplicates" />
-		<input type="hidden" name="records" value={Zend_Json::encode($RECORDS)} />
+		<input type="hidden" name="records" value={json_encode($RECORDS)} />
 
 	<div>
 		<table class='table table-bordered table-condensed'>

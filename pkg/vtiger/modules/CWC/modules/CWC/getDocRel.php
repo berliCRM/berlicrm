@@ -14,7 +14,7 @@ All Rights Reserved.
 ************************************************************************************************************************************************************ */
 
 function vtws_get_document_relations($docids) {
-	global $log, $adb, $current_user;
+	global $adb, $current_user;
 	$arr_docs = json_decode($docids);
 	$arr_docs2 = array();
 	
@@ -27,7 +27,7 @@ function vtws_get_document_relations($docids) {
 
 		require_once $handlerPath;
 	  
-		$handler = new $handlerClass($webserviceObject, $current_user, $adb, $log);
+		$handler = new $handlerClass($webserviceObject, $current_user, $adb);
 		$meta = $handler->getMeta();
 		
 		if($meta->hasReadAccess()!==true || !$meta->hasPermission(EntityMeta::$RETRIEVE,$docid)) {

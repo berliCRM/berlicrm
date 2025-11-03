@@ -23,7 +23,6 @@
 
 // Faq is used to store vtiger_faq information.
 class Faq extends CRMEntity {
-	var $log;
 	var $db;
 	var $table_name = "vtiger_faq";
 	var $table_index= 'id';
@@ -80,11 +79,8 @@ class Faq extends CRMEntity {
 	/**	Constructor which will set the column_fields in this object
 	 */
 	function __construct() {
-		$this->log =LoggerManager::getLogger('faq');
-		$this->log->debug("Entering Faq() method ...");
 		$this->db = PearDatabase::getInstance();
 		$this->column_fields = getColumnFields('Faq');
-		$this->log->debug("Exiting Faq method ...");
 	}
 
 	function save_module($module)
@@ -101,8 +97,6 @@ class Faq extends CRMEntity {
  	 */
 	function insertIntoFAQCommentTable($table_name, $module)
 	{
-		global $log;
-		$log->info("in insertIntoFAQCommentTable  ".$table_name."    module is  ".$module);
         	global $adb;
 
         	$current_time = $adb->formatDate(date('Y-m-d H:i:s'), true);

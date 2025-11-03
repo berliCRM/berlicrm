@@ -9,7 +9,7 @@
  * Modified and improved by crm-now.de
  *************************************************************************************/
 $languageStrings = array(
-
+		'LBL_CLEVERREACH_DESCRIPTION' => 'CleverReach-Zugangsdaten verwalten und festlegen',
 	);
 	
 	

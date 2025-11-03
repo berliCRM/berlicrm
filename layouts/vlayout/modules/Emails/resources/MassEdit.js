@@ -561,6 +561,15 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			existingToMailInfo[mailInfo.id] = new Array(mailInfo.emailid);
 		}
 		mailInfoElement.val(JSON.stringify(existingToMailInfo));
+
+		// preview needs modulname
+		if (mailInfo.relModul) {
+			const moduleInfoElement = this.getMassEmailForm().find('[name="toemailmoduleinfo"]');
+			let existingModuleInfo = {};
+			existingModuleInfo = JSON.parse(moduleInfoElement.val());
+			existingModuleInfo[mailInfo.id] = mailInfo.relModul;
+			moduleInfoElement.val(JSON.stringify(existingModuleInfo));
+		}
 	},
 
 	appendToSelectedIds : function(selectedId) {
@@ -766,6 +775,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 								childrenInfo.recordId = recordId;
 								childrenInfo.id = emailInfo[i].value;
 								childrenInfo.text = emailInfo[i].label;
+								childrenInfo.relModule = emailInfo[i].relModule;
 								children.push(childrenInfo);
 							}
 						}
@@ -833,7 +843,8 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 				var data = {
 					'id' : addedElement.recordId,
 					'name' : addedElement.text,
-					'emailid' : addedElement.id
+					'emailid' : addedElement.id,
+					'relModul' : addedElement.relModule
 				}
 				//crm-now: cc and bcc shouldn't recieve extra emails
 				if(currentElementName != 'cc' && currentElementName != 'bcc'){
@@ -873,7 +884,8 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 				var data = {
 					'id' : removedElement.recordId,
 					'name' : (removedElement.text).trim(),
-					'emailid' : (removedElement.id).trim()
+					'emailid' : (removedElement.id).trim(),
+					'relModul' : (removedElement.relModule).trim()
 				}
 				thisInstance.removeFromEmails(data);
 				if (typeof removedElement.recordId != 'undefined'){
@@ -1022,8 +1034,14 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			//If element length is not more than two delete existing record.
 			if(elementSize < 2){
 				delete previousValue[selectedId];
+				var moduleInfoElement = this.getMassEmailForm().find('[name="toemailmoduleinfo"]');
+				if(moduleInfoElement.length){
+					var moduleInfo = JSON.parse(moduleInfoElement.val());
+					delete moduleInfo[selectedId];
+					moduleInfoElement.val(JSON.stringify(moduleInfo));
+				}
 			} 
-			else{
+			else {
 				// Update toemailinfo hidden element value
 				var newValue;
 				var reserveValue = previousValue[selectedId];
@@ -1117,6 +1135,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 			//get email receivers
 			var form = jQuery("#massEmailForm");
 			var receivers = form.find('[name="toemailinfo"]').val();
+			var relModule = form.find('[name="toemailmoduleinfo"]').val();
 			if(receivers.length < 3){
 				alert ( app.vtranslate('JS_LBL_NO_RECEIVERS'));
 				return;
@@ -1134,7 +1153,8 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 				view: 'showEmailContent',
 				receivers : receivers,
 				mode : 'previewEmail',
-				emailbody: oCKeditor
+				emailbody: oCKeditor,
+				relModule : relModule
 			}
 			var aDeferred = jQuery.Deferred();
 			thisInstance.getMenuActionResponseData(params).then(
@@ -1185,7 +1205,7 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 		}
 		
 		if(options == ''){
-			options = '<option value="">NONE</option>';
+			options = '<option value="">' + app.vtranslate('LBL_NONE') + '</option>';
 		}
 		fieldSelectElement.empty().html(options).trigger("liszt:updated");
 		return fieldSelectElement;

@@ -317,4 +317,28 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 			return 0;
 		}
 	}
+
+	public function getCommentMailTo() {
+		$db = PearDatabase::getInstance();
+
+		$query = 'SELECT mailto FROM vtiger_modcommentsscope WHERE modcommentsid = ?';
+		$result = $db->pquery($query, array($this->getId()));
+		if($db->num_rows($result)) {
+			return $db->query_result($result, 0, 'mailto');
+		} else {
+			return null;
+		}
+	}
+
+	public function getExternalCommentId() {
+		$db = PearDatabase::getInstance();
+
+		$query = 'SELECT external FROM vtiger_modcommentsscope WHERE modcommentsid = ?';
+		$result = $db->pquery($query, array($this->getId()));
+		if($db->num_rows($result)) {
+			return $db->query_result($result, 0, 'external');
+		} else {
+			return null;
+		}
+	}
 }

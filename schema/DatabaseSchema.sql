@@ -5210,9 +5210,9 @@ CREATE TABLE IF NOT EXISTS `vtiger_inventorytaxinfo` (
 --
 
 INSERT INTO `vtiger_inventorytaxinfo` (`taxid`, `taxname`, `taxlabel`, `percentage`, `deleted`) VALUES
-(1, 'tax1', 'VAT', 19.000, 0),
-(2, 'tax2', 'Sales', 0.000, 0),
-(3, 'tax3', 'Service', 0.000, 0);
+(1, 'tax1', 'LBL_VAT', 19.000, 0),
+(2, 'tax2', 'LBL_SALES_TAX', 0.000, 1),
+(3, 'tax3', 'LBL_SERVICE_TAX', 0.000, 1);
 
 -- --------------------------------------------------------
 
@@ -10728,7 +10728,8 @@ INSERT INTO `vtiger_relatedlists` (`relation_id`, `tabid`, `related_tabid`, `nam
 (87, 6, 26, 'get_campaigns', 13, 'Campaigns', 0, 'select'),
 (88, 26, 6, 'get_accounts', 5, 'Accounts', 0, 'add,select'),
 (89, 15, 8, 'get_attachments', 1, 'Documents', 0, 'add,select'),
-(90, 4, 18, 'get_vendors', 13, 'Vendors', 0, 'SELECT');
+(90, 4, 18, 'get_vendors', 13, 'Vendors', 0, 'SELECT'),
+(91, 13, 10, 'get_emails', 5, 'Emails', 0, '');
 
 -- --------------------------------------------------------
 
@@ -13081,9 +13082,9 @@ CREATE TABLE IF NOT EXISTS `vtiger_shippingtaxinfo` (
 --
 
 INSERT INTO `vtiger_shippingtaxinfo` (`taxid`, `taxname`, `taxlabel`, `percentage`, `deleted`) VALUES
-(1, 'shtax1', 'VAT', 19.000, 0),
-(2, 'shtax2', 'Sales', 0.000, 0),
-(3, 'shtax3', 'Service', 0.000, 0);
+(1, 'shtax1', 'LBL_VAT', 19.000, 0),
+(2, 'shtax2', 'LBL_SALES_TAX', 0.000, 1),
+(3, 'shtax3', 'LBL_SERVICE_TAX', 0.000, 1);
 
 -- --------------------------------------------------------
 

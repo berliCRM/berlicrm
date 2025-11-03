@@ -17,30 +17,31 @@ class Mailchimp_RelationAjax_Action extends Vtiger_RelationAjax_Action {
 		$this->exposeMethod('updateStatus');
 	}
 
-	/*
-	 * Function to add relation for specified source record id and related record id list
-	 * @param <array> $request
-	 *		keys					Content
-	 *		src_module				source module name
-	 *		src_record				source record id
-	 *		related_module			related module name
-	 *		related_record_list		json encoded of list of related record ids
-	 */
-	function addRelation($request) {
+	// /*
+	//  * Function to add relation for specified source record id and related record id list
+	//  * @param <array> $request
+	//  *		keys					Content
+	//  *		src_module				source module name
+	//  *		src_record				source record id
+	//  *		related_module			related module name
+	//  *		related_record_list		json encoded of list of related record ids
+	//  */
+	// function addRelation($request) {
 		
-		$sourceModule = $request->getModule();
-		$sourceRecordId = $request->get('src_record');
+	// 	$sourceModule = $request->getModule();
+	// 	$sourceRecordId = $request->get('src_record');
 
-		$relatedModule = $request->get('related_module');
-		$relatedRecordIdList = $request->get('related_record_list');
+	// 	$relatedModule = $request->get('related_module');
+	// 	$relatedRecordIdList = $request->get('related_record_list');
 
-		$sourceModuleModel = Vtiger_Module_Model::getInstance($sourceModule);
-		$relatedModuleModel = Vtiger_Module_Model::getInstance($relatedModule);
-		$relationModel = Vtiger_Relation_Model::getInstance( $relatedModuleModel, $sourceModuleModel);
-		foreach($relatedRecordIdList as $relatedRecordId) {
-			$relationModel->addRelation($relatedRecordId, $sourceRecordId);
-		}
-	}
+	// 	$sourceModuleModel = Vtiger_Module_Model::getInstance($sourceModule);
+	// 	$relatedModuleModel = Vtiger_Module_Model::getInstance($relatedModule);
+	// 	$relationModel = Vtiger_Relation_Model::getInstance( $relatedModuleModel, $sourceModuleModel);
+	// 	foreach($relatedRecordIdList as $relatedRecordId) {
+	// 		$relationModel->addRelation($relatedRecordId, $sourceRecordId);
+	// 	}
+	// }
+
 	/**
 	 * Function to add relations using related module viewid, returns number of relations added
 	 * @param Vtiger_Request $request
@@ -56,7 +57,8 @@ class Mailchimp_RelationAjax_Action extends Vtiger_RelationAjax_Action {
 
 			$relationModel = Vtiger_Relation_Model::getInstance($relatedModuleModel, $sourceModuleModel);
 			
-			$emailEnabledModulesInfo = Mailchimp_Relation_Model::getEmailEnabledModulesInfoForDetailView();
+			$mailchimpModel = new Mailchimp_Relation_Model();
+			$emailEnabledModulesInfo = $mailchimpModel->getEmailEnabledModulesInfoForDetailView();
 
 			if (array_key_exists($relatedModuleName, $emailEnabledModulesInfo)) {
 				$fieldName = $emailEnabledModulesInfo[$relatedModuleName]['fieldName'];

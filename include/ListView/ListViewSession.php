@@ -27,8 +27,7 @@ class ListViewSession {
 */
 
 	function __construct() {
-		global $log,$currentModule;
-		$log->debug("Entering ListViewSession() method ...");
+		global $currentModule;
 
 		$this->module = $currentModule;
 		$this->sortby = 'ASC';
@@ -55,8 +54,7 @@ class ListViewSession {
 	}
 
 	public static function getListViewNavigation($currentRecordId){
-		global $currentModule,$current_user,$adb,$log,$list_max_entries_per_page;
-		Zend_Json::$useBuiltinEncoderDecoder = true;
+		global $currentModule,$current_user,$adb,$list_max_entries_per_page;
 		$reUseData = false;
 		$displayBufferRecordCount = 10;
 		$bufferRecordCount = 15;
@@ -69,7 +67,7 @@ class ListViewSession {
 		$cv = new CustomView();
 		$viewId = $cv->getViewId($currentModule);
 		if(!empty($_SESSION[$currentModule.'_DetailView_Navigation'.$viewId])){
-			$recordNavigationInfo = Zend_Json::decode($_SESSION[$currentModule.'_DetailView_Navigation'.$viewId]);
+			$recordNavigationInfo = json_decode($_SESSION[$currentModule.'_DetailView_Navigation'.$viewId], true);
 			$pageNumber =0;
 			if(count($recordNavigationInfo) == 1){
 				foreach ($recordNavigationInfo as $recordIdList) {
@@ -171,7 +169,7 @@ class ListViewSession {
 				}
 			}
 			$_SESSION[$currentModule.'_DetailView_Navigation'.$viewId] =
-				Zend_Json::encode($recordNavigationInfo);
+				json_encode($recordNavigationInfo,true);
 		}
 		return $recordNavigationInfo;
 	}

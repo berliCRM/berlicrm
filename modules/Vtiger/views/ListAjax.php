@@ -17,15 +17,13 @@ class Vtiger_ListAjax_View extends Vtiger_List_View {
 		$this->exposeMethod('getPageCount');
 	}
 
-	function preProcess(Vtiger_Request $request,$display=null) {
-		return true;
+	function preProcess(Vtiger_Request $request,$display=null):void {
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return true;
+	function postProcess(Vtiger_Request $request):void {
 	}
 
-	function process(Vtiger_Request $request) {
+	function process(Vtiger_Request $request):void {
 		$mode = $request->get('mode');
 		if(!empty($mode)) {
 			$this->invokeExposedMethod($mode, $request);

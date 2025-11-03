@@ -56,3 +56,4 @@ class Calendar_ActivityReminder_Action extends Vtiger_Action_Controller{
 		$recordModel->updateReminderStatus(0);
 	}
 }
+?>

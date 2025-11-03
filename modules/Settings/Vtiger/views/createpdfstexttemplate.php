@@ -11,7 +11,7 @@
 
 class Settings_Vtiger_createpdfstexttemplate_View extends Settings_Vtiger_Index_View {
 	
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request): void{
 	
 		$qualifiedModuleName = $request->getModule(false);
 		$moduleModel = Settings_Vtiger_listpdftexttemplates_Model::getInstance();
@@ -61,7 +61,7 @@ class Settings_Vtiger_createpdfstexttemplate_View extends Settings_Vtiger_Index_
 		$viewer->assign("TEMPLATESTEXT",$text);
 		$viewer->view('CreatePdfSTexttemplate.tpl', $qualifiedModuleName);
 	}
-	function getPageTitle(Vtiger_Request $request) {
+	function getPageTitle(Vtiger_Request $request):string {
 		$qualifiedModuleName = $request->getModule(false);
 		return vtranslate('LBL_PDF_TEMPLATES',$qualifiedModuleName);
 	}
@@ -71,7 +71,7 @@ class Settings_Vtiger_createpdfstexttemplate_View extends Settings_Vtiger_Index_
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

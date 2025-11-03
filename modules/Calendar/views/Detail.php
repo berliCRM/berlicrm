@@ -10,7 +10,7 @@
 
 class Calendar_Detail_View extends Vtiger_Detail_View {
 
-	function preProcess(Vtiger_Request $request, $display=true) {
+	function preProcess(Vtiger_Request $request, bool $display=true): void {
 		parent::preProcess($request, false);
 
 		$recordId = $request->get('record');

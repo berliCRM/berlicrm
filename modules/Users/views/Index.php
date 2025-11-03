@@ -10,7 +10,7 @@
 
 class Users_Index_View extends Vtiger_Basic_View {
 
-	public function preProcess (Vtiger_Request $request) {
+	public function preProcess (Vtiger_Request $request, bool $display=false):void {
 		parent::preProcess($request);
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		if($currentUserModel->isAdminUser()) {
@@ -19,7 +19,7 @@ class Users_Index_View extends Vtiger_Basic_View {
 		}
 	}
 
-	public function postProcess(Vtiger_Request $request) {
+	public function postProcess(Vtiger_Request $request):void {
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		if($currentUserModel->isAdminUser()) {
 			$settingsIndexView = new Settings_Vtiger_Index_View();
@@ -36,7 +36,7 @@ class Users_Index_View extends Vtiger_Basic_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

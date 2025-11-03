@@ -20,9 +20,10 @@ class Reports_MoveReports_Action extends Vtiger_Mass_Action {
 		}
 	}
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$parentModule = 'Reports';
-		$reportIdsList = Reports_Record_Model::getRecordsListFromRequest($request);
+		$reportIdsList = Reports_Record_Model::getCleanInstance();
+		$reportIdsList = $reportIdsList->getRecordsListFromRequest($request);
 		$folderId = $request->get('folderid');
 
 		if (!empty ($reportIdsList)) {

@@ -10,16 +10,18 @@
 
 class berliSoftphones_ListPhone_Action extends Vtiger_IndexAjax_View {
     
-	public function validateRequest(Vtiger_Request $request) { 
-            $request->validateReadAccess(); 
+	public function validateRequest(Vtiger_Request $request):bool { 
+        return $request->validateReadAccess(); 
 	}
-	public function loginRequired() {
+	public function loginRequired():bool {
 		return true;
 	}
-	public function checkPermission() { }
+	public function checkPermission(Vtiger_Request $request) {
+	}
 	
-	protected function preProcessDisplay(Vtiger_Request $request) {
+	protected function preProcessDisplay(Vtiger_Request $request):void {
 		$viewer = new Vtiger_Viewer();
+		$viewer->registerSmartyPlugins();
 		//$displayed = $viewer->view($this->preProcessTplName($request), $request->getModule());
 		$menuModelsList = Vtiger_Menu_Model::getAll(true);
 		$selectedModule = 'Contacts';
@@ -64,12 +66,12 @@ class berliSoftphones_ListPhone_Action extends Vtiger_IndexAjax_View {
     /*
      * Override default preProcess
      */
-	function preProcess(Vtiger_Request $request, $display=true) {
-			$this->preProcessDisplay($request);
+	function preProcess(Vtiger_Request $request, $display=true):void {
+		$this->preProcessDisplay($request);
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return true;
+	function postProcess(Vtiger_Request $request):void {
+		return;
 	}
 
 	
@@ -81,6 +83,7 @@ class berliSoftphones_ListPhone_Action extends Vtiger_IndexAjax_View {
 		$records = berliSoftphones_Record_Model:: getSoftphoneCaller($phonenumber,$current_user);
 		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
 		$viewer = new Vtiger_Viewer();
+		$viewer->registerSmartyPlugins();
         $viewer->assign('RECORDS', $records);
         $viewer->assign('MODULE_MODEL', $moduleModel);
 		$viewer->assign('CALLERPHONE', $phonenumber);

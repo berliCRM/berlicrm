@@ -1,0 +1,7 @@
+.svn
+.composer
+test
+config.inc.php
+config.csfr-secret.php
+/vendor/
+logs/installLog.txt

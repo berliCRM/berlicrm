@@ -38,3 +38,4 @@ class Users_DeleteImage_Action extends Vtiger_Action_Controller {
 		$response->emit();
 	}
 }
+?>

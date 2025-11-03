@@ -34,8 +34,8 @@ $CHAT_DISPLAY = 'true';
 $USE_RTE = 'true';
 
 // url for customer portal (Example: http://vtiger.com/portal)
-$PORTAL_URL = 'https://_DBC_USER_.co.crm-now.de/kundenportal/';
-$PORTAL_URL_ENG = 'https://_DBC_USER_.co.crm-now.de/customerportal/';
+$PORTAL_URL = '_SITE_URL_kundenportal';
+$PORTAL_URL_ENG = '_SITE_URL_customerportal';
 
 // helpdesk support email id and support name (Example: 'support@vtiger.com' and 'vtiger support')
 $HELPDESK_SUPPORT_EMAIL_ID = '_USER_SUPPORT_EMAIL_';
@@ -201,6 +201,9 @@ $max_mailboxes = 3;
 
 // Set the default timezone as per your preference
 $default_timezone = 'UTC';
+
+// Set true for activation of QR Code for swiss pdf 
+$qr_feature = false;
 
 /** If timezone is configured, try to set it */
 if(isset($default_timezone) && function_exists('date_default_timezone_set')) {

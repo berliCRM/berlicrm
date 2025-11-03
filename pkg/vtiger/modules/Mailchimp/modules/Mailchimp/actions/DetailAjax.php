@@ -68,7 +68,7 @@ class Mailchimp_DetailAjax_Action extends Vtiger_BasicAjax_Action {
 		$queryresult = $adb->pquery($getRelationQuery, array());
 		$noofrows = $adb->num_rows($queryresult);
 		for($i=0; $i<$noofrows; $i++)	{
-			$recordID []=$adb->query_result($queryresult, $i, 'crmid');
+			$recordID[] = $adb->query_result($queryresult, $i, 'crmid');
 		}
 		$result = array();
 		$result['module'] = $moduleName;

@@ -15,7 +15,7 @@ class MailManager_Settings_View extends MailManager_MainUI_View {
 	 * @param Vtiger_Request $request
 	 * @return MailManager_Response
 	 */
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$response = new Vtiger_Response();
 		$module = $request->getModule();
 		if ('edit' == $this->getOperationArg($request)) {
@@ -58,7 +58,8 @@ class MailManager_Settings_View extends MailManager_MainUI_View {
 			if ($connector->isConnected()) {
 				$model->save();
 				$request->set('_operation', 'mainui');
-				return parent::process($request);
+				parent::process($request);
+				return;
 			} elseif(!function_exists('mb_convert_encoding')) { 
                 $error = "PHP mbstring extension needed!";
                 $response->isJSON(true);
@@ -88,10 +89,10 @@ class MailManager_Settings_View extends MailManager_MainUI_View {
 			$response->setResult($viewer->view('SettingsDetail.tpl', $module, true));
 		}
 
-		return $response;
+		$response->emit();
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
+        public function validateRequest(Vtiger_Request $request):bool { 
             return $request->validateWriteAccess(); 
         } 
 }

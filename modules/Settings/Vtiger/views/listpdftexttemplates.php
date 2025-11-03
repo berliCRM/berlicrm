@@ -11,7 +11,6 @@ class Settings_Vtiger_listpdftexttemplates_View extends Settings_Vtiger_Index_Vi
 
 	public function process(Vtiger_Request $request) {
 		global $adb;
-		global $log;
 		$qualifiedModuleName = $request->getModule(false);
 		$moduleModel = Settings_Vtiger_listpdftexttemplates_Model::getInstance();
 		// get existig entries
@@ -43,7 +42,7 @@ class Settings_Vtiger_listpdftexttemplates_View extends Settings_Vtiger_Index_Vi
 	}
 	
 	
-	function getPageTitle(Vtiger_Request $request) {
+	function getPageTitle(Vtiger_Request $request):string {
 		$qualifiedModuleName = $request->getModule(false);
 		return vtranslate('LBL_PDF_TEMPLATES',$qualifiedModuleName);
 	}
@@ -53,7 +52,7 @@ class Settings_Vtiger_listpdftexttemplates_View extends Settings_Vtiger_Index_Vi
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

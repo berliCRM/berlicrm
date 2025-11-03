@@ -10,7 +10,7 @@
 
 class Reports_DeleteAjax_Action extends Vtiger_DeleteAjax_Action {
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$moduleName = $request->getModule();
 		$recordId = $request->get('record');
 		$response = new Vtiger_Response();

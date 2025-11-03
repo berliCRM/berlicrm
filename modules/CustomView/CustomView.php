@@ -878,7 +878,7 @@ class CustomView extends CRMEntity {
 	 */
 	function getAdvFilterByCvid($cvid) {
 
-		global $adb, $log, $default_charset, $current_user;
+		global $adb, $default_charset, $current_user;
 
 		$advft_criteria = array();
 
@@ -1326,8 +1326,6 @@ class CustomView extends CRMEntity {
 	 * @returns  $value :: string
 	 */
 	function getSalesRelatedName($comparator, $value, $datatype, $tablename, $fieldname) {
-		global $log;
-		$log->info("in getSalesRelatedName " . $comparator . "==" . $value . "==" . $datatype . "==" . $tablename . "==" . $fieldname);
 		global $adb;
 
 		$adv_chk_value = $value;
@@ -1424,7 +1422,6 @@ class CustomView extends CRMEntity {
 			$value .= $this->getAdvComparator($comparator, $adv_chk_value, $datatype);
 		}
 		$value .= ")";
-		$log->info("in getSalesRelatedName " . $comparator . "==" . $value . "==" . $datatype . "==" . $tablename . "==" . $fieldname);
 		return $value;
 	}
 
@@ -1890,9 +1887,8 @@ class CustomView extends CRMEntity {
 
 	//Function to check if the current user is able to see the customView
 	function isPermittedCustomView($record_id, $action, $module) {
-		global $log, $adb;
+		global $adb;
 		global $current_user;
-		$log->debug("Entering isPermittedCustomView($record_id,$action,$module) method....");
 
 		require('user_privileges/user_privileges_' . $current_user->id . '.php');
 		$permission = "yes";
@@ -1905,27 +1901,22 @@ class CustomView extends CRMEntity {
 				$userid = $status_userid_info['userid'];
 
 				if ($status == CV_STATUS_DEFAULT) {
-					$log->debug("Entering when status=0");
 					$permission = "yes";
 				}
 				elseif ($is_admin) {
 					$permission = 'yes';
 				} elseif ($action != 'ChangeStatus') {
 					if ($userid == $current_user->id) {
-						$log->debug("Entering when $userid=$current_user->id");
 						$permission = "yes";
 					} elseif ($status == CV_STATUS_PUBLIC) {
-						$log->debug("Entering when status=3");
 						$permission = "yes";
 					}
 					elseif ($status == CV_STATUS_PRIVATE || $status == CV_STATUS_PENDING) {
-						$log->debug("Entering when status=1 or 2");
 						if ($userid == $current_user->id)
 							$permission = "yes";
 						else {
 							/* if($action == 'ListView' || $action == $module."Ajax" || $action == 'index')
 							  { */
-							$log->debug("Entering when status=1 or status=2 & action = ListView or $module.Ajax or index");
 							$sql = "select vtiger_users.id from vtiger_customview inner join vtiger_users where vtiger_customview.cvid = ? and vtiger_customview.userid in (select vtiger_user2role.userid from vtiger_user2role inner join vtiger_users on vtiger_users.id=vtiger_user2role.userid inner join vtiger_role on vtiger_role.roleid=vtiger_user2role.roleid where vtiger_role.parentrole like '%" . $current_user_parent_role_seq . "::%')";
 							$result = $adb->pquery($sql, array($record_id));
 							$temp_result = array();
@@ -1941,37 +1932,26 @@ class CustomView extends CRMEntity {
 							}
 							else
 								$permission = "no";
-							/* }
-							  else
-							  {
-							  $log->debug("Entering when status=1 or 2 & action = Editview or Customview");
-							  $permission = "no";
-							  } */
 						}
 					}
 					else
 						$permission = "yes";
 				}
 				else {
-					$log->debug("Entering else condition............");
 					$permission = "no";
 				}
 			} else {
-				$log->debug("Enters when count =0");
 				$permission = 'no';
 			}
 		}
-		$log->debug("Permission @@@@@@@@@@@@@@@@@@@@@@@@@@@ : $permission");
-		$log->debug("Exiting isPermittedCustomView($record_id,$action,$module) method....");
 		return $permission;
 	}
 
 	function isPermittedChangeStatus($status) {
-		global $current_user, $log;
+		global $current_user;
 		global $current_language;
 		$custom_strings = return_module_language($current_language, "CustomView");
 
-		$log->debug("Entering isPermittedChangeStatus($status) method..............");
 		require('user_privileges/user_privileges_' . $current_user->id . '.php');
 		$status_details = Array();
 		if ($is_admin) {
@@ -1984,7 +1964,6 @@ class CustomView extends CRMEntity {
 			}
 			$status_details = Array('Status' => $status, 'ChangedStatus' => $changed_status, 'Label' => $status_label);
 		}
-		$log->debug("Exiting isPermittedChangeStatus($status) method..............");
 		return $status_details;
 	}
 

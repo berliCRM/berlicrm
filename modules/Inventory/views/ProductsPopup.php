@@ -14,11 +14,11 @@ class Inventory_ProductsPopup_View extends Vtiger_Popup_View {
 	 * Function returns module name for which Popup will be initialized
 	 * @param type $request
 	 */
-	function getModule(Vtiger_Request $request) {
+	function getModule(Vtiger_Request $request): string{
 		return 'Products';
 	}
 	
-	function process (Vtiger_Request $request) {
+	function process (Vtiger_Request $request): void{
 		$viewer = $this->getViewer ($request);
 		$companyDetails = Vtiger_CompanyDetails_Model::getInstanceById();
 		$companyLogo = $companyDetails->getLogo();
@@ -34,7 +34,7 @@ class Inventory_ProductsPopup_View extends Vtiger_Popup_View {
 	/*
 	 * Function to initialize the required data in smarty to display the List View Contents
 	 */
-	public function initializeListViewContents(Vtiger_Request $request, Vtiger_Viewer $viewer) {
+	public function initializeListViewContents(Vtiger_Request $request, Vtiger_Viewer $viewer): void{
 		//src_module value is added to just to stop showing inactive products
 		$request->set('src_module', $request->getModule());
 
@@ -175,7 +175,7 @@ class Inventory_ProductsPopup_View extends Vtiger_Popup_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request): array{
 		$headerScriptInstances = parent::getHeaderScripts($request);
 
 		$moduleName = $request->getModule();

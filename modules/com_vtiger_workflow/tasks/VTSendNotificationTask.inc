@@ -18,7 +18,7 @@ class VTSendNotificationTask extends VTEmailTask {
 		$admin = $util->adminUser();
 		$module = $entity->getModuleName();
 
-		$taskContents = Zend_Json::decode($this->getContents($entity));
+		$taskContents = json_decode($this->getContents($entity));
 		$fromEmail	= $taskContents['fromEmail'];
 		$fromName	= $taskContents['fromName'];
 		$toEmail	= $taskContents['toEmail'];

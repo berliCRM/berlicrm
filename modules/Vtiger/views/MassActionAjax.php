@@ -48,7 +48,7 @@ class Vtiger_MassActionAjax_View extends Vtiger_IndexAjax_View {
 		}
 		$picklistDependencyDatasource = Vtiger_DependencyPicklist::getPicklistDependencyDatasource($moduleName);
 
-		$viewer->assign('PICKIST_DEPENDENCY_DATASOURCE',Zend_Json::encode($picklistDependencyDatasource));
+		$viewer->assign('PICKIST_DEPENDENCY_DATASOURCE',json_encode($picklistDependencyDatasource));
 		$viewer->assign('CURRENTDATE', date('Y-n-j'));
 		$viewer->assign('MODE', 'massedit');
 		$viewer->assign('MODULE', $moduleName);
@@ -288,7 +288,7 @@ class Vtiger_MassActionAjax_View extends Vtiger_IndexAjax_View {
         $phoneFields = $moduleModel->getFieldsByType('phone');
 		$viewer = $this->getViewer($request);
 		
-		if(count($selectedIds) == 1){
+		if(count([$selectedIds]) == 1){
 			$recordId = $selectedIds[0];
 			$selectedRecordModel = Vtiger_Record_Model::getInstanceById($recordId, $sourceModule);
 			$viewer->assign('SINGLE_RECORD', $selectedRecordModel);

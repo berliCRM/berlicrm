@@ -36,7 +36,7 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		return true;
 	}
 
-	function preProcess(Vtiger_Request $request, $display=true) {
+	function preProcess(Vtiger_Request $request, bool $display=true):void  {
 		parent::preProcess($request, false);
 
 		$recordId = $request->get('record');
@@ -115,13 +115,13 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		$viewer->assign('DEFAULT_RECORD_VIEW', $currentUserModel->get('default_record_view'));
 
                 $picklistDependencyDatasource=  Vtiger_DependencyPicklist::getPicklistDependencyDatasource($moduleName); 
-                $viewer->assign('PICKLIST_DEPENDENCY_DATASOURCE',Zend_Json::encode($picklistDependencyDatasource));
+                $viewer->assign('PICKLIST_DEPENDENCY_DATASOURCE',json_encode($picklistDependencyDatasource));
 		if($display) {
 			$this->preProcessDisplay($request);
 		}
 	}
 
-	function preProcessTplName(Vtiger_Request $request) {
+	function preProcessTplName(Vtiger_Request $request): string  {
 		return 'DetailViewPreProcess.tpl';
 	}
 
@@ -142,7 +142,7 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		}
 	}
 
-	public function postProcess(Vtiger_Request $request) {
+	public function postProcess(Vtiger_Request $request): void {
 		$recordId = $request->get('record');
 		$moduleName = $request->getModule();
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
@@ -181,7 +181,7 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 	}
 
 
-	public function getHeaderScripts(Vtiger_Request $request) {
+	public function getHeaderScripts(Vtiger_Request $request): array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

@@ -124,7 +124,11 @@ class Settings_Vtiger_MenuItem_Model extends Vtiger_Base_Model {
             return ("$query_params[parent]:$query_params[module]");
         }
 
-        return $query_params[module];
+		if($query_params['parenttab']) {
+			return ("$query_params[parenttab]:$query_params[module]");
+		}
+
+        return $query_params['module'];
     }
     /**
 	 *  Function to get the pin and unpin action url

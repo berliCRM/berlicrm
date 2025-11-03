@@ -20,7 +20,7 @@
     {assign var="timeformat" value=$USER_MODEL->get('hour_format')}
     {assign var="currentDate" value=Vtiger_Date_UIType::getDisplayDateValue('')}
     {assign var="time" value=Vtiger_Time_UIType::getDisplayTimeValue(null)}
-    {assign var="currentTimeInVtigerFormat" value=Vtiger_Time_UIType::getDisplayValue($time)}
+    {* {assign var="currentTimeInVtigerFormat" value=Vtiger_Time_UIType::getDisplayValue($time)} *}
     {assign var=FOLLOW_UP_LABEL value={vtranslate('LBL_HOLD_FOLLOWUP_ON',"Events")}}
     
     <form class="form-horizontal followupCreateView" id="followupQuickCreate" name="followupQuickCreate" method="post" action="index.php">
@@ -30,7 +30,7 @@
         <input type="hidden" name="record" value="{$RECORD_ID}" />
         <input type="hidden" name="defaultCallDuration" value="{$USER_MODEL->get('callduration')}" />
         <input type="hidden" name="defaultOtherEventDuration" value="{$USER_MODEL->get('othereventduration')}" />
-        <input class="dateField" type="hidden" name="date_start" value="{$STARTDATE}" data-date-format="{$dateFormat}" data-fieldinfo="{Vtiger_Util_Helper::toSafeHTML(ZEND_JSON::encode($STARTDATEFIELDMODEL))}"/>
+        <input class="dateField" type="hidden" name="date_start" value="{$STARTDATE}" data-date-format="{$dateFormat}" data-fieldinfo="{Vtiger_Util_Helper::toSafeHTML(json_encode($STARTDATEFIELDMODEL))}"/>
         <div class="modal-body" style="padding:0px">
             {$FIELD_INFO['label'] = {$FOLLOW_UP_LABEL}}
             <br />
@@ -43,7 +43,7 @@
                 <div class="controls">
                         <div class="input-append row-fluid">
                             <div class="span10 row-fluid date">
-                                <input name="followup_date_start" type="text" class="span9 dateField" data-date-format="{$dateFormat}" type="text"  data-fieldinfo= '{Vtiger_Util_Helper::toSafeHTML(ZEND_JSON::encode($FIELD_INFO))}'
+                                <input name="followup_date_start" type="text" class="span9 dateField" data-date-format="{$dateFormat}" type="text"  data-fieldinfo= '{Vtiger_Util_Helper::toSafeHTML(json_encode($FIELD_INFO))}'
                                        value="{$currentDate}" data-validation-engine="validate[ required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]] validate[funcCall[Vtiger_greaterThanDependentField_Validator_Js.invokeValidation,]]" />
                                 <span class="add-on"><i class="icon-calendar"></i></span>
                             </div>	

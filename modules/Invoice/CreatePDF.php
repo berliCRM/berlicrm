@@ -13,7 +13,7 @@ require_once('modules/Invoice/pdfcreator.php');
 // Request from Customer Portal for downloading the file.
 if(isset($_REQUEST['savemode']) && $_REQUEST['savemode'] == 'file') {
 	$invoice_id = $_REQUEST['record'];
-	$filepath='test/product/';
+	$filepath=__DIR__.'/../../test/product/';
 	createpdffile ($_REQUEST['record'],'customerportal',$filepath,$invoice_id);
 
 }

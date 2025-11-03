@@ -111,7 +111,7 @@ class Vtiger_FieldBasic {
         $result = $adb->pquery("SELECT MAX(sequence) AS max_seq FROM vtiger_field WHERE tabid=? AND block=?", Array($this->getModuleId(), $this->getBlockId()));
         $maxseq = 0;
         if ($result && $adb->num_rows($result)) {
-            $maxseq = $adb->query_result($result, 0, 'max_seq');
+			$maxseq = (int)$adb->query_result($result, 0, 'max_seq');
             $maxseq += 1;
         }
         return $maxseq;
@@ -126,7 +126,7 @@ class Vtiger_FieldBasic {
         $result = $adb->pquery("SELECT MAX(quickcreatesequence) AS max_quickcreateseq FROM vtiger_field WHERE tabid=?", Array($this->getModuleId()));
         $max_quickcreateseq = 0;
         if ($result && $adb->num_rows($result)) {
-            $max_quickcreateseq = $adb->query_result($result, 0, 'max_quickcreateseq');
+            $max_quickcreateseq = (int) $adb->query_result($result, 0, 'max_quickcreateseq');
             $max_quickcreateseq += 1;
         }
         return $max_quickcreateseq;

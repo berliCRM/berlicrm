@@ -69,9 +69,6 @@ function GetHistoryBase($parentmodule,$query,$id)
  */
 function getPriceBookRelatedProducts($query,$focus,$returnset='')
 {
-	global $log;
-	$log->debug("Entering getPriceBookRelatedProducts(".$query.",".get_class($focus).",".$returnset.") method ...");
-
 	global $adb;
 	global $app_strings;
 	global $mod_strings;
@@ -175,7 +172,6 @@ function getPriceBookRelatedProducts($query,$focus,$returnset='')
 			$relatedmodule,$focus->id);
 	$return_data = array('header'=>$header,'entries'=>$entries_list,'navigation'=>$navigationOutput);
 
-	$log->debug("Exiting getPriceBookRelatedProducts method ...");
 	return $return_data;
 }
 

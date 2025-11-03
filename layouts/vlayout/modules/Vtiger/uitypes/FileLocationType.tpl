@@ -10,7 +10,7 @@
  ********************************************************************************/
 -->*}
 {strip}
-{assign var="FIELD_INFO" value=Vtiger_Util_Helper::toSafeHTML(Zend_Json::encode($FIELD_MODEL->getFieldInfo()))}
+{assign var="FIELD_INFO" value=Vtiger_Util_Helper::toSafeHTML(json_encode($FIELD_MODEL->getFieldInfo()))}
 {assign var=FIELD_VALUES value=$FIELD_MODEL->getFileLocationType()}
 <select class="chzn-select" name="{$FIELD_MODEL->getFieldName()}" data-validation-engine="validate[{if $FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-fieldinfo='{$FIELD_INFO}' >
 {foreach item=TYPE key=KEY from=$FIELD_VALUES}

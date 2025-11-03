@@ -7,6 +7,13 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  *************************************************************************************/
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use PhpOffice\PhpSpreadsheet\Shared\Date as PhpSpreadsheetDate;
+
 
 class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 
@@ -232,7 +239,7 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 		header("Expires: Mon, 31 Dec 2000 00:00:00 GMT" );
 		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT" );
 		header("Cache-Control: post-check=0, pre-check=0", false );
-		
+
 		if ($exportType == 'text/csv') {
 			$fileName .= '.csv';
 			header("Content-Disposition:attachment;filename=$fileName");
@@ -247,27 +254,38 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 		} elseif ($exportType == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
 			$fileName .= '.xlsx';
 			header("Content-Disposition:attachment;filename=$fileName");
-			require_once("libraries/PHPExcel/PHPExcel.php");
 
-			$workbook = new PHPExcel();
-			$worksheet = $workbook->setActiveSheetIndex(0);
-			
+			try{
+			$worksheet = new Spreadsheet();
+			$activeWorksheet = $worksheet->getActiveSheet();
 			//header
-			$count = 0;
+			$count = 1;
 			$rowcount = 1;
+
 			$header_styles = array(
-				'fill' => array( 'type' => PHPExcel_Style_Fill::FILL_SOLID, 'color' => array('rgb'=>'E1E0F7') ),
+				'fill' => array(
+					'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 
+					'startColor' => array('rgb' => 'E1E0F7')
+				),
 				//'font' => array( 'bold' => true )
 			);
+
 			foreach($headers as $value) {
-				$worksheet->setCellValueExplicitByColumnAndRow($count, $rowcount, $value, true);
-				$worksheet->getStyleByColumnAndRow($count, $rowcount)->applyFromArray($header_styles);
+				$activeWorksheet->setCellValue(array($count, $rowcount), $value);
+				$activeWorksheet->getStyle(array($count, $rowcount))->applyFromArray($header_styles);
 
 				$count++;
 			}
+
+		}catch(Throwable $e) {
+			echo "<pre>"; print_r($e); echo "</pre>";
+			die("didn't work");
+		}
+
+
 			$rowcount++;
 			foreach($entries AS $array_value) {
-				$count = 0;
+				$count = 1;
 				foreach($array_value AS $fieldName => $value) {
 					$fieldInfo = $this->fieldArray[$fieldName];
 					// $uitype = $fieldInfo->get('uitype');
@@ -278,38 +296,44 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 					$currencyRateAndSymbol = getCurrencySymbolandCRate($currencyId);
 					$currencySymbol = $currencyRateAndSymbol['symbol'];
 					$currencySymbolPlacement = (isset($current_user)) ? $current_user->currency_symbol_placement : '$';
-					$currencyFormat = '#,##0.00_-';
+					$currencyFormat = '#,##0.00_-[$€]';
 					$tmpCurrencySymbol = '"'.$currencySymbol.'"';
-					$currencyFormat = (strpos($currencySymbolPlacement, '$') === 0) ? $tmpCurrencySymbol.$currencyFormat : $currencyFormat.$tmpCurrencySymbol;
+					//$currencyFormat = (strpos($currencySymbolPlacement, '$') === 0) ? $tmpCurrencySymbol.$currencyFormat : $currencyFormat.$tmpCurrencySymbol;
 					
 					if ($type == 'date' || $type == 'datetime') {
 						if (!empty($value) && $value != '--') {
 							list($date, $time) = explode(' ', $value);
 							$date = DateTimeField::convertToDBFormat($date).' '.$time;
-							$value = PHPExcel_Shared_Date::PHPToExcel(strtotime($date));
+							$value = PhpSpreadsheetDate::PHPToExcel(strtotime($date));
 						} else {
 							$value = '';
 						}
 						
-						$worksheet->setCellValueByColumnAndRow($count, $rowcount, $value);
-						$worksheet->getStyleByColumnAndRow($count, $rowcount)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_XLSX14);
+						$activeWorksheet->setCellValue(array($count, $rowcount), $value);
+						$activeWorksheet->getStyle(array($count, $rowcount))->getNumberFormat()->setFormatCode("dd-mm-yyyy");
 					} elseif ($type == 'double' || $type == 'currency') {
-						if (isset($currencySymbol)) $value = str_replace($currencySymbol, '', $value);
+						if (isset($currencySymbol)) $value = str_replace($currencySymbol, '', html_entity_decode($value));
 						$value = CurrencyField::convertToDBFormat($value, null, true);
-						$worksheet->setCellValueByColumnAndRow($count, $rowcount, $value, PHPExcel_Cell_DataType::TYPE_NUMERIC);
-						if ($type == 'currency') $worksheet->getStyleByColumnAndRow($count, $rowcount)->getNumberFormat()->setFormatCode($currencyFormat);
+						$activeWorksheet->setCellValueExplicit(array($count, $rowcount), $value, DataType::TYPE_NUMERIC);
+						if ($type == 'currency') $activeWorksheet->getStyle(array($count, $rowcount))->getNumberFormat()->setFormatCode($currencyFormat);
+					}
+					elseif ($type == 'checkbox') {
+							if(strcasecmp(trim($value),"yes")==0)
+								$value="1";
+							if(strcasecmp(trim($value),"no")==0)
+								$value="0";
 					} else {
 						if ($type == 'reference') {
 							list($parent_module, $value) = explode('::::', $value);
 						}
-						$worksheet->setCellValueExplicitByColumnAndRow($count, $rowcount, $value, PHPExcel_Cell_DataType::TYPE_STRING);
+						$activeWorksheet->setCellValueExplicit(array($count, $rowcount), $value, DataType::TYPE_STRING);
 					}
 					$count++;
 				}
 				$rowcount++;
 			}
-			$workbookWriter = PHPExcel_IOFactory::createWriter($workbook, 'Excel2007');
-			$workbookWriter->save('php://output');
+			$writer = new Xlsx($worksheet);
+			$writer->save('php://output');
 		}
 	}
 

@@ -7,11 +7,10 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ********************************************************************************/
-global $adb,$log;
+global $adb;
 
 $id = $_REQUEST['record'];
 $move  = $_REQUEST['move'];
-$log->fatal("$id,$move");
 
 if($move == 'Down'){
 	$sequence = $adb->pquery("SELECT sequence FROM vtiger_cron_task WHERE id = ?", array($id));

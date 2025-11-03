@@ -41,35 +41,31 @@ class Vtiger_Request {
 	 */
 	function get($key, $defvalue = '', $purify = true) {
 		$value = $defvalue;
-		if(isset($this->valuemap[$key])) {
+		if (array_key_exists($key, $this->valuemap)) {
 			$value = $this->valuemap[$key];
 		}
-		if($value === '' && isset($this->defaultmap[$key])) {
+		if ($value === '' && array_key_exists($key, $this->defaultmap)) {
 			$value = $this->defaultmap[$key];
 		}
 
-		$isJSON = false;
-		if (is_string($value)) {
-			// NOTE: Zend_Json or json_decode gets confused with big-integers (when passed as string)
-			// and convert them to ugly exponential format - to overcome this we are performin a pre-check
-			if (strpos($value, "[") === 0 || strpos($value, "{") === 0) {
-				$isJSON = true;
-			}
-		}
-		if($isJSON) {
-			$oldValue = Zend_Json::$useBuiltinEncoderDecoder;
-			Zend_Json::$useBuiltinEncoderDecoder = false;
-			$decodeValue = Zend_Json::decode($value);
-			if(isset($decodeValue)) {
-				$value = $decodeValue;
-			}
-			Zend_Json::$useBuiltinEncoderDecoder  = $oldValue;
+		// Check if the value is a serialized empty array '[[]]'
+		if ($value === '[[]]') {
+			$value = [];
 		}
 
-        //Handled for null because vtlib_purify returns empty string
-        if(!empty($value) && $purify){
-            $value = vtlib_purify($value);
-        }
+		// Try to decode JSON
+		if (is_string($value)) {
+			$decodedValue = json_decode($value, true);
+			if ($decodedValue !== null || $value === 'null') {
+				$value = $decodedValue;
+			}
+		}
+
+		// Purify the value
+		if (!empty($value) && $purify) {
+			$value = vtlib_purify($value);
+		}
+
 		return $value;
 	}
 

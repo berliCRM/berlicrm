@@ -16,17 +16,17 @@
             <h3>{vtranslate('LBL_SELECT_EMAIL_IDS', $MODULE)}</h3>
         </div>
         <form class="form-horizontal" id="SendEmailFormStep1" method="post" action="index.php">
-            <input type="hidden" name="selected_ids" value={ZEND_JSON::encode($SELECTED_IDS)} />
-            <input type="hidden" name="excluded_ids" value={ZEND_JSON::encode($EXCLUDED_IDS)} />
+            <input type="hidden" name="selected_ids" value={json_encode($SELECTED_IDS)} />
+            <input type="hidden" name="excluded_ids" value={json_encode($EXCLUDED_IDS)} />
             <input type="hidden" name="viewname" value="{$VIEWNAME}" />
             <input type="hidden" name="module" value="{$MODULE}"/>
             <input type="hidden" name="view" value="ComposeEmail"/>
             <input type="hidden" name="search_key" value= "{$SEARCH_KEY}" />
             <input type="hidden" name="operator" value="{$OPERATOR}" />
             <input type="hidden" name="search_value" value="{$ALPHABET_VALUE}" />
-            <input type="hidden" name="search_params" value='{ZEND_JSON::encode($SEARCH_PARAMS)}' />
+            <input type="hidden" name="search_params" value='{json_encode($SEARCH_PARAMS)}' />
             <input type="hidden" name="fieldModule" value={$SOURCE_MODULE} />
-			<input type="hidden" name="to" value='{ZEND_JSON::encode($TO)}' />
+			<input type="hidden" name="to" value='{json_encode($TO)}' />
 			<input type="hidden" name="cc" value='{$smarty.request.cc|escape}' />
 			<input type="hidden" name="subject" value='{$smarty.request.subject|escape}' />
             {if !empty($PARENT_MODULE)}
@@ -47,14 +47,14 @@
 						{/foreach}
 						<div class="control-group">
 							<label class="radio">
-								<input id="selectAllEmails" type="radio" name="selectedFields" value='{ZEND_JSON::encode(array_keys($EMAIL_FIELD_LIST))}' />
+								<input id="selectAllEmails" type="radio" name="selectedFields" value='{json_encode(array_keys($EMAIL_FIELD_LIST))}' />
 								&nbsp; {vtranslate('LBL_ALL_EMAILS', $SOURCE_MODULE)}
 							</label>
 						</div>
 						{foreach item=EMAIL_FIELD_LABEL key=EMAIL_FIELD_NAME from=$EMAIL_FIELD_LIST name=emailFieldIterator}
 							<div class="control-group">
 								<label class="radio">
-									<input type="radio" class="emailField" name="selectedFields" value='{ZEND_JSON::encode(array($EMAIL_FIELD_NAME))}' {if $smarty.foreach.emailFieldIterator.iteration eq 1} checked="checked" {/if}/>
+									<input type="radio" class="emailField" name="selectedFields" value='{json_encode(array($EMAIL_FIELD_NAME))}' {if $smarty.foreach.emailFieldIterator.iteration eq 1} checked="checked" {/if}/>
 									&nbsp; {$EMAIL_FIELD_LABEL}
 								</label>
 							</div>

@@ -27,7 +27,9 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 
 	/** To avoid working with mailbox */
 	protected function getMailboxModel() {
-		if ($this->skipConnection) return false;
+		if ($this->skipConnection){
+			return false;
+		} 
 		return parent::getMailboxModel();
 	}
 
@@ -45,12 +47,13 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 	 * @param Vtiger_Request $request
 	 * @return boolean
 	 */
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$response = new Vtiger_Response(true);
 		$viewer = $this->getViewer($request);
 
 		if ('find' == $this->getOperationArg($request)) {
+			
 			$this->skipConnection = true; // No need to connect to mailbox here, improves performance
 
 			// Check if the message is already linked.
@@ -140,7 +143,7 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 			$quickCreateViewController->process($request);
 
 			// UI already sent
-			$response = false;
+			return;
 
 		}
         elseif ('create' == $this->getOperationArg($request)) {
@@ -306,9 +309,9 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 			$viewer->assign('MSGNO', $request->get('_msgno'));
 			$viewer->assign('FOLDER', $request->get('_folder'));
 			$viewer->view( 'MailManagerCommentWidget.tpl', 'MailManager' );
-			$response = false;
+			return;
 		}
-		return $response;
+		$response->emit();
 	}
 
 	/**
@@ -454,7 +457,7 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 		return $results;
 	}
 
-    public function validateRequest(Vtiger_Request $request) {
+    public function validateRequest(Vtiger_Request $request):bool {
         return $request->validateWriteAccess();
     }
 }

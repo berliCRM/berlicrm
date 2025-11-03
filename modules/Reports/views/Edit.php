@@ -35,7 +35,7 @@ Class Reports_Edit_View extends Vtiger_Edit_View {
 		}
 	}
 
-	public function preProcess(Vtiger_Request $request, $display = true) {
+	public function preProcess(Vtiger_Request $request, $display = true):void {
 		parent::preProcess($request);
 		$viewer = $this->getViewer($request);
 		$record = $request->get('record');
@@ -238,7 +238,7 @@ Class Reports_Edit_View extends Vtiger_Edit_View {
 		$data = $request->getAll();
 		foreach ($data as $name => $value) {
 			if($name == 'schdayoftheweek' || $name == 'schdayofthemonth' || $name == 'schannualdates' || $name == 'recipients') {
-				$value = Zend_Json::decode($value);
+				$value = json_decode($value);
 				if(!is_array($value)) {	// need to save these as json data
 					$value = array($value);
 				}
@@ -315,7 +315,7 @@ Class Reports_Edit_View extends Vtiger_Edit_View {
 
 		$calculationFields = $reportModel->get('calculation_fields');
 		if($calculationFields) {
-			$calculationFields = Zend_Json::decode($calculationFields);
+			$calculationFields = json_decode($calculationFields);
 			$viewer->assign('LINEITEM_FIELD_IN_CALCULATION', $reportModel->showLineItemFieldsInFilter($calculationFields));
 		}
 		if ($request->get('isDuplicate')) {
@@ -329,7 +329,7 @@ Class Reports_Edit_View extends Vtiger_Edit_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 
@@ -345,7 +345,7 @@ Class Reports_Edit_View extends Vtiger_Edit_View {
 		return $headerScriptInstances;
 	}
 
-	function getHeaderCss(Vtiger_Request $request) {
+	function getHeaderCss(Vtiger_Request $request):array {
 		$headerCssInstances = parent::getHeaderCss($request);
 		$moduleName = $request->getModule();
 		$cssFileNames = array(

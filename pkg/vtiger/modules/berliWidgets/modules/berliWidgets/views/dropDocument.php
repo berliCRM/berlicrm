@@ -22,7 +22,7 @@ class berliWidgets_dropDocument_View extends Vtiger_Detail_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	public function getHeaderScripts(Vtiger_Request $request) {
+	public function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = array();
 		$moduleName = $request->getModule();
 
@@ -36,21 +36,23 @@ class berliWidgets_dropDocument_View extends Vtiger_Detail_View {
 	}
 
     /**
-     * must be overriden
-     * @param Vtiger_Request $request
-     * @return boolean 
+     * must be overridden.
+     *
+     * @param Vtiger_Request $request 
+     * @param bool $display
+     * @return void 
      */
-    public function preProcess(Vtiger_Request $request, $display= true) {
-        return true;
+    public function preProcess(Vtiger_Request $request, $display= true):void {
     }
 
     /**
-     * must be overriden
-     * @param Vtiger_Request $request
-     * @return boolean 
+     * must be overridden.
+     *
+     * @param Vtiger_Request $request 
+     * @param bool $display
+     * @return void 
      */
-    public function postProcess(Vtiger_Request $request) {
-        return true;
+    public function postProcess(Vtiger_Request $request):void {
     }
 
     /**
@@ -58,7 +60,7 @@ class berliWidgets_dropDocument_View extends Vtiger_Detail_View {
      * if view type : detail then show related CRM entries
      * @param Vtiger_Request $request 
      */
-    public function process(Vtiger_Request $request) {
+    public function process(Vtiger_Request $request):void {
 		$this->showDragAnDropMenu($request);
     }
 
@@ -66,7 +68,7 @@ class berliWidgets_dropDocument_View extends Vtiger_Detail_View {
      * display the template.
      * @param Vtiger_Request $request 
      */
-    public function showDragAnDropMenu(Vtiger_Request $request) {
+    public function showDragAnDropMenu(Vtiger_Request $request):void {
 		//document number
 		$parentRecordId = $request->get('record');
 		$moduleName = $request->getModule();

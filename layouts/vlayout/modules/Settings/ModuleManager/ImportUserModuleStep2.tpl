@@ -30,7 +30,7 @@
                                                     {/if}
                                             </div>
                                             <input type="hidden" name="view" value="List">
-                                            <button  class="btn btn-success" type="submit"><strong>{vtranslate('LBL_FINISH', $QUALIFIED_MODULE)}</strong></button>
+                                            <button  class="btn btn-success" type="submit" onclick="history.back()"><strong>{vtranslate('LBL_FINISH', $QUALIFIED_MODULE)}</strong></button>
                                         {else}
                                             <div class="row-fluid" style="margin-top: 2%">
                                                 <div>

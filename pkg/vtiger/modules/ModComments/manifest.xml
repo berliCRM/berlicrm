@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <module>
-<exporttime>2024-08-28 10:20:30</exporttime>
+<exporttime>2025-04-02 12:30:00</exporttime>
 <name>ModComments</name>
 <label>Comments</label>
 <parent>Tools</parent>
@@ -29,6 +29,14 @@
 <sql><![CDATA[CREATE TABLE `vtiger_modcommentscf` (
   `modcommentsid` int(11) NOT NULL,
   PRIMARY KEY (`modcommentsid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+<table>
+<name>vtiger_modcommentsscope</name>
+<sql><![CDATA[CREATE TABLE `vtiger_modcommentsscope` (
+  `modcommentsid` int(11) NOT NULL,
+  `mailto` varchar(100) DEFAULT NULL,
+  `external` int(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 </tables>

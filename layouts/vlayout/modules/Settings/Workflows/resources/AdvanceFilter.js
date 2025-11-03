@@ -428,7 +428,29 @@ Vtiger_Owner_Field_Js('Workflows_Owner_Field_Js',{},{
 
 Vtiger_Picklist_Field_Js('Workflows_Picklist_Field_Js',{},{
 
-        getUi : function(){
+		getUi : function() {
+
+			if(this.data.mandatory) {
+				var pickListValues = this.getPickListValues();
+				var selectedOption = this.getValue();
+				var html = '<select class="row-fluid chzn-select" name="' + this.getName() + '">';
+
+				for (var key in pickListValues) {
+					var label = pickListValues[key];
+					html += '<option value="' + key + '"';
+					if (key === selectedOption) {
+						html += ' selected';
+					}
+					html += '>' + label + '</option>';
+				}
+				html += '</select>';
+				var selectContainer = jQuery(html);
+				this.addValidationToElement(selectContainer);
+
+				return selectContainer;
+			}
+			
+			if(!this.data.mandatory) {
                 var selectedOption = app.htmlDecode(this.getValue());
                 var pickListValues = this.getPickListValues();
                 var tagsArray = new Array();
@@ -450,5 +472,6 @@ Vtiger_Picklist_Field_Js('Workflows_Picklist_Field_Js',{},{
                         maximumSelectionSize: 1
                 });
                 return selectContainer;
-        }
+			}
+		}
 });

@@ -10,7 +10,7 @@
 
 class Emails_List_View extends Vtiger_List_View {
 
-	public function preProcess(Vtiger_Request $request) {
+	public function preProcess(Vtiger_Request $request, bool $display = false):void {
 	}
 
 	public function process(Vtiger_Request $request) {

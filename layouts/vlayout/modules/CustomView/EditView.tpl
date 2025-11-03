@@ -9,7 +9,7 @@
 *
 ********************************************************************************/
 -->*}
-{strip}
+{strip} 
     {assign var=SELECTED_FIELDS value=$CUSTOMVIEW_MODEL->getSelectedFields()}
     <div class="container-fluid">
         <form class="form-inline" id="CustomView" name="CustomView" method="post" action="index.php">
@@ -21,11 +21,11 @@
             <input type="hidden" id="advfilterlist" name="advfilterlist" value=""/>
             <input type="hidden" id="status" name="status" value="{$CV_PRIVATE_VALUE}"/>
 			<div class="CustomFilterViewTitle">
-				<h3>{vtranslate('LBL_CREATE_VIEW',$MODULE)}</h3>
+				<h3>{vtranslate('LBL_CREATE_VIEW',$MODULE)}</h3> 
 			</div>	
 			<hr>
             <input type="hidden" id="sourceModule" value="{$SOURCE_MODULE}">
-            <input type="hidden" name="date_filters" data-value='{Vtiger_Util_Helper::toSafeHTML(ZEND_JSON::encode($DATE_FILTERS))}' />
+            <input type="hidden" name="date_filters" data-value='{Vtiger_Util_Helper::toSafeHTML(json_encode($DATE_FILTERS))}' />
             <div class="filterBlocksAlignment">
 				<br>
                 <div class="row-fluid">
@@ -67,10 +67,9 @@
                             {else}
                                 <optgroup label='{vtranslate($BLOCK_LABEL, $SOURCE_MODULE)}'>
                             {/if}
-                                
                                 {foreach key=FIELD_NAME item=FIELD_MODEL from=$BLOCK_FIELDS}
                                     {if $FIELD_MODEL->isMandatory()}
-                                        {array_push($MANDATORY_FIELDS, $FIELD_MODEL->getCustomViewColumnName())}
+                                        {assign var="MANDATORY_FIELDS" value=$MANDATORY_FIELDS|@array_merge:[$MANDATORY_FIELDS, $FIELD_MODEL->getCustomViewColumnName()]}
                                     {/if}
                                     <option value="{$FIELD_MODEL->getCustomViewColumnName()}" data-field-name="{$FIELD_NAME}"
                                             {if in_array($FIELD_MODEL->getCustomViewColumnName(), $SELECTED_FIELDS)}
@@ -87,7 +86,7 @@
 					<optgroup label='{vtranslate($BLOCK_LABEL, 'Events')}'>
 					{foreach key=FIELD_NAME item=FIELD_MODEL from=$BLOCK_FIELDS}
 						{if $FIELD_MODEL->isMandatory()}
-							{array_push($MANDATORY_FIELDS, $FIELD_MODEL->getCustomViewColumnName())}
+							{assign var="MANDATORY_FIELDS" value=$MANDATORY_FIELDS|@array_merge:[$MANDATORY_FIELDS, $FIELD_MODEL->getCustomViewColumnName()]}
 						{/if}
 						<option value="{$FIELD_MODEL->getCustomViewColumnName()}" data-field-name="{$FIELD_NAME}"
 						{if in_array($FIELD_MODEL->getCustomViewColumnName(), $SELECTED_FIELDS)}
@@ -100,8 +99,8 @@
 					</optgroup>
 				{/foreach}
                 </select>
-                <input type="hidden" name="columnslist" value='{ZEND_JSON::encode($SELECTED_FIELDS)}' />
-                <input id="mandatoryFieldsList" type="hidden" value='{ZEND_JSON::encode($MANDATORY_FIELDS)}' />
+                <input type="hidden" name="columnslist" value='{json_encode($SELECTED_FIELDS)}' />
+                <input id="mandatoryFieldsList" type="hidden" value='{json_encode($MANDATORY_FIELDS)}' />
             </div>
             <br>
             <h4 class="filterHeaders">{vtranslate('LBL_CHOOSE_FILTER_CONDITIONS', $MODULE)} :</h4>

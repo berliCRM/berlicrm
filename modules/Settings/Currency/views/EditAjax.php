@@ -11,7 +11,7 @@
 
 class Settings_Currency_EditAjax_View extends Settings_Vtiger_IndexAjax_View{
     
-    public function process(Vtiger_Request $request) {
+    public function process(Vtiger_Request $request):void {
         $record = $request->get('record');
         if(!empty($record)) {
             $recordModel = Settings_Currency_Record_Model::getInstance($record);

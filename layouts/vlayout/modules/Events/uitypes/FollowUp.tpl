@@ -8,7 +8,7 @@
    * All Rights Reserved.
   *
  ********************************************************************************/
--->*}
+-->*} 
 {assign var="dateFormat" value=$USER_MODEL->get('date_format')}
 {assign var="currentDate" value=Vtiger_Date_UIType::getDisplayDateValue('')}
 {assign var="time" value=Vtiger_Time_UIType::getDisplayTimeValue(null)}
@@ -31,7 +31,7 @@
 	<div>
 		<div class="input-append row-fluid">
 			<div class="span10 row-fluid date">
-				<input name="followup_date_start" type="text" class="span9 dateField" data-date-format="{$dateFormat}" type="text"  data-fieldinfo= '{Vtiger_Util_Helper::toSafeHTML(ZEND_JSON::encode($FIELD_INFO))}'
+				<input name="followup_date_start" type="text" class="span9 dateField" data-date-format="{$dateFormat}" type="text"  data-fieldinfo= '{Vtiger_Util_Helper::toSafeHTML(json_encode($FIELD_INFO))}'
 					   value="{if !empty($FOLLOW_UP_DATE)}{$FOLLOW_UP_DATE}{else}{$currentDate}{/if}" data-validation-engine="validate[funcCall[Vtiger_greaterThanDependentField_Validator_Js.invokeValidation]]" />
 				<span class="add-on"><i class="icon-calendar"></i></span>
 			</div>	

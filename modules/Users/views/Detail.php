@@ -10,7 +10,7 @@
 
 class Users_Detail_View extends Users_PreferenceDetail_View {
 
-	public function preProcess(Vtiger_Request $request, $display=false) {
+	public function preProcess(Vtiger_Request $request, bool $display=false):void {
 		parent::preProcess($request, false);
 		$this->preProcessSettings($request);
 	}
@@ -60,7 +60,7 @@ class Users_Detail_View extends Users_PreferenceDetail_View {
 		$viewer->view('SettingsMenuEnd.tpl', $qualifiedModuleName);
 	}
 
-	public function postProcess(Vtiger_Request $request) {
+	public function postProcess(Vtiger_Request $request):void {
 		$this->postProcessSettings($request);
 		parent::postProcess($request);
 	}
@@ -73,7 +73,7 @@ class Users_Detail_View extends Users_PreferenceDetail_View {
 		parent::process($request);
 	}
 
-	public function getHeaderScripts(Vtiger_Request $request) {
+	public function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

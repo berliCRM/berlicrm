@@ -9,6 +9,7 @@
  ************************************************************************************/
 
 $currencies = array(
+	'Euro'=>array('EUR','€'),
 	'Albania, Leke' => array('ALL' ,'Lek'),
 	'Argentina, Pesos' => array('ARS' ,'$'),
 	'Aruba, Guilders' => array('AWG' ,'ƒ'),
@@ -44,7 +45,6 @@ $currencies = array(
 	'El Salvador, Colón'=>array('SVC','₡'),
 	'England, Pounds'=>array('GBP','£'),
 	'Estonia, Krooni'=>array('EEK','kr'),
-	'Euro'=>array('EUR','€'),
 	'Falkland Islands, Pounds'=>array('FKP','£'),
 	'Fiji, Dollars'=>array('FJD','$'),
 	'Ghana, Cedis'=>array('GHC','¢'),

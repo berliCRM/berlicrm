@@ -33,11 +33,11 @@ class Vtiger_MassSave_Action extends Vtiger_Mass_Action {
                 $allRecordSave= false;
             }
 		}
-        
+
         $response = new Vtiger_Response();
         if($allRecordSave) {
            $response->setResult(true);
-        } 
+        }
 		else {
            $response->setResult(false);
         }
@@ -81,20 +81,20 @@ class Vtiger_MassSave_Action extends Vtiger_Mass_Action {
 						//date field
 						$recordModel->set($fieldName, Null);
 					}
-					else if ($uiType == 56 OR $uiType == 51 OR $uiType == 7 OR $uiType == 9) {
-						//checkbox field, integer field
+					else if ($uiType == 56) {
+						//checkbox field
 						$recordModel->set($fieldName, '0');
 					}
-					else if ($uiType == 15 OR $uiType == 33 OR $uiType == 1 OR $uiType == 11 OR $uiType == 12 OR $uiType == 13 OR $uiType == 69 OR $uiType == 53 OR $uiType == 83 OR $uiType == 72 OR $uiType == 52 OR $uiType == 75 OR $uiType == 17 OR $uiType == 13 OR $uiType == 21 OR $uiType == 19 OR $uiType == 57 OR $uiType == 71 OR $uiType == 58 OR $uiType == 59 OR $uiType == 16) {
+					else if ($uiType == 15 OR $uiType == 33 OR $uiType == 1 OR $uiType == 11 OR $uiType == 12 OR $uiType == 13 OR $uiType == 69 OR $uiType == 53 OR $uiType == 7 OR $uiType == 83 OR $uiType == 72 OR $uiType == 52 OR $uiType == 75 OR $uiType == 17 OR $uiType == 51 OR $uiType == 13 OR $uiType == 21 OR $uiType == 19 OR $uiType == 13 OR $uiType == 57 OR $uiType == 71 OR $uiType == 9 OR $uiType == 58 OR $uiType == 59 OR $uiType == 23 OR $uiType == 16) {
 						//picklist field, multi picklist field and any other field types
 						$recordModel->set($fieldName, '');
 					}
-				}				
+				}
 				else {
                     $uiType = $fieldModel->get('uitype');
                     if($uiType == 70) {
                         $recordModel->set($fieldName, $recordModel->get($fieldName));
-                    }  
+                    }
 					else {
                         $uiTypeModel = $fieldModel->getUITypeModel();
                         $recordModel->set($fieldName, $uiTypeModel->getUserRequestValue($recordModel->get($fieldName)));

@@ -328,5 +328,10 @@ class MailManager_Draft_Model {
 			$filesize = sprintf("%0.2f",round($filesize/(1024*1024), 2)).'MB';
 		return $filesize;
 	}
+
+	public function hasError() {
+		return !empty($this->mError);
+	}
+	
 }
 ?>

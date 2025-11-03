@@ -22,8 +22,6 @@ include_once 'includes/main/WebUI.php';
 
 require_once('libraries/nusoap/nusoap.php');
 
-$log = &LoggerManager::getLogger('firefoxlog');
-
 $NAMESPACE = 'http://www.vtiger.com/products/crm';
 $server = new soap_server;
 $accessDenied = "You are not authorized for performing this action";
@@ -396,7 +394,6 @@ function CheckRssPermission($username,$sessionid)
     
 function create_site_from_webform($username,$sessionid,$portalname,$portalurl)
 {
-	global $log;
 	global $adb;
 	global $current_user;
 	if(!validateSession($username,$sessionid))
@@ -411,7 +408,6 @@ function create_site_from_webform($username,$sessionid,$portalname,$portalurl)
 	{
 		$result = SavePortal($portalname,$portalurl);
 
-		$adb->println("Create New Portal from Web Form - Ends");
 
 		if($result != '')
 		  return 'URL added successfully';
@@ -425,7 +421,7 @@ function create_site_from_webform($username,$sessionid,$portalname,$portalurl)
 }
 function LogintoVtigerCRM($user_name,$password,$version)
 {
-	global $log,$adb;
+	global $adb;
 	require_once('modules/Users/Users.php');
 	include('vtigerversion.php');
 	if($version != $vtiger_current_version)
@@ -463,8 +459,6 @@ function LogintoVtigerCRM($user_name,$password,$version)
 
 function create_rss_from_webform($username,$sessionid,$url)
 {
-
-	global $log;
 	global $adb;
 	global $current_user;
 	if(!validateSession($username,$sessionid))
@@ -505,7 +499,6 @@ function create_rss_from_webform($username,$sessionid,$url)
 
 function create_note_from_webform($username,$sessionid,$subject,$desc)
 {
-	global $log;
 	global $adb;
 	global $current_user;
 	if(!validateSession($username,$sessionid))
@@ -515,7 +508,6 @@ function create_note_from_webform($username,$sessionid,$subject,$desc)
 	$user_id=$seed_user->retrieve_user_id($username);
 	$current_user=$seed_user;
 	$current_user->retrieve_entity_info($user_id, 'Users');
-	$adb->println("Create New Document from Web Form - Starts");
 	require_once("modules/Documents/Documents.php");
 
 	$focus = new Documents();
@@ -527,8 +519,6 @@ function create_note_from_webform($username,$sessionid,$subject,$desc)
 		$focus->save("Documents");
 
 		$focus->retrieve_entity_info($focus->id,"Documents");
-
-		$adb->println("Create New Document from Web Form - Ends");
 
 		if($focus->id != '')
 		return 'Document added successfully.';
@@ -544,7 +534,6 @@ function create_note_from_webform($username,$sessionid,$subject,$desc)
 
 function create_product_from_webform($username,$sessionid,$productname,$code,$website)
 {
-	global $log;
 	global $adb;
 	global $current_user;
 	if(!validateSession($username,$sessionid))
@@ -554,7 +543,6 @@ function create_product_from_webform($username,$sessionid,$productname,$code,$we
 	$user_id=$seed_user->retrieve_user_id($username);
 	$current_user=$seed_user;
 	$current_user->retrieve_entity_info($user_id, 'Users');
-	$adb->println("Create New Product from Web Form - Starts");
 	
   require_once("modules/Products/Products.php");
 	if(isPermitted("Products","EditView") == "yes")
@@ -567,7 +555,6 @@ function create_product_from_webform($username,$sessionid,$productname,$code,$we
 		$focus->column_fields['discontinued'] = "1";
 
 		$focus->save("Products");
-		$adb->println("Create New Product from Web Form - Ends");
 
 		if($focus->id != '')
 		  return 'Product added successfully.';
@@ -584,7 +571,6 @@ function create_product_from_webform($username,$sessionid,$productname,$code,$we
 
 function create_vendor_from_webform($username,$sessionid,$vendorname,$email,$phone,$website)
 {
-	global $log;
 	global $adb;
 	global $current_user;
 	if(!validateSession($username,$sessionid))
@@ -594,7 +580,6 @@ function create_vendor_from_webform($username,$sessionid,$vendorname,$email,$pho
 	$user_id=$seed_user->retrieve_user_id($username);
 	$current_user=$seed_user;
 	$current_user->retrieve_entity_info($user_id, 'Users');
-	$adb->println("Create New Vendor from Web Form - Starts");
 	require_once("modules/Vendors/Vendors.php");
 	if(isPermitted("Vendors","EditView" ) == "yes")
 	{
@@ -607,8 +592,6 @@ function create_vendor_from_webform($username,$sessionid,$vendorname,$email,$pho
 		$focus->save("Vendors");
 
 		$focus->retrieve_entity_info($focus->id,"Vendors");
-
-		$adb->println("Create New Vendor from Web Form - Ends");
 
 		if($focus->id != '')
 		return 'Vendor added successfully';
@@ -625,7 +608,6 @@ function create_vendor_from_webform($username,$sessionid,$vendorname,$email,$pho
 
 function create_ticket_from_toolbar($username,$sessionid,$title,$description,$priority,$severity,$category,$user_name,$parent_id,$product_id)
 {
-	global $log;
 	global $adb;
 	global $current_user;
 	if(!validateSession($username,$sessionid))
@@ -675,8 +657,7 @@ function create_account($username,$sessionid,$accountname,$email,$phone,$primary
 {
 	if(!validateSession($username,$sessionid))
 	return null;
-	global $current_user,$log,$adb;
-	$log->DEBUG("Entering with data ".$username.$accountname.$email.$phone."<br>".$primary_address_street.$primary_address_city.$primary_address_state.$primary_address_postalcode.$primary_address_country);
+	global $current_user,$adb;
 	require_once("modules/Users/Users.php");
 	$seed_user=new Users();
 	$user_id=$seed_user->retrieve_user_id($username);
@@ -722,8 +703,6 @@ function create_account($username,$sessionid,$accountname,$email,$phone,$primary
 
 function create_lead_from_webform($username,$sessionid,$lastname,$email,$phone,$company,$country,$description,$firstname)
 {
-
-	global $log;
 	global $adb;
 	global $current_user;
 	if(!validateSession($username,$sessionid))
@@ -733,7 +712,6 @@ function create_lead_from_webform($username,$sessionid,$lastname,$email,$phone,$
 	$user_id=$seed_user->retrieve_user_id($username);
 	$current_user=$seed_user;
 	$current_user->retrieve_entity_info($user_id, 'Users');
-	$adb->println("Create New Lead from Web Form - Starts");
 	require_once("modules/Leads/Leads.php");
 
 	$focus = new Leads();
@@ -748,7 +726,6 @@ function create_lead_from_webform($username,$sessionid,$lastname,$email,$phone,$
 		$focus->column_fields['description'] = $description;
 		$focus->column_fields['assigned_user_id'] = $user_id;
 		$focus->save("Leads");
-		$adb->println("Create New Lead from Web Form - Ends");
 		if($focus->id != '')
 		  return "Thank you for your interest. Information has been successfully added as Lead.";
 		else
@@ -764,8 +741,6 @@ function create_lead_from_webform($username,$sessionid,$lastname,$email,$phone,$
 
 function create_contacts($user_name,$sessionid,$firstname,$lastname,$phone,$mobile,$email,$street,$city,$state,$country,$zipcode)
 {
-	global $log;
-	$log->DEBUG("Entering into create_contacts");
 	$birthdate = "";
 	if(!validateSession($user_name,$sessionid))
 	return null;
@@ -776,7 +751,7 @@ function create_contacts($user_name,$sessionid,$firstname,$lastname,$phone,$mobi
 
 function create_contact1($user_name, $first_name, $last_name, $email_address ,$account_name , $salutation , $title, $phone_mobile, $reports_to,$primary_address_street,$primary_address_city,$primary_address_state,$primary_address_postalcode,$primary_address_country,$alt_address_city,$alt_address_street,$alt_address_state,$alt_address_postalcode,$alt_address_country,$office_phone,$home_phone,$other_phone,$fax,$department,$birthdate,$assistant_name,$assistant_phone,$description='')
 {
-	global $adb,$log;
+	global $adb;
 	global $current_user;
 	require_once('modules/Users/Users.php');
 	$seed_user = new Users();
@@ -832,7 +807,7 @@ function create_contact1($user_name, $first_name, $last_name, $email_address ,$a
 }
 function GetPicklistValues($username,$sessionid,$tablename)
 {
-	global $current_user,$log,$adb;
+	global $current_user,$adb;
 	if(!validateSession($username,$sessionid))
 	return null;
 
@@ -873,7 +848,6 @@ function GetPicklistValues($username,$sessionid,$tablename)
 function unsetServerSessionId($id)
 {
 	global $adb;
-	$adb->println("Inside the function unsetServerSessionId");
 
 	$id = (int) $id;
 
@@ -884,30 +858,25 @@ function unsetServerSessionId($id)
 function validateSession($username, $sessionid)
 {
 	global $adb,$current_user;
-	$adb->println("Inside function validateSession($username, $sessionid)");
 	require_once("modules/Users/Users.php");
 	$seed_user = new Users();
 	$id = $seed_user->retrieve_user_id($username);
 
 	$server_sessionid = getServerSessionId($id);
 
-	$adb->println("Checking Server session id and customer input session id ==> $server_sessionid == $sessionid");
 
 	if($server_sessionid == $sessionid)
 	{
-		$adb->println("Session id match. Authenticated to do the current operation.");
 		return true;
 	}
 	else
 	{
-		$adb->println("Session id does not match. Not authenticated to do the current operation.");
 		return false;
 	}
 }
 function getServerSessionId($id)
 {
 	global $adb;
-	$adb->println("Inside the function getServerSessionId($id)");
 
 	//To avoid SQL injection we are type casting as well as bound the id variable. In each and every function we will call this function
 	$id = (int) $id;

@@ -12,7 +12,7 @@ require_once('data/Tracker.php');
 require_once 'vtlib/Vtiger/Module.php';
 
 class ModCommentsCore extends CRMEntity {
-	var $db, $log; // Used in class functions of CRMEntity
+	var $db; // Used in class functions of CRMEntity
 
 	var $table_name = 'vtiger_modcomments';
 	var $table_index= 'modcommentsid';
@@ -93,10 +93,9 @@ class ModCommentsCore extends CRMEntity {
 	var $mandatory_fields = Array('createdtime', 'modifiedtime', 'commentcontent');
 
 	function __construct() {
-		global $log, $currentModule;
+		global $currentModule;
 		$this->column_fields = getColumnFields('ModComments');
 		$this->db = PearDatabase::getInstance();
-		$this->log = $log;
 	}
 
 	function getSortOrder() {

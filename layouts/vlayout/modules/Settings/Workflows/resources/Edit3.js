@@ -503,7 +503,7 @@ Settings_Workflows_Edit_Js("Settings_Workflows_Edit3_Js",{},{
 		});
 		this.fieldValueMap = fieldValueReMap;
 	},
-	
+
 	loadFieldSpecificUi : function(fieldSelect) {
 		var selectedOption = fieldSelect.find('option:selected');
 		var row = fieldSelect.closest('div.conditionRow');
@@ -524,9 +524,9 @@ Settings_Workflows_Edit_Js("Settings_Workflows_Edit3_Js",{},{
 		var fieldSpecificUi = this.getFieldSpecificUi(fieldSelect);
 
 		//remove validation since we dont need validations for all eleements
-		// Both filter and find is used since we dont know whether the element is enclosed in some conainer like currency
+		// Both filter and find is used since we dont know whether the element is enclosed in some container like currency
 		var fieldName = fieldModel.getName();
-		if(fieldModel.getType() == 'multipicklist'){
+		if(fieldModel.getType() == 'multipicklist') {
 			fieldName = fieldName+"[]";
 		}
 		fieldSpecificUi.filter('[name="'+ fieldName +'"]').attr('data-value', 'value').addClass('row-fluid');
@@ -540,7 +540,7 @@ Settings_Workflows_Edit_Js("Settings_Workflows_Edit3_Js",{},{
 			fieldSpecificUi.filter('[name="'+ fieldName +'"]').removeAttr('data-validation-engine');
 			fieldSpecificUi.find('[name="'+ fieldName +'"]').removeAttr('data-validation-engine');
 		}
-		
+
 		fieldUiHolder.html(fieldSpecificUi);
 
 		if(fieldSpecificUi.is('input.select2')){
@@ -579,7 +579,9 @@ Settings_Workflows_Edit_Js("Settings_Workflows_Edit3_Js",{},{
 	 */
 	getFieldSpecificUi : function(fieldSelectElement) {
 		var fieldModel = this.fieldModelInstance;
-		return  jQuery(fieldModel.getUiTypeSpecificHtml())
+		var uiTypeHtml = fieldModel.getUiTypeSpecificHtml();
+		var fieldElement = jQuery(uiTypeHtml);
+		return fieldElement;
 	},
 
 	

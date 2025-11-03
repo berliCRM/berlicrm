@@ -22,7 +22,7 @@
 		<input type="hidden" name="action" value="SaveAjax" />
 		<input type="hidden" name="mode" value="rename" />
 		<input type="hidden" name="picklistName" value="{$FIELD_MODEL->get('name')}" />
-		<input type="hidden" name="pickListValues" value='{Vtiger_Util_Helper::toSafeHTML(ZEND_JSON::encode($SELECTED_PICKLISTFIELD_EDITABLE_VALUES))}' />
+		<input type="hidden" name="pickListValues" value='{Vtiger_Util_Helper::toSafeHTML(json_encode($SELECTED_PICKLISTFIELD_EDITABLE_VALUES))}' />
 		<div class="modal-body tabbable">
 			<div class="control-group">
 				<div class="control-label">{vtranslate('LBL_ITEM_TO_RENAME',$QUALIFIED_MODULE)}</div>
@@ -37,7 +37,7 @@
 					</select>	
 				</div><br>
 				<div class="control-label"><span class="redColor">*</span>{vtranslate('LBL_ENTER_NEW_NAME',$QUALIFIED_MODULE)}</div>
-				<div class="controls"><input type="text" data-validation-engine="validate[required, funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-validator={Zend_Json::encode([['name'=>'FieldLabel']])} name="newValue"></div>
+				<div class="controls"><input type="text" data-validation-engine="validate[required, funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-validator={json_encode([['name'=>'FieldLabel']])} name="newValue"></div>
 				{if $SELECTED_PICKLISTFIELD_NON_EDITABLE_VALUES}
 					<br>
 					<div class="control-label">{vtranslate('LBL_NON_EDITABLE_PICKLIST_VALUES',$QUALIFIED_MODULE)}</div>

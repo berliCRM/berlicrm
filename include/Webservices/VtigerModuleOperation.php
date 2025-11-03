@@ -13,8 +13,8 @@ class VtigerModuleOperation extends WebserviceEntityOperation {
 	protected $isEntity = true;
 	protected $partialDescribeFields = null;
 	
-	public function __construct($webserviceObject,$user,$adb,$log){
-		parent::__construct($webserviceObject,$user,$adb,$log);
+	public function __construct($webserviceObject,$user,$adb){
+		parent::__construct($webserviceObject,$user,$adb);
 		$this->meta = $this->getMetaInstance();
 		$this->tabId = $this->meta->getTabId();
 	}

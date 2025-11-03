@@ -14,7 +14,7 @@
 <div style='padding:5px;'>
 {/if}
 {if $HISTORIES neq false}
-	{foreach key=$index item=HISTORY from=$HISTORIES}
+	{foreach key=INDEX item=HISTORY from=$HISTORIES}
 		{assign var=MODELNAME value=get_class($HISTORY)}
 		{if $MODELNAME == 'ModTracker_Record_Model'}
 			{assign var=USER value=$HISTORY->getModifiedBy()}

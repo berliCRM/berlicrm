@@ -121,7 +121,6 @@ $languageStrings = array(
     'LBL_OUTGOING_SERVER_NOTE' => 'NOTE: Here you set up the outgoing mail server for all CRM users. For an encrypted link use the following formats: ssl://smtp.myaddress.com or tls://smtp.myaddress.com. If a special port is required you may use ssl://smtp.myaddress.com:portno. If the "From Email" field is left blank then the email address of the logged in user will be used as FROM address. After Saving an email is send to the CRM administrator to confirm working server credentials.',
 	'LBL_OUTGOING_SERVER' => 'Outgoing Server',
 	'LBL_PASSWORD' => 'Password',
-	'LBL_PBXMANAGER' => 'PBXManager',
 	'LBL_PICKLIST_DEPENDENCY_DESCRIPTION' => 'Setup Dependency between Picklist values in each module',
 	'LBL_PICKLIST_DEPENDENCY_SETUP' => 'Picklist Dependency Setup',
 	'LBL_PICKLIST_DESCRIPTION' => 'Customize Picklist values in each module',
@@ -297,6 +296,11 @@ $languageStrings = array(
 	'LBL_SEARCH_SETUP' => 'Search Setup',
 	
 	'LBL_INACTIVE_USERS' => 'inactive Users',
+	
+	//added for default values in Tax Index
+	'LBL_VAT' => 'VAT',
+	'LBL_SALES_TAX' => 'Sales',
+	'LBL_SERVICE_TAX' => 'Service',
 
     //ADDED FOR BACKUP DOWNLOAD
     'LBL_DOWNLOAD_BACKUP_FILE' => 'Download Backup Archive',

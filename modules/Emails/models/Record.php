@@ -9,6 +9,7 @@
  *************************************************************************************/
 
 class Emails_Record_Model extends Vtiger_Record_Model {
+	public $fromAddress = '';
 
 	/**
 	 * Function to get the Detail View url for the record
@@ -57,7 +58,12 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 		$mailer->IsHTML(true);
 
 		$fromEmail = $this->getFromEmailAddress();
-		$replyTo = $currentUserModel->get('email1');
+		if (empty($fromEmail)) {
+			$replyTo = $currentUserModel->get('email1');
+		}
+		else {
+			$replyTo = $fromEmail;
+		}
 		$userName = $currentUserModel->getName();
 
 		// To eliminate the empty value of an array
@@ -245,6 +251,9 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 		$result = $db->pquery('SELECT from_email_field FROM vtiger_systems WHERE server_type=?', array('email'));
 		if ($db->num_rows($result)) {
 			$fromEmail = decode_html($db->query_result($result, 0, 'from_email_field'));
+		}
+		if (isset($this->fromAddress) && !empty($this->fromAddress) && empty($fromEmail)) {
+			$fromEmail = $this->fromAddress;
 		}
 		if (empty($fromEmail)) $fromEmail = $currentUserModel->get('email1');
 		return $fromEmail;

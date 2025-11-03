@@ -25,7 +25,6 @@
 			return $types[$user->id][$fieldTypeString];
 		}
 		try{
-			global $log;
 			/**
 			 * @var PearDatabase
 			 */
@@ -91,7 +90,7 @@
 					$handlerClass = $webserviceObject->getHandlerClass();
 
 					require_once $handlerPath;
-					$handler = new $handlerClass($webserviceObject,$user,$db,$log);
+					$handler = new $handlerClass($webserviceObject,$user,$db);
 					$meta = $handler->getMeta();
 					if($meta->hasAccess()===true){
 						array_push($accessibleEntities,$entity);

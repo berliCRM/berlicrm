@@ -16,7 +16,7 @@ Class ChartUtils {
 	// Function to generate Bar Chart
 	public static function getBarChart($xaxisData, $yaxisData, $title='', $width='', $height='', $charttype='vertical', $cachedFileName=false, $target=false, $color='') {
 
-		global $log, $lang_crm, $default_charset;
+		global $lang_crm, $default_charset;
 
 		require_once('include/utils/utils.php');
 		require_once('include/utils/GraphUtils.php');
@@ -204,7 +204,7 @@ Class ChartUtils {
 	// Function to generate Pie Chart
 	public static function getPieChart($xaxisData, $yaxisData, $title='', $width='', $height='', $charttype='vertical', $cachedFileName=false, $target=false, $color='') {
 
-		global $log, $lang_crm, $default_charset;
+		global $lang_crm, $default_charset;
 
 		require_once('include/utils/utils.php');
 		require_once('include/utils/GraphUtils.php');

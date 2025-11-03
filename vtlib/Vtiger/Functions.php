@@ -52,7 +52,7 @@ class Vtiger_Functions {
 	}
 
 	static function currentUserDisplayDateNew() {
-		global $log, $current_user;
+		global $current_user;
 		$date = new DateTimeField(null);
 		return $date->getDisplayDate($current_user);
 	}
@@ -479,6 +479,9 @@ class Vtiger_Functions {
 
 	// Utility
 	static function formatDecimal($value){
+		if ($value === '' || $value === null) {
+			return '';
+		}			
 		$fld_value = explode('.', $value);
 		if(isset ($fld_value[1]) && $fld_value[1] != ''){
 			$fld_value = rtrim($value, '0');
@@ -1358,20 +1361,20 @@ class Vtiger_Functions {
 			return false;
 		}
 	}
-
-	public static function deleteAttachment($attachment) {
-		global $adb;
-		$attachId = $attachment['attachmentsid'];
-		$attachPath = $attachment['path'];
-		$attachName = $attachment['name'];
-		$fullPath = $attachPath . $attachId . "_" . $attachName;
-		if (file_exists($fullPath)) {
-			$delQuery = "DELETE attachments, crmentity FROM vtiger_attachments attachments 
-				INNER JOIN vtiger_crmentity crmentity ON attachments.attachmentsid = crmentity.crmid 
-				WHERE attachments.attachmentsid = ?";
-			$adb->pquery($delQuery, array($attachId));
-			unlink($fullPath);
-		}
+	
+    public static function deleteAttachment($attachment) {
+            global $adb;
+            $attachId = $attachment['attachmentsid'];
+            $attachPath = $attachment['path'];
+            $attachName = $attachment['name'];
+            $fullPath = $attachPath . $attachId . "_" . $attachName;
+            if (file_exists($fullPath)) {
+                $delQuery = "DELETE attachments, crmentity FROM vtiger_attachments attachments 
+                    INNER JOIN vtiger_crmentity crmentity ON attachments.attachmentsid = crmentity.crmid 
+                    WHERE attachments.attachmentsid = ?";
+                $adb->pquery($delQuery, array($attachId));
+                unlink($fullPath);
+            }
     }
 
     public static function getAttachmentInfo($id) {
@@ -1390,7 +1393,28 @@ class Vtiger_Functions {
         return false;
     }
 
+	/**
+	 * Resolves the source module of a given record ID.
+	 * Checks whether the ID belongs to a user or a CRM module record.
+	 *
+	 * @param int $recordId The record ID to resolve.
+	 * @return string|null The module name (e.g. 'Users', 'Contacts'), or null if not found.
+	 */
+	public static function resolveRecordSource($recordId) {
+		$adb = PearDatabase::getInstance();
+
+		$setype = self::getCRMRecordType($recordId);
+		if ($setype !== null) {
+			return $setype;
+		}
+		$queryUserId = "SELECT id FROM vtiger_users WHERE id = ?";
+		$result = $adb->pquery($queryUserId, array($recordId));
+		if ($result && $adb->num_rows($result) > 0) {
+			return 'Users';
+		}
+		return null;
+	}
+
+
+
 }
-
-
-

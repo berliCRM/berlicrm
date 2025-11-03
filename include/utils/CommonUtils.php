@@ -67,6 +67,17 @@ function getTabOwnedBy($module) {
 	return Vtiger_Functions::getModuleOwner($module);
 }
 
+/**
+ * Wrapper for resolving the source module of a record ID.
+ * Delegates to Vtiger_Functions::resolveRecordSource().
+ *
+ * @param int $crmid The record ID to resolve.
+ * @return string|null The module name (e.g. 'Users', 'Leads'), or null if not found.
+ */
+function resolveRecordSource($crmid) {
+	return Vtiger_Functions::resolveRecordSource($crmid);
+}
+
 function getSalesEntityType($crmid) {
 	return Vtiger_Functions::getCRMRecordType($crmid);
 }
@@ -507,14 +518,23 @@ return Vtiger_Functions::get_group_options();
   * @returns $setype -- setype:: Type text
   */
 function getSetypeForRecord($record_id) {
-	global $log;
-	$log->debug("Entering getSetypeForRecord(".$record_id.") method ...");
 	global $adb;
 	$query = "SELECT setype FROM vtiger_crmentity where crmid =?";
 	$result = $adb->pquery($query, array($record_id));
 	$setype=$adb->query_result($result,0,'setype');
-	$log->debug("Exiting getSetypeForRecord method ...");
 	return $setype;
+}
+
+
+/** Function that checks if the input value is empty or not a valid number before formatting it
+  */
+function safe_number_format($number, $decimals = 0, $dec_point = ',', $thousands_sep = '.') {
+    if (is_numeric($number)) {
+        return number_format($number, $decimals, $dec_point, $thousands_sep);
+    } 
+	else {
+        return '';
+    }
 }
 
 ?>

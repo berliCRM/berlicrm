@@ -33,20 +33,19 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 
 		// get group name and nr.
 		$q = "SELECT cleverreachname, bcr_campaign_no FROM `vtiger_berlicleverreach` WHERE cleverreachid = ?";
-		$result = $this->db->pquery($q,array($this->recordid));
-		$row = $this->db->fetchByAssoc($result,-1,false);
+		$result = $this->db->pquery($q, array($this->recordid));
+		$row = $this->db->fetchByAssoc($result, -1, false);
         $this->crmgrouplabel = $row['cleverreachname'];
         $this->crmgroupnr = $row['bcr_campaign_no'];
 		
         $response = new Vtiger_Response();
 		
-		if ($this->step==1) {
-		
+		if ($this->step == 1) {
 			// clear used session variables
 			unset($_SESSION["clvrreach"]);
 			unset($_SESSION["clvractions"]);
 
-			$_SESSION["clvrreach"]["starttime"]=time();
+			$_SESSION["clvrreach"]["starttime"] = time();
 			
 			// get current global attribute fields from cleverreach, create missing ones
 			$clvr = new cleverreachAPI();
@@ -61,24 +60,23 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
                 return;
             }
 
-			if ($fieldsneeded==0) {
-				$response->setResult(array('',vtranslate('LBL_CLEVERREACH_ATTRIB_OK','berliCleverReach'),2));
+			if ($fieldsneeded == 0) {
+				$response->setResult(array('',vtranslate('LBL_CLEVERREACH_ATTRIB_OK','berliCleverReach'), 2));
 			}
 			else {
-				$response->setResult(array('',vtranslate('LBL_CLEVERREACH_ATTRIB_CREATED','berliCleverReach'),1));
+				$response->setResult(array('',vtranslate('LBL_CLEVERREACH_ATTRIB_CREATED','berliCleverReach'), 1));
                 sleep(3);
 			}
 		}
 
-		elseif ($this->step==2) {
-
+		elseif ($this->step == 2) {
 			// load entities from auxilliary table that have been synced to this group before to identify changes
 			$q = "SELECT crmid FROM `vtiger_berlicleverreach_synced_entities` LEFT JOIN `vtiger_crmentity` USING (crmid) WHERE crgroupid = ? AND recordid = ? AND deleted = 0";
 			$result = $this->db->pquery($q,array($this->crgroupid,$this->recordid));
-			while($row = $this->db->fetchByAssoc($result,-1,false)) {
-				$crmidsyncedbefore[$row["crmid"]]=true;
+			while($row = $this->db->fetchByAssoc($result, -1, false)) {
+				$crmidsyncedbefore[$row["crmid"]] = true;
 			}
-			$_SESSION['clvrreach']['crmidsyncedbefore']=$crmidsyncedbefore;
+			$_SESSION['clvrreach']['crmidsyncedbefore'] = $crmidsyncedbefore;
 			
 			// load contacts from vTiger database
 			$Contactquery = "SELECT DISTINCT
@@ -102,8 +100,8 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 
 			$crm_data = array();
 
-			$result = $this->db->pquery($Contactquery,array($this->recordid,$this->recordid));
-			while($row = $this->db->fetchByAssoc($result,-1,false)) {
+			$result = $this->db->pquery($Contactquery, array($this->recordid, $this->recordid));
+			while($row = $this->db->fetchByAssoc($result, -1, false)) {
 				if (empty($row["email"])) {	
 					$_SESSION['clvrreach']['brokenContacts'][$row["crmid"]]=$row["firstname"]." ".$row["lastname"];
 				}
@@ -140,11 +138,11 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
                     WHERE (rel1.relcrmid = ? OR rel2.crmid = ?)
 					AND vtiger_crmentity.deleted = 0"; # AND converted <> 1
 
-			$result = $this->db->pquery($Leadquery,array($this->recordid,$this->recordid));
-			while($row = $this->db->fetchByAssoc($result,-1,false)) {
+			$result = $this->db->pquery($Leadquery, array($this->recordid,$this->recordid));
+			while($row = $this->db->fetchByAssoc($result, -1, false)) {
 				
 				// leads left over in CRM sync group after conversion are removed and skipped
-				if ($row["converted"]==1) {
+				if ($row["converted"] == 1) {
 					$this->removeFromSyncGroup($row["crmid"]);
 					$this->removeFromAuxtable($row["crmid"]);
 					unset($crmidsyncedbefore[$row["crmid"]]);
@@ -152,7 +150,7 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 				}
 				
 				if (empty($row["email"])) {	
-					$_SESSION['clvrreach']['brokenLeads'][$row["crmid"]]=$row["firstname"]." ".$row["lastname"];
+					$_SESSION['clvrreach']['brokenLeads'][$row["crmid"]] = $row["firstname"]." ".$row["lastname"];
 				}
 				else {
 					$crm_data[$row["email"]] = array(
@@ -170,34 +168,32 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 			}
 
 			// entity IDs left in $crmidsyncedbefore must have been removed locally since last sync
-			if (count($crmidsyncedbefore)>0) {
+			if (!empty($crmidsyncedbefore) && count($crmidsyncedbefore) > 0) {
 				$_SESSION['clvrreach']['removedlocally']=array_keys($crmidsyncedbefore);
 			}
 
 			// store data in session for next steps
-			$_SESSION['clvrreach']['localcontacts']=$crm_data;
+			$_SESSION['clvrreach']['localcontacts'] = $crm_data;
 
-			if (count($crm_data)>0) $msg[] = sprintf(getTranslatedString('LBL_GOT_ALL_MEMBERS_VTIGER_CLEVERREACH','berliCleverReach'),htmlspecialchars($this->crmgrouplabel),$this->crmgroupnr);
+			if (count($crm_data)>0) $msg[] = sprintf(getTranslatedString('LBL_GOT_ALL_MEMBERS_VTIGER_CLEVERREACH','berliCleverReach'), htmlspecialchars($this->crmgrouplabel), $this->crmgroupnr);
 			
 			// load contacts from cleverreach group $this->crgroupid into array with email as associative index
 			$clvr = new cleverreachAPI();
 			$rest = $clvr->getrest();
 
-			$_SESSION['clvrreach']['remotecontacts']=$clvr->fetchCleverReachGroupByID($this->crgroupid);
+			$_SESSION['clvrreach']['remotecontacts'] = $clvr->fetchCleverReachGroupByID($this->crgroupid);
 
 			if (!is_array($_SESSION['clvrreach']['remotecontacts'])) {
 				$response->setError(array(getTranslatedString('LBL_API_ERROR','berliCleverReach')));
 			} 
-			else {
+			else {	
+				if(count($_SESSION['clvrreach']['remotecontacts']) > 0) $msg[]= sprintf(getTranslatedString('LBL_GOT_ALL_MEMBERS_CLEVERREACH_API','berliCleverReach'), htmlspecialchars($this->crgroupname), $this->crgroupid);
 				
-				if (count($_SESSION['clvrreach']['remotecontacts']) > 0) $msg[]= sprintf(getTranslatedString('LBL_GOT_ALL_MEMBERS_CLEVERREACH_API','berliCleverReach'),htmlspecialchars($this->crgroupname),$this->crgroupid);
-				
-				$response->setResult(array(getTranslatedString('LBL_STEP','berliCleverReach').' 2',implode("<br>",$msg),3));
+				$response->setResult(array(getTranslatedString('LBL_STEP','berliCleverReach').' 2',implode("<br>",$msg), 3));
 			}
 		}
 
-		elseif ($this->step==3) {
-
+		elseif ($this->step == 3) {
 			$msg = "";
 			
 			// data processing
@@ -208,59 +204,50 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 				$q = "SELECT contactid,email FROM vtiger_contactdetails WHERE contactid IN (".implode(', ', $_SESSION["clvrreach"]["removedlocally"]).")";
 				$result = $this->db->query($q);
 
-				while($row = $this->db->fetchByAssoc($result,-1,false)) {
-					$_SESSION["clvractions"]["delete"][$row["contactid"]]=$row["email"];
+				while($row = $this->db->fetchByAssoc($result, -1, false)) {
+					$_SESSION["clvractions"]["delete"][$row["contactid"]] = $row["email"];
 
 					// remove from cached remotecontacts
 					unset($_SESSION["clvrreach"]["remotecontacts"][$row["email"]]);
-					if ($verbose) $msg .= "<br>".sprintf(getTranslatedString('LBL_VERBOSELOG_DELETE','berliCleverReach'),$row["email"]);
+					if ($verbose) $msg .= "<br>".sprintf(getTranslatedString('LBL_VERBOSELOG_DELETE','berliCleverReach'), $row["email"]);
 					}
 
 				// same for leads
 				$q = "SELECT leadid,email FROM vtiger_leaddetails WHERE leadid IN (".implode(', ', $_SESSION["clvrreach"]["removedlocally"]).")";
 				$result = $this->db->query($q);
 
-				while($row = $this->db->fetchByAssoc($result,-1,false)) {
-					$_SESSION["clvractions"]["delete"][$row["leadid"]]=$row["email"];
+				while($row = $this->db->fetchByAssoc($result, -1, false)) {
+					$_SESSION["clvractions"]["delete"][$row["leadid"]] = $row["email"];
 
 					// remove from cached remotecontacts
 					unset($_SESSION["clvrreach"]["remotecontacts"][$row["email"]]);
-					if ($verbose) $msg .= "<br>".sprintf(getTranslatedString('LBL_VERBOSELOG_DELETE','berliCleverReach'),$row["email"]);
+					if ($verbose) $msg .= "<br>".sprintf(getTranslatedString('LBL_VERBOSELOG_DELETE','berliCleverReach'), $row["email"]);
 					}
 			}
 
 			
 			// iterate through CRM contacts, find new entries for export to CleverReach
 			foreach ($_SESSION["clvrreach"]["localcontacts"] as $localcontact) {
-
 				if (!isset($_SESSION["clvrreach"]["remotecontacts"][$localcontact["email"]])) {
-
-					if ($localcontact["emailoptout"]>0) {
-						if ($verbose) $msg .= "<br>".sprintf(getTranslatedString('LBL_VERBOSELOG_NOEXPORTONOPTOUT','berliCleverReach'),$localcontact["email"]);
+					if ($localcontact["emailoptout"] > 0) {
+						if ($verbose) $msg .= "<br>".sprintf(getTranslatedString('LBL_VERBOSELOG_NOEXPORTONOPTOUT','berliCleverReach'), $localcontact["email"]);
 					}
 					else {
-
 						if ($_SESSION['clvrreach']['crmidsyncedbefore'][$localcontact["crmid"]] == true) {
-
-							if ($verbose) $msg .= "<br>".sprintf(getTranslatedString('LBL_VERBOSELOG_DELETEDREMOTELY','berliCleverReach'),$localcontact["email"]);
-
-							$_SESSION["clvractions"]["removelocally"][$localcontact["crmid"]]=$localcontact["email"];
+							if ($verbose) $msg .= "<br>".sprintf(getTranslatedString('LBL_VERBOSELOG_DELETEDREMOTELY','berliCleverReach'), $localcontact["email"]);
+							$_SESSION["clvractions"]["removelocally"][$localcontact["crmid"]] = $localcontact["email"];
 						}
 						else {
-							if ($verbose) $msg .= "<br>".sprintf(getTranslatedString('LBL_VERBOSELOG_EXPORT','berliCleverReach'),$localcontact["email"]);
-							
-							$_SESSION["clvractions"]["export"][]=$localcontact["email"];
+							if ($verbose) $msg .= "<br>".sprintf(getTranslatedString('LBL_VERBOSELOG_EXPORT','berliCleverReach'), $localcontact["email"]);
+							$_SESSION["clvractions"]["export"][] = $localcontact["email"];
 						}
 					}
 				}
 			}
 
-			
 			// iterate through CleverReach contacts, find entries to either import, update, add to sync group or ignore
 			foreach ($_SESSION["clvrreach"]["remotecontacts"] as $remotecontact) {
-			
 				if (!isset($_SESSION["clvrreach"]["localcontacts"][$remotecontact->email])) {
-
 					// if there's a matching local crm contact, add to sync group
 					$q = "SELECT
 							vtiger_crmentity.crmid,
@@ -268,12 +255,10 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 							FROM vtiger_contactdetails
 							INNER JOIN vtiger_crmentity on vtiger_crmentity.crmid = vtiger_contactdetails.contactid
 							WHERE email = ? AND vtiger_crmentity.deleted = 0 LIMIT 1";
-					$result = $this->db->pquery($q,array($remotecontact->email));
+					$result = $this->db->pquery($q, array($remotecontact->email));
 
 					if ($row = $this->db->fetchByAssoc($result)) {
-					
-						$_SESSION["clvractions"]["addtocrmgroup"]["Contacts"][$row["crmid"]]=$row["email"];
-						
+						$_SESSION["clvractions"]["addtocrmgroup"]["Contacts"][$row["crmid"]] = $row["email"];
 						if ($verbose) $msg .= "<br>".sprintf(getTranslatedString('LBL_VERBOSELOG_ADDTOCRMGROUP','berliCleverReach'),$row["email"]);
 						continue;
 					}
@@ -288,30 +273,27 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 					$result = $this->db->pquery($q,array($remotecontact->email));
 
 					if ($row = $this->db->fetchByAssoc($result)) {
-
-						$_SESSION["clvractions"]["addtocrmgroup"]["Leads"][$row["crmid"]]=$row["email"];
-						
-						if ($verbose) $msg .= "<br>".sprintf(getTranslatedString('LBL_VERBOSELOG_ADDTOCRMGROUP','berliCleverReach'),$row["email"]);
+						$_SESSION["clvractions"]["addtocrmgroup"]["Leads"][$row["crmid"]] = $row["email"];
+						if ($verbose) $msg .= "<br>".sprintf(getTranslatedString('LBL_VERBOSELOG_ADDTOCRMGROUP','berliCleverReach'), $row["email"]);
 						continue;
 					}
 
-					if ($verbose) $msg .= "<br>".sprintf(getTranslatedString('LBL_VERBOSELOG_TEST4IMPORT','berliCleverReach'),$remotecontact->email);
-
+					if ($verbose) $msg .= "<br>".sprintf(getTranslatedString('LBL_VERBOSELOG_TEST4IMPORT','berliCleverReach'), $remotecontact->email);
 					// check if all attributes are set, if so import new entry to CRM
-					$imp =1;
+					$imp = 1;
 					if ($remotecontact->active == false) {
 						if ($verbose) $msg .= getTranslatedString('LBL_VERBOSELOG_INACTIVE','berliCleverReach');
-						$imp=0;
+						$imp = 0;
 					}
 					if (empty($remotecontact->global_attributes->lname) || empty($remotecontact->global_attributes->fname) || 
 						empty($remotecontact->global_attributes->salutation)) {
 							if ($verbose) $msg .= getTranslatedString('LBL_VERBOSELOG_INCOMPLETE','berliCleverReach');
-							$imp=0;
+							$imp = 0;
 					}
 
 					if ($imp) {
 						if ($verbose) $msg .= getTranslatedString('LBL_VERBOSELOG_DOIMPORT','berliCleverReach');
-						$_SESSION["clvractions"]["import"][]=$remotecontact->email;
+						$_SESSION["clvractions"]["import"][] = $remotecontact->email;
 					}
 					else {
 						if ($verbose) $msg .= getTranslatedString('LBL_VERBOSELOG_DONTIMPORT','berliCleverReach');
@@ -320,7 +302,7 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 				}
 				else {
 					
-					if ($verbose) $msg .= "<br>".sprintf(getTranslatedString('LBL_VERBOSELOG_HAVEENTRY','berliCleverReach'),$remotecontact->email,htmlspecialchars($this->crmgrouplabel));
+					if ($verbose) $msg .= "<br>".sprintf(getTranslatedString('LBL_VERBOSELOG_HAVEENTRY','berliCleverReach'), $remotecontact->email, htmlspecialchars($this->crmgrouplabel));
 
 					// make sure entry is in auxtable since it might have been imported from different source before
 					if (!$_SESSION['clvrreach']['crmidsyncedbefore'][$_SESSION["clvrreach"]["localcontacts"][$remotecontact->email]["crmid"]]) {
@@ -330,32 +312,32 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 					// inactive
 					if ( $remotecontact->active == false && $remotecontact->deactivated > 0 && $_SESSION['clvrreach']['crmidsyncedbefore'][$_SESSION["clvrreach"]["localcontacts"][$remotecontact->email]["crmid"]] ) {
 						
-						if ($verbose) $msg .= sprintf(getTranslatedString('LBL_VERBOSELOG_UNSUBSCRIBED','berliCleverReach'),date("Y-m-d",$remotecontact->deactivated)); 
-						$_SESSION["clvractions"]["optout"][]=$remotecontact->email;
+						if ($verbose) $msg .= sprintf(getTranslatedString('LBL_VERBOSELOG_UNSUBSCRIBED','berliCleverReach'), date("Y-m-d",$remotecontact->deactivated)); 
+						$_SESSION["clvractions"]["optout"][] = $remotecontact->email;
 					}
 					elseif ($remotecontact->active == false && $remotecontact->bounced > 0) {
-						if ($verbose) $msg .= sprintf(getTranslatedString('LBL_VERBOSELOG_BOUNCED','berliCleverReach'),date ("Y-m-d",$remotecontact->bounced));
+						if ($verbose) $msg .= sprintf(getTranslatedString('LBL_VERBOSELOG_BOUNCED','berliCleverReach'), date ("Y-m-d",$remotecontact->bounced));
 						# do something here?
 					}
 					else {
 						// compare attributes, update entry on CleverReach if changed
-						$upd=0;
+						$upd = 0;
 						if ($remotecontact->global_attributes->fname != $_SESSION["clvrreach"]["localcontacts"][$remotecontact->email]["firstname"] ||
 							$remotecontact->global_attributes->lname != $_SESSION["clvrreach"]["localcontacts"][$remotecontact->email]["lastname"] ||
 							$remotecontact->global_attributes->salutation != $_SESSION["clvrreach"]["localcontacts"][$remotecontact->email]["salutation"] ||
 							$remotecontact->global_attributes->company != $_SESSION["clvrreach"]["localcontacts"][$remotecontact->email]["accountname"]) {
 							if ($verbose) $msg .= getTranslatedString('LBL_VERBOSELOG_ATTRIBCHANGED','berliCleverReach');
-							$upd=1;
+							$upd = 1;
 						}
 						
 						if ($remotecontact->active == true && $_SESSION["clvrreach"]["localcontacts"][$remotecontact->email]["emailoptout"] > 0 ) {
 							if ($verbose) $msg .= getTranslatedString('LBL_VERBOSELOG_OPTOUT','berliCleverReach');
-							$upd=1;
+							$upd = 1;
 						}
 
 						if ($upd) {
 							if ($verbose) $msg .= getTranslatedString('LBL_VERBOSELOG_DOUPDATE','berliCleverReach');
-							$_SESSION["clvractions"]["update"][]=$remotecontact->email;
+							$_SESSION["clvractions"]["update"][] = $remotecontact->email;
 						}
 						else {
 							if ($verbose) $msg .= getTranslatedString('LBL_VERBOSELOG_DONTUPDATE','berliCleverReach');
@@ -366,8 +348,7 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 			// end of iteration through CleverReach contacts
 			
 			if ($verbose) $msg .= "<hr>";
-			
-			$response->setResult(array(getTranslatedString('LBL_STEP','berliCleverReach').' 3',$msg,4));
+			$response->setResult(array(getTranslatedString('LBL_STEP','berliCleverReach').' 3', $msg, 4));
 		}
 		
 		/***************************************************************************************
@@ -375,28 +356,23 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 		*   MUST expect to be called multiple times, so unset array entries if they're done
 		*/
 		
-		elseif ($this->step==4) {
-			
+		elseif ($this->step == 4) {
 			$clvr = new cleverreachAPI();
 			$rest = $clvr->getrest();
 			
 			// existing entities to add to crm group, fast
 			if (is_array($_SESSION["clvractions"]["addtocrmgroup"])) {
-				
-				foreach ($_SESSION["clvractions"]["addtocrmgroup"] as $entitytype => $entities) {
-					
+				foreach ($_SESSION["clvractions"]["addtocrmgroup"] as $entitytype => $entities) {	
 					if ($entitytype == "Leads") {
-						$_SESSION['clvrreach']['summary'] .= "<h4>".getTranslatedString('LBL_EXISTING_LEADS_ADDED','berliCleverReach')."</h4><p style='color:#880'>".implode(", ",$entities)."</p>";
+						$_SESSION['clvrreach']['summary'] .= "<h4>".getTranslatedString('LBL_EXISTING_LEADS_ADDED','berliCleverReach')."</h4><p style='color:#880'>".implode(", ", $entities)."</p>";
 					}
 					else {
-						$_SESSION['clvrreach']['summary'] .= "<h4>".getTranslatedString('LBL_EXISTING_CONTACTS_ADDED','berliCleverReach')."</h4><p style='color:#880'>".implode(", ",$entities)."</p>";
+						$_SESSION['clvrreach']['summary'] .= "<h4>".getTranslatedString('LBL_EXISTING_CONTACTS_ADDED','berliCleverReach')."</h4><p style='color:#880'>".implode(", ", $entities)."</p>";
 					}
 					
 					foreach ($entities as $crmid => $email) {
-				
 						$q = "INSERT INTO `vtiger_crmentityrel` (`crmid` ,`module` ,`relcrmid` ,`relmodule`) VALUES (?, ?, ?, 'berliCleverReach')";
-						$this->db->pquery($q,array($crmid,$entitytype,$this->recordid));
-
+						$this->db->pquery($q, array($crmid, $entitytype, $this->recordid));
 						$this->insertIntoAuxtable($crmid);
 					}
 				}
@@ -409,15 +385,12 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 
 				// number of entries to begin with
 				if (empty($_SESSION["clvrreach"]["progressstartcount"])) {
-					$_SESSION["clvrreach"]["progressstartcount"]=count($_SESSION["clvractions"]["export"]);
+					$_SESSION["clvrreach"]["progressstartcount"] = count($_SESSION["clvractions"]["export"]);
 				}	
 				
 				$batchsize=50;
-				
 				$newreceivers=array();
-
 				foreach ($_SESSION["clvractions"]["export"] as $key => $email) {
-
 					$newreceivers[] = array("email"=>$email,
 											"global_attributes"=>array(	"fname"=>$_SESSION["clvrreach"]["localcontacts"][$email]["firstname"],
 																		"lname"=>$_SESSION["clvrreach"]["localcontacts"][$email]["lastname"],
@@ -429,21 +402,19 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 
 					$this->insertIntoAuxtable($_SESSION["clvrreach"]["localcontacts"][$email]["crmid"]);
 					
-					$_SESSION["clvrreach"]["exported"][]=$email;
+					$_SESSION["clvrreach"]["exported"][] = $email;
 					unset($_SESSION["clvractions"]["export"][$key]);
 						
 					// post batches of 100s, and remainder
-					if (count($newreceivers) >= $batchsize || (count($_SESSION["clvractions"]["export"])==0 && count($newreceivers)>0) ) {
+					if (count($newreceivers) >= $batchsize || (count($_SESSION["clvractions"]["export"]) == 0 && count($newreceivers)>0) ) {
 						
 						$rest->post("/groups/{$this->crgroupid}/receivers",$newreceivers);
-						
-						$entriesleft = $_SESSION["clvrreach"]["progressstartcount"]-count($_SESSION["clvractions"]["export"]);
-						$msg = sprintf(getTranslatedString('LBL_EXPORTPROGRESS','berliCleverReach'),$entriesleft,$_SESSION["clvrreach"]["progressstartcount"]);
-						$response->setResult(array(getTranslatedString('LBL_STEP','berliCleverReach').' 4',$msg,4,"clvpr1"));
+						$entriesleft = $_SESSION["clvrreach"]["progressstartcount"] - count($_SESSION["clvractions"]["export"]);
+						$msg = sprintf(getTranslatedString('LBL_EXPORTPROGRESS','berliCleverReach'), $entriesleft,$_SESSION["clvrreach"]["progressstartcount"]);
+						$response->setResult(array(getTranslatedString('LBL_STEP','berliCleverReach').' 4', $msg, 4, "clvpr1"));
 						$response->emit();
 						return;
 					}
-					
 				}
 				
 				$_SESSION['clvrreach']['summary'] .= "<h4>".vtranslate('LBL_NEW_LOCAL_ENTRIES_TO_EXPORT','berliCleverReach')."</h4><p style='color:#080'>".implode(", ",$_SESSION["clvrreach"]["exported"])."</p>";
@@ -455,7 +426,6 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 
 			// update (locally) changed entries on cleverreach
 			// potentially very slow, so show some progress indication
-			
 			if (is_array($_SESSION["clvractions"]["update"])) {
 
 				// number of entries to begin with
@@ -463,10 +433,8 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 					$_SESSION["clvrreach"]["progressstartcount"]=count($_SESSION["clvractions"]["update"]);
 				}	
 				
-				$batchsize=15;
-			
+				$batchsize = 15;
 				foreach ($_SESSION["clvractions"]["update"] as $key => $email) {
-
 					$updreceiver = array("email"=>$email,
 										"global_attributes"=>array(	"fname"=>$_SESSION["clvrreach"]["localcontacts"][$email]["firstname"],
 																	"lname"=>$_SESSION["clvrreach"]["localcontacts"][$email]["lastname"],
@@ -477,24 +445,21 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 										);
 
 					$updateurl = "/groups/{$this->crgroupid}/receivers/".urlencode($email);
-
-					$rest->put($updateurl,$updreceiver);
+					$rest->put($updateurl, $updreceiver);
 
 					// explicitly calling "setinactive" since updating "active" attribute seems buggy/unsupported ("active"=>$_SESSION["clvrreach"]["localcontacts"][$email]["emailoptout"]==1?"false":"true",)
-					if ($_SESSION["clvrreach"]["localcontacts"][$email]["emailoptout"]>0 && $_SESSION["clvrreach"]["remotecontacts"][$email]->active == true) {
+					if ($_SESSION["clvrreach"]["localcontacts"][$email]["emailoptout"] > 0 && $_SESSION["clvrreach"]["remotecontacts"][$email]->active == true) {
 						$rest->put("/groups/{$this->crgroupid}/receivers/".urlencode($email)."/setinactive");
 					}
 				
 					$batchsize--;
-					
-					$_SESSION["clvrreach"]["updated"][]=$email;
+					$_SESSION["clvrreach"]["updated"][] = $email;
 					unset($_SESSION["clvractions"]["update"][$key]);
 					
 					if ($batchsize < 1 || ( count($_SESSION["clvractions"]["update"]) == 0 && count($_SESSION["clvrreach"]["updated"]) > $batchsize )) {
-                    
-						$entriesleft = $_SESSION["clvrreach"]["progressstartcount"]-count($_SESSION["clvractions"]["update"]);
-						$msg = sprintf(getTranslatedString('LBL_UPDATEPROGRESS','berliCleverReach'),$entriesleft,$_SESSION["clvrreach"]["progressstartcount"]);
-						$response->setResult(array(getTranslatedString('LBL_STEP','berliCleverReach').' 4',$msg,4,"clvpr2"));
+						$entriesleft = $_SESSION["clvrreach"]["progressstartcount"] - count($_SESSION["clvractions"]["update"]);
+						$msg = sprintf(getTranslatedString('LBL_UPDATEPROGRESS','berliCleverReach'), $entriesleft, $_SESSION["clvrreach"]["progressstartcount"]);
+						$response->setResult(array(getTranslatedString('LBL_STEP','berliCleverReach').' 4', $msg, 4, "clvpr2"));
 						$response->emit();
 						return;
 					}
@@ -509,7 +474,6 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 			// import new cleverreach entries to crm as lead or contact according to setting
 			
 			if (is_array($_SESSION["clvractions"]["import"])) {
-
 				$subscribertype = berliCleverReach_Module_Model::getSubscriberType();
 
 				// number of entries to begin with
@@ -519,11 +483,8 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 				
 				// update progress after this many entries
 				$batchsize=25;
-				
-				foreach ($_SESSION["clvractions"]["import"] as $key => $email)
-				{
+				foreach ($_SESSION["clvractions"]["import"] as $key => $email) {
 					if ($subscribertype == "contact") {
-
 						$company = trim($_SESSION["clvrreach"]["remotecontacts"][$email]->global_attributes->company);
 
 						// search for $company in vtiger_account
@@ -531,7 +492,7 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 							INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid=vtiger_account.accountid
 							WHERE vtiger_crmentity.deleted=0 AND vtiger_account.accountname=?";
 						
-						$result = $this->db->pquery($q,array($company));
+						$result = $this->db->pquery($q, array($company));
 						$vtacc = $this->db->fetchByAssoc($result);
 
 						if (is_array($vtacc)) {
@@ -541,23 +502,23 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 							// create if not found
 							require_once('modules/Accounts/Accounts.php');
 							$account = new Accounts();
-							$account->column_fields[accountname] = $company;
-							$account->column_fields[assigned_user_id]=$current_user->id;
+							$account->column_fields['accountname'] = $company;
+							$account->column_fields['assigned_user_id'] = $current_user->id;
 							$account->save("Accounts");
 							$accountid = $account->id;
 						}
 
 						$contact = new Contacts();
-						$contact->column_fields['email']=$email;
-						$contact->column_fields['salutationtype']=$_SESSION["clvrreach"]["remotecontacts"][$email]->global_attributes->salutation;
-						$contact->column_fields['firstname']=$_SESSION["clvrreach"]["remotecontacts"][$email]->global_attributes->fname;
-						$contact->column_fields['lastname']=$_SESSION["clvrreach"]["remotecontacts"][$email]->global_attributes->lname;
-						$contact->column_fields['account_id']=$accountid;
+						$contact->column_fields['email'] = $email;
+						$contact->column_fields['salutationtype'] = $_SESSION["clvrreach"]["remotecontacts"][$email]->global_attributes->salutation;
+						$contact->column_fields['firstname'] = $_SESSION["clvrreach"]["remotecontacts"][$email]->global_attributes->fname;
+						$contact->column_fields['lastname'] = $_SESSION["clvrreach"]["remotecontacts"][$email]->global_attributes->lname;
+						$contact->column_fields['account_id'] = $accountid;
 						$contact->save("Contacts");
 						$id = $contact->id;
 
 						// put new contact in current CRM group...
-						$this->addToSyncGroup($id,'Contacts');
+						$this->addToSyncGroup($id, 'Contacts');
 
 						// ... and insert into auxilliary table
 						$this->insertIntoAuxtable($id);
@@ -567,10 +528,10 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 						require_once('modules/Leads/Leads.php');
 						$lead = new Leads();
 						$lead->column_fields['email']=$email;
-						$lead->column_fields['salutationtype']=$_SESSION["clvrreach"]["remotecontacts"][$email]->global_attributes->salutation;
-						$lead->column_fields['firstname']=$_SESSION["clvrreach"]["remotecontacts"][$email]->global_attributes->fname;
-						$lead->column_fields['lastname']=$_SESSION["clvrreach"]["remotecontacts"][$email]->global_attributes->lname;
-						$lead->column_fields['company']=$_SESSION["clvrreach"]["remotecontacts"][$email]->global_attributes->company;
+						$lead->column_fields['salutationtype'] = $_SESSION["clvrreach"]["remotecontacts"][$email]->global_attributes->salutation;
+						$lead->column_fields['firstname'] = $_SESSION["clvrreach"]["remotecontacts"][$email]->global_attributes->fname;
+						$lead->column_fields['lastname'] = $_SESSION["clvrreach"]["remotecontacts"][$email]->global_attributes->lname;
+						$lead->column_fields['company'] = $_SESSION["clvrreach"]["remotecontacts"][$email]->global_attributes->company;
 						$lead->save("Leads");
 						$id = $lead->id;
 
@@ -582,15 +543,13 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 					}
 					
 					$batchsize--;
-					
-					$_SESSION["clvrreach"]["imported"][]=$email;
+					$_SESSION["clvrreach"]["imported"][] = $email;
 					unset($_SESSION["clvractions"]["import"][$key]);
 					
 					if ($batchsize < 1 || ( count($_SESSION["clvractions"]["import"]) == 0 && count($_SESSION["clvrreach"]["imported"]) > $batchsize )) {
-                    
-						$entriesleft = $_SESSION["clvrreach"]["progressstartcount"]-count($_SESSION["clvractions"]["import"]);
-						$msg = sprintf(getTranslatedString('LBL_IMPORTPROGRESS','berliCleverReach'),$entriesleft,$_SESSION["clvrreach"]["progressstartcount"]);
-						$response->setResult(array(getTranslatedString('LBL_STEP','berliCleverReach').' 4',$msg,4,"clvpr4"));
+						$entriesleft = $_SESSION["clvrreach"]["progressstartcount"] - count($_SESSION["clvractions"]["import"]);
+						$msg = sprintf(getTranslatedString('LBL_IMPORTPROGRESS','berliCleverReach'), $entriesleft, $_SESSION["clvrreach"]["progressstartcount"]);
+						$response->setResult(array(getTranslatedString('LBL_STEP','berliCleverReach').' 4', $msg, 4, "clvpr4"));
 						$response->emit();
 						return;
 					}
@@ -622,11 +581,8 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 
 			// remove receivers from sync group
 			if (is_array($_SESSION["clvractions"]["removelocally"])) {
-				
 				$_SESSION['clvrreach']['summary'] .= "<h4>".vtranslate('LBL_REMOVE_ENTITYS_FROM_VTIGER','berliCleverReach')."</h4><p>".implode(", ",$_SESSION["clvractions"]["removelocally"])."</p>";
-				
 				foreach ($_SESSION["clvractions"]["removelocally"] as $crmid => $email) {
-					
 					// remove from sync list
 					$this->removeFromSyncGroup($crmid);
 
@@ -641,16 +597,15 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 				
 				// number of entries to begin with
 				if (empty($_SESSION["clvrreach"]["progressstartcount"])) {
-					$_SESSION["clvrreach"]["progressstartcount"]=count($_SESSION["clvractions"]["delete"]);
+					$_SESSION["clvrreach"]["progressstartcount"] = count($_SESSION["clvractions"]["delete"]);
 				}	
 
-				$batchsize=10;
-				
+				$batchsize = 10;
 				foreach ($_SESSION["clvractions"]["delete"] as $crmid => $email) {
-
 					try {
 						$rest->delete("/groups/{$this->crgroupid}/receivers/{$email}");
-					} catch (Exception $e) {
+					}
+					catch (Exception $e) {
 						# better ignore errors
 					}
 
@@ -658,15 +613,13 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 					$this->removeFromAuxtable($crmid);
 					
 					$batchsize--;
-					
 					$_SESSION["clvrreach"]["deleted"][]=$email;
 					unset($_SESSION["clvractions"]["delete"][$crmid]);
 					
 					if ($batchsize < 1 || ( count($_SESSION["clvractions"]["delete"]) == 0 && count($_SESSION["clvrreach"]["deleted"]) > $batchsize )) {
-                    
 						$entriesleft = $_SESSION["clvrreach"]["progressstartcount"]-count($_SESSION["clvractions"]["delete"]);
-						$msg = sprintf(getTranslatedString('LBL_DELETEPROGRESS','berliCleverReach'),$entriesleft,$_SESSION["clvrreach"]["progressstartcount"]);
-						$response->setResult(array(getTranslatedString('LBL_STEP','berliCleverReach').' 4',$msg,4,"clvpr4"));
+						$msg = sprintf(getTranslatedString('LBL_DELETEPROGRESS','berliCleverReach'), $entriesleft, $_SESSION["clvrreach"]["progressstartcount"]);
+						$response->setResult(array(getTranslatedString('LBL_STEP','berliCleverReach').' 4', $msg, 4, "clvpr4"));
 						$response->emit();
 						return;
 					}
@@ -681,23 +634,22 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 			
 			if (is_array($_SESSION["clvrreach"]["brokenContacts"])) $msg .= vtranslate('LBL_BROKEN_CONTACTS','berliCleverReach') . implode(", ",$_SESSION["clvrreach"]["brokenContacts"]);
 			if (is_array($_SESSION["clvrreach"]["brokenLeads"])) $msg .= vtranslate('LBL_BROKEN_LEADS','berliCleverReach') . implode(", ",$_SESSION["clvrreach"]["brokenLeads"]);
-			
 			if (!is_array($_SESSION["clvractions"])) $msg .= "<br><h4>".vtranslate('LBL_NO_CHANGES_TO_SYNC','berliCleverReach')."</h4>";
 			
 			// update lastsynchronization
 			$currentdate = date("Y-m-d H:i:s");
 			$q = "UPDATE vtiger_berlicleverreach SET lastsynchronization = ? WHERE cleverreachid = ?";
-			$this->db->pquery($q,array($currentdate,$this->recordid));
+			$this->db->pquery($q, array($currentdate,$this->recordid));
 
-			$exec_time = time()-$_SESSION["clvrreach"]["starttime"];
+			$exec_time = time() - $_SESSION["clvrreach"]["starttime"];
 			
-			$msg .= "<br>".sprintf(vtranslate('LBL_FINISHED_AFTER','berliCleverReach'),$exec_time);
+			$msg .= "<br>".sprintf(vtranslate('LBL_FINISHED_AFTER','berliCleverReach'), $exec_time);
 			
 			// clear used session variables
 			unset($_SESSION["clvrreach"]);
 			unset($_SESSION["clvractions"]);
 			
-			$response->setResult(array(getTranslatedString('LBL_STEP','berliCleverReach').' 4',$msg,0));
+			$response->setResult(array(getTranslatedString('LBL_STEP','berliCleverReach').' 4', $msg, 0));
 		}
 		else {
 			$response->setError(array('Error: step parameter out of bounds'));
@@ -708,22 +660,22 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 
 	private function insertIntoAuxtable($crmid) {
 		$q = "INSERT INTO vtiger_berlicleverreach_synced_entities (`crmid`,`crgroupid`,`recordid`) VALUES (?,?,?)";
-		$this->db -> pquery($q,array($crmid,$this->crgroupid,$this->recordid));
+		$this->db->pquery($q, array($crmid,$this->crgroupid,$this->recordid));
 	}
 	
 	private function removeFromAuxtable($crmid) {
 		$q = "DELETE from vtiger_berlicleverreach_synced_entities WHERE crmid = ? AND crgroupid = ? AND recordid = ?";
-		$this->db -> pquery($q,array($crmid,$this->crgroupid,$this->recordid));
+		$this->db->pquery($q, array($crmid,$this->crgroupid,$this->recordid));
 	}
 
 	private function removeFromSyncGroup($crmid) {
 		$q = "DELETE from vtiger_crmentityrel WHERE (crmid = ? AND relcrmid = ?) OR (crmid = ? AND relcrmid = ?)";
-		$this->db->pquery($q,array($crmid, $this->recordid, $this->recordid, $crmid));
+		$this->db->pquery($q, array($crmid, $this->recordid, $this->recordid, $crmid));
 	}
 	
 	private function addToSyncGroup($crmid,$type) {
 		$query = "INSERT INTO vtiger_crmentityrel VALUES (?, ?, ?, 'berliCleverReach')";
-		$this->db -> pquery($query,array($crmid,$type,$this->recordid));
+		$this->db->pquery($query, array($crmid,$type,$this->recordid));
 	}
 	
 	public function checkPermission(Vtiger_Request $request) {
@@ -737,5 +689,4 @@ class berliCleverReach_berliCleverReachStepController_Action extends Vtiger_Acti
 		}
 	}
 }
-
 ?>

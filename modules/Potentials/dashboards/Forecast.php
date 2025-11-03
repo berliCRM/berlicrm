@@ -15,7 +15,7 @@ class Potentials_Forecast_Dashboard extends Vtiger_IndexAjax_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 
 		$jsFileNames = array(
 			'~/libraries/jquery/jqplot/plugins/jqplot.cursor.min.js',

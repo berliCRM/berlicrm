@@ -188,27 +188,27 @@ if (typeof(MailManager) == 'undefined') {
 		},
 
 		updateMailFolders : function() {
-			 AppConnector.request(MailManager._baseurl() + "_operation=mainui").then(function(response) { 
-					//var response = MailManager.removeHidElement(transport.responseText);
-					response = JSON.parse(response);
-					jQuery('#_mainfolderdiv_').html(response['result']['ui']);
-					MailManager.refreshCurrentFolder(); // this is used to refresh the mails in the folders
+			AppConnector.request(MailManager._baseurl() + "_operation=mainui").then(function(response) { 
+				//var response = MailManager.removeHidElement(transport.responseText);
+				response = JSON.parse(response);
+				jQuery('#_mainfolderdiv_').html(response['result']['ui']);
+				MailManager.refreshCurrentFolder(); // this is used to refresh the mails in the folders
 
-					var folderName = jQuery('#mm_selected_folder').val();
-					MailManager.updateSelectedFolder(folderName);
+				var folderName = jQuery('#mm_selected_folder').val();
+				MailManager.updateSelectedFolder(folderName);
 
-					MailManager.triggerUI5Resize();
-				}
-				);
+				MailManager.triggerUI5Resize();
+			}
+			);
 		},
 
 		quicklinks_update: function() {
-                        AppConnector.request(MailManager._baseurl() + "_operation=mainui&_operationarg=_quicklinks").then(function(response) { 
-					//var response = MailManager.removeHidElement(transport.responseText);
-					response = JSON.parse(response);
-					jQuery("#_quicklinks_mainuidiv_").html(response['result']['ui']);
-				}
-				);
+			AppConnector.request(MailManager._baseurl() + "_operation=mainui&_operationarg=_quicklinks").then(function(response) { 
+				//var response = MailManager.removeHidElement(transport.responseText);
+				response = JSON.parse(response);
+				jQuery("#_quicklinks_mainuidiv_").html(response['result']['ui']);
+			}
+			);
 		},
 
 		showSelectFolderDesc: function() {
@@ -236,7 +236,6 @@ if (typeof(MailManager) == 'undefined') {
 
 				function getCheckedMails() {
 					var cb_elements = jQuery('[name="mc_box"]');
-
 					for (var i = 0; i < cb_elements.length; i++) {
 						if (cb_elements[i].checked) {
 							temp.push(cb_elements[i].value);
@@ -308,7 +307,7 @@ if (typeof(MailManager) == 'undefined') {
 		},
 
 		/* Open settings page */
-		open_settings: function(){
+		open_settings: function() {
 			var message = app.vtranslate('JSLBL_Settings')+' ....';
 			var progressIndicatorElement = jQuery.progressIndicator({
 				'message' : message,
@@ -317,23 +316,23 @@ if (typeof(MailManager) == 'undefined') {
 					'enabled' : true
 				}
 			});
-                        AppConnector.request(MailManager._baseurl() + "_operation=settings&_operationarg=edit").then(function(response) { 
-                                        response = JSON.parse(response);
-					progressIndicatorElement.progressIndicator({
-						'mode' : 'hide'
-					})
-					MailManager.close_all();
-					jQuery('#_settingsdiv_').show();
-					//var response = MailManager.removeHidElement(transport.responseText);
-					jQuery('#_settingsdiv_').html(response.result);
+			AppConnector.request(MailManager._baseurl() + "_operation=settings&_operationarg=edit").then(function(response) { 
+				response = JSON.parse(response);
+				progressIndicatorElement.progressIndicator({
+					'mode' : 'hide'
+				})
+				MailManager.close_all();
+				jQuery('#_settingsdiv_').show();
+				//var response = MailManager.removeHidElement(transport.responseText);
+				jQuery('#_settingsdiv_').html(response.result);
 
-					// Update the seleted folders to highlight them.
-					MailManager.updateSelectedFolder('mm_settings');
-					jQuery('#mm_selected_folder').val('mm_settings');
-					
-					MailManager.triggerUI5Resize();
-				}
-				);
+				// Update the seleted folders to highlight them.
+				MailManager.updateSelectedFolder('mm_settings');
+				jQuery('#mm_selected_folder').val('mm_settings');
+				
+				MailManager.triggerUI5Resize();
+			}
+			);
 		},
 
 		/* Open settings detail page */
@@ -346,23 +345,23 @@ if (typeof(MailManager) == 'undefined') {
 					'enabled' : true
 				}
 			});
-                        AppConnector.request(MailManager._baseurl() + "_operation=settings&_operationarg=detail").then(function(response) { 
-                                        response = JSON.parse(response);
-					progressIndicatorElement.progressIndicator({
-						'mode' : 'hide'
-					})
-					MailManager.close_all();
-					jQuery('#_settingsdiv_').show();
-					//var response = MailManager.removeHidElement(transport.responseText);
-					jQuery('#_settingsdiv_').html(response.result);
+			AppConnector.request(MailManager._baseurl() + "_operation=settings&_operationarg=detail").then(function(response) { 
+				response = JSON.parse(response);
+				progressIndicatorElement.progressIndicator({
+					'mode' : 'hide'
+				})
+				MailManager.close_all();
+				jQuery('#_settingsdiv_').show();
+				//var response = MailManager.removeHidElement(transport.responseText);
+				jQuery('#_settingsdiv_').html(response.result);
 
-					// Update the seleted folders to highlight them.
-					MailManager.updateSelectedFolder('mm_settings');
-					jQuery('#mm_selected_folder').val('mm_settings');
+				// Update the seleted folders to highlight them.
+				MailManager.updateSelectedFolder('mm_settings');
+				jQuery('#mm_selected_folder').val('mm_settings');
 
-					MailManager.triggerUI5Resize();
-				}
-				);
+				MailManager.triggerUI5Resize();
+			}
+			);
 		},
 
 		handle_settings_confighelper: function(selectBox){
@@ -439,8 +438,8 @@ if (typeof(MailManager) == 'undefined') {
 				}
 			});
 			var url = MailManager._baseurl() + "_operation=settings&_operationarg=save&" + Form.serialize(form);
-                        AppConnector.request(url).then(function(data) { 
-                                data = JSON.parse(data);
+			AppConnector.request(url).then(function(data) { 
+				data = JSON.parse(data);
 				progressIndicatorElement.progressIndicator({
 					'mode' : 'hide'
 				})
@@ -471,26 +470,26 @@ if (typeof(MailManager) == 'undefined') {
 					'enabled' : true
 				}
 			});
-                        AppConnector.request(MailManager._baseurl() + "_operation=settings&_operationarg=remove&" + Form.serialize(form)).then(function(responseJSON) { 
-                                        responseJSON = JSON.parse(responseJSON);
-					progressIndicatorElement.progressIndicator({
-						'mode' : 'hide'
-					})
-					MailManager.close_all();
-					jQuery('#folders').find(':last-child').remove();
-					jQuery('#isMailBoxExists').val(0);
-					MailManager_QuickCreate_Js.foldersClicked = false;
-					var imageEle = jQuery('.imageElement');
-					var imagePath = imageEle.data('rightimage');
-					imageEle.attr('src', imagePath);
-					jQuery('#quickLinksInfo').html('');
-					if (responseJSON['success']) {
-						MailManager.reload_now();
-					} else {
-						alert(app.vtranslate(data['error']['message']));
-					}
+			AppConnector.request(MailManager._baseurl() + "_operation=settings&_operationarg=remove&" + Form.serialize(form)).then(function(responseJSON) { 
+				responseJSON = JSON.parse(responseJSON);
+				progressIndicatorElement.progressIndicator({
+					'mode' : 'hide'
+				})
+				MailManager.close_all();
+				jQuery('#folders').find(':last-child').remove();
+				jQuery('#isMailBoxExists').val(0);
+				MailManager_QuickCreate_Js.foldersClicked = false;
+				var imageEle = jQuery('.imageElement');
+				var imagePath = imageEle.data('rightimage');
+				imageEle.attr('src', imagePath);
+				jQuery('#quickLinksInfo').html('');
+				if (responseJSON['success']) {
+					MailManager.reload_now();
+				} else {
+					alert(app.vtranslate(data['error']['message']));
 				}
-				);
+			}
+			);
 		},
 		
 		/* Close the settings */
@@ -526,57 +525,57 @@ if (typeof(MailManager) == 'undefined') {
 				}
 			});
 			AppConnector.request(MailManager._baseurl() + "_operation=folder&_operationarg=open&_folder=" + encodeURIComponent(name)  +
-				"&_page=" + encodeURIComponent(page) + query).then(function(response) {
+			"&_page=" + encodeURIComponent(page) + query).then(function(response) {
 					
-					response = JSON.parse(response);
-					if (response.success == false) {
-						var eParams = {text: response.error.message, delay: 7000}
-						Vtiger_Helper_Js.showPnotify(eParams);
-						return;
+				response = JSON.parse(response);
+				if (response.success == false) {
+					var eParams = {text: response.error.message, delay: 7000}
+					Vtiger_Helper_Js.showPnotify(eParams);
+					return;
+				}
+				progressIndicatorElement.progressIndicator({
+					'mode' : 'hide'
+				})
+
+				// Toggle highlighting previous folder and current folder selection
+				MailManager.updateSelectedFolder(name);
+
+				// Update the selected MailBox folder name
+				jQuery('#mailbox_folder').val(name);
+
+				// Update the current selected folder, which will be used to highlight the selected folder
+				jQuery('#mm_selected_folder').val(name);
+				
+				MailManager.mail_close();
+				//var response = MailManager.removeHidElement(transport.responseText);
+				jQuery('#_contentdiv_').html(response.result);
+				
+				// Clear last open mail
+				jQuery('#_contentdiv2_').html('');
+				
+				// Updates the drop down used for move emails
+				MailManager.updateMoveFolderList();
+
+				// Bind "Enter" key for search on the Search text box
+				MailManager.bindEnterKeyForSearch();
+				var type = jQuery('#search_type').val();
+				var dateformat = jQuery('#jscal_dateformat').val();
+				var element = jQuery('#search_txt');
+				if(type == 'ON') {
+					if(element.length != 0) {
+						element.closest('div').addClass('date')
+						element.addClass('dateField').attr('data-date-format', dateformat);
+						element.after(" <span class='add-on'><i class='icon-calendar'></i></span>");
+						app.registerEventForDatePickerFields(element, true);
 					}
-					progressIndicatorElement.progressIndicator({
-						'mode' : 'hide'
-					})
-
-					// Toggle highlighting previous folder and current folder selection
-					MailManager.updateSelectedFolder(name);
-
-					// Update the selected MailBox folder name
-					jQuery('#mailbox_folder').val(name);
-
-					// Update the current selected folder, which will be used to highlight the selected folder
-					jQuery('#mm_selected_folder').val(name);
-					
-					MailManager.mail_close();
-					//var response = MailManager.removeHidElement(transport.responseText);
-					jQuery('#_contentdiv_').html(response.result);
-					
-					// Clear last open mail
-					jQuery('#_contentdiv2_').html('');
-					
-					// Updates the drop down used for move emails
-					MailManager.updateMoveFolderList();
-
-					// Bind "Enter" key for search on the Search text box
-					MailManager.bindEnterKeyForSearch();
-					var type = jQuery('#search_type').val();
-					var dateformat = jQuery('#jscal_dateformat').val();
-					var element = jQuery('#search_txt');
-					if(type == 'ON') {
-						if(element.length != 0) {
-							element.closest('div').addClass('date')
-							element.addClass('dateField').attr('data-date-format', dateformat);
-							element.after(" <span class='add-on'><i class='icon-calendar'></i></span>");
-							app.registerEventForDatePickerFields(element, true);
-						}
-					}else {
-						element.closest('div').removeClass('date');
-						element.removeClass('dateField').removeAttr('data-date-format');
-						element.unbind('focus');
-						element.next().remove("span.add-on");
-						jQuery('#jscal_trigger_fval').hide();
-					}
-					MailManager.triggerUI5Resize();
+				}else {
+					element.closest('div').removeClass('date');
+					element.removeClass('dateField').removeAttr('data-date-format');
+					element.unbind('focus');
+					element.next().remove("span.add-on");
+					jQuery('#jscal_trigger_fval').hide();
+				}
+				MailManager.triggerUI5Resize();
 			});
 		},
 
@@ -640,19 +639,19 @@ if (typeof(MailManager) == 'undefined') {
 					'enabled' : true
 				}
 			});
-                        AppConnector.request(MailManager._baseurl() + "_operation=folder&_operationarg=open&" + frmparams).then(function(response) { 
-                                        response = JSON.parse(response);
-					progressIndicatorElement.progressIndicator({
-						'mode' : 'hide'
-					})
+			AppConnector.request(MailManager._baseurl() + "_operation=folder&_operationarg=open&" + frmparams).then(function(response) { 
+				response = JSON.parse(response);
+				progressIndicatorElement.progressIndicator({
+					'mode' : 'hide'
+				})
 
-					MailManager.mail_close();
-					//var response = MailManager.removeHidElement(transport.responseText);
-					jQuery('#_contentdiv_').html(response.result);
+				MailManager.mail_close();
+				//var response = MailManager.removeHidElement(transport.responseText);
+				jQuery('#_contentdiv_').html(response.result);
 
-					MailManager.triggerUI5Resize();
-				}
-				);
+				MailManager.triggerUI5Resize();
+			}
+			);
 
 			return false;
 		},
@@ -674,32 +673,32 @@ if (typeof(MailManager) == 'undefined') {
 			jQuery('#_mailrow_' + msgno).removeClass('fontBold');
 			jQuery('#_mailrow_' + msgno).addClass('mm_normal');
 
-                         AppConnector.request(MailManager._baseurl() + "_operation=mail&_operationarg=open&_folder=" + encodeURIComponent(folder) + "&_msgno=" + encodeURIComponent(msgno)).then(function(responseJSON) { 
-                                        responseJSON = JSON.parse(responseJSON);
-					progressIndicatorElement.progressIndicator({
-						'mode' : 'hide'
-					})
-					//var response = MailManager.removeHidElement(transport.responseText);
-					//var responseJSON = JSON.parse(response);
-					var resultJSON = responseJSON['result'];
-					if (!resultJSON['ui']) {
-						Vtiger_Helper_Js.showPnotify(app.vtranslate('JSLBL_Failed_To_Open_Mail'));
-						return;
-					}
-
-					MailManager.close_all();
-					jQuery('#_contentdiv2_').show();
-					jQuery('#_contentdiv2_').html(resultJSON['ui']);
-
-					MailManager.mail_open_meta = resultJSON['meta'];
-					var folderName = resultJSON['folder'];
-
-					// Update folder count on UI
-					MailManager.folder_updateCount(folderName, resultJSON['unread']);
-
-					MailManager.mail_find_relationship();
+			AppConnector.request(MailManager._baseurl() + "_operation=mail&_operationarg=open&_folder=" + encodeURIComponent(folder) + "&_msgno=" + encodeURIComponent(msgno)).then(function(responseJSON) { 
+				responseJSON = JSON.parse(responseJSON);
+				progressIndicatorElement.progressIndicator({
+					'mode' : 'hide'
+				})
+				//var response = MailManager.removeHidElement(transport.responseText);
+				//var responseJSON = JSON.parse(response);
+				var resultJSON = responseJSON['result'];
+				if (!resultJSON['ui']) {
+					Vtiger_Helper_Js.showPnotify(app.vtranslate('JSLBL_Failed_To_Open_Mail'));
+					return;
 				}
-				);
+
+				MailManager.close_all();
+				jQuery('#_contentdiv2_').show();
+				jQuery('#_contentdiv2_').html(resultJSON['ui']);
+
+				MailManager.mail_open_meta = resultJSON['meta'];
+				var folderName = resultJSON['folder'];
+
+				// Update folder count on UI
+				MailManager.folder_updateCount(folderName, resultJSON['unread']);
+
+				MailManager.mail_find_relationship();
+			}
+			);
 		},
 
 
@@ -712,7 +711,6 @@ if (typeof(MailManager) == 'undefined') {
 
 		/* Mark mail as read */
 		mail_mark_unread: function(folder, msgno){
-
 			var message = app.vtranslate('JSLBL_Updating')+' ...';
 			var progressIndicatorElement = jQuery.progressIndicator({
 				'message' : message,
@@ -721,31 +719,30 @@ if (typeof(MailManager) == 'undefined') {
 					'enabled' : true
 				}
 			});
-                        AppConnector.request(MailManager._baseurl() + "_operation=mail&_operationarg=mark&_markas=unread&_folder=" + encodeURIComponent(folder) + "&_msgno=" + encodeURIComponent(msgno)).then(function(responseJSON) { 
-                                        responseJSON = JSON.parse(responseJSON);
-					progressIndicatorElement.progressIndicator({
-						'mode' : 'hide'
-					})
-					//var response = MailManager.removeHidElement(transport.responseText);
-					//var responseJSON = JSON.parse(response);
-					var resultJSON = responseJSON['result'];
+			AppConnector.request(MailManager._baseurl() + "_operation=mail&_operationarg=mark&_markas=unread&_folder=" + encodeURIComponent(folder) + "&_msgno=" + encodeURIComponent(msgno)).then(function(responseJSON) { 
+				responseJSON = JSON.parse(responseJSON);
+				progressIndicatorElement.progressIndicator({
+					'mode' : 'hide'
+				})
+				//var response = MailManager.removeHidElement(transport.responseText);
+				//var responseJSON = JSON.parse(response);
+				var resultJSON = responseJSON['result'];
 
-					if (responseJSON && resultJSON['status']) {
-						MailManager.mail_close();
+				if (responseJSON && resultJSON['status']) {
+					MailManager.mail_close();
 
-						var msgno = resultJSON['msgno'];
-						jQuery('#_mailrow_' + msgno).removeClass('mm_normal');
-						jQuery('#_mailrow_' + msgno).addClass('fontBold');
+					var msgno = resultJSON['msgno'];
+					jQuery('#_mailrow_' + msgno).removeClass('mm_normal');
+					jQuery('#_mailrow_' + msgno).addClass('fontBold');
 
-						MailManager.folder_updateCount(resultJSON['folder'], resultJSON['unread']);
-					}
+					MailManager.folder_updateCount(resultJSON['folder'], resultJSON['unread']);
 				}
-				);
+			}
+			);
 		},
 
 		/*Print email */
 		mail_print: function(){
-
 			var subject = jQuery('#_mailopen_subject').html();
 			var from = jQuery('#_mailopen_from').html();
 			var to = jQuery('#_mailopen_to').html();
@@ -765,28 +762,28 @@ if (typeof(MailManager) == 'undefined') {
 		},
 
 		/* Lookup for mail relations in CRM */
-		mail_find_relationship: function(){
+		mail_find_relationship: function() {
 			jQuery('#_mailrecord_findrel_btn_').html(MailManager.i18n('JSLBL_Finding_Relation') + '...');
 			jQuery("#_mailrecord_findrel_btn_").attr('disabled', true);
 
 			var meta = MailManager.mail_open_meta;
-                        AppConnector.request(MailManager._baseurl() + "_operation=relation&_operationarg=find&_mfrom=" + encodeURIComponent(meta['from']) +
-                        '&_msendto='+ encodeURIComponent(meta['sendto']) +
-				'&_folder=' +encodeURIComponent(meta['folder']) +'&_msgno=' +encodeURIComponent(meta['msgno']) +'&_msguid=' +
-				encodeURIComponent(meta['msguid'].replace('<', '&lt;').replace('>', '&gt;'))).then(function(responseJSON) { 
-                                        responseJSON = JSON.parse(responseJSON);
-					jQuery('#_mailrecord_findrel_btn_').html(MailManager.i18n('JSLBL_Find_Relation_Now'));
-					jQuery("#_mailrecord_findrel_btn_").attr('disabled', false);
-					jQuery('#_mailrecord_findrel_btn_').hide();
-					//var response = MailManager.removeHidElement(transport.responseText);
-					//var responseJSON = JSON.parse(response);
-					var resultJSON = responseJSON['result'];
+			AppConnector.request(MailManager._baseurl() + "_operation=relation&_operationarg=find&_mfrom=" + encodeURIComponent(meta['from']) +
+			'&_msendto='+ encodeURIComponent(meta['sendto']) +
+			'&_folder=' +encodeURIComponent(meta['folder']) +'&_msgno=' +encodeURIComponent(meta['msgno']) +'&_msguid=' +
+			encodeURIComponent(meta['msguid'].replace('<', '&lt;').replace('>', '&gt;'))).then(function(responseJSON) { 
+				responseJSON = JSON.parse(responseJSON);
+				jQuery('#_mailrecord_findrel_btn_').html(MailManager.i18n('JSLBL_Find_Relation_Now'));
+				jQuery("#_mailrecord_findrel_btn_").attr('disabled', false);
+				jQuery('#_mailrecord_findrel_btn_').hide();
+				//var response = MailManager.removeHidElement(transport.responseText);
+				//var responseJSON = JSON.parse(response);
+				var resultJSON = responseJSON['result'];
 
-					jQuery('#_mailrecord_relationshipdiv_').html(resultJSON['ui']);
+				jQuery('#_mailrecord_relationshipdiv_').html(resultJSON['ui']);
 
-					MailManager.triggerUI5Resize();
-				}
-				);
+				MailManager.triggerUI5Resize();
+			}
+			);
 		},
 
 		/* Associate email to CRM record */
@@ -809,22 +806,22 @@ if (typeof(MailManager) == 'undefined') {
 					'enabled' : true
 				}
 			});
-                        AppConnector.request(MailManager._baseurl() + "_operation=relation&_operationarg=link&" + frmparams).then(function(responseJSON) { 
-					progressIndicatorElement.progressIndicator({
-						'mode' : 'hide'
-					})
-					//var response = MailManager.removeHidElement(transport.responseText);
-	
-					document.getElementById("_mailopen_fromcrmid").innerHTML = linkto;
-			
-					//var resultJSON = responseJSON['result'];
-					//if (resultJSON['ui']) {
-					//	jQuery('#_mailrecord_relationshipdiv_').html(resultJSON['ui']);
-					//}
+			AppConnector.request(MailManager._baseurl() + "_operation=relation&_operationarg=link&" + frmparams).then(function(responseJSON) { 
+				progressIndicatorElement.progressIndicator({
+					'mode' : 'hide'
+				})
+				//var response = MailManager.removeHidElement(transport.responseText);
 
-					MailManager.triggerUI5Resize();
-				}
-				);
+				document.getElementById("_mailopen_fromcrmid").innerHTML = linkto;
+		
+				//var resultJSON = responseJSON['result'];
+				//if (resultJSON['ui']) {
+				//	jQuery('#_mailrecord_relationshipdiv_').html(resultJSON['ui']);
+				//}
+
+				MailManager.triggerUI5Resize();
+			}
+			);
 		},
 
 		/* Extended support for creating and linking */
@@ -848,11 +845,11 @@ if (typeof(MailManager) == 'undefined') {
 				}
 			});
 			var frmparams = Form.serialize(form);
-                         AppConnector.request(MailManager._baseurl() + "_operation=relation&_operationarg=create_wizard&" + frmparams).then(function(response) {
-					var quickCreateController = new MailManager_QuickCreate_Js();
-					quickCreateController.handleQuickCreateData(response);
-				}
-				);
+			AppConnector.request(MailManager._baseurl() + "_operation=relation&_operationarg=create_wizard&" + frmparams).then(function(response) {
+				var quickCreateController = new MailManager_QuickCreate_Js();
+				quickCreateController.handleQuickCreateData(response);
+			}
+			);
 		},
 
 		/* This will be used to attach an email to another contact */
@@ -993,23 +990,23 @@ if (typeof(MailManager) == 'undefined') {
 					'enabled' : true
 				}
 			});
-                        AppConnector.request(MailManager._baseurl() + "_operation=relation&_operationarg=create&" + frmparams).then(function(responseJSON) {
-					progressIndicatorElement.progressIndicator({
-						'mode' : 'hide'
-					})
-					//var response = MailManager.removeHidElement(transport.responseText);
-					//var responseJSON = JSON.parse(response);
-					var resultJSON = responseJSON['result'];
-					if (resultJSON['ui']) {
-						MailManager.mail_associate_create_cancel();
-						jQuery('#_mailrecord_relationshipdiv_').html(resultJSON['ui']);
-						MailManager.resetLinkToDropDown();
+			AppConnector.request(MailManager._baseurl() + "_operation=relation&_operationarg=create&" + frmparams).then(function(responseJSON) {
+				progressIndicatorElement.progressIndicator({
+					'mode' : 'hide'
+				})
+				//var response = MailManager.removeHidElement(transport.responseText);
+				//var responseJSON = JSON.parse(response);
+				var resultJSON = JSON.parse(responseJSON)['result'];
+				if (resultJSON['ui']) {
+					MailManager.mail_associate_create_cancel();
+					jQuery('#_mailrecord_relationshipdiv_').html(resultJSON['ui']);
+					MailManager.resetLinkToDropDown();
 
-						MailManager.triggerUI5Resize();
-						return true;
-					}
+					MailManager.triggerUI5Resize();
+					return true;
 				}
-				);
+			}
+			);
 		},
 
 		// function to show the comment widget
@@ -1022,31 +1019,31 @@ if (typeof(MailManager) == 'undefined') {
 					'enabled' : true
 				}
 			});
-                        AppConnector.request(MailManager._baseurl() + "_operation=relation&_operationarg=commentwidget&" + frmparams).then(function(response) {
-					progressIndicatorElement.progressIndicator({
-						'mode' : 'hide'
-					})
-					var callBackFunction = function(data){
-						jQuery('.cancelLink', data).on('click',function(e){
-							MailManager.resetLinkToDropDown();
-						});
+			AppConnector.request(MailManager._baseurl() + "_operation=relation&_operationarg=commentwidget&" + frmparams).then(function(response) {
+				progressIndicatorElement.progressIndicator({
+					'mode' : 'hide'
+				})
+				var callBackFunction = function(data){
+					jQuery('.cancelLink', data).on('click',function(e){
+						MailManager.resetLinkToDropDown();
+					});
 
-						jQuery('[name="saveButton"]',data).on('click',function(e){
-							var valid = MailManager.addCommentValidate(data);
-							if(valid){
-								MailManager.saveComment(data);
-							}
-						});
-					}
-					app.showModalWindow(response,function(response){
-						if(typeof callBackFunction == 'function'){
-							callBackFunction(response);
+					jQuery('[name="saveButton"]',data).on('click',function(e){
+						var valid = MailManager.addCommentValidate(data);
+						if(valid){
+							MailManager.saveComment(data);
 						}
-					},{
-						'text-align' : 'left'
 					});
 				}
-				);
+				app.showModalWindow(response,function(response){
+					if(typeof callBackFunction == 'function'){
+						callBackFunction(response);
+					}
+				},{
+					'text-align' : 'left'
+				});
+			}
+			);
 		},
 
 		addCommentValidate : function(form) {
@@ -1074,17 +1071,17 @@ if (typeof(MailManager) == 'undefined') {
 					'enabled' : true
 				}
 			});
-                        AppConnector.request(MailManager._baseurl() + "_operation=relation&_operationarg=create&" + frmparams).then(function(responseJSON) {
-                            responseJSON = JSON.parse(responseJSON);
-                    progressIndicatorElement.progressIndicator({
-						'mode' : 'hide'
-					})
-                    var resultJSON = responseJSON['result'];
-					if (resultJSON['ui']) {
-						app.hideModalWindow(form);
-						MailManager.resetLinkToDropDown();
-					}
-                }
+			AppConnector.request(MailManager._baseurl() + "_operation=relation&_operationarg=create&" + frmparams).then(function(responseJSON) {
+				responseJSON = JSON.parse(responseJSON);
+				progressIndicatorElement.progressIndicator({
+					'mode' : 'hide'
+				})
+				var resultJSON = responseJSON['result'];
+				if (resultJSON['ui']) {
+					app.hideModalWindow(form);
+					MailManager.resetLinkToDropDown();
+				}
+			}
             );
 		},
 
@@ -1172,24 +1169,24 @@ if (typeof(MailManager) == 'undefined') {
 					'enabled' : true
 				}
 			});
-                        AppConnector.request(MailManager._baseurl() + "_operation=mail&_operationarg=deleteAttachment&emailid="+ encodeURIComponent(id)
-				+"&docid="+ encodeURIComponent(docid)).then(function(responseJSON) {
-                                        responseJSON = JSON.parse(responseJSON);
-					progressIndicatorElement.progressIndicator({
-						'mode' : 'hide'
-					})
-					//var responseJSON = JSON.parse(response.responseText);
-					if(responseJSON.result.success == true) {
-						jQuery(ele).parent().fadeTo('slow', 0.0, function(){
-							var count = jQuery('#attachmentCount').val();
-							jQuery('#attachmentCount').val(--count);
-							jQuery(ele).parent().remove();
-						});
-					} else {
-						Vtiger_Helper_Js.showPnotify(app.vtranslate('JSLBL_ATTACHMENT_NOT_DELETED'));
-					}
+			AppConnector.request(MailManager._baseurl() + "_operation=mail&_operationarg=deleteAttachment&emailid="+ encodeURIComponent(id)
+			+"&docid="+ encodeURIComponent(docid)).then(function(responseJSON) {
+				responseJSON = JSON.parse(responseJSON);
+				progressIndicatorElement.progressIndicator({
+					'mode' : 'hide'
+				})
+				//var responseJSON = JSON.parse(response.responseText);
+				if(responseJSON.result.success == true) {
+					jQuery(ele).parent().fadeTo('slow', 0.0, function(){
+						var count = jQuery('#attachmentCount').val();
+						jQuery('#attachmentCount').val(--count);
+						jQuery(ele).parent().remove();
+					});
+				} else {
+					Vtiger_Helper_Js.showPnotify(app.vtranslate('JSLBL_ATTACHMENT_NOT_DELETED'));
 				}
-				);
+			}
+			);
 		},
 
 		/* Reply to mail */
@@ -1259,7 +1256,7 @@ if (typeof(MailManager) == 'undefined') {
 			}
 
 			MailManager.mail_reply_rteinstance.setData(data, function(){
-				});
+			});
 			MailManager.mail_reply_rteinstance.focus();
 		},
 
@@ -2148,8 +2145,8 @@ if (typeof(MailManager) == 'undefined') {
 				imageEle.attr('src', imagePath);
 
 				if(MailManager_QuickCreate_Js.foldersClicked == false) {
-                                    AppConnector.request(MailManager._baseurl() + "_operation=folder&_operationarg=getFoldersList").then(function(response) { 
-                                                response = JSON.parse(response);
+					AppConnector.request(MailManager._baseurl() + "_operation=folder&_operationarg=getFoldersList").then(function(response) { 
+						response = JSON.parse(response);
 						jQuery('#folders').append(response.result);
 						progressElement.progressIndicator({'mode':'hide'});
 						MailManager_QuickCreate_Js.foldersClicked = true;

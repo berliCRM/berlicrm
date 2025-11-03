@@ -42,6 +42,7 @@ $languageStrings = array(
 	'LBL_RESET_PRICE' => 'Reset Price',
 	'LBL_RESET' => 'Reset',
 	'LBL_STOCK_INFORMATION' => 'Stock Information',
+	'LBL_VAT' => 'VAT',
 	'Manufacturer' => 'Manufacturer',
 	'Mfr PartNo' => 'Mfr PartNo',
 	'M'=>'M',

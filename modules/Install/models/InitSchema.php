@@ -15,33 +15,37 @@ require_once('include/utils/utils.php');
 require_once('modules/com_vtiger_workflow/VTTaskManager.inc');
 require_once('modules/com_vtiger_workflow/tasks/VTEmailTask.inc');
 
-class Install_InitSchema_Model
-{
-    /**
-     * Function starts applying schema changes
-     */
-    public static function initialize()
-    {
-        global $adb;
-        $path = Install_Utils_Model::INSTALL_LOG;
-        file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Init DB from Session vars\n", FILE_APPEND);
-        $adb = PearDatabase::getInstance();
-        $configParams = $_SESSION['config_file_info'];
-        $adb->resetSettings($configParams['db_type'], $configParams['db_hostname'], $configParams['db_name'], $configParams['db_username'], $configParams['db_password']);
-        $adb->query('SET NAMES utf8');
+class Install_InitSchema_Model {
 
-        file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Set MultiQuery Mode (requires mysqli) and import SQL dump\n", FILE_APPEND);
-        $adb->database->multiQuery = true;
-        $schema = file_get_contents('schema/DatabaseSchema.sql');
-        $adb->pquery($schema);
-        $adb->database->multiQuery = false;
-        if ($adb->database->_failedQuery) {
-            return $adb->database->_failedQuery;
-        } else {
-            require 'vtigerversion.php';
-            $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
-            $adb->pquery($query, array($current_release_tag));
-        }
+	/**
+	 * Function starts applying schema changes
+	 */
+	public static function initialize() {
+		global $adb;
+		$path = Install_Utils_Model::INSTALL_LOG;
+		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Init DB from Session vars\n", FILE_APPEND);
+		$adb = PearDatabase::getInstance();
+		$configParams = $_SESSION['config_file_info'];
+		$adb->resetSettings($configParams['db_type'], $configParams['db_hostname'], $configParams['db_name'], $configParams['db_username'], $configParams['db_password']);
+		$adb->query('SET NAMES utf8');
+		
+		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Set MultiQuery Mode (requires mysqli) and import SQL dump\n", FILE_APPEND);
+		$schema = file_get_contents('schema/DatabaseSchema.sql');
+		$delimiter = ';';
+		$queries = preg_split('/' . $delimiter . '\s*(\n|$)/', $schema);
+		foreach ($queries as $query) {
+			$query = trim($query);
+			if (!empty($query)) {
+				$adb->pquery($query);
+			}
+		}
+		if ($adb->database->_failedQuery) {
+			return $adb->database->_failedQuery;
+		} else {
+			require 'vtigerversion.php';
+			$query = "UPDATE `vtiger_version` SET `tag_version` = ?";
+			$adb->pquery($query, array($current_release_tag));
+		}
 
         self::createCurrency();
 
@@ -312,7 +316,7 @@ class Install_InitSchema_Model
 
         // Workflow manager
         $dependentEventHandlers = array('VTEntityDelta');
-        $dependentEventHandlersJson = Zend_Json::encode($dependentEventHandlers);
+        $dependentEventHandlersJson = json_encode($dependentEventHandlers);
         $em->registerHandler(
             'vtiger.entity.aftersave',
             'modules/com_vtiger_workflow/VTEventHandler.inc',
@@ -799,6 +803,7 @@ class Install_InitSchema_Model
         self::translateSettings();
         self::translateWorkflowstasks();
         self::removeGroups();
+		self::addingSalutation();
 
         //
         // Adding some fields needed for E-Rechnung *** START ***
@@ -1244,5 +1249,35 @@ class Install_InitSchema_Model
             $adb->pquery($queryWidget, array($widgetId, $infos[0], $infos[1], $infos[2], $infos[3], $infos[4], $infos[5]));
         }
     }
+
+	// adding a missing salutetype
+	private static function addingSalutation():void {
+		$pickListFieldName = 'Sehr geehrte Frau Prof.'; 
+		$pickListName = 'salutationtype';
+		$moduleName = 'Contacts';
+		$moduleModel = Settings_Picklist_Module_Model::getInstance($moduleName);
+		$fieldModel = Settings_Picklist_Field_Model::getInstance($pickListName, $moduleModel);
+		$rolesSelected = array();
+		$roleRecordList = Settings_Roles_Record_Model::getAll(true);
+		foreach($roleRecordList AS $roleRecord) {
+			$rolesSelected[] = $roleRecord->getId();
+		}
+		$moduleModel->addPickListValues($fieldModel, $pickListFieldName, $rolesSelected);
+	}
+
+	// adding a missing salutetype
+	private static function addingSalutation():void {
+		$pickListFieldName = 'Sehr geehrte Frau Prof.'; 
+		$pickListName = 'salutationtype';
+		$moduleName = 'Contacts';
+		$moduleModel = Settings_Picklist_Module_Model::getInstance($moduleName);
+		$fieldModel = Settings_Picklist_Field_Model::getInstance($pickListName, $moduleModel);
+		$rolesSelected = array();
+		$roleRecordList = Settings_Roles_Record_Model::getAll(true);
+		foreach($roleRecordList AS $roleRecord) {
+			$rolesSelected[] = $roleRecord->getId();
+		}
+		$moduleModel->addPickListValues($fieldModel, $pickListFieldName, $rolesSelected);
+	}
 
 }

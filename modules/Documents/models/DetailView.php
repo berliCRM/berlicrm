@@ -46,7 +46,7 @@ class Documents_DetailView_Model extends Vtiger_DetailView_Model {
 				$basicActionLink = array(
 						'linktype' => 'DETAILVIEW',
 						'linklabel' => 'LBL_EMAIL_FILE_AS_ATTACHMENT',
-						'linkurl' => "javascript:Documents_Detail_Js.triggerSendEmail('". ZEND_JSON::encode(array($recordModel->getId())) ."')",
+						'linkurl' => "javascript:Documents_Detail_Js.triggerSendEmail('". json_encode(array($recordModel->getId())) ."')",
 						'linkicon' => ''
 				);
 				$linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($basicActionLink);

@@ -13,15 +13,15 @@ class Settings_Vtiger_ListAjax_View extends Settings_Vtiger_List_View {
 		parent::__construct();
 	}
 
-	function preProcess(Vtiger_Request $request, $display=false) {
-		return true;
+	function preProcess(Vtiger_Request $request, $display=false):void {
+		return;
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return true;
+	function postProcess(Vtiger_Request $request):void {
+		return;
 	}
 
-	function process(Vtiger_Request $request) {
+	function process(Vtiger_Request $request):void {
 		$mode = $request->get('mode');
 		if(!empty($mode)) {
 			$this->invokeExposedMethod($mode, $request);

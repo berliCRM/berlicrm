@@ -11,7 +11,7 @@
 
 class Settings_Currency_DeleteAjax_Action extends Settings_Vtiger_Basic_Action {
     
-    public function process(Vtiger_Request $request) {
+    public function process(Vtiger_Request $request):void {
         $response = new Vtiger_Response();
         try{
             $record = $request->get('record');
@@ -28,7 +28,7 @@ class Settings_Currency_DeleteAjax_Action extends Settings_Vtiger_Basic_Action {
         $response->emit();
     }
     
-    public function validateRequest(Vtiger_Request $request) { 
-        $request->validateWriteAccess(); 
+    public function validateRequest(Vtiger_Request $request):bool { 
+        return $request->validateWriteAccess(); 
     }
 }

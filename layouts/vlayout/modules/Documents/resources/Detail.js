@@ -8,7 +8,7 @@
  *************************************************************************************/
 
 Vtiger_Detail_Js("Documents_Detail_Js", {
-	
+
 	//It stores the CheckFileIntegrity response data
 	checkFileIntegrityResponseCache : {},
 	

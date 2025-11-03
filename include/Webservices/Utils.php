@@ -8,15 +8,15 @@
  * All Rights Reserved.
  *************************************************************************************/
 
-require_once('include/database/PearDatabase.php');
-require_once("modules/Users/Users.php");
+require_once 'include/database/PearDatabase.php';
+require_once 'modules/Users/Users.php';
 require_once 'include/Webservices/WebserviceField.php';
 require_once 'include/Webservices/EntityMeta.php';
 require_once 'include/Webservices/VtigerWebserviceObject.php';
-require_once("include/Webservices/VtigerCRMObject.php");
-require_once("include/Webservices/VtigerCRMObjectMeta.php");
-require_once("include/Webservices/DataTransform.php");
-require_once("include/Webservices/WebServiceError.php");
+require_once 'include/Webservices/VtigerCRMObject.php';
+require_once 'include/Webservices/VtigerCRMObjectMeta.php';
+require_once 'include/Webservices/DataTransform.php';
+require_once 'include/Webservices/WebServiceError.php';
 require_once 'include/utils/utils.php';
 require_once 'include/utils/UserInfoUtil.php';
 require_once 'include/Webservices/ModuleTypes.php';
@@ -368,7 +368,7 @@ function vtws_addActorTypeName($entityId,$fieldNames,$indexColumn,$tableName){
 }
 
 function vtws_getName($id,$user){
-	global $log,$adb;
+	global $adb;
 
 	$webserviceObject = VtigerWebserviceObject::fromId($adb,$id);
 	$handlerPath = $webserviceObject->getHandlerPath();
@@ -376,7 +376,7 @@ function vtws_getName($id,$user){
 
 	require_once $handlerPath;
 
-	$handler = new $handlerClass($webserviceObject,$user,$adb,$log);
+	$handler = new $handlerClass($webserviceObject,$user,$adb);
 	$meta = $handler->getMeta();
 	return $meta->getName($id);
 }
@@ -459,32 +459,31 @@ function vtws_addWebserviceOperationParam($operationId,$paramName,$paramType,$se
 /**
  *
  * @global PearDatabase $adb
- * @global <type> $log
  * @param <type> $name
  * @param <type> $user
  * @return WebserviceEntityOperation
  */
 function vtws_getModuleHandlerFromName($name,$user){
-	global $adb, $log;
+	global $adb;
 	$webserviceObject = VtigerWebserviceObject::fromName($adb,$name);
 	$handlerPath = $webserviceObject->getHandlerPath();
 	$handlerClass = $webserviceObject->getHandlerClass();
 
 	require_once $handlerPath;
 
-	$handler = new $handlerClass($webserviceObject,$user,$adb,$log);
+	$handler = new $handlerClass($webserviceObject,$user,$adb);
 	return $handler;
 }
 
 function vtws_getModuleHandlerFromId($id,$user){
-	global $adb, $log;
+	global $adb;
 	$webserviceObject = VtigerWebserviceObject::fromId($adb,$id);
 	$handlerPath = $webserviceObject->getHandlerPath();
 	$handlerClass = $webserviceObject->getHandlerClass();
 
 	require_once $handlerPath;
 
-	$handler = new $handlerClass($webserviceObject,$user,$adb,$log);
+	$handler = new $handlerClass($webserviceObject,$user,$adb);
 	return $handler;
 }
 
@@ -591,7 +590,7 @@ function vtws_getConvertLeadFieldMapping(){
  *	@param integer $relatedId -  related entity id (accountid / contactid)
  */
 function vtws_getRelatedNotesAttachments($id,$relatedId) {
-	global $adb,$log;
+	global $adb;
 
 	$sql = "select * from vtiger_senotesrel where crmid=?";
 	$result = $adb->pquery($sql, array($id));
@@ -1026,7 +1025,7 @@ function vtws_transferOwnershipForWorkflowTasks($ownerModel, $newOwnerModel) {
 		require_once 'modules/com_vtiger_workflow/tasks/'.$className.'.inc';
 		$unserializeTask = unserialize($task);
 		if(array_key_exists("field_value_mapping",$unserializeTask)) {
-			$fieldMapping = Zend_Json::decode($unserializeTask->field_value_mapping);
+			$fieldMapping = json_decode($unserializeTask->field_value_mapping, true);
 			if (!empty($fieldMapping)) {
 				foreach ($fieldMapping as $key => $condition) {
 					if ($condition['fieldname'] == 'assigned_user_id') {
@@ -1039,7 +1038,7 @@ function vtws_transferOwnershipForWorkflowTasks($ownerModel, $newOwnerModel) {
 					}
 					$fieldMapping[$key] = $condition;
 				}
-				$updatedTask = Zend_Json::encode($fieldMapping);
+				$updatedTask = json_encode($fieldMapping);
 				$unserializeTask->field_value_mapping = $updatedTask;
 				$serializeTask = serialize($unserializeTask);
 				
@@ -1305,7 +1304,7 @@ function vtws_validateConvertEntityMandatoryValues($entity, $entityHandler, $mod
 }
 
 function vtws_getConvertEntityFieldInfo($module, $fieldname) {
-	global $adb, $log, $current_user;
+	global $adb, $current_user;
 	$describe = vtws_describe($module, $current_user);
 	foreach ($describe['fields'] as $index => $fieldInfo) {
 		if ($fieldInfo['name'] == $fieldname) {
@@ -1340,7 +1339,7 @@ function vtws_recordExists($recordId) {
 // create a new modtracker entry
 //
 function createModTrackerEntry($oldvalue,$newvalue, $recordid, $module, $fieldname) {
-	global $current_user, $log;
+	global $current_user;
 	$adb = PearDatabase::getInstance();
 	if(file_exists('modules/ModTracker/ModTrackerUtils.php')) {
 		require_once 'modules/ModTracker/ModTracker.php';

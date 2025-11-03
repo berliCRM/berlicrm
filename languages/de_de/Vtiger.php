@@ -181,7 +181,7 @@ $languageStrings = array(
 	'LBL_CLEAR' => 'Leeren',
 	'LBL_CLICK_ADD' => 'Click add',
 	'LBL_CLOSE' => 'Schließen',
-	'LBL_COMMENTED' => 'commented', //Duplicated key-value pairs
+	'LBL_COMMENTED' => 'kommentierte', //Duplicated key-value pairs
 	'LBL_COMMENTS' => 'Kommentare',
 	'LBL_COMPLETED' => 'abgeschlossen',
 	'LBL_COMPOSE_EMAIL' => 'erstelle E-Mail',
@@ -266,8 +266,8 @@ $languageStrings = array(
 	'LBL_FULL_FORM' => 'ganze Form',
 	'LBL_GENERATE' => 'erstelle',
 	'LBL_GLOBAL_SEARCH' => 'Suchbegriff eingeben',
-	'LBL_GLOBAL_SEARCH_MAX_MESSAGE_PART1' => 'Es werden nur die ersten', 
-	'LBL_GLOBAL_SEARCH_MAX_MESSAGE_PART2' => 'Ergebnisse angezeigt.', 
+	'LBL_GLOBAL_SEARCH_MAX_MESSAGE_PART1' => 'Es werden nur die ersten',
+	'LBL_GLOBAL_SEARCH_MAX_MESSAGE_PART2' => 'Ergebnisse angezeigt.',
 	'LBL_GLOBAL_SEARCH_MAX_MESSAGE_PART3' => 'Für modulspezifische Ergebnisse gehen Sie bitte zur Listenansicht eines Moduls und benutzen Sie die dortige Suchfunktion.',
 	'LBL_GLOBAL_SEARCH_MAX_MESSAGE_PART3_FOR_MODULE' => 'Wenn Sie mit dem Ergebnis nicht zufrieden sind, benutzen Sie bitte eine benutzerdefinierte Liste.',
 	'LBL_GO_BACK' => 'zurück',
@@ -309,9 +309,9 @@ $languageStrings = array(
 	'LBL_LAST_SAVED_ON' => 'zuletzt gespeichert am',
 	'LBL_LAST_VIEWED_RECORDS' => 'zuletzt angesehene Datensätze',
 	'LBL_LAST_WEEK' => 'vorhergehende Woche',
-	'LBL_LESS_THAN' => 'weniger als', 
+	'LBL_LESS_THAN' => 'weniger als',
 	'LBL_LESS_THAN_OR_EQUAL' => 'weniger oder gleich', //Duplicated key-value pairs
-	'LBL_LISTVIEW_PAGE_JUMP' => 'Seitensprung',
+	'LBL_LISTVIEW_PAGE_JUMP' => 'Seiten blättern',
 	'LBL_LIST_IN_METRICS' => 'auf Startseite anzeigen',
 	'LBL_LIST_PRICE' => 'Listenpreis',
 	'LBL_LOADING' => 'Lade',
@@ -326,7 +326,7 @@ $languageStrings = array(
 	'LBL_EMPTY_FIELD' => 'Feld leeren',
 	'LBL_MATCHED_THIS_CRITERIA' => 'entsprechen diesen Kriterien',
 	'LBL_MAX_NUMBER_FILTER_COLUMNS' => 'Max. 12',
-	'LBL_MAX_QTY_SELECT' => 'der angegebene Wert ist',
+	'LBL_MAX_QTY_SELECT' => 'Lagermenge beträgt',
 	'LBL_MAX_UPLOAD_SIZE' => 'die max. Upload Größe ist',
 	'LBL_May' => 'Mai',
 	'LBL_MERGE' => 'Zusammenführen',
@@ -410,7 +410,7 @@ $languageStrings = array(
 	'LBL_REASON_FOR_CHANGING_COMMENT' => 'Grund für Kommentaränderung',
 	'LBL_RECENTLY_MODIFIED' => 'kürzlich geändert',
 	'LBL_RECORD' => 'Datensatz',
-	'LBL_RECORDS_LIST' => 'Liste der Datensätze', 
+	'LBL_RECORDS_LIST' => 'Liste der Datensätze',
 	'LBL_RECORD_DELETE' => 'Der Datensatz wurde bereits gelöscht.',
 	'LBL_RECORD_NOT_FOUND' => 'Der Datensatz wurde nicht gefunden.',
 	'LBL_RECORD_SUMMARY' => 'Modulzusammenfassung', //Duplicated key-value pairs
@@ -466,7 +466,7 @@ $languageStrings = array(
 	'LBL_SMS_MAX_CHARACTERS_ALLOWED' => 'Für eine Textnachricht sind max. 160 Zeichen erlaubt.',
 	'LBL_SPECIAL_OPTIONS' => 'spezielle Optionen',
 	'LBL_STARTS_WITH' => 'startet mit', //Duplicated key-value pairs
-	'LBL_STOCK_NOT_ENOUGH' => 'nicht genug im Lager',
+	'LBL_STOCK_NOT_ENOUGH' => 'Bestellmenge überschreitet Lagerbestand',
 	'LBL_SUBJECT' => 'Betreff',
 	'LBL_SUB_PRODUCTS' => 'Sub-Produkte',
 	'LBL_SUMMARY' => 'Zusammenfassung',
@@ -616,6 +616,7 @@ $languageStrings = array(
 	'Tax2' => 'Steuer2',
 	'Tax3' => 'Steuer3',
 	'Tax:' => 'Steuer:',
+	'LBL_VAT' => 'MwSt.', //Duplicated key-value pairs
 	'Technology' => 'Technologie',
 	'Telecommunications' => 'Telekommunikation',
 	'Terms & Conditions' => 'Geschäftsbedingungen',
@@ -637,32 +638,32 @@ $languageStrings = array(
 	'Web Site' => 'Web-Seite',
 	'Website: ' => 'Webseite: ',
 	'Word of mouth' => 'Mundpropaganda',
-    
-        //Promotion translations
-        'LBL_HIDE_PROMOTION' => 'Promotion verbergen',
-        'LBL_SHOW_PROMOTION' => 'Promotion zeigen',
-	
-        //customerportal forgot password 
-        'LBL_LOGIN_DETAILS' => 'Login Details' ,
-        'LBL_USERNAME' => ' Nutzername',
-        'LBL_PASSWORD' => 'Passwort',
-        'LBL_SUBJECT_PORTAL_LOGIN_DETAILS' => 'Portal Login Details',
-         //Patch provided by http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7884
-        'Users' => 'Nutzer', 
-        'Service Requests' => 'Serviceanfragen', 
-        'Terms &amp; Conditions' => 'Geschäftsbedingungen', 
+
+	//Promotion translations
+	'LBL_HIDE_PROMOTION' => 'Promotion verbergen',
+	'LBL_SHOW_PROMOTION' => 'Promotion zeigen',
+
+	//customerportal forgot password 
+	'LBL_LOGIN_DETAILS' => 'Login Details',
+	'LBL_USERNAME' => ' Nutzername',
+	'LBL_PASSWORD' => 'Passwort',
+	'LBL_SUBJECT_PORTAL_LOGIN_DETAILS' => 'Portal Login Details',
+	//Patch provided by http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7884
+	'Users' => 'Nutzer',
+	'Service Requests' => 'Serviceanfragen',
+	'Terms &amp; Conditions' => 'Geschäftsbedingungen',
 	'LBL_CONVERSION_RATE'          => 'Umrechnungskurs',
-    
-      //Email template  edit Convertion
-       'LBL_CURRENT_DATE' => 'heutiges Datum',
-       'LBL_CURRENT_TIME' => 'jetzt',
-    
-        'LBL_LEFT_PANEL_SHOW_HIDE' => 'links zeigen/verbergen',
- 	
+
+	//Email template  edit Convertion
+	'LBL_CURRENT_DATE' => 'heutiges Datum',
+	'LBL_CURRENT_TIME' => 'jetzt',
+
+	'LBL_LEFT_PANEL_SHOW_HIDE' => 'links zeigen/verbergen',
+
 	//labels not available in en_us file
 	'Planned' => 'geplant',
 	'Not Held' => 'nicht durchgeführt',
-	'Created By' => 'erstellt durch',  
+	'Created By' => 'erstellt durch',
 	'Public: Read Only' => 'öffentlich: nur Lesen',
 	'Public: Read, Create/Edit' => 'öffentlich: Lesen, Erstellen, Bearbeiten',
 	'Public: Read, Create/Edit, Delete' => 'öffentlich: Lesen, Erstellen, Bearbeiten, Löschen',
@@ -672,42 +673,42 @@ $languageStrings = array(
 	'Starting Day of the week' => 'Woche beginnt am',
 	'Day starts at' => 'Tag beginnt um',
 	'Time Zone' => 'Zeitzone',
-	'Default Activity View'=> 'Voreinstellung Aktivitätenansicht',
+	'Default Activity View' => 'Voreinstellung Aktivitätenansicht',
 	'Date Format' => 'Datumsformat',
 	'Calendar Hour Format' => 'Stundenformat',
 	//for Services
-	'Service Name'=>'Dienstleistungsname',
-	'Service Active'=>'aktiv',
-	'Service Category'=>'Kategorie',
-	'Service No'=>'Dienstleistungsnummmer',
-	'Owner'=>'Besitzer',
-	'No of Units'=>'Anzahl der Einheiten',
-	'Commission Rate'=>'Kommission (%)',
-	'Price'=>'Preis',
-	'Usage Unit'=>'Mengeneinheit',
-	'Tax Class'=>'MwSt. Stufe',
-	'Website'=>'Webseite',
-	'Quick Create'=>'Schnellmenü',
-	'CustomerPortal'=>'Kundenportal',
-	'Faq'=>'Wissensbasis',
+	'Service Name' => 'Dienstleistungsname',
+	'Service Active' => 'aktiv',
+	'Service Category' => 'Kategorie',
+	'Service No' => 'Dienstleistungsnummmer',
+	'Owner' => 'Besitzer',
+	'No of Units' => 'Anzahl der Einheiten',
+	'Commission Rate' => 'Kommission (%)',
+	'Price' => 'Preis',
+	'Usage Unit' => 'Mengeneinheit',
+	'Tax Class' => 'MwSt. Stufe',
+	'Website' => 'Webseite',
+	'Quick Create' => 'Schnellmenü',
+	'CustomerPortal' => 'Kundenportal',
+	'Faq' => 'Wissensbasis',
 
 	//added for outgoing mail server
-	'LBL_CONFIRM_SUBJECT'=>'automatische Bestätigung der E-Mail Server Verbindung',
-	'LBL_CONFIRM_BODY'=>'Das ist eine automatische Nachricht aus Ihrem CRM System. <br>Die Verbindung zum E-Mail Server wurde hergestellt und durch diese Mail bestätigt.<br>',
-	
+	'LBL_CONFIRM_SUBJECT' => 'automatische Bestätigung der E-Mail Server Verbindung',
+	'LBL_CONFIRM_BODY' => 'Das ist eine automatische Nachricht aus Ihrem CRM System. <br>Die Verbindung zum E-Mail Server wurde hergestellt und durch diese Mail bestätigt.<br>',
+
 	//crm-now added missing labels
- 	'SMSNotifier' => 'SMS Nachrichten',
+	'SMSNotifier' => 'SMS Nachrichten',
 	//crm-now added crmtogo
- 	'crmtogo' => 'Mobiles CRM',
-	
+	'crmtogo' => 'Mobiles CRM',
+
 	//added for letter and conclusion
-	'LBL_CONCLUSION'=>'Schlusstext',
-	'LBL_LETTER'=>'Anschreiben',
-	
+	'LBL_CONCLUSION' => 'Schlusstext',
+	'LBL_LETTER' => 'Anschreiben',
+
 	//password settings
 	'LBL_PASSWORDHEADER' => 'Passwortanforderungen:',
 	'LBL_PASSOWRDRULES' => 'Erforderlich:<br>- Min. 10 Zeichen<br><br>Passwort muss mindestens 3 der folgenden 4 Regeln entsprechen:<br>- Min. 1 Zeichen als Großbuchstabe<br>- Min. 1 Zeichen als Kleinbuchstabe<br>- Min. 1 Zahl<br>- Min. eins der folgenden Sonderzeichen: , ! ? , ; - @ #<br><br>Gemäß den DSGVO-Vorschriften sollten Sie unterschiedliche Passwörter für unterschiedliche Zugriffsanforderungen verwenden.',
-	
+
 	//settings menu
 	'LBL_USER_DESCRIPTION' => 'bearbeiten Sie die CRM Benutzerliste und weisen Sie Benutzern Rollen zu',
 	'LBL_LIST_WORKFLOWS_DESCRIPTION' => 'erstelle und bearbeite Workflows',
@@ -717,26 +718,26 @@ $languageStrings = array(
 	'LBL_PICKLIST_EDITOR' => 'Auswahllisten Editor',
 	'LBL_LIST_WORKFLOWS_DESCRIPTION' => 'erstelle und bearbeite Workflows',
 	'LBL_LIST_WORKFLOWS' => 'Workflows',
-	
+
 	//missed translations
-	'CustomerPortal'=>'Kundenportal',
+	'CustomerPortal' => 'Kundenportal',
 	'group' => 'Gruppe',
 	'individual' => 'Individuell',
 
 	//List View Colors
 	'ListViewColors' => 'Listenansicht Farben',
-	
+
 	//translation for boolean in list view
 	'yes' => 'ja',
 	'no' => 'nein',
-	
+
 	//global search menu
 	'Search' => 'Globale Suche',
 
 	//Added for special crm-now Notification
 	'Dear_Admin_tasks_not_been_completed' => 'Das ist eine automatische Nachricht aus Ihrem CRM System. Bitte nehmen Sie zur Kenntnis, dass es Aufgaben gibt, die 24h nach Ihrem Anfangstermin noch nicht erledigt sind.<br>',
 	'Task_Not_completed' => 'Aufgabe nicht abgeschlossen',
-	'Task_sign'=>'Danke<br>',
+	'Task_sign' => 'Danke<br>',
 	'Dear_Team' => 'Hallo Team,<br>',
 	'Dear_Team_Time_to_Party' => 'Hallo Team,<br>Glückwunsch an alle Beteiligten! <br>Wir haben ein Geschäft mit mehr als 10.000 EUR abgeschlossen<br> Sehr schön!<br>',
 	'Potential_Name' => 'Potentialname:',
@@ -752,18 +753,18 @@ $languageStrings = array(
 	'Support_Ending_Subject' => 'Betreff: Unser Support endet',
 	'Support_Ending_Content' => 'Das ist eine automatische Nachricht um Sie darüber zu informieren, dass der Support für <b>',
 	'kindly_renew' => '</b>in Kürze endet. Bitte setzen Sie sich mit unserem Vertrieb in Verbindung<br>Mit freundlichen Grüßen,<br>Ihr Support Team<br>',
-	'Yes'=>'ja' ,
-	'No'=>'nein' ,
+	'Yes' => 'ja',
+	'No' => 'nein',
 	//crm-now: Mail Converter settings menu
 	'LBL_MAX_LIMIT_EXCEEDED' => 'Die maximale Anzahl der möglichen Mailboxen ist bereits erreicht.',
 	//crm-now: Delivery Note
 	'LBL_EXPORT_DELIVERYNOTE_PDF' => 'Export Lieferschein als PDF',
 	//crm-now: better grammar
 	'LBL_DAYS_N' => 'Tagen',
-	
+
 	//crm-now: missing label used in CustomView
 	'COMBO_ALL' => 'Alle',
-	
+
 	// softphones
 	'LBL_SOFTPHONES' => 'Softphones',
 	'berliSoftphones' => 'Softphones',
@@ -772,12 +773,11 @@ $languageStrings = array(
 	'RecycleBin' => 'Papierkorb',
 	'Pdfsettings' => 'PDF Einstellungen',
 	'EmailTemplates' => 'E-Mail Vorlagen',
-	'PBXManager' => 'PBX Manager',
 
 	// Clever Reach
 	'LBL_CLEVERREACH' => 'Clever Reach',
 	'berliCleverReach' => 'Clever Reach',
-	
+
 	//Hubspot
 	'LBL_HUBSPOT' => 'HubSpot',
 	'berliHubSpot' => 'HubSpot',
@@ -785,98 +785,103 @@ $languageStrings = array(
 
 	//language grammar fix
 	'LBL_HISTORY_TO' => 'zu',
-	
+
 	//better grammar in inventory
 	'LBL_ADD_ADJUSTMENT' => 'hinzufügen',
-	
+
 	//ADDED FOR COMMENTS
-	'Comments'=>'Kommentare',
-	
+	'Comments' => 'Kommentare',
+
 	//ADDED FOR DUPLICATE SEARCH
-	'LBL_DUPLICATES'=>'Duplikate in',
-    
-    'LBL_MASSOP_APPEND_TEXT'=>'Text anhängen (statt ersetzen)',
-    'LBL_MASSOP_APPEND_MULTIPICKLIST'=>'Auswahl hinzufügen (statt ersetzen)',
-	
-	'LBL_REMOVE_DUPLICATES'=>'Duplikate entfernen',
-    
-    //Copy CustomView
-    'LBL_SAVE_AS_COPY'=>'als neue Ansicht speichern',
-    'LBL_OTHER_USER_ASSIGN'=>'für anderen Nutzer kopieren',
-    'LBL_SELECTOTHER'=>'anderen CRM Nutzer auswählen',
-    
-    //Dynamic Blocks
-    'LBL_FIELD_HIDDEN_NOTICE' => 'Ein Feld wurde in Abhängigkeit eines Auswahllisteneintrags versteckt.',
-    'LBL_FIELDS_HIDDEN_NOTICE' => '%d Felder wurden in Abhängigkeit eines Auswahllisteneintrags versteckt.',
-    'LBL_BLOCK_HIDDEN_NOTICE' => 'Ein Block wurde in Abhängigkeit eines Auswahllisteneintrags versteckt.',
-    'LBL_BLOCKS_HIDDEN_NOTICE' => '%d Blöcke wurde in Abhängigkeit eines Auswahllisteneintrags versteckt.',
-    'LBL_SHOW_HIDDEN_ONCE' => 'Einmalig anzeigen.',
-	
+	'LBL_DUPLICATES' => 'Duplikate in',
+
+	'LBL_MASSOP_APPEND_TEXT' => 'Text anhängen (statt ersetzen)',
+	'LBL_MASSOP_APPEND_MULTIPICKLIST' => 'Auswahl hinzufügen (statt ersetzen)',
+
+	'LBL_REMOVE_DUPLICATES' => 'Duplikate entfernen',
+
+	//Copy CustomView
+	'LBL_SAVE_AS_COPY' => 'als neue Ansicht speichern',
+	'LBL_OTHER_USER_ASSIGN' => 'für anderen Nutzer kopieren',
+	'LBL_SELECTOTHER' => 'anderen CRM Nutzer auswählen',
+
+	//Dynamic Blocks
+	'LBL_FIELD_HIDDEN_NOTICE' => 'Ein Feld wurde in Abhängigkeit eines Auswahllisteneintrags versteckt.',
+	'LBL_FIELDS_HIDDEN_NOTICE' => '%d Felder wurden in Abhängigkeit eines Auswahllisteneintrags versteckt.',
+	'LBL_BLOCK_HIDDEN_NOTICE' => 'Ein Block wurde in Abhängigkeit eines Auswahllisteneintrags versteckt.',
+	'LBL_BLOCKS_HIDDEN_NOTICE' => '%d Blöcke wurde in Abhängigkeit eines Auswahllisteneintrags versteckt.',
+	'LBL_SHOW_HIDDEN_ONCE' => 'Einmalig anzeigen.',
+
 	//berlimap
-    'berlimap' => 'Kartenansicht',
+	'berlimap' => 'Kartenansicht',
 
 	// GDPR module
 	'gdpr' => 'DSGVO',
- 	//PDF GDPR information
+	//PDF GDPR information
 	'LBL_DSGVO_NAME' => 'DSGVO Auskunft',
 	'LBL_CONTACT_RELATED_DATA' => 'gespeicherte personenbezogenen Daten',
 	'LBL_GDPR_INQUIRY' => 'Hiermit geben wir Ihnen Auskunft über die bei uns gespeicherten personenbezogenen Daten.',
 	'LBL_GDPR_INQUIRY_OTHER_MODULE' => 'diese Informationen werden verwendet für',
- 	'LBL_GDPR_DATA_USAGE1' => 'Ihre personenbezogenen Daten werden ausschließlich in unserem Unternehmen verwendet und nicht an andere weiter gegeben. Ihre Daten werden ausschließlich in einem Mitgliedstaat der Europäischen Union oder in einem anderen Vertragsstaat des Abkommens über den Europäischen Wirtschaftsraum gespeichert. Ihre Daten werden gelöscht, wenn sie für die Zwecke, für die erhoben oder auf sonstige Weise verarbeitet wurden, nicht mehr notwendig sind.',
- 	'LBL_GDPR_DATA_USAGE2' => 'Unter Berücksichtigung des Stands der Technik, der Implementierungskosten und der Art,des Umfangs, der Umstände und der Zwecke der Verarbeitung sowie der unterschiedlichen Eintrittswahrscheinlichkeit und Schwere des Risikos für die Rechte und Freiheiten natürlicher Personen wurden geeignete technische und organisatorische Maßnahmen getroffen, um ein dem Risiko angemessenes Schutzniveau Ihrer personenbezogenen Daten zu gewährleisten.',
- 	'LBL_GDPR_DATA_USAGE3' => 'Sie können jederzeit die Berichtigung, Löschung und Sperrung einzelner personenbezogener Daten verlangen. Sie können darüber hinaus jederzeit ohne Angabe von Gründen von Ihrem Widerspruchsrecht Gebrauch machen und die Speicherung Ihrer personenbezogenen Daten zum Teil oder gänzlich widerrufen. Sie können den Widerruf entweder postalisch, per E-Mail oder per Fax übermitteln. Dabei entstehen Ihnen keine Kosten. ',
-	
+	'LBL_GDPR_DATA_USAGE1' => 'Ihre personenbezogenen Daten werden ausschließlich in unserem Unternehmen verwendet und nicht an andere weiter gegeben. Ihre Daten werden ausschließlich in einem Mitgliedstaat der Europäischen Union oder in einem anderen Vertragsstaat des Abkommens über den Europäischen Wirtschaftsraum gespeichert. Ihre Daten werden gelöscht, wenn sie für die Zwecke, für die erhoben oder auf sonstige Weise verarbeitet wurden, nicht mehr notwendig sind.',
+	'LBL_GDPR_DATA_USAGE2' => 'Unter Berücksichtigung des Stands der Technik, der Implementierungskosten und der Art,des Umfangs, der Umstände und der Zwecke der Verarbeitung sowie der unterschiedlichen Eintrittswahrscheinlichkeit und Schwere des Risikos für die Rechte und Freiheiten natürlicher Personen wurden geeignete technische und organisatorische Maßnahmen getroffen, um ein dem Risiko angemessenes Schutzniveau Ihrer personenbezogenen Daten zu gewährleisten.',
+	'LBL_GDPR_DATA_USAGE3' => 'Sie können jederzeit die Berichtigung, Löschung und Sperrung einzelner personenbezogener Daten verlangen. Sie können darüber hinaus jederzeit ohne Angabe von Gründen von Ihrem Widerspruchsrecht Gebrauch machen und die Speicherung Ihrer personenbezogenen Daten zum Teil oder gänzlich widerrufen. Sie können den Widerruf entweder postalisch, per E-Mail oder per Fax übermitteln. Dabei entstehen Ihnen keine Kosten. ',
+
 	//Reports
-	'LBL_REALPRICE'=>'tatsächlicher Preis',
+	'LBL_REALPRICE' => 'tatsächlicher Preis',
 
 	//Documents Drag & Drop widget
 	'LBL_UPLOAD_DOCUMENTS' => 'Dokumente hochladen',
 	'LBL_UPLOAD_ERROR' => 'Upload Fehler',
 	'LBL_FILE_DRAGANDDROP' => 'Drag und Drop Datei hierher oder klick für Dateiauswahl.',
-	'LBL_GIVE_VALID_FILE'=>'Bitte eine Datei für den Upload auswählen!',
-	'LBL_UPLOAD_FILE_LARGE'=>'Leider ist die Datei zu groß. Bitte eine kleinere Datei auswählen',
-	'LBL_PROBLEM_UPLOAD'=>'Es gab beim Hochladen der Datei ein Problem! Bitte noch einmal versuchen.',
-	
+	'LBL_GIVE_VALID_FILE' => 'Bitte eine Datei für den Upload auswählen!',
+	'LBL_UPLOAD_FILE_LARGE' => 'Leider ist die Datei zu groß. Bitte eine kleinere Datei auswählen',
+	'LBL_PROBLEM_UPLOAD' => 'Es gab beim Hochladen der Datei ein Problem! Bitte noch einmal versuchen.',
+
 	'LBL_APPROVE' => 'Ansicht freischalten',
 	'Visibility' => 'Sichtbarkeit',
 	'Inventory' => 'Bestand',
-	
+
 	//ListView Excel Export
 	'LBL_CSV_FORMAT' => 'CSV-Format',
 	'LBL_EXCEL_FORMAT' => 'Excel-Format',
 
-    'LBL_ENABLE_COMMENTS_FOR_MODULE' => 'Kommentare nach Modul de-/aktivieren',
-    'LBL_MODULE' => 'Modul',
-    'LBL_COMMENTS_ENABLED' => 'Kommentare erlaubt',
-    'LBL_SAVE_SUCCESS'=>'Einstellung erfolgreich gespeichert.',
+	'LBL_ENABLE_COMMENTS_FOR_MODULE' => 'Kommentare nach Modul de-/aktivieren',
+	'LBL_MODULE' => 'Modul',
+	'LBL_COMMENTS_ENABLED' => 'Kommentare erlaubt',
+	'LBL_SAVE_SUCCESS' => 'Einstellung erfolgreich gespeichert.',
 
 	//Verteiler
-    'Verteiler' => 'Verteiler',
-	
+	'Verteiler' => 'Verteiler',
+
 	//Account Widgets
 	'LBL_LAST_ACTIVITY' => 'letzter Kontakt vor mehr als',
 	'LBL_LAST_INVOICE' => 'letzte Rechnung vor mehr als',
 	'LBL_NO_RECORDS_RELATED_TO_THIS_FILTER' => 'es existieren keine Daten, welche den Filterkriterien entsprechen',
 
-    'LBL_MANDATORY_FIELD_MISSING'=>'Pflichtfeldangabe fehlt.',
+	'LBL_MANDATORY_FIELD_MISSING' => 'Pflichtfeldangabe fehlt.',
 	// signatur block translation
 	'LBL_USERSIGNATUR' => 'Signatur',
-	
+
 	// RelatedList Count fail
 	'LBL_QUERY_FAILED' => 'fehlerhafte Query',
-	
+
 	'LBL_SINGLE_EMAIL' => 'E-Mail',
 
 	// Workflow
 	'LBL_WORKFLOW_TOO_MANY_SUBJECT' => 'Probleme bei Workflow',
 	'LBL_WORKFLOW_TOO_MANY_CONTENT' => '<html>Diese Email wurde erzeugt, weil einer Ihrer <a href="%s">Workflows</a> mit %d Datensätzen die zulässige Anzahl der zu verarbeitenden Datensätze von %d überschreiten würde und deshalb auf %d reduziert wurde.<br><br>Sollten Sie diese Email mehrfach mit unveränderter Anzahl der zu verarbeitenden Datensätze erhalten, dann ändern Sie die Bedingungen, da ansonsten niemals alle Daten verarbeitet werden können.<html>',
-	
+
 	// Cron
 	'LBL_CRON_TIMEOUT_SUBJECT' => 'CRON \'%s\' Timeout in %s',
 	'LBL_CRON_TIMEOUT_CONTENT' => 'In Ihrem <a href="%s">CRM</a> konnte der Cron \'%s\' seit 24h nicht beendet werden.<br>Er wurde nun neugestartet, sollte aber trotzdem im Auge behalten werden.',
 
 	// SpecialWidgets
 	'LBL_COPY_CONTACTDETAILS' => 'Kopiere Kontaktdaten',
+
+	// Send Mail from ModComment
+	'LBL_SEND_MAIL_AND_POST' => 'Mail senden und veröffentlichen',
+	'LBL_EXTERNAL_COMMENT' => 'Externer Kommentar',
+	'LBL_MAILTO'=> 'Mail an',
 );
 
 $jsLanguageStrings = array(
@@ -933,11 +938,6 @@ $jsLanguageStrings = array(
 	'JS_NO_VIEW_PERMISSION_AFTER_SAVE' => 'Nach dem Speichern können Sie den Eintrag auf Grund der Rechteeinstellungen nicht mehr sehen. Wollen Sie das wirklich?',
 	'JS_NUMBER_SHOULD_BE_LESS_THAN_32' => 'Zahl sollte weniger als 32 sein',
 	'JS_PAGE_NOT_EXIST' => 'Seite existiert nicht!',
-	'JS_PBX_CALL_FROM' => 'Anrufen von',
-	'JS_PBX_FILL_ALL_FIELDS'=>'Bitte alle Felder ausfüllen',
-	'JS_PBX_INCOMING_CALL' => 'reinkommender Anruf',
-	'JS_PBX_OUTGOING_FAILURE'=>'Anruf nicht möglich',
-	'JS_PBX_OUTGOING_SUCCESS'=>'Bitte den Hörer abheben, um die Nummer zu wählen.',
 	'JS_PERCENTAGE_VALUE_SHOULD_BE_LESS_THAN_100' => 'Prozentangabe sollte weniger als 100 sein',
 	'JS_PHONE_NUMBER_LENGTH_EXCEEDED' => 'Telefonnummer zu lang',
 	'JS_PLEASE_ENABLE_BASE_CURRENCY_FOR_PRODUCT' => 'Bitte die Basiswährung für das Produkt festlegen.',
@@ -997,12 +997,13 @@ $jsLanguageStrings = array(
 	'LBL_DELETE_CONFIRMATION' => 'Sind Sie sicher?', // This is added as duplicate as we need to show different message for different modules. Ex:Accounts has different message
 	'LBL_DELETE_USER_CONFIRMATION' => 'Wenn ein Nutzer gelöscht wird, so wird dieser als "Inaktiv" gekennzeichnet. Dem Nutzer können keine Daten mehr zugewiesen werden und der Nutzer kann sich nicht mehr in das CRM einloggen. Sind Sie sicher, dass Sie den Nutzer inaktiv setzen wollen?',
 	'LBL_RESTORE_CONFIRMATION' => 'Datensätze die diesem CRM Nutzer zugeordnet waren, werden nicht wieder hergestellt. Sind Sie sicher, dass Sie diesen Nutzer wiederherstellen wollen?',
-    'LBL_DELETE_USER_PERMANENT_CONFIRMATION' => 'Haben Sie diesen Nutzer gelöscht, so können Sie den nicht wiederherstellen. Sind Sie sicher, dass Sie diesen Nutzer permanent löschen wollen?',
+	'LBL_DELETE_USER_PERMANENT_CONFIRMATION' => 'Haben Sie diesen Nutzer gelöscht, so können Sie den nicht wiederherstellen. Sind Sie sicher, dass Sie diesen Nutzer permanent löschen wollen?',
 	'LBL_IMAGE_DELETED_SUCCESSFULLY' => 'Bild wurde gelöscht',
 	'LBL_IMAGE_NOT_DELETED' => 'Bild wurde nicht gelöscht',
 	'LBL_MASS_DELETE_CONFIRMATION' => 'Sind Sie sicher, dass Sie die ausgewählten Daten löschen wollen?',
 	'LBL_NO' => 'nein',
 	'LBL_YES' => 'ja',
+	'LBL_NONE' => 'Ohne',	// Duplicated key-value pairs
 	'NONE_OF_THE_FIELD_VALUES_ARE_CHANGED_IN_MASS_EDIT' => 'Die Massenbearbeitung hat nichts verändert',
 	'OVERWRITE_EXISTING_MSG1' => 'Überschreibe die Adresse mit ',
 	'OVERWRITE_EXISTING_MSG2' => 'Adressdetails?',
@@ -1010,75 +1011,80 @@ $jsLanguageStrings = array(
 	'SHOULD_BE_LESS_THAN_TODAY' => 'muss vor heute liegen',
 	'SINGLE_Accounts' => 'Organisation',
 	'SINGLE_Contacts' => 'Person',
-    
-        //Promotion translations
-        'JS_HIDE_PROMOTION' => 'Promotion verbergen',
-        'JS_SHOW_PROMOTION' => 'Promotion zeigen',
-    
-        //Inventory module Translations
-        'JS_PLEASE_ENABLE_PRODUCT_OR_SERVICE_MODULE'=>'Bitte das Produkt- oder Dienstleistungsmodul aktivieren.',
-        'LBL_SYNC_BUTTON' => 'Synchronisiere',
-        'LBL_SYNCRONIZING' => 'Synchronisiere',
-    
-        'JS_RECORDS_TRANSFERRED_SUCCESSFULLY' => 'Die Zuständigkeit wurde erfolgreich geändert.',
-    
-    //Edit view mode Translations
-        'JS_CHANGES_WILL_BE_LOST' => 'Ihre Änderungen werden verloren gehen!',
+	'SINGLE_Vendors' => 'Lieferantenname',
 
-    //Mass edit failure
-    'JS_MASS_EDIT_NOT_SUCCESSFULL' => 'Die Massenbearbeitung war für einige Datensätze nicht erfolgreich.',
+	//Promotion translations
+	'JS_HIDE_PROMOTION' => 'Promotion verbergen',
+	'JS_SHOW_PROMOTION' => 'Promotion zeigen',
+
+	//Inventory module Translations
+	'JS_PLEASE_ENABLE_PRODUCT_OR_SERVICE_MODULE' => 'Bitte das Produkt- oder Dienstleistungsmodul aktivieren.',
+	'LBL_SYNC_BUTTON' => 'Synchronisiere',
+	'LBL_SYNCRONIZING' => 'Synchronisiere',
+
+	'JS_RECORDS_TRANSFERRED_SUCCESSFULLY' => 'Die Zuständigkeit wurde erfolgreich geändert.',
+
+	//Document module for relatedlist translations
+	'JS_Intern_FILE_NAME' => 'Dateiname',	// duplicated key-value pairs
+	'JS_Extern_FILE_NAME' => 'Dateipfad',	// duplicated key-value pairs
+
+	//Edit view mode Translations
+	'JS_CHANGES_WILL_BE_LOST' => 'Ihre Änderungen werden verloren gehen!',
+
+	//Mass edit failure
+	'JS_MASS_EDIT_NOT_SUCCESSFULL' => 'Die Massenbearbeitung war für einige Datensätze nicht erfolgreich.',
 
 	//labels not available in en_us file
-    'JS_VIEWNAME_ALERT' => 'Der Name darf nicht länger als 40 Zeichen sein.',
-    'JS_NO_DELETE_PERMISSION' => 'zum Löschen haben Sie keine Erlaubnis',
-    'JS_CONFIRM_MARK_AS_HELD' => 'Wollen Sie den Termin wirklich als erledigt markieren?',
-    'JS_TODO_MARKED_AS_COMPLETED' => 'Die Aufgabe wurde als erledigt markiert.',
-    'JS_EVENT_MARKED_AS_HELD' => 'Das Ereignis wurde als durchgeführt markiert',
-    'JS_FUTURE_EVENT_CANNOT_BE_MARKED_AS_HELD' => 'Zukünftige Kalendereinträge können nicht als erledigt oder durchgeführt gesetzt werden.',
-    'JS_PERMISSION_DENIED' => 'Dafür haben Sie keine Berechtigung.',
-    'JS_EXCEEDS_MAX_UPLOAD_SIZE' => 'Die maximale Upload Größe wurde überschritten.',
+	'JS_VIEWNAME_ALERT' => 'Der Name darf nicht länger als 40 Zeichen sein.',
+	'JS_NO_DELETE_PERMISSION' => 'zum Löschen haben Sie keine Erlaubnis',
+	'JS_CONFIRM_MARK_AS_HELD' => 'Wollen Sie den Termin wirklich als erledigt markieren?',
+	'JS_TODO_MARKED_AS_COMPLETED' => 'Die Aufgabe wurde als erledigt markiert.',
+	'JS_EVENT_MARKED_AS_HELD' => 'Das Ereignis wurde als durchgeführt markiert',
+	'JS_FUTURE_EVENT_CANNOT_BE_MARKED_AS_HELD' => 'Zukünftige Kalendereinträge können nicht als erledigt oder durchgeführt gesetzt werden.',
+	'JS_PERMISSION_DENIED' => 'Dafür haben Sie keine Berechtigung.',
+	'JS_EXCEEDS_MAX_UPLOAD_SIZE' => 'Die maximale Upload Größe wurde überschritten.',
 	'JS_FUTURE_EVENT_CANNOT_BE_HELD' => 'Zukünftige Kalendereinträge können nicht als erledigt oder durchgeführt gesetzt werden.',
 	//User Login History menu
 	'LoginHistory' => 'Login Historie der CRM Nutzer',
 	'LBL_LOGIN_HISTORY_DETAILS' => 'Login Historie',
 	'LBL_LOGIN_HISTORY_DESCRIPTION' => 'Login Historie Details',
-	'LBL_USER_NAME'=> 'Nutzername',
-	'LBL_USER_IP_ADDRESS'=> 'Nutzer IP Adresse', 
+	'LBL_USER_NAME' => 'Nutzername',
+	'LBL_USER_IP_ADDRESS' => 'Nutzer IP Adresse',
 	'LBL_LOGIN_TIME' => 'angemeldet',
-	'LBL_LOGGED_OUT_TIME' => 'abgemeldet', 
+	'LBL_LOGGED_OUT_TIME' => 'abgemeldet',
 	//others
 	'Mobile Call' => 'mobiler Anruf',
 	'Key Metrics' => 'benutzerdefinierte Listen',
 	'LBL_STATUS' => 'Status',
- 	'SMSNotifier' => 'SMS Nachrichten',
+	'SMSNotifier' => 'SMS Nachrichten',
 	//password
-	'JS_PASSWORD_CHANGE'=>'Passwortänderung',
-	'JS_PASSWORD_OK'=>'Das Passwort wurde neu gesetzt.',
+	'JS_PASSWORD_CHANGE' => 'Passwortänderung',
+	'JS_PASSWORD_OK' => 'Das Passwort wurde neu gesetzt.',
 	'JS_INCORRECTPW' => 'Ihr Passwort entspricht nicht den Regeln!',
-	
+
 	//translate picklist in widgets
-	'Closed Lost'=>'verloren',
-	'Closed Won'=>'gewonnen',
-	'Needs Analysis'=>'Bedarfsanalyse',
-	'Negotiation or Review'=>'Verhandlung',
-	'Proposal or Price Quote'=>'Angebot',
-	'Prospecting'=>'Vorschau',
-	'Qualification'=>'Qualifikation',
-	'Id. Decision Makers'=>'Entscheider identifizieren',
-	
+	'Closed Lost' => 'verloren',
+	'Closed Won' => 'gewonnen',
+	'Needs Analysis' => 'Bedarfsanalyse',
+	'Negotiation or Review' => 'Verhandlung',
+	'Proposal or Price Quote' => 'Angebot',
+	'Prospecting' => 'Vorschau',
+	'Qualification' => 'Qualifikation',
+	'Id. Decision Makers' => 'Entscheider identifizieren',
+
 	'LBL_SUCCESS' => 'erfolgreich ausgeführt',
 
 	//crm-now: added for duplicate removal in List View
 	'JS_PLEASE_SELECT_CORRECT_RECORDNO' => 'Bitte 2 oder 3 Datensätze auswählen.',
 	'JS_RECORDS_DUPLICATE_REMOVED' => 'Duplikat entfernt.',
 
-    'JS_TODAY' => 'heute',
-	
+	'JS_TODAY' => 'heute',
+
 	//crm-now: added for PDF document storage
-    'JS_PDF_DOC_SAVED' => 'Das PDF wurde als Dokument hinzugefügt',
-	
-    'JS_RECORD_LOCKED_BY_USER' => 'Dieser Datensatz wird zur Zeit vom Benutzer {user} bearbeitet und ist derweil für weitere Bearbeitung gesperrt.',
-	
+	'JS_PDF_DOC_SAVED' => 'Das PDF wurde als Dokument hinzugefügt',
+
+	'JS_RECORD_LOCKED_BY_USER' => 'Dieser Datensatz wird zur Zeit vom Benutzer {user} bearbeitet und ist derweil für weitere Bearbeitung gesperrt.',
+
 	// crm-now for drag & drop doc upload
 	'JS_FILE_UPLOAD' => 'Datei hochladen',
 	'JS_FILE_UPLOADED' => 'Datei hochgeladen',
@@ -1094,20 +1100,19 @@ $jsLanguageStrings = array(
 	'JS_MM_TITLE' => 'Neue Emails',
 	'JS_MM_TEXT' => 'Sie haben %d neue %s erhalten',
 
-    //No Tax exist 
-    'JS_LBL_NO_TAXES'=>'Keine Steuern festgelegt', 
-    'JS_LBL_SET_TAX_FOR'=>'setze Steuer für', 
-	
+	//No Tax exist 
+	'JS_LBL_NO_TAXES' => 'Keine Steuern festgelegt',
+	'JS_LBL_SET_TAX_FOR' => 'setze Steuer für',
+
 	//To delete all or only one Appointment from calendar inquiry
-	'JS_ALL'=>'Alle',
-	'JS_ONLY_THIS'=>'Nur diesen',
-	
-    //Copy in CustomView
-    'JS_COPY_APPENDIX'=>' (Kopie)',
+	'JS_ALL' => 'Alle',
+	'JS_ONLY_THIS' => 'Nur diesen',
+
+	//Copy in CustomView
+	'JS_COPY_APPENDIX' => ' (Kopie)',
 
 	//field label settings edit menue response
 	'JS_DUPLICATE_LABEL' => 'keine Umbenennung, Duplikat erkannt',
 	'JS_LENGTHEXCEEDED' => 'der Feldname ist zu lang, bis zu 50 Zeichen sind erlaubt',
 
 );
-?>

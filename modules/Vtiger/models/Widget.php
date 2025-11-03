@@ -42,7 +42,7 @@ class Vtiger_Widget_Model extends Vtiger_Base_Model {
 	public function getPositionCol($default=0) {
 		$position = $this->get('position');
 		if ($position) {
-			$position = Zend_Json::decode(decode_html($position));
+			$position = json_decode(decode_html($position), true);
 			return intval($position['col']);
 		}
 		return $default;
@@ -51,7 +51,7 @@ class Vtiger_Widget_Model extends Vtiger_Base_Model {
 	public function getPositionRow($default=0) {
 		$position = $this->get('position');
 		if ($position) {
-			$position = Zend_Json::decode(decode_html($position));
+			$position = json_decode(decode_html($position), true);
 			return intval($position['row']);
 		}
 		return $default;
@@ -161,11 +161,11 @@ class Vtiger_Widget_Model extends Vtiger_Base_Model {
 		$result = $db->pquery($sql, $params);
 		if(!$db->num_rows($result)) {
 			$db->pquery('INSERT INTO vtiger_module_dashboard_widgets(linkid, userid, filterid, title, data) VALUES(?,?,?,?,?)',
-					array($this->get('linkid'), $this->get('userid'), $this->get('filterid'), $this->get('title'), Zend_Json::encode($this->get('data'))));
+					array($this->get('linkid'), $this->get('userid'), $this->get('filterid'), $this->get('title'), json_encode($this->get('data'))));
 			$this->set('id', $db->getLastInsertID());
 		} else if($this->has('data')){
 			$db->pquery('INSERT INTO vtiger_module_dashboard_widgets(linkid, userid, filterid, title, data) VALUES(?,?,?,?,?)',
-					array($this->get('linkid'), $this->get('userid'), $this->get('filterid'), $this->get('title'), Zend_Json::encode($this->get('data'))));
+					array($this->get('linkid'), $this->get('userid'), $this->get('filterid'), $this->get('title'), json_encode($this->get('data'))));
 			$this->set('id', $db->getLastInsertID());
 		}
         else {

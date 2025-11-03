@@ -45,7 +45,7 @@ class Vtiger_ShowWidget_View extends Vtiger_IndexAjax_View {
 		$response->emit();
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
-            $request->validateWriteAccess(); 
+        public function validateRequest(Vtiger_Request $request): bool {
+            return $request->validateWriteAccess();
         } 
 }

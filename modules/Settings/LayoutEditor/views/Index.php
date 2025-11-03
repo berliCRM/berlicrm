@@ -16,7 +16,7 @@ class Settings_LayoutEditor_Index_View extends Settings_Vtiger_Index_View {
 		$this->exposeMethod('showRelatedListLayout');
 	}
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request): void{
 		$mode = $request->getMode();
 		if($this->isMethodExposed($mode)) {
 			$this->invokeExposedMethod($mode, $request);
@@ -26,7 +26,7 @@ class Settings_LayoutEditor_Index_View extends Settings_Vtiger_Index_View {
 		}
 	}
 
-	public function showFieldLayout(Vtiger_Request $request) {
+	public function showFieldLayout(Vtiger_Request $request): void{
 		global $adb;
 		$sourceModule = $request->get('sourceModule');
 		$supportedModulesList = Settings_LayoutEditor_Module_Model::getSupportedModules();
@@ -76,7 +76,7 @@ class Settings_LayoutEditor_Index_View extends Settings_Vtiger_Index_View {
 		$viewer->view('Index.tpl',$qualifiedModule);
 	}
 
-	public function showRelatedListLayout(Vtiger_Request $request) {
+	public function showRelatedListLayout(Vtiger_Request $request): void{
 		$sourceModule = $request->get('sourceModule');
 		$supportedModulesList = Settings_LayoutEditor_Module_Model::getSupportedModules();
 

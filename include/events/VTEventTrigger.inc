@@ -15,7 +15,7 @@
 		private static $cache = array();
 		private static $cacheLookupType = '';
 
-		private static $mandatoryEventClass = array('VTEntityDelta', 'ModTrackerHandler', 'PBXManagerBatchHandler');
+		private static $mandatoryEventClass = array('VTEntityDelta', 'ModTrackerHandler');
 
 		const CACHE_LOOKUP_TYPE_ALL = 'ALL';
 
@@ -108,7 +108,6 @@
 		}
 
 		function trigger($data){
-            global $log;
 			$adb = $this->adb;
 
 			$eventInfos = self::lookupCache($this->name);
@@ -122,7 +121,6 @@
 					$handlerCounter = 0; // Tracks the number of handlers triggered for the current iteration.
 					foreach($eventInfos as $eventInfo){
                         if (!file_exists($eventInfo['handler_path'])) {
-                            $log->debug("WARNING: Eventhandler {$eventInfo['handler_path']} not found!");
                             // Mark the event-handler as finished - without actually invoking.
                             $completedEvents[] = $eventInfo['handler_class'];
                         }
@@ -136,7 +134,7 @@
 
                                 $dependentEventsNotCompleted = false;
                                 $dependentOn = $eventInfo['dependent_on'];
-                                $dependentEvents = Zend_Json::decode($dependentOn);
+                                $dependentEvents = json_decode($dependentOn);
                                 foreach((array) $dependentEvents as $eventHandlerClass) {
                                     if(!in_array($eventHandlerClass, $completedEvents)) {
                                         $dependentEventsNotCompleted = true;

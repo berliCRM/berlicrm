@@ -222,59 +222,57 @@
                                                         {if $FIELD_MODEL->isDefaultValueOptionDisabled() neq "true"}
                                                             {if $FIELD_MODEL->getFieldDataType() eq "picklist"}
                                                                 {assign var=PICKLIST_VALUES value=$FIELD_MODEL->getPicklistValues()}
-                                                                <select class="span2" name="fieldDefaultValue" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if} data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-fieldinfo='{Vtiger_Util_Helper::toSafeHTML(ZEND_JSON::encode($FIELD_INFO))}'>
-                                                                    {foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$PICKLIST_VALUES}
+																<select class="span2" name="fieldDefaultValue" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if} data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-fieldinfo='{Vtiger_Util_Helper::toSafeHTML($FIELD_INFO|json_encode)}'>
+                                                                   {foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$PICKLIST_VALUES}
                                                                         <option value="{Vtiger_Util_Helper::toSafeHTML($PICKLIST_NAME)}" {if decode_html($FIELD_MODEL->get('defaultvalue')) eq $PICKLIST_NAME} selected {/if}>{vtranslate($PICKLIST_VALUE, $SELECTED_MODULE_NAME)}</option>
                                                                     {/foreach}
                                                                 </select>
                                                             {elseif $FIELD_MODEL->getFieldDataType() eq "multipicklist"}
                                                                 {assign var=PICKLIST_VALUES value=$FIELD_MODEL->getPicklistValues()}
                                                                 {assign var="FIELD_VALUE_LIST" value=explode(' |##| ',$FIELD_MODEL->get('defaultvalue'))}
-                                                                <select multiple class="span2" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  name="fieldDefaultValue" data-fieldinfo='{Vtiger_Util_Helper::toSafeHTML(ZEND_JSON::encode($FIELD_INFO))}'>
-                                                                    {foreach item=PICKLIST_VALUE from=$PICKLIST_VALUES}
+																<select multiple class="span2" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  name="fieldDefaultValue" data-fieldinfo='{Vtiger_Util_Helper::toSafeHTML($FIELD_INFO|json_encode)}'>
+                                                                   {foreach item=PICKLIST_VALUE from=$PICKLIST_VALUES}
                                                                         <option value="{Vtiger_Util_Helper::toSafeHTML($PICKLIST_VALUE)}" {if in_array(Vtiger_Util_Helper::toSafeHTML($PICKLIST_VALUE), $FIELD_VALUE_LIST)} selected {/if}>{vtranslate($PICKLIST_VALUE, $SELECTED_MODULE_NAME)}</option>
                                                                     {/foreach}
                                                                 </select>
                                                             {elseif $FIELD_MODEL->getFieldDataType() eq "boolean"}
                                                                 <input type="hidden" name="fieldDefaultValue" value="" />
                                                                 <input type="checkbox" name="fieldDefaultValue" value="1"
-                                                                {if $FIELD_MODEL->get('defaultvalue') eq 1} checked {/if} data-fieldinfo='{ZEND_JSON::encode($FIELD_INFO)}' />
+																{if $FIELD_MODEL->get('defaultvalue') eq 1} checked {/if} data-fieldinfo='{$FIELD_INFO|json_encode}' />
                                                         {elseif $FIELD_MODEL->getFieldDataType() eq "time"}
                                                             <div class="input-append time">
-                                                                <input type="text" class="input-small" data-format="{$USER_MODEL->get('hour_format')}" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if} data-toregister="time" value="{$FIELD_MODEL->get('defaultvalue')}" name="fieldDefaultValue" data-fieldinfo='{ZEND_JSON::encode($FIELD_INFO)}'/>
+																<input type="text" class="input-small" data-format="{$USER_MODEL->get('hour_format')}" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if} data-toregister="time" value="{$FIELD_MODEL->get('defaultvalue')}" name="fieldDefaultValue" data-fieldinfo='{$FIELD_INFO|json_encode}'/>
                                                                 <span class="add-on cursorPointer">
                                                                     <i class="icon-time"></i>
                                                                 </span>
                                                             </div>
                                                         {elseif $FIELD_MODEL->getFieldDataType() eq "date"}
-                                                            <div class="input-append date">
-                                                                {assign var=FIELD_NAME value=$FIELD_MODEL->get('name')}
-                                                                <input type="text" class="input-medium" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if} name="fieldDefaultValue" data-toregister="date" data-date-format="{$USER_MODEL->get('date_format')}" data-fieldinfo='{ZEND_JSON::encode($FIELD_INFO)}'
-                                                                       value="{$FIELD_MODEL->getEditViewDisplayValue($FIELD_MODEL->get('defaultvalue'))}" />
-                                                                <span class="add-on">
-                                                                    <i class="icon-calendar"></i>
-                                                                </span>
-                                                            </div>
+															<div class="input-append date">
+																{assign var=FIELD_NAME value=$FIELD_MODEL->get('name')}
+																<input type="text" class="input-medium" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if} name="fieldDefaultValue" data-toregister="date" data-date-format="{$USER_MODEL->get('date_format')}" data-fieldinfo='{$FIELD_INFO|json_encode}' value="{$FIELD_MODEL->getEditViewDisplayValue($FIELD_MODEL->get('defaultvalue'))}" />
+																<span class="add-on">
+																	<i class="icon-calendar"></i>
+																</span>
+															</div>
                                                         {elseif $FIELD_MODEL->getFieldDataType() eq "percentage"}
                                                             <div class="input-append">
-                                                                <input type="number" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  class="input-medium" name="fieldDefaultValue"
-                                                                       value="{$FIELD_MODEL->get('defaultvalue')}" data-fieldinfo='{ZEND_JSON::encode($FIELD_INFO)}' step="any" />
+ 																<input type="number" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  class="input-medium" name="fieldDefaultValue" value="{$FIELD_MODEL->get('defaultvalue')}" data-fieldinfo='{$FIELD_INFO|json_encode}' step="any" />
                                                                 <span class="add-on">%</span>
                                                             </div>
                                                         {elseif $FIELD_MODEL->getFieldDataType() eq "currency"}
                                                             <div class="input-prepend">
                                                                 <span class="add-on">{$USER_MODEL->get('currency_symbol')}</span>
-                                                                <input type="text" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  class="input-medium" name="fieldDefaultValue"
-                                                                       data-fieldinfo='{ZEND_JSON::encode($FIELD_INFO)}' value="{$FIELD_MODEL->getEditViewDisplayValue($FIELD_MODEL->get('defaultvalue'))}"
-                                                                       data-decimal-separator='{$USER_MODEL->get('currency_decimal_separator')}' data-group-separator='{$USER_MODEL->get('currency_grouping_separator')}' />
+																<input type="text" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  class="input-medium" name="fieldDefaultValue"
+																	   data-fieldinfo='{$FIELD_INFO|json_encode}' value="{$FIELD_MODEL->getEditViewDisplayValue($FIELD_MODEL->get('defaultvalue'))}"
+																	   data-decimal-separator='{$USER_MODEL->get('currency_decimal_separator')}' data-group-separator='{$USER_MODEL->get('currency_grouping_separator')}' />
                                                             </div>
                                                         {else if $FIELD_MODEL->getFieldName() eq "terms_conditions" && $FIELD_MODEL->get('uitype') == 19}
                                                             {assign var=INVENTORY_TERMS_AND_CONDITIONS_MODEL value= Settings_Vtiger_MenuItem_Model::getInstance("INVENTORYTERMSANDCONDITIONS")}
                                                           <a href="{$INVENTORY_TERMS_AND_CONDITIONS_MODEL->getUrl()}" target="_blank">{vtranslate('LBL_CLICK_HERE_TO_EDIT', $QUALIFIED_MODULE)}</a>
                                                        {else if $FIELD_MODEL->get('uitype') eq 19}
-                                                             <textarea class="input-medium" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  name="fieldDefaultValue" value="{$FIELD_MODEL->get('defaultvalue')}" data-fieldinfo='{ZEND_JSON::encode($FIELD_INFO)}'></textarea>
+															<textarea class="input-medium" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  name="fieldDefaultValue" data-fieldinfo='{$FIELD_INFO|json_encode}'>{$FIELD_MODEL->get('defaultvalue')}</textarea>
                                                        {else}
-                                                            <input type="text" class="input-medium" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  name="fieldDefaultValue" value="{$FIELD_MODEL->get('defaultvalue')}" data-fieldinfo='{ZEND_JSON::encode($FIELD_INFO)}'/>
+															<input type="text" class="input-medium" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  name="fieldDefaultValue" value="{$FIELD_MODEL->get('defaultvalue')}" data-fieldinfo='{$FIELD_INFO|json_encode}' />
                                                         {/if}
                                                     {/if}
                                                 </div>
@@ -446,7 +444,7 @@
                         {if $FIELD_MODEL->isDefaultValueOptionDisabled() neq "true"}
                             {if $FIELD_MODEL->getFieldDataType() eq "picklist"}
                                 {assign var=PICKLIST_VALUES value=$FIELD_MODEL->getPicklistValues()}
-                                <select class="span2" name="fieldDefaultValue" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if} data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-fieldinfo='{Vtiger_Util_Helper::toSafeHTML(ZEND_JSON::encode($FIELD_INFO))}'>
+								<select class="span2" name="fieldDefaultValue" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if} data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-fieldinfo='{Vtiger_Util_Helper::toSafeHTML($FIELD_INFO|json_encode)}'>
                                     {foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$PICKLIST_VALUES}
                                         <option value="{Vtiger_Util_Helper::toSafeHTML($PICKLIST_NAME)}" {if decode_html($FIELD_MODEL->get('defaultvalue')) eq $PICKLIST_NAME} selected {/if}>{vtranslate($PICKLIST_VALUE, $SELECTED_MODULE_NAME)}</option>
                                     {/foreach}
@@ -454,7 +452,7 @@
                             {elseif $FIELD_MODEL->getFieldDataType() eq "multipicklist"}
                                 {assign var=PICKLIST_VALUES value=$FIELD_MODEL->getPicklistValues()}
                                 {assign var="FIELD_VALUE_LIST" value=explode(' |##| ',$FIELD_MODEL->get('defaultvalue'))}
-                                <select multiple class="span2" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  name="fieldDefaultValue" data-fieldinfo='{Vtiger_Util_Helper::toSafeHTML(ZEND_JSON::encode($FIELD_INFO))}'>
+								<select multiple class="span2" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  name="fieldDefaultValue" data-fieldinfo='{Vtiger_Util_Helper::toSafeHTML($FIELD_INFO|json_encode)}'>
                                     {foreach item=PICKLIST_VALUE from=$PICKLIST_VALUES}
                                         <option value="{Vtiger_Util_Helper::toSafeHTML($PICKLIST_VALUE)}" {if in_array(Vtiger_Util_Helper::toSafeHTML($PICKLIST_VALUE), $FIELD_VALUE_LIST)} selected {/if}>{vtranslate($PICKLIST_VALUE, $SELECTED_MODULE_NAME)}</option>
                                     {/foreach}
@@ -462,18 +460,18 @@
                             {elseif $FIELD_MODEL->getFieldDataType() eq "boolean"}
                                 <input type="hidden" name="fieldDefaultValue" value="" />
                                 <input type="checkbox" name="fieldDefaultValue" value="1"
-                                {if $FIELD_MODEL->get('defaultvalue') eq 1} checked {/if} data-fieldinfo='{ZEND_JSON::encode($FIELD_INFO)}' />
+                                {if $FIELD_MODEL->get('defaultvalue') eq 1} checked {/if} data-fieldinfo='{$FIELD_INFO|json_encode}' />
                         {elseif $FIELD_MODEL->getFieldDataType() eq "time"}
                             <div class="input-append time">
-                                <input type="text" class="input-small" data-format="{$USER_MODEL->get('hour_format')}" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if} data-toregister="time" value="{$FIELD_MODEL->get('defaultvalue')}" name="fieldDefaultValue" data-fieldinfo='{ZEND_JSON::encode($FIELD_INFO)}'/>
-                                <span class="add-on cursorPointer">
+								<input type="text" class="input-small" data-format="{$USER_MODEL->get('hour_format')}" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if} data-toregister="time" value="{$FIELD_MODEL->get('defaultvalue')}" name="fieldDefaultValue" data-fieldinfo='{($FIELD_INFO|json_encode)}'/>
+                               <span class="add-on cursorPointer">
                                     <i class="icon-time"></i>
                                 </span>
                             </div>
                         {elseif $FIELD_MODEL->getFieldDataType() eq "date"}
                             <div class="input-append date">
                                 {assign var=FIELD_NAME value=$FIELD_MODEL->get('name')}
-                                <input type="text" class="input-medium" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if} name="fieldDefaultValue" data-toregister="date" data-date-format="{$USER_MODEL->get('date_format')}" data-fieldinfo='{ZEND_JSON::encode($FIELD_INFO)}'
+								<input type="text" class="input-medium" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if} name="fieldDefaultValue" data-toregister="date" data-date-format="{$USER_MODEL->get('date_format')}" data-fieldinfo='{($FIELD_INFO|json_encode)}' />
                                        value="{$FIELD_MODEL->getEditViewDisplayValue($FIELD_MODEL->get('defaultvalue'))}" />
                                 <span class="add-on">
                                     <i class="icon-calendar"></i>
@@ -481,19 +479,18 @@
                             </div>
                         {elseif $FIELD_MODEL->getFieldDataType() eq "percentage"}
                             <div class="input-append">
-                                <input type="number" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  class="input-medium" name="fieldDefaultValue"
-                                       value="{$FIELD_MODEL->get('defaultvalue')}" data-fieldinfo='{ZEND_JSON::encode($FIELD_INFO)}' step="any" />
+								<input type="number" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  class="input-medium" name="fieldDefaultValue" value="{$FIELD_MODEL->get('defaultvalue')}" data-fieldinfo='{($FIELD_INFO|json_encode)}' step="any" />
                                 <span class="add-on">%</span>
                             </div>
                         {elseif $FIELD_MODEL->getFieldDataType() eq "currency"}
                             <div class="input-prepend">
                                 <span class="add-on">{$USER_MODEL->get('currency_symbol')}</span>
-                                <input type="text" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  class="input-medium" name="fieldDefaultValue"
-                                       data-fieldinfo='{ZEND_JSON::encode($FIELD_INFO)}' value="{$FIELD_MODEL->getEditViewDisplayValue($FIELD_MODEL->get('defaultvalue'))}"
+									<input type="text" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  class="input-medium" name="fieldDefaultValue"
+                                       data-fieldinfo='{$FIELD_INFO|json_encode}' value="{$FIELD_MODEL->getEditViewDisplayValue($FIELD_MODEL->get('defaultvalue'))}"
                                        data-decimal-separator='{$USER_MODEL->get('currency_decimal_separator')}' data-group-separator='{$USER_MODEL->get('currency_grouping_separator')}' />
-                            </div>
+							</div>
                         {else}
-                            <input type="text" class="input-medium" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  name="fieldDefaultValue" value="{$FIELD_MODEL->get('defaultvalue')}" data-fieldinfo='{ZEND_JSON::encode($FIELD_INFO)}'/>
+							<input type="text" class="input-medium" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  name="fieldDefaultValue" value="{$FIELD_MODEL->get('defaultvalue')}" data-fieldinfo='{$FIELD_INFO|json_encode}'/>
                         {/if}
                     {/if}
                 </div>
@@ -551,7 +548,7 @@
 </div>
 {/foreach}
 </div>
-<input type="hidden" class="inActiveFieldsArray" value='{ZEND_JSON::encode($IN_ACTIVE_FIELDS)}' />
+<input type="hidden" class="inActiveFieldsArray" value='{$IN_ACTIVE_FIELDS|json_encode}' />
 
 <div class="newCustomBlockCopy hide marginBottom10px border1px {if $IS_BLOCK_SORTABLE}blockSortable {/if}" data-block-id="" data-sequence="" style="border-radius: 4px;">
     <div class="row-fluid layoutBlockHeader">
@@ -768,9 +765,9 @@
                     {vtranslate('LBL_LABEL_NAME', $QUALIFIED_MODULE)}
                 </span>
                 <div class="controls">
-                    <input type="text" maxlength="50" name="fieldLabel" value="" data-validation-engine="validate[required, funcCall[Vtiger_Base_Validator_Js.invokeValidation]]"
-                           data-validator={Zend_Json::encode([['name'=>'FieldLabel']])} />
-                </div>
+					<input type="text" maxlength="50" name="fieldLabel" value="" data-validation-engine="validate[required, funcCall[Vtiger_Base_Validator_Js.invokeValidation]]"
+						   data-validator='{json_encode([["name"=>"FieldLabel"]])}' />
+			</div>
             </div>
             <div class="control-group supportedType lengthsupported">
                 <span class="control-label">
@@ -797,9 +794,9 @@
                 </span>
                 <div class="controls">
                     <div class="row-fluid">
-                        <input type="hidden" id="picklistUi" class="span7 select2" name="pickListValues"
-                               placeholder="{vtranslate('LBL_ENTER_PICKLIST_VALUES', $QUALIFIED_MODULE)}" data-validation-engine="validate[required, funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-validator={Zend_Json::encode([['name'=>'PicklistFieldValues']])} />
-                    </div>
+						<input type="hidden" id="picklistUi" class="span7 select2" name="pickListValues"
+							   placeholder="{vtranslate('LBL_ENTER_PICKLIST_VALUES', $QUALIFIED_MODULE)}" data-validation-engine="validate[required, funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-validator='{json_encode([["name"=>"PicklistFieldValues"]])}' />
+					</div>
                 </div>
             </div>
             <div class="control-group supportedType picklistOption hide">

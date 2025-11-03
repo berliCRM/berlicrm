@@ -69,3 +69,4 @@ class Inventory_GetTaxes_Action extends Vtiger_Action_Controller {
 		$response->emit();
 	}
 }
+?>

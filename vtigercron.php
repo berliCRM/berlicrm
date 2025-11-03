@@ -39,9 +39,6 @@ if ($php < 50300) {
 
 if ((PHP_SAPI === "cgi-fcgi" && empty($_SESSION)) || empty($_SERVER['REMOTE_ADDR']) || (isset($_SESSION["authenticated_user_id"]) && isset($_SESSION["app_unique_key"]) && $_SESSION["app_unique_key"] == $application_unique_key)) {
 
-    // echo '<pre>' . PHP_SAPI . '</pre>';
-    // echo '<pre>' . print_r($_SESSION, true) . '</pre>';
-    // echo '<pre>' . print_r($_SERVER, true) . '</pre>';
     $cronTasks = false;
     //crm-now: removed dependency on $_REQUEST = always execute all crons
     $cronTasks = Vtiger_Cron::listAllActiveInstances();

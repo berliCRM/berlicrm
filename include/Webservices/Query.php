@@ -14,7 +14,7 @@
 		
 		static $vtws_query_cache = array();	
 		
-		global $log,$adb;
+		global $adb;
 
 		// Cache the instance for re-use		
 		$moduleRegex = "/[fF][rR][Oo][Mm]\s+([^\s;]+)/";
@@ -36,7 +36,7 @@
 		
 		// Cache the instance for re-use
 		if(!isset($vtws_query_cache[$moduleName]['handler'])) {
-			$handler = new $handlerClass($webserviceObject,$user,$adb,$log);
+			$handler = new $handlerClass($webserviceObject,$user,$adb);
 			$vtws_query_cache[$moduleName]['handler'] = $handler;
 		} else {
 			$handler = $vtws_query_cache[$moduleName]['handler'];

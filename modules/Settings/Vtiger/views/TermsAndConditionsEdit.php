@@ -22,7 +22,7 @@ class Settings_Vtiger_TermsAndConditionsEdit_View extends Settings_Vtiger_Index_
         $viewer->view('TermsAndConditions.tpl',$qualifiedName);
     }
 	
-	function getPageTitle(Vtiger_Request $request) {
+	function getPageTitle(Vtiger_Request $request):string {
 		$qualifiedModuleName = $request->getModule(false);
 		return vtranslate('LBL_TERMS_AND_CONDITIONS',$qualifiedModuleName);
 	}	
@@ -32,7 +32,7 @@ class Settings_Vtiger_TermsAndConditionsEdit_View extends Settings_Vtiger_Index_
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

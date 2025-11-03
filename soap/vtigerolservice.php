@@ -16,8 +16,6 @@ require_once('include/Webservices/Query.php');
 require_once('libraries/nusoap/nusoap.php');
 require_once("modules/Users/Users.php");
 
-$log = &LoggerManager::getLogger('vtigerolservice');
-
 error_reporting(0);
 
 $NAMESPACE = 'http://www.vtiger.com/products/crm';
@@ -414,7 +412,7 @@ function AddMessageToContact($username,$session,$contactid,$msgdtls)
 
 function LoginToVtiger($user_name,$password,$version)
 {
-  	global $log,$adb;
+  	global $adb;
 	require_once('modules/Users/Users.php');
 	include('vtigerversion.php');
 
@@ -1135,7 +1133,6 @@ function GetClndr($username,$session)
 			"category" => "",        
 		);
 	}
-	//$log->fatal($output_list);
 	$seed_clndr = $seed_clndr;
 	return $output_list;
 }
@@ -1211,7 +1208,7 @@ function UpdateClndr($username,$session,$clndrdtls)
 	if(!validateSession($username,$session))
 	return null;
 	global $current_user;
-	global $adb,$log;
+	global $adb;
 	require_once('modules/Users/Users.php');
 	require_once('modules/Calendar/Activity.php');
 	
@@ -1301,7 +1298,6 @@ function DeleteClndr($username,$session,$crmid)
 function unsetServerSessionId($id)
 {
 	global $adb;
-	$adb->println("Inside the function unsetServerSessionId");
 
 	$id = (int) $id;
 
@@ -1312,30 +1308,24 @@ function unsetServerSessionId($id)
 function validateSession($username, $sessionid)
 {
 	global $adb,$current_user;
-	$adb->println("Inside function validateSession($username, $sessionid)");
 	require_once("modules/Users/Users.php");
 	$seed_user = new Users();
 	$id = $seed_user->retrieve_user_id($username);
 
 	$server_sessionid = getServerSessionId($id);
 
-	$adb->println("Checking Server session id and customer input session id ==> $server_sessionid == $sessionid");
-
 	if($server_sessionid == $sessionid)
 	{
-		$adb->println("Session id match. Authenticated to do the current operation.");
 		return true;
 	}
 	else
 	{
-		$adb->println("Session id does not match. Not authenticated to do the current operation.");
 		return false;
 	}
 }
 function getServerSessionId($id)
 {
 	global $adb;
-	$adb->println("Inside the function getServerSessionId($id)");
 
 	//To avoid SQL injection we are type casting as well as bound the id variable. In each and every function we will call this function
 	$id = (int) $id;

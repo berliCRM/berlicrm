@@ -10,13 +10,14 @@
 
 class Portal_SaveAjax_Action extends Vtiger_SaveAjax_Action {
     
-    public function process(Vtiger_Request $request) {
+    public function process(Vtiger_Request $request):void {
         $module = $request->getModule();
+        $moduleModel = Vtiger_Module_Model::getInstance($module);
         $recordId = $request->get('record');
         $bookmarkName = $request->get('bookmarkName');
         $bookmarkUrl = $request->get('bookmarkUrl');
         
-        Portal_Module_Model::savePortalRecord($recordId, $bookmarkName, $bookmarkUrl);
+        $moduleModel->savePortalRecord($recordId, $bookmarkName, $bookmarkUrl);
         
         $response = new Vtiger_Response();
         $result = array('message' => vtranslate('LBL_BOOKMARK_SAVED_SUCCESSFULLY', $module));

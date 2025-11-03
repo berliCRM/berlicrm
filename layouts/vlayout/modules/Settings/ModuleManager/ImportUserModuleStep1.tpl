@@ -39,7 +39,7 @@
                     <div class="row-fluid" name="proceedInstallation">
                         <span class="span6">
                             <input type="file" name="moduleZip" id="moduleZip" size="80px" data-validation-engine="validate[required, funcCall[Vtiger_Base_Validator_Js.invokeValidation]]"
-                                   data-validator={Zend_Json::encode([['name'=>'UploadModuleZip']])} />
+                                   data-validator={json_encode([['name'=>'UploadModuleZip']])} />
                         </span>
                         <span class="span6">
                             <span class="pull-right">

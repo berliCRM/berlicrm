@@ -10,7 +10,7 @@
 
 class EmailTemplates_Detail_View extends Vtiger_Index_View {
 	
-	function preProcess(Vtiger_Request $request, $display=true) {
+	function preProcess(Vtiger_Request $request, $display=true):void {
 		parent::preProcess($request, false);
 
 		$recordId = $request->get('record');
@@ -45,7 +45,7 @@ class EmailTemplates_Detail_View extends Vtiger_Index_View {
 		}
 	}
 
-	function preProcessTplName(Vtiger_Request $request) {
+	function preProcessTplName(Vtiger_Request $request):string {
 		return 'DetailViewPreProcess.tpl';
 	}
 	
@@ -64,7 +64,7 @@ class EmailTemplates_Detail_View extends Vtiger_Index_View {
 		$viewer->view('DetailViewFullContents.tpl', $moduleName);
 	}
 	
-	public function getHeaderScripts(Vtiger_Request $request) {
+	public function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 
 		$jsFileNames = array(

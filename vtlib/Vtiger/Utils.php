@@ -118,9 +118,8 @@ class Vtiger_Utils {
 	 * @param Boolean true to append end-of-line, false otherwise
 	 */
 	static function Log($message, $delimit=true) {
-		global $Vtiger_Utils_Log, $log;
+		global $Vtiger_Utils_Log;
 		
-		$log->debug($message);
 		if(!isset($Vtiger_Utils_Log) || $Vtiger_Utils_Log == false) return;
 
 		print_r($message);
@@ -276,35 +275,7 @@ class Vtiger_Utils {
      * @param <boolean> $request flag to enable or disable request in log
      */
     static function ModuleLog($module, $mixed, $extra = array()) {
-        if (ALLOW_MODULE_LOGGING) { 
-            global $site_URL;
-            $date = date('Y-m-d H:i:s');
-            $log = array($site_URL,$module, $date);
-            if ($mixed instanceof Exception) {
-                array_push($log, $mixed->getMessage());
-                array_push($log, $mixed->getTraceAsString());
-            } else {
-                array_push($log, $mixed);
-                array_push($log, "");
-            }
-            if (isset($_REQUEST)) {
-                array_push($log, json_encode($_REQUEST));
-            } else {
-                array_push($log, "");
-            };
 
-            if ($extra) {
-                if (is_array($extra))
-                    $extra = json_encode($extra);
-                array_push($log, $extra);
-            } else {
-                array_push($log, "");
-            }
-            $fileName =self::$logFileName;
-            $fp = fopen("logs/$fileName", 'a+');
-            fputcsv($fp, $log);
-            fclose($fp);
-        }
     }
 }
 ?>

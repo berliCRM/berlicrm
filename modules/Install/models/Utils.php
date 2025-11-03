@@ -7,6 +7,8 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  * *********************************************************************************** */
+use Sprain\SwissQrBill;
+use PhpOffice\PhpSpreadsheet;
 
 class Install_Utils_Model {
 
@@ -66,7 +68,7 @@ class Install_Utils_Model {
 			$directiveValues['file_uploads'] = 'Off';
 		if (ini_get(('output_buffering') < '4096' && ini_get('output_buffering') != '0') || stripos(ini_get('output_buffering'), 'Off') > -1)
 			$directiveValues['output_buffering'] = 'Off';
-		if (ini_get('max_execution_time') < 3600 && ini_get('max_execution_time') > 0)
+		if (ini_get('max_execution_time') < 3600)
 			$directiveValues['max_execution_time'] = ini_get('max_execution_time');
 		if (self::memoryLimitInBytes() < 536870912)
 			$directiveValues['memory_limit'] = ini_get('memory_limit');
@@ -124,12 +126,12 @@ class Install_Utils_Model {
 		$preInstallConfig['LBL_PHP_VERSION']	= array(phpversion(), '5.4.0', (version_compare(phpversion(), '5.4.0', '>=')));
 		$preInstallConfig['LBL_IMAP_SUPPORT']	= array(function_exists('imap_open'), true, (function_exists('imap_open') == true));
 		$preInstallConfig['LBL_ZLIB_SUPPORT']	= array(function_exists('gzinflate'), true, (function_exists('gzinflate') == true));
-                if ($preInstallConfig['LBL_PHP_VERSION'] >= '5.5.0') {
-                    $preInstallConfig['LBL_MYSQLI_CONNECT_SUPPORT'] = array(extension_loaded('mysqli'), true, extension_loaded('mysqli'));
-                }
-                $preInstallConfig['LBL_OPEN_SSL'] = array(extension_loaded('openssl'), true, extension_loaded('openssl'));
-                $preInstallConfig['LBL_CURL'] = array(extension_loaded('curl'), true, extension_loaded('curl'));
-                $gnInstalled = false;
+			if ($preInstallConfig['LBL_PHP_VERSION'] >= '5.5.0') {
+				$preInstallConfig['LBL_MYSQLI_CONNECT_SUPPORT'] = array(extension_loaded('mysqli'), true, extension_loaded('mysqli'));
+			}
+			$preInstallConfig['LBL_OPEN_SSL'] = array(extension_loaded('openssl'), true, extension_loaded('openssl'));
+			$preInstallConfig['LBL_CURL'] = array(extension_loaded('curl'), true, extension_loaded('curl'));
+			$gnInstalled = false;
 		if(!function_exists('gd_info')) {
 			eval(self::$gdInfoAlternate);
 		}
@@ -396,7 +398,7 @@ class Install_Utils_Model {
 			$error_msg_info = getTranslatedString('MSG_LIST_REASONS', 'Install').':<br>
 					-  '.getTranslatedString('MSG_DB_PARAMETERS_INVALID', 'Install').'
 					-  '.getTranslatedString('MSG_DB_USER_NOT_AUTHORIZED', 'Install');
-		} elseif(self::isMySQL($db_type) && version_compare($mysql_server_version, '4.1', '<')) {
+		} elseif(self::isMySQL($db_type) && intval($mysql_server_version) < 4.1) {
 			$error_msg = $mysql_server_version.' -> '.getTranslatedString('ERR_INVALID_MYSQL_VERSION', 'Install');
 		} elseif($db_creation_failed) {
 			$error_msg = getTranslatedString('ERR_UNABLE_CREATE_DATABASE', 'Install').' '.$db_name;
@@ -421,6 +423,20 @@ class Install_Utils_Model {
 		$fh = fopen($path, 'a+');
 		fwrite($fh, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Require Package, Module und utils PHP files\n");
 		ob_start();
+
+		if (!file_exists('vendor/autoload.php')) {
+			throw new Exception('Error: Composer dependencies were not installed.');
+		}
+		require_once 'vendor/autoload.php';
+
+		$composer_classes = array("\Sprain\SwissQrBill\QrBill", "\PhpOffice\PhpSpreadsheet\Spreadsheet");
+
+		foreach ($composer_classes as $class) {
+			if (!class_exists($class)) {
+				throw new Exception('Error: '. $class .' was not found. Please Install dependencies via composer.');
+			}
+		}
+		
 		require_once('vtlib/Vtiger/Package.php');
 		require_once('vtlib/Vtiger/Module.php');
 		require_once('include/utils/utils.php');

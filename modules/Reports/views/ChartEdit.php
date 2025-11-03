@@ -34,7 +34,7 @@ Class Reports_ChartEdit_View extends Vtiger_Edit_View {
 		}
 	}
 
-	public function preProcess(Vtiger_Request $request) {
+	public function preProcess(Vtiger_Request $request, $display = true): void {
 		parent::preProcess($request);
 		$viewer = $this->getViewer($request);
 		$record = $request->get('record');
@@ -182,7 +182,7 @@ Class Reports_ChartEdit_View extends Vtiger_Edit_View {
 
 		$calculationFields = $reportModel->get('calculation_fields');
 		if($calculationFields) {
-			$calculationFields = Zend_Json::decode($calculationFields);
+			$calculationFields = json_decode($calculationFields);
 			$viewer->assign('LINEITEM_FIELD_IN_CALCULATION', $reportModel->showLineItemFieldsInFilter($calculationFields));
 		}
 		if ($request->get('isDuplicate')) {
@@ -244,7 +244,7 @@ Class Reports_ChartEdit_View extends Vtiger_Edit_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request): array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

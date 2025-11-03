@@ -17,7 +17,7 @@ class Vtiger_Dashboard_View extends Vtiger_Index_View {
 		}
 	}
 
-	function preProcess(Vtiger_Request $request, $display=true) {
+	function preProcess(Vtiger_Request $request, bool $display=true): void {
 		parent::preProcess($request, false);
 		$viewer = $this->getViewer($request);
 		$moduleName = $request->getModule();
@@ -40,7 +40,7 @@ class Vtiger_Dashboard_View extends Vtiger_Index_View {
 		}
 	}
 
-	function preProcessTplName(Vtiger_Request $request) {
+	function preProcessTplName(Vtiger_Request $request): string {
 		return 'dashboards/DashBoardPreProcess.tpl';
 	}
 
@@ -66,7 +66,7 @@ class Vtiger_Dashboard_View extends Vtiger_Index_View {
 		$viewer->view('dashboards/DashBoardContents.tpl', $moduleName);
 	}
 
-	public function postProcess(Vtiger_Request $request) {
+	public function postProcess(Vtiger_Request $request): void {
 		parent::postProcess($request);
 	}
 
@@ -75,7 +75,7 @@ class Vtiger_Dashboard_View extends Vtiger_Index_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	public function getHeaderScripts(Vtiger_Request $request) {
+	public function getHeaderScripts(Vtiger_Request $request): array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 
@@ -107,7 +107,7 @@ class Vtiger_Dashboard_View extends Vtiger_Index_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_CssScript_Model instances
 	 */
-	public function getHeaderCss(Vtiger_Request $request) {
+	public function getHeaderCss(Vtiger_Request $request): array {
 		$parentHeaderCssScriptInstances = parent::getHeaderCss($request);
 
 		$headerCss = array(

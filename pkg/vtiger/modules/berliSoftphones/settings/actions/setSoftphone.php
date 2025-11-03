@@ -14,10 +14,10 @@ class Settings_berliSoftphones_setSoftphone_Action extends Settings_Vtiger_Index
 			if ($id[1] !='all') {
 				$query = 'UPDATE berli_softphones SET phactive=?  WHERE phoneid = ?';
 				$test = $db->pquery($query, array('checked', $id[1]));
- 				$response->setResult(array(vtranslate('LBL_CONFIG_SAVED', 'PBXManager')));
+ 				$response->setResult(array(vtranslate('LBL_CONFIG_SAVED', 'berliSoftphones')));
 			}
 			else {
-				$response->setResult(array(vtranslate('LBL_CONFIG_CANCEL', 'PBXManager')));
+				$response->setResult(array(vtranslate('LBL_CONFIG_CANCEL', 'berliSoftphones')));
 			}
         } catch (Exception $e) {
                 $response->setError($e->getMessage());

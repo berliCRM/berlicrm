@@ -74,6 +74,14 @@ Vtiger_Edit_Js("Documents_Edit_Js", {} ,{
 				newFileNameElement.attr(attributeObject.name, value);
 			}
 			fileNameElement.replaceWith(newFileNameElement);
+			var fileNameLabel = newFileNameElement.closest('td').prev('.fieldLabel').find('label');
+			if (fileNameLabel.length) {
+				if (thisInstance.isFileLocationExternalType(fileLocationTypeElement)) {
+					fileNameLabel.text(app.vtranslate('JS_Extern_FILE_NAME'));
+				} else {
+					fileNameLabel.text(app.vtranslate('JS_Intern_FILE_NAME'));
+				}
+			}
 			var fileNameElementTd = newFileNameElement.closest('td');
 			var uploadFileDetails = fileNameElementTd.find('.uploadedFileDetails');
 			if(thisInstance.isFileLocationExternalType(fileLocationTypeElement)) {

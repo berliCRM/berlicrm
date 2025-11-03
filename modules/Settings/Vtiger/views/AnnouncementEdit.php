@@ -23,7 +23,7 @@ class Settings_Vtiger_AnnouncementEdit_View extends Settings_Vtiger_Index_View {
         $viewer->view('Announcement.tpl',$qualifiedModuleName);
     }
 	
-	function getPageTitle(Vtiger_Request $request) {
+	function getPageTitle(Vtiger_Request $request):string {
 		$qualifiedModuleName = $request->getModule(false);
 		return vtranslate('LBL_ANNOUNCEMENT',$qualifiedModuleName);
 	}
@@ -33,7 +33,7 @@ class Settings_Vtiger_AnnouncementEdit_View extends Settings_Vtiger_Index_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

@@ -712,8 +712,9 @@ class Reports_Record_Model extends Vtiger_Record_Model {
 		$rootDirectory = vglobal('root_directory');
 		$tmpDir = vglobal('tmp_dir');
 
-		$tempFileName = tempnam($rootDirectory.$tmpDir, 'xlsx');
-		$fileName = decode_html($this->getName()).'.xlsx';
+		//Changed Format from xls to xlsx
+		$tempFileName = tempnam($rootDirectory.$tmpDir, 'xlsxx');
+		$fileName = decode_html(trim($this->getName())).'.xlsxx';
 		$fileName = str_replace('?', '_', $fileName);
 		$reportRun->writeReportToExcelFile($tempFileName, $advanceFilterSql);
 

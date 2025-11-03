@@ -19,7 +19,7 @@ class Users_SystemSetupSave_Action extends Users_Save_Action {
 	
 	public function process(Vtiger_Request $request) {
 		$moduleName = $request->getModule();
-		$packages = $request->get(packages);
+		$packages = $request->get('packages');
 		$userModuleModel = Users_Module_Model::getInstance($moduleName);
 		$userModuleModel::savePackagesInfo($packages);
 		$currentUser = Users_Record_Model::getCurrentUserModel();

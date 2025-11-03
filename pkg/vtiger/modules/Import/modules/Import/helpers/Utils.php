@@ -105,7 +105,7 @@ class Import_Utils_Helper {
 
 	public static function showErrorPage($errorMessage, $errorDetails=false, $customActions=false) {
 		$viewer = new Vtiger_Viewer();
-
+		$viewer->registerSmartyPlugins();
 		$viewer->assign('ERROR_MESSAGE', $errorMessage);
 		$viewer->assign('ERROR_DETAILS', $errorDetails);
 		$viewer->assign('CUSTOM_ACTIONS', $customActions);

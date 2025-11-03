@@ -10,7 +10,7 @@
  ********************************************************************************/
 -->*}
 {strip}
-    {assign var="FIELD_INFO" value=Zend_Json::encode($FIELD_MODEL->getFieldInfo())}
+    {assign var="FIELD_INFO" value=json_encode($FIELD_MODEL->getFieldInfo())}
     <div class="row-fluid">
     {assign var=ASSIGNED_USER_ID value=$FIELD_MODEL->get('name')}
     {assign var=ALL_ACTIVEUSER_LIST value=$USER_MODEL->getAccessibleUsers()}

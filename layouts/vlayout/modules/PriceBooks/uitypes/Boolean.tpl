@@ -10,7 +10,7 @@
  ********************************************************************************/
 -->*}
 {strip}
-{assign var="FIELD_INFO" value=Vtiger_Util_Helper::toSafeHTML(Zend_Json::encode($FIELD_MODEL->getFieldInfo()))}
+{assign var="FIELD_INFO" value=Vtiger_Util_Helper::toSafeHTML(json_encode($FIELD_MODEL->getFieldInfo()))}
 {assign var="SPECIAL_VALIDATOR" value=$FIELD_MODEL->getValidator()}
 {assign var="FIELD_NAME" value=$FIELD_MODEL->get('name')}
 
@@ -19,6 +19,6 @@
 data-validation-engine="validate[funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-fieldinfo='{$FIELD_INFO}'
 {if $FIELD_MODEL->get('fieldvalue') eq true} checked {/if}
 {if $IS_RELATION eq true} disabled="disabled" {/if}
-{if !empty($SPECIAL_VALIDATOR)}data-validator={Zend_Json::encode($SPECIAL_VALIDATOR)}{/if}
+{if !empty($SPECIAL_VALIDATOR)}data-validator={json_encode($SPECIAL_VALIDATOR)}{/if}
 />
 {/strip}
