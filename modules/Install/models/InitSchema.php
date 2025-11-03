@@ -1264,20 +1264,4 @@ class Install_InitSchema_Model {
 		}
 		$moduleModel->addPickListValues($fieldModel, $pickListFieldName, $rolesSelected);
 	}
-
-	// adding a missing salutetype
-	private static function addingSalutation():void {
-		$pickListFieldName = 'Sehr geehrte Frau Prof.'; 
-		$pickListName = 'salutationtype';
-		$moduleName = 'Contacts';
-		$moduleModel = Settings_Picklist_Module_Model::getInstance($moduleName);
-		$fieldModel = Settings_Picklist_Field_Model::getInstance($pickListName, $moduleModel);
-		$rolesSelected = array();
-		$roleRecordList = Settings_Roles_Record_Model::getAll(true);
-		foreach($roleRecordList AS $roleRecord) {
-			$rolesSelected[] = $roleRecord->getId();
-		}
-		$moduleModel->addPickListValues($fieldModel, $pickListFieldName, $rolesSelected);
-	}
-
 }
