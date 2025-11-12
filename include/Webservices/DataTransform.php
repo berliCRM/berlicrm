@@ -301,7 +301,8 @@
 			global $current_user;
 			$moduleFields = $meta->getModuleFields();
 			foreach($moduleFields as $fieldName=>$fieldObj){
-				if($fieldObj->getFieldDataType()=="double" && !empty($row[$fieldName])) {
+				// do not transform percentage fields
+				if($fieldObj->getFieldDataType()=="double" && $fieldObj->getUiType() != 9 && !empty($row[$fieldName])) {
 					$row[$fieldName] = CurrencyField::convertToUserFormat($row[$fieldName],$current_user, true, false);
 				}
 			}
