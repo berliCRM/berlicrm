@@ -20,6 +20,7 @@ require_once('Core.php');
 require_once('Translator.php');
 require_once('UtfString.php');
 require_once('Exceptions/ParserException.php');
+require_once('Exceptions/LexerException.php');
 
 /**
  * Takes multiple tokens (contained in a Lexer instance) as input and builds a
@@ -370,6 +371,10 @@ class Parser extends Core
         if (is_string($list) || ($list instanceof UtfString)) {
 			require_once('Lexer.php');
             $lexer = new Lexer($list, $strict);
+			if ($lexer->errors) {
+				$this->errors = $lexer->errors;
+				return;
+			}
             $this->list = $lexer->list;
         } elseif ($list instanceof TokensList) {
             $this->list = $list;
