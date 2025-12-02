@@ -254,16 +254,16 @@
 					} catch (Exception $e) {
 						// make Exception for ModComments that belong to a user that no longer exists
 						if ($meta->getEntityName() != 'ModComments') {
-							throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, "Error while trying to determine owner: Data-ID -> {$row['id']}, '$field' -> '{$row[$field]}'");
+						throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, "Error while trying to determine owner: Data-ID -> {$row['id']}, '$field' -> '{$row[$field]}'");
 						} else {
 							$row[$field] = 'DELETED OR UNKNOWN USER/GROUP: '.$row[$field];
 							$error = true;
-						}
+					}
 					}
 					if (!$error) {
-						$row[$field] = vtws_getId($webserviceObject->getEntityId(),$row[$field]);
-					}
+					$row[$field] = vtws_getId($webserviceObject->getEntityId(),$row[$field]);
 				}
+			}
 			}
 			return $row;
 		}
