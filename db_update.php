@@ -60,6 +60,19 @@ else {
 	echo "retrievedocattachment already exists<br>";
 }
 // check existance (for migrated clients)
+$query = "SELECT * FROM `vtiger_ws_operation` WHERE `name` = 'get_new_multi_relations'";
+$res = $adb->pquery($query, array());
+if ($adb->num_rows($res) > 0) {
+	// add new webservice operation get_new_multi_relations
+    $operationId = vtws_addWebserviceOperation('get_new_multi_relations', 'include/Webservices/Custom/getNewMultiRelations.php', 'berli_get_new_multi_relations', 'GET', '0');
+    vtws_addWebserviceOperationParam($operationId,'id','string','1');
+    vtws_addWebserviceOperationParam($operationId,'relModule','string','2');
+	echo "get_new_multi_relations added<br>";
+}
+else {
+	echo "get_new_multi_relations already exists<br>";
+}
+// check existance (for migrated clients)
 $query = "SELECT * FROM `vtiger_ws_operation` WHERE `name` = 'update_product_relations'";
 $res = $adb->pquery($query, array());
 if ($adb->num_rows($res) > 0) {
