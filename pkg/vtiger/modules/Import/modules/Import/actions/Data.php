@@ -704,7 +704,7 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 				$vtigerMailer->setFrom($HELPDESK_SUPPORT_EMAIL_ID, $HELPDESK_SUPPORT_NAME);
 				$vtigerMailer->Subject = $emailSubject;
 				$vtigerMailer->Body    = $emailData;
-				$vtigerMailer->Send();
+				$vtigerMailer->Send(true);
 				$importDataController->finishImport();
 			}
 		}
