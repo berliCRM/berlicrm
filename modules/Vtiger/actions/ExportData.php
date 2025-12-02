@@ -237,10 +237,10 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
 			$fileName .= '.csv';
 			header("Content-Disposition:attachment;filename=$fileName");
 			$fp = fopen("php://output", "w");
-			fputcsv($fp, $headers);
+			fputcsv($fp, Vtiger_Functions::sanitizeForCSVExport($headers));	
 
 			foreach($entries as $row) {
-				fputcsv($fp, $row);
+				fputcsv($fp, Vtiger_Functions::sanitizeForCSVExport($row));
 			}
 			
 			fclose($fp);
