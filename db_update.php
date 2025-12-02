@@ -60,18 +60,34 @@ else {
 	echo "retrievedocattachment already exists<br>";
 }
 // check existance (for migrated clients)
-$query = "SELECT * FROM `vtiger_ws_operation` WHERE `name` = 'get_new_multi_relations'";
-$res = $adb->pquery($query, array());
-if ($adb->num_rows($res) > 0) {
-	// add new webservice operation get_new_multi_relations
-    $operationId = vtws_addWebserviceOperation('get_new_multi_relations', 'include/Webservices/Custom/getNewMultiRelations.php', 'berli_get_new_multi_relations', 'GET', '0');
-    vtws_addWebserviceOperationParam($operationId,'id','string','1');
-    vtws_addWebserviceOperationParam($operationId,'relModule','string','2');
-	echo "get_new_multi_relations added<br>";
-}
+// add new webservice operation get_new_multi_relations
+echo "Adding new Webservices 'get_new_multi_relations' START<br>";
+$query = "SELECT * FROM vtiger_ws_operation WHERE name = ?;";
+$res = $adb->pquery($query, array('get_new_multi_relations'));
+if ($res && $adb->num_rows($res) == 0) {
+	$operationId = vtws_addWebserviceOperation('get_new_multi_relations', 'include/Webservices/Custom/getNewMultiRelations.php', 'berli_get_new_multi_relations', 'GET', '0');
+	if ($operationId) {
+		vtws_addWebserviceOperationParam($operationId,'id','string','1');
+		vtws_addWebserviceOperationParam($operationId,'relModule','string','2');
+		echo "Adding new Webservices 'get_new_multi_relations' DONE<br>";
+	} 
+    else {
+		echo "ERROR WHILE TRYING TO GET WS-ID!<br>";
+	}
+} 
 else {
-	echo "get_new_multi_relations already exists<br>";
+	$errorMsg = $adb->database->errorMsg();
+	if (!empty($errorMsg)) {
+		echo "QUERY ERROR: ".$adb->database->errorMsg().'<br>';
+	} 
+    elseif ($adb->num_rows($res) != 0) {
+		echo "Webservices 'get_new_multi_relations' already present<br>";
+	} 
+    else {
+		echo 'UNKNOWN ERROR<br>';
+	}
 }
+echo '<br>';
 // check existance (for migrated clients)
 $query = "SELECT * FROM `vtiger_ws_operation` WHERE `name` = 'update_product_relations'";
 $res = $adb->pquery($query, array());
@@ -86,6 +102,10 @@ if ($adb->num_rows($res) > 0) {
 else {
 	echo "update_product_relations already exists<br>";
 }
+
+
+
+
 // check existance (for migrated clients)
 $query = "SELECT * FROM `vtiger_ws_operation` WHERE `name` = 'get_multi_relations'";
 $res = $adb->pquery($query, array());
