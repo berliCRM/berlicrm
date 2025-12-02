@@ -150,4 +150,6 @@ $jsLanguageStrings = array(
 	'JS_SELECTED_FIELDS_REACTIVATED' => 'ausgewählte Felder reaktiviert',
 	'JS_SPECIAL_CHARACTERS' => 'Spezielle Zeichen wie',
 	'JS_BLOCKRENAMED' => 'Neuer Blockname gespeichert: ',
+	'JS_LENGTHEXCEEDED' => 'der Feldname ist zu lang, bis zu 50 Zeichen sind erlaubt',
+	'JS_DUPLICATE_LABEL' => 'keine Umbenennung, Duplikat erkannt',
 );
