@@ -1,11 +1,11 @@
 <?php
 
 /*********************************************************************************
- ** The contents of this file are subject to the vtiger CRM Public License Version 1.0
+** The contents of this file are subject to the vtiger CRM Public License Version 1.0
  * ("License"); You may not use this file except in compliance with the License
  * The Original Code is:  crm-now, www.crm-now.com
- * Portions created by crm-now are Copyright (C)  crm-now c/o im-netz Neue Medien GmbH.
- * All Rights Reserved.
+* Portions created by crm-now are Copyright (C)  crm-now c/o im-netz Neue Medien GmbH.
+* All Rights Reserved.
  *
  ********************************************************************************/
 //
@@ -137,6 +137,12 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
             break;
             //US Format
         case "USD":
+            $decimal_precision = 2;
+            $decimals_separator = '.';
+            $thousands_separator = ',';
+            break;
+            // CANADA Format
+        case "CAD":
             $decimal_precision = 2;
             $decimals_separator = '.';
             $thousands_separator = ',';
@@ -283,7 +289,6 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     $bill_code = decode_html($focus->column_fields["bill_code"]);
     $bill_country = decode_html($focus->column_fields["bill_country"]);
 
-
     //format contact name
     $contact_name = decode_html(getContactforPDF($focus->column_fields["contact_id"]));
     //get department of contact or account, contact wins
@@ -318,6 +323,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 
     // ************************ BEGIN POPULATE DATA ***************************
     //get the Associated Products for this Invoice
+    $invoice_received = (float) $focus->column_fields['received'];
     $focus->id = $focus->column_fields["record_id"];
     $associated_products = getAssociatedProducts("Invoice", $focus);
     $num_products = count($associated_products);
@@ -439,7 +445,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
             ->setDocumentBuyerReference($buyer_reference)
             ->setDocumentBuyerAddress($bill_street, "", "", $bill_code, $bill_city, $bill_country_iso)
             ->addDocumentTax("S", "VAT", $price_subtotal, ($price_total - $price_subtotal), number_format($group_total_tax_percent, 0), null, null, $price_subtotal)
-            ->setDocumentSummation($price_total, $price_total, $price_subtotal, 0.0, 0.0, $price_subtotal, ($price_total - $price_subtotal), null, 0.0)
+            ->setDocumentSummation($price_total, $price_total - $invoice_received, $price_subtotal, 0.0, 0.0, $price_subtotal, ($price_total - $price_subtotal), null, $invoice_received)
             ->addDocumentPaymentMean(horstoeko\zugferd\codelists\ZugferdPaymentMeans::UNTDID_4461_58, null, null, null, null, null, $bank_iban, null, null, null);
         // ->addDocumentPaymentTerm($description);
 
@@ -569,6 +575,18 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
                 ->setDocumentPositionLineSummation((float) $producttotal);
             // ->setDocumentPositionLineSummation((float) $prod_total[$i]);
         }
+    }
+
+    //e-invoice export requested?
+    if ($purpose == 'ExportXML') {
+        // get xml
+        $xml_data = file_get_contents($eInvoiceXmlFile);
+        $filename = $invoice_no . '.xml';
+        // redirect (download) xml
+        header('Content-Type: application/xml');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        echo $xml_data;
+        exit;
     }
 
     if ($eInvoice) {
@@ -741,9 +759,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     include("modules/Invoice/pdf_templates/body.php");
     //formating company name for file name
     $export_org = strtolower($account_name);
-    $export_org = preg_replace('/[^a-z0-9_]/i', '_', $export_org);
-    //remove not printable ascii char
-    $export_org = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $export_org);
+    $export_org = sanitizeFilename($export_org);
 
     if ($qr_feature) {
         $pdf->AddPage();
@@ -801,12 +817,18 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         // option: push pdf to the browser
         if ($purpose == 'printsn') {
             ob_end_clean();
-            $createdOutputPdfName = $export_org . '_' . $pdf_strings['SALESNOTE'] . '_' . $date_issued . '.pdf';
-            $createdOutputPdfPath = __DIR__ . '/' . $createdOutputPdfName;
+            $createdOutputPdfName = sanitizeUploadFileName(
+                $invoice_no . '_' . $export_org . '_' . $pdf_strings['SALESNOTE'] . '_' . $date_issued . '.pdf',
+                []
+            );
+            $createdOutputPdfPath = sys_get_temp_dir() . '/' . $createdOutputPdfName;
         } else {
             ob_end_clean();
-            $createdOutputPdfName = $export_org . '_' . $pdf_strings['FACTURE'] . '_' . $date_issued . '.pdf';
-            $createdOutputPdfPath = __DIR__ . '/' . $createdOutputPdfName;
+            $createdOutputPdfName = sanitizeUploadFileName(
+                $invoice_no . '_' . $export_org . '_' . $pdf_strings['FACTURE'] . '_' . $date_issued . '.pdf',
+                []
+            );
+            $createdOutputPdfPath = sys_get_temp_dir() . '/' . $createdOutputPdfName;
         }
     } elseif ($purpose == 'send') {
         // option: send pdf with mail
@@ -847,6 +869,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         header("Content-type:application/pdf");
         header("Content-Disposition:attachment;filename=\"" . basename($createdOutputPdfName) . "\"");
         readfile($createdOutputPdfPath);
+        unlink($createdOutputPdfPath); // delete file after download
         exit;
     } elseif ($purpose == 'save' || $purpose == 'savesn') {
         return $createdOutputPdfName;
@@ -974,4 +997,49 @@ function swissQrCreatepng($pdfDataObj)
 
     }
     return 'storage/temp/qr' . $pdfDataObj['bill_number'] . '.png';
+}
+
+/**
+ * Sanitizes a string to create a safe filename by replacing invalid characters,
+ * removing control characters, reducing multiple underscores, and handling reserved names.
+ *
+ * @param string $filename The input string to be sanitized.
+ * @return string The sanitized filename, safe for file creation.
+ */
+function sanitizeFilename($filename)
+{
+    // List of invalid characters to be replaced or removed
+    $invalidChars = ['\\', '/', ':', '*', '?', '"', '<', '>', '|', "\0"];
+
+    // Replace invalid characters with an underscore
+    $filename = str_replace($invalidChars, '_', $filename);
+
+    // Replace multiple spaces with a single underscore
+    $filename = preg_replace('/\s+/', '_', $filename);
+
+    // Remove non-printable control characters
+    $filename = preg_replace('/[[:cntrl:]]/', '', $filename);
+
+    // Trim leading and trailing dots
+    $filename = trim($filename, '.');
+
+    // Reduce multiple underscores to a single underscore
+    $filename = preg_replace('/_+/', '_', $filename);
+
+    // Ensure the filename is not empty
+    if (empty($filename)) {
+        // default_filename
+        $filename = 'org';
+    }
+
+    // Limit filename length to 255 characters
+    $filename = substr($filename, 0, 255);
+
+    // Check for reserved names (Windows-specific)
+    $reservedNames = ['CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'];
+    if (in_array(strtoupper($filename), $reservedNames)) {
+        $filename = 'file_' . $filename;
+    }
+
+    return $filename;
 }
