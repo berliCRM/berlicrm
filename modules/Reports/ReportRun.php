@@ -4461,13 +4461,13 @@ class ReportRun extends CRMEntity
 			$csv_values = array_keys($arr_val[0]);
 			array_pop($csv_values);			//removed header in csv file
 			array_shift($csv_values);  // removed listcolor
-			fputcsv($fp, $csv_values);
+			fputcsv($fp, Vtiger_Functions::sanitizeForCSVExport($csv_values));
 			foreach($arr_val as $key=>$array_value) {
 				$array_value = array_map('array_shift', $array_value);
 				array_pop($array_value);	//removed action link
 				array_shift($array_value);  // removed listcolor
 				$csv_values = array_map('decode_html', array_values($array_value));
-				fputcsv($fp, $csv_values);
+				fputcsv($fp, Vtiger_Functions::sanitizeForCSVExport($csv_values));
 			}
 		}
 		fclose($fp);
