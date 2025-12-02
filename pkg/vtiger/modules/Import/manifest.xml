@@ -1,11 +1,11 @@
 <?xml version='1.0'?>
 <module>
-<exporttime>2025-03-24 13:00:00</exporttime>
+<exporttime>2025-07-25 11:00:00</exporttime>
 <name>Import</name>
 <label>Import</label>
 <parent></parent>
 <type>extension</type>
-<version>1.12</version>
+<version>1.13</version>
 <dependencies>
 <vtiger_version>6.0.0rc</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>
