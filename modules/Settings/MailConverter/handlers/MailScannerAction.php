@@ -219,9 +219,21 @@ class Vtiger_MailScannerAction {
 		$description = $mailrecord->getBodyText();
 
 		$contact = new Contacts();
-                $this->setDefaultValue('Contacts', $contact);
-		$contact->column_fields['firstname'] = $name[0];
-                $contact->column_fields['lastname'] = $name[1];
+        $this->setDefaultValue('Contacts', $contact);
+        $charsToDelOnFirstOrLastPosition = "#*, ";
+        $firstname = trim($name[0]);
+        $lastname = trim($name[1]);
+        if (strpos($firstname, ',') !== false || strpos($lastname, ',') !== false) {
+            // must swap 
+            $temporaryfirstname = $firstname;
+            $firstname = $lastname;
+            $lastname = $temporaryfirstname;
+        }
+        $firstname = trim($firstname, $charsToDelOnFirstOrLastPosition);
+        $lastname = trim($lastname, $charsToDelOnFirstOrLastPosition);
+
+		$contact->column_fields['firstname'] = $firstname;
+        $contact->column_fields['lastname'] = $lastname; 
 		$contact->column_fields['email'] = $email;
 		$contact->column_fields['assigned_user_id'] =  $mailscannerrule->assigned_to;
 		$contact->column_fields['description'] = $description;
