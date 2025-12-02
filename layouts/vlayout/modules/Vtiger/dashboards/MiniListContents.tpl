@@ -29,7 +29,9 @@
 		{assign var=fieldName value=$FIELD->get('name')}
 		{assign var=fieldValue value=$RECORD->get($fieldName)}
 
-		<div class="span{$SPANSIZE}">
+		{* <div class="span{$SPANSIZE}"> *}
+		<div class="span{$SPANSIZE} textOverflowEllipsis" title="{strip_tags($RECORD->get($FIELD->get('name')))}">
+
 			{if $fieldName eq 'filename'}
 				{assign var=recordId value=$RECORD->getId()}
 				{assign var=fileDetails value=$RECORD->getFileDetails()}
@@ -43,6 +45,9 @@
 			{else}
 				{$fieldValue}
 			{/if}
+			{if $smarty.foreach.minilistWidgetModelRowHeaders.last}
+					<a href="{$RECORD->getDetailViewUrl()}" class="pull-right"><i title="{vtranslate('LBL_SHOW_COMPLETE_DETAILS',$MODULE_NAME)}" class="icon-th-list alignMiddle"></i></a>
+			{/if}			
 		</div>
 	{/foreach}
 
@@ -51,10 +56,8 @@
 	<script>
 	jQuery(function() {
 		const listInstance = Vtiger_List_Js.getInstance();
-		console.log('List.js geladen:', listInstance);
 
 		if (typeof listInstance.registerPreviewEvents === 'function') {
-			console.log('Preview Events werden registriert');
 			listInstance.registerPreviewEvents();
 		} else {
 			console.warn('registerPreviewEvents nicht verfügbar');
