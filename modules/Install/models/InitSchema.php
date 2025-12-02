@@ -801,46 +801,40 @@ class Install_InitSchema_Model
         self::removeGroups();
 
         //
-        // Adding some fields needed for E-Rechnung *** START ***
+        // Adding some fields *** START ***
         //
         $arrFields = array(
+            // needed for E-Rechnung
             'Accounts' => array(
                 'LBL_CUSTOM_INFORMATION' => array(
                     array('Leitweg-ID', 'buyerreference', 'V~O', 1, 'VARCHAR(50)', '', 'Die Leitweg-ID ist ein Kennzeichen einer elektronischen Rechnung zur eindeutigen Adressierung von öffentlichen Auftraggebern in Deutschland (Beispiele: Behörden, Kommunen, Ministerien).'),
                 )
-                ),
+            ),
             'Invoice' => array(
                 'LBL_INVOICE_INFORMATION' => array(
                     // array('Statusdatum', 'statusdate', 'D~O', 5, 'DATE', '', 'Datum des letzten Status, nicht ändern, wird vom automatischen Mahnwesen verwendet.'), // Datum
                     array('Lieferdatum', 'deliveryperiod', 'D~O', 5, 'DATE', '', 'Lieferdatum, wird für E-Rechnung verwendet'), // Datum
+                ),
+            ),
+
+            // for HelpDesk
+            'HelpDesk' => array(
+                'LBL_TICKET_INFORMATION' => array(
+                    array('Owner', 'ticketowner', 'V~O', 'crmnow15', 'VARCHAR(100)', '', 'Der Prozessverantwortliche des Tickets.')
                 )
-
-                //'27' => array(
-                //      array('Kunde', 'kundenid', 'V~O', 10, 'VARCHAR(100)', 'Kunden')//, // Bezugsfeld
-                //),
-
             )
         );
 
         foreach ($arrFields as $moduleName => $blocks) {
-            // echo "Start $moduleName...<br>";
             $moduleInstance = Vtiger_Module::getInstance($moduleName);
             if (!$moduleInstance) {
                 die("$moduleName no instance");
             }
 
-            // echo "first step $moduleName...<br>";
-
             foreach ($blocks as $blockName => $fieldInfos) {
-
-
-                // echo "BLOCKs..<br>";
-
                 $blockInstance = Vtiger_Block::getInstance($blockName, $moduleInstance);
 
                 if (!$blockInstance) {
-                    // die ("\"$blockName\" no block instance found");
-
                     //// to create new block
                     $blockInstance = new Vtiger_Block();
                     $blockInstance->label = $blockName;
@@ -849,19 +843,12 @@ class Install_InitSchema_Model
                 } else {
                     // if we need to del the BLOCK:
                     //$blockInstance->delete();
-                    //echo "The Block: \"$blockName\" is deleted! from Module \"$moduleName\" ..<br>";
-                    // die ("The Block: \"$blockName\" is deleted! from Module \"$moduleName\" ");
                 }
-
-                // echo "foreachs..<br>";
 
                 foreach ($fieldInfos as $fieldInfo) {
                     $fieldObj = Vtiger_Field::getInstance($fieldInfo[1], $moduleInstance);
 
-
                     if (!$fieldObj) {
-
-                        // echo "Adding $moduleName field {$fieldInfo[0]}...<br>";
                         $fieldObj = new Vtiger_Field();
                         $fieldObj->name = $fieldInfo[1];
                         $fieldObj->label = $fieldInfo[0];
@@ -885,9 +872,6 @@ class Install_InitSchema_Model
                             $query = "SELECT * FROM vtiger_fieldmodulerel WHERE fieldid = ?;";
                             $res = $adb->pquery($query, array($fieldObj->id));
 
-                            // echo "fieldid " . ($fieldObj->id) . "...<br>";
-
-
                             if ($adb->num_rows($res) == 0) {
                                 $query = "INSERT INTO vtiger_fieldmodulerel VALUES(?, ?, ?, ?, ?);";
                                 $adb->pquery($query, array($fieldObj->id, $moduleName, $fieldInfo[5], null, null));
@@ -905,16 +889,16 @@ class Install_InitSchema_Model
                         }
 
                     } else {
-                        // echo "fieldObj: \"$fieldInfo[0]\" exist !  ..<br>";
                         //$fieldObj->delete();
-                        //echo "fieldObj delete   ..<br>";
                     }
                 }
             }
         }
         //
-        // Adding some fields needed for E-Rechnung *** END ***
-        //	    
+        // Adding some fields *** END ***
+        //
+        
+		self::addUITypes();
 
         //last step, set info this system was installed
         $path = Install_Utils_Model::INSTALL_FINISHED;
@@ -1244,5 +1228,24 @@ class Install_InitSchema_Model
             $adb->pquery($queryWidget, array($widgetId, $infos[0], $infos[1], $infos[2], $infos[3], $infos[4], $infos[5]));
         }
     }
+	
+	public static function addUITypes() {
+		global $adb;
+		
+		$uiTypesToAdd = array('crmnow15' => 'UserPicklist');
+		$query = "SELECT * FROM vtiger_ws_fieldtype WHERE uitype = ?;";
+		$iQuery = "INSERT INTO vtiger_ws_fieldtype VALUES(?,?,?);";
+		$uQuery = "UPDATE vtiger_ws_fieldtype_seq SET id = ?;";
+		
+		foreach ($uiTypesToAdd AS $uitype => $fieldType) {
+			$res = $adb->pquery($query, array($uitype));
+			
+			if ($res && $adb->num_rows($res) == 0) {
+				$adb->pquery($iQuery, array(NULL, $uitype, $fieldType));
+				$lastId = $adb->getLastInsertID();
+				$adb->pquery($uQuery, array($lastId));
+			}
+		}
+	}
 
 }
