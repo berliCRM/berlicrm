@@ -51,17 +51,17 @@ function installComposerLocally()
     exec("php -r \"copy('https://getcomposer.org/installer', 'test/composer-setup.php');\"", $output, $returnCode);
     if (!empty($output))
         print_r($output);
-    if ($returnCode !== 0) {
-        die("Failed to download Composer setup script.\n");
-    }
+    //if ($returnCode !== 0) {
+        //die("Failed to download Composer setup script.\n");
+    //}
 
     // Run the setup script to install Composer locally
     exec("php test/composer-setup.php", $output, $returnCode);
     unlink('test/composer-setup.php'); // Remove setup script after installation
 
-    if ($returnCode !== 0) {
-        die("Failed to install Composer.\n");
-    }
+//    if ($returnCode !== 0) {
+//        die("Failed to install Composer.\n");
+//    }
 
     // echo "Composer installed locally as composer.phar.\n";
 }
