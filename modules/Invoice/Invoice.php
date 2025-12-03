@@ -105,11 +105,11 @@ class Invoice extends CRMEntity {
 	/**	Constructor which will set the column_fields in this object
 	 */
 	function __construct() {
-		$this->log =LoggerManager::getLogger('Invoice');
-		$this->log->debug("Entering Invoice() method ...");
+        //$this->log = LoggerManager::getLogger('Invoice');
+        //$this->log->debug("Entering Invoice() method ...");
 		$this->db = PearDatabase::getInstance();
 		$this->column_fields = getColumnFields('Invoice');
-		$this->log->debug("Exiting Invoice method ...");
+        //$this->log->debug("Exiting Invoice method ...");
 	}
 
 
@@ -213,17 +213,20 @@ class Invoice extends CRMEntity {
 
 		$parenttab = getParentTab();
 
-		if($singlepane_view == 'true')
-			$returnset = '&return_module='.$this_module.'&return_action=DetailView&return_id='.$id;
-		else
-			$returnset = '&return_module='.$this_module.'&return_action=CallRelatedList&return_id='.$id;
+        if ($singlepane_view == 'true') {
+            $returnset = '&return_module='.$this_module.'&return_action=DetailView&return_id='.$id;
+        } else {
+            $returnset = '&return_module='.$this_module.'&return_action=CallRelatedList&return_id='.$id;
+        }
 
 		$button = '';
 
 		$button .= '<input type="hidden" name="activity_mode">';
 
-		if($actions) {
-			if(is_string($actions)) $actions = explode(',', strtoupper($actions));
+        if ($actions) {
+            if (is_string($actions)) {
+                $actions = explode(',', strtoupper($actions));
+            }
 			if(in_array('ADD', $actions) && isPermitted($related_module,1, '') == 'yes') {
 				if(getFieldVisibilityPermission('Calendar',$current_user->id,'parent_id', 'readwrite') == '0') {
 					$button .= "<input title='".getTranslatedString('LBL_NEW'). " ". getTranslatedString('LBL_TODO', $related_module) ."' class='crmbutton small create'" .
@@ -252,7 +255,9 @@ class Invoice extends CRMEntity {
 
 		$return_value = GetRelatedList($this_module, $related_module, $other, $query, $button, $returnset);
 
-		if($return_value == null) $return_value = Array();
+        if ($return_value == null) {
+			$return_value = Array();
+        }
 		$return_value['CUSTOM_BUTTON'] = $button;
 
 		$log->debug("Exiting get_activities method ...");
@@ -329,8 +334,7 @@ class Invoice extends CRMEntity {
 		//Not Accessible - picklist is permitted in profile but picklist value is not permitted
 		$error_msg = ($invoicestatus_access != 1)? 'Not Accessible': '-';
 
-		while($row = $adb->fetch_array($result))
-		{
+		while($row = $adb->fetch_array($result)) {
 			$entries = Array();
 
 			// Module Sequence Numbering
@@ -354,9 +358,11 @@ class Invoice extends CRMEntity {
 
 	// Function to get column name - Overriding function of base class
 	function get_column_value($columname, $fldvalue, $fieldname, $uitype, $datatype = '') {
-		if ($columname == 'salesorderid') {
-			if ($fldvalue == '') return null;
-		}
+	    if ($columname == 'salesorderid') {
+	        if ($fldvalue == '') {
+	            return null;
+	        }
+	    }
 		return parent::get_column_value($columname, $fldvalue, $fieldname, $uitype, $datatype);
 	}
 
@@ -474,6 +480,36 @@ class Invoice extends CRMEntity {
 		}
 	}
 
+    /*
+    *
+    * do some fancy date based placeholder replacements for recurring
+    * SalesOrder to Invoice converted fields (maybe also used on PDF generation in future)
+    *
+    * @param - $myTextStr teh variable which might contain to be replaced placeholders
+
+    */
+    public static function replaceDatePlaceholder($myTextStr)
+    {
+        //
+        // some data variables needed for fancy variable replacement
+        // in lineitem fields array('comment', 'description')
+        //
+        $year = date('Y');
+        $currentMonth = date('m');
+        $nextMonth = date('m', strtotime('first day of +1 month'));
+        $prevMonth = date('m', strtotime('first day of -1 month'));
+        $prevMonthYear = $prevMonth . '.' . ($year - ($prevMonth == '12' ? 1 : 0));
+        $nextMonthYear = $nextMonth . '.' . ($year + ($nextMonth == '01' ? 1 : 0));
+
+        return(
+            str_replace(
+                ['$custom-currentyear$', '$custom-nextyear$', '$custom-nextnextyear$', '$custom-prevyear$', '$custom-currentmonth$', '$custom-nextmonth$',
+                '$custom-prevmonth$', '$custom-prevmonthyear$', '$custom-nextmonthyear$'],
+                [$year, $year + 1, $year + 2, $year - 1, $currentMonth, $nextMonth, $prevMonth, $prevMonthYear, $nextMonthYear],
+                $myTextStr
+            ));
+    }
+
 	/*
 	 * Function to get the relations of salesorder to invoice for recurring invoice procedure
 	 * @param - $salesorder_id Salesorder ID
@@ -491,9 +527,9 @@ class Invoice extends CRMEntity {
 			$col_value = array();
 			for($k=0; $k<count($fieldsList); $k++) {
 				if($fieldsList[$k]!='lineitem_id'){
-					if($fieldsList[$k] == 'description'){
-						$col_value[$fieldsList[$k]] = html_entity_decode($row[$fieldsList[$k]]);
-					}
+                	if($fieldsList[$k] == 'description' || $fieldsList[$k] == 'comment') {
+                        $col_value[$fieldsList[$k]] = html_entity_decode($this->replaceDatePlaceholder($row[$fieldsList[$k]]));
+                    } 
 					else{
 						$col_value[$fieldsList[$k]] = $row[$fieldsList[$k]];
 					}

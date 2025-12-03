@@ -7,6 +7,7 @@
  * modified by: crm-now, www.crm-now.de
  ********************************************************************************/
 function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
+    require_once('modules/Invoice/Invoice.php'); // for replaceDatePlaceholder()
 	require_once('libraries/tcpdf/tcpdf.php');
 	require_once('libraries/tcpdf/config/tcpdf_config.php');
 	require_once('modules/SalesOrder/SalesOrder.php');
@@ -59,24 +60,24 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	$currency_code = $adb->query_result($curr_result, 0, 'currency_code');
 
 	switch($currency_code) {
-         //European Format
-         case "EUR":
-            $decimal_precision = 2;
-            $decimals_separator = ',';
-            $thousands_separator = '.';
-         break;
-         //US Format
-         case "USD":
-            $decimal_precision = 2;
-            $decimals_separator = '.';
-            $thousands_separator = ',';
-         break;
-          default:
-            $decimal_precision = 2;
-            $decimals_separator = ',';
-            $thousands_separator = '.';   
-         break;
-      }
+		//European Format
+		case "EUR":
+			$decimal_precision = 2;
+			$decimals_separator = ',';
+			$thousands_separator = '.';
+		break;
+		//US Format
+		case "USD":
+			$decimal_precision = 2;
+			$decimals_separator = '.';
+			$thousands_separator = ',';
+		break;
+		default:
+			$decimal_precision = 2;
+			$decimals_separator = ',';
+			$thousands_separator = '.';
+		break;
+    }
 	if(isset($current_user->currency_decimal_separator)) {
 		$decimals_separator = $current_user->currency_decimal_separator;
 	}
@@ -258,9 +259,9 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	$ship_country = $focus->column_fields["ship_country"];
 
 	// condition field for last page
-	$conditions = decode_html($focus->column_fields["terms_conditions"]);
+	$conditions = decode_html(Invoice::replaceDatePlaceholder($focus->column_fields["terms_conditions"]));
 	// description field for first page
-	$description = decode_html($focus->column_fields["description"]);
+	$description = decode_html(Invoice::replaceDatePlaceholder($focus->column_fields["description"]));
 
 	// ************************ BEGIN POPULATE DATA ***************************
 	//get the Associated Products for this Sales Order
@@ -337,10 +338,10 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	for($i=1,$j=$i-1;$i<=$num_products;$i++,$j++){
 		$product_code[$i] = $associated_products[$i]['hdnProductcode'.$i];
 		$product_name[$i] = decode_html($associated_products[$i]['productName'.$i]);
-		$prod_description[$i] = decode_html($associated_products[$i]['productDescription'.$i]);
+        $prod_description[$i] = decode_html(Invoice::replaceDatePlaceholder($associated_products[$i]['productDescription'.$i]));
 		$qty[$i] = $associated_products[$i]['qty'.$i];
 		$qty_formated[$i] = number_format($associated_products[$i]['qty'.$i],$decimal_precision,$decimals_separator,$thousands_separator);
-		$comment[$i] = decode_html($associated_products[$i]['comment'.$i]);
+        $comment[$i] = decode_html(Invoice::replaceDatePlaceholder($associated_products[$i]['comment'.$i]));
 		$unit_price[$i] = number_format($associated_products[$i]['unitPrice'.$i],$decimal_precision,$decimals_separator,$thousands_separator);
 		$list_price[$i] = number_format($associated_products[$i]['listPrice'.$i],$decimal_precision,$decimals_separator,$thousands_separator);
 		$list_pricet[$i] = $associated_products[$i]['listPrice'.$i];
@@ -416,26 +417,29 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 			    case 5:
 						$product_name_long[$i] = $product_name[$i]."\n".$comment[$i];
 			    break;
-			    case 6:
-					if ($prod_description[$i]!=''){
-						$product_name_long[$i] = $prod_description[$i]."\n".$subProdString[$i].$comment[$i];
-						}
-					else
-						$product_name_long[$i] = $comment[$i];
+            	case 6:
+	                if ($prod_description[$i] != '') {
+	                    $product_name_long[$i] = $prod_description[$i]."\n".$subProdString[$i].$comment[$i];
+	                } 
+	                else {
+	                    $product_name_long[$i] = $comment[$i];
+	                }
 			    break;
 			    case 7:
 					if ($prod_description[$i]!=''){
 						$product_name_long[$i] = $product_name[$i]."\n".$prod_description[$i]."\n".$subProdString[$i].$comment[$i];
-						}
-					else
-						$product_name_long[$i] = $product_name[$i]."\n".$subProdString[$i].$comment[$i];
+                	} 
+                	else {
+                    	$product_name_long[$i] = $product_name[$i]."\n".$subProdString[$i].$comment[$i];
+                	}
 			    break;
-			    default:
+	            default:
 					if ($prod_description[$i]!=''){
 						$product_name_long[$i] = $product_name[$i]."\n".$prod_description[$i]."\n".$subProdString[$i].$comment[$i];
-						}
-					else
+	                } 
+	                else {
 						$product_name_long[$i] = $product_name[$i]."\n".$subProdString[$i].$comment[$i];
+	                }
 			    break;
 		}
 

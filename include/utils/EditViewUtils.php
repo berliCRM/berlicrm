@@ -66,8 +66,8 @@ function getConvertSoToInvoice($focus,$so_focus,$soid)
 	$focus->column_fields['ship_country'] = $so_focus->column_fields['ship_country'];
 	$focus->column_fields['bill_pobox'] = $so_focus->column_fields['bill_pobox'];
 	$focus->column_fields['ship_pobox'] = $so_focus->column_fields['ship_pobox'];
-	$focus->column_fields['description'] = html_entity_decode($so_focus->column_fields['description']);
-	$focus->column_fields['terms_conditions'] = $so_focus->column_fields['terms_conditions'];
+    $focus->column_fields['description'] = $focus->replaceDatePlaceholder(html_entity_decode($so_focus->column_fields['description']));
+    $focus->column_fields['terms_conditions'] = $focus->replaceDatePlaceholder($so_focus->column_fields['terms_conditions']);
     $focus->column_fields['currency_id'] = $so_focus->column_fields['currency_id'];
     $focus->column_fields['conversion_rate'] = $so_focus->column_fields['conversion_rate'];
 
@@ -409,13 +409,16 @@ function getAssociatedProducts($module,$focus,$seid='')
 
 		//if taxtype is individual and want to change to group during edit time then we have to show the all available taxes and their default values
 		//Also taxtype is group and want to change to individual during edit time then we have to provide the asspciated taxes and their default tax values for individual products
-		if($taxtype == 'group')
+		if($taxtype == 'group'){
 			$tax_percent = $adb->query_result($result,0,$tax_name);
-		else
-			$tax_percent = $tax_details[$tax_count]['percentage'];//$adb->query_result($result,0,$tax_name);
+        } 
+        else {
+            $tax_percent = $tax_details[$tax_count]['percentage'];
+        }//$adb->query_result($result,0,$tax_name);
 
-		if($tax_percent == '' || $tax_percent == 'NULL')
+		if($tax_percent == '' || $tax_percent == 'NULL') {
 			$tax_percent = '0';
+        }
 		$taxamount = ($subTotal-$finalDiscount)*$tax_percent/100;
 		$taxamount = number_format($taxamount, $no_of_decimal_places,'.','');
 		$taxtotal = $taxtotal + $taxamount;
@@ -438,16 +441,14 @@ function getAssociatedProducts($module,$focus,$seid='')
 	$shtax_details = getAllTaxes('available','sh','edit',$focus->id);
 
 	//if taxtype is group then the tax should be same for all products in vtiger_inventoryproductrel table
-	for($shtax_count=0;$shtax_count<count($shtax_details);$shtax_count++)
-	{
-		$shtax_name = $shtax_details[$shtax_count]['taxname'];
+	for($shtax_count=0;$shtax_count<count($shtax_details);$shtax_count++){
+        $shtax_name = $shtax_details[$shtax_count]['taxname'];
 		$shtax_label = $shtax_details[$shtax_count]['taxlabel'];
 		$shtax_percent = '0';
 		//if condition is added to call this function when we create PO/SO/Quotes/Invoice from Product module
-		if($module == 'PurchaseOrder' || $module == 'SalesOrder' || $module == 'Quotes' || $module == 'Invoice')
-		{
+		if($module == 'PurchaseOrder' || $module == 'SalesOrder' || $module == 'Quotes' || $module == 'Invoice'){
 			$shtax_percent = getInventorySHTaxPercent($focus->id,$shtax_name);
-		}
+        }
 		$shtaxamount = $shCharge*$shtax_percent/100;
 		$shtaxtotal = $shtaxtotal + $shtaxamount;
 		$product_Detail[1]['final_details']['sh_taxes'][$shtax_count]['taxname'] = $shtax_name;
@@ -487,36 +488,25 @@ function split_validationdataArray($validationData)
 	$fieldLabel = '';
 	$fldDataType = '';
 	$rows = count($validationData);
-	foreach($validationData as $fldName => $fldLabel_array)
-	{
-		if($fieldName == '')
-		{
-			$fieldName="'".$fldName."'";
-		}
-		else
-		{
-			$fieldName .= ",'".$fldName ."'";
-		}
-		foreach($fldLabel_array as $fldLabel => $datatype)
-		{
-			if($fieldLabel == '')
-			{
-				$fieldLabel = "'".addslashes($fldLabel)."'";
-			}
-			else
-			{
-				$fieldLabel .= ",'".addslashes($fldLabel)."'";
-			}
-			if($fldDataType == '')
-			{
-				$fldDataType = "'".$datatype ."'";
-			}
-			else
-			{
-				$fldDataType .= ",'".$datatype ."'";
-			}
-		}
-	}
+	foreach($validationData as $fldName => $fldLabel_array){
+        if($fieldName == '') {
+            $fieldName = "'".$fldName."'";
+        } else {
+            $fieldName .= ",'".$fldName ."'";
+        }
+        foreach($fldLabel_array as $fldLabel => $datatype) {
+            if($fieldLabel == '') {
+                $fieldLabel = "'".addslashes($fldLabel)."'";
+            } else {
+                $fieldLabel .= ",'".addslashes($fldLabel)."'";
+            }
+            if($fldDataType == '') {
+                $fldDataType = "'".$datatype ."'";
+            } else {
+                $fldDataType .= ",'".$datatype ."'";
+            }
+        }
+    }
 	$data['fieldname'] = $fieldName;
 	$data['fieldlabel'] = $fieldLabel;
 	$data['datatype'] = $fldDataType;
