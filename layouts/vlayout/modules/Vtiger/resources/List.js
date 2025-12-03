@@ -995,7 +995,10 @@ jQuery.Class("Vtiger_List_Js",{
                     fieldsChanged = true;
                 }
 			}
-			if(fieldsChanged == false){
+
+			var massDeleteCheckboxes = form.find('input[name^="mass_delete_check_"]:checked').length > 0;
+
+			if(fieldsChanged == false && !massDeleteCheckboxes) {
 				Vtiger_Helper_Js.showPnotify(app.vtranslate('NONE_OF_THE_FIELD_VALUES_ARE_CHANGED_IN_MASS_EDIT'));
 				form.find('[name="saveButton"]').removeAttr('disabled');
 				aDeferred.reject();
@@ -2177,13 +2180,32 @@ jQuery.Class("Vtiger_List_Js",{
 					}
 				};
 	
-				const linkRect = this.getBoundingClientRect();
-				const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-				const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+			const linkRect = this.getBoundingClientRect();
+			const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+			const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-				previewBox.style.position = 'absolute';
-				previewBox.style.left = `${linkRect.right + 10 + scrollLeft}px`;
-				previewBox.style.top = `${linkRect.top + scrollTop}px`;
+			previewBox.style.visibility = 'hidden';
+			previewBox.style.display = 'block';
+
+			const boxWidth = previewBox.offsetWidth;
+			const boxHeight = previewBox.offsetHeight;
+
+			let left = linkRect.right + 10 + scrollLeft;
+			let top = linkRect.top + scrollTop;
+
+			if (left + boxWidth > window.innerWidth + scrollLeft) {
+			left = linkRect.left - boxWidth - 10 + scrollLeft;
+			}
+
+			if (top + boxHeight > window.innerHeight + scrollTop) {
+			top = window.innerHeight + scrollTop - boxHeight - 10;
+			if (top < 0) top = 0;
+			}
+
+			previewBox.style.left = `${left}px`;
+			previewBox.style.top = `${top}px`;
+
+			previewBox.style.visibility = 'visible';
 			});
 		});
 	},
