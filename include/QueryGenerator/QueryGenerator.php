@@ -59,6 +59,9 @@ class QueryGenerator {
 	 * Import Feature
 	 */
 	private $ignoreComma;
+	private $preparedMode = false;
+	private $queryParameters = array();
+	
 	public function __construct($module, $user) {
 		$db = PearDatabase::getInstance();
 		$this->module = $module;
@@ -742,6 +745,7 @@ class QueryGenerator {
 		$groupSql = $this->groupInfo;
 		$fieldSqlList = array();
         $aliasTableName = array();
+		$indexShifter = 0;
         foreach ($this->conditionals as $index=>$conditionInfo) {
 			$fieldName = $conditionInfo['name'];
 			$field = $moduleFieldList[$fieldName];
@@ -785,7 +789,8 @@ class QueryGenerator {
 			if(!is_array($valueSqlList)) {
 				$valueSqlList = array($valueSqlList);
 			}
-			foreach ($valueSqlList as $valueSql) {
+			
+			foreach ($valueSqlList AS $valueSql) {
 				
 				if ($conditionInfo['operator'] == "n") $fieldGlue .= " NOT"; // NULL-safe nonequality fix
 				
@@ -798,7 +803,7 @@ class QueryGenerator {
 						$fieldGlue = ' OR';
 					}else{
 						$moduleList = $this->referenceFieldInfoList[$fieldName];
-						foreach($moduleList as $module) {
+						foreach($moduleList AS $moduleCounter => $module) {
 							$nameFields = $this->moduleNameFields[$module];
 							$nameFieldList = explode(',',$nameFields);
 							$meta = $this->getMeta($module);
@@ -828,6 +833,12 @@ class QueryGenerator {
 
 							$fieldSql .= "$fieldGlue trim($columnSql) $valueSql";
 							$fieldGlue = ' OR';
+							
+							// duplicate values on this position for each loop > 1
+							if ($this->preparedMode && $moduleCounter > 0 && isset($this->queryParameters[$index+$indexShifter])) {
+								array_splice($this->queryParameters, $index+$indexShifter+1, 0, $this->queryParameters[$index+$indexShifter]);
+								$indexShifter += 1;
+							}
 						}
 					}
 				} elseif (in_array($fieldName, $this->ownerFields)) {
@@ -841,6 +852,11 @@ class QueryGenerator {
 							$fieldSql .= "$fieldGlue (trim($concatSql) $valueSql or "."vtiger_groups.groupname $valueSql)";
 						} else {
 							$fieldSql .= "$fieldGlue (vtiger_users.id $valueSql OR vtiger_groups.groupid $valueSql)";
+						}
+						// duplicate values on this position for each loop > 1
+						if ($this->preparedMode && isset($this->queryParameters[$index+$indexShifter])) {
+							array_splice($this->queryParameters, $index+$indexShifter+1, 0, $this->queryParameters[$index+$indexShifter]);
+							$indexShifter += 1;
 						}
                     }
 				} elseif($field->getFieldDataType() == 'date' && ($baseModule == 'Events' || $baseModule == 'Calendar') && ($fieldName == 'date_start' || $fieldName == 'due_date')) {
@@ -1230,21 +1246,42 @@ class QueryGenerator {
 				case 'b': $sqlOperator = "<";
 					break;
                 case 'ci': $sqlOperator = "IN";
-                    $value = "('".str_replace(",","','",$value)."')";
-                    $dontquote=true;
+					// if ($this->preparedMode) {
+						// $tmp = explode(',', $value);
+						// $value = '('.generateQuestionMarks($tmp).')';
+						// foreach ($tmp AS $val) {
+							// $this->queryParameters[] = $val;
+						// }
+					// } else {
+						$value = "('".str_replace(",","','",$value)."')";
+					// }
+					$dontquote=true;
                     break;
                 case 'nci': $sqlOperator = "NOT IN";
-                    $value = "('".str_replace(",","','",$value)."')";
+                    // if ($this->preparedMode) {
+						// $tmp = explode(',', $value);
+						// $value = '('.generateQuestionMarks($tmp).')';
+						// foreach ($tmp AS $val) {
+							// $this->queryParameters[] = $val;
+						// }
+					// } else {
+						$value = "('".str_replace(",","','",$value)."')";
+					// }
                     $dontquote=true;
                     break;
                     
 			}
-			if(!$this->isNumericType($field->getFieldDataType()) &&
+			// for now we cannot handle duplication of multiple values (NOT/IN) for related fields
+			if ($this->preparedMode && !$dontquote) {
+				$this->queryParameters[] = $value;
+				$value = '?';
+			}
+			elseif(!$this->isNumericType($field->getFieldDataType()) &&
 					($field->getFieldName() != 'birthday' || ($field->getFieldName() == 'birthday'
 							&& $this->isRelativeSearchOperators($operator))) && !$dontquote){
 				$value = "'$value'";
 			}
-			if($this->isNumericType($field->getFieldDataType()) && empty($value)) {
+			elseif($this->isNumericType($field->getFieldDataType()) && empty($value)) {
 				$value = '0';
 			}
 			$sql[] = "$sqlOperator $value";
@@ -1606,6 +1643,16 @@ class QueryGenerator {
 				$this->fields[] = 'id';
 		}
 	}
+	
+	public function setPreparedMode($mode = false) {
+		if (is_bool($mode)) {
+			$this->preparedMode = $mode;
+		}
+		return false;
+	}
+	
+	public function getParameters() {
+		return $this->queryParameters;
+	}
 
 }
-?>
