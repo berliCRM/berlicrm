@@ -703,7 +703,6 @@ Vtiger_Base_Validator_Js("Vtiger_Double_Validator_Js",{
         var fieldData = field.data();
         var decimalSeparator = fieldData.decimalSeparator;
         var groupSeparator = fieldData.groupSeparator;
-		var groupSeparator = fieldData.groupSeparator;
 		// fix for LayoutEditor
 		if (typeof decimalSeparator == 'undefined' && typeof fieldData.fieldinfo != 'undefined') {
 			decimalSeparator = fieldData.fieldinfo.decimalSeparator;
