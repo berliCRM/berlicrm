@@ -1000,8 +1000,8 @@ function authenticate_user($username,$password,$version,$login = 'true')
 		$list[0] = "NOT COMPATIBLE";
   		return $list;
 	}
-	$username = $adb->sql_escape_string($username);
-	$password = $adb->sql_escape_string($password);
+	// $username = $adb->sql_escape_string($username);
+	// $password = $adb->sql_escape_string($password);
 
 	$current_date = date("Y-m-d");
 	$sql = "select id, user_name, user_password,last_login_time, support_start_date, support_end_date, cryptmode
@@ -1167,10 +1167,15 @@ function send_mail_for_password($mailid)
 	$mail->IsSMTP();
 
 	$mailserverresult = $adb->pquery("select * from vtiger_systems where server_type=?", array('email'));
-	$mail_server = $adb->query_result($mailserverresult,0,'server');
-	$mail_server_username = $adb->query_result($mailserverresult,0,'server_username');
-	$mail_server_password = $adb->query_result($mailserverresult,0,'server_password');
-	$smtp_auth = $adb->query_result($mailserverresult,0,'smtp_auth');
+	if (!$mailserverresult || $adb->num_rows($mailserverresult) < 1) {
+		$ret_msg = "false@@@<b>".getTranslatedString('LBL_MAIL_COULDNOT_SENT','HelpDesk')."</b>";
+		return $ret_msg;
+	}
+	$serverRow = $adb->getNextRow($mailserverresult, false);
+	$mail_server = strtolower($serverRow['server']);
+	$mail_server_username = $serverRow['server_username'];
+	$mail_server_password = $serverRow['server_password'];
+	$smtp_auth = $serverRow['smtp_auth'];
 
 	$mail->Host = $mail_server;
 	if($smtp_auth) 
@@ -1200,9 +1205,15 @@ function send_mail_for_password($mailid)
 	{
 		$ret_msg = "false@@@<b>".$mod_strings['LBL_LOGIN_REVOKED']."</b>";
 	}
-	elseif(!$mail->Send())
+	$sent = true;
+	try {
+		$sent = $mail->Send();
+	} catch (Exception $e) {
+		$sent = false;
+	}
+	if(!$sent)
 	{
-		$ret_msg = "false@@@<b>".$mod_strings['LBL_MAIL_COULDNOT_SENT']."</b>";
+		$ret_msg = "false@@@<b>".getTranslatedString('LBL_MAIL_COULDNOT_SENT','HelpDesk')."</b>";
 	}
 	else
 	{
