@@ -181,7 +181,7 @@ $languageStrings = array(
 	'LBL_CLEAR' => 'Leeren',
 	'LBL_CLICK_ADD' => 'Click add',
 	'LBL_CLOSE' => 'Schließen',
-	'LBL_COMMENTED' => 'commented', //Duplicated key-value pairs
+	'LBL_COMMENTED' => 'kommentierte', //Duplicated key-value pairs
 	'LBL_COMMENTS' => 'Kommentare',
 	'LBL_COMPLETED' => 'abgeschlossen',
 	'LBL_COMPOSE_EMAIL' => 'erstelle E-Mail',
@@ -877,6 +877,11 @@ $languageStrings = array(
 
 	// SpecialWidgets
 	'LBL_COPY_CONTACTDETAILS' => 'Kopiere Kontaktdaten',
+
+	// Send Mail from ModComment
+	'LBL_SEND_MAIL_AND_POST' => 'Mail senden und veröffentlichen',
+	'LBL_EXTERNAL_COMMENT' => 'Externer Kommentar',
+	'LBL_MAILTO'=> 'Mail an',
 );
 
 $jsLanguageStrings = array(
@@ -1011,22 +1016,27 @@ $jsLanguageStrings = array(
 	'SINGLE_Accounts' => 'Organisation',
 	'SINGLE_Contacts' => 'Person',
     
-        //Promotion translations
-        'JS_HIDE_PROMOTION' => 'Promotion verbergen',
-        'JS_SHOW_PROMOTION' => 'Promotion zeigen',
-    
-        //Inventory module Translations
-        'JS_PLEASE_ENABLE_PRODUCT_OR_SERVICE_MODULE'=>'Bitte das Produkt- oder Dienstleistungsmodul aktivieren.',
-        'LBL_SYNC_BUTTON' => 'Synchronisiere',
-        'LBL_SYNCRONIZING' => 'Synchronisiere',
-    
-        'JS_RECORDS_TRANSFERRED_SUCCESSFULLY' => 'Die Zuständigkeit wurde erfolgreich geändert.',
+	//Promotion translations
+	'JS_HIDE_PROMOTION' => 'Promotion verbergen',
+	'JS_SHOW_PROMOTION' => 'Promotion zeigen',
+
+	//Inventory module Translations
+	'JS_PLEASE_ENABLE_PRODUCT_OR_SERVICE_MODULE'=>'Bitte das Produkt- oder Dienstleistungsmodul aktivieren.',
+	'LBL_SYNC_BUTTON' => 'Synchronisiere',
+	'LBL_SYNCRONIZING' => 'Synchronisiere',
+
+	'JS_RECORDS_TRANSFERRED_SUCCESSFULLY' => 'Die Zuständigkeit wurde erfolgreich geändert.',
     
     //Edit view mode Translations
-        'JS_CHANGES_WILL_BE_LOST' => 'Ihre Änderungen werden verloren gehen!',
+	'JS_CHANGES_WILL_BE_LOST' => 'Ihre Änderungen werden verloren gehen!',
+	'SINGLE_Vendors' => 'Lieferantenname',
 
-    //Mass edit failure
-    'JS_MASS_EDIT_NOT_SUCCESSFULL' => 'Die Massenbearbeitung war für einige Datensätze nicht erfolgreich.',
+	//Document module for relatedlist translations
+	'JS_Intern_FILE_NAME' => 'Dateiname',	// duplicated key-value pairs
+	'JS_Extern_FILE_NAME' => 'Dateipfad',	// duplicated key-value pairs
+
+	//Mass edit failure
+	'JS_MASS_EDIT_NOT_SUCCESSFULL' => 'Die Massenbearbeitung war für einige Datensätze nicht erfolgreich.',
 
 	//labels not available in en_us file
     'JS_VIEWNAME_ALERT' => 'Der Name darf nicht länger als 40 Zeichen sein.',

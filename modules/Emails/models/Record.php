@@ -9,6 +9,7 @@
  *************************************************************************************/
 
 class Emails_Record_Model extends Vtiger_Record_Model {
+	public $fromAddress = '';
 
 	/**
 	 * Function to get the Detail View url for the record
@@ -57,8 +58,18 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 		$mailer->IsHTML(true);
 
 		$fromEmail = $this->getFromEmailAddress();
-		$replyTo = $currentUserModel->get('email1');
+		if (empty($fromEmail)) {
+			$replyTo = $currentUserModel->get('email1');
+		}
+		else {
+			$replyTo = $fromEmail;
+		}
 		$userName = $currentUserModel->getName();
+		// do not use user's name if from was set on purpose
+		// TO ADD: use given name instead
+		if (!empty($this->fromAddress)) {
+			$userName = '';
+		}
 
 		// To eliminate the empty value of an array
 		$toEmailInfo = array_filter($this->get('toemailinfo'));
@@ -149,46 +160,45 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 				$description = str_replace('$logo$',"<img src='cid:logo' />", $description);
 				$logo = true;
 			}
-
-			foreach($emails as $email) {
-				$mailer->msgHTML('');
-				// if ($parentModule) {
-					// $mailer->Body = $this->getTrackImageDetails($id, $this->isEmailTrackEnabled());
-				// }
-				$mailer->msgHTML($mailer->Body.$description);
-
-                // create non-html alternative body
-                $mailer->AltBody = decode_html(strip_tags(preg_replace(array("/<p>/i","/<br>/i","/<br \/>/i"),array("\n","\n","\n"),$mailer->Body)));
-				$mailer->Subject = $subject;
-				$mailer->AddAddress($email);
-
-				//Adding attachments to mail
-				if(is_array($attachments)) {
-					foreach($attachments as $attachment) {
-						$fileNameWithPath = $rootDirectory.$attachment['path'].$attachment['fileid']."_".$attachment['attachment'];
-						if(is_file($fileNameWithPath)) {
-							$mailer->AddAttachment($fileNameWithPath, $attachment['attachment']);
-						}
-					}
-				}
-				if ($logo) {
-					//While sending email template and which has '$logo$' then it should replace with company logo
-					$mailer->AddEmbeddedImage(dirname(__FILE__).'/../../../layouts/vlayout/skins/images/logo_mail.jpg', 'logo', 'logo.jpg', 'base64', 'image/jpg');
-				}
-
-				$ccs = array_filter(explode(',',$this->get('ccmail')));
-				$bccs = array_filter(explode(',',$this->get('bccmail')));
-
-				if(!empty($ccs)) {
-					foreach($ccs as $cc) $mailer->AddCC($cc);
-				}
-				if(!empty($bccs)) {
-					foreach($bccs as $bcc) $mailer->AddBCC($bcc);
-				}
-			}
-
 			$errorMsg = 1;
 			try {
+				foreach($emails as $email) {
+					$mailer->msgHTML('');
+					// if ($parentModule) {
+						// $mailer->Body = $this->getTrackImageDetails($id, $this->isEmailTrackEnabled());
+					// }
+					$mailer->msgHTML($mailer->Body.$description);
+
+					// create non-html alternative body
+					$mailer->AltBody = decode_html(strip_tags(preg_replace(array("/<p>/i","/<br>/i","/<br \/>/i"),array("\n","\n","\n"),$mailer->Body)));
+					$mailer->Subject = $subject;
+					$mailer->AddAddress($email);
+
+					//Adding attachments to mail
+					if(is_array($attachments)) {
+						foreach($attachments as $attachment) {
+							$fileNameWithPath = $rootDirectory.$attachment['path'].$attachment['fileid']."_".$attachment['attachment'];
+							if(is_file($fileNameWithPath)) {
+								$mailer->AddAttachment($fileNameWithPath, $attachment['attachment']);
+							}
+						}
+					}
+					if ($logo) {
+						//While sending email template and which has '$logo$' then it should replace with company logo
+						$mailer->AddEmbeddedImage(dirname(__FILE__).'/../../../layouts/vlayout/skins/images/logo_mail.jpg', 'logo', 'logo.jpg', 'base64', 'image/jpg');
+					}
+
+					$ccs = array_filter(explode(',',$this->get('ccmail')));
+					$bccs = array_filter(explode(',',$this->get('bccmail')));
+
+					if(!empty($ccs)) {
+						foreach($ccs as $cc) $mailer->AddCC($cc);
+					}
+					if(!empty($bccs)) {
+						foreach($bccs as $bcc) $mailer->AddBCC($bcc);
+					}
+				}
+
 				$status = $mailer->Send(true);
 			} catch (Exception $e) {
 				$errorMsg = $e->getMessage();
@@ -245,6 +255,9 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 		$result = $db->pquery('SELECT from_email_field FROM vtiger_systems WHERE server_type=?', array('email'));
 		if ($db->num_rows($result)) {
 			$fromEmail = decode_html($db->query_result($result, 0, 'from_email_field'));
+		}
+		if (isset($this->fromAddress) && !empty($this->fromAddress) && empty($fromEmail)) {
+			$fromEmail = $this->fromAddress;
 		}
 		if (empty($fromEmail)) $fromEmail = $currentUserModel->get('email1');
 		return $fromEmail;
