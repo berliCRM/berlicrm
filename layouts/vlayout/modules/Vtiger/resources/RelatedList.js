@@ -70,6 +70,7 @@ jQuery.Class("Vtiger_RelatedList_Js",{},{
 				// Let listeners know about page state change.
 				app.notifyPostAjaxReady();
 				app.showSelect2ElementView(jQuery('#detailView').find('select.select2'));
+				Vtiger_Detail_Js.getInstance().registerPreviewEvent();
 			},
 			
 			function(textStatus, errorThrown){
