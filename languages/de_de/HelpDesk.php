@@ -82,6 +82,7 @@ $languageStrings = array(
 	'Update History' => 'Update Historie',
 	'Urgent'=>'dringend',
 	'Wait For Response'=>'warte auf Zuarbeit',
+	'Owner' => 'Besitzer',
 );
 
 $jsLanguageStrings = array(
