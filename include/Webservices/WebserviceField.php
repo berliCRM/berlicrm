@@ -281,6 +281,10 @@ class WebserviceField{
 				$referenceTypes[] = 'Campaigns';
 			}
 
+			if ($this->tabid == getTabid('HelpDesk') && $this->fieldName == 'parent_id') {
+				$referenceTypes[] = 'HelpDesk';
+			}
+
 			global $current_user;
 			$types = vtws_listtypes(null, $current_user);
 			$accessibleTypes = $types['types'];

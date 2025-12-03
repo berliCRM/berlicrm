@@ -291,7 +291,7 @@
 				$conditions = Zend_Json::decode($workflowModel->test);
 				if (is_array($conditions)) {
 					foreach ($conditions as $key => $conditionInfo) {
-						if ($conditionInfo['fieldname'] === '_VT_add_comment') {
+						if ($conditionInfo->fieldname === '_VT_add_comment') {
 							unset($conditions[$key]);
 							$workflowModel->test = Zend_Json::encode($conditions);
 							$commentSupportedWorkflowModels[$workflowId] = $workflowModel;
