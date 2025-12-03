@@ -116,16 +116,20 @@
 					</span>
 					<span class="span9">
 						<span class="row-fluid">
-							{foreach item=ATTACHMENT_DETAILS  from=$RECORD->getAttachmentDetails()}
-                                <a &nbsp; 
-                                    {if array_key_exists('docid',$ATTACHMENT_DETAILS)} 
-                                        &nbsp; href="index.php?module=Documents&action=DownloadFile&record={$ATTACHMENT_DETAILS['docid']} 
-                                                &fileid={$ATTACHMENT_DETAILS['fileid']}" 
-                                    {else} 
-                                        &nbsp; href="index.php?module=Emails&action=DownloadFile&attachment_id={$ATTACHMENT_DETAILS['fileid']}" 
-                                {/if}
-                                
-                                        >{$ATTACHMENT_DETAILS['attachment']}</a>&nbsp;&nbsp; 
+							{foreach item=ATTACHMENT_DETAILS from=$RECORD->getAttachmentDetails()}
+								{if array_key_exists('docid',$ATTACHMENT_DETAILS)}
+									{assign var=PDFURL value="index.php?module=Documents&action=DownloadFile&record=`$ATTACHMENT_DETAILS.docid`&fileid=`$ATTACHMENT_DETAILS.fileid`"}
+								{else}
+									{assign var=PDFURL value="index.php?module=Emails&action=DownloadFile&attachment_id=`$ATTACHMENT_DETAILS.fileid`"}
+								{/if}
+
+								<a class="pdf-link"
+								href="{$PDFURL}"
+								data-pdf-preview="{$PDFURL}"
+								style="cursor:pointer;">
+									{$ATTACHMENT_DETAILS['attachment']}
+								</a>
+								&nbsp;&nbsp;
 							{/foreach}
 						</span>
 					</span>
