@@ -196,6 +196,10 @@ class CRMEntity {
 			$result = $adb->pquery($sql2, $params2);
 
 			if ($_REQUEST['mode'] == 'edit') {
+				$attachmentRow = Vtiger_Functions::getAttachmentInfo($id);
+				if($attachmentRow) {
+					Vtiger_Functions::deleteAttachment($attachmentRow);
+				}
 				if ($id != '' && vtlib_purify($_REQUEST['fileid']) != '') {
 					$delquery = 'delete from vtiger_seattachmentsrel where crmid = ? and attachmentsid = ?';
 					$delparams = array($id, vtlib_purify($_REQUEST['fileid']));
@@ -2948,11 +2952,12 @@ class CRMEntity {
     }
 	
 	function get_emails($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		$query = "SELECT vtiger_activity.*, vtiger_activitycf.*, vtiger_crmentity.*, vtiger_seactivityrel.crmid AS parent_id
+		$query = "SELECT vtiger_activity.*, vtiger_activitycf.*, vtiger_crmentity.*, vtiger_seactivityrel.crmid AS parent_id, vtiger_emaildetails.*
 				  FROM vtiger_activity
 				  INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_activity.activityid
 				  LEFT JOIN vtiger_activitycf ON vtiger_activitycf.activityid = vtiger_activity.activityid
 				  INNER JOIN vtiger_seactivityrel ON vtiger_seactivityrel.activityid = vtiger_activity.activityid
+				  LEFT JOIN vtiger_emaildetails ON vtiger_emaildetails.emailid = vtiger_crmentity.crmid
 				  WHERE vtiger_crmentity.deleted = 0 AND vtiger_seactivityrel.crmid = '$id' AND vtiger_activity.activitytype = 'Emails'";
 
 		return array('query' => $query);
