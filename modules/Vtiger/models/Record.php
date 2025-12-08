@@ -451,7 +451,7 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 					if (empty($searchAll) && empty($moduleName)) {
 						$searchQuery = "SELECT crmid FROM vtiger_crmentity
 										LEFT JOIN berli_globalsearch_data ON berli_globalsearch_data.gscrmid = vtiger_crmentity.crmid
-										WHERE vtiger_crmentity.setype = ? AND (vtiger_crmentity.label LIKE ? OR berli_globalsearch_data.searchlabel LIKE ?)";
+										WHERE vtiger_crmentity.deleted = 0 AND vtiger_crmentity.setype = ? AND (vtiger_crmentity.label LIKE ? OR berli_globalsearch_data.searchlabel LIKE ?)";
 						$searchRes = $adb->pquery($searchQuery, array($iModuleName, "%{$searchKey}%", "%{$searchKey}%"));
 					} else {
 						$queryGenerator = new QueryGenerator($iModuleName, $currentUserModel);
@@ -490,7 +490,11 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 						while ($searchRow = $adb->getNextRow($searchRes, false)) {
 							// we only got one field, id, so we don't have to lookup it's fieldname
 							$crmId = $searchRow[0];
-							$recordModel = Vtiger_Record_Model::getInstanceById($crmId, $iModuleName);
+							// catch converted Leads this way
+							try {
+								$recordModel = Vtiger_Record_Model::getInstanceById($crmId, $iModuleName);
+							} catch (Exception $e) {
+							}
 							$matchingRecords[$iModuleName][] = $recordModel;
 						}
 					}
