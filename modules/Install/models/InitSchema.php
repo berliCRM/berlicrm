@@ -899,6 +899,7 @@ class Install_InitSchema_Model
         //
         
 		self::addUITypes();
+		self::addNewWebservices();
 
         //last step, set info this system was installed
         $path = Install_Utils_Model::INSTALL_FINISHED;
@@ -1247,5 +1248,19 @@ class Install_InitSchema_Model
 			}
 		}
 	}
-
+	
+	private static function addNewWebservices() {
+		global $adb;
+		
+		$query = "SELECT * FROM vtiger_ws_operation WHERE name = ?;";
+		
+		$wsName = 'get_new_multi_relations';
+		$res = $adb->pquery($query, array($wsName));
+		if ($res && $adb->num_rows($res) == 0) {
+			// add new webservice operation get_new_multi_relations
+			$operationId = vtws_addWebserviceOperation($wsName, 'include/Webservices/Custom/getNewMultiRelations.php', 'berli_get_new_multi_relations', 'GET', '0');
+			vtws_addWebserviceOperationParam($operationId, 'id', 'string', '1');
+			vtws_addWebserviceOperationParam($operationId, 'relModule', 'string', '2');
+		}
+	}
 }
