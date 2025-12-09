@@ -1269,6 +1269,9 @@ function isComposerUsed(string $projectPath = __DIR__): bool
 
 echo "end";
 
+echo 'Adding UITypes for new fields<br>';
+require_once('modules/Install/models/InitSchema.php');
+Install_InitSchema_Model::addUITypes();
 
 //// Rev 25666 von 2025.11.26
 echo 'Adding Fields...<br>';#
@@ -1388,3 +1391,4 @@ echo "Fields added.<br><br>";
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
 $adb->pquery($query, array($current_release_tag));
 echo "<h2>Finished updating to $current_release_tag!</h2>";
+
