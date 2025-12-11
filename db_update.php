@@ -603,7 +603,7 @@ else{
 
 // module update standard if module exist.
 $moduleToUpdateArr = array('Pdfsettings', 'Projects', 'EmailTemplates', 'berlimap', 'MailManager', 
-	'Mailchimp', 'SMSNotifier', 'crmtogo', 'ServiceContracts' 
+	'Mailchimp', 'SMSNotifier', 'crmtogo', 'ServiceContracts', 'ModComments'
 );
 foreach($moduleToUpdateArr as $moduleToUpdate){
 	if( Vtiger_Module::getInstance($moduleToUpdate) ){
