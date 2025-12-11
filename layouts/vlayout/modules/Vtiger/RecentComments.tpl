@@ -49,7 +49,11 @@
 		<div class="commentsBody">
 			{if !empty($COMMENTS)}
 				{foreach key=index item=COMMENT from=$COMMENTS}
-					<div class="commentDetails">
+					{assign var=COMMENT_TYPE value=$COMMENT->getCommentType()}
+					{if !isset($COMMENTS_COLORS) || empty($COMMENTS_COLORS)}
+						{$COMMENTS_COLORS = ['customer' => 'red', 'outgoing' => 'green', 'internal' => 'yellow']}
+					{/if}
+					<div class="commentDetails" style="border: 1px solid {if isset($COMMENTS_COLORS[$COMMENT_TYPE])}{$COMMENTS_COLORS[$COMMENT_TYPE]}{/if};">
 						<div class="commentDiv">
 							<div class="singleComment">
 								<div class="commentInfoHeader row-fluid" data-commentid="{$COMMENT->getId()}"
