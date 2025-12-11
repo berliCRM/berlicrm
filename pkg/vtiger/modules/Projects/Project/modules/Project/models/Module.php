@@ -24,13 +24,11 @@ class Project_Module_Model extends Vtiger_Module_Model {
 		);
 
 		if(vtlib_isModuleActive('ProjectMilestone') === true) {
-			$quickLinks= array_merge($quickLinks, 
-				array(
+			$quickLinks[] = array(
 					'linktype' => 'SIDEBARLINK',
 					'linklabel' => 'LBL_MILESTONES_LIST',
 					'linkurl' => $this->getMilestonesListUrl(),
 					'linkicon' => '',
-					)
 					);
 			}
 		foreach($quickLinks as $quickLink) {

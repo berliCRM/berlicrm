@@ -4,7 +4,7 @@
 <name>Project</name>
 <label>Project</label>
 <parent>Support</parent>
-<version>3.6</version>
+<version>3.7</version>
 <dependencies>
 <vtiger_version>6.5.0</vtiger_version>
 </dependencies>
