@@ -128,8 +128,9 @@ class CRMEntity {
 
 		//to get the owner id
 		$ownerid = $this->column_fields['assigned_user_id'];
-		if (!isset($ownerid) || $ownerid == '')
-			$ownerid = $current_user->id;
+		if (!isset($ownerid) || $ownerid == ''){
+            $ownerid = $current_user->id;
+        }
 
 		if (isset($file_details['original_name']) && $file_details['original_name'] != null) {
 			$file_name = $file_details['original_name'];
@@ -161,6 +162,13 @@ class CRMEntity {
 			$save_file = validateImageFile($file_details);
 		}
 
+        // set new filename for the updated file
+        $filenamenew = $this->column_fields["filename"];
+        if(!empty($filenamenew)){
+            $file_name = $filenamenew;
+        }
+    	
+		// set filename without spezial chars.
 		$binFile = sanitizeUploadFileName($file_name, $upload_badext);
 
 		$current_id = $adb->getUniqueID("vtiger_crmentity");
