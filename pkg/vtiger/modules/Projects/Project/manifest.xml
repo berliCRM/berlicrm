@@ -4,7 +4,7 @@
 <name>Project</name>
 <label>Project</label>
 <parent>Support</parent>
-<version>3.5</version>
+<version>3.7</version>
 <dependencies>
 <vtiger_version>6.5.0</vtiger_version>
 </dependencies>
@@ -556,7 +556,7 @@
 <customlinks>
 <customlink>
 <linktype>DETAILVIEWBASIC</linktype>
-<linklabel>LBL_ADD_TASK_RECORD</linklabel>
+<linklabel>Add Project Task</linklabel>
 <linkurl><![CDATA[index.php?module=ProjectTask&action=EditView&projectid=$RECORD$&return_module=Project&return_action=DetailView&return_id=$RECORD$]]></linkurl>
 <linkicon><![CDATA[]]></linkicon>
 <sequence>0</sequence>
