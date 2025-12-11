@@ -24,4 +24,10 @@ include('config.inc.php');
 global $set_utf8_special_chars_to_empty_string;
 $set_utf8_special_chars_to_empty_string = false;
 
-?>
+// settings for border color of ModComments
+global $modCommentsColors;
+$modCommentsColors = array(
+			'customer' => 'red',
+			'outgoing' => 'green',
+			'internal' => 'yellow'
+			);

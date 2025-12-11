@@ -401,6 +401,8 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		$viewer->assign('MODULE_NAME', $moduleName);
 		$viewer->assign('PAGING_MODEL', $pagingModel);
 		$viewer->assign('COMMENTS_MODULE_MODEL', $modCommentsModel);
+		global $modCommentsColors;
+		$viewer->assign('COMMENTS_COLORS', $modCommentsColors);
 
 		return $viewer->view('RecentComments.tpl', $moduleName, 'true');
 	}
@@ -481,6 +483,8 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		$viewer->assign('COMMENTS_MODULE_MODEL', $modCommentsModel);
 		$viewer->assign('PARENT_COMMENTS', $parentCommentModels);
 		$viewer->assign('CURRENT_COMMENT', $currentCommentModel);
+		global $modCommentsColors;
+		$viewer->assign('COMMENTS_COLORS', $modCommentsColors);
 
 		return $viewer->view('ShowAllComments.tpl', $moduleName, 'true');
 	}

@@ -10,7 +10,11 @@
  ********************************************************************************/
 -->*}
 {strip}
-	<div class="commentDiv">
+	{assign var=COMMENT_TYPE value=$COMMENT->getCommentType()}
+	{if !isset($COMMENTS_COLORS) || empty($COMMENTS_COLORS)}
+		{$COMMENTS_COLORS = ['customer' => 'red', 'outgoing' => 'green', 'internal' => 'yellow']}
+	{/if}
+	<div class="commentDiv" style="border: 1px solid {if isset($COMMENTS_COLORS[$COMMENT_TYPE])}{$COMMENTS_COLORS[$COMMENT_TYPE]}{/if};">
 		<div class="singleComment">
 			<div class="commentInfoHeader row-fluid" data-commentid="{$COMMENT->getId()}"
 				data-parentcommentid="{$COMMENT->get('parent_comments')}">
