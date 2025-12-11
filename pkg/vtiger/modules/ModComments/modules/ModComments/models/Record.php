@@ -39,10 +39,10 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 
 	public function getImagePath() {
 		$commentor = $this->getCommentedByModel();
-		if($commentor && isRecordExists($customer)) {
+		if($commentor) {
 			$customer = $this->get('customer');
             $isMailConverterType = $this->get('from_mailconverter');
-			if (!empty($customer) && $isMailConverterType != 1) {
+			if (!empty($customer) && isRecordExists($customer) && $isMailConverterType != 1) {
                 $recordModel = Vtiger_Record_Model::getInstanceById($customer);
                 $imageDetails = $recordModel->getImageDetails();
                 if(!empty($imageDetails)) {
@@ -340,5 +340,30 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 		} else {
 			return null;
 		}
+	}
+	
+	public function getCommentType() {
+		$adb = PearDatabase::getInstance();
+		
+		$query = "SELECT * FROM vtiger_modcomments
+				  LEFT JOIN vtiger_modcommentsscope ON vtiger_modcommentsscope.modcommentsid = vtiger_modcomments.modcommentsid
+				  WHERE vtiger_modcomments.modcommentsid = ?;";
+		$result = $adb->pquery($query, array($this->getId()));
+		
+		$type = 'unknown';
+		if ($result && $adb->num_rows($result) > 0) {
+			$row = $adb->getNextRow($result);
+			$customerId = $row['customer'];
+			$userId = $row['userid'];
+			$mailTo = $row['mailto'];
+			if (!empty($customerId)) {
+				$type = 'customer';
+			} elseif (!empty($mailTo)) {
+				$type = 'outgoing';
+			} elseif (!empty($userId)) {
+				$type = 'internal';
+			}
+		}
+		return $type;
 	}
 }
