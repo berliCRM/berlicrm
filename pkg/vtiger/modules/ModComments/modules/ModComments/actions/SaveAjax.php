@@ -94,7 +94,7 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 
 	public function sendMail(Vtiger_Request $request, Vtiger_Record_Model $recordModel)
 	{
-		global $site_URL, $HELPDESK_SUPPORT_EMAIL_ID;
+		global $site_URL, $HELPDESK_SUPPORT_EMAIL_ID, $HELPDESK_COMMENTS_EMAIL_SUBJECT;
 		$email = '';
 		$relatedId = $recordModel->get('related_to');
 		$relatedRecordModel = Vtiger_Record_Model::getInstanceById($relatedId);
@@ -115,10 +115,17 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 			$parent_id = $relatedRecordModel->get('parent_id');
 		}
 
-		$subject = $relatedRecordModel->get('ticket_no') . ' [ Ticket Id : ' . $relatedRecordModel->getId() . ' ] ' . $relatedRecordModel->getName();
+		// get subject of outgoing email from config.inc.php if set/exists there
+		$theTicketNo = $relatedRecordModel->get('ticket_no');
+		$theTicketId = $relatedRecordModel->getId();
+		$theTicketName = $relatedRecordModel->getName();
+		if(empty($HELPDESK_COMMENTS_EMAIL_SUBJECT)) {
+			$HELPDESK_COMMENTS_EMAIL_SUBJECT = '{ticket_no} [ Ticket Id : {ticket_id} ] {ticket_subject}';
+		}
+		$subject= str_replace(['{ticket_no}', '{ticket_id}', '{ticket_subject}'], [$theTicketNo, $theTicketId, $theTicketName], $HELPDESK_COMMENTS_EMAIL_SUBJECT);
 
 		$contents = '<h4>Ihr Vorgang hat einen neuen Kommentar / Your ticket has a new comment:</h4>';
-		$contents .= nl2br($recordModel->get('commentcontent'));
+		$contents .= nl2br((string)$recordModel->get('commentcontent')); // cast to string to avoid null warning
 		$contents .= '<br><br>----------------------------------------------------------------------------------------------------';
 
 		$contents .= '<h4>Ticket Details</h4>';
@@ -126,7 +133,7 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 		$contents .= '<b>Betreff / Subject:</b> ' . $relatedRecordModel->getName() . '<br>';
 		$contents .= '<b>Ticket Nr:</b> ' . $relatedRecordModel->get('ticket_no') . '<br>';
 		$contents .= '<b>Status:</b> ' . $relatedRecordModel->get('ticketstatus') . '<br>';
-		$contents .= '<b>Description / Beschreibung:</b><br>' . nl2br($relatedRecordModel->get('description')) . '<br>';
+		$contents .= '<b>Description / Beschreibung:</b><br>' . nl2br((string)$relatedRecordModel->get('description')) . '<br>';
 
 		$to = $email;
 		if(is_array($to)) {
