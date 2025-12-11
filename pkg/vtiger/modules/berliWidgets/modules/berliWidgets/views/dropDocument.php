@@ -70,11 +70,22 @@ class berliWidgets_dropDocument_View extends Vtiger_Detail_View {
 		//document number
 		$parentRecordId = $request->get('record');
 		$moduleName = $request->getModule();
+        $sourceModule = $request->get('source_module');
+        $parentModule = $request->get('parent');
+        $docType = $request->get('doctype');
 
+        $FIELD_MODEL = new Vtiger_Field_Model();
+		$folders = $FIELD_MODEL->getDocumentFolders();
+
+        
 		$viewer = $this->getViewer($request);
  		$viewer->assign('SCRIPTS',$this->getHeaderScripts($request));
         $viewer->assign('RECORDID', $parentRecordId);
         $viewer->assign('MODULE', $moduleName);
+        $viewer->assign('PARENTMODULE', $parentModule);
+        $viewer->assign('DOCUMENTFOLDERS', $folders);
+        $viewer->assign('DOCTYPE', $docType);
+
         $viewer->view('showDocumentDropMenu.tpl', 'berliWidgets');
     }
 
