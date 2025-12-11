@@ -1888,7 +1888,7 @@ function _phpset_memorylimit_MB($newvalue)
  */
 function sanitizeUploadFileName($fileName, $badFileExtensions)
 {
-
+    $fileName = sanitizeFilename($fileName);
     $fileName = preg_replace('/\s+/', '_', iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $fileName)); //replace space with _ in filename
     $fileName = rtrim($fileName, '\\/<>?*:"<>|');
 
@@ -1913,6 +1913,61 @@ function sanitizeUploadFileName($fileName, $badFileExtensions)
         $newFileName .= ".txt";
     }
     return $newFileName;
+}
+
+/**
+ * Sanitizes a string to create a safe filename by replacing invalid characters,
+ * removing control characters, reducing multiple underscores, and handling reserved names.
+ *
+ * @param string $filename The input string to be sanitized.
+ * @return string The sanitized filename, safe for file creation.
+ */
+function sanitizeFilename($filename) {
+
+    // transform characters to be conform
+    $transformtoArr = [
+        'ä'=>'ae', 'ö'=>'oe', 'ü'=>'ue', 'ß'=>'ss',
+        'Ä'=>'Ae', 'Ö'=>'Oe', 'Ü'=>'Ue',
+        'é'=>'e', 'è'=>'e', 'ê'=>'e', 'ë'=>'e',
+        'á'=>'a', 'à'=>'a', 'â'=>'a', 'ã'=>'a',
+
+    ];
+    $filename = strtr($filename, $transformtoArr);
+
+    // List of invalid characters to be replaced or removed
+    $invalidChars = ['\\', '/', ':', '*', '?', '"', '<', '>', '|', "\0"];
+    
+    // Replace invalid characters with an underscore
+    $filename = str_replace($invalidChars, '_', $filename);
+    
+    // Replace multiple spaces with a single underscore
+    $filename = preg_replace('/\s+/', '_', $filename);
+    
+    // Remove non-printable control characters
+    $filename = preg_replace('/[[:cntrl:]]/', '', $filename);
+    
+    // Trim leading and trailing dots
+    $filename = trim($filename, '.');
+    
+    // Reduce multiple underscores to a single underscore
+    $filename = preg_replace('/_+/', '_', $filename);
+    
+    // Ensure the filename is not empty
+    if (empty($filename)) {
+        // default_filename
+        $filename = 'org';
+    }
+    
+    // Limit filename length to 255 characters
+    $filename = substr($filename, 0, 255);
+    
+    // Check for reserved names (Windows-specific)
+    $reservedNames = ['CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'];
+    if (in_array(strtoupper($filename), $reservedNames)) {
+        $filename = 'file_' . $filename;
+    }
+    
+    return $filename;
 }
 
 /** Function to get the tab meta information for a given id
