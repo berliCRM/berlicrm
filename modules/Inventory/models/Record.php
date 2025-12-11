@@ -169,12 +169,14 @@ class Inventory_Record_Model extends Vtiger_Record_Model {
 	 * Function to get URL for Export the record as PDF
 	 * @return <type>
 	 */
-	public function getExportPDFUrl() {
-		if (!empty($printSn)) {
-				$printSn = '&printsn='.$printSn;
-		}
-		return "index.php?module=".$this->getModuleName()."&action=ExportPDF&record=".$this->getId();
-	}
+    public function getExportPDFUrl(string $printSn = '')
+    {
+        if (!empty($printSn)) {
+            $printSn = '&printsn='.$printSn;
+        }
+        return "index.php?module=".$this->getModuleName()."&action=ExportPDF".$printSn."&record=".$this->getId();
+    }
+
 	/**
 	 * Function to get URL for Export the record as PDF
 	 * @return <type>
