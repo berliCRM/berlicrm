@@ -45,12 +45,12 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     // try to auto-set $qr_feature if not already set in config.inc.php
     if (!isset($qr_feature)) {
         /*
-                                                                                                                          if (is_dir('vendor/sprain/swiss-qr-bill')) {
-                                                                                                                              $qr_feature = true;
-                                                                                                                          } else {
-                                                                                                                              $qr_feature = false;
-                                                                                                                          }
-                                                                                                                          */
+        if (is_dir('vendor/sprain/swiss-qr-bill')) {
+            $qr_feature = true;
+        } else {
+            $qr_feature = false;
+        }
+        */
         $qr_feature = false;
     }
 
@@ -116,11 +116,12 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     $focus = new Invoice();
     $focus->retrieve_entity_info($id, "Invoice");
     // get several values from the account: account name, buyer reference, account number
-    $sql = "select accountname, buyerreference, account_no from  vtiger_account where accountid= ?";
+    $sql = "select accountname, buyerreference, account_no, siccode from  vtiger_account where accountid= ?";
     $acc_result = $adb->pquery($sql, array($focus->column_fields['account_id']));
     $account_name = decode_html($adb->query_result($acc_result, 0, 'accountname'));
     $buyer_reference = decode_html($adb->query_result($acc_result, 0, 'buyerreference'));
     $account_no = decode_html($adb->query_result($acc_result, 0, 'account_no'));
+    $siccode = decode_html($adb->query_result($acc_result, 0, 'siccode'));
 
     $invoice_no = $focus->column_fields['invoice_no'];
     //set currency format
@@ -365,7 +366,6 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         $group_tax_total = $final_details['tax_totalamount'];
         $price_salestax = $group_tax_total;
         $price_salestax_formated = number_format($price_salestax, $decimal_precision, $decimals_separator, $thousands_separator);
-
         $group_total_tax_percent = '0.00';
         $group_tax_details = $final_details['taxes'];
         for ($i = 0; $i < count($group_tax_details); $i++) {
@@ -444,30 +444,45 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
             ->setDocumentBuyer($account_name, $account_no)
             ->setDocumentBuyerReference($buyer_reference)
             ->setDocumentBuyerAddress($bill_street, "", "", $bill_code, $bill_city, $bill_country_iso)
-            ->addDocumentTax("S", "VAT", $price_subtotal, ($price_total - $price_subtotal), number_format($group_total_tax_percent, 0), null, null, $price_subtotal)
+            // ->addDocumentTax("S", "VAT", $price_subtotal, ($price_total - $price_subtotal), number_format($group_total_tax_percent, 0), null, null, $price_subtotal)
             ->setDocumentSummation($price_total, $price_total - $invoice_received, $price_subtotal, 0.0, 0.0, $price_subtotal, ($price_total - $price_subtotal), null, $invoice_received)
             ->addDocumentPaymentMean(horstoeko\zugferd\codelists\ZugferdPaymentMeans::UNTDID_4461_58, null, null, null, null, null, $bank_iban, null, null, null);
         // ->addDocumentPaymentTerm($description);
 
+        // file_put_contents('logs/ep4812.log', sprintf('Taxes: %s %s %s', $price_total, $price_subtotal, $group_total_tax_percent) . PHP_EOL, FILE_APPEND);
     }
-    //This is to get all prodcut details as row basis
+
+    // 
+    // * This is the loop to get all prodcut details (line items) as row basis
+    // 
+    // file_put_contents('logs/ep4812.log', print_r($associated_products, true), FILE_APPEND);
+
     for ($i = 1, $j = $i - 1; $i <= $num_products; $i++, $j++) {
-        $product_code[$i] = $associated_products[$i]['hdnProductcode' . $i];
-        $product_name[$i] = decode_html($associated_products[$i]['productName' . $i]);
-        $prod_description[$i] = decode_html($associated_products[$i]['productDescription' . $i]);
-        $qty[$i] = $associated_products[$i]['qty' . $i];
-        $qty_formated[$i] = number_format($associated_products[$i]['qty' . $i], $decimal_precision, $decimals_separator, $thousands_separator);
-        $comment[$i] = decode_html($associated_products[$i]['comment' . $i]);
-        $unit_price[$i] = number_format($associated_products[$i]['unitPrice' . $i], $decimal_precision, $decimals_separator, $thousands_separator);
-        $list_price[$i] = number_format($associated_products[$i]['listPrice' . $i], $decimal_precision, $decimals_separator, $thousands_separator);
-        $list_pricet[$i] = $associated_products[$i]['listPrice' . $i];
+
+        $product_code[$i] = $associated_products[$i]['hdnProductcode' . $i];                        // file product codes array
+        $product_name[$i] = decode_html($associated_products[$i]['productName' . $i]);              // file products name array
+        $prod_description[$i] = decode_html($associated_products[$i]['productDescription' . $i]);   // file products description array
+        $qty[$i] = $associated_products[$i]['qty' . $i];                                            // file products quantity array        
+        $qty_formated[$i] = number_format((float) $associated_products[$i]['qty' . $i], $decimal_precision, $decimals_separator, $thousands_separator);
+        $comment[$i] = decode_html($associated_products[$i]['comment' . $i]);                       // file products comment array
+        $unit_price[$i] = number_format((float)$associated_products[$i]['unitPrice' . $i], $decimal_precision, $decimals_separator, $thousands_separator);
+        $list_price[$i] = number_format((float)$associated_products[$i]['listPrice' . $i], $decimal_precision, $decimals_separator, $thousands_separator);
+        $list_pricet[$i] = $associated_products[$i]['listPrice' . $i];                              // to calculate taxable total
         $discount_total[$i] = $associated_products[$i]['discountTotal' . $i];
-        $discount_totalformated[$i] = number_format($associated_products[$i]['discountTotal' . $i], $decimal_precision, $decimals_separator, $thousands_separator);
+        $discount_totalformated[$i] = number_format((float)$discount_total[$i], $decimal_precision, $decimals_separator, $thousands_separator);
+
         //added by crm-now
         $usageunit[$i] = $associated_products[$i]['usageunit' . $i];
         //look whether the entry already exists, if the translated string is available then the translated string other wise original string will be returned
         $usageunit[$i] = getTranslatedString($usageunit[$i], 'Products');
-        $taxable_total = $qty[$i] * $list_pricet[$i] - $discount_total[$i];
+        $taxable_total = floatval($qty[$i]) * floatval($list_pricet[$i]) - floatval($discount_total[$i]);
+        
+        $thisItemTaxPercent = '0.00';
+        foreach( $associated_products[$i]['taxes'] as $key => $value) {
+            $thisItemTaxPercent += $value['percentage'];
+        }
+        $allItemsTaxTotal += ($taxable_total * $thisItemTaxPercent) / 100;
+
         //get subproducts if exists
         if (!empty($associated_products[$i]['subProductArray' . $i])) {
             $subProductArray[$i] = $associated_products[$i]['subProductArray' . $i];
@@ -565,17 +580,38 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         $product_line[$j][$pdf_strings['LineTotal']] = $prod_total[$i];
 
         if ($eInvoice) {
+
+            $unitDiscountBT147 = (float)$associated_products[$i]['discountTotal' . $i];
+            $unitPriceNetBT146= (float) sprintf('%.2f', (float)$associated_products[$i]['listPrice' . $i] - $unitDiscountBT147);
+
             $eInvoiceDocument
                 ->addNewPosition($i)
                 ->setDocumentPositionNote($product_name_long[$i])
-                ->setDocumentPositionProductDetails($product_name[$i], "", $product_code[$i])
-                ->setDocumentPositionNetPrice((float) sprintf('%.2f', $associated_products[$i]['listPrice' . $i] - $associated_products[$i]['discountTotal' . $i]))
+                ->setDocumentPositionProductDetails($product_name[$i], "", (string)$product_code[$i])
+                ->setDocumentPositionGrossPrice((float)$associated_products[$i]['listPrice' . $i])       // list price (gross) BT-148
+                ->setDocumentPositionNetPrice($unitPriceNetBT146) // Unit price (net) BT-146
+                ->addDocumentPositionGrossPriceAllowanceCharge($unitDiscountBT147, false)    // Discount (net) BT-147:        
                 ->setDocumentPositionQuantity((float) $qty_formated[$i], "H87")
-                ->addDocumentPositionTax('S', 'VAT', number_format($group_total_tax_percent, 0))
-                ->setDocumentPositionLineSummation((float) $producttotal);
+                ->addDocumentPositionTax('S', 'VAT', number_format($thisItemTaxPercent, 0))
+                ->setDocumentPositionLineSummation((float) $qty_formated[$i] * $unitPriceNetBT146);
+                // ->setDocumentPositionLineSummation((float) $producttotal);
             // ->setDocumentPositionLineSummation((float) $prod_total[$i]);
         }
+    } // * end of line items loop
+
+    if ($eInvoice) {
+
+        if ($final_details['taxtype'] == 'group') {
+            $eInvoiceDocument
+                ->addDocumentTax("S", "VAT", $price_subtotal, ($price_total - $price_subtotal), number_format($group_total_tax_percent, 0), null, null, $price_subtotal);
+        }
+        else {
+            $eInvoiceDocument
+                // ->addDocumentTax("S", "VAT", $price_subtotal, ($price_total - $price_subtotal), number_format($group_total_tax_percent, 0), null, null, $price_subtotal);
+                ->addDocumentTax("S", "VAT", $price_subtotal, $allItemsTaxTotal, ($allItemsTaxTotal > 0) ? 19.00 : 0, null, null, $price_subtotal);
+        }
     }
+
 
     //e-invoice export requested?
     if ($purpose == 'ExportXML') {
