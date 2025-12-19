@@ -2355,9 +2355,12 @@ jQuery.Class("Vtiger_Detail_Js",{
 			var commentInfoContent = commentInfoBlock.find('.commentInfoContent');
 			var commentReason = commentInfoBlock.find('[name="editReason"]');
             var externalComment = commentInfoBlock.find('[name="external"]').val();
+            const timeNeeded = commentInfoBlock.find('[name="timeNeeded"]').val();
+            console.log(timeNeeded);
 			var editCommentBlock = thisInstance.getEditCommentBlock();
 			editCommentBlock.find('.commentcontent').text(commentInfoContent.text());
 			editCommentBlock.find('[name="reasonToEdit"]').val(commentReason.text());
+            editCommentBlock.find('[name="timeNeeded"]').val(timeNeeded);
             if (externalComment == '1') {
                 editCommentBlock.find('[name="externalComment"]').prop('checked', true);
             } else {
