@@ -36,7 +36,8 @@
 <sql><![CDATA[CREATE TABLE `vtiger_modcommentsscope` (
   `modcommentsid` int(11) NOT NULL,
   `mailto` varchar(100) DEFAULT NULL,
-  `external` int(1) DEFAULT NULL
+  `external` int(1) DEFAULT NULL,
+  `timeneeded` time DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 </tables>

@@ -879,7 +879,8 @@ $languageStrings = array(
 	// Send Mail from ModComment
 	'LBL_SEND_MAIL_AND_POST' => 'Send Mail and Post',
 	'LBL_EXTERNAL_COMMENT' => 'External Comment',
-	'LBL_MAILTO'=> 'Mail to',
+	'LBL_MAILTO' => 'Mail to',
+    'LBL_TIME_NEEDED' => 'Benötigte Zeit',
 
 );
 

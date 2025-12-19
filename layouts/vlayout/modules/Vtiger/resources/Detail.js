@@ -376,6 +376,7 @@ jQuery.Class("Vtiger_Detail_Js",{
 				contentContainer.html(data);
 				thisInstance.registerPreviewEvent();
 				app.registerEventForTextAreaFields(jQuery(".commentcontent"))
+                app.registerEventForTimeFields();
 				contentContainer.trigger(thisInstance.widgetPostLoad,{'widgetName' : relatedModuleName})
                 aDeferred.resolve(params);
 			},
@@ -599,10 +600,12 @@ jQuery.Class("Vtiger_Detail_Js",{
 		var commentInfoHeader = closestCommentBlock.closest('.commentDetails').find('.commentInfoHeader');
 		var commentId = commentInfoHeader.data('commentid');
 		var parentCommentId = commentInfoHeader.data('parentcommentid');
+        const neededTime = closestCommentBlock.find('#timeNeeded').val();
 		var postData = {
 			'commentcontent' : 	commentContentValue,
 			'related_to': thisInstance.getRecordId(),
-			'module' : 'ModComments'
+			'module' : 'ModComments',
+            'neededTime' : neededTime,
 		}
 
 		if(commentMode == "edit"){
@@ -1422,11 +1425,11 @@ jQuery.Class("Vtiger_Detail_Js",{
 					element.progressIndicator({'mode' : 'hide'});
 					thisInstance.deSelectAllrelatedTabs();
 					thisInstance.loadWidgets();
-                                        thisInstance.registerEventForPicklistDependencySetup(thisInstance.getForm());
+                    thisInstance.registerEventForPicklistDependencySetup(thisInstance.getForm());
 
 					// Indicate the page content change
 					app.notifyPostAjaxReady();
-				}
+                }
 			);
 		});
 
