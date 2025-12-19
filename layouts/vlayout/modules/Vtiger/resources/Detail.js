@@ -600,11 +600,13 @@ jQuery.Class("Vtiger_Detail_Js",{
 		var commentInfoHeader = closestCommentBlock.closest('.commentDetails').find('.commentInfoHeader');
 		var commentId = commentInfoHeader.data('commentid');
 		var parentCommentId = commentInfoHeader.data('parentcommentid');
+        var external = closestCommentBlock.find('#externalComment').is(':checked');
         const neededTime = closestCommentBlock.find('#timeNeeded').val();
 		var postData = {
 			'commentcontent' : 	commentContentValue,
 			'related_to': thisInstance.getRecordId(),
 			'module' : 'ModComments',
+            'external': external,
             'neededTime' : neededTime,
 		}
 
@@ -617,6 +619,10 @@ jQuery.Class("Vtiger_Detail_Js",{
 		} else if(commentMode == "add"){
 			postData['parent_comments'] = commentId;
 			postData['action'] = 'SaveAjax';
+        } else if (commentMode == "sendMail") {
+            postData['parent_comments'] = commentId;
+            postData['action'] = 'SaveAjax';
+            postData['sendMail'] = true;
 		}
 		AppConnector.request(postData).then(
 			function(data){
@@ -2348,9 +2354,15 @@ jQuery.Class("Vtiger_Detail_Js",{
 			var commentInfoBlock = currentTarget.closest('.singleComment');
 			var commentInfoContent = commentInfoBlock.find('.commentInfoContent');
 			var commentReason = commentInfoBlock.find('[name="editReason"]');
+            var externalComment = commentInfoBlock.find('[name="external"]').val();
 			var editCommentBlock = thisInstance.getEditCommentBlock();
 			editCommentBlock.find('.commentcontent').text(commentInfoContent.text());
 			editCommentBlock.find('[name="reasonToEdit"]').val(commentReason.text());
+            if (externalComment == '1') {
+                editCommentBlock.find('[name="externalComment"]').prop('checked', true);
+            } else {
+                editCommentBlock.find('[name="externalComment"]').prop('checked', false);
+            }
 			commentInfoContent.hide();
 			commentInfoBlock.find('.commentActionsContainer').hide();
 			editCommentBlock.appendTo(commentInfoBlock).show();
