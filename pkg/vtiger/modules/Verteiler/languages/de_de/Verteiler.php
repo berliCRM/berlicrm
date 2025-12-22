@@ -61,7 +61,7 @@ Wenn Sie alle automatisch entfernen, bleibt der zuletzt hinzugefügte Kontakt au
     'LBL_EXPORT_BUTTON' => 'Exportieren',
 
     'LBL_CHECK_E-MAIL_HEADER' => 'E-Mail Überprüfung',
-    'LBL_CHECK_E-MAIL_DESCRIPTION' => 'Es wurden fehlerhafte E-Mail Adressen gefunden. Der Verteiler kann nur verwendet werden, wenn die E-Mail Adessen korrekt sind.',
+    'LBL_CHECK_E-MAIL_DESCRIPTION' => 'Es wurden fehlerhafte E-Mail Adressen gefunden. Der Verteiler kann nur verwendet werden, wenn die E-Mail Adressen korrekt sind.',
     'LBL_CHECK_E-MAIL_FALSE' => 'Fehlerhafte E-Mail Adressen:',
     'LBL_CHECK_E-MAIL_CLOSE' => 'Schließen',
 	'LBL_Check_E-MAIL' => 'Check E-Mail',
