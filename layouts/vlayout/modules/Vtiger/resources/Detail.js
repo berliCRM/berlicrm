@@ -2356,7 +2356,6 @@ jQuery.Class("Vtiger_Detail_Js",{
 			var commentReason = commentInfoBlock.find('[name="editReason"]');
             var externalComment = commentInfoBlock.find('[name="external"]').val();
             const timeNeeded = commentInfoBlock.find('[name="timeNeeded"]').val();
-            console.log(timeNeeded);
 			var editCommentBlock = thisInstance.getEditCommentBlock();
 			editCommentBlock.find('.commentcontent').text(commentInfoContent.text());
 			editCommentBlock.find('[name="reasonToEdit"]').val(commentReason.text());
