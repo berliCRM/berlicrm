@@ -31,11 +31,16 @@ class Install_InitSchema_Model
         $adb->query('SET NAMES utf8');
 
         file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Set MultiQuery Mode (requires mysqli) and import SQL dump\n", FILE_APPEND);
-        $adb->database->multiQuery = true;
         $schema = file_get_contents('schema/DatabaseSchema.sql');
-        $adb->pquery($schema);
-        $adb->database->multiQuery = false;
-        if ($adb->database->_failedQuery) {
+        $delimiter = ';';
+        $queries = preg_split('/' . $delimiter . '\s*(\n|$)/', $schema);
+                foreach ($queries as $query) {
+                    $query = trim($query);
+                    if (!empty($query)) {
+                        $adb->pquery($query);
+                    }
+                }
+		if ($adb->database->_failedQuery) {
             return $adb->database->_failedQuery;
         } else {
             require 'vtigerversion.php';
