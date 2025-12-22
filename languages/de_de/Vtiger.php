@@ -880,7 +880,7 @@ $languageStrings = array(
 	'LBL_SEND_MAIL_AND_POST' => 'Mail senden und veröffentlichen',
 	'LBL_EXTERNAL_COMMENT' => 'Externer Kommentar',
 	'LBL_MAILTO' => 'Mail an',
-    'LBL_TIME_NEEDED' => 'Benötigte Zeit',
+    'LBL_TIME_NEEDED' => 'Aufgewendete Zeit',
 );
 
 $jsLanguageStrings = array(
