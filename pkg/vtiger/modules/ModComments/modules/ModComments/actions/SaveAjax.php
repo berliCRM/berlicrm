@@ -37,15 +37,12 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         $request->set('userid', $currentUserModel->getId());
         $request->set('username', $currentUserModel->getName());
         $mailTo = '';
-        try {
-            $recordModel = $this->saveRecord($request);
-            if ($request->get('sendMail')) {
-                $mailTo = $this->sendMail($request, $recordModel);
-            }
-            $this->saveModcommentsScope($request, $recordModel, $mailTo);
-        } catch (\Throwable $th) {
-            file_put_contents('test/0debug.txt', "Error: " . var_export($th, true) . "\n\n", FILE_APPEND);
+
+        $recordModel = $this->saveRecord($request);
+        if ($request->get('sendMail')) {
+            $mailTo = $this->sendMail($request, $recordModel);
         }
+        $this->saveModcommentsScope($request, $recordModel, $mailTo);
 
         $fieldModelList = $recordModel->getModule()->getFields();
         $result = array();
@@ -156,7 +153,7 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         $contents = str_replace('$COMPANY_ADDRESS$', $companyDetails['address'], $contents);
         $contents = str_replace('$URL_ENG$', $portalUrl, $contents);
         $contents = str_replace('$COMPANY_LOGO$', $logoUrl, $contents);
-        file_put_contents('test/0debug.txt', "Debug: " . var_export($logoUrl, true) . "\n\n", FILE_APPEND);
+
         $to = $email;
         if(is_array($to)) {
             $to = implode(',',$to);
