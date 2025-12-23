@@ -101,10 +101,10 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
     /**
      * @param Vtiger_Request $request
      * @param Vtiger_Record_Model $recordModel
-     * @return bool|mixed|string
+     * @return string|null
      * @throws Exception
      */
-    public function sendMail(Vtiger_Request $request, Vtiger_Record_Model $recordModel): mixed
+    public function sendMail(Vtiger_Request $request, Vtiger_Record_Model $recordModel): ?string
     {
         global $site_URL, $HELPDESK_SUPPORT_EMAIL_ID, $PORTAL_URL;
         $email = '';
@@ -182,7 +182,7 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
             $emailsRecordModel->save();
         }
 
-        return $response ? $email : $response;
+        return $response ? $email : null;
     }
 
     /**
