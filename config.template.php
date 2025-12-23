@@ -37,10 +37,12 @@ $USE_RTE = 'true';
 $PORTAL_URL = '_SITE_URL_kundenportal';
 $PORTAL_URL_ENG = '_SITE_URL_customerportal';
 
-// helpdesk support email id and support name (Example: 'support@vtiger.com' and 'vtiger support')
+// Helpdesk-Support-E-Mail-Adresse, Anzeigename und zu verwendendes E-Mail-Template für Ticket-Antworten
+// (Beispiel: 'support@vtiger.com', 'vtiger support', Template-ID 3)
 $HELPDESK_SUPPORT_EMAIL_ID = '_USER_SUPPORT_EMAIL_';
 $HELPDESK_SUPPORT_NAME = 'your-support name';
 $HELPDESK_SUPPORT_EMAIL_REPLY_ID = $HELPDESK_SUPPORT_EMAIL_ID;
+$HELPDESK_SUPPORT_EMAIL_TEMPLATE = 3;
 
 /* database configuration
       db_server

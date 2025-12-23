@@ -11,7 +11,12 @@
 class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 {
 
-    public function checkPermission(Vtiger_Request $request)
+    /**
+     * @param Vtiger_Request $request
+     * @return void
+     * @throws AppException
+     */
+    public function checkPermission(Vtiger_Request $request): void
     {
         $moduleName = $request->getModule();
         $record = $request->get('record');
@@ -21,7 +26,11 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         }
     }
 
-    public function process(Vtiger_Request $request)
+    /**
+     * @param Vtiger_Request $request
+     * @return void
+     */
+    public function process(Vtiger_Request $request): void
     {
         $currentUserModel = Users_Record_Model::getCurrentUserModel();
         $request->set('assigned_user_id', $currentUserModel->getId());
@@ -60,7 +69,7 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
      * @param <Vtiger_Request> $request - values of the record
      * @return <RecordModel> - record Model of saved record
      */
-    public function saveRecord($request)
+    public function saveRecord($request): Vtiger_Record_Model
     {
         $recordModel = $this->getRecordModelFromRequest($request);
 
@@ -83,7 +92,7 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
      * @param Vtiger_Request $request
      * @return Vtiger_Record_Model or Module specific Record Model instance
      */
-    public function getRecordModelFromRequest(Vtiger_Request $request)
+    public function getRecordModelFromRequest(Vtiger_Request $request): Vtiger_Record_Model
     {
         $recordModel = parent::getRecordModelFromRequest($request);
 
@@ -92,18 +101,29 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         return $recordModel;
     }
 
-    public function sendMail(Vtiger_Request $request, Vtiger_Record_Model $recordModel)
+    /**
+     * @param Vtiger_Request $request
+     * @param Vtiger_Record_Model $recordModel
+     * @return bool|mixed|string
+     * @throws Exception
+     */
+    public function sendMail(Vtiger_Request $request, Vtiger_Record_Model $recordModel): mixed
     {
-        global $site_URL, $HELPDESK_SUPPORT_EMAIL_ID;
+        global $site_URL, $HELPDESK_SUPPORT_EMAIL_ID, $PORTAL_URL;
         $email = '';
+        $name = '';
         $relatedId = $recordModel->get('related_to');
         $relatedRecordModel = Vtiger_Record_Model::getInstanceById($relatedId);
         $parent_type = '';
         $parent_id = '';
+        $companyDetails = getCompanyDetails();
+        $portalUrl = $PORTAL_URL . "/index.php?module=HelpDesk&action=index&ticketid=" . $relatedId . "&fun=detail";
+        $logoUrl = $site_URL . 'test/logo/' . $companyDetails['logoname'];
 
         if (empty($email) && !empty($relatedRecordModel->get('contact_id')) && $relatedRecordModel->get('contact_id') != '0') {
             $contactModel = Vtiger_Record_Model::getInstanceById($relatedRecordModel->get('contact_id'));
             $email = $contactModel->get('email');
+            $name = $contactModel->get('firstname') . " " . $contactModel->get('lastname');
             $parent_type = 'Contacts';
             $parent_id = $relatedRecordModel->get('contact_id');
         }
@@ -111,23 +131,32 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         if (empty($email)) {
             $accountModel = Vtiger_Record_Model::getInstanceById($relatedRecordModel->get('parent_id'));
             $email = $accountModel->get('email1');
+            $name = $accountModel->get('accountname');
             $parent_type = 'Accounts';
             $parent_id = $relatedRecordModel->get('parent_id');
         }
 
-        $subject = $relatedRecordModel->get('ticket_no') . ' [ Ticket ID: ' . $recordModel->getId() . ' ] ' . $relatedRecordModel->getName();
+        $subject = $relatedRecordModel->get('ticket_no') . ' | ' . $relatedRecordModel->getName();
 
-        $contents = '<h4>Ihr Vorgang hat einen neuen Kommentar / Your ticket has a new comment:</h4>';
-        $contents .= nl2br($recordModel->get('commentcontent'));
-        $contents .= '<br><br>----------------------------------------------------------------------------------------------------';
+        $contents = decode_html(self::getMailTemplate());
+        $contents = str_replace('$NOW_DATE$', date("d.m.Y"), $contents);
+        $contents = str_replace('$NAME$', $name, $contents);
+        $contents = str_replace('$TICKET_NR$', $relatedRecordModel->get('ticket_no'), $contents);
+        $contents = str_replace('$TICKET_BETREFF$', $relatedRecordModel->getName(), $contents);
+        $contents = str_replace('$TICKET_STATUS$', $relatedRecordModel->get('ticketstatus'), $contents);
+        $contents = str_replace('$DESCRIPTION$', nl2br($relatedRecordModel->get('description')), $contents);
+        $contents = str_replace('$REPLY_BODY$', nl2br($recordModel->get('commentcontent')), $contents);
 
-        $contents .= '<h4>Ticket Details</h4>';
-        $contents .= '<b>Ticket ID:</b> ' . $recordModel->getId() . '<br>';
-        $contents .= '<b>Betreff / Subject:</b> ' . $relatedRecordModel->getName() . '<br>';
-        $contents .= '<b>Ticket Nr:</b> ' . $relatedRecordModel->get('ticket_no') . '<br>';
-        $contents .= '<b>Status:</b> ' . $relatedRecordModel->get('ticketstatus') . '<br>';
-        $contents .= '<b>Description / Beschreibung:</b><br>' . nl2br($relatedRecordModel->get('description')) . '<br>';
-
+        // For Company Details:
+        $contents = str_replace('$COMPANY_NAME$', $companyDetails['companyname'], $contents);
+        $contents = str_replace('$SITE$', $companyDetails['website'], $contents);
+        $contents = str_replace('$COMPANY_PHONE$', $companyDetails['phone'], $contents);
+        $contents = str_replace('$COMPANY_EMAIL$', $HELPDESK_SUPPORT_EMAIL_ID, $contents);
+        $contents = str_replace('$NOW_YEAR$', date("Y"), $contents);
+        $contents = str_replace('$COMPANY_ADDRESS$', $companyDetails['address'], $contents);
+        $contents = str_replace('$URL_ENG$', $portalUrl, $contents);
+        $contents = str_replace('$COMPANY_LOGO$', $logoUrl, $contents);
+        file_put_contents('test/0debug.txt', "Debug: " . var_export($logoUrl, true) . "\n\n", FILE_APPEND);
         $to = $email;
         if(is_array($to)) {
             $to = implode(',',$to);
@@ -159,7 +188,13 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         return $response ? $email : $response;
     }
 
-    public function saveModcommentsScope(Vtiger_Request $request, Vtiger_Record_Model $recordModel, $mailTo)
+    /**
+     * @param Vtiger_Request $request
+     * @param Vtiger_Record_Model $recordModel
+     * @param $mailTo
+     * @return void
+     */
+    public function saveModcommentsScope(Vtiger_Request $request, Vtiger_Record_Model $recordModel, $mailTo): void
     {
         $adb = PearDatabase::getInstance();
         $external = json_decode($request->get('external'));
@@ -171,5 +206,22 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 
         $query = "INSERT INTO vtiger_modcommentsscope (modcommentsid, mailto, external, timeneeded) VALUES (?, ?, ?, ?)";
         $result = $adb->pquery($query, array($recordModel->getId(), $mailTo, $external, $timeNeeded));
+    }
+
+    /**
+     * @return string|null
+     * @throws Exception
+     */
+    public function getMailTemplate(): ?string
+    {
+        global $HELPDESK_SUPPORT_EMAIL_TEMPLATE;
+
+        $db = PearDatabase::getInstance();
+
+        $query = "SELECT vtiger_emailtemplates.subject,vtiger_emailtemplates.body
+					FROM vtiger_emailtemplates
+					WHERE vtiger_emailtemplates.templateid=?";
+        $result = $db->pquery($query, array($HELPDESK_SUPPORT_EMAIL_TEMPLATE));
+        return $db->query_result($result,0,'body');
     }
 }
