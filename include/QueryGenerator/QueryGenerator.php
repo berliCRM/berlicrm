@@ -548,14 +548,14 @@ class QueryGenerator {
 			if($field->getFieldDataType() == 'reference') {
 				$moduleList = $this->referenceFieldInfoList[$fieldName];
 				// This is special condition as the data is not stored in the base table, 
-                                // If empty search is performed on this field then it fails to retrieve any information. 
-                                if ($fieldName == 'parent_id' && $field->getTableName() == 'vtiger_seactivityrel') {
-                                    $tableJoinMapping[$field->getTableName()] = 'LEFT JOIN';
-                                } else if ($fieldName == 'contact_id' && $field->getTableName() == 'vtiger_cntactivityrel') {
-                                    $tableJoinMapping[$field->getTableName()] = "LEFT JOIN";
-                                } else {
-                                    $tableJoinMapping[$field->getTableName()] = 'INNER JOIN';
-                                }
+				// If empty search is performed on this field then it fails to retrieve any information. 
+				if ($fieldName == 'parent_id' && $field->getTableName() == 'vtiger_seactivityrel') {
+					$tableJoinMapping[$field->getTableName()] = 'LEFT JOIN';
+				} else if ($fieldName == 'contact_id' && $field->getTableName() == 'vtiger_cntactivityrel') {
+					$tableJoinMapping[$field->getTableName()] = "LEFT JOIN";
+				} else {
+					$tableJoinMapping[$field->getTableName()] = 'INNER JOIN';
+				}
                 foreach($moduleList as $module) {
 					$meta = $this->getMeta($module);
 					$nameFields = $this->moduleNameFields[$module];
@@ -630,14 +630,14 @@ class QueryGenerator {
 					$field->getColumnName()." = $tableName.groupid";
             } 
             //crm-now: join tables for contacts+accounts combined customview
-            elseif($tableName == 'vtiger_account') {
-				$sql .= " $tableJoinMapping[$tableName] $tableName ON $baseTable.".
+            elseif($baseModule == 'Contacts' && $tableName == 'vtiger_account') {
+				$sql .= " LEFT JOIN $tableName ON $baseTable.".
 					"accountid = $tableName.accountid";
-			} elseif($tableName == 'vtiger_accountbillads' || $tableName == 'vtiger_accountshipads') {
-				$sql .= " $tableJoinMapping[$tableName] $tableName ON $baseTable.".
+			} elseif($baseModule == 'Contacts' && ($tableName == 'vtiger_accountbillads' || $tableName == 'vtiger_accountshipads')) {
+				$sql .= " LEFT JOIN $tableName ON $baseTable.".
 					"accountid = $tableName.accountaddressid";
-			} elseif($tableName == 'vtiger_accountscf') {
-				$sql .= " $tableJoinMapping[$tableName] $tableName ON $baseTable.".
+			} elseif($baseModule == 'Contacts' && $tableName == 'vtiger_accountscf') {
+				$sql .= " LEFT JOIN $tableName ON $baseTable.".
 					"accountid = $tableName.accountid";
 			}
             else {
