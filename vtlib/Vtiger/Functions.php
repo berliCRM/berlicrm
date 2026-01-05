@@ -658,12 +658,13 @@ class Vtiger_Functions {
 	}
 
 	static function getMergedDescriptionCustomVars($fields, $description) {
-		global $current_user;
+		global $current_user, $HELPDESK_SUPPORT_EMAIL_ID;
 		date_default_timezone_set($current_user->time_zone);
 		$user_lang_arr = explode("_",$current_user->language);
 		$user_lang_arr[1] = strtoupper ($user_lang_arr[1]);
 		$user_lang = implode("_", $user_lang_arr);
 		setlocale(LC_TIME, $user_lang, $user_lang.'UTF-8');
+        $companyDetails = getCompanyDetails();
 		foreach ($fields['custom'] as $columnname) {
 			$token_data = '$custom-' . $columnname . '$';
 			$token_value = '';
@@ -672,6 +673,19 @@ class Vtiger_Functions {
 					break;
 				case 'currenttime': $token_value = strftime("%T (%Z)");
 					break;
+                case 'currentyear': $token_value = date("Y");
+                    break;
+                case 'supportemail' : $token_value = $HELPDESK_SUPPORT_EMAIL_ID;
+                    break;
+                case 'logo' :
+                    $companyModel = Vtiger_CompanyDetails_Model::getInstanceById();
+                    $companyModel->getLogo()->getImagePath();
+                    break;
+                default :
+                    if (key_exists($columnname, $companyDetails)) {
+                        $token_value = $companyDetails[$columnname];
+                    }
+                    break;
 			}
 			$description = str_replace($token_data, $token_value, $description);
 		}
