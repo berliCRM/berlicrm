@@ -29,6 +29,7 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
     /**
      * @param Vtiger_Request $request
      * @return void
+     * @throws Exception
      */
     public function process(Vtiger_Request $request): void
     {
@@ -39,6 +40,7 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         $mailTo = '';
 
         $recordModel = $this->saveRecord($request);
+
         if ($request->get('sendMail')) {
             $mailTo = $this->sendMail($request, $recordModel);
         }
@@ -111,17 +113,13 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         $name = '';
         $relatedId = $recordModel->get('related_to');
         $relatedRecordModel = Vtiger_Record_Model::getInstanceById($relatedId);
-        $parent_type = '';
         $parent_id = '';
-        $companyDetails = getCompanyDetails();
         $portalUrl = $PORTAL_URL . "/index.php?module=HelpDesk&action=index&ticketid=" . $relatedId . "&fun=detail";
-        $logoUrl = $site_URL . 'test/logo/' . $companyDetails['logoname'];
 
         if (empty($email) && !empty($relatedRecordModel->get('contact_id')) && $relatedRecordModel->get('contact_id') != '0') {
             $contactModel = Vtiger_Record_Model::getInstanceById($relatedRecordModel->get('contact_id'));
             $email = $contactModel->get('email');
             $name = $contactModel->get('firstname') . " " . $contactModel->get('lastname');
-            $parent_type = 'Contacts';
             $parent_id = $relatedRecordModel->get('contact_id');
         }
 
@@ -129,30 +127,20 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
             $accountModel = Vtiger_Record_Model::getInstanceById($relatedRecordModel->get('parent_id'));
             $email = $accountModel->get('email1');
             $name = $accountModel->get('accountname');
-            $parent_type = 'Accounts';
             $parent_id = $relatedRecordModel->get('parent_id');
         }
 
-        $subject = $relatedRecordModel->get('ticket_no') . ' | ' . $relatedRecordModel->getName();
-
+        $subject = decode_html(self::getMailSubject());
         $contents = decode_html(self::getMailTemplate());
-        $contents = str_replace('$NOW_DATE$', date("d.m.Y"), $contents);
-        $contents = str_replace('$NAME$', $name, $contents);
-        $contents = str_replace('$TICKET_NR$', $relatedRecordModel->get('ticket_no'), $contents);
-        $contents = str_replace('$TICKET_BETREFF$', $relatedRecordModel->getName(), $contents);
-        $contents = str_replace('$TICKET_STATUS$', $relatedRecordModel->get('ticketstatus'), $contents);
-        $contents = str_replace('$DESCRIPTION$', nl2br($relatedRecordModel->get('description')), $contents);
-        $contents = str_replace('$REPLY_BODY$', nl2br($recordModel->get('commentcontent')), $contents);
 
-        // For Company Details:
-        $contents = str_replace('$COMPANY_NAME$', $companyDetails['companyname'], $contents);
-        $contents = str_replace('$SITE$', $companyDetails['website'], $contents);
-        $contents = str_replace('$COMPANY_PHONE$', $companyDetails['phone'], $contents);
-        $contents = str_replace('$COMPANY_EMAIL$', $HELPDESK_SUPPORT_EMAIL_ID, $contents);
-        $contents = str_replace('$NOW_YEAR$', date("Y"), $contents);
-        $contents = str_replace('$COMPANY_ADDRESS$', $companyDetails['address'], $contents);
+        $subject = getMergedDescription($subject, $relatedId, 'HelpDesk');
+        $contents = getMergedDescription($contents, $recordModel->getId(), 'ModComments');
+        $contents = getMergedDescription($contents, $relatedId, 'HelpDesk');
+
+        $subject = str_replace('$helpdesk-id$', $relatedId, $subject);
+        $contents = str_replace('$NAME$', $name, $contents);
+
         $contents = str_replace('$URL_ENG$', $portalUrl, $contents);
-        $contents = str_replace('$COMPANY_LOGO$', $logoUrl, $contents);
 
         $to = $email;
         if(is_array($to)) {
@@ -220,5 +208,22 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 					WHERE vtiger_emailtemplates.templateid=?";
         $result = $db->pquery($query, array($HELPDESK_SUPPORT_EMAIL_TEMPLATE));
         return $db->query_result($result,0,'body');
+    }
+
+    /**
+     * @return string|null
+     * @throws Exception
+     */
+    public function getMailSubject(): ?string
+    {
+        global $HELPDESK_SUPPORT_EMAIL_TEMPLATE;
+
+        $db = PearDatabase::getInstance();
+
+        $query = "SELECT vtiger_emailtemplates.subject,vtiger_emailtemplates.body
+					FROM vtiger_emailtemplates
+					WHERE vtiger_emailtemplates.templateid=?";
+        $result = $db->pquery($query, array($HELPDESK_SUPPORT_EMAIL_TEMPLATE));
+        return $db->query_result($result,0,'subject');
     }
 }

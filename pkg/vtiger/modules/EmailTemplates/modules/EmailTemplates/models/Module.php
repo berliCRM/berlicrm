@@ -211,6 +211,7 @@ class EmailTemplates_Module_Model extends Vtiger_Module_Model {
         for($i=0; $i<$num_rows; $i++){
             $moduleList[] = $db->query_result($result, $i, 'modulename');
         }
+        $moduleList[] = 'HelpDesk';
         return $moduleList;
     }
 
