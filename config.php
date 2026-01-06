@@ -19,5 +19,6 @@
  */
  
 include('config.inc.php');
+$HELPDESK_SUPPORT_EMAIL_TEMPLATE = 3;
 
 ?>
