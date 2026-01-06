@@ -142,20 +142,22 @@ class EmailTemplate {
 				$values = array();
 				foreach ($it as $row) {
 					foreach ($fieldList as $field) {
-                        file_put_contents('test/0debug.txt', "field: " . var_export($field, true) . "\n\n", FILE_APPEND);
-						     $moduleModel = Vtiger_Module_Model::getInstance($module);
-                        file_put_contents('test/0debug.txt', "moduleModel: " . var_export($moduleModel, true) . "\n\n", FILE_APPEND);
- 	                         $fieldModel = Vtiger_Field_Model::getInstance($field, $moduleModel);
- 		                     $value = $row->get($fieldColumnMapping[$field]); 
- 		                        if($fieldModel->isReferenceField()) { 
-		                            $values[$field] = $value; 
- 		                        } 
-								elseif($fieldModel->isOwnerField()) {
-									$values[$field] = $value;
-								}
-								else { 
- 		                            $values[$field] = $fieldModel->getDisplayValue($value, $recordId); 
- 		                        } 
+                        $moduleModel = Vtiger_Module_Model::getInstance($module);
+                        $fieldModel = Vtiger_Field_Model::getInstance($field, $moduleModel);
+                        $value = $row->get($fieldColumnMapping[$field]);
+//                        case for using moduleid field
+                        if (!$fieldModel) {
+                            $values[$field] = $value;
+                        }
+                        elseif($fieldModel->isReferenceField()) {
+                            $values[$field] = $value;
+                        }
+                        elseif($fieldModel->isOwnerField()) {
+                            $values[$field] = $value;
+                        }
+                        else {
+                            $values[$field] = $fieldModel->getDisplayValue($value, $recordId);
+                        }
 					}
 				}
 				$moduleFields = $meta->getModuleFields();

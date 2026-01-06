@@ -131,6 +131,10 @@ class EmailTemplates_Module_Model extends Vtiger_Module_Model {
         $allFields[] = $option;
         $option = array(vtranslate('LBL_COMPANY_FAX'), '$custom-fax$');
         $allFields[] = $option;
+        $option = array(vtranslate('Customerportal Link'), '$custom-customerportallink$');
+        $allFields[] = $option;
+        $option = array(vtranslate('Kundenportal Link'), '$custom-kundenportallink$');
+        $allFields[] = $option;
         $allOptions['generalFields'] = $allFields;
         return $allOptions;
     }

@@ -115,12 +115,21 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         $relatedRecordModel = Vtiger_Record_Model::getInstanceById($relatedId);
         $parent_id = '';
         $portalUrl = $PORTAL_URL . "/index.php?module=HelpDesk&action=index&ticketid=" . $relatedId . "&fun=detail";
+        $subject = decode_html(self::getMailSubject());
+        $contents = decode_html(self::getMailTemplate());
 
-        if (empty($email) && !empty($relatedRecordModel->get('contact_id')) && $relatedRecordModel->get('contact_id') != '0') {
+        $subject = getMergedDescription($subject, $relatedId, 'HelpDesk');
+        $contents = getMergedDescription($contents, $relatedId, 'HelpDesk');
+        $contents = getMergedDescription($contents, $recordModel->getId(), 'ModComments');
+
+        if (!empty($relatedRecordModel->get('contact_id')) && $relatedRecordModel->get('contact_id') != '0') {
             $contactModel = Vtiger_Record_Model::getInstanceById($relatedRecordModel->get('contact_id'));
             $email = $contactModel->get('email');
             $name = $contactModel->get('firstname') . " " . $contactModel->get('lastname');
             $parent_id = $relatedRecordModel->get('contact_id');
+            $contents = getMergedDescription($contents, $parent_id, 'Contacts');
+//            zum Ersatzfelder entfernen
+            $contents = getMergedDescription($contents, 0, 'Accounts');
         }
 
         if (empty($email)) {
@@ -128,19 +137,10 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
             $email = $accountModel->get('email1');
             $name = $accountModel->get('accountname');
             $parent_id = $relatedRecordModel->get('parent_id');
+            $contents = getMergedDescription($contents, $parent_id, 'Accounts');
+//            zum Ersatzfelder entfernen
+            $contents = getMergedDescription($contents, 0, 'Contacts');
         }
-
-        $subject = decode_html(self::getMailSubject());
-        $contents = decode_html(self::getMailTemplate());
-
-        $subject = getMergedDescription($subject, $relatedId, 'HelpDesk');
-        $contents = getMergedDescription($contents, $recordModel->getId(), 'ModComments');
-        $contents = getMergedDescription($contents, $relatedId, 'HelpDesk');
-
-        $subject = str_replace('$helpdesk-id$', $relatedId, $subject);
-        $contents = str_replace('$NAME$', $name, $contents);
-
-        $contents = str_replace('$URL_ENG$', $portalUrl, $contents);
 
         $to = $email;
         if(is_array($to)) {

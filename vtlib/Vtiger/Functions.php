@@ -648,7 +648,7 @@ class Vtiger_Functions {
 			$fields[$module[0]][] = $module[1];
 		}
 		if (is_array($fields['custom']) && count($fields['custom']) > 0) {
-			$description = self::getMergedDescriptionCustomVars($fields, $description);
+			$description = self::getMergedDescriptionCustomVars($fields, $description, $id, $parent_type);
 		}
 		//crm-now: handle optional blocks, skip it for Users as email send routine will call this function several times, Users first, and the description block will be gone aftre that
 		if ($parent_type != 'Users') {
@@ -657,8 +657,8 @@ class Vtiger_Functions {
 		return $description;
 	}
 
-	static function getMergedDescriptionCustomVars($fields, $description) {
-		global $current_user, $HELPDESK_SUPPORT_EMAIL_ID;
+	static function getMergedDescriptionCustomVars($fields, $description, $id, $parent_type) {
+		global $current_user, $HELPDESK_SUPPORT_EMAIL_ID, $PORTAL_URL, $PORTAL_URL_ENG;
 		date_default_timezone_set($current_user->time_zone);
 		$user_lang_arr = explode("_",$current_user->language);
 		$user_lang_arr[1] = strtoupper ($user_lang_arr[1]);
@@ -680,6 +680,20 @@ class Vtiger_Functions {
                 case 'logo' :
                     $companyModel = Vtiger_CompanyDetails_Model::getInstanceById();
                     $companyModel->getLogo()->getImagePath();
+                    break;
+                case 'customerportallink' :
+                    if($parent_type == 'HelpDesk') {
+                        $token_value = $PORTAL_URL_ENG . "/index.php?module=HelpDesk&action=index&ticketid=" . $id . "&fun=detail";
+                    } else {
+                        $token_value = $PORTAL_URL_ENG . "/index.php?module=" . $parent_type . "&action=index&id=" . $id . "&fun=detail";
+                    }
+                    break;
+                case 'kundenportallink' :
+                    if($parent_type == 'HelpDesk') {
+                        $token_value = $PORTAL_URL . "/index.php?module=HelpDesk&action=index&ticketid=" . $id . "&fun=detail";
+                    } else {
+                        $token_value = $PORTAL_URL . "/index.php?module=" . $parent_type . "&action=index&id=" . $id . "&fun=detail";
+                    }
                     break;
                 default :
                     if (key_exists($columnname, $companyDetails)) {
