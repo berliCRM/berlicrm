@@ -34,12 +34,12 @@ class Install_InitSchema_Model
         $schema = file_get_contents('schema/DatabaseSchema.sql');
         $delimiter = ';';
         $queries = preg_split('/' . $delimiter . '\s*(\n|$)/', $schema);
-                foreach ($queries as $query) {
-                    $query = trim($query);
-                    if (!empty($query)) {
-                        $adb->pquery($query);
-                    }
-                }
+        foreach ($queries as $query) {
+            $query = trim($query);
+            if (!empty($query)) {
+                $adb->pquery($query);
+            }
+        }
 		if ($adb->database->_failedQuery) {
             return $adb->database->_failedQuery;
         } else {
@@ -905,6 +905,7 @@ class Install_InitSchema_Model
         
 		self::addUITypes();
 		self::addNewWebservices();
+		self::addNewRelatedLists();
 
         //last step, set info this system was installed
         $path = Install_Utils_Model::INSTALL_FINISHED;
@@ -1266,6 +1267,31 @@ class Install_InitSchema_Model
 			$operationId = vtws_addWebserviceOperation($wsName, 'include/Webservices/Custom/getNewMultiRelations.php', 'berli_get_new_multi_relations', 'GET', '0');
 			vtws_addWebserviceOperationParam($operationId, 'id', 'string', '1');
 			vtws_addWebserviceOperationParam($operationId, 'relModule', 'string', '2');
+		}
+	}
+	
+	public static function addNewRelatedLists() {
+		global $adb;
+		
+		$query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
+		
+		$relations = array('Vendors' => array('Documents' => array(array('ADD', 'SELECT'), 'get_attachments')));
+		
+		foreach ($relations AS $moduleName => $relation) {
+			foreach ($relation AS $relModuleName => $details) {
+				$actions = $details[0];
+				$methodName = $details[1];
+				$tabId = getTabId($moduleName);
+				$relTabId = getTabId($relModuleName);
+				
+				$res = $adb->pquery($query, array($tabId, $relTabId));
+
+				if ($adb->num_rows($res) == 0) {
+					$moduleInstance = Vtiger_Module::getInstance($moduleName);
+					$relInstance = Vtiger_Module::getInstance($relModuleName);
+					$moduleInstance->setRelatedList($relInstance , $relModuleName, $actions, $methodName);
+				}
+			}
 		}
 	}
 }
