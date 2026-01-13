@@ -1383,12 +1383,16 @@ echo "Fields added.<br><br>";
 
 // ######################################################## Adding extra fields for eInvoice ... 
 
+echo 'Adding new RelatedLists... START<br>';
+require_once('modules/Install/models/InitSchema.php');
 
-
+Install_InitSchema_Model::addNewRelatedLists();
+echo 'Adding new RelatedLists... DONE<br>';
 
 
 
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
 $adb->pquery($query, array($current_release_tag));
 echo "<h2>Finished updating to $current_release_tag!</h2>";
+
 
