@@ -575,76 +575,69 @@ jQuery.Class("Vtiger_Detail_Js",{
 	 * return json response
 	 */
 	saveComment : function(e) {
-        var message = app.vtranslate('LBL_DELETE_CONFIRMATION');
-        Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(function(data) {
-
-            var thisInstance = this;
-            var aDeferred = jQuery.Deferred();
-            var currentTarget = jQuery(e.currentTarget);
-            var commentMode = currentTarget.data('mode');
-            var closestCommentBlock = currentTarget.closest('.addCommentBlock');
-            var commentContent = closestCommentBlock.find('.commentcontent');
-            var commentContentValue = commentContent.val();
-            var errorMsg;
-            if(commentContentValue == ""){
-                errorMsg = app.vtranslate('JS_LBL_COMMENT_VALUE_CANT_BE_EMPTY')
-                commentContent.validationEngine('showPrompt', errorMsg , 'error','bottomLeft',true);
-                aDeferred.reject();
-                return aDeferred.promise();
-            }
-            if(commentMode == "edit"){
-                var editCommentReason = closestCommentBlock.find('[name="reasonToEdit"]').val();
-            }
-
-            var progressIndicatorElement = jQuery.progressIndicator({});
-            var element = jQuery(e.currentTarget);
-            element.attr('disabled', 'disabled');
-
-            var commentInfoHeader = closestCommentBlock.closest('.commentDetails').find('.commentInfoHeader');
-            var commentId = commentInfoHeader.data('commentid');
-            var parentCommentId = commentInfoHeader.data('parentcommentid');
-            var external = closestCommentBlock.find('#externalComment').is(':checked');
-            const neededTime = closestCommentBlock.find('#timeNeeded').val();
-            var postData = {
-                'commentcontent' : 	commentContentValue,
-                'related_to': thisInstance.getRecordId(),
-                'module' : 'ModComments',
-                'external': external,
-                'neededTime' : neededTime,
-            }
-
-            if(commentMode == "edit"){
-                postData['record'] = commentId;
-                postData['reasontoedit'] = editCommentReason;
-                postData['parent_comments'] = parentCommentId;
-                postData['mode'] = 'edit';
-                postData['action'] = 'Save';
-            } else if(commentMode == "add"){
-                postData['parent_comments'] = commentId;
-                postData['action'] = 'SaveAjax';
-            } else if (commentMode == "sendMail") {
-                postData['parent_comments'] = commentId;
-                postData['action'] = 'SaveAjax';
-                postData['sendMail'] = true;
-            }
-            AppConnector.request(postData).then(
-                function(data){
-                    progressIndicatorElement.progressIndicator({'mode':'hide'});
-                    aDeferred.resolve(data);
-                },
-                function(textStatus, errorThrown){
-                    progressIndicatorElement.progressIndicator({'mode':'hide'});
-                    element.removeAttr('disabled');
-                    aDeferred.reject(textStatus, errorThrown);
-                }
-            );
-
+        var thisInstance = this;
+        var aDeferred = jQuery.Deferred();
+        var currentTarget = jQuery(e.currentTarget);
+        var commentMode = currentTarget.data('mode');
+        var closestCommentBlock = currentTarget.closest('.addCommentBlock');
+        var commentContent = closestCommentBlock.find('.commentcontent');
+        var commentContentValue = commentContent.val();
+        var errorMsg;
+        if(commentContentValue == ""){
+            errorMsg = app.vtranslate('JS_LBL_COMMENT_VALUE_CANT_BE_EMPTY')
+            commentContent.validationEngine('showPrompt', errorMsg , 'error','bottomLeft',true);
+            aDeferred.reject();
             return aDeferred.promise();
-        },
-        function(error, err){
         }
+        if(commentMode == "edit"){
+            var editCommentReason = closestCommentBlock.find('[name="reasonToEdit"]').val();
+        }
+
+        var progressIndicatorElement = jQuery.progressIndicator({});
+        var element = jQuery(e.currentTarget);
+        element.attr('disabled', 'disabled');
+
+        var commentInfoHeader = closestCommentBlock.closest('.commentDetails').find('.commentInfoHeader');
+        var commentId = commentInfoHeader.data('commentid');
+        var parentCommentId = commentInfoHeader.data('parentcommentid');
+        var external = closestCommentBlock.find('#externalComment').is(':checked');
+        const neededTime = closestCommentBlock.find('#timeNeeded').val();
+        var postData = {
+            'commentcontent' : 	commentContentValue,
+            'related_to': thisInstance.getRecordId(),
+            'module' : 'ModComments',
+            'external': external,
+            'neededTime' : neededTime,
+        }
+
+        if(commentMode == "edit"){
+            postData['record'] = commentId;
+            postData['reasontoedit'] = editCommentReason;
+            postData['parent_comments'] = parentCommentId;
+            postData['mode'] = 'edit';
+            postData['action'] = 'Save';
+        } else if(commentMode == "add"){
+            postData['parent_comments'] = commentId;
+            postData['action'] = 'SaveAjax';
+        } else if (commentMode == "sendMail") {
+            postData['parent_comments'] = commentId;
+            postData['action'] = 'SaveAjax';
+            postData['sendMail'] = true;
+        }
+        AppConnector.request(postData).then(
+            function(data){
+                progressIndicatorElement.progressIndicator({'mode':'hide'});
+                aDeferred.resolve(data);
+            },
+            function(textStatus, errorThrown){
+                progressIndicatorElement.progressIndicator({'mode':'hide'});
+                element.removeAttr('disabled');
+                aDeferred.reject(textStatus, errorThrown);
+            }
         );
-	},
+
+        return aDeferred.promise();
+    },
 
 	/**
 	 * function to return the UI of the comment.
@@ -2420,78 +2413,84 @@ jQuery.Class("Vtiger_Detail_Js",{
 		detailContentsHolder.on('click','.detailViewSaveComment', function(e){
             var element = jQuery(e.currentTarget);
             if(!element.is(":disabled")) {
-                var dataObj = thisInstance.saveComment(e);
-                dataObj.then(function(){
-                    var commentsContainer = detailContentsHolder.find("[data-name='ModComments']");
-                    thisInstance.loadWidget(commentsContainer).then(function() {
-                        element.removeAttr('disabled');
+                var message = app.vtranslate('LBL_DELETE_CONFIRMATION');
+                Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(function(data) {
+                    var dataObj = thisInstance.saveComment(e);
+                    dataObj.then(function () {
+                        var commentsContainer = detailContentsHolder.find("[data-name='ModComments']");
+                        thisInstance.loadWidget(commentsContainer).then(function () {
+                            element.removeAttr('disabled');
+                        });
                     });
-                });
+                })
             }
 		});
 
 		detailContentsHolder.on('click','.saveComment', function(e){
             var element = jQuery(e.currentTarget);
             if(!element.is(":disabled")) {
-                var currentTarget = jQuery(e.currentTarget);
-                var mode = currentTarget.data('mode');
-                var dataObj = thisInstance.saveComment(e);
-                dataObj.then(function(data){
-                    var closestAddCommentBlock = currentTarget.closest('.addCommentBlock');
-                    var commentTextAreaElement = closestAddCommentBlock.find('.commentcontent');
-                    var commentInfoBlock = currentTarget.closest('.singleComment');
-                    commentTextAreaElement.val('');
-                    if(mode == "add"){
-                        var commentId = data['result']['id'];
-                        var commentHtml = thisInstance.getCommentUI(commentId);
-                        commentHtml.then(function(data){
-                            var commentBlock = closestAddCommentBlock.closest('.commentDetails');
-                            var detailContentsHolder = thisInstance.getContentHolder();
-                            var noCommentsMsgContainer = jQuery('.noCommentsMsgContainer',detailContentsHolder);
-                            noCommentsMsgContainer.remove();
-                            if(commentBlock.length > 0){
-                                closestAddCommentBlock.remove();
-                                var childComments = commentBlock.find('ul');
-                                if(childComments.length <= 0){
-                                    var currentChildCommentsCount = commentInfoBlock.find('.viewThreadBlock').data('childCommentsCount');
-                                    var newChildCommentCount = currentChildCommentsCount + 1;
-                                    commentInfoBlock.find('.childCommentsCount').text(newChildCommentCount);
-                                    var parentCommentId = commentInfoBlock.find('.commentInfoHeader').data('commentid');
-                                    thisInstance.getChildComments(parentCommentId).then(function(responsedata){
-                                        jQuery(responsedata).appendTo(commentBlock);
-                                        commentInfoBlock.find('.viewThreadBlock').hide();
-                                        commentInfoBlock.find('.hideThreadBlock').show();
-                                    });
-                                }else {
-                                    jQuery('<ul class="liStyleNone"><li class="commentDetails">'+data+'</li></ul>').appendTo(commentBlock);
+                var message = app.vtranslate('LBL_DELETE_CONFIRMATION');
+                Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(function(data) {
+                    var currentTarget = jQuery(e.currentTarget);
+                    var mode = currentTarget.data('mode');
+                    var dataObj = thisInstance.saveComment(e);
+                    dataObj.then(function (data) {
+                        var closestAddCommentBlock = currentTarget.closest('.addCommentBlock');
+                        var commentTextAreaElement = closestAddCommentBlock.find('.commentcontent');
+                        var commentInfoBlock = currentTarget.closest('.singleComment');
+                        commentTextAreaElement.val('');
+                        if (mode == "add") {
+                            var commentId = data['result']['id'];
+                            var commentHtml = thisInstance.getCommentUI(commentId);
+                            commentHtml.then(function (data) {
+                                var commentBlock = closestAddCommentBlock.closest('.commentDetails');
+                                var detailContentsHolder = thisInstance.getContentHolder();
+                                var noCommentsMsgContainer = jQuery('.noCommentsMsgContainer', detailContentsHolder);
+                                noCommentsMsgContainer.remove();
+                                if (commentBlock.length > 0) {
+                                    closestAddCommentBlock.remove();
+                                    var childComments = commentBlock.find('ul');
+                                    if (childComments.length <= 0) {
+                                        var currentChildCommentsCount = commentInfoBlock.find('.viewThreadBlock').data('childCommentsCount');
+                                        var newChildCommentCount = currentChildCommentsCount + 1;
+                                        commentInfoBlock.find('.childCommentsCount').text(newChildCommentCount);
+                                        var parentCommentId = commentInfoBlock.find('.commentInfoHeader').data('commentid');
+                                        thisInstance.getChildComments(parentCommentId).then(function (responsedata) {
+                                            jQuery(responsedata).appendTo(commentBlock);
+                                            commentInfoBlock.find('.viewThreadBlock').hide();
+                                            commentInfoBlock.find('.hideThreadBlock').show();
+                                        });
+                                    } else {
+                                        jQuery('<ul class="liStyleNone"><li class="commentDetails">' + data + '</li></ul>').appendTo(commentBlock);
+                                    }
+                                } else {
+                                    jQuery('<ul class="liStyleNone"><li class="commentDetails">' + data + '</li></ul>').prependTo(closestAddCommentBlock.closest('.commentContainer').find('.commentsList'));
+                                    commentTextAreaElement.css({height: '71px'});
                                 }
-                            } else {
-                                jQuery('<ul class="liStyleNone"><li class="commentDetails">'+data+'</li></ul>').prependTo(closestAddCommentBlock.closest('.commentContainer').find('.commentsList'));
-                                commentTextAreaElement.css({height : '71px'});
+                                commentInfoBlock.find('.commentActionsContainer').show();
+                            });
+                        } else if (mode == "edit") {
+                            var modifiedTime = commentInfoBlock.find('.commentModifiedTime');
+                            var commentInfoContent = commentInfoBlock.find('.commentInfoContent');
+                            var commentEditStatus = commentInfoBlock.find('[name="editStatus"]');
+                            var commentReason = commentInfoBlock.find('[name="editReason"]');
+                            commentInfoContent.html(data.result.commentcontent);
+                            commentReason.html(data.result.reasontoedit);
+                            modifiedTime.text(data.result.modifiedtime);
+                            modifiedTime.attr('title', data.result.modifiedtimetitle)
+                            if (commentEditStatus.hasClass('hide')) {
+                                commentEditStatus.removeClass('hide');
                             }
+                            if (data.result.reasontoedit != "") {
+                                commentInfoBlock.find('.editReason').removeClass('hide')
+                            }
+                            commentInfoContent.show();
                             commentInfoBlock.find('.commentActionsContainer').show();
-                        });
-                    }else if(mode == "edit"){
-                        var modifiedTime = commentInfoBlock.find('.commentModifiedTime');
-                        var commentInfoContent = commentInfoBlock.find('.commentInfoContent');
-                        var commentEditStatus = commentInfoBlock.find('[name="editStatus"]');
-                        var commentReason = commentInfoBlock.find('[name="editReason"]');
-                        commentInfoContent.html(data.result.commentcontent);
-                        commentReason.html(data.result.reasontoedit);
-                        modifiedTime.text(data.result.modifiedtime);
-                        modifiedTime.attr('title',data.result.modifiedtimetitle)
-                        if(commentEditStatus.hasClass('hide')){
-                            commentEditStatus.removeClass('hide');
+                            closestAddCommentBlock.remove();
                         }
-						if(data.result.reasontoedit != ""){
-							commentInfoBlock.find('.editReason').removeClass('hide')
-						}
-                        commentInfoContent.show();
-                        commentInfoBlock.find('.commentActionsContainer').show();
-                        closestAddCommentBlock.remove();
-                    }
-                    element.removeAttr('disabled');
-                });
+                        element.removeAttr('disabled');
+                    });
+                })
             }
 		});
 
