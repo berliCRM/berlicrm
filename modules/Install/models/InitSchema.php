@@ -782,6 +782,7 @@ class Install_InitSchema_Model {
 		self::translateWorkflowstasks();
 		self::removeGroups();
 		self::addingSalutation();
+        self::addNewRelatedLists();
 
 		//last step, set info this system was installed
 		$path = Install_Utils_Model::INSTALL_FINISHED;
@@ -1122,4 +1123,31 @@ class Install_InitSchema_Model {
 		$moduleModel->addPickListValues($fieldModel, $pickListFieldName, $rolesSelected);
 	}
 
+    public static function addNewRelatedLists() {
+        global $adb;
+
+        $query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
+
+        $relations = array(
+            'Vendors' => array('Documents' => array(array('ADD', 'SELECT'), 'get_attachments')),
+            'HelpDesk' => array('Emails' => array(array(), 'get_emails'))
+        );
+
+        foreach ($relations AS $moduleName => $relation) {
+            foreach ($relation AS $relModuleName => $details) {
+                $actions = $details[0];
+                $methodName = $details[1];
+                $tabId = getTabId($moduleName);
+                $relTabId = getTabId($relModuleName);
+
+                $res = $adb->pquery($query, array($tabId, $relTabId));
+
+                if ($adb->num_rows($res) == 0) {
+                    $moduleInstance = Vtiger_Module::getInstance($moduleName);
+                    $relInstance = Vtiger_Module::getInstance($relModuleName);
+                    $moduleInstance->setRelatedList($relInstance , $relModuleName, $actions, $methodName);
+                }
+            }
+        }
+    }
 }

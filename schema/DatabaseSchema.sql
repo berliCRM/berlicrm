@@ -10730,7 +10730,6 @@ INSERT INTO `vtiger_relatedlists` (`relation_id`, `tabid`, `related_tabid`, `nam
 (88, 26, 6, 'get_accounts', 5, 'Accounts', 0, 'add,select'),
 (89, 15, 8, 'get_attachments', 1, 'Documents', 0, 'add,select'),
 (90, 4, 18, 'get_vendors', 13, 'Vendors', 0, 'SELECT'),
-(91, 13, 10, 'get_emails', 5, 'Emails', 0, '');
 
 -- --------------------------------------------------------
 
