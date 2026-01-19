@@ -148,7 +148,7 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         }
 
         $emailsRecordModel = Vtiger_Record_Model::getCleanInstance('Emails');
-        $emailsRecordModel->set('subject', $subject);
+        $emailsRecordModel->set('subject', htmlspecialchars_decode($subject));
         $emailsRecordModel->set('description', $contents);
         $emailsRecordModel->set('email_flag', 'SENT');
         $emailsRecordModel->set('assigned_user_id', Users_Record_Model::getCurrentUserModel()->getId());
