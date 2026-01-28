@@ -5,5 +5,8 @@
     "require": {
         "horstoeko/zugferd": "^1.0",
         "symfony/intl": "^5.4"
+    },
+    "require": {
+        "phpunit/phpunit": "8.5.52"
     }
 }
