@@ -1,8 +1,9 @@
 <?php
+
 putenv("HOME=" . getcwd());
 
 if (!file_exists('vendor/autoload.php') && !file_exists('logs/composerDone.txt')) {
-    file_put_contents('logs/composerDone.txt', '');
+    file_put_contents('logs/composerDone.txt', 'Not found composer autoload, installing composer now ...' . PHP_EOL, FILE_APPEND);
     installComposer();
 }
 
@@ -11,17 +12,23 @@ function installComposer()
     $composerCmd = getComposerCommand();
 
     $cmd = "$composerCmd install 2>&1";
+    file_put_contents('logs/installLog.txt', 'Using composer command: ' . $composerCmd . PHP_EOL, FILE_APPEND);
+
     $output = [];
     $returnCode = 0;
     exec($cmd, $output, $returnCode);
 
     file_put_contents('logs/installLog.txt', implode(PHP_EOL, $output), FILE_APPEND);
 
+    //
+    // Try to load the autoload file again after installation to verify it worked
+    //
     try {
         require_once 'vendor/autoload.php';
     } catch (\Throwable $th) {
         $returnCode = 1;
     }
+    file_put_contents('logs/installLog.txt', 'Composer installed via: ' . $composerCmd . PHP_EOL, FILE_APPEND);
     return ('Composer installed via: ' . $composerCmd);
 }
 
@@ -40,6 +47,7 @@ function getComposerCommand()
     }
 
     // Composer is missing, install it locally
+    file_put_contents('logs/installLog.txt', 'Composer is missing, installing it locally...' . PHP_EOL, FILE_APPEND);
     installComposerLocally();
     return 'php composer.phar';
 }
@@ -49,19 +57,22 @@ function installComposerLocally()
     // echo "Composer is not installed. Installing locally...\n";
 
     exec("php -r \"copy('https://getcomposer.org/installer', 'test/composer-setup.php');\"", $output, $returnCode);
-    if (!empty($output))
+    if (!empty($output)) {
         print_r($output);
+    }
     //if ($returnCode !== 0) {
-        //die("Failed to download Composer setup script.\n");
+    //die("Failed to download Composer setup script.\n");
     //}
 
     // Run the setup script to install Composer locally
     exec("php test/composer-setup.php", $output, $returnCode);
     unlink('test/composer-setup.php'); // Remove setup script after installation
+    file_put_contents('logs/installLog.txt', 'Composer installed locally as composer.phar.' . PHP_EOL, FILE_APPEND);
 
-//    if ($returnCode !== 0) {
-//        die("Failed to install Composer.\n");
-//    }
+
+    //    if ($returnCode !== 0) {
+    //        die("Failed to install Composer.\n");
+    //    }
 
     // echo "Composer installed locally as composer.phar.\n";
 }
