@@ -33,15 +33,13 @@
 						</div>
 					{/if}
 					<div class="pull-right">
-						<button class="btn btn-success detailViewSaveComment" type="button"
-							data-mode="add"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
-					</div>
-					{if $MODULE_NAME == 'HelpDesk'}
-						<div class="pull-right">
+						{if $MODULE_NAME == 'HelpDesk'}
 							<button class="btn saveButton detailViewSaveComment" type="button"
-								data-mode="sendMail"><strong>{vtranslate('LBL_SEND_MAIL_AND_POST', $MODULE_NAME)}</strong></button>
-						</div>
-					{/if}
+									data-mode="sendMail"><strong>{vtranslate('LBL_SEND_MAIL_AND_POST', $MODULE_NAME)}</strong></button>
+						{/if}
+						<button class="btn btn-success detailViewSaveComment" type="button"
+								data-mode="add"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
+					</div>
                     {if $MODULE_NAME == 'HelpDesk'}
                         <div>
                             <input type="checkbox" id="externalComment" name="externalComment">&nbsp;
