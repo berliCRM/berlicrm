@@ -1355,7 +1355,23 @@ class Vtiger_Functions {
 		}
 		
 		if (isset($field)) {
-	//
+            $fieldId = $field->get('id');
+
+            $query = 'SELECT listcolor FROM berli_listview_colors WHERE listfieldid = ? AND fieldcontent =?';
+            $result = $db->pquery($query,array($fieldId, decode_html($fieldValue)));
+            if ($result && $db->num_rows($result) > 0) {
+                $rowListColor = $db->query_result($result,0,'listcolor');
+            }
+        }
+
+        if (!isset($rowListColor)) $rowListColor = '';
+
+        // $this->fieldColorMap[$fieldName][$fieldValue] = $rowListColor;
+
+        return $rowListColor;
+    }
+
+    //
 	/**
 	 * Check Valid Dataformat
 	 * @param  string 	$dateValue	Date to validate
@@ -1405,7 +1421,7 @@ class Vtiger_Functions {
 	/* Project against CSV Injection when opened with Spreadsheet apps.
 	 * If value starts with macro / forumula quote it forcefully.
 	 * https://owasp.org/www-community/attacks/CSV_Injection
-        $attachIdResult = $adb->pquery($query, array($id));
+     */
 	static function sanitizeForCSVExport($row) {
 		foreach ($row as $k => $v) {
 			if ($v && is_string($v)) {
@@ -1418,21 +1434,5 @@ class Vtiger_Functions {
 		}
 		return $row;
 	}
-
-}
-
-
-
-
-		}
-		$queryUserId = "SELECT id FROM vtiger_users WHERE id = ?";
-		$result = $adb->pquery($queryUserId, array($recordId));
-		if ($result && $adb->num_rows($result) > 0) {
-			return 'Users';
-		}
-		return null;
-	}
-
-
 
 }

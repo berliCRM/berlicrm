@@ -66,15 +66,6 @@ class EmailTemplates_Module_Model extends Vtiger_Module_Model {
 	}
 
     /**
-     * Function to delete all the email templates
-     * @param type $recordIds
-     */
-    public function deleteAllRecords() {
-        $db = PearDatabase::getInstance();
-        $db->pquery('DELETE FROM vtiger_emailtemplates', array());
-    }
-
-    /**
      * Function to get Email template fields from modules
      * @return <array> template fields
      */

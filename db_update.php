@@ -1381,6 +1381,27 @@ echo 'Adding new RelatedLists... START<br>';
 Install_InitSchema_Model::addNewRelatedLists();
 echo 'Adding new RelatedLists... DONE<br>';
 
+echo "<br>Add new column to vtiger_modcommentsscope START...";
+//first check if the column already exists
+$query = "SELECT COUNT(*) AS cnt
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_NAME = ?
+	AND COLUMN_NAME = ?;";
+$result = $adb->pquery($query, array("vtiger_modcommentsscope", "timeneeded"));
+try {
+    $cnt = (int)$adb->query_result($result, 0, 'cnt');
+    if ($cnt > 0) {
+        echo "<br>column already exists";
+    } else {
+        $query = "ALTER TABLE `vtiger_modcommentsscope`
+                    ADD COLUMN `timeneeded` time DEFAULT NULL";
+        $adb->pquery($query, array());
+    }
+} catch (Exception $e) {
+    echo "<br>Failed adding new column to vtiger_modcommentsscope";
+}
+echo "<br>Add new column to vtiger_modcommentsscope DONE...";
+
 
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
 $adb->pquery($query, array($current_release_tag));
