@@ -88,11 +88,10 @@ class Emails extends CRMEntity {
 			}
 			$parentid = $_REQUEST['parent_id'];
 			if ($_REQUEST['module'] != 'Emails' && $_REQUEST['module'] != 'Webmails') {
-				if (!$parentid) {
-					$parentid = $adb->getUniqueID('vtiger_seactivityrel');
+				if (!empty($parentid) && !empty($actid)) {
+					$mysql = 'insert into vtiger_seactivityrel values(?,?)';
+					$adb->pquery($mysql, array($parentid, $actid));
 				}
-				$mysql = 'insert into vtiger_seactivityrel values(?,?)';
-				$adb->pquery($mysql, array($parentid, $actid));
 			} else {
 				$myids = explode("|", $parentid);  //2@71|
 				
@@ -109,8 +108,10 @@ class Emails extends CRMEntity {
 						$adb->pquery($del_q, array($mycrmid, $actid));
 						$mysql = 'insert into vtiger_seactivityrel values(?,?)';
 					}
-					$params = array($mycrmid, $actid);
-					$adb->pquery($mysql, $params);
+					if (!empty($mycrmid) && !empty($actid)) {
+						$params = array($mycrmid, $actid);
+						$adb->pquery($mysql, $params);
+					}
 				}
 			}
 		} else {
@@ -121,7 +122,7 @@ class Emails extends CRMEntity {
 				$myids = explode("|", $parent_id);
 
 				foreach ($myids as $id) {
-					if (empty($id)) {
+					if (empty($id) || empty($realid[0])) {
 						continue;
 					}
 					$realid = explode("@", $id);
