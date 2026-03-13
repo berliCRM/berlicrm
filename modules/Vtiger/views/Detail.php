@@ -349,30 +349,11 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		$limit = $request->get('limit');
 		$moduleName = $request->getModule();
 
-        $sessionKey = 'UPDATES_FILTER_' . $parentRecordId.'_USERID_'.$userid;
-
         // Filter aus Request
-        $filterAction = $request->get('filterAction'); // "apply" oder null
+        $filterAction = $request->get('filterAction');
         $filterField = $request->get('filterField');
         $searchTerm  = trim($request->get('searchTerm'));
         $sortOrder  = $request->get('sortOrder');
-
-        // 1. Nutzer klickt aktiv auf "Filtern"
-        if ($filterAction == 'apply') {
-            // wir setzen immer, weil gewollt geklickt! 
-            // Also mussen Werte da sein, auch leere Werte, wenn wir es leeren wollen. 
-
-            $_SESSION[$sessionKey]['filterField'] = $filterField;
-            $_SESSION[$sessionKey]['searchTerm']  = $searchTerm;
-            $_SESSION[$sessionKey]['sortOrder']   = $sortOrder;
-
-        }
-        // 2. Session benutzen wenn kein 'apply'. 
-        elseif (!empty($_SESSION[$sessionKey])) {
-            $filterField = $_SESSION[$sessionKey]['filterField'];
-            $searchTerm  = $_SESSION[$sessionKey]['searchTerm'];
-            $sortOrder   = $_SESSION[$sessionKey]['sortOrder'];
-        }
 
 		if(empty($pageNumber)) {
 			$pageNumber = 1;
@@ -391,19 +372,9 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 
 		$recentActivities = '';
         $totalRecordCountNr = '';
-		
-        // Filtern: Aktivitäten nach Feld filtern, falls ein Feld gewählt wurde
         
-        if (!empty($filterField) || !empty($searchTerm) || !empty($sortOrder) ) {
-            $recentActivities = ModTracker_Record_Model::getFilteredUpdates($parentRecordId, $pagingModel, $filterField, $searchTerm, $sortOrder);
-            $totalRecordCountNr = ModTracker_Record_Model::getFilteredUpdatesCount( $parentRecordId, $filterField, $searchTerm );
-        } 
-        else {
-
-            $recentActivities = ModTracker_Record_Model::getUpdates($parentRecordId, $pagingModel, $sortOrder);
-            $totalRecordCountNr = ModTracker_Record_Model::getTotalRecordCount($parentRecordId);
-
-        }
+        $recentActivities = ModTracker_Record_Model::getUpdatesUnified($parentRecordId, $pagingModel, $filterField, $searchTerm, $sortOrder);
+        $totalRecordCountNr = ModTracker_Record_Model::getUpdatesCount( $parentRecordId, $filterField, $searchTerm );
         
         $pageLimitNr = $pagingModel->getPageLimit();
 		$currentPageNr = $pagingModel->getCurrentPage();
@@ -426,7 +397,6 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		$viewer->assign('MODULE_NAME', $moduleName);
 		$viewer->assign('PAGING_MODEL', $pagingModel);
         $viewer->assign('MODULE_FIELDS', $moduleFields);
-
         $viewer->assign('FILTER_FIELD', $filterField);
         $viewer->assign('SEARCH_TERM', $searchTerm);
         $viewer->assign('SORT_ORDER', $sortOrder);
