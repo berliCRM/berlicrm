@@ -632,6 +632,7 @@ class Vtiger_Functions {
 	}
 
 	static function getMergedDescriptionCustomVars($fields, $description, $id, $parent_type) {
+        require_once "vendor/autoload.php";
 		global $current_user, $HELPDESK_SUPPORT_EMAIL_ID, $PORTAL_URL, $PORTAL_URL_ENG;
 		date_default_timezone_set($current_user->time_zone);
 		
