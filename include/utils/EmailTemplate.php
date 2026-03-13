@@ -90,11 +90,13 @@ class EmailTemplate {
 		$columnList = array();
 		$allColumnList = $meta->getUserAccessibleColumns();
 		$fieldList = array();
+        $columnWithTable = array();
 		if (is_array($variableList) and count($variableList) > 0) {
 			foreach ($variableList as $column) {
 				if (in_array($column, $allColumnList)) {
 					$fieldList[] = array_search($column, $fieldColumnMapping);
 					$columnList[] = $column;
+                    $columnWithTable[] = $columnTableMapping[$column]. "." . $column;
 				}
 			}
 			foreach ($fieldList as $field) {
@@ -111,7 +113,7 @@ class EmailTemplate {
 			}
 
 			if (count($tableList) > 0 && count($columnList) > 0) {
-				$sql = 'select ' . implode(', ', $columnList) . ' from ' . $tableList[0];
+				$sql = 'select ' . implode(', ', $columnWithTable) . ' from ' . $tableList[0];
 				$moduleTableIndexList = $meta->getEntityTableIndexList();
 				foreach ($tableList as $index => $tableName) {
 					if ($tableName != $tableList[0]) {
@@ -140,18 +142,22 @@ class EmailTemplate {
 				$values = array();
 				foreach ($it as $row) {
 					foreach ($fieldList as $field) {
-						     $moduleModel = Vtiger_Module_Model::getInstance($module); 
- 	                         $fieldModel = Vtiger_Field_Model::getInstance($field, $moduleModel); 
- 		                     $value = $row->get($fieldColumnMapping[$field]); 
- 		                        if($fieldModel->isReferenceField()) { 
-		                            $values[$field] = $value; 
- 		                        } 
-								elseif($fieldModel->isOwnerField()) {
-									$values[$field] = $value;
-								}
-								else { 
- 		                            $values[$field] = $fieldModel->getDisplayValue($value, $recordId); 
- 		                        } 
+                        $moduleModel = Vtiger_Module_Model::getInstance($module);
+                        $fieldModel = Vtiger_Field_Model::getInstance($field, $moduleModel);
+                        $value = $row->get($fieldColumnMapping[$field]);
+//                        case for using moduleid field
+                        if (!$fieldModel) {
+                            $values[$field] = $value;
+                        }
+                        elseif($fieldModel->isReferenceField()) {
+                            $values[$field] = $value;
+                        }
+                        elseif($fieldModel->isOwnerField()) {
+                            $values[$field] = $value;
+                        }
+                        else {
+                            $values[$field] = $fieldModel->getDisplayValue($value, $recordId);
+                        }
 					}
 				}
 				$moduleFields = $meta->getModuleFields();

@@ -31,3 +31,5 @@ $modCommentsColors = array(
 			'outgoing' => 'green',
 			'internal' => 'yellow'
 			);
+
+$HELPDESK_SUPPORT_EMAIL_TEMPLATE = 3;
