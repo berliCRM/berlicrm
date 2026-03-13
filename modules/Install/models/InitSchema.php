@@ -1275,8 +1275,11 @@ class Install_InitSchema_Model
 		
 		$query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
 		
-		$relations = array('Vendors' => array('Documents' => array(array('ADD', 'SELECT'), 'get_attachments')));
-		
+		$relations = array(
+            'Vendors' => array('Documents' => array(array('ADD', 'SELECT'), 'get_attachments')),
+            'HelpDesk' => array('Emails' => array(array(), 'get_emails'))
+        );
+
 		foreach ($relations AS $moduleName => $relation) {
 			foreach ($relation AS $relModuleName => $details) {
 				$actions = $details[0];
