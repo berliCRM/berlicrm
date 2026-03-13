@@ -45,6 +45,7 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
             $mailTo = $this->sendMail($request, $recordModel);
             $recordModel = Vtiger_Record_Model::getInstanceById($recordModel->getId(),'ModComments');
             $recordModel->set('mode', 'edit');
+            $recordModel->set('external', 1);
             $recordModel->set('mailto', $mailTo);
             $recordModel->save();
         }
