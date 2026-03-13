@@ -10762,7 +10762,7 @@ CREATE TABLE IF NOT EXISTS `vtiger_relatedlists_seq` (
 --
 
 INSERT INTO `vtiger_relatedlists_seq` (`id`) VALUES
-(90);
+(91);
 
 -- --------------------------------------------------------
 
