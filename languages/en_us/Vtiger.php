@@ -881,8 +881,19 @@ $languageStrings = array(
 	// Send Mail from ModComment
 	'LBL_SEND_MAIL_AND_POST' => 'Send Mail and Post',
 	'LBL_EXTERNAL_COMMENT' => 'External Comment',
-	'LBL_MAILTO'=> 'Mail to',
+	'LBL_MAILTO' => 'Mail to',
+    'LBL_TIME_NEEDED' => 'Time Spent',
 
+    'LBL_SUPPORT_EMAIL' => 'Support Email',
+    'LBL_COMPANY_LOGO' => 'Company Logo',
+    'LBL_COMPANY_NAME' => 'Company Name',
+    'LBL_COMPANY_WEBSITE' => 'Website',
+    'LBL_COMPANY_ADDRESS' => 'Address',
+    'LBL_COMPANY_CITY' => 'City',
+    'LBL_COMPANY_STATE' => 'State',
+    'LBL_COMPANY_COUNTRY' => 'Country',
+    'LBL_COMPANY_PHONE' => 'Phone',
+    'LBL_COMPANY_FAX' => 'Fax',
 );
 
 $jsLanguageStrings = array(

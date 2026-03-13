@@ -376,6 +376,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 				contentContainer.html(data);
 				thisInstance.registerPreviewEvent();
 				app.registerEventForTextAreaFields(jQuery(".commentcontent"))
+				app.registerEventForTimeFields();
 				contentContainer.trigger(thisInstance.widgetPostLoad, { 'widgetName': relatedModuleName })
                 aDeferred.resolve(params);
 			},
@@ -600,11 +601,13 @@ jQuery.Class("Vtiger_Detail_Js", {
 		var commentId = commentInfoHeader.data('commentid');
 		var parentCommentId = commentInfoHeader.data('parentcommentid');
 		var external = closestCommentBlock.find('#externalComment').is(':checked');
+		const neededTime = closestCommentBlock.find('#timeNeeded').val();
 		var postData = {
 			'commentcontent': commentContentValue,
 			'related_to': thisInstance.getRecordId(),
 			'module': 'ModComments',
-			'external': external
+			'external': external,
+			'neededTime' : neededTime,
 		}
 
 		if (commentMode == "edit") {
@@ -2352,9 +2355,11 @@ jQuery.Class("Vtiger_Detail_Js", {
 			var commentInfoContent = commentInfoBlock.find('.commentInfoContent');
 			var commentReason = commentInfoBlock.find('[name="editReason"]');
 			var externalComment = commentInfoBlock.find('[name="external"]').val();
+			const timeNeeded = commentInfoBlock.find('[name="timeNeeded"]').val();
 			var editCommentBlock = thisInstance.getEditCommentBlock();
 			editCommentBlock.find('.commentcontent').text(commentInfoContent.text());
 			editCommentBlock.find('[name="reasonToEdit"]').val(commentReason.text());
+			editCommentBlock.find('[name="timeNeeded"]').val(timeNeeded);
 			if (externalComment == '1') {
 				editCommentBlock.find('[name="externalComment"]').prop('checked', true);
 			} else {

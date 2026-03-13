@@ -11,171 +11,219 @@
 class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 {
 
-	public function checkPermission(Vtiger_Request $request)
-	{
-		$moduleName = $request->getModule();
-		$record = $request->get('record');
-		//Do not allow ajax edit of existing comments
-		if ($record) {
-			throw new AppException('LBL_PERMISSION_DENIED');
-		}
-	}
+    /**
+     * @param Vtiger_Request $request
+     * @return void
+     * @throws AppException
+     */
+    public function checkPermission(Vtiger_Request $request): void
+    {
+        $moduleName = $request->getModule();
+        $record = $request->get('record');
+        //Do not allow ajax edit of existing comments
+        if ($record) {
+            throw new AppException('LBL_PERMISSION_DENIED');
+        }
+    }
 
-	public function process(Vtiger_Request $request)
-	{
-		$currentUserModel = Users_Record_Model::getCurrentUserModel();
-		$request->set('assigned_user_id', $currentUserModel->getId());
-		$request->set('userid', $currentUserModel->getId());
-		$request->set('username', $currentUserModel->getName());
-		$mailTo = '';
-		try {
-			$recordModel = $this->saveRecord($request);
-			if ($request->get('sendMail')) {
-				$mailTo = $this->sendMail($request, $recordModel);
-			}
-			$this->saveModcommentsScope($request, $recordModel, $mailTo);
-		} catch (\Throwable $th) {
-			file_put_contents('test/0debug.txt', "Error: " . var_export($th, true) . "\n\n", FILE_APPEND);
-		}
+    /**
+     * @param Vtiger_Request $request
+     * @return void
+     * @throws Exception
+     */
+    public function process(Vtiger_Request $request): void
+    {
+        $currentUserModel = Users_Record_Model::getCurrentUserModel();
+        $request->set('assigned_user_id', $currentUserModel->getId());
+        $request->set('userid', $currentUserModel->getId());
+        $request->set('username', $currentUserModel->getName());
+        $mailTo = '';
 
-		$fieldModelList = $recordModel->getModule()->getFields();
-		$result = array();
-		foreach ($fieldModelList as $fieldName => $fieldModel) {
-			$fieldValue = $recordModel->get($fieldName);
-			$result[$fieldName] = array('value' => $fieldValue, 'display_value' => $fieldModel->getDisplayValue($fieldValue));
-		}
-		$result['id'] = $recordModel->getId();
+        $recordModel = $this->saveRecord($request);
 
-		$result['_recordLabel'] = $recordModel->getName();
-		$result['_recordId'] = $recordModel->getId();
+        if ($request->get('sendMail')) {
+            $mailTo = $this->sendMail($request, $recordModel);
+        }
+        $this->saveModcommentsScope($request, $recordModel, $mailTo);
 
-		$response = new Vtiger_Response();
-		$response->setEmitType(Vtiger_Response::$EMIT_JSON);
-		$response->setResult($result);
-		$response->emit();
-	}
+        $fieldModelList = $recordModel->getModule()->getFields();
+        $result = array();
+        foreach ($fieldModelList as $fieldName => $fieldModel) {
+            $fieldValue = $recordModel->get($fieldName);
+            $result[$fieldName] = array('value' => $fieldValue, 'display_value' => $fieldModel->getDisplayValue($fieldValue));
+        }
+        $result['id'] = $recordModel->getId();
 
-	/**
-	 * Function to save record
-	 * @param <Vtiger_Request> $request - values of the record
-	 * @return <RecordModel> - record Model of saved record
-	 */
-	public function saveRecord($request)
-	{
-		$recordModel = $this->getRecordModelFromRequest($request);
+        $result['_recordLabel'] = $recordModel->getName();
+        $result['_recordId'] = $recordModel->getId();
 
-		$recordModel->save();
-		if ($request->get('relationOperation')) {
-			$parentModuleName = $request->get('sourceModule');
-			$parentModuleModel = Vtiger_Module_Model::getInstance($parentModuleName);
-			$parentRecordId = $request->get('sourceRecord');
-			$relatedModule = $recordModel->getModule();
-			$relatedRecordId = $recordModel->getId();
+        $response = new Vtiger_Response();
+        $response->setEmitType(Vtiger_Response::$EMIT_JSON);
+        $response->setResult($result);
+        $response->emit();
+    }
 
-			$relationModel = Vtiger_Relation_Model::getInstance($parentModuleModel, $relatedModule);
-			$relationModel->addRelation($parentRecordId, $relatedRecordId);
-		}
-		return $recordModel;
-	}
+    /**
+     * Function to save record
+     * @param <Vtiger_Request> $request - values of the record
+     * @return <RecordModel> - record Model of saved record
+     */
+    public function saveRecord($request): Vtiger_Record_Model
+    {
+        $recordModel = $this->getRecordModelFromRequest($request);
 
-	/**
-	 * Function to get the record model based on the request parameters
-	 * @param Vtiger_Request $request
-	 * @return Vtiger_Record_Model or Module specific Record Model instance
-	 */
-	public function getRecordModelFromRequest(Vtiger_Request $request)
-	{
-		$recordModel = parent::getRecordModelFromRequest($request);
+        $recordModel->save();
+        if ($request->get('relationOperation')) {
+            $parentModuleName = $request->get('sourceModule');
+            $parentModuleModel = Vtiger_Module_Model::getInstance($parentModuleName);
+            $parentRecordId = $request->get('sourceRecord');
+            $relatedModule = $recordModel->getModule();
+            $relatedRecordId = $recordModel->getId();
 
-		$recordModel->set('commentcontent', $request->getRaw('commentcontent'));
+            $relationModel = Vtiger_Relation_Model::getInstance($parentModuleModel, $relatedModule);
+            $relationModel->addRelation($parentRecordId, $relatedRecordId);
+        }
+        return $recordModel;
+    }
 
-		return $recordModel;
-	}
+    /**
+     * Function to get the record model based on the request parameters
+     * @param Vtiger_Request $request
+     * @return Vtiger_Record_Model or Module specific Record Model instance
+     */
+    public function getRecordModelFromRequest(Vtiger_Request $request): Vtiger_Record_Model
+    {
+        $recordModel = parent::getRecordModelFromRequest($request);
 
-	public function sendMail(Vtiger_Request $request, Vtiger_Record_Model $recordModel)
-	{
-		global $site_URL, $HELPDESK_SUPPORT_EMAIL_ID, $HELPDESK_COMMENTS_EMAIL_SUBJECT;
-		$email = '';
-		$relatedId = $recordModel->get('related_to');
-		$relatedRecordModel = Vtiger_Record_Model::getInstanceById($relatedId);
-		$parent_type = '';
-		$parent_id = '';
+        $recordModel->set('commentcontent', $request->getRaw('commentcontent'));
 
-		if (empty($email) && !empty($relatedRecordModel->get('contact_id')) && $relatedRecordModel->get('contact_id') != '0') {
-			$contactModel = Vtiger_Record_Model::getInstanceById($relatedRecordModel->get('contact_id'));
-			$email = $contactModel->get('email');
-			$parent_type = 'Contacts';
-			$parent_id = $relatedRecordModel->get('contact_id');
-		}
+        return $recordModel;
+    }
 
-		if (empty($email)) {
-			$accountModel = Vtiger_Record_Model::getInstanceById($relatedRecordModel->get('parent_id'));
-			$email = $accountModel->get('email1');
-			$parent_type = 'Accounts';
-			$parent_id = $relatedRecordModel->get('parent_id');
-		}
+    /**
+     * @param Vtiger_Request $request
+     * @param Vtiger_Record_Model $recordModel
+     * @return string|null
+     * @throws Exception
+     */
+    public function sendMail(Vtiger_Request $request, Vtiger_Record_Model $recordModel): ?string
+    {
+        global $site_URL, $HELPDESK_SUPPORT_EMAIL_ID, $PORTAL_URL;
+        $email = '';
+        $name = '';
+        $relatedId = $recordModel->get('related_to');
+        $relatedRecordModel = Vtiger_Record_Model::getInstanceById($relatedId);
+        $parent_id = '';
+        $portalUrl = $PORTAL_URL . "/index.php?module=HelpDesk&action=index&ticketid=" . $relatedId . "&fun=detail";
+        $subject = decode_html(self::getMailSubject());
+        $contents = decode_html(self::getMailTemplate());
 
-		// get subject of outgoing email from config.inc.php if set/exists there
-		$theTicketNo = $relatedRecordModel->get('ticket_no');
-		$theTicketId = $relatedRecordModel->getId();
-		$theTicketName = $relatedRecordModel->getName();
-		if(empty($HELPDESK_COMMENTS_EMAIL_SUBJECT)) {
-			$HELPDESK_COMMENTS_EMAIL_SUBJECT = '{ticket_no} [ Ticket Id : {ticket_id} ] {ticket_subject}';
-		}
-		$subject= str_replace(['{ticket_no}', '{ticket_id}', '{ticket_subject}'], [$theTicketNo, $theTicketId, $theTicketName], $HELPDESK_COMMENTS_EMAIL_SUBJECT);
+        $subject = getMergedDescription($subject, $relatedId, 'HelpDesk');
+        $contents = getMergedDescription($contents, $relatedId, 'HelpDesk');
+        $contents = getMergedDescription($contents, $recordModel->getId(), 'ModComments');
 
-		$contents = '<h4>Ihr Vorgang hat einen neuen Kommentar / Your ticket has a new comment:</h4>';
-		$contents .= nl2br((string)$recordModel->get('commentcontent')); // cast to string to avoid null warning
-		$contents .= '<br><br>----------------------------------------------------------------------------------------------------';
+        if (!empty($relatedRecordModel->get('contact_id')) && $relatedRecordModel->get('contact_id') != '0') {
+            $contactModel = Vtiger_Record_Model::getInstanceById($relatedRecordModel->get('contact_id'));
+            $email = $contactModel->get('email');
+            $name = $contactModel->get('firstname') . " " . $contactModel->get('lastname');
+            $parent_id = $relatedRecordModel->get('contact_id');
+            $contents = getMergedDescription($contents, $parent_id, 'Contacts');
+//            zum Ersatzfelder entfernen
+            $contents = getMergedDescription($contents, 0, 'Accounts');
+        }
 
-		$contents .= '<h4>Ticket Details</h4>';
-		$contents .= '<b>Ticket ID:</b> ' . $recordModel->getId() . '<br>';
-		$contents .= '<b>Betreff / Subject:</b> ' . $relatedRecordModel->getName() . '<br>';
-		$contents .= '<b>Ticket Nr:</b> ' . $relatedRecordModel->get('ticket_no') . '<br>';
-		$contents .= '<b>Status:</b> ' . $relatedRecordModel->get('ticketstatus') . '<br>';
-		$contents .= '<b>Description / Beschreibung:</b><br>' . nl2br((string)$relatedRecordModel->get('description')) . '<br>';
+        if (empty($email)) {
+            $accountModel = Vtiger_Record_Model::getInstanceById($relatedRecordModel->get('parent_id'));
+            $email = $accountModel->get('email1');
+            $name = $accountModel->get('accountname');
+            $parent_id = $relatedRecordModel->get('parent_id');
+            $contents = getMergedDescription($contents, $parent_id, 'Accounts');
+//            zum Ersatzfelder entfernen
+            $contents = getMergedDescription($contents, 0, 'Contacts');
+        }
 
-		$to = $email;
-		if(is_array($to)) {
-			$to = implode(',',$to);
-		}
+        $to = $email;
+        if(is_array($to)) {
+            $to = implode(',',$to);
+        }
 
-		$emailsRecordModel = Vtiger_Record_Model::getCleanInstance('Emails');
-		$emailsRecordModel->set('subject', html_entity_decode($subject));
-		$emailsRecordModel->set('description', $contents);
-		$emailsRecordModel->set('email_flag', 'SENT');
-		$emailsRecordModel->set('assigned_user_id', Users_Record_Model::getCurrentUserModel()->getId());
-		$emailsRecordModel->set('parent_id', $relatedId . '@1|' . $parent_id . '@1|');
-		$emailsRecordModel->set('toemailinfo', array($relatedId => array($email)));
-		$emailsRecordModel->set('toMailNamesList', array($relatedId => array(array('label' => $name, 'value' => $email))));
-		$emailsRecordModel->set('saved_toid', $to);
-		$emailsRecordModel->set('from_email', $HELPDESK_SUPPORT_EMAIL_ID);
-		$emailsRecordModel->fromAddress = $HELPDESK_SUPPORT_EMAIL_ID;
-		$emailsRecordModel->save();
+        $emailsRecordModel = Vtiger_Record_Model::getCleanInstance('Emails');
+        $emailsRecordModel->set('subject', $subject);
+        $emailsRecordModel->set('description', $contents);
+        $emailsRecordModel->set('email_flag', 'SENT');
+        $emailsRecordModel->set('assigned_user_id', Users_Record_Model::getCurrentUserModel()->getId());
+        $emailsRecordModel->set('parent_id', $relatedId . '@1|' . $parent_id . '@1|');
+        $emailsRecordModel->set('toemailinfo', array($relatedId => array($email)));
+        $emailsRecordModel->set('toMailNamesList', array($relatedId => array(array('label' => $name, 'value' => $email))));
+        $emailsRecordModel->set('saved_toid', $to);
+        $emailsRecordModel->set('from_email', $HELPDESK_SUPPORT_EMAIL_ID);
+        $emailsRecordModel->fromAddress = $HELPDESK_SUPPORT_EMAIL_ID;
+        $emailsRecordModel->save();
 
-		$response = $emailsRecordModel->send();
-		if ($response === true) {
-			// This is needed to set vtiger_email_track table as it is used in email reporting
-			$emailsRecordModel->setAccessCountValue();
-		} else {
-			$emailsRecordModel->set('email_flag', 'FAILED');
-			$emailsRecordModel->set('mode', 'edit');
-			$emailsRecordModel->save();
-		}
+        $response = $emailsRecordModel->send();
+        if ($response === true) {
+            // This is needed to set vtiger_email_track table as it is used in email reporting
+            $emailsRecordModel->setAccessCountValue();
+        } else {
+            $emailsRecordModel->set('email_flag', 'FAILED');
+            $emailsRecordModel->set('mode', 'edit');
+            $emailsRecordModel->save();
+        }
 
-		return $response ? $email : $response;
-	}
+        return $response ? $email : null;
+    }
 
-	public function saveModcommentsScope(Vtiger_Request $request, Vtiger_Record_Model $recordModel, $mailTo)
-	{
-		$adb = PearDatabase::getInstance();
-		$external = json_decode($request->get('external'));
+    /**
+     * @param Vtiger_Request $request
+     * @param Vtiger_Record_Model $recordModel
+     * @param $mailTo
+     * @return void
+     */
+    public function saveModcommentsScope(Vtiger_Request $request, Vtiger_Record_Model $recordModel, $mailTo): void
+    {
+        $adb = PearDatabase::getInstance();
+        $external = json_decode($request->get('external'));
+        $timeNeeded = $request->get('neededTime');
 
-		if ($mailTo !== '') {
-			$external = 1;
-		}
+        if ($mailTo !== '') {
+            $external = 1;
+        }
 
-		$query = "INSERT INTO vtiger_modcommentsscope (modcommentsid, mailto, external) VALUES (?, ?, ?)";
-		$result = $adb->pquery($query, array($recordModel->getId(), $mailTo, $external));
-	}
+        $query = "INSERT INTO vtiger_modcommentsscope (modcommentsid, mailto, external, timeneeded) VALUES (?, ?, ?, ?)";
+        $result = $adb->pquery($query, array($recordModel->getId(), $mailTo, $external, $timeNeeded));
+    }
+
+    /**
+     * @return string|null
+     * @throws Exception
+     */
+    public function getMailTemplate(): ?string
+    {
+        global $HELPDESK_SUPPORT_EMAIL_TEMPLATE;
+
+        $db = PearDatabase::getInstance();
+
+        $query = "SELECT vtiger_emailtemplates.subject,vtiger_emailtemplates.body
+					FROM vtiger_emailtemplates
+					WHERE vtiger_emailtemplates.templateid=?";
+        $result = $db->pquery($query, array($HELPDESK_SUPPORT_EMAIL_TEMPLATE));
+        return $db->query_result($result,0,'body');
+    }
+
+    /**
+     * @return string|null
+     * @throws Exception
+     */
+    public function getMailSubject(): ?string
+    {
+        global $HELPDESK_SUPPORT_EMAIL_TEMPLATE;
+
+        $db = PearDatabase::getInstance();
+
+        $query = "SELECT vtiger_emailtemplates.subject,vtiger_emailtemplates.body
+					FROM vtiger_emailtemplates
+					WHERE vtiger_emailtemplates.templateid=?";
+        $result = $db->pquery($query, array($HELPDESK_SUPPORT_EMAIL_TEMPLATE));
+        return $db->query_result($result,0,'subject');
+    }
 }
