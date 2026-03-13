@@ -4,7 +4,7 @@
     <name>Search</name>
     <label>Global Search</label>
     <parent></parent>
-    <version>3.10</version>
+    <version>3.11</version>
     <dependencies>
 		<vtiger_version>6.0.0</vtiger_version>
 		<vtiger_max_version>6.*</vtiger_max_version>

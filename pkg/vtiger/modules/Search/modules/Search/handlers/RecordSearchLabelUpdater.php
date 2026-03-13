@@ -60,59 +60,28 @@ class Settings_Search_RecordSearchLabelUpdater_Handler extends VTEventHandler {
 				else {
 					$metainfo = Vtiger_Functions::getEntityModuleInfo($module);
 				}
-				$modulename = $metainfo['modulename'];
-				$table = $metainfo['tablename'];
-				$idcolumn = $metainfo['entityidfield'];
-				$columns_name = $metainfo['fieldname'];
-				$columns_name_arr = explode(',',$columns_name);
+				$idColumn = $metainfo['entityidfield'];
+				$tableName = $metainfo['tablename'];
+				
+				$sqlquery ="SELECT searchcolumn, gstabid FROM  berli_globalsearch_settings LEFT JOIN vtiger_entityname ON vtiger_entityname.tabid = berli_globalsearch_settings.gstabid";
+				$sqlquery .= " WHERE vtiger_entityname.modulename = ?;";
 
-				$primary = CRMEntity::getInstance($modulename);
-				$moduleothertables = $primary->tab_name_index;
-				$moduleothertables = array_diff($moduleothertables, array('crmid'));
-				$otherquery ='';
-				foreach ($moduleothertables as $othertable => $otherindex) {
-					if (isset($moduleothertables)) {
-						$otherquery .= " LEFT JOIN $othertable ON $othertable.$otherindex=$table.$idcolumn";
-					} 
-					else {
-						$otherquery .= '';
-					}
-				}
-				$sqlquery ="SELECT searchcolumn, gstabid FROM  berli_globalsearch_settings LEFT JOIN vtiger_entityname ON vtiger_entityname.tabid = berli_globalsearch_settings.gstabid ";
-				//$sqlquery .= $otherquery;
-				$sqlquery .= " WHERE vtiger_entityname.modulename = '".$modulename."' ";
-
-				$columns_search = $adb->pquery($sqlquery, array());
+				$columns_search = $adb->pquery($sqlquery, array($module));
 				$searchcolumn = $adb->query_result($columns_search, 0, 'searchcolumn');
 				$gstabid = $adb->query_result($columns_search, 0, 'gstabid');
-				if (empty ($searchcolumn)) {
-						$entity_search_query = "SELECT fieldname FROM `vtiger_entityname` where tabid = ?";
-						$entity_search = $adb->pquery($entity_search_query, array($gstabid));
-						$fieldname= $adb->query_result($entity_search, 0, 'fieldname');
-						$columns_search_for['searchcolumn'] = $fieldname;
-				}
-				else {
-					$columns_search_for['searchcolumn'] = $searchcolumn;
-				}
-				$columns_search = explode(',', $columns_search_for['searchcolumn']);
-				$columns = array_unique(array_merge($columns_name_arr, $columns_search));
+				$entity_search_query = "SELECT fieldname FROM `vtiger_entityname` where tabid = ?";
+				$entity_search = $adb->pquery($entity_search_query, array($gstabid));
+				$fieldname = $adb->query_result($entity_search, 0, 'fieldname');
+				$columns_search_for = explode(',', $fieldname);
+				$columns_search_for = array_merge($columns_search_for, explode(',', $searchcolumn));
 				//remove empty entries
-				$columns = array_filter($columns);
+				$columns_search_for = array_map('trim', $columns_search_for);
+				$columns = array_unique(array_filter($columns_search_for));
 
-				$moduleothertableslim = $moduleothertables;
-				unset($moduleothertableslim[$table], $moduleothertableslim['vtiger_crmentity']);
-
-				foreach ($moduleothertableslim as $othertable => $otherindex) {
-					if (isset($moduleothertableslim)) {
-						$otherqueryslim .= " LEFT JOIN $othertable ON $othertable.$otherindex=$table.$idcolumn";
-					} 
-					else {
-						$otherqueryslim .= '';
-					}
-				}
-
-				$full_idcolumn = $table.'.'.$idcolumn;
-				$sql = sprintf('SELECT ' . implode(',', array_filter($columns)) . ', %s AS id FROM %s %s WHERE %s IN (%s)', $full_idcolumn, $table, $otherqueryslim, $full_idcolumn, generateQuestionMarks($ids));
+				$currentUserModel = Users_Record_Model::getCurrentUserModel();
+				$queryGenerator = new QueryGenerator($module, $currentUserModel);
+				$queryGenerator->setFields($columns);
+				$sql = $queryGenerator->getQuery()." AND $tableName.$idColumn IN(".generateQuestionMarks($ids).");";
 				$result = $adb->pquery($sql, $ids);
 
 				$moduleInfo = Vtiger_Functions::getModuleFieldInfos($module);
@@ -123,11 +92,10 @@ class Settings_Search_RecordSearchLabelUpdater_Handler extends VTEventHandler {
 					}
 				}
 
-				for ($i = 0; $i < $adb->num_rows($result); $i++) {
-					$row = $adb->raw_query_result_rowdata($result, $i);
+				while ($row = $adb->getNextRow($result, false)) {
 					$label_name = array();
 					$label_search = array();
-					foreach ($columns_search as $columnName) {
+					foreach ($columns AS $columnName) {
 						if ($moduleInfoExtend && in_array($moduleInfoExtend[$columnName]['uitype'], array(10, 51,73,76, 75, 81))) {
 							if ($row[$columnName] > 0) {
 								//get module of the related record if exists
