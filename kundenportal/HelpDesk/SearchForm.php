@@ -21,7 +21,7 @@
 		</div><!--.widget-header-->
 		    
 		<div class="widget-body">
-        	<div class="widget-main clearfix" style="padding:12px;>
+        	<div class="widget-main clearfix" style="padding:12px;">
 				<table  cellpadding="5" cellspacing="0" width="95%" border="0" align="center">
 					<tbody>
 						<tr>
