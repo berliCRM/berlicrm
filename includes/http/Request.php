@@ -66,8 +66,9 @@ class Vtiger_Request {
 			Zend_Json::$useBuiltinEncoderDecoder  = $oldValue;
 		}
 
+        $noPurifyKeys = ['reportname', 'description'];
         //Handled for null because vtlib_purify returns empty string
-        if(!empty($value) && $purify){
+        if(!empty($value) && $purify && !in_array($key, $noPurifyKeys)){
             $value = vtlib_purify($value);
         }
 		return $value;
