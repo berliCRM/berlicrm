@@ -62,8 +62,17 @@ class Users_Save_Action extends Vtiger_Save_Action {
 	protected function getRecordModelFromRequest(Vtiger_Request $request) {
 		$moduleName = $request->getModule();
 		$recordId = $request->get('record');
-                $currentUserModel = Users_Record_Model::getCurrentUserModel();
-		if(!empty($recordId)) {
+        $currentUserModel = Users_Record_Model::getCurrentUserModel();
+		
+		// none admin users are not allowed to create users for the case checkPermission{} was bypassed
+		$isEdit = preg_match('/^\d+$/', (string)$recordId) && (int)$recordId > 0;
+
+		if (!$isEdit && !$currentUserModel->isAdminUser()) {
+			throw new AppException('LBL_PERMISSION_DENIED');
+		}
+
+		if (preg_match('/^\d+$/', (string)$recordId) && (int)$recordId > 0) {
+			$recordId = (int)$recordId;
 			$recordModel = Vtiger_Record_Model::getInstanceById($recordId, $moduleName);
 			$modelData = $recordModel->getData();
 			$recordModel->set('id', $recordId);
@@ -71,7 +80,9 @@ class Users_Save_Action extends Vtiger_Save_Action {
 			if(!empty($sharedType))
 				$recordModel->set('calendarsharedtype', $request->get('sharedtype'));
 			$recordModel->set('mode', 'edit');
-		} else {
+		} 
+		else {
+			$recordId = null;
 			$recordModel = Vtiger_Record_Model::getCleanInstance($moduleName);
 			$modelData = $recordModel->getData();
 			$recordModel->set('mode', '');
@@ -85,18 +96,14 @@ class Users_Save_Action extends Vtiger_Save_Action {
 			$fieldValue = $request->get($fieldName, null);
 
 			if ($fieldName === 'is_admin') {
-				if (!$currentUserModel->isAdminUser() && (!$fieldValue)) {
+				if (!$currentUserModel->isAdminUser()) {
 					$fieldValue = 'off';
-				} else if ($currentUserModel->isAdminUser() && ($fieldValue || $fieldValue === 'on')) {
-					$fieldValue = 'on';
-					$recordModel->set('is_owner', 1);
-				} else {
-					$fieldValue = 'off';
-					$recordModel->set('is_owner', 0);
+					$recordModel->set('is_owner', 0); // or keep existing
+				} 
+				else {
+					$fieldValue = ($fieldValue === 'on') ? 'on' : 'off';
+					$recordModel->set('is_owner', ($fieldValue === 'on') ? 1 : 0);
 				}
-			// prevent non-admin users from changing crucial values by themselves
-			} elseif (!$currentUserModel->isAdminUser() && ($fieldName === 'roleid' || $fieldName === 'user_name' || $fieldName === 'status')) {
-				$fieldValue = $recordModel->get($fieldName);
 			}
 			if($fieldValue !== null) {
 				if(!is_array($fieldValue)) {
