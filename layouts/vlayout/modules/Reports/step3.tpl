@@ -14,9 +14,9 @@
 		<input type="hidden" name="module" value="{$MODULE}" />
 		<input type="hidden" name="action" value="Save" />
 		<input type="hidden" name="record" value="{$RECORD_ID}" />
-		<input type="hidden" name="reportname" value="{$REPORT_MODEL->get('reportname')}" />
+        <input type="hidden" name="reportname" value="{$REPORT_MODEL->get('reportname')|escape:'htmlall'}" />
+        <input type="hidden" name="reports_description" value="{$REPORT_MODEL->get('description')|escape:'htmlall'}" />
 		<input type="hidden" name="reportfolderid" value="{$REPORT_MODEL->get('reportfolderid')}" />
-		<input type="hidden" name="reports_description" value="{$REPORT_MODEL->get('description')}" />
 		<input type="hidden" name="primary_module" value="{$PRIMARY_MODULE}" />
 		<input type="hidden" name="secondary_modules" value={ZEND_JSON::encode($SECONDARY_MODULES)} />
 		<input type="hidden" name="selected_fields" id="seleted_fields" value='{$REPORT_MODEL->get('selected_fields')}' />
