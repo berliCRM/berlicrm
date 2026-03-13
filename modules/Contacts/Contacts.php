@@ -1589,7 +1589,7 @@ class Contacts extends CRMEntity
 
         $companyDetails = getCompanyDetails();
 
-        $portalURL = '<a href="'.$PORTAL_URL.'/" style="font-family:Arial, Helvetica, sans-serif;font-size:12px; font-weight:bolder;text-decoration:none;color: #4242FD;">'.getTranslatedString('Please Login Here', $moduleName).'</a>';
+        $portalURL = '<a href="'.$PORTAL_URL.'/" style="font-family:Arial, Helvetica, sans-serif;font-size:12px; font-weight:bolder;text-decoration:none;color: #4242FD;">'.getTranslatedString('LBL_LOGIN_URL_DE', $moduleName).'</a>';
         $portalURL_ENG = '<a href="'.$PORTAL_URL_ENG.'/" style="font-family:Arial, Helvetica, sans-serif;font-size:12px; font-weight:bolder;text-decoration:none;color: #4242FD;">'.getTranslatedString('Please Login Here', $moduleName).'</a>';
 
         //here id is hardcoded with 5. it is for support start notification in vtiger_notificationscheduler
