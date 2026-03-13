@@ -429,7 +429,8 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 				// global search through every module that isn't turned off
 				$query = "SELECT * FROM berli_globalsearch_settings
 						  INNER JOIN vtiger_tab ON vtiger_tab.tabid = berli_globalsearch_settings.gstabid
-						  WHERE berli_globalsearch_settings.turn_off = ?;";
+						  WHERE berli_globalsearch_settings.turn_off = ?
+						  ORDER BY berli_globalsearch_settings.sequence ASC;";
 				$res = $adb->pquery($query, array(1));
 			}
 			else {
