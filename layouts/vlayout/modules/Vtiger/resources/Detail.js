@@ -603,14 +603,14 @@ jQuery.Class("Vtiger_Detail_Js", {
 			var commentInfoHeader = closestCommentBlock.closest('.commentDetails').find('.commentInfoHeader');
 			var commentId = commentInfoHeader.data('commentid');
 			var parentCommentId = commentInfoHeader.data('parentcommentid');
-			var external = closestCommentBlock.find('#externalComment').is(':checked');
+			const external = closestCommentBlock.find('#externalComment').is(':checked') ? 'on' : '0';
 			const neededTime = closestCommentBlock.find('#timeNeeded').val();
 			var postData = {
 				'commentcontent': commentContentValue,
 				'related_to': thisInstance.getRecordId(),
 				'module': 'ModComments',
 				'external': external,
-				'neededTime' : neededTime,
+				'timeneeded' : neededTime,
 			}
 
 			if (commentMode == "edit") {
@@ -2545,10 +2545,10 @@ jQuery.Class("Vtiger_Detail_Js", {
 			AppConnector.request(url).then(
 				function (data) {
 					jQuery('#updates').html(data);
-				},
+			    },
 				function (error, err) {
 					// optional: Fehlerbehandlung
-				}
+			    }
 			);
 
             e.preventDefault();

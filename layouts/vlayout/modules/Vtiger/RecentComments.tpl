@@ -22,8 +22,8 @@
 				<div class="addCommentBlock">
 					<div>
 						<textarea name="commentcontent" class="commentcontent"
-							placeholder="{vtranslate('LBL_ADD_YOUR_COMMENT_HERE', $MODULE_NAME)}"
-							rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"></textarea>
+								  placeholder="{vtranslate('LBL_ADD_YOUR_COMMENT_HERE', $MODULE_NAME)}"
+								  rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"></textarea>
 					</div>
 					<div class="pull-right">
 						{if $MODULE_NAME == 'HelpDesk'}
@@ -33,21 +33,21 @@
 						<button class="btn btn-success detailViewSaveComment" type="button"
 								data-mode="add"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
 					</div>
-                    {if $MODULE_NAME == 'HelpDesk'}
-                        <div>
-                            <input type="checkbox" id="externalComment" name="externalComment">&nbsp;
-                            <label for="externalComment"
-                                   style="display:inline;">{vtranslate('LBL_EXTERNAL_COMMENT', $MODULE_NAME)}</label>
-                        </div>
-                        <div class="input-append time pushDown">
-                            <label for="timeNeeded">{vtranslate('LBL_TIME_NEEDED', $MODULE_NAME)}:</label>
-                            <input id="timeNeeded" type="text" data-format="24" class="timepicker-default input-small" value="00:00" name="timeNeeded"
-                                   data-validation-engine="validate[funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" />
-                            <span class="add-on cursorPointer">
+					{if $MODULE_NAME == 'HelpDesk'}
+						<div>
+							<input type="checkbox" id="externalComment" name="externalComment">&nbsp;
+							<label for="externalComment"
+								   style="display:inline;">{vtranslate('LBL_EXTERNAL_COMMENT', $MODULE_NAME)}</label>
+						</div>
+						<div class="input-append time pushDown">
+							<label for="timeNeeded">{vtranslate('LBL_TIME_NEEDED', $MODULE_NAME)}:</label>
+							<input id="timeNeeded" type="text" data-format="24" class="timepicker-default input-small" value="00:00" name="timeNeeded"
+								   data-validation-engine="validate[funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" />
+							<span class="add-on cursorPointer">
                                 <i class="icon-time"></i>
                             </span>
-                        </div>
-                    {/if}
+						</div>
+					{/if}
 				</div>
 			{/if}
 		</div>
@@ -63,7 +63,7 @@
 						<div class="commentDiv">
 							<div class="singleComment">
 								<div class="commentInfoHeader row-fluid" data-commentid="{$COMMENT->getId()}"
-									data-parentcommentid="{$COMMENT->get('parent_comments')}">
+									 data-parentcommentid="{$COMMENT->get('parent_comments')}">
 									<div class="commentTitle">
 										{assign var=PARENT_COMMENT_MODEL value=$COMMENT->getParentCommentModel()}
 										{assign var=CHILD_COMMENTS_MODEL value=$COMMENT->getChildComments()}
@@ -71,33 +71,33 @@
 											<div class="span1">
 												{assign var=IMAGE_PATH value=$COMMENT->getImagePath()}
 												<img class="alignMiddle pull-left"
-													src="{if !empty($IMAGE_PATH)}{$IMAGE_PATH}{else}{vimage_path('DefaultUserIcon.png')}{/if}">
+													 src="{if !empty($IMAGE_PATH)}{$IMAGE_PATH}{else}{vimage_path('DefaultUserIcon.png')}{/if}">
 											</div>
 											<div class="span11 commentorInfo">
 												{assign var=COMMENTOR value=$COMMENT->getCommentedByModel()}
 												<div class="inner">
 													<span class="commentorName">
 														<strong>{if $COMMENTOR}{$COMMENTOR->getName()}{else}{vtranslate('LBL_DELETED')}{/if}</strong>&nbsp;
-														{if $COMMENT->getCommentMailTo() != NULL}
+														{if $COMMENT->get('mailto') != NULL}
 															<span class="muted">
 																({vtranslate('LBL_MAILTO',$MODULE_NAME)}:&nbsp;
-																{$COMMENT->getCommentMailTo()})
+																{$COMMENT->get('mailto')})
 															</span>
 														{/if}
 													</span>
 													<span class="pull-right">
 														<p class="muted"><small
-																title="{Vtiger_Util_Helper::formatDateTimeIntoDayString($COMMENT->getCommentedTime())}">{Vtiger_Util_Helper::formatDateDiffInStrings($COMMENT->getCommentedTime())}&nbsp;&nbsp;
+																	title="{Vtiger_Util_Helper::formatDateTimeIntoDayString($COMMENT->getCommentedTime())}">{Vtiger_Util_Helper::formatDateDiffInStrings($COMMENT->getCommentedTime())}&nbsp;&nbsp;
 																({Vtiger_Util_Helper::convertDateTimeIntoUsersDisplayFormat($COMMENT->getCommentedTime())})</small>
 														</p>
-												        {assign var=TIMENEEDED value=Vtiger_Util_Helper::convertTimeIntoUsersDisplayFormat($COMMENT->getCommentTimeNeeded())}
-                                                        {if $TIMENEEDED neq "00:00:00"}
-                                                            <p class="muted">
+												        {assign var=TIMENEEDED value=Vtiger_Util_Helper::convertTimeIntoUsersDisplayFormat($COMMENT->get('timeneeded'))}
+														{if $TIMENEEDED neq "00:00:00" and $TIMENEEDED neq false}
+															<p class="muted">
                                                                 <small class="pull-right">
-                                                                    {vtranslate('LBL_TIME_NEEDED', $MODULE_NAME)}:&nbsp{Vtiger_Util_Helper::convertTimeIntoUsersDisplayFormat($COMMENT->getCommentTimeNeeded())}
+                                                                    {vtranslate('LBL_TIME_NEEDED', $MODULE_NAME)}:&nbsp{Vtiger_Util_Helper::convertTimeIntoUsersDisplayFormat($COMMENT->get('timeneeded'))}
                                                                 </small>
                                                             </p>
-                                                        {/if}
+														{/if}
 													</span>
 													<div class="clearfix"></div>
 												</div>
@@ -110,10 +110,10 @@
 								</div>
 								<div class="row-fluid commentActionsContainer">
 									{if $MODULE_NAME == 'HelpDesk'}
-                                        {assign var=EXTERNAL_COMMENT value=$COMMENT->getExternalCommentId()}
-                                        {assign var=TIME_NEEDED value=$COMMENT->getCommentTimeNeeded()}
+										{assign var=EXTERNAL_COMMENT value=$COMMENT->get('external')}
+										{assign var=TIME_NEEDED value=$COMMENT->get('timeneeded')}
 										<input type="hidden" name="external" value="{$EXTERNAL_COMMENT}">
-                                        <input type="hidden" name="timeNeeded" value="{$TIME_NEEDED}">
+										<input type="hidden" name="timeNeeded" value="{$TIME_NEEDED}">
 									{/if}
 
 									{assign var="REASON_TO_EDIT" value=$COMMENT->get('reasontoedit')}
@@ -123,7 +123,7 @@
 												<small>
 													[ {vtranslate('LBL_EDIT_REASON',$MODULE_NAME)} ] :
 													<span name="editReason"
-														class="textOverflowEllipsis">{nl2br($REASON_TO_EDIT)}</span>
+														  class="textOverflowEllipsis">{nl2br($REASON_TO_EDIT)}</span>
 												</small>
 											</p>
 										</span>
@@ -132,8 +132,8 @@
 												<p class="muted pull-right">
 													<small><em>{vtranslate('LBL_MODIFIED',$MODULE_NAME)}</em></small>&nbsp;
 													<small
-														title="{Vtiger_Util_Helper::formatDateTimeIntoDayString($COMMENT->getModifiedTime())}"
-														class="commentModifiedTime">{Vtiger_Util_Helper::formatDateDiffInStrings($COMMENT->getModifiedTime())}&nbsp;&nbsp;
+															title="{Vtiger_Util_Helper::formatDateTimeIntoDayString($COMMENT->getModifiedTime())}"
+															class="commentModifiedTime">{Vtiger_Util_Helper::formatDateDiffInStrings($COMMENT->getModifiedTime())}&nbsp;&nbsp;
 														({Vtiger_Util_Helper::convertDateTimeIntoUsersDisplayFormat($COMMENT->getModifiedTime())})</small>
 												</p>
 											</span>
@@ -158,7 +158,7 @@
 												{if $PARENT_COMMENT_MODEL neq false or $CHILD_COMMENTS_MODEL neq null}
 													{if $CREATE_PERMISSION || $EDIT_PERMISSION}&nbsp;<span>|</span>&nbsp;{/if}
 													<a href="javascript:void(0);"
-														class="cursorPointer detailViewThread">{vtranslate('LBL_VIEW_THREAD',$MODULE_NAME)}</a>
+													   class="cursorPointer detailViewThread">{vtranslate('LBL_VIEW_THREAD',$MODULE_NAME)}</a>
 												{/if}
 											</span>
 										</div>
@@ -185,15 +185,15 @@
 					<span class="span1">&nbsp;</span>
 					<div class="span11">
 						<textarea class="commentcontenthidden fullWidthAlways" name="commentcontent"
-							rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"
-							placeholder="{vtranslate('LBL_ADD_YOUR_COMMENT_HERE', $MODULE_NAME)}"></textarea>
+								  rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"
+								  placeholder="{vtranslate('LBL_ADD_YOUR_COMMENT_HERE', $MODULE_NAME)}"></textarea>
 					</div>
 				</div>
 				<div class="pull-right">
 					<button class="btn btn-success detailViewSaveComment" type="button"
-						data-mode="add"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
+							data-mode="add"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
 					<a class="cursorPointer closeCommentBlock cancelLink"
-						type="reset">{vtranslate('LBL_CANCEL', $MODULE_NAME)}</a>
+					   type="reset">{vtranslate('LBL_CANCEL', $MODULE_NAME)}</a>
 				</div>
 			</div>
 		{/if}
@@ -203,38 +203,38 @@
 					<span class="span1">&nbsp;</span>
 					<div class="span11">
 						<input type="text" name="reasonToEdit"
-							placeholder="{vtranslate('LBL_REASON_FOR_CHANGING_COMMENT', $MODULE_NAME)}"
-							class="input-block-level" />
+							   placeholder="{vtranslate('LBL_REASON_FOR_CHANGING_COMMENT', $MODULE_NAME)}"
+							   class="input-block-level" />
 					</div>
 				</div>
 				<div class="row-fluid">
 					<span class="span1">&nbsp;</span>
 					<div class="span11">
 						<textarea class="commentcontenthidden fullWidthAlways" name="commentcontent"
-							rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"></textarea>
+								  rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"></textarea>
 					</div>
 				</div>
 				<div class="pull-right">
 					<button class="btn btn-success detailViewSaveComment" type="button"
-						data-mode="edit"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
+							data-mode="edit"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
 					<a class="cursorPointer closeCommentBlock cancelLink"
-						type="reset">{vtranslate('LBL_CANCEL', $MODULE_NAME)}</a>
+					   type="reset">{vtranslate('LBL_CANCEL', $MODULE_NAME)}</a>
 				</div>
-                {if $MODULE_NAME == 'HelpDesk'}
-                    <div>
-                        <input type="checkbox" id="externalComment" name="externalComment">&nbsp;
-                        <label for="externalComment"
-                               style="display:inline;">{vtranslate('LBL_EXTERNAL_COMMENT', $MODULE_NAME)}</label>
-                    </div>
-                    <div class="input-append time pushDown">
-                        <label for="timeNeeded">{vtranslate('LBL_TIME_NEEDED', $MODULE_NAME)}:</label>
-                        <input id="timeNeeded" type="text" data-format="24" class="timepicker-default input-small" value="{$TIMENEEDED}" name="timeNeeded"
-                               data-validation-engine="validate[funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" />
-                        <span class="add-on cursorPointer">
+				{if $MODULE_NAME == 'HelpDesk'}
+					<div>
+						<input type="checkbox" id="externalComment" name="externalComment">&nbsp;
+						<label for="externalComment"
+							   style="display:inline;">{vtranslate('LBL_EXTERNAL_COMMENT', $MODULE_NAME)}</label>
+					</div>
+					<div class="input-append time pushDown">
+						<label for="timeNeeded">{vtranslate('LBL_TIME_NEEDED', $MODULE_NAME)}:</label>
+						<input id="timeNeeded" type="text" data-format="24" class="timepicker-default input-small" value="{$TIMENEEDED}" name="timeNeeded"
+							   data-validation-engine="validate[funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" />
+						<span class="add-on cursorPointer">
                                 <i class="icon-time"></i>
                         </span>
-                    </div>
-                {/if}
+					</div>
+				{/if}
 			</div>
 		{/if}
 	</div>

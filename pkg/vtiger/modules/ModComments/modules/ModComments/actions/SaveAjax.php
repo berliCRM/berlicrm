@@ -43,8 +43,11 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 
         if ($request->get('sendMail')) {
             $mailTo = $this->sendMail($request, $recordModel);
+            $recordModel = Vtiger_Record_Model::getInstanceById($recordModel->getId(),'ModComments');
+            $recordModel->set('mode', 'edit');
+            $recordModel->set('mailto', $mailTo);
+            $recordModel->save();
         }
-        $this->saveModcommentsScope($request, $recordModel, $mailTo);
 
         $fieldModelList = $recordModel->getModule()->getFields();
         $result = array();
@@ -108,15 +111,13 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
      */
     public function sendMail(Vtiger_Request $request, Vtiger_Record_Model $recordModel): ?string
     {
-        global $site_URL, $HELPDESK_SUPPORT_EMAIL_ID, $PORTAL_URL;
+        global $HELPDESK_SUPPORT_EMAIL_ID;
         $email = '';
         $name = '';
         $relatedId = $recordModel->get('related_to');
         $relatedRecordModel = Vtiger_Record_Model::getInstanceById($relatedId);
         $parent_id = '';
-        $portalUrl = $PORTAL_URL . "/index.php?module=HelpDesk&action=index&ticketid=" . $relatedId . "&fun=detail";
-        $subject = decode_html(self::getMailSubject());
-        $contents = decode_html(self::getMailTemplate());
+        [$subject, $contents] = array_map('decode_html', self::getMailTemplate());
 
         $subject = getMergedDescription($subject, $relatedId, 'HelpDesk');
         $contents = getMergedDescription($contents, $relatedId, 'HelpDesk');
@@ -174,30 +175,10 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
     }
 
     /**
-     * @param Vtiger_Request $request
-     * @param Vtiger_Record_Model $recordModel
-     * @param $mailTo
-     * @return void
-     */
-    public function saveModcommentsScope(Vtiger_Request $request, Vtiger_Record_Model $recordModel, $mailTo): void
-    {
-        $adb = PearDatabase::getInstance();
-        $external = json_decode($request->get('external'));
-        $timeNeeded = $request->get('neededTime');
-
-        if ($mailTo !== '') {
-            $external = 1;
-        }
-
-        $query = "INSERT INTO vtiger_modcommentsscope (modcommentsid, mailto, external, timeneeded) VALUES (?, ?, ?, ?)";
-        $result = $adb->pquery($query, array($recordModel->getId(), $mailTo, $external, $timeNeeded));
-    }
-
-    /**
-     * @return string|null
+     * @return array
      * @throws Exception
      */
-    public function getMailTemplate(): ?string
+    public function getMailTemplate(): array
     {
         global $HELPDESK_SUPPORT_EMAIL_TEMPLATE;
 
@@ -207,23 +188,6 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 					FROM vtiger_emailtemplates
 					WHERE vtiger_emailtemplates.templateid=?";
         $result = $db->pquery($query, array($HELPDESK_SUPPORT_EMAIL_TEMPLATE));
-        return $db->query_result($result,0,'body');
-    }
-
-    /**
-     * @return string|null
-     * @throws Exception
-     */
-    public function getMailSubject(): ?string
-    {
-        global $HELPDESK_SUPPORT_EMAIL_TEMPLATE;
-
-        $db = PearDatabase::getInstance();
-
-        $query = "SELECT vtiger_emailtemplates.subject,vtiger_emailtemplates.body
-					FROM vtiger_emailtemplates
-					WHERE vtiger_emailtemplates.templateid=?";
-        $result = $db->pquery($query, array($HELPDESK_SUPPORT_EMAIL_TEMPLATE));
-        return $db->query_result($result,0,'subject');
+        return array($db->query_result($result,0,'subject'), $db->query_result($result,0,'body'));
     }
 }
