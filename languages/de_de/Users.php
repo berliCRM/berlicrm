@@ -117,6 +117,7 @@ $languageStrings = array(
 	'User Image' => 'Foto hochladen',
 	'User Name' => 'Nutzername',
 	'Webservice Access Key' => 'Zugangsschlüssel',
+    'LBL_SSO_UNIQUE_ID' => 'SSO eindeutige ID',
 	'Yahoo id' => 'zusätzliche E-Mail',
     
          //Patch provided by http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7884

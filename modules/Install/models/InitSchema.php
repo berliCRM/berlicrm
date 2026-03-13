@@ -827,7 +827,14 @@ class Install_InitSchema_Model
                 'LBL_TICKET_INFORMATION' => array(
                     array('Owner', 'ticketowner', 'V~O', 'crmnow15', 'VARCHAR(100)', '', 'Der Prozessverantwortliche des Tickets.')
                 )
+            ),
+
+            'Users' => array(
+                'LBL_USER_ADV_OPTIONS' => array( // '83' is 'LBL_USER_ADV_OPTIONS' => 'erweiterte Optionen',
+                    array('LBL_SSO_UNIQUE_ID'	,'sso_unique_id'   		,'V~O'     	,1   	,'VARCHAR(255)'   ),
+                )
             )
+        
         );
 
         foreach ($arrFields as $moduleName => $blocks) {
