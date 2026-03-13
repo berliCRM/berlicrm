@@ -9,7 +9,6 @@
  * All Rights Reserved.
  ************************************************************************************ */
 
-
 // This file has been formatted with PHP CS Fixer
 // https://github.com/FriendsOfPHP/PHP-CS-Fixer
 
@@ -121,6 +120,20 @@ function vtws_create($elementType, $element, $user)
             }
         }
         $entity = $handler->create($elementType, $element);
+
+        // * TT1425 give warning if file details are givven, but file is not uploaded for Documents module [ep]
+        if ($elementType === 'Documents' &&
+            empty($_FILES) &&
+            !empty($element['filename'] &&
+            !empty($element['filetype']) &&
+            !empty($element['filesize']))) {
+            // file_put_contents('logs/ep4812.log', print_r($_FILES, true), FILE_APPEND);
+            $entity['WEBSERVICE_EXCEPTION'] = [
+                'code' => 'warning',
+                'message' => 'File metadata sent, but no file provided. Document created without attachment.',
+            ];
+        }
+
         VTWS_PreserveGlobal::flush();
         return $entity;
     } else {
