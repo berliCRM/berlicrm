@@ -575,9 +575,6 @@ jQuery.Class("Vtiger_Detail_Js", {
 	 * return json response
 	 */
 	saveComment: function (e) {
-		var message = app.vtranslate('LBL_DELETE_CONFIRMATION');
-		Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(function(data) {
-
 			var thisInstance = this;
 			var aDeferred = jQuery.Deferred();
 			var currentTarget = jQuery(e.currentTarget);
@@ -640,10 +637,6 @@ jQuery.Class("Vtiger_Detail_Js", {
 			);
 
 			return aDeferred.promise();
-		},
-        function(error, err){
-        }
-        );
 	},
 
 	/**
@@ -2420,78 +2413,84 @@ jQuery.Class("Vtiger_Detail_Js", {
 		detailContentsHolder.on('click', '.detailViewSaveComment', function (e) {
             var element = jQuery(e.currentTarget);
 			if (!element.is(":disabled")) {
-                var dataObj = thisInstance.saveComment(e);
-				dataObj.then(function () {
-                    var commentsContainer = detailContentsHolder.find("[data-name='ModComments']");
-					thisInstance.loadWidget(commentsContainer).then(function () {
-                        element.removeAttr('disabled');
-                    });
-                });
+				var message = app.vtranslate('LBL_DELETE_CONFIRMATION');
+				Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(function(data) {
+					var dataObj = thisInstance.saveComment(e);
+					dataObj.then(function () {
+						var commentsContainer = detailContentsHolder.find("[data-name='ModComments']");
+						thisInstance.loadWidget(commentsContainer).then(function () {
+							element.removeAttr('disabled');
+						});
+					});
+				})
             }
 		});
 
 		detailContentsHolder.on('click', '.saveComment', function (e) {
             var element = jQuery(e.currentTarget);
 			if (!element.is(":disabled")) {
-                var currentTarget = jQuery(e.currentTarget);
-                var mode = currentTarget.data('mode');
-                var dataObj = thisInstance.saveComment(e);
-				dataObj.then(function (data) {
-                    var closestAddCommentBlock = currentTarget.closest('.addCommentBlock');
-                    var commentTextAreaElement = closestAddCommentBlock.find('.commentcontent');
-                    var commentInfoBlock = currentTarget.closest('.singleComment');
-                    commentTextAreaElement.val('');
-					if (mode == "add") {
-                        var commentId = data['result']['id'];
-                        var commentHtml = thisInstance.getCommentUI(commentId);
-						commentHtml.then(function (data) {
-                            var commentBlock = closestAddCommentBlock.closest('.commentDetails');
-                            var detailContentsHolder = thisInstance.getContentHolder();
-							var noCommentsMsgContainer = jQuery('.noCommentsMsgContainer', detailContentsHolder);
-                            noCommentsMsgContainer.remove();
-							if (commentBlock.length > 0) {
-                                closestAddCommentBlock.remove();
-                                var childComments = commentBlock.find('ul');
-								if (childComments.length <= 0) {
-                                    var currentChildCommentsCount = commentInfoBlock.find('.viewThreadBlock').data('childCommentsCount');
-                                    var newChildCommentCount = currentChildCommentsCount + 1;
-                                    commentInfoBlock.find('.childCommentsCount').text(newChildCommentCount);
-                                    var parentCommentId = commentInfoBlock.find('.commentInfoHeader').data('commentid');
-									thisInstance.getChildComments(parentCommentId).then(function (responsedata) {
-                                        jQuery(responsedata).appendTo(commentBlock);
-                                        commentInfoBlock.find('.viewThreadBlock').hide();
-                                        commentInfoBlock.find('.hideThreadBlock').show();
-                                    });
+				var message = app.vtranslate('LBL_DELETE_CONFIRMATION');
+				Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(function(data) {
+					var currentTarget = jQuery(e.currentTarget);
+					var mode = currentTarget.data('mode');
+					var dataObj = thisInstance.saveComment(e);
+					dataObj.then(function (data) {
+						var closestAddCommentBlock = currentTarget.closest('.addCommentBlock');
+						var commentTextAreaElement = closestAddCommentBlock.find('.commentcontent');
+						var commentInfoBlock = currentTarget.closest('.singleComment');
+						commentTextAreaElement.val('');
+						if (mode == "add") {
+							var commentId = data['result']['id'];
+							var commentHtml = thisInstance.getCommentUI(commentId);
+							commentHtml.then(function (data) {
+								var commentBlock = closestAddCommentBlock.closest('.commentDetails');
+								var detailContentsHolder = thisInstance.getContentHolder();
+								var noCommentsMsgContainer = jQuery('.noCommentsMsgContainer', detailContentsHolder);
+								noCommentsMsgContainer.remove();
+								if (commentBlock.length > 0) {
+									closestAddCommentBlock.remove();
+									var childComments = commentBlock.find('ul');
+									if (childComments.length <= 0) {
+										var currentChildCommentsCount = commentInfoBlock.find('.viewThreadBlock').data('childCommentsCount');
+										var newChildCommentCount = currentChildCommentsCount + 1;
+										commentInfoBlock.find('.childCommentsCount').text(newChildCommentCount);
+										var parentCommentId = commentInfoBlock.find('.commentInfoHeader').data('commentid');
+										thisInstance.getChildComments(parentCommentId).then(function (responsedata) {
+											jQuery(responsedata).appendTo(commentBlock);
+											commentInfoBlock.find('.viewThreadBlock').hide();
+											commentInfoBlock.find('.hideThreadBlock').show();
+										});
+									} else {
+										jQuery('<ul class="liStyleNone"><li class="commentDetails">' + data + '</li></ul>').appendTo(commentBlock);
+									}
 								} else {
-									jQuery('<ul class="liStyleNone"><li class="commentDetails">' + data + '</li></ul>').appendTo(commentBlock);
-                                }
-                            } else {
-								jQuery('<ul class="liStyleNone"><li class="commentDetails">' + data + '</li></ul>').prependTo(closestAddCommentBlock.closest('.commentContainer').find('.commentsList'));
-								commentTextAreaElement.css({ height: '71px' });
-                            }
-                            commentInfoBlock.find('.commentActionsContainer').show();
-                        });
-					} else if (mode == "edit") {
-                        var modifiedTime = commentInfoBlock.find('.commentModifiedTime');
-                        var commentInfoContent = commentInfoBlock.find('.commentInfoContent');
-                        var commentEditStatus = commentInfoBlock.find('[name="editStatus"]');
-                        var commentReason = commentInfoBlock.find('[name="editReason"]');
-                        commentInfoContent.html(data.result.commentcontent);
-                        commentReason.html(data.result.reasontoedit);
-                        modifiedTime.text(data.result.modifiedtime);
-						modifiedTime.attr('title', data.result.modifiedtimetitle)
-						if (commentEditStatus.hasClass('hide')) {
-                            commentEditStatus.removeClass('hide');
-                        }
-						if (data.result.reasontoedit != "") {
-							commentInfoBlock.find('.editReason').removeClass('hide')
+									jQuery('<ul class="liStyleNone"><li class="commentDetails">' + data + '</li></ul>').prependTo(closestAddCommentBlock.closest('.commentContainer').find('.commentsList'));
+									commentTextAreaElement.css({height: '71px'});
+								}
+								commentInfoBlock.find('.commentActionsContainer').show();
+							});
+						} else if (mode == "edit") {
+							var modifiedTime = commentInfoBlock.find('.commentModifiedTime');
+							var commentInfoContent = commentInfoBlock.find('.commentInfoContent');
+							var commentEditStatus = commentInfoBlock.find('[name="editStatus"]');
+							var commentReason = commentInfoBlock.find('[name="editReason"]');
+							commentInfoContent.html(data.result.commentcontent);
+							commentReason.html(data.result.reasontoedit);
+							modifiedTime.text(data.result.modifiedtime);
+							modifiedTime.attr('title', data.result.modifiedtimetitle)
+							if (commentEditStatus.hasClass('hide')) {
+								commentEditStatus.removeClass('hide');
+							}
+							if (data.result.reasontoedit != "") {
+								commentInfoBlock.find('.editReason').removeClass('hide')
+							}
+							commentInfoContent.show();
+							commentInfoBlock.find('.commentActionsContainer').show();
+							closestAddCommentBlock.remove();
 						}
-                        commentInfoContent.show();
-                        commentInfoBlock.find('.commentActionsContainer').show();
-                        closestAddCommentBlock.remove();
-                    }
-                    element.removeAttr('disabled');
-                });
+						element.removeAttr('disabled');
+					});
+				})
             }
 		});
 
