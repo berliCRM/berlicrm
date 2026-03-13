@@ -611,6 +611,7 @@ class Vtiger_Functions {
 	}
 
 	static function getMergedDescription($description, $id, $parent_type) {
+        require_once "vendor/autoload.php";
 		global $current_user;
 		$token_data_pair = explode('$', $description);
 		$emailTemplate = new EmailTemplate($parent_type, $description, $id, $current_user);

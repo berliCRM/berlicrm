@@ -804,112 +804,7 @@ class Install_InitSchema_Model
         self::translateSettings();
         self::translateWorkflowstasks();
         self::removeGroups();
-
-        //
-        // Adding some fields *** START ***
-        //
-        $arrFields = array(
-            // needed for E-Rechnung
-            'Accounts' => array(
-                'LBL_CUSTOM_INFORMATION' => array(
-                    array('Leitweg-ID', 'buyerreference', 'V~O', 1, 'VARCHAR(50)', '', 'Die Leitweg-ID ist ein Kennzeichen einer elektronischen Rechnung zur eindeutigen Adressierung von öffentlichen Auftraggebern in Deutschland (Beispiele: Behörden, Kommunen, Ministerien).'),
-                )
-            ),
-            'Invoice' => array(
-                'LBL_INVOICE_INFORMATION' => array(
-                    // array('Statusdatum', 'statusdate', 'D~O', 5, 'DATE', '', 'Datum des letzten Status, nicht ändern, wird vom automatischen Mahnwesen verwendet.'), // Datum
-                    array('Lieferdatum', 'deliveryperiod', 'D~O', 5, 'DATE', '', 'Lieferdatum, wird für E-Rechnung verwendet'), // Datum
-                ),
-            ),
-
-            // for HelpDesk
-            'HelpDesk' => array(
-                'LBL_TICKET_INFORMATION' => array(
-                    array('Owner', 'ticketowner', 'V~O', 'crmnow15', 'VARCHAR(100)', '', 'Der Prozessverantwortliche des Tickets.')
-                )
-            ),
-
-            'Users' => array(
-                'LBL_USER_ADV_OPTIONS' => array( // '83' is 'LBL_USER_ADV_OPTIONS' => 'erweiterte Optionen',
-                    array('LBL_SSO_UNIQUE_ID'	,'sso_unique_id'   		,'V~O'     	,1   	,'VARCHAR(255)'   ),
-                )
-            )
-        
-        );
-
-        foreach ($arrFields as $moduleName => $blocks) {
-            $moduleInstance = Vtiger_Module::getInstance($moduleName);
-            if (!$moduleInstance) {
-                die("$moduleName no instance");
-            }
-
-            foreach ($blocks as $blockName => $fieldInfos) {
-                $blockInstance = Vtiger_Block::getInstance($blockName, $moduleInstance);
-
-                if (!$blockInstance) {
-                    //// to create new block
-                    $blockInstance = new Vtiger_Block();
-                    $blockInstance->label = $blockName;
-                    $moduleInstance->addBlock($blockInstance);
-
-                } else {
-                    // if we need to del the BLOCK:
-                    //$blockInstance->delete();
-                }
-
-                foreach ($fieldInfos as $fieldInfo) {
-                    $fieldObj = Vtiger_Field::getInstance($fieldInfo[1], $moduleInstance);
-
-                    if (!$fieldObj) {
-                        $fieldObj = new Vtiger_Field();
-                        $fieldObj->name = $fieldInfo[1];
-                        $fieldObj->label = $fieldInfo[0];
-                        $fieldObj->table = $moduleInstance->basetable;
-                        $fieldObj->typeofdata = $fieldInfo[2];
-                        $fieldObj->uitype = $fieldInfo[3];
-                        $fieldObj->columntype = $fieldInfo[4];
-                        $fieldObj->info_type = 'BAS';
-                        $fieldObj->displaytype = '1';
-                        if (!empty($fieldInfo[6])) {
-                            $fieldObj->helpinfo = $fieldInfo[6];
-                        }
-
-                        if (($fieldInfo[3] == 16 || $fieldInfo[3] == 33) && !empty($fieldInfo[5])) {
-                            $fieldObj->setPicklistValues($fieldInfo[5]);
-                        }
-
-                        $blockInstance->addField($fieldObj);
-
-                        if ($fieldInfo[3] == 10 && isset($fieldInfo[5])) {
-                            $query = "SELECT * FROM vtiger_fieldmodulerel WHERE fieldid = ?;";
-                            $res = $adb->pquery($query, array($fieldObj->id));
-
-                            if ($adb->num_rows($res) == 0) {
-                                $query = "INSERT INTO vtiger_fieldmodulerel VALUES(?, ?, ?, ?, ?);";
-                                $adb->pquery($query, array($fieldObj->id, $moduleName, $fieldInfo[5], null, null));
-                                $relInstance = Vtiger_Module::getInstance($fieldInfo[5]);
-                                $relInstance->setRelatedList($moduleInstance, $moduleName, array('ADD'), 'get_dependents_list');
-                            }
-                        } elseif ($fieldInfo[3] == 13) {
-                            $query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
-                            $res = $adb->pquery($query, array($moduleInstance->getId(), getTabId('Emails')));
-
-                            if ($adb->num_rows($res) == 0) {
-                                $relInstance = Vtiger_Module::getInstance('Emails');
-                                $moduleInstance->setRelatedList($relInstance, 'Emails', array('ADD'), 'get_emails');
-                            }
-                        }
-
-                    } else {
-                        //$fieldObj->delete();
-                    }
-                }
-            }
-        }
-        //
-        // Adding some fields *** END ***
-        //
-        
+        self::addNewFields();
 		self::addUITypes();
 		self::addNewWebservices();
 		self::addNewRelatedLists();
@@ -1219,10 +1114,12 @@ class Install_InitSchema_Model
         $query = 'SELECT * FROM vtiger_groups WHERE groupid > 2;';
         $res = $adb->pquery($query, array());
         $groupRecordModel = Settings_Groups_Record_Model::getInstance('2');
-        while ($row = $adb->fetch_row($res, false)) {
-            $groupId = $row['groupid'];
-            $recordModel = Settings_Groups_Record_Model::getInstance($groupId);
-            $recordModel->delete($groupRecordModel);
+        if ($groupRecordModel) {
+            while ($row = $adb->fetch_row($res, false)) {
+                $groupId = $row['groupid'];
+                $recordModel = Settings_Groups_Record_Model::getInstance($groupId);
+                $recordModel->delete($groupRecordModel);
+            }
         }
 
     }
@@ -1304,4 +1201,123 @@ class Install_InitSchema_Model
 			}
 		}
 	}
+
+    public static function addNewFields() {
+        global $adb;
+
+        //
+        // Adding some fields *** START ***
+        //
+        $arrFields = array(
+            // needed for E-Rechnung
+            'Accounts' => array(
+                'LBL_CUSTOM_INFORMATION' => array(
+                    array('Leitweg-ID', 'buyerreference', 'V~O', 1, 'VARCHAR(50)', '', 'Die Leitweg-ID ist ein Kennzeichen einer elektronischen Rechnung zur eindeutigen Adressierung von öffentlichen Auftraggebern in Deutschland (Beispiele: Behörden, Kommunen, Ministerien).'),
+                )
+            ),
+            'Invoice' => array(
+                'LBL_INVOICE_INFORMATION' => array(
+                    // array('Statusdatum', 'statusdate', 'D~O', 5, 'DATE', '', 'Datum des letzten Status, nicht ändern, wird vom automatischen Mahnwesen verwendet.'), // Datum
+                    array('Lieferdatum', 'deliveryperiod', 'D~O', 5, 'DATE', '', 'Lieferdatum, wird für E-Rechnung verwendet'), // Datum
+                ),
+            ),
+
+            // for HelpDesk
+            'HelpDesk' => array(
+                'LBL_TICKET_INFORMATION' => array(
+                    array('Owner', 'ticketowner', 'V~O', 'crmnow15', 'VARCHAR(100)', '', 'Der Prozessverantwortliche des Tickets.')
+                )
+            ),
+
+            'ModComments' => array(
+                'LBL_OTHER_INFORMATION' => array(
+                    array('LBL_MAIL_TO', 'mailto', 'E~O', 13, 'VARCHAR(100)'),
+                    array('LBL_EXTERNAL', 'external', 'C~O', 56, 'VARCHAR(3)'),
+                    array('LBL_TIME_NEEDED', 'timeneeded', 'T~O', 2, 'varchar(50)'),
+                    array('LBL_CC', 'carboncopy', 'V~O', 1, 'VARCHAR(255)'),
+                    array('LBL_BCC', 'blindcarboncopy', 'V~O', 1, 'VARCHAR(255)'),
+                )
+            ),
+
+            'Users' => array(
+                'LBL_USER_ADV_OPTIONS' => array( // '83' is 'LBL_USER_ADV_OPTIONS' => 'erweiterte Optionen',
+                    array('LBL_SSO_UNIQUE_ID'	,'sso_unique_id'   		,'V~O'     	,1   	,'VARCHAR(255)'   ),
+                )
+            )
+        
+        );
+
+        foreach ($arrFields as $moduleName => $blocks) {
+            $moduleInstance = Vtiger_Module::getInstance($moduleName);
+            if (!$moduleInstance) {
+                die("$moduleName no instance");
+            }
+
+            foreach ($blocks as $blockName => $fieldInfos) {
+                $blockInstance = Vtiger_Block::getInstance($blockName, $moduleInstance);
+
+                if (!$blockInstance) {
+                    //// to create new block
+                    $blockInstance = new Vtiger_Block();
+                    $blockInstance->label = $blockName;
+                    $moduleInstance->addBlock($blockInstance);
+
+                } else {
+                    // if we need to del the BLOCK:
+                    //$blockInstance->delete();
+                }
+
+                foreach ($fieldInfos as $fieldInfo) {
+                    $fieldObj = Vtiger_Field::getInstance($fieldInfo[1], $moduleInstance);
+
+                    if (!$fieldObj) {
+                        $fieldObj = new Vtiger_Field();
+                        $fieldObj->name = $fieldInfo[1];
+                        $fieldObj->label = $fieldInfo[0];
+                        $fieldObj->table = $moduleInstance->basetable;
+                        $fieldObj->typeofdata = $fieldInfo[2];
+                        $fieldObj->uitype = $fieldInfo[3];
+                        $fieldObj->columntype = $fieldInfo[4];
+                        $fieldObj->info_type = 'BAS';
+                        $fieldObj->displaytype = '1';
+                        if (!empty($fieldInfo[6])) {
+                            $fieldObj->helpinfo = $fieldInfo[6];
+                        }
+
+                        if (($fieldInfo[3] == 16 || $fieldInfo[3] == 33) && !empty($fieldInfo[5])) {
+                            $fieldObj->setPicklistValues($fieldInfo[5]);
+                        }
+
+                        $blockInstance->addField($fieldObj);
+
+                        if ($fieldInfo[3] == 10 && isset($fieldInfo[5])) {
+                            $query = "SELECT * FROM vtiger_fieldmodulerel WHERE fieldid = ?;";
+                            $res = $adb->pquery($query, array($fieldObj->id));
+
+                            if ($adb->num_rows($res) == 0) {
+                                $query = "INSERT INTO vtiger_fieldmodulerel VALUES(?, ?, ?, ?, ?);";
+                                $adb->pquery($query, array($fieldObj->id, $moduleName, $fieldInfo[5], null, null));
+                                $relInstance = Vtiger_Module::getInstance($fieldInfo[5]);
+                                $relInstance->setRelatedList($moduleInstance, $moduleName, array('ADD'), 'get_dependents_list');
+                            }
+                        } elseif ($fieldInfo[3] == 13) {
+                            $query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
+                            $res = $adb->pquery($query, array($moduleInstance->getId(), getTabId('Emails')));
+
+                            if ($adb->num_rows($res) == 0) {
+                                $relInstance = Vtiger_Module::getInstance('Emails');
+                                $moduleInstance->setRelatedList($relInstance, 'Emails', array('ADD'), 'get_emails');
+                            }
+                        }
+
+                    } else {
+                        //$fieldObj->delete();
+                    }
+                }
+            }
+        }
+        //
+        // Adding some fields *** END ***
+        //
+    }
 }

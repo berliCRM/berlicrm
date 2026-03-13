@@ -44,11 +44,19 @@
 											title="{Vtiger_Util_Helper::formatDateTimeIntoDayString($COMMENT->getCommentedTime())}">{Vtiger_Util_Helper::formatDateDiffInStrings($COMMENT->getCommentedTime())}&nbsp;&nbsp;
 											({Vtiger_Util_Helper::convertDateTimeIntoUsersDisplayFormat($COMMENT->getCommentedTime())})</small>
 									</p>
+									{assign var=TIMENEEDED value=Vtiger_Util_Helper::convertTimeIntoUsersDisplayFormat($COMMENT->get('timeneeded'))}
+									{if $TIMENEEDED neq "00:00:00" and $TIMENEEDED neq false}
+										<p class="muted">
+											<small class="pull-right">
+												{vtranslate('LBL_TIME_NEEDED', $MODULE_NAME)}:&nbsp{Vtiger_Util_Helper::convertTimeIntoUsersDisplayFormat($COMMENT->get('timeneeded'))}
+											</small>
+										</p>
+									{/if}
 								</span>
-								{if $COMMENT->getCommentMailTo() != NULL}
+								{if $COMMENT->get('mailto') != NULL}
 									<div class="muted displayInlineBlock marginBottom10px">
 										({vtranslate('LBL_MAILTO',$MODULE_NAME)}:&nbsp;
-										{$COMMENT->getCommentMailTo()})
+										{$COMMENT->get('mailto')})
 									</div>
 								{/if}
 								<div class="clearfix"></div>
@@ -63,8 +71,8 @@
 			<div class="row-fluid commentActionsContainer">
 				{if $EDIT_PERMISSION}
 					{if $MODULE_NAME == 'HelpDesk'}
-                        {assign var=EXTERNAL_COMMENT value=$COMMENT->getExternalCommentId()}
-                        {assign var=TIME_NEEDED value=$COMMENT->getCommentTimeNeeded()}
+                        {assign var=EXTERNAL_COMMENT value=$COMMENT->get('external')}
+                        {assign var=TIME_NEEDED value=$COMMENT->get('timeneeded')}
 						<input type="hidden" name="external" value="{$EXTERNAL_COMMENT}">
                         <input type="hidden" name="timeNeeded" value="{$TIME_NEEDED}">
 					{/if}
