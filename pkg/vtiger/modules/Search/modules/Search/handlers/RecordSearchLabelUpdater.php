@@ -52,67 +52,71 @@ class Settings_Search_RecordSearchLabelUpdater_Handler extends VTEventHandler {
 		if ($module) {
 			$entityDisplay = array();
 			if ($ids) {
-				if ($module == 'Groups') {
-					$metainfo = array('tablename' => 'vtiger_groups', 'entityidfield' => 'groupid', 'fieldname' => 'groupname');
-					/* } else if ($module == 'DocumentFolders') { 
-					  $metainfo = array('tablename' => 'vtiger_attachmentsfolder','entityidfield' => 'folderid','fieldname' => 'foldername'); */
-				} 
-				else {
-					$metainfo = Vtiger_Functions::getEntityModuleInfo($module);
-				}
-				$idColumn = $metainfo['entityidfield'];
-				$tableName = $metainfo['tablename'];
+				$moduleModel = Vtiger_Module_Model::getInstance($module);
+				$moduleFields = $moduleModel->getFields();
+				$idColumn = $moduleModel->basetableid;
+				$tableName = $moduleModel->basetable;
 				
-				$sqlquery ="SELECT searchcolumn, gstabid FROM  berli_globalsearch_settings LEFT JOIN vtiger_entityname ON vtiger_entityname.tabid = berli_globalsearch_settings.gstabid";
-				$sqlquery .= " WHERE vtiger_entityname.modulename = ?;";
+				$sqlQuery ="SELECT searchcolumn, fieldname FROM vtiger_entityname
+						    LEFT JOIN berli_globalsearch_settings ON berli_globalsearch_settings.gstabid = vtiger_entityname.tabid
+							WHERE vtiger_entityname.modulename = ?;";
 
-				$columns_search = $adb->pquery($sqlquery, array($module));
-				$searchcolumn = $adb->query_result($columns_search, 0, 'searchcolumn');
-				$gstabid = $adb->query_result($columns_search, 0, 'gstabid');
-				$entity_search_query = "SELECT fieldname FROM `vtiger_entityname` where tabid = ?";
-				$entity_search = $adb->pquery($entity_search_query, array($gstabid));
-				$fieldname = $adb->query_result($entity_search, 0, 'fieldname');
-				$columns_search_for = explode(',', $fieldname);
-				$columns_search_for = array_merge($columns_search_for, explode(',', $searchcolumn));
+				$columnsResult = $adb->pquery($sqlQuery, array($module));
+				if ($columnsResult && $adb->num_rows($columnsResult) > 0) {
+					$colRow = $adb->getNextRow($columnsResult, false);
+					$searchColumn = explode(',', $colRow['searchcolumn']);
+					$fieldName = explode(',', $colRow['fieldname']);
+				} else {
+					return $entityDisplay;
+				}
+				$columns_search_for = array_merge($searchColumn, $fieldName);
 				//remove empty entries
 				$columns_search_for = array_map('trim', $columns_search_for);
 				$columns = array_unique(array_filter($columns_search_for));
+				// transform columns to fieldnames for QueryGenerator
+				foreach ($columns AS &$value) {
+					$tmp = $moduleModel->getFieldByColumn($value);
+					if ($tmp) {
+						$value = $tmp->get('name');
+					}
+				}
 
 				$currentUserModel = Users_Record_Model::getCurrentUserModel();
 				$queryGenerator = new QueryGenerator($module, $currentUserModel);
-				$queryGenerator->setFields($columns);
+				$queryGenerator->setFields(array_merge(array('id'), $columns));
 				$sql = $queryGenerator->getQuery()." AND $tableName.$idColumn IN(".generateQuestionMarks($ids).");";
 				$result = $adb->pquery($sql, $ids);
-
-				$moduleInfo = Vtiger_Functions::getModuleFieldInfos($module);
-				$moduleInfoExtend = [];
-				if (count($moduleInfo) > 0) {
-					foreach ($moduleInfo as $field => $fieldInfo) {
-						$moduleInfoExtend[$fieldInfo['columnname']] = $fieldInfo;
-					}
+				if (!$result) {
+					syslog(LOG_DEBUG, __FILE__);
+					syslog(LOG_DEBUG, serialize($sql));
+					syslog(LOG_DEBUG, serialize($adb->database->errorMsg()));
+					return $entityDisplay;
 				}
 
 				while ($row = $adb->getNextRow($result, false)) {
 					$label_name = array();
 					$label_search = array();
-					foreach ($columns AS $columnName) {
-						if ($moduleInfoExtend && in_array($moduleInfoExtend[$columnName]['uitype'], array(10, 51,73,76, 75, 81))) {
-							if ($row[$columnName] > 0) {
-								//get module of the related record if exists
-								$setype = 'SELECT setype FROM vtiger_crmentity WHERE crmid = ?';
-								$setype_result = $adb->pquery($setype, array($row[$columnName]));
-								$entityinfo = 'SELECT tablename, fieldname, entityidfield FROM vtiger_entityname WHERE modulename = ?';
-								$entityinfo_result = $adb->pquery($entityinfo, array($adb->query_result($setype_result, 0, "setype")));
-								$label_query = "Select ".$adb->query_result($entityinfo_result, 0, "fieldname")." from ".$adb->query_result($entityinfo_result, 0, "tablename")." where ".$adb->query_result($entityinfo_result, 0, "entityidfield")." =?";
-								$label_result = $adb->pquery($label_query, array($row[$columnName]));
-								$label_name[$columnName] = $adb->query_result($label_result, 0, $adb->query_result($entityinfo_result, 0, "fieldname"));
+					foreach ($columns AS $fieldName) {
+						if ($moduleFields[$fieldName]) {
+							$columnName = $moduleFields[$fieldName]->get('column');
+							if (in_array($moduleFields[$fieldName]->get('uitype'), array(10, 51,73,76, 75, 81))) {
+								if ($row[$columnName] > 0) {
+									//get module of the related record if exists
+									$setype = 'SELECT setype FROM vtiger_crmentity WHERE crmid = ?';
+									$setype_result = $adb->pquery($setype, array($row[$columnName]));
+									$entityinfo = 'SELECT tablename, fieldname, entityidfield FROM vtiger_entityname WHERE modulename = ?';
+									$entityinfo_result = $adb->pquery($entityinfo, array($adb->query_result($setype_result, 0, "setype")));
+									$label_query = "Select ".$adb->query_result($entityinfo_result, 0, "fieldname")." from ".$adb->query_result($entityinfo_result, 0, "tablename")." where ".$adb->query_result($entityinfo_result, 0, "entityidfield")." =?";
+									$label_result = $adb->pquery($label_query, array($row[$columnName]));
+									$label_name[$columnName] = $adb->query_result($label_result, 0, $adb->query_result($entityinfo_result, 0, "fieldname"));
+								}
+							}
+							else {
+								$label_search[] = $row[$columnName];
 							}
 						}
-						else {
-							$label_search[] = $row[$columnName];
-						}
 					}
-					$entityDisplay[$row['id']] = array('name' => implode(' |', array_filter($label_name)), 'search' => implode(' |', array_filter($label_search)));
+					$entityDisplay[$row[$idColumn]] = array('name' => implode(' |', array_filter($label_name)), 'search' => implode(' |', array_filter($label_search)));
 				}
 			}
 			return $entityDisplay;
