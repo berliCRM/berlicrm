@@ -24,15 +24,22 @@ class ModTracker_Record_Model extends Vtiger_Record_Model {
 	 * @param <type> $limit - number of latest changes that need to retrieved
 	 * @return <array> - list of  ModTracker_Record_Model
 	 */
-	public static function getUpdates($parentRecordId, $pagingModel) {
+	public static function getUpdates($parentRecordId, $pagingModel, $sortOrder = 'DESC') {
 		$db = PearDatabase::getInstance();
 		$recordInstances = array();
 
+        // Paging
 		$startIndex = $pagingModel->getStartIndex();
 		$pageLimit = $pagingModel->getPageLimit();
-                
-		$listQuery = "SELECT * FROM vtiger_modtracker_basic WHERE crmid = ? ".
-						" ORDER BY changedon DESC, id DESC LIMIT $startIndex, $pageLimit";
+
+        // SortOrder absichern
+        $sortOrder = strtoupper($sortOrder) == 'ASC' ? 'ASC' : 'DESC';
+		$listQuery = "SELECT * FROM vtiger_modtracker_basic 
+        WHERE crmid = ? 
+        ORDER BY changedon $sortOrder, id $sortOrder 
+        LIMIT $startIndex, $pageLimit ";
+
+        $moduleName = Vtiger_Functions::getCRMRecordType($parentRecordId);
 
 		$result = $db->pquery($listQuery, array($parentRecordId));
 		$rows = $db->num_rows($result);
@@ -40,11 +47,97 @@ class ModTracker_Record_Model extends Vtiger_Record_Model {
 		for ($i=0; $i<$rows; $i++) {
 			$row = $db->query_result_rowdata($result, $i);
 			$recordInstance = new self();
-			$recordInstance->setData($row)->setParent($row['crmid'], $row['module']);
+			$recordInstance->setData($row); 
+
+            if ($recordInstance === null) {
+                error_log("setData() hat null zurückgegeben - unerwartet!");
+            } 
+            else {
+                $recordInstance->setParent($row['crmid'], $row['module']);
+            }
 			$recordInstances[] = $recordInstance;
 		}
+
+        // check if it was next site present.
+        $countQuery = " SELECT COUNT(*) AS count 
+        FROM vtiger_modtracker_basic 
+        WHERE crmid = ? ";
+
+        $countResult = $db->pquery($countQuery, array($parentRecordId));
+        $totalCount = (int)$db->query_result($countResult, 0, 'count');
+
+        $pagingModel->set('totalCount', $totalCount);
+        $pagingModel->calculatePageRange($recordInstances);
+
 		return $recordInstances;
 	}
+
+    public static function getFilteredUpdates($recordId, $pagingModel, $filterField, $searchTerm , $sortOrder = 'DESC') {
+        $db = PearDatabase::getInstance();
+
+        // SortOrder absichern
+        $sortOrder = strtoupper($sortOrder) == 'ASC' ? 'ASC' : 'DESC';
+
+        $params = [$recordId];
+        $where = "b.crmid = ?";
+
+        if ($filterField && $searchTerm) {
+            $where .= " AND d.fieldname = ? AND (d.prevalue LIKE ? OR d.postvalue LIKE ?)";
+            $params[] = $filterField;
+            $params[] = "%$searchTerm%";
+            $params[] = "%$searchTerm%";
+        } elseif ($filterField) {
+            $where .= " AND d.fieldname = ?";
+            $params[] = $filterField;
+        } elseif ($searchTerm) {
+            $where .= " AND (d.prevalue LIKE ? OR d.postvalue LIKE ?)";
+            $params[] = "%$searchTerm%";
+            $params[] = "%$searchTerm%";
+        }
+
+        $start = $pagingModel->getStartIndex();
+        $limit = $pagingModel->getPageLimit();
+
+        $sql = "SELECT DISTINCT b.* 
+        FROM vtiger_modtracker_basic b 
+        LEFT JOIN vtiger_modtracker_detail d ON d.id = b.id 
+        WHERE $where 
+        ORDER BY b.changedon $sortOrder, b.id $sortOrder 
+        LIMIT $start, $limit 
+        ";
+
+        $res = $db->pquery($sql, $params);
+
+        // Count
+        $countSql = "SELECT COUNT(DISTINCT b.id) AS cnt
+        FROM vtiger_modtracker_basic b
+        LEFT JOIN vtiger_modtracker_detail d ON d.id = b.id
+        WHERE $where
+        ";
+        $countRes = $db->pquery($countSql, $params);
+        $totalRecordCountOfSearch = (int)$db->query_result($countRes, 0, 'cnt');
+
+		$rows = $db->num_rows($res);
+
+        $recordInstances = array();
+		for ($i=0; $i<$rows; $i++) {
+			$row = $db->query_result_rowdata($res, $i);
+			$recordInstance = new self();
+			$recordInstance->setData($row); 
+            if ($recordInstance === null) {
+                error_log("setData() hat null zurückgegeben - unerwartet!");
+            } 
+            else {
+                $recordInstance->setParent($row['crmid'], $row['module']);
+            }
+			$recordInstances[] = $recordInstance;
+		}
+        
+        $pagingModel->set('totalCount', $totalRecordCountOfSearch );
+        $pagingModel->calculatePageRange($recordInstances);
+
+        return $recordInstances;
+    }
 
 	function setParent($id, $moduleName) {
 		$this->parent = Vtiger_Record_Model::getInstanceById($id, $moduleName);
@@ -138,4 +231,33 @@ class ModTracker_Record_Model extends Vtiger_Record_Model {
         $result = $db->pquery("SELECT COUNT(*) AS count FROM vtiger_modtracker_basic WHERE crmid = ?", array($recordId));
         return $db->query_result($result, 0, 'count');
 	}
+
+    public static function getFilteredUpdatesCount( $parentRecordId, $filterField, $searchTerm ) {
+        $db = PearDatabase::getInstance();
+
+        $params = array($parentRecordId);
+
+        $query = "SELECT COUNT(DISTINCT b.id) AS cnt
+        FROM vtiger_modtracker_basic b
+        INNER JOIN vtiger_modtracker_detail d ON d.id = b.id
+        WHERE b.crmid = ?
+        ";
+
+        if (!empty($filterField)) {
+            $query .= " AND d.fieldname = ? ";
+            $params[] = $filterField;
+        }
+
+        if (!empty($searchTerm)) {
+            $query .= " AND (d.prevalue LIKE ? OR d.postvalue LIKE ?) ";
+            $params[] = '%' . $searchTerm . '%';
+            $params[] = '%' . $searchTerm . '%';
+        }
+
+        $result = $db->pquery($query, $params);
+        $totalRecordCountOfSearch = (int)$db->query_result($result, 0, 'cnt');
+
+        return $totalRecordCountOfSearch;
+    }
+
 }

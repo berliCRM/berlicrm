@@ -369,6 +369,15 @@ jQuery.Class("Vtiger_Detail_Js", {
 			'dataType': 'html',
 			'data': urlParams
 		};
+
+        var filterField = jQuery('#updatesFilterFieldState').val();
+        var searchTerm  = jQuery('#updatesSearchTermState').val();
+        var sortOrder = jQuery('#updatesSortOrderState').val();
+
+        params.data.filterField = filterField;
+        params.data.searchTerm  = searchTerm;
+        params.data.sortOrder = sortOrder;
+
 		contentContainer.progressIndicator({});
 		AppConnector.request(params).then(
 			function (data) {
@@ -2520,22 +2529,65 @@ jQuery.Class("Vtiger_Detail_Js", {
 			recentCommentsTab.trigger('click');
 		});
 
-		detailContentsHolder.on('click', '.moreRecentUpdates', function () {
-			var currentPage = jQuery("#updatesCurrentPage").val();
+        // Pagination
+        detailContentsHolder.off('click', '.updatesPageLink').on('click', '.updatesPageLink', function () {
+			var page = jQuery(this).data('page');
 			var recordId = jQuery("#recordId").val();
-			var nextPage = parseInt(currentPage) + 1;
-			var url = "index.php?module=" + app.getModuleName() + "&view=Detail&record=" + recordId + "&mode=showRecentActivities&page=" + nextPage + "&tab_label=LBL_UPDATES";
+
+            var filterField = jQuery('#updatesFieldFilter').val();
+            var searchTerm = jQuery('#updatesSearchTerm').val();
+            var sortOrder = jQuery('#updatesSortOrder').val();
+
+            var url = "index.php?module=" + app.getModuleName()
+            + "&view=Detail"
+            + "&record=" + recordId
+            + "&mode=showRecentActivities"
+            + "&page=" + page
+            + "&tab_label=LBL_UPDATES"
+            + "&filterField=" + encodeURIComponent(filterField)
+            + "&searchTerm=" + encodeURIComponent(searchTerm)
+            + "&sortOrder=" + encodeURIComponent(sortOrder);
+
 			AppConnector.request(url).then(
 				function (data) {
-				    jQuery("#updatesCurrentPage").remove();
-				    jQuery("#moreLink").remove();
-				    jQuery('#updates').append(data);
-			    },
+					jQuery('#updates').html(data);
+				},
 				function (error, err) {
-
-			    }
+					// optional: Fehlerbehandlung
+				}
 			);
+
 		});
+
+        // Filtern-Button
+        detailContentsHolder.off('click', '#updatesApplyFilter').on('click', '#updatesApplyFilter', function () {
+            var recordId = jQuery("#recordId").val();
+
+            var filterField = jQuery('#updatesFieldFilter').val();
+            var searchTerm = jQuery('#updatesSearchTerm').val();
+            var sortOrder = jQuery('#updatesSortOrder').val();
+
+            var url = "index.php?module=" + app.getModuleName()
+            + "&view=Detail"
+            + "&record=" + recordId
+            + "&mode=showRecentActivities"
+            + "&page=1"
+            + "&tab_label=LBL_UPDATES"
+            + "&filterAction=apply"
+            + "&filterField=" + encodeURIComponent(filterField)
+            + "&searchTerm=" + encodeURIComponent(searchTerm)
+            + "&sortOrder=" + encodeURIComponent(sortOrder);
+            
+            AppConnector.request(url).then(
+                function (data) {
+                    jQuery('#updates').html(data);
+                },
+				function (error, err) {
+					// optional: Fehlerbehandlung
+				}
+            );
+
+        });
 
 
 		detailContentsHolder.on('click', '.moreRecentDocuments', function () {

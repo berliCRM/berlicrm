@@ -339,10 +339,40 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 	 * @param Vtiger_Request $request
 	 */
 	function showRecentActivities (Vtiger_Request $request) {
+        global $current_user;
+        $userid = $current_user->id;
+
+        $standardLimitNr = 20;
+
 		$parentRecordId = $request->get('record');
 		$pageNumber = $request->get('page');
 		$limit = $request->get('limit');
 		$moduleName = $request->getModule();
+
+        $sessionKey = 'UPDATES_FILTER_' . $parentRecordId.'_USERID_'.$userid;
+
+        // Filter aus Request
+        $filterAction = $request->get('filterAction'); // "apply" oder null
+        $filterField = $request->get('filterField');
+        $searchTerm  = trim($request->get('searchTerm'));
+        $sortOrder  = $request->get('sortOrder');
+
+        // 1. Nutzer klickt aktiv auf "Filtern"
+        if ($filterAction == 'apply') {
+            // wir setzen immer, weil gewollt geklickt! 
+            // Also mussen Werte da sein, auch leere Werte, wenn wir es leeren wollen. 
+
+            $_SESSION[$sessionKey]['filterField'] = $filterField;
+            $_SESSION[$sessionKey]['searchTerm']  = $searchTerm;
+            $_SESSION[$sessionKey]['sortOrder']   = $sortOrder;
+
+        }
+        // 2. Session benutzen wenn kein 'apply'. 
+        elseif (!empty($_SESSION[$sessionKey])) {
+            $filterField = $_SESSION[$sessionKey]['filterField'];
+            $searchTerm  = $_SESSION[$sessionKey]['searchTerm'];
+            $sortOrder   = $_SESSION[$sessionKey]['sortOrder'];
+        }
 
 		if(empty($pageNumber)) {
 			$pageNumber = 1;
@@ -350,21 +380,56 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 
 		$pagingModel = new Vtiger_Paging_Model();
 		$pagingModel->set('page', $pageNumber);
+
 		if(!empty($limit)) {
 			$pagingModel->set('limit', $limit);
 		}
-
-		$recentActivities = ModTracker_Record_Model::getUpdates($parentRecordId, $pagingModel);
-		$pagingModel->calculatePageRange($recentActivities);
-
-		if($pagingModel->getCurrentPage() == ModTracker_Record_Model::getTotalRecordCount($parentRecordId)/$pagingModel->getPageLimit()) {
-        	$pagingModel->set('nextPageExists', false);
+        else{
+            $pagingModel->set('limit', $standardLimitNr);
+            $limit = $standardLimitNr;
         }
+
+		$recentActivities = '';
+        $totalRecordCountNr = '';
+		
+        // Filtern: Aktivitäten nach Feld filtern, falls ein Feld gewählt wurde
+        
+        if (!empty($filterField) || !empty($searchTerm) || !empty($sortOrder) ) {
+            $recentActivities = ModTracker_Record_Model::getFilteredUpdates($parentRecordId, $pagingModel, $filterField, $searchTerm, $sortOrder);
+            $totalRecordCountNr = ModTracker_Record_Model::getFilteredUpdatesCount( $parentRecordId, $filterField, $searchTerm );
+        } 
+        else {
+
+            $recentActivities = ModTracker_Record_Model::getUpdates($parentRecordId, $pagingModel, $sortOrder);
+            $totalRecordCountNr = ModTracker_Record_Model::getTotalRecordCount($parentRecordId);
+
+        }
+        
+        $pageLimitNr = $pagingModel->getPageLimit();
+		$currentPageNr = $pagingModel->getCurrentPage();
+
+        $pagingModel->set('totalCount', $totalRecordCountNr);
+        $pagingModel->calculatePageRange($recentActivities);
+
+        $pageLimit   = $pagingModel->getPageLimit();
+        $currentPage = $pagingModel->getCurrentPage();
+        $maxPage     = ceil($totalRecordCountNr / $pageLimit);
+
+        $pagingModel->set('nextPageExists', $currentPage < $maxPage);
+ 
+        $parentRecord = Vtiger_Record_Model::getInstanceById($parentRecordId, $moduleName);
+        $moduleModel = $parentRecord->getModule();
+        $moduleFields = $moduleModel->getFields();
 
 		$viewer = $this->getViewer($request);
 		$viewer->assign('RECENT_ACTIVITIES', $recentActivities);
 		$viewer->assign('MODULE_NAME', $moduleName);
 		$viewer->assign('PAGING_MODEL', $pagingModel);
+        $viewer->assign('MODULE_FIELDS', $moduleFields);
+
+        $viewer->assign('FILTER_FIELD', $filterField);
+        $viewer->assign('SEARCH_TERM', $searchTerm);
+        $viewer->assign('SORT_ORDER', $sortOrder);
 
 		echo $viewer->view('RecentActivities.tpl', $moduleName, 'true');
 	}
