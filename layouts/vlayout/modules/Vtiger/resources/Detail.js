@@ -370,13 +370,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 			'data': urlParams
 		};
 
-        var filterField = jQuery('#updatesFilterFieldState').val();
-        var searchTerm  = jQuery('#updatesSearchTermState').val();
-        var sortOrder = jQuery('#updatesSortOrderState').val();
 
-        params.data.filterField = filterField;
-        params.data.searchTerm  = searchTerm;
-        params.data.sortOrder = sortOrder;
 
 		contentContainer.progressIndicator({});
 		AppConnector.request(params).then(
@@ -2530,7 +2524,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 		});
 
         // Pagination
-        detailContentsHolder.off('click', '.updatesPageLink').on('click', '.updatesPageLink', function () {
+        detailContentsHolder.off('click', '.updatesPageLink').on('click', '.updatesPageLink', function (   e) {
 			var page = jQuery(this).data('page');
 			var recordId = jQuery("#recordId").val();
 
@@ -2557,10 +2551,12 @@ jQuery.Class("Vtiger_Detail_Js", {
 				}
 			);
 
+            e.preventDefault();
+
 		});
 
         // Filtern-Button
-        detailContentsHolder.off('click', '#updatesApplyFilter').on('click', '#updatesApplyFilter', function () {
+        detailContentsHolder.off('click', '#updatesApplyFilter').on('click', '#updatesApplyFilter', function ( e) {
             var recordId = jQuery("#recordId").val();
 
             var filterField = jQuery('#updatesFieldFilter').val();
@@ -2587,8 +2583,9 @@ jQuery.Class("Vtiger_Detail_Js", {
 				}
             );
 
-        });
+            e.preventDefault();
 
+        });
 
 		detailContentsHolder.on('click', '.moreRecentDocuments', function () {
 			var recentDocumentsTab = thisInstance.getTabByLabel(thisInstance.detailViewRecentDocumentsTabLabel);
