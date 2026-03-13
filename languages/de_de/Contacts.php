@@ -24,6 +24,7 @@ $languageStrings = array(
 	'LBL_COPY_MAILING_ADDRESS' => 'Postadresse kopieren',
 	'LBL_COPY_OTHER_ADDRESS' => 'andere Adresse kopieren',
 	'LBL_CUSTOMER_PORTAL_INFORMATION' => 'Kundenportaldetails',
+  'LBL_LOGIN_URL_DE' => 'Portal-Login URL (DE)',
 	'LBL_IMAGE_INFORMATION' => 'Foto',
 	'LBL_RECORDS_LIST' => 'Personenliste',
 	'Mailing City' => 'Ort',
