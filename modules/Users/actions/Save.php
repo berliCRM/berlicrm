@@ -12,25 +12,44 @@ class Users_Save_Action extends Vtiger_Save_Action {
 	
 	public function checkPermission(Vtiger_Request $request) {
 		$moduleName = $request->getModule();
-		$record = $request->get('record');
-		$recordModel = Vtiger_Record_Model::getInstanceById($record, $moduleName);
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 
-		// Check for operation access.
-		$allowed = Users_Privileges_Model::isPermitted($moduleName, 'Save', $record);
-		
-		if ($allowed) {
-			// Deny access if not administrator or account-owner or self
-			if(!$currentUserModel->isAdminUser()) {
-				if (empty($record)) {
-					$allowed = false;
-				} else if ($currentUserModel->get('id') != $recordModel->getId()) {
-					$allowed = false;
-				}
+		$recordRaw = $request->get('record');
+
+		// Strictly decide: create vs edit
+		$isEdit = (is_string($recordRaw) || is_int($recordRaw))
+			&& preg_match('/^\d+$/', (string)$recordRaw)
+			&& ((int)$recordRaw > 0);
+
+		if (!$isEdit) {
+			// CREATE user
+			if (!$currentUserModel->isAdminUser()) {
+				throw new AppException('LBL_PERMISSION_DENIED');
 			}
+
+			// Optional: also require explicit Create permission if your vtiger uses it
+			if (!Users_Privileges_Model::isPermitted($moduleName, 'CreateView')) {
+				throw new AppException('LBL_PERMISSION_DENIED');
+			}
+			return;
 		}
 
-		if(!$allowed) {
+		// EDIT user
+		$recordId = (int)$recordRaw;
+
+		// Require Save permission on that record
+		if (!Users_Privileges_Model::isPermitted($moduleName, 'Save', $recordId)) {
+			throw new AppException('LBL_PERMISSION_DENIED');
+		}
+
+		// Non-admins may only edit themselves
+		if (!$currentUserModel->isAdminUser() && ((int)$currentUserModel->get('id') !== $recordId)) {
+			throw new AppException('LBL_PERMISSION_DENIED');
+		}
+
+		// Only now load the record to avoid weirdness on invalid ids
+		$recordModel = Vtiger_Record_Model::getInstanceById($recordId, $moduleName);
+		if (!$recordModel || !$recordModel->getId()) {
 			throw new AppException('LBL_PERMISSION_DENIED');
 		}
 	}
