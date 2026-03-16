@@ -15,7 +15,12 @@ require_once 'modules/HelpDesk/HelpDesk.php';
 class ModCommentsHandler extends VTEventHandler {
 
 	function handleEvent($eventName, $data) {
-		
+		global $current_user;
+        //$roleid = $current_user->roleid; 
+        //$currency_id = $current_user->currency_id; 
+        $current_user_id = $current_user->id;
+        //$current_date_time = date('Y-m-d H:i:s');
+        $current_record_id = $data->getId();
 		$moduleName = $data->getModuleName();
 
         // Validate the event target
@@ -31,11 +36,13 @@ class ModCommentsHandler extends VTEventHandler {
 			$db = PearDatabase::getInstance();
 
 			$relatedToId = $data->get('related_to');
+
 			if ($relatedToId) {
-				$moduleName = getSalesEntityType($relatedToId);
-				$focus = CRMEntity::getInstance($moduleName);
-				$focus->retrieve_entity_info($relatedToId, $moduleName);
+				$moduleNameRelated = getSalesEntityType($relatedToId);
+				$focus = CRMEntity::getInstance($moduleNameRelated);
+				$focus->retrieve_entity_info($relatedToId, $moduleNameRelated);
 				$focus->id = $relatedToId;
+
 				$fromPortal = $data->get('from_portal');
 				if ($fromPortal) {
 					$focus->column_fields['from_portal'] = $fromPortal;
@@ -58,6 +65,30 @@ class ModCommentsHandler extends VTEventHandler {
 
 				$relatedToEventHandler->handleEvent($eventName, $entityData, $entityCache);
 				$util->revertUser();
+
+                // TT596 write datetime to the parent record.
+                require_once('include/utils/utils.php');
+                require_once('modules/ModTracker/ModTracker.php');
+                $querymodifiedtime = "SELECT * FROM vtiger_crmentity WHERE crmid = ? ";
+                $res1 = $db->pquery($querymodifiedtime, array($current_record_id));
+                $res2 = $db->pquery($querymodifiedtime, array($relatedToId));
+                
+                // beide sollten existieren, dann ist alles richtig.
+                if($db->num_rows($res1) == 1 && $db->num_rows($res2) == 1 ){
+                    $old_modifiedtime = $db->query_result($res2,0,"modifiedtime");
+                    $current_modifiedtime = $db->query_result($res1,0,"modifiedtime");
+                    $current_createdtime = $db->query_result($res1,0,"createdtime");
+
+                    $new_modifiedtime = $current_modifiedtime;
+                    if(empty($current_modifiedtime) ){
+                        $new_modifiedtime = $current_createdtime;
+                    }
+
+                    $query = "UPDATE vtiger_crmentity SET modifiedtime = ?, modifiedby = ? WHERE crmid = ? ";
+                    $db->pquery($query, array($new_modifiedtime, $current_user_id, $relatedToId));
+                    createModTrackerEntry($old_modifiedtime, $new_modifiedtime, $relatedToId, $moduleNameRelated, 'modifiedtime') ;
+                }
+
 			}
 		}
 	}
