@@ -26,9 +26,10 @@ class ModComments extends ModCommentsCore {
 			global $adb;
 			// Mark the module as Standard module
 			$adb->pquery('UPDATE vtiger_tab SET customized=0 WHERE name=?', array($modulename));
-
+			self::addRelatedList('HelpDesk', 'Emails');
 		} elseif ($event_type == 'module.postupdate') {
 			self::addWidgetTo(array('Potentials'));
+			self::addRelatedList('HelpDesk', 'Emails');
 		}
 	}
 
@@ -123,5 +124,20 @@ class ModComments extends ModCommentsCore {
 		return $list_buttons;
 	}
 
+	static function addRelatedList($moduleName, $relModuleName) {
+		$adb = PearDatabase::getInstance();
+
+		$tabId = getTabId($moduleName);
+		$relTabId = getTabId($relModuleName);
+
+		$query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
+		$res = $adb->pquery($query, array($tabId, $relTabId));
+
+		if ($adb->num_rows($res) == 0) {
+			$moduleInstance = Vtiger_Module::getInstance($moduleName);
+			$relInstance = Vtiger_Module::getInstance($relModuleName);
+			$relInstance->setRelatedList($moduleInstance, $relModuleName, array(''), 'get_emails');
+		}
+	}
 }
 ?>
