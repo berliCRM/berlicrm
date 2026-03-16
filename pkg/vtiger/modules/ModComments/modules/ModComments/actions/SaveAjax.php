@@ -189,10 +189,11 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         $emailsRecordModel->set('saved_toid', $to);
         $emailsRecordModel->set('ccmail', trim((string) $request->get('carboncopy')));
         $emailsRecordModel->set('bccmail', trim((string) $request->get('blindcarboncopy')));
-        $emailsRecordModel->set('sender_name', $sender_name);
         $emailsRecordModel->set('from_email', $from_email);
         $emailsRecordModel->set('documentids', $attachmentDocumentIds);
-        $emailsRecordModel->fromAddress = $from_email;
+        $emailsRecordModel->fromAddress = $HELPDESK_SUPPORT_EMAIL_ID;
+        $emailsRecordModel->senderName = $sender_name;
+        $emailsRecordModel->senderEmail = $from_email;
         $emailsRecordModel->save();
         $this->ensureEmailRelation($relatedId, $emailsRecordModel->getId());
         $this->ensureDocumentRelations($relatedId, $attachmentDocumentIds);
