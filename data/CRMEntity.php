@@ -145,32 +145,16 @@ class CRMEntity
             $file_name = $file_details['name'];
         }
 
-        // Check 1
-        $save_file = 'true';
-        //only images are allowed for Image Attachmenttype
-        $mimeType = vtlib_mime_content_type($file_details['tmp_name']);
-        $mimeTypeContents = explode('/', $mimeType);
-        if ($mimeTypeContents[0] == 'image' and  $mimeTypeContents[1] == 'x-xcf') {
-            $file_details['type'] = 'image/xcf';
-        }
+		// image check
+		$requiresImageValidation =
+			($attachmentType === 'Image') ||
+			($module === 'Contacts' || $module === 'Products') ||
+			(isset($file_details['size']) && $file_details['size'] > 0 && strpos(vtlib_mime_content_type($file_details['tmp_name']), 'image/') === 0);
 
-        // For contacts and products we are sending attachmentType as value
-        if ($attachmentType == 'Image' || ($file_details['size'] && $mimeTypeContents[0] == 'image')) {
-            $save_file = validateImageFile($file_details);
-        }
-        if ($save_file == 'false') {
-            return false;
-        }
-
-		// Check 2
-		$save_file = 'true';
-		// only images are allowed for these modules
-		if ($module == 'Contacts' || $module == 'Products') {
-			$save_file = validateImageFile($file_details);
-		}
-		if ($save_file == 'false') {
+		if ($requiresImageValidation && validateImageFile($file_details) === 'false') {
 			return false;
 		}
+
         // set new filename for the updated file
         $filenamenew = $this->column_fields["filename"];
         if (!empty($filenamenew)) {
@@ -197,7 +181,7 @@ class CRMEntity
             $upload_status = move_uploaded_file($filetmp_name, $upload_file_path . $current_id . "_" . $binFile);
         }
 
-        if ($save_file == 'true' && $upload_status == 'true') {
+        if ($upload_status) {
             //This is only to update the attached filename in the vtiger_notes vtiger_table for the Notes module
             if ($module == 'Contacts' || $module == 'Products') {
                 $sql1 = "insert into vtiger_crmentity (crmid,smcreatorid,smownerid,setype,description,createdtime,modifiedtime) values(?, ?, ?, ?, ?, ?, ?)";
