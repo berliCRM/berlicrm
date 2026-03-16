@@ -213,7 +213,7 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 
         //Condition are directly added as query_generator transforms the
         //reference field and searches their entity names
-        $query = $query ." AND related_to = ? AND parent_comments = '' ORDER BY vtiger_crmentity.createdtime DESC";
+        $query = $query ." AND related_to = ? AND (parent_comments = '' OR parent_comments IS NULL OR parent_comments = 'undefined') ORDER BY vtiger_crmentity.createdtime DESC";
 
         $result = $db->pquery($query, array($parentId));
         $rows = $db->num_rows($result);
@@ -238,8 +238,8 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
         $db = PearDatabase::getInstance();
         $parentRecordId = $this->get('related_to');
 
-        $query = 'SELECT 1 FROM vtiger_modcomments WHERE parent_comments = ? AND related_to = ?';
-        $result = $db->pquery($query, array($this->getId(), $parentRecordId));
+        $query = 'SELECT 1 FROM vtiger_modcomments WHERE related_to = ? AND (parent_comments = ? OR parent_comments = ?)';
+        $result = $db->pquery($query, array($parentRecordId, $this->getId(), (string) $this->getId()));
         if($db->num_rows($result)) {
             return $db->num_rows($result);
         }

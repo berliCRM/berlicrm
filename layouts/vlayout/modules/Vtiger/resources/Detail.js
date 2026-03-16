@@ -585,10 +585,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 			var closestCommentBlock = currentTarget.closest('.addCommentBlock');
 			var commentContent = closestCommentBlock.find('.commentcontent');
 			var commentContentValue = commentContent.val();
-			var errorMsg;
-			if (commentContentValue == "") {
-				errorMsg = app.vtranslate('JS_LBL_COMMENT_VALUE_CANT_BE_EMPTY')
-				commentContent.validationEngine('showPrompt', errorMsg, 'error', 'bottomLeft', true);
+			if (!thisInstance.validateCommentContent(commentContent)) {
 				aDeferred.reject();
 				return aDeferred.promise();
 			}
@@ -603,8 +600,13 @@ jQuery.Class("Vtiger_Detail_Js", {
 			var commentInfoHeader = closestCommentBlock.closest('.commentDetails').find('.commentInfoHeader');
 			var commentId = commentInfoHeader.data('commentid');
 			var parentCommentId = commentInfoHeader.data('parentcommentid');
+			var normalizedParentCommentId = '';
+			if (typeof parentCommentId !== 'undefined' && parentCommentId !== null && parentCommentId !== '' && parentCommentId !== 'undefined') {
+				normalizedParentCommentId = parentCommentId;
+			}
 			const external = closestCommentBlock.find('#externalComment').is(':checked') ? 'on' : '0';
 			const neededTime = closestCommentBlock.find('#timeNeeded').val();
+			var mailData = currentTarget.data('mailData') || {};
 			var postData = {
 				'commentcontent': commentContentValue,
 				'related_to': thisInstance.getRecordId(),
@@ -616,30 +618,181 @@ jQuery.Class("Vtiger_Detail_Js", {
 			if (commentMode == "edit") {
 				postData['record'] = commentId;
 				postData['reasontoedit'] = editCommentReason;
-				postData['parent_comments'] = parentCommentId;
+				postData['parent_comments'] = normalizedParentCommentId;
 				postData['mode'] = 'edit';
 				postData['action'] = 'Save';
 			} else if (commentMode == "add") {
-				postData['parent_comments'] = commentId;
+				if (typeof commentId !== 'undefined' && commentId !== null && commentId !== '' && commentId !== 'undefined') {
+					postData['parent_comments'] = commentId;
+				}
 				postData['action'] = 'SaveAjax';
 			} else if (commentMode == "sendMail") {
-				postData['parent_comments'] = commentId;
+				if (typeof commentId !== 'undefined' && commentId !== null && commentId !== '' && commentId !== 'undefined') {
+					postData['parent_comments'] = commentId;
+				}
 				postData['action'] = 'SaveAjax';
 				postData['sendMail'] = true;
+				postData['carboncopy'] = mailData.carboncopy || '';
+				postData['blindcarboncopy'] = mailData.blindcarboncopy || '';
 			}
-			AppConnector.request(postData).then(
-				function (data) {
-					progressIndicatorElement.progressIndicator({ 'mode': 'hide' });
-					aDeferred.resolve(data);
-				},
-				function (textStatus, errorThrown) {
-					progressIndicatorElement.progressIndicator({ 'mode': 'hide' });
-					element.removeAttr('disabled');
-					aDeferred.reject(textStatus, errorThrown);
-				}
-			);
+
+			if (commentMode == "sendMail" && mailData.files && mailData.files.length > 0) {
+				var formData = new FormData();
+				jQuery.each(postData, function (key, value) {
+					formData.append(key, value);
+				});
+				jQuery.each(mailData.files, function (index, file) {
+					formData.append('attachments[]', file, file.name);
+				});
+
+				AppConnector.request({
+					url: 'index.php',
+					type: 'POST',
+					data: formData,
+					processData: false,
+					contentType: false,
+					dataType: 'json'
+				}).then(
+					function (data) {
+						progressIndicatorElement.progressIndicator({ 'mode': 'hide' });
+						currentTarget.removeData('mailData');
+						aDeferred.resolve(data);
+					},
+					function (textStatus, errorThrown) {
+						progressIndicatorElement.progressIndicator({ 'mode': 'hide' });
+						element.removeAttr('disabled');
+						currentTarget.removeData('mailData');
+						aDeferred.reject(textStatus, errorThrown);
+					}
+				);
+			} else {
+				AppConnector.request(postData).then(
+					function (data) {
+						progressIndicatorElement.progressIndicator({ 'mode': 'hide' });
+						currentTarget.removeData('mailData');
+						aDeferred.resolve(data);
+					},
+					function (textStatus, errorThrown) {
+						progressIndicatorElement.progressIndicator({ 'mode': 'hide' });
+						element.removeAttr('disabled');
+						currentTarget.removeData('mailData');
+						aDeferred.reject(textStatus, errorThrown);
+					}
+				);
+			}
 
 			return aDeferred.promise();
+	},
+
+	validateCommentContent: function (commentContentElement) {
+		var commentContentValue = commentContentElement.val();
+		if (commentContentValue == "") {
+			var errorMsg = app.vtranslate('JS_LBL_COMMENT_VALUE_CANT_BE_EMPTY');
+			commentContentElement.validationEngine('showPrompt', errorMsg, 'error', 'bottomLeft', true);
+			return false;
+		}
+		return true;
+	},
+
+	showSendMailCommentModal: function (triggerElement, callback) {
+		var thisInstance = this;
+		var commentBlock = triggerElement.closest('.addCommentBlock');
+		var commentContent = commentBlock.find('.commentcontent');
+		if (!thisInstance.validateCommentContent(commentContent)) {
+			return;
+		}
+		triggerElement.removeData('mailData');
+		var modalUrl = 'index.php?module=' + app.getModuleName() + '&view=SendCommentMailModal';
+		app.showModalWindow(null, modalUrl, function (modalContainer) {
+			var modal = jQuery(modalContainer);
+			var fileInput = modal.find('.js-comment-mail-files');
+			var dropzone = modal.find('.js-comment-mail-dropzone');
+			var fileList = modal.find('.js-comment-mail-file-list');
+			var selectedFiles = [];
+
+			var renderSelectedFiles = function () {
+				fileList.empty();
+				jQuery.each(selectedFiles, function (index, file) {
+					var item = jQuery(
+						'<li class="clearfix" style="margin-bottom: 6px;">' +
+							'<span class="pull-left"></span>' +
+							'<a class="pull-right js-remove-comment-mail-file" href="javascript:void(0);" data-file-index="' + index + '">' +
+								'<i class="icon-remove"></i>' +
+							'</a>' +
+						'</li>'
+					);
+					item.find('span').text(file.name);
+					fileList.append(item);
+				});
+			};
+
+			var addFiles = function (files) {
+				jQuery.each(files, function (_, file) {
+					var alreadyAdded = false;
+					jQuery.each(selectedFiles, function (__, existingFile) {
+						if (existingFile.name === file.name &&
+							existingFile.size === file.size &&
+							existingFile.lastModified === file.lastModified) {
+							alreadyAdded = true;
+							return false;
+						}
+					});
+
+					if (!alreadyAdded) {
+						selectedFiles.push(file);
+					}
+				});
+				renderSelectedFiles();
+			};
+
+			dropzone.on('click', function () {
+				fileInput.trigger('click');
+			});
+
+			fileInput.on('change', function (event) {
+				addFiles(event.target.files);
+				jQuery(this).val('');
+			});
+
+			dropzone.on('dragenter dragover', function (event) {
+				event.preventDefault();
+				event.stopPropagation();
+				jQuery(this).addClass('dragOver');
+			});
+
+			dropzone.on('dragleave dragend drop', function (event) {
+				event.preventDefault();
+				event.stopPropagation();
+				jQuery(this).removeClass('dragOver');
+			});
+
+			dropzone.on('drop', function (event) {
+				addFiles(event.originalEvent.dataTransfer.files);
+			});
+
+			modal.on('click', '.js-remove-comment-mail-file', function () {
+				var fileIndex = parseInt(jQuery(this).data('fileIndex'), 10);
+				selectedFiles.splice(fileIndex, 1);
+				renderSelectedFiles();
+			});
+
+			var submitMailComment = function (event) {
+				if (event) {
+					event.preventDefault();
+					event.stopPropagation();
+				}
+				triggerElement.data('mailData', {
+					carboncopy: jQuery.trim(modal.find('.js-comment-mail-cc').val()),
+					blindcarboncopy: jQuery.trim(modal.find('.js-comment-mail-bcc').val()),
+					files: selectedFiles.slice(0)
+				});
+				app.hideModalWindow();
+				callback();
+			};
+
+			modal.on('click', '.js-submit-send-mail-comment', submitMailComment);
+			modal.find('.js-send-mail-comment-form').on('submit', submitMailComment);
+		});
 	},
 
 	/**
@@ -2421,19 +2574,28 @@ jQuery.Class("Vtiger_Detail_Js", {
 
 			const doSave = function () {
 				const dataObj = thisInstance.saveComment(e);
-				dataObj.then(function () {
+				const refreshComments = function () {
 					const commentsContainer = detailContentsHolder.find("[data-name='ModComments']");
 					thisInstance.loadWidget(commentsContainer).then(function () {
 						element.removeAttr('disabled');
 					});
-				});
+				};
+				dataObj.then(
+					function () {
+						refreshComments();
+					},
+					function () {
+						if (e.currentTarget.getAttribute('data-mode') === 'sendMail') {
+							refreshComments();
+						} else {
+							element.removeAttr('disabled');
+						}
+					}
+				);
 			}
 
 			if (e.currentTarget.getAttribute('data-mode') === 'sendMail') {
-				const message = app.vtranslate('LBL_DELETE_CONFIRMATION');
-				Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(function(data) {
-					doSave();
-				})
+				thisInstance.showSendMailCommentModal(element, doSave);
 			} else {
 				doSave();
 			}
@@ -2509,10 +2671,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 			}
 
 			if (e.currentTarget.getAttribute('data-mode') === 'sendMail') {
-				const message = app.vtranslate('LBL_DELETE_CONFIRMATION');
-				Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(function(data) {
-					doSave();
-				})
+				thisInstance.showSendMailCommentModal(element, doSave);
 			} else {
 				doSave();
 			}

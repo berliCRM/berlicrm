@@ -682,7 +682,9 @@ class Vtiger_Functions {
 	}
 
 	static function getMergedDescription($description, $id, $parent_type) {
-        require_once "vendor/autoload.php";
+		if (file_exists('vendor/autoload.php')) {
+			require_once 'vendor/autoload.php';
+		}
 		global $current_user;
 		$token_data_pair = explode('$', $description);
 		$emailTemplate = new EmailTemplate($parent_type, $description, $id, $current_user);
@@ -704,7 +706,9 @@ class Vtiger_Functions {
 	}
 
 	static function getMergedDescriptionCustomVars($fields, $description, $id, $parent_type) {
-        require_once "vendor/autoload.php";
+		if (file_exists('vendor/autoload.php')) {
+			require_once 'vendor/autoload.php';
+		}
 		global $current_user, $HELPDESK_SUPPORT_EMAIL_ID, $PORTAL_URL, $PORTAL_URL_ENG;
 		date_default_timezone_set($current_user->time_zone);
 		
