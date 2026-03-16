@@ -67,8 +67,7 @@ class ModCommentsHandler extends VTEventHandler {
 				$util->revertUser();
 
                 // TT596 write datetime to the parent record.
-                require_once ('include/utils/utils.php');
-                updateParentModifiedTime(
+                Vtiger_Functions::updateParentModifiedTime(
                     $relatedToId,
                     $moduleNameRelated,
                     $current_record_id,
