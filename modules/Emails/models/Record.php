@@ -10,6 +10,8 @@
 
 class Emails_Record_Model extends Vtiger_Record_Model {
 	public $fromAddress = '';
+    public $senderName = '';
+    public $senderEmail = '';
 
 	/**
 	 * Function to get the Detail View url for the record
@@ -64,11 +66,21 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 		else {
 			$replyTo = $fromEmail;
 		}
+
+        if(!empty($this->senderEmail)){
+			$replyTo = $this->senderEmail;
+            $fromEmail = $this->senderEmail;
+		}
+
 		$userName = $currentUserModel->getName();
 		// do not use user's name if from was set on purpose
 		// TO ADD: use given name instead
 		if (!empty($this->fromAddress)) {
 			$userName = '';
+		}
+
+        if (!empty($this->senderName)) {
+			$userName = $this->senderName;
 		}
 
 		// To eliminate the empty value of an array
@@ -97,10 +109,22 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 		$attachments = $this->getAttachmentDetails();
 		$status = false;
 
+        require_once 'modules/Settings/Vtiger/models/ConfigSignature.php';
+        $signatureModel = Settings_Vtiger_ConfigSignature::getInstance();
+        $datasignature = $signatureModel ->getData();
+        if($datasignature["enabled"] == 1){
+            $signature_html = $datasignature["signature_html"];
+
+            $signature_html_decoded = decode_html($signature_html);
+            $contents = $this->get('description');
+            $contents .= ('' .$signature_html_decoded. '<br>');
+            $this->set('description', $contents ); 
+        }
+
 		// Merge Users module merge tags based on current user.
 		$mergedDescription = getMergedDescription($this->get('description'), $currentUserModel->getId(), 'Users');
-                $mergedSubject = getMergedDescription($this->get('subject'),$currentUserModel->getId(), 'Users');
-                
+        $mergedSubject = getMergedDescription($this->get('subject'),$currentUserModel->getId(), 'Users');
+
 		foreach($toEmailInfo as $id => $emails) {
 			set_time_limit(0);
 			$mailer->reinitialize();

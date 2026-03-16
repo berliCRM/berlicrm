@@ -128,26 +128,29 @@ jQuery.Class("Settings_Vtiger_ConfigEditor_Js",{},{
 	/*
 	 * function to register the events in DetailView
 	 */
+
 	registerDetailViewEvents : function() {
 		var thisInstance = this;
-		var container = jQuery('#ConfigEditorDetails');
-		var editButton = container.find('.editButton');
-		
-		//Register click event for edit button
-		editButton.click(function() {
-			var url = editButton.data('url');
+
+		// Delegate: catches all current/future .editButton clicks inside the loaded contents
+		jQuery('.contentsDiv').off('click', '.editButton').on('click', '.editButton', function(e) {
+			e.preventDefault();
+
+			var url = jQuery(this).data('url'); // <-- CORRECT: read from the clicked button
 			var progressIndicatorElement = jQuery.progressIndicator({
 				'position' : 'html',
 				'blockInfo' : {
 					'enabled' : true
 				}
 			});
+
 			thisInstance.loadContents(url).then(
 				function(data) {
 					progressIndicatorElement.progressIndicator({'mode':'hide'});
 					jQuery('.contentsDiv').html(data);
 					thisInstance.registerEditViewEvents();
-				}, function(error, err) {
+				},
+				function(error, err) {
 					progressIndicatorElement.progressIndicator({'mode':'hide'});
 				}
 			);

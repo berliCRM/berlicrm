@@ -40,7 +40,7 @@ $languageStrings = array(
 	'LBL_COMPANY_INFORMATION' => 'Unternehmensinformation',
 	'LBL_COMPANY_LOGO' => 'Unternehmenslogo',
 	'LBL_CONFIG_DESCRIPTION' => 'Bearbeiten Sie die Konfigurationsdetails des CRM',
-	'LBL_CONFIG_EDITOR' => 'Konfiguration Editor',
+	'LBL_CONFIG_EDITOR' => 'Editor für Systemfunktionen',
 	'LBL_CONFIG_EDITOR_DESCRIPTION' => 'aktualisiere Konfigurationsdatei der Anwendung',
 	'LBL_CONFIG_FILE' => 'Konfigurationswerte',
 	'LBL_CREATING_NEW' => 'Erstelle',
@@ -307,8 +307,31 @@ $languageStrings = array(
     //ADDED FOR BACKUP DOWNLOAD
     'LBL_DOWNLOAD_BACKUP_FILE' => 'Backup-Archiv herunterladen',
     'LBL_BACKUP_INSTRUCTIONS' => 'Hier können Sie eine vollständige, täglich aktualisierte Sicherung der Daten ihres CRMs als ZIP-Archiv herunterladen.<br><b>Bitte verwahren Sie die Datei unbedingt an einem sicheren Ort.</b>',
-    'LBL_DOWNLOAD' => 'Download starten'
+    'LBL_DOWNLOAD' => 'Download starten',
+
+	// added for Config (Mail, common signature)
+	'LBL_CONFIGSIGNATURE_EDITOR' => 'Editor für E-Mail Signaturen',
+	'LBL_CONFIG_SIG' => 'gemeinsame Signaturangaben',
+	'LBL_HEADLINE_CONF_SIG' => 'Hier können Sie eine gemeinsame E-Mail Signatur festlegen, welche an alle rausgehenden E-Mails automatisch ran gehängt wird.',
+	'LBL_FIELD1_CONF_SIG' => 'Signatur für alle E-Mails aktivieren',
+	'LBL_FIELD2_CONF_SIG' => 'Signatur',
+	'LBL_CONFIGTICKETMAIL_EDITOR' => 'E-Mail Absender Tickets',
+	'LBL_HEADLINE_CONFIGTICKETMAIL' => 'Hier können Sie die E-Mail Absender Adresse für Tickets festlegen. Tragen Sie hier nichts ein, wird auch für Tickets die oben stehenden Helpdesk Angaben als Absender herangezogen.',
+	'LBL_HEADLINE_CONFIGTICKETMAIL_EDITOR' => 'Hier können Sie die E-Mail Absender Adresse für Tickets festlegen.',
+	'LBL_CONFIGTICKETMAIL_BLOCK_EDITOR' => 'Ticket E-Mail Absender Einstellungen',
+	'LBL_CONFIGTICKETMAIL_FIELD0_EDITOR' => 'Ticket E-Mail Absender aktivieren',
+	'LBL_CONFIGTICKETMAIL_FIELD1_EDITOR' => 'E-Mail Absender Tickets Name',
+	'LBL_CONFIGTICKETMAIL_FIELD2_EDITOR' => 'E-Mail Absenderadresse',
+	'LBL_CONFIGTICKETMAIL_FIELD3_EDITOR' => 'Reply E-Mail Absenderadresse Name',
+	'LBL_CONFIGTICKETMAIL_FIELD4_EDITOR' => 'Reply E-Mail Absenderadresse',
+	'LBL_CONFIGSIG_HEADLINE_EDITOR' => 'Hier können Sie eine gemeinsame E-Mail Signatur festlegen, welche an alle rausgehenden E-Mails automatisch ran gehängt wird.',
+	'LBL_CONFIGSIG_FIELD1_EDITOR' => 'Signatur für alle E-Mails aktiv',
+	'LBL_CONFIGSIGL_FIELD2_EDITOR' => 'Signatur',
+	'LBL_CONFIGTICKETMAIL_FIELD0' => 'Absender Angabe für Tickets aktiv',
+	'LBL_LAST_CHANGED' => 'zuletzt geändert',
+	'LBL_LAST_CHANGED_BY' => 'gändert durch', 
 	
+
 );
 
 $jsLanguageStrings = array(
