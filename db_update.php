@@ -1503,7 +1503,7 @@ echo "Add new Field to Modul: Users, Block: ('LBL_USER_ADV_OPTIONS' ) END ...<br
 
 
 
-// fw Rev. 25928
+// Rev. 25928
 $deleteChoice = isset($_POST['delete_modcommentsscope']) ? strtolower(trim($_POST['delete_modcommentsscope'])) : null;
 
 if ($deleteChoice !== null) {
@@ -1600,7 +1600,12 @@ echo "Awaiting user decision for deleting 'vtiger_modcommentsscope'.<br>";
 
 
 
-
+echo "New tables for config settings to set on email sending from ticket another email or name <br>";
+$errors = Install_InitSchema_Model::addNewConfigEditSettingTables();
+if(!empty($errors)){
+    echo $errors;
+}
+echo "New tables done<br>";
 
 
 

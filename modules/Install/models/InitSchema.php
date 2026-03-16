@@ -808,6 +808,7 @@ class Install_InitSchema_Model
 		self::addUITypes();
 		self::addNewWebservices();
 		self::addNewRelatedLists();
+        self::addNewConfigEditSettingTables();
 
         //last step, set info this system was installed
         $path = Install_Utils_Model::INSTALL_FINISHED;
@@ -1200,6 +1201,94 @@ class Install_InitSchema_Model
 				}
 			}
 		}
+	}
+
+    public static function addNewConfigEditSettingTables() {
+		global $adb;
+
+        $errors = '';
+        // "New tables for config settings to set on email sending from ticket another email or name <br>";
+        $query = "CREATE TABLE IF NOT EXISTS `vtiger_settings_config` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `config_key` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+        `label` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+        `description` text COLLATE utf8_unicode_ci,
+        `is_active` tinyint(1) NOT NULL DEFAULT '1',
+        `updated_at` datetime DEFAULT NULL,
+        `updated_by_user_id` int(11) DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `uniq_config_key` (`config_key`),
+        KEY `idx_updated_by_user_id` (`updated_by_user_id`)
+        ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci  ";
+        $res = $adb->pquery($query, array());
+        if(!$res) {
+            $errors = $errors."Error creating table vtiger_settings_config. \n";
+        }
+        // Check if FK already exists
+        try {
+            $check = $adb->pquery("SELECT CONSTRAINT_NAME
+                FROM information_schema.REFERENTIAL_CONSTRAINTS
+                WHERE CONSTRAINT_NAME = 'fk_settings_config_updated_by_user'
+            ");
+            if ($adb->num_rows($check) == 0) {
+                // Try to add FK
+                try {
+                    $adb->pquery("ALTER TABLE `vtiger_settings_config`
+                        ADD CONSTRAINT `fk_settings_config_updated_by_user`
+                        FOREIGN KEY (`updated_by_user_id`)
+                        REFERENCES `vtiger_users` (`id`)
+                        ON DELETE SET NULL "
+                    );
+                } catch (Exception $e) {
+                    // FK creation failed (e.g., already exists or other issue)
+                    $errors = $errors. "Error adding foreign key. \n"  ;
+                }
+            }
+        } catch (Exception $e) {
+            // information_schema query failed (extremely rare)
+            $errors = $errors. "Error checking foreign key.\n";
+        }
+
+        $query2 = "CREATE TABLE IF NOT EXISTS `vtiger_settings_config_param` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `config_id` int(11) NOT NULL,
+        `param_key` varchar(191) COLLATE utf8_unicode_ci NOT NULL,
+        `param_value` longtext COLLATE utf8_unicode_ci,
+        `value_type` varchar(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'string',
+        `sort_order` int(11) NOT NULL DEFAULT '0',
+        `updated_at` datetime DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `uniq_config_param` (`config_id`,`param_key`),
+        KEY `idx_config_id` (`config_id`)
+        ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci  ";
+        $res2 = $adb->pquery($query2, array());
+        if(!$res2) {
+            $errors = $errors. "Error creating table vtiger_settings_config_param. \n" ;
+        }
+        // Check if FK already exists
+        try {
+            $check2 = $adb->pquery("SELECT CONSTRAINT_NAME
+                FROM information_schema.REFERENTIAL_CONSTRAINTS
+                WHERE CONSTRAINT_NAME = 'fk_settings_config_param_config'
+            ");
+            if ($adb->num_rows($check2) == 0) {
+                // Try to add FK
+                try {
+                    $adb->pquery("ALTER TABLE `vtiger_settings_config_param`
+                        ADD CONSTRAINT `fk_settings_config_param_config`
+                        FOREIGN KEY (`config_id`)
+                        REFERENCES `vtiger_settings_config` (`id`)
+                        ON DELETE CASCADE 
+                    ");
+                } catch (Exception $e) {
+                    $errors = $errors.  "Error adding foreign key fk_settings_config_param_config.\n"  ;
+                }
+            }
+        } catch (Exception $e) {
+            $errors = $errors.  "Error checking foreign key fk_settings_config_param_config.\n "  ;
+        }
+
+        return $errors;
 	}
 
     public static function addNewFields() {
