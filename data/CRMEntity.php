@@ -162,13 +162,15 @@ class CRMEntity
             return false;
         }
 
-        // Check 2
-        $save_file = 'true';
-        //only images are allowed for these modules
-        if ($module == 'Contacts' || $module == 'Products') {
-            $save_file = validateImageFile($file_details);
-        }
-
+		// Check 2
+		$save_file = 'true';
+		// only images are allowed for these modules
+		if ($module == 'Contacts' || $module == 'Products') {
+			$save_file = validateImageFile($file_details);
+		}
+		if ($save_file == 'false') {
+			return false;
+		}
         // set new filename for the updated file
         $filenamenew = $this->column_fields["filename"];
         if (!empty($filenamenew)) {
