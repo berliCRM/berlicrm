@@ -106,7 +106,6 @@ class Settings_Vtiger_CompanyDetails_Model extends Settings_Vtiger_Module_Model 
 			$uploadDir = vglobal('root_directory'). '/' .$this->logoPath;
 			$logoName = $uploadDir.$binFileName;
 			move_uploaded_file($_FILES["logo"]["tmp_name"], $logoName);
-			copy($logoName, $uploadDir.'application.ico');
 		}
 	}
 

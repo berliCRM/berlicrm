@@ -504,7 +504,6 @@ function vtws_CreateCompanyLogoFile($fieldname) {
 		if(in_array($fileTypeValue, $allowedFileTypes)) {
 			move_uploaded_file($_FILES[$fieldname]["tmp_name"],
 					$uploaddir.$_FILES[$fieldname]["name"]);
-			copy($uploaddir.$_FILES[$fieldname]["name"], $uploaddir.'application.ico');
 			return $binFile;
 		}
 		throw new WebServiceException(WebServiceErrorCode::$INVALIDTOKEN,
