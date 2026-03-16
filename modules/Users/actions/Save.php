@@ -136,18 +136,79 @@ class Users_Save_Action extends Vtiger_Save_Action {
 		return $recordModel;
 	}
 
+	/**
+	 * Processes the save request for a Users record, including secure validation
+	 * of an uploaded profile image.
+	 *
+	 * This method:
+	 * - Normalizes the PHP upload structure using Vtiger_Util_Helper::transformUploadedFiles()
+	 * - Validates the (optional) uploaded profile image using Vtiger_Functions::validateImage()
+	 * - Persists the Users record via saveRecord()
+	 * - Redirects to the appropriate view
+	 *
+	 * SECURITY (Audit Notes):
+	 * - transformUploadedFiles() only normalizes the upload array; it does not perform security validation.
+	 * - The uploaded image is validated BEFORE saveRecord() to prevent persistence of malicious payloads.
+	 * - validateImage() is expected to perform:
+	 *   - upload integrity checks (UPLOAD_ERR_OK, is_uploaded_file)
+	 *   - allowlist validation (extensions/MIME)
+	 *   - image structure validation (getimagesize)
+	 *   - in-place re-encoding (GD) to mitigate polyglot/embedded payload tricks
+	 *
+	 * @param Vtiger_Request $request Incoming request with user fields and optional file upload.
+	 * @return void
+	 * @throws AppException If the uploaded image is invalid.
+	 */
 	public function process(Vtiger_Request $request) {
+		// Existing vtiger normalization (does NOT validate security)
 		$result = Vtiger_Util_Helper::transformUploadedFiles($_FILES, true);
+
+		// Keep original vtiger behavior for downstream save logic
 		$_FILES = $result['imagename'];
+
+		/*
+		 * SECURITY: Validate uploaded user image explicitly.
+		 * We must validate the actual file array, regardless of how vtiger shaped it.
+		 */
+		$imageFile = null;
+
+		// Common shapes:
+		// 1) $_FILES['imagename'] is already the file array
+		if (is_array($_FILES) && isset($_FILES['tmp_name']) && isset($_FILES['name'])) {
+			$imageFile = $_FILES;
+		}
+		// 2) $_FILES['imagename'] exists inside the flattened array
+		else if (is_array($_FILES) && isset($_FILES['imagename']) && is_array($_FILES['imagename'])) {
+			$imageFile = $_FILES['imagename'];
+		}
+		// 3) Multi-file style: [0 => fileArray]
+		else if (is_array($_FILES) && isset($_FILES[0]) && is_array($_FILES[0])) {
+			$imageFile = $_FILES[0];
+		}
+
+		if (!empty($imageFile) && !empty($imageFile['name']) && !empty($imageFile['tmp_name'])) {
+			$isValid = Vtiger_Functions::validateImage($imageFile);
+			if (is_string($isValid)) {
+				$isValid = ($isValid === 'true');
+			}
+			if (!$isValid) {
+				throw new AppException('LBL_INVALID_IMAGE');
+			}
+		}
 
 		$recordModel = $this->saveRecord($request);
 
 		if ($request->get('relationOperation')) {
-			$parentRecordModel = Vtiger_Record_Model::getInstanceById($request->get('sourceRecord'), $request->get('sourceModule'));
+			$parentRecordModel = Vtiger_Record_Model::getInstanceById(
+				$request->get('sourceRecord'),
+				$request->get('sourceModule')
+			);
 			$loadUrl = $parentRecordModel->getDetailViewUrl();
-		} else if ($request->get('isPreference')) {
-			$loadUrl =  $recordModel->getPreferenceDetailViewUrl();
-		} else {
+		} 
+		else if ($request->get('isPreference')) {
+			$loadUrl = $recordModel->getPreferenceDetailViewUrl();
+		} 
+		else {
 			$loadUrl = $recordModel->getDetailViewUrl();
 		}
 
