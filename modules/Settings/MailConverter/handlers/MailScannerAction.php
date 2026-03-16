@@ -192,11 +192,20 @@ class Vtiger_MailScannerAction {
 				$updateQuery = "UPDATE vtiger_troubletickets 
 				INNER JOIN vtiger_crmentity 
 				ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid 
-				SET status = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+				SET status = ? 
 				WHERE ticketid = ? AND status = 'Closed' ";
 				$adb->pquery($updateQuery, Array('Open', $linkfocus->id));
 
 				$returnid = $this->__CreateNewEmail($mailrecord, $this->module, $linkfocus, $mailscannerrule);
+
+                // TT596: Update parent ticket modifiedtime when comment is created via MailScanner
+                require_once ('include/utils/utils.php');
+                updateParentModifiedTime(
+                    $linkfocus->id,
+                    $this->module,
+                    $commentFocus->id,
+                    $mailscannerrule->assigned_to
+                );
 
 			} else {
 				// TODO If matching ticket was not found, create ticket?
