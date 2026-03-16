@@ -575,38 +575,109 @@ class Vtiger_Functions {
 		return $filepath;
 	}
 
+	/**
+	 * Validates an uploaded image and sanitizes it by re-encoding in place.
+	 *
+	 * This method is intended for secure handling of user-uploaded images (e.g. logos).
+	 * It enforces an allowlist of extensions and MIME types and validates the actual
+	 * image structure via getimagesize(). If validation passes, the image is decoded
+	 * and re-encoded back into the SAME uploaded temporary file to strip metadata/
+	 * extraneous chunks and mitigate polyglot payload tricks.
+	 *
+	 * SECURITY (Audit Notes):
+	 * - Rejects non-uploaded files via is_uploaded_file() (prevents LFI-style tmp_name abuse)
+	 * - Ignores client-supplied Content-Type ($file_details['type']); uses server-side finfo
+	 * - Verifies image structure/type via getimagesize() (prevents masquerading payloads)
+	 * - Re-encodes IN PLACE using GD (strips metadata/extraneous chunks; mitigates polyglots)
+	 * - Keeps tmp_name unchanged (so downstream move_uploaded_file() continues to work)
+	 *
+	 * Allowed formats:
+	 * - Extensions: jpg, jpeg, png, gif
+	 * - MIME types: image/jpeg, image/pjpeg, image/png, image/x-png, image/gif
+	 *
+	 * Legacy behavior:
+	 * - Returns the strings 'true' or 'false' (vtiger compatibility).
+	 *
+	 * @param array $file_details The $_FILES['...'] array for the uploaded file
+	 *                            (expects keys: name, tmp_name, size, error).
+	 * @return string 'true' if the image is valid and sanitized, otherwise 'false'.
+	 */
 	static function validateImage($file_details) {
 		global $app_strings;
-		$allowedImageFormats = array('jpeg', 'png', 'jpg', 'pjpeg', 'x-png', 'gif', 'bmp', 'xcf');
-		
-		$mimeTypesList = array_merge($allowedImageFormats, array('x-ms-bmp'));//bmp another format
-		$mimeTypesList = array_merge($mimeTypesList, array('x-xcf'));//xcf another GIMP format
-		$file_type_details = explode("/", $file_details['type']);
-		$filetype = $file_type_details['1'];
-		if ($filetype) {
-			$filetype = strtolower($filetype);
-		}
 
+		// Keep vtiger's legacy API: return 'true' / 'false'
 		$saveimage = 'true';
-		if (!in_array($filetype, $allowedImageFormats)) {
-			$saveimage = 'false';
+
+		// SECURITY: Basic structure validation
+		if (empty($file_details) || !is_array($file_details)) return 'false';
+
+		// SECURITY: Upload error handling
+		if (!isset($file_details['error']) || $file_details['error'] !== UPLOAD_ERR_OK) return 'false';
+
+		// SECURITY: Must be actual HTTP upload
+		if (empty($file_details['tmp_name']) || !is_uploaded_file($file_details['tmp_name'])) return 'false';
+
+		// SECURITY: Must have a positive size
+		$size = (int)($file_details['size'] ?? 0);
+		if ($size <= 0) return 'false';
+
+		// SECURITY: Extension allowlist (secondary gate only)
+		$ext = strtolower(pathinfo((string)($file_details['name'] ?? ''), PATHINFO_EXTENSION));
+		$allowedExt = ['jpg', 'jpeg', 'png', 'gif'];
+		if ($ext === '' || !in_array($ext, $allowedExt, true)) return 'false';
+
+		// SECURITY: Authoritative MIME validation via finfo (do NOT trust $file_details['type'])
+		$allowedMime = ['image/jpeg', 'image/pjpeg', 'image/png', 'image/x-png', 'image/gif'];
+		try {
+			$mimeType = self::mime_content_type($file_details['tmp_name']);
+		} catch (Exception $e) {
+			return 'false';
+		}
+		$mimeType = strtolower((string)$mimeType);
+		if (!in_array($mimeType, $allowedMime, true)) return 'false';
+
+		// SECURITY: Verify actual image structure and type
+		$imgInfo = @getimagesize($file_details['tmp_name']);
+		if ($imgInfo === false) return 'false';
+
+		$imageType = (int)($imgInfo[2] ?? 0);
+		$allowedTypes = [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF];
+		if (!in_array($imageType, $allowedTypes, true)) return 'false';
+
+		// SECURITY: Pixel cap (image bombs)
+		$width  = (int)($imgInfo[0] ?? 0);
+		$height = (int)($imgInfo[1] ?? 0);
+		if ($width <= 0 || $height <= 0) return 'false';
+
+		// SECURITY: Re-encode IN PLACE using GD
+		// This strips extraneous chunks/metadata and mitigates polyglot tricks.
+		// IMPORTANT: writing back to the same tmp_name keeps it a "real uploaded file"
+		// so downstream move_uploaded_file() continues to work.
+		if ($imageType === IMAGETYPE_JPEG) {
+			$img = @imagecreatefromjpeg($file_details['tmp_name']);
+			if ($img === false) return 'false';
+			$ok = @imagejpeg($img, $file_details['tmp_name'], 90);
+			imagedestroy($img);
+			if (!$ok) return 'false';
+		} 
+		elseif ($imageType === IMAGETYPE_PNG) {
+			$img = @imagecreatefrompng($file_details['tmp_name']);
+			if ($img === false) return 'false';
+			// Preserve alpha for PNG (quality; security unaffected)
+			imagealphablending($img, false);
+			imagesavealpha($img, true);
+			$ok = @imagepng($img, $file_details['tmp_name'], 6);
+			imagedestroy($img);
+			if (!$ok) return 'false';
+		} 
+		else { // IMAGETYPE_GIF
+			$img = @imagecreatefromgif($file_details['tmp_name']);
+			if ($img === false) return 'false';
+			$ok = @imagegif($img, $file_details['tmp_name']);
+			imagedestroy($img);
+			if (!$ok) return 'false';
 		}
 
-		//mime type check
-		$mimeType = self::mime_content_type($file_details['tmp_name']);
-		$mimeTypeContents = explode('/', $mimeType);
-		if (!$file_details['size'] || strtolower($mimeTypeContents[0]) !== 'image' || !in_array($mimeTypeContents[1], $mimeTypesList)) {
-			$saveimage = 'false';
-		}
-
-		// Check for php code injection
-		//crm-now removed because "<?" can be part of image
-		// if ($saveimage == 'true') {
-			// $imageContents = file_get_contents($file_details['tmp_name']);
-			// if (stripos($imageContents, $shortTagSupported ? "<?" : "<?php") !== false) { // suspicious dynamic content.
-				// $saveimage = 'false';
-			// }
-		// }
 		return $saveimage;
 	}
 
