@@ -199,8 +199,7 @@ class Vtiger_MailScannerAction {
 				$returnid = $this->__CreateNewEmail($mailrecord, $this->module, $linkfocus, $mailscannerrule);
 
                 // TT596: Update parent ticket modifiedtime when comment is created via MailScanner
-                require_once ('include/utils/utils.php');
-                updateParentModifiedTime(
+                Vtiger_Functions::updateParentModifiedTime(
                     $linkfocus->id,
                     $this->module,
                     $commentFocus->id,

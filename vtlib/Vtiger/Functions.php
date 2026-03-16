@@ -1511,5 +1511,55 @@ class Vtiger_Functions {
 		}
 		return $row;
 	}
+    
+    /**
+     * To also update the 'modifiedtime' in the parent module when a comment is written.
+     */
+    public static function updateParentModifiedTime($parentId, $parentModuleName, $commentId, $userId) {
+        $adb = PearDatabase::getInstance();
+
+        $query = "SELECT modifiedtime, createdtime FROM vtiger_crmentity WHERE crmid = ?";
+        $res1 = $adb->pquery($query, array($commentId));
+        $res2 = $adb->pquery($query, array($parentId));
+
+        if ($adb->num_rows($res1) == 1 && $adb->num_rows($res2) == 1) {
+            $old_modifiedtime = $adb->query_result($res2, 0, "modifiedtime");
+            $current_modifiedtime = $adb->query_result($res1, 0, "modifiedtime");
+            $current_createdtime  = $adb->query_result($res1, 0, "createdtime");
+
+            $new_modifiedtime = ""; 
+
+            // Case 1: modifiedtime exists
+            if (!empty($current_modifiedtime)) {
+                $new_modifiedtime = $current_modifiedtime;
+
+            // Case 2: modifiedtime is empty, but createdtime exists
+            } elseif (!empty($current_createdtime)) {
+                $new_modifiedtime = $current_createdtime;
+
+            // Case 3: both empty, do NOTHING, something is wrong and comment have no timestamp?
+            } else {
+                return; // Parent no changes
+            }
+
+            // Parent update
+            $adb->pquery(
+                "UPDATE vtiger_crmentity SET modifiedtime = ?, modifiedby = ? WHERE crmid = ?",
+                array($new_modifiedtime, $userId, $parentId)
+            );
+
+            require_once('modules/ModTracker/ModTracker.php');
+            if(empty($parentModuleName)){
+                $parentModuleName = getSalesEntityType($parentId);
+            }
+            createModTrackerEntry(
+                $old_modifiedtime,
+                $new_modifiedtime,
+                $parentId,
+                $parentModuleName,
+                'modifiedtime'
+            );
+        }
+    }
 
 }
