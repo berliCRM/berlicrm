@@ -303,7 +303,7 @@ class Install_Utils_Model {
 	 * @return type
 	 */
 	static function isMySQL($dbType) {
-		return (stripos($dbType ,'mysql') === 0);
+		return (stripos(strval($dbType) ,'mysql') === 0);
 	}
 
 	/**
@@ -313,7 +313,7 @@ class Install_Utils_Model {
 	 */
 	public static function getMySQLVersion($serverInfo) {
 		if(!is_array($serverInfo)) {
-			$version = explode('-',$serverInfo);
+			$version = explode('-',strval($serverInfo));
 			$mysql_server_version=$version[0];
 		} else {
 			$mysql_server_version = $serverInfo['version'];

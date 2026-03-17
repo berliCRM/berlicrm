@@ -875,13 +875,25 @@ $languageStrings = array(
 	'LBL_CRON_TIMEOUT_SUBJECT' => 'CRON \'%s\' Timeout in %s',
 	'LBL_CRON_TIMEOUT_CONTENT' => 'In Ihrem <a href="%s">CRM</a> konnte der Cron \'%s\' seit 24h nicht beendet werden.<br>Er wurde nun neugestartet, sollte aber trotzdem im Auge behalten werden.',
 
-	// SpecialWidgets
+	// Toolwidgets
 	'LBL_COPY_CONTACTDETAILS' => 'Kopiere Kontaktdaten',
 
 	// Send Mail from ModComment
 	'LBL_SEND_MAIL_AND_POST' => 'Mail senden und veröffentlichen',
 	'LBL_EXTERNAL_COMMENT' => 'Externer Kommentar',
-	'LBL_MAILTO'=> 'Mail an',
+	'LBL_MAILTO' => 'Mail an',
+    'LBL_TIME_NEEDED' => 'Aufgewendete Zeit',
+
+    'LBL_SUPPORT_EMAIL' => 'Support E-Mail',
+    'LBL_COMPANY_LOGO' => 'Firmenlogo',
+    'LBL_COMPANY_NAME' => 'Firmenname',
+    'LBL_COMPANY_WEBSITE' => 'Webseite',
+    'LBL_COMPANY_ADDRESS' => 'Adresse',
+    'LBL_COMPANY_CITY' => 'Ort',
+    'LBL_COMPANY_STATE' => 'Bundesland',
+    'LBL_COMPANY_COUNTRY' => 'Land',
+    'LBL_COMPANY_PHONE' => 'Telefon',
+    'LBL_COMPANY_FAX' => 'Fax',
 );
 
 $jsLanguageStrings = array(

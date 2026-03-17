@@ -617,7 +617,7 @@ var Settings_Picklist_Js = {
 				jQuery('#saveSequence').removeAttr('disabled');
 			}
 		});
-			
+
 		tbody.find('.no-drag').on('mousedown', function(event) {
 			event.stopPropagation();
 		});

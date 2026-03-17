@@ -19,6 +19,7 @@
  */
 
 include('config.inc.php');
+$HELPDESK_SUPPORT_EMAIL_TEMPLATE = 3;
 
 // if 'true' then description field will be saved without smiles or another spezial symbols, only normal text. Default is false.
 global $set_utf8_special_chars_to_empty_string;

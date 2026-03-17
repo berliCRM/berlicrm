@@ -25,23 +25,29 @@
 							placeholder="{vtranslate('LBL_ADD_YOUR_COMMENT_HERE', $MODULE_NAME)}"
 							rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"></textarea>
 					</div>
-					{if $MODULE_NAME == 'HelpDesk'}
-						<div style="display:inline-block; margin-right:20px;">
-							<input type="checkbox" id="externalComment" name="externalComment" class="alignTop">&nbsp;
-							<label for="externalComment"
-								style="display:inline;">{vtranslate('LBL_EXTERNAL_COMMENT', $MODULE_NAME)}</label>
-						</div>
-					{/if}
 					<div class="pull-right">
-						<button class="btn btn-success detailViewSaveComment" type="button"
-							data-mode="add"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
-					</div>
-					{if $MODULE_NAME == 'HelpDesk'}
-						<div class="pull-right">
-							<button class="btn saveButton detailViewSaveComment" type="button"
-								data-mode="sendMail"><strong>{vtranslate('LBL_SEND_MAIL_AND_POST', $MODULE_NAME)}</strong></button>
-						</div>
-					{/if}
+                        {if $MODULE_NAME == 'HelpDesk'}
+                            <button class="btn saveButton detailViewSaveComment" type="button"
+                                data-mode="sendMail"><strong>{vtranslate('LBL_SEND_MAIL_AND_POST', $MODULE_NAME)}</strong></button>
+                        {/if}
+                        <button class="btn btn-success detailViewSaveComment" type="button"
+                                data-mode="add"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
+                    </div>
+                    {if $MODULE_NAME == 'HelpDesk'}
+                        <div>
+                            <input type="checkbox" id="externalComment" name="externalComment">&nbsp;
+                            <label for="externalComment"
+                                   style="display:inline;">{vtranslate('LBL_EXTERNAL_COMMENT', $MODULE_NAME)}</label>
+                        </div>
+                        <div class="input-append time pushDown">
+                            <label for="timeNeeded">{vtranslate('LBL_TIME_NEEDED', $MODULE_NAME)}:</label>
+                            <input id="timeNeeded" type="text" data-format="24" class="timepicker-default input-small" value="00:00" name="timeNeeded"
+                                   data-validation-engine="validate[funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" />
+                            <span class="add-on cursorPointer">
+                                <i class="icon-time"></i>
+                            </span>
+                        </div>
+                    {/if}
 				</div>
 			{/if}
 		</div>
@@ -80,6 +86,14 @@
 																title="{Vtiger_Util_Helper::formatDateTimeIntoDayString($COMMENT->getCommentedTime())}">{Vtiger_Util_Helper::formatDateDiffInStrings($COMMENT->getCommentedTime())}&nbsp;&nbsp;
 																({Vtiger_Util_Helper::convertDateTimeIntoUsersDisplayFormat($COMMENT->getCommentedTime())})</small>
 														</p>
+												        {assign var=TIMENEEDED value=Vtiger_Util_Helper::convertTimeIntoUsersDisplayFormat($COMMENT->getCommentTimeNeeded())}
+                                                        {if $TIMENEEDED neq "00:00:00"}
+                                                            <p class="muted">
+                                                                <small class="pull-right">
+                                                                    {vtranslate('LBL_TIME_NEEDED', $MODULE_NAME)}:&nbsp{Vtiger_Util_Helper::convertTimeIntoUsersDisplayFormat($COMMENT->getCommentTimeNeeded())}
+                                                                </small>
+                                                            </p>
+                                                        {/if}
 													</span>
 													<div class="clearfix"></div>
 												</div>
@@ -91,9 +105,11 @@
 									</div>
 								</div>
 								<div class="row-fluid commentActionsContainer">
-									{assign var=EXTERNAL_COMMENT value=$COMMENT->getExternalCommentId()}
 									{if $MODULE_NAME == 'HelpDesk'}
+                                        {assign var=EXTERNAL_COMMENT value=$COMMENT->getExternalCommentId()}
+                                        {assign var=TIME_NEEDED value=$COMMENT->getCommentTimeNeeded()}
 										<input type="hidden" name="external" value="{$EXTERNAL_COMMENT}">
+                                        <input type="hidden" name="timeNeeded" value="{$TIME_NEEDED}">
 									{/if}
 
 									{assign var="REASON_TO_EDIT" value=$COMMENT->get('reasontoedit')}
@@ -194,18 +210,27 @@
 							rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"></textarea>
 					</div>
 				</div>
-				{if $MODULE_NAME == 'HelpDesk'}
-					<div style="display:inline-block; margin-right:20px;">
-						<input type="checkbox" id="externalComment" name="externalComment" class="alignTop">&nbsp;
-						<label style="display:inline;">{vtranslate('LBL_EXTERNAL_COMMENT', $MODULE_NAME)}</label>
-					</div>
-				{/if}
 				<div class="pull-right">
 					<button class="btn btn-success detailViewSaveComment" type="button"
 						data-mode="edit"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
 					<a class="cursorPointer closeCommentBlock cancelLink"
 						type="reset">{vtranslate('LBL_CANCEL', $MODULE_NAME)}</a>
 				</div>
+                {if $MODULE_NAME == 'HelpDesk'}
+                    <div>
+                        <input type="checkbox" id="externalComment" name="externalComment">&nbsp;
+                        <label for="externalComment"
+                               style="display:inline;">{vtranslate('LBL_EXTERNAL_COMMENT', $MODULE_NAME)}</label>
+                    </div>
+                    <div class="input-append time pushDown">
+                        <label for="timeNeeded">{vtranslate('LBL_TIME_NEEDED', $MODULE_NAME)}:</label>
+                        <input id="timeNeeded" type="text" data-format="24" class="timepicker-default input-small" value="{$TIMENEEDED}" name="timeNeeded"
+                               data-validation-engine="validate[funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" />
+                        <span class="add-on cursorPointer">
+                                <i class="icon-time"></i>
+                        </span>
+                    </div>
+                {/if}
 			</div>
 		{/if}
 	</div>

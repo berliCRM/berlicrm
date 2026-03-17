@@ -57,6 +57,13 @@
             case WebServiceErrorCode::$ACCESSDENIED:
                 header("HTTP/1.0 403 Forbidden");
                 break;
+			case WebServiceErrorCode::$RECORDNOTFOUND:
+                header("HTTP/1.0 404 Not Found");
+                break;
+			case WebServiceErrorCode::$METHODNOTALLOWED:
+				header("Allow: ".$operationManager->type);
+                header("HTTP/1.0 405 Method Not Allowed");
+                break;
             default:
                 header("HTTP/1.0 400 Bad Request");
         }

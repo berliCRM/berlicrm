@@ -158,11 +158,11 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		if(empty($selectedTabLabel)) {
             if($currentUserModel->get('default_record_view') === 'Detail') {
                 $selectedTabLabel = vtranslate('SINGLE_'.$moduleName, $moduleName).' '. vtranslate('LBL_DETAILS', $moduleName);
-            } 
+            }
 			else{
                 if($moduleModel->isSummaryViewSupported()) {
                     $selectedTabLabel = vtranslate('SINGLE_'.$moduleName, $moduleName).' '. vtranslate('LBL_SUMMARY', $moduleName);
-                } 
+                }
 				else {
                     $selectedTabLabel = vtranslate('SINGLE_'.$moduleName, $moduleName).' '. vtranslate('LBL_DETAILS', $moduleName);
                 }
@@ -442,7 +442,7 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 	 */
 	function showChildComments(Vtiger_Request $request) {
 		$parentCommentId = $request->get('commentid');
-		
+
 		$moduleName = $request->getModule();
 
 		$parentCommentModel = ModComments_Record_Model::getInstanceById($parentCommentId);

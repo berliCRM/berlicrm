@@ -8,5 +8,5 @@
  * All Rights Reserved.
  *************************************************************************************/
 class PurchaseOrder_ExportPDF_Action extends Inventory_ExportPDF_Action {
-	
+
 }

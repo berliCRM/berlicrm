@@ -23,7 +23,7 @@ class Settings_LoginHistory_ListView_Model extends Settings_Vtiger_ListView_Mode
 		INNER JOIN vtiger_users ON vtiger_users.user_name = $module->baseTable.user_name 
 		INNER JOIN vtiger_user2role ON vtiger_user2role.userid = vtiger_users.id 
 		INNER JOIN vtiger_role ON vtiger_user2role.roleid = vtiger_role.roleid ";
-		
+
 		$search_key = $this->get('search_key');
 		$value = $this->get('search_value');
 		

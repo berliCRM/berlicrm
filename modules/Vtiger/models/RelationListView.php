@@ -251,7 +251,7 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
 						$pos = stripos($query,' WHERE ');
 						$selectAndFromClause = substr($query, 0, $pos);
 						$whereCondition = substr($query, $pos);
-						
+
 						$relTableName = 'vtiger_attachmentsfolder';
 						$selectAndFromClause .= " LEFT JOIN {$relTableName} AS {$relTableName}{$fieldName} ON {$relTableName}{$fieldName}.{$fieldName} = {$filterFieldModel->get('table')}.{$fieldName}";
 						$query = $selectAndFromClause.$whereCondition;
@@ -543,7 +543,7 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
 						$pos = stripos($relationQuery,' WHERE ');
 						$selectAndFromClause = substr($relationQuery, 0, $pos);
 						$whereCondition = substr($relationQuery, $pos);
-						
+
 						$relTableName = 'vtiger_attachmentsfolder';
 						$selectAndFromClause .= " LEFT JOIN {$relTableName} AS {$relTableName}{$fieldName} ON {$relTableName}{$fieldName}.{$fieldName} = {$filterFieldModel->get('table')}.{$fieldName}";
 						$relationQuery = $selectAndFromClause.$whereCondition;

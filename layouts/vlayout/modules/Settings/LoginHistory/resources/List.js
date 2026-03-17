@@ -76,7 +76,7 @@ Settings_Vtiger_List_Js("Settings_LoginHistory_List_Js",{},{
 		let buttonCSVsortTime = jQuery("#exportUserByTime");
 		let buttonCSVsortName = jQuery("#exportUserByName");
 		let usersFilter = jQuery("#usersFilter");
-        let filetyp = "csv"; 
+        let filetyp = "csv";
 
 		buttonCSVsortTime.click(function(e) {
 			buttonCSVsortTime.prop('disabled',true);
@@ -100,7 +100,7 @@ Settings_Vtiger_List_Js("Settings_LoginHistory_List_Js",{},{
 					'enabled' : true
 				}
 			});
-   
+
 			var params = 'index.php?module=LoginHistory&view=List&parent=Settings&action=exportLoginHistory&mode='+mode+'&offset='+offset+'&selecteduser='+selecteduser+"&filetyp="+filetyp;
 
 			AppConnector.request(params).then(
@@ -122,9 +122,9 @@ Settings_Vtiger_List_Js("Settings_LoginHistory_List_Js",{},{
 							exportCsvFile(mode, offset, selecteduser);
 						}
 						else{
-							// the end is reached, and we need to download the file. 
+							// the end is reached, and we need to download the file.
 							downloadfile(filetyp, mode, selecteduser, offset);
-						}	
+						}
 					}
 					else {
 						var  params = {
@@ -141,13 +141,13 @@ Settings_Vtiger_List_Js("Settings_LoginHistory_List_Js",{},{
 					alert ('internal CRM problem');
 				}
 			)
-            
+
 		}
 
 		function downloadfile(filetyp, mode, selecteduser, offset) {
 			// here download the file, and then delete it."loaddel"
 			let turn  = "loaddel";
-			let params = "index.php?module=LoginHistory&view=List&parent=Settings&action=DownloadFile"+"&filetyp="+filetyp+"&mode="+mode+"&selecteduser="+selecteduser+"&offset="+offset+"&turn="+turn ;            
+			let params = "index.php?module=LoginHistory&view=List&parent=Settings&action=DownloadFile"+"&filetyp="+filetyp+"&mode="+mode+"&selecteduser="+selecteduser+"&offset="+offset+"&turn="+turn ;
             window.location.href = params;
 
 			// and set the buttons enabled.
@@ -157,7 +157,7 @@ Settings_Vtiger_List_Js("Settings_LoginHistory_List_Js",{},{
 
 	},
 
-	
+
 	
 	registerEvents : function() {
 		this.registerFilterChangeEvent();

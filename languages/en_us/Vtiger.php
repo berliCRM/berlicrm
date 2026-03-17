@@ -875,14 +875,25 @@ $languageStrings = array(
 	'LBL_CRON_TIMEOUT_SUBJECT' => 'CRON \'%s\' Timeout in %s',
 	'LBL_CRON_TIMEOUT_CONTENT' => 'In your <a href="%s">CRM</a> the Cron \'%s\' was not finished since 24h.<br>It was restarted now but should be checked anyway.',
 
-	// SpecialWidgets
+	// Toolwidgets
 	'LBL_COPY_CONTACTDETAILS' => 'Copy Contact Details',
 
 	// Send Mail from ModComment
 	'LBL_SEND_MAIL_AND_POST' => 'Send Mail and Post',
 	'LBL_EXTERNAL_COMMENT' => 'External Comment',
-	'LBL_MAILTO'=> 'Mail to',
+	'LBL_MAILTO' => 'Mail to',
+    'LBL_TIME_NEEDED' => 'Time Spent',
 
+    'LBL_SUPPORT_EMAIL' => 'Support Email',
+    'LBL_COMPANY_LOGO' => 'Company Logo',
+    'LBL_COMPANY_NAME' => 'Company Name',
+    'LBL_COMPANY_WEBSITE' => 'Website',
+    'LBL_COMPANY_ADDRESS' => 'Address',
+    'LBL_COMPANY_CITY' => 'City',
+    'LBL_COMPANY_STATE' => 'State',
+    'LBL_COMPANY_COUNTRY' => 'Country',
+    'LBL_COMPANY_PHONE' => 'Phone',
+    'LBL_COMPANY_FAX' => 'Fax',
 );
 
 $jsLanguageStrings = array(
@@ -1110,7 +1121,7 @@ $jsLanguageStrings = array(
 	
     //Copy in CustomView
     'JS_COPY_APPENDIX'=>' (copy)',
-	
+
 	//field label edit response
 	'JS_DUPLICATE_LABEL' => 'keine Umbenennung, Duplikat erkannt',
 	'JS_LENGTHEXCEEDED' => 'der Feldname ist zu lang, bis zu 50 Zeichen sind erlaubt',

@@ -49,7 +49,7 @@ if ((PHP_SAPI === "cgi-fcgi" && empty($_SESSION)) || empty($_SERVER['REMOTE_ADDR
     // 
     // with the parameter 'service' you can force run a specific cron task
     // even if the time to run again is not completed. Works only on cli not on web.
-    // 
+    //
     // samples: 
     // https://your_crm_system/vtigercron.php?service=your_cron_task_name
     // sudo -u crmuser env QUERY_STRING='service=your_cron_task_name' /path/to/php-cgi  /path/to/your_crm_system/vtigercron.php service="your_cron_task_name"

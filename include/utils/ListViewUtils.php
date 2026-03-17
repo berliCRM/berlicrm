@@ -684,14 +684,14 @@ function popup_decode_html($str) {
 //function added to check the text length in the listview.
 function textlength_check($field_val) {
 	global $listview_max_textlength, $default_charset;
-	
+
 	// Ensure default charset is UTF-8
 	$charset = $default_charset ?: 'UTF-8';
-	
+
 	if ($listview_max_textlength && $listview_max_textlength > 0) {
 	// Decode HTML entities and strip tags
 	$processedValue = strip_tags(html_entity_decode($field_val, ENT_QUOTES, $charset));
-	
+
 	// Check length of string in terms of UTF-8 characters
 	$charArray = preg_split('//u', $processedValue, -1, PREG_SPLIT_NO_EMPTY);
 	if (count($charArray) > $listview_max_textlength) {
@@ -701,7 +701,7 @@ function textlength_check($field_val) {
 	} else {
 	$processedValue = $field_val;
 	}
-	
+
 	return $processedValue;
 }
 

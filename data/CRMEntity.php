@@ -2946,22 +2946,22 @@ class CRMEntity {
 						continue;
 					}
 					else{  //von [35] => � bis [38] => �
-						// und wenn doch, dann wird die Länge nicht stimmen und wir landen hier. 
-						
+						// und wenn doch, dann wird die Länge nicht stimmen und wir landen hier.
+
 						if($enterC){
 							// wenn wir noch nicht da waren, weiter zählen. Beginn notieren.
 							$beginEndArr[] = $i-1;// beginn mit [35
 							$enterC = false;
 						}
-						
-						$numb2 = $numb0 - $numb1; 
+
+						$numb2 = $numb0 - $numb1;
 						if($numb2 != 0){
 							$numb1 = $numb0; // wir brauchen bis wann geht es
 						}
 						else{
 							// hat er dann wieder normales Text erreicht, wird  numb2 zu 0 und wir landen hier
 							$beginEndArr[] = $i-1;// ende mit [38
-							// setze alles zum wiederstarten: 
+							// setze alles zum wiederstarten:
 							$enterC = true;
 							$temp1 = '';
 							$numb1 = 0;
@@ -2987,7 +2987,7 @@ class CRMEntity {
 					}
 					// fuer den nachsten Durchlauf setzen.
 					$aStart = ($beginEndArr[$ind+1])+1;
-					
+
 					$smilesInChars = '';
 					for( $beta = $beginEndArr[$ind]; $beta <= ($beginEndArr[$ind+1]); $beta++){
 						$smilesInChars = $smilesInChars.$chars[$beta];
@@ -2995,7 +2995,7 @@ class CRMEntity {
 
 					// Integerwert des Symbols
 					$int_symb_val = mb_ord($smilesInChars, 'UTF-8'); // zB 128540 Smiles
-					
+
 					//// wenn es als HTML entity benoetigt wird:
 					//// $resultText = $resultText.$textChars.'&#'.$int_symb_val.';';
 
@@ -3018,7 +3018,7 @@ class CRMEntity {
 						$textChars = $textChars.$chars[$alfa];
 					}
 					$resultText = $resultText.$textChars;
-				}				
+				}
 
 				$workStr = $resultText;
 

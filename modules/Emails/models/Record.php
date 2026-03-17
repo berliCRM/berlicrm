@@ -225,7 +225,7 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
 
 			$res = $db->pquery($query, array());
-			
+
 			// auto_inc ID, subject, receiver, send_date, send_user, crmid, smtp_answer, messageId
 			$mtQuery = "INSERT INTO berlicrm_mailtracker VALUES(?,?,?,?,?,?,?,?);";
 			$cDT = date('Y-m-d H:i:s');

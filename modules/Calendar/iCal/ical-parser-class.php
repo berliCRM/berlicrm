@@ -44,7 +44,7 @@ class iCal {
             $tzoffsetNumberOfHours = $tzoffsetfromCharArray[1].$tzoffsetfromCharArray[2];
             $tzoffsetNumberOfMinutes = $tzoffsetfromCharArray[3].$tzoffsetfromCharArray[4];
         }
-    
+
         foreach ($eventresult[0] as $event) {
             $tmpbyline = preg_split('/\r\n|\r|\n/', $event);
             $begin = false;
@@ -171,7 +171,7 @@ class iCal {
             // if (!$activityTypeExist) {
             //     $majorarray['RESOURCES'] = 'Ort';
             // }
-    
+
             if (isset($majorarray['DTSTART;VALUE=DATE'])) {
                 $majorarray['DTSTART'] = $majorarray['DTSTART;VALUE=DATE'] . 'T000000';
             }
@@ -180,7 +180,7 @@ class iCal {
             }
             $icalarray[] = $majorarray;
         }
-    
+
         foreach ($todoresult[0] as $todo) {
             $tmpbyline = preg_split('/\r\n|\r|\n/', $todo);
             $begin = false;

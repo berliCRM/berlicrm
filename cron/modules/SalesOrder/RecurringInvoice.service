@@ -60,17 +60,17 @@ for($i=0; $i<$no_of_salesorder;$i++) {
 		$interval = 'P1M';
 		//get day of month
 		$format = 'j';
-	} 
+	}
 	elseif (strtolower($recurring_frequency) == 'quarterly') {
 		$interval = 'P3M';
 		//get day of month
 		$format = 'j';
-	} 
+	}
 	elseif (strtolower($recurring_frequency) == 'every 4 months') {
 		$interval = 'P4M';
 		//get day of month
 		$format = 'j';
-	} 
+	}
 	elseif (strtolower($recurring_frequency) == 'yearly') {
 		$interval = 'P1Y';
 		//get day of month

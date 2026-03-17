@@ -54,6 +54,7 @@ $server->wsdl->addComplexType(
 	'complexType',
 	'array',
 	'',
+	'',
 	array(
 		'fieldname' => array('name'=>'fieldname','type'=>'xsd:string'),
 	)
@@ -77,6 +78,7 @@ $server->wsdl->addComplexType(
     'complexType',
     'array',
     '',
+	'',
 	array(
     	'salutation' => array('name'=>'salutation','type'=>'xsd:string'),
         'firstname' => array('name'=>'firstname','type'=>'xsd:string'),
@@ -93,6 +95,7 @@ $server->wsdl->addComplexType(
 	'complexType',
     'array',
     '',
+	'',
 	array(
     	'fieldlabel' => array('name'=>'fieldlabel','type'=>'xsd:string'),
         'fieldvalue' => array('name'=>'fieldvalue','type'=>'xsd:string'),
@@ -103,6 +106,7 @@ $server->wsdl->addComplexType(
     'complexType',
     'array',
     '',
+	'',
 	array(
     	'fielddata' => array('name'=>'fielddata','type'=>'xsd:string'),
 	)
@@ -112,6 +116,7 @@ $server->wsdl->addComplexType(
 	'product_list_array',
 	'complexType',
 	'array',
+	'',
 	'',
 	array(
 		'productid' => array('name'=>'productid','type'=>'xsd:string'),
@@ -129,6 +134,7 @@ $server->wsdl->addComplexType(
     'complexType',
     'array',
     '',
+	'',
 	array(
     	'files' => array(
 			'fileid'=>'xsd:string','type'=>'tns:xsd:string',

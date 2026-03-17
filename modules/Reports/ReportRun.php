@@ -1224,7 +1224,7 @@ class ReportRun extends CRMEntity
 									foreach ($valuearray AS $tmpVal) {
 										$advcolsql[] = "vtiger_products$moduleName.productname ".$this->getAdvComparator($comparator,trim($tmpVal),$datatype);
 									}
-									
+
 									//If negative logic filter ('not equal to', 'does not contain') is used, 'and' condition should be applied instead of 'or'
 									if($comparator == 'n' || $comparator == 'k') {
 										$advcolumnsql = implode(" AND ",$advcolsql);
@@ -1232,7 +1232,7 @@ class ReportRun extends CRMEntity
 										$advcolumnsql = implode(" OR ",$advcolsql);
 									}
 									$fieldvalue = " (".$advcolumnsql.") ";
-									
+
 									$this->queryPlanner->addTable("vtiger_products$moduleName");
 							} else if($selectedfields[1] == 'serviceid'){
 								$fieldvalue = "vtiger_service$moduleName.servicename ".$this->getAdvComparator($comparator,trim($value),$datatype);
@@ -1262,7 +1262,7 @@ class ReportRun extends CRMEntity
 									$fieldSqls[] = $columnSql.$comparatorValue;
 								}
 								$advcolsql[] = ' ('. implode(' OR ', $fieldSqls).') ';
-								
+
 								//If negative logic filter ('not equal to', 'does not contain') is used, 'and' condition should be applied instead of 'or'
 								if($comparator == 'n' || $comparator == 'k') {
 									$advcolumnsql = implode(" AND ",$advcolsql);

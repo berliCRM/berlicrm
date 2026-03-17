@@ -67,7 +67,7 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 				thisInstance.updateBlockSequence();
 			}
 		});
-	
+
 		contents.find('.blockSortable .no-drag').on('mousedown', function(event) {
 			event.stopPropagation();
 		});

@@ -27,21 +27,21 @@
                             {assign var=IS_SELECT_BUTTON value={$RELATED_LINK->get('_selectRelation')}}
                             <button type="button" class="btn addButton
                                 {if $IS_SELECT_BUTTON eq true} selectRelation{/if}"
-                                {if $IS_SELECT_BUTTON eq true} 
-                                    data-moduleName={$RELATED_LINK->get('_module')->get('name')} 
+                                {if $IS_SELECT_BUTTON eq true}
+                                    data-moduleName={$RELATED_LINK->get('_module')->get('name')}
                                 {/if}
                                 {if ($RELATED_LINK->isPageLoadLink())}
-                                    {if $RELATION_FIELD} 
-                                        data-name="{$RELATION_FIELD->getName()}" 
+                                    {if $RELATION_FIELD}
+                                        data-name="{$RELATION_FIELD->getName()}"
                                     {/if}
                                     data-url="{$RELATED_LINK->getUrl()}"
                                 {/if}
-                                {if $IS_SELECT_BUTTON neq true} 
+                                {if $IS_SELECT_BUTTON neq true}
                                     name="addButton"
                                 {/if}
                                 >
 
-                                {if $IS_SELECT_BUTTON eq false} 
+                                {if $IS_SELECT_BUTTON eq false}
                                     <i class="icon-plus icon-white">
                                     </i>
                                 {/if}&nbsp;
@@ -60,7 +60,7 @@
                     <div class="pull-right">
                         <span class="pageNumbers">
                             <span class="pageNumbersText">
-                                {if !empty($RELATED_RECORDS)} 
+                                {if !empty($RELATED_RECORDS)}
                                     {$PAGING->getRecordStartRange()} {vtranslate('LBL_to', $RELATED_MODULE->get('name'))} {$PAGING->getRecordEndRange()}
                                 {else}
                                     <span>
@@ -145,7 +145,7 @@
                         </tr>
                     {/if}
                     {foreach item=RELATED_RECORD from=$RELATED_RECORDS}
-                        <tr style="background: linear-gradient({$RELATED_RECORD->getListViewColor()});" class="listViewEntries" data-id='{$RELATED_RECORD->getId()}' 
+                        <tr style="background: linear-gradient({$RELATED_RECORD->getListViewColor()});" class="listViewEntries" data-id='{$RELATED_RECORD->getId()}'
                             {if $RELATED_MODULE_NAME eq 'Calendar'}
                                 {assign var=DETAILVIEWPERMITTED value=isPermitted($RELATED_MODULE->get('name'), 'DetailView', $RELATED_RECORD->getId())}
                                 {if $DETAILVIEWPERMITTED eq 'yes'}
@@ -174,7 +174,7 @@
                                                     {$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}
                                                 </a>
                                         {else}
-                                            {$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}   
+                                            {$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}
                                         {/if}
                                     {elseif $RELATED_HEADERNAME eq 'listprice' || $RELATED_HEADERNAME eq 'unit_price'}
                                         {CurrencyField::convertToUserFormat($RELATED_RECORD->get($RELATED_HEADERNAME), null, true)}
@@ -191,8 +191,8 @@
                                             <!--- RELATED_RECORD->getRawData()} -- rawData not exist --->
                                             {substr($NOLINEBREAKS_DISPLAYVALUE,0,30)}...
                                             <a style="margin-left: 2px;" href="#"  rel="popover" title="{vtranslate('Description', $MODULE)}"
-                                             
-                                                data-placement="bottom" data-trigger="hover" 
+
+                                                data-placement="bottom" data-trigger="hover"
                                                 data-content='{$NOQUO_DISPLAYVALUE}'>
                                                 <i class="icon-info-sign"></i>
                                             </a>
@@ -201,7 +201,7 @@
                                         {/if}
 
                                     {else}
-                                        {$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}   
+                                        {$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}
                                     {/if}
                                     {if $RELATED_MODULE_NAME == 'Calendar' && $RELATED_HEADERNAME == "subject" && $RELATED_RECORD->get('description') && {$RELATED_RECORD->get('description')|trim} != '' }
                                         <i class="icon-info-sign" style="margin-left: 2px;" rel="popover" title="{vtranslate('Description', $MODULE)}" data-placement="bottom" data-trigger="hover" data-content="{$RELATED_RECORD->get('description')|escape:'html'}"></i>
@@ -251,7 +251,7 @@
                                     </div>
                                 </td>
                                     {else}
-                                        
+
                                     {/if}
                             {/foreach}
                         </tr>

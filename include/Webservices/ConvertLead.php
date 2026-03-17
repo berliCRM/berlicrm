@@ -198,7 +198,7 @@ function vtws_populateConvertLeadEntities($entityvalue, $entity, $entityHandler,
 			$leadFieldName = $leadField->getFieldName();
 			$entityFieldName = trim($entityField->getFieldName());
 
-			// here we convert the names of uitype 15 (and 16) from translate if necessary 
+			// here we convert the names of uitype 15 (and 16) from translate if necessary
 			$uitype = $entityField->getUIType();
 			$valueLeadsToSet = trim($leadinfo[$leadFieldName]);
 			$valueToSet = $valueLeadsToSet;
@@ -206,13 +206,13 @@ function vtws_populateConvertLeadEntities($entityvalue, $entity, $entityHandler,
 			// we habe only two options it can be or it can be not present in target table.
 			// if not empty and have uitype 15 or 16
 			if( !empty($valueLeadsToSet) && ($uitype == "15" || $uitype == "16")  ){
-				
+
 				$sqlCheckTargetValue = "SELECT $entityFieldName FROM vtiger_$entityFieldName WHERE $entityFieldName = ?";
 				$resCheckTargetValue = $adb->pquery($sqlCheckTargetValue, array($valueLeadsToSet));
-				// if we habe a hit, so not need to change Value. 
+				// if we habe a hit, so not need to change Value.
 				// If not, so need to set another-language value:
 				if ($resCheckTargetValue && $adb->num_rows($resCheckTargetValue) == 0) {
-					
+
 					$newValueLanguage = $languageStringsLeads[$valueLeadsToSet];
 					if( !empty($newValueLanguage) ){
 						// (maybe this is not in target table to, but then all two values are not match. So it is a error-mistake because it was wrong written.)

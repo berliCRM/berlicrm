@@ -54,7 +54,7 @@ class crmtogo_WS_Login extends crmtogo_WS_Controller {
 			if (!file_exists($path)) {
 				$language = 'de_de';
 			}
-			
+
 			//one day
 			$_SESSION["__HTTP_Session_Expire_TS"]== time() + (60 * 60 * 24);
 			// 1 hour

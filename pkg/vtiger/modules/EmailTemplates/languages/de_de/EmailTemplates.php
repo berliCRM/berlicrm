@@ -8,18 +8,26 @@
  * All Rights Reserved.
  *************************************************************************************/
 $languageStrings = array(
-	'Email Templates' => 'E-Mail-Vorlagen' ,
-	'LBL_ADD_RECORD' => 'In E-Mail-Vorlage',
-	'SINGLE_EmailTemplates' => 'E-Mail-Vorlage',
-	'LBL_EMAIL_TEMPLATES'=> 'E-Mail-Vorlagen',
-	'LBL_EMAIL_TEMPLATE' => 'E-Mail-Vorlage',
-	
+	'LBL_ADD_RECORD' => 'E-Mail Vorlage hinzufügen',
+	'SINGLE_EmailTemplates' => 'E-Mail Vorlage',
+	'LBL_EMAIL_TEMPLATES'=> 'E-Mail Vorlagen',
+	'LBL_EMAIL_TEMPLATE' => 'E-Mail Vorlage',
+
 	'LBL_TEMPLATE_NAME' => 'Vorlagenname',
 	'LBL_DESCRIPTION' => 'Beschreibung',
-	'LBL_SUBJECT' => 'Gegenstand',
+	'LBL_SUBJECT' => 'Betreff',
 	'LBL_GENERAL_FIELDS' => 'Allgemeine Felder',
-	'LBL_SELECT_FIELD_TYPE' => 'Wählen Sie Feldtyp',
-	
-	'LBL_EMAIL_TEMPLATE_DESCRIPTION'=>'Vorlagen verwalten für E-Mail-Modul',
-	
+	'LBL_SELECT_FIELD_TYPE' => 'Feldtyp auswählen',
+	'EmailTemplates' => 'E-Mail Vorlagen',
+	'Email Templates' => 'E-Mail Vorlagen',
+
+	'LBL_EMAIL_TEMPLATE_DESCRIPTION'=>'Vorlagen verwalten für das E-Mail-Modul',
+
+    'Template Name' => 'Vorlagenname',
+    'Templatename' => 'Vorlagenname',
+    'Message' => 'Nachricht',
+    'Email Template - Properties of ' => 'E-Mail Vorlage - Eigenschaften von ',
+
+	'Template ID' => 'Vorlagennummer',
+
 );

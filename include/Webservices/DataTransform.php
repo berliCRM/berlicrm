@@ -307,7 +307,7 @@
 			}
 			return $row;
 		}
-		
+
 		public static function sanitizeBooleanFields($row, $meta) {
 			$moduleFields = $meta->getModuleFields();
 			foreach ($moduleFields AS $fieldName => $fieldObj) {

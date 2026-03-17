@@ -21,7 +21,7 @@ class Rss_Save_Action extends Vtiger_Save_Action {
 
         $rssModel = new Rss_RssHandler_Model();
         $result = $rssModel->handleRss($url);
-        
+
         if($rssModel->isSuccess($result)) {
             $recordModel->save($url);
             $response->setResult(array('success' => true, 'message' => vtranslate('JS_RSS_SUCCESSFULLY_SAVED', $moduleName), 'id' => $recordModel->getId()));

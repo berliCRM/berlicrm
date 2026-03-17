@@ -376,6 +376,7 @@ jQuery.Class("Vtiger_Detail_Js",{
 				contentContainer.html(data);
 				thisInstance.registerPreviewEvent();
 				app.registerEventForTextAreaFields(jQuery(".commentcontent"))
+                app.registerEventForTimeFields();
 				contentContainer.trigger(thisInstance.widgetPostLoad,{'widgetName' : relatedModuleName})
                 aDeferred.resolve(params);
 			},
@@ -574,61 +575,69 @@ jQuery.Class("Vtiger_Detail_Js",{
 	 * return json response
 	 */
 	saveComment : function(e) {
-		var thisInstance = this;
-		var aDeferred = jQuery.Deferred();
-		var currentTarget = jQuery(e.currentTarget);
-		var commentMode = currentTarget.data('mode');
-		var closestCommentBlock = currentTarget.closest('.addCommentBlock');
-		var commentContent = closestCommentBlock.find('.commentcontent');
-		var commentContentValue = commentContent.val();
-		var errorMsg;
-		if(commentContentValue == ""){
-			errorMsg = app.vtranslate('JS_LBL_COMMENT_VALUE_CANT_BE_EMPTY')
-			commentContent.validationEngine('showPrompt', errorMsg , 'error','bottomLeft',true);
-			aDeferred.reject();
-			return aDeferred.promise();
-		}
-		if(commentMode == "edit"){
-			var editCommentReason = closestCommentBlock.find('[name="reasonToEdit"]').val();
-		}
+        var thisInstance = this;
+        var aDeferred = jQuery.Deferred();
+        var currentTarget = jQuery(e.currentTarget);
+        var commentMode = currentTarget.data('mode');
+        var closestCommentBlock = currentTarget.closest('.addCommentBlock');
+        var commentContent = closestCommentBlock.find('.commentcontent');
+        var commentContentValue = commentContent.val();
+        var errorMsg;
+        if(commentContentValue == ""){
+            errorMsg = app.vtranslate('JS_LBL_COMMENT_VALUE_CANT_BE_EMPTY')
+            commentContent.validationEngine('showPrompt', errorMsg , 'error','bottomLeft',true);
+            aDeferred.reject();
+            return aDeferred.promise();
+        }
+        if(commentMode == "edit"){
+            var editCommentReason = closestCommentBlock.find('[name="reasonToEdit"]').val();
+        }
 
-		var progressIndicatorElement = jQuery.progressIndicator({});
-		var element = jQuery(e.currentTarget);
-		element.attr('disabled', 'disabled');
+        var progressIndicatorElement = jQuery.progressIndicator({});
+        var element = jQuery(e.currentTarget);
+        element.attr('disabled', 'disabled');
 
-		var commentInfoHeader = closestCommentBlock.closest('.commentDetails').find('.commentInfoHeader');
-		var commentId = commentInfoHeader.data('commentid');
-		var parentCommentId = commentInfoHeader.data('parentcommentid');
-		var postData = {
-			'commentcontent' : 	commentContentValue,
-			'related_to': thisInstance.getRecordId(),
-			'module' : 'ModComments'
-		}
+        var commentInfoHeader = closestCommentBlock.closest('.commentDetails').find('.commentInfoHeader');
+        var commentId = commentInfoHeader.data('commentid');
+        var parentCommentId = commentInfoHeader.data('parentcommentid');
+        var external = closestCommentBlock.find('#externalComment').is(':checked');
+        const neededTime = closestCommentBlock.find('#timeNeeded').val();
+        var postData = {
+            'commentcontent' : 	commentContentValue,
+            'related_to': thisInstance.getRecordId(),
+            'module' : 'ModComments',
+            'external': external,
+            'neededTime' : neededTime,
+        }
 
-		if(commentMode == "edit"){
-			postData['record'] = commentId;
-			postData['reasontoedit'] = editCommentReason;
-			postData['parent_comments'] = parentCommentId;
-			postData['mode'] = 'edit';
-			postData['action'] = 'Save';
-		} else if(commentMode == "add"){
-			postData['parent_comments'] = commentId;
-			postData['action'] = 'SaveAjax';
-		}
-		AppConnector.request(postData).then(
-			function(data){
-				progressIndicatorElement.progressIndicator({'mode':'hide'});
-				aDeferred.resolve(data);
-			},
-			function(textStatus, errorThrown){
-				progressIndicatorElement.progressIndicator({'mode':'hide'});
-				element.removeAttr('disabled');
-				aDeferred.reject(textStatus, errorThrown);
-			}
-		);
+        if(commentMode == "edit"){
+            postData['record'] = commentId;
+            postData['reasontoedit'] = editCommentReason;
+            postData['parent_comments'] = parentCommentId;
+            postData['mode'] = 'edit';
+            postData['action'] = 'Save';
+        } else if(commentMode == "add"){
+            postData['parent_comments'] = commentId;
+            postData['action'] = 'SaveAjax';
+        } else if (commentMode == "sendMail") {
+            postData['parent_comments'] = commentId;
+            postData['action'] = 'SaveAjax';
+            postData['sendMail'] = true;
+        }
+        AppConnector.request(postData).then(
+            function(data){
+                progressIndicatorElement.progressIndicator({'mode':'hide'});
+                aDeferred.resolve(data);
+            },
+            function(textStatus, errorThrown){
+                progressIndicatorElement.progressIndicator({'mode':'hide'});
+                element.removeAttr('disabled');
+                aDeferred.reject(textStatus, errorThrown);
+            }
+        );
 
-		return aDeferred.promise();
-	},
+        return aDeferred.promise();
+    },
 
 	/**
 	 * function to return the UI of the comment.
@@ -1422,11 +1431,11 @@ jQuery.Class("Vtiger_Detail_Js",{
 					element.progressIndicator({'mode' : 'hide'});
 					thisInstance.deSelectAllrelatedTabs();
 					thisInstance.loadWidgets();
-                                        thisInstance.registerEventForPicklistDependencySetup(thisInstance.getForm());
+                    thisInstance.registerEventForPicklistDependencySetup(thisInstance.getForm());
 
 					// Indicate the page content change
 					app.notifyPostAjaxReady();
-				}
+                }
 			);
 		});
 
@@ -1526,184 +1535,284 @@ jQuery.Class("Vtiger_Detail_Js",{
 	},
 
 	registerPreviewEvent: function () {
-	const existingPreviewBox = document.getElementById('pdf-preview-box');
-    if (existingPreviewBox) {
-        existingPreviewBox.remove();
-    }
-	const previewBox = document.createElement('div');
-	previewBox.id = 'pdf-preview-box';
-	previewBox.style.position = 'absolute';
-	previewBox.style.display = 'none';
-	previewBox.style.border = '1px solid #ccc';
-	previewBox.style.background = '#fff';
-	previewBox.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
-	previewBox.style.padding = '10px';
-	previewBox.style.zIndex = '1000';
-	previewBox.style.overflow = 'auto';
-	previewBox.style.resize = 'both';
-
-	// Load saved preview size
-	const savedSize = loadPreviewSize();
-	previewBox.style.width = savedSize.width;
-	previewBox.style.height = savedSize.height;
-	document.body.appendChild(previewBox);
-
-	const closePreviewButton = document.createElement('button');
-	closePreviewButton.textContent = '×';
-	closePreviewButton.style.position = 'absolute';
-	closePreviewButton.style.top = '8px';
-	closePreviewButton.style.right = '8px';
-	closePreviewButton.style.background = 'white';
-	closePreviewButton.style.border = 'none';
-	closePreviewButton.style.fontSize = '25px';
-	closePreviewButton.style.cursor = 'pointer';
-	closePreviewButton.style.color = '#333';
-
-	// Function to remove the existing iframe if any
-	function removeIframe() {
-		const existingIframe = document.querySelectorAll('#pdf-preview-box iframe');
-		existingIframe.forEach(element => {
-			element.remove();
-		});
-	}
-
-	previewBox.appendChild(closePreviewButton);
-	document.body.appendChild(previewBox);
-
-	// Function to save preview box size to session storage
-	function savePreviewSize(width, height) {
-		sessionStorage.setItem('previewBoxWidth', width);
-		sessionStorage.setItem('previewBoxHeight', height);
-	}
-
-	// Function to load preview box size from session storage
-	function loadPreviewSize() {
-		return {
-			width: sessionStorage.getItem('previewBoxWidth') || '300px',
-			height: sessionStorage.getItem('previewBoxHeight') || '400px'
-		};
-	}
-
-	function showUnsupportedFormatMessage() {
-		previewBox.innerHTML = `
-			<div style="padding: 20px; color: #a00; font-weight: bold;">
-				Keine Preview für dieses Dateiformat verfügbar.
-			</div>
-		`;
-		previewBox.appendChild(closePreviewButton);
-		previewBox.style.display = 'block';
-	}
-
-	const resizeObserver = new ResizeObserver(entries => {
-		for (let entry of entries) {
-			savePreviewSize(entry.target.style.width, entry.target.style.height);
+		const existingPreviewBox = document.getElementById('pdf-preview-box');
+		if (existingPreviewBox) {
+			existingPreviewBox.remove();
 		}
-	});
-	resizeObserver.observe(previewBox);
-
-	// Event-Listener for close-Button
-	closePreviewButton.addEventListener('click', function () {
+		const previewBox = document.createElement('div');
+		previewBox.id = 'pdf-preview-box';
+		previewBox.style.position = 'absolute';
 		previewBox.style.display = 'none';
-	});
+		previewBox.style.border = '1px solid #ccc';
+		previewBox.style.background = '#fff';
+		previewBox.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+		previewBox.style.padding = '10px';
+		previewBox.style.zIndex = '1000';
+		previewBox.style.overflow = 'auto';
+		previewBox.style.resize = 'both';
 
-	document.querySelectorAll('.pdf-link').forEach(link => {
-		link.addEventListener('mouseenter', function (e) {
-			const pdfUrl = this.dataset.pdfPreview;
-			if (!pdfUrl) {
-				previewBox.style.display = "none";
-				return;
-			}
+		// Load saved preview size
+		const savedSize = loadPreviewSize();
+		previewBox.style.width = savedSize.width;
+		previewBox.style.height = savedSize.height;
+		document.body.appendChild(previewBox);
 
-			const previewUrl = new URL(pdfUrl, window.location.href.split("index.php")[0]);
-			previewUrl.searchParams.set('mode', 'preview');
+		const closePreviewButton = document.createElement('button');
+		closePreviewButton.textContent = '×';
+		closePreviewButton.style.position = 'absolute';
+		closePreviewButton.style.top = '8px';
+		closePreviewButton.style.right = '8px';
+		closePreviewButton.style.background = 'white';
+		closePreviewButton.style.border = 'none';
+		closePreviewButton.style.fontSize = '25px';
+		closePreviewButton.style.cursor = 'pointer';
+		closePreviewButton.style.color = '#333';
 
-			fetch(previewUrl)
-				.then(response => {
-					if (response.status === 204) {
-						showUnsupportedFormatMessage();
-					} else {
-						previewBox.style.display = "block";
-					}
-				});
+		// Function to remove the existing iframe if any
+		function removeIframe() {
+			const existingIframe = document.querySelectorAll('#pdf-preview-box iframe');
+			existingIframe.forEach(element => {
+				element.remove();
+			});
+		}
 
-			const iframe = document.createElement('iframe');
-			iframe.id = "preview";
-			iframe.src = previewUrl;
-			iframe.width = "100%";
-			iframe.height = "100%";
-			iframe.frameBorder = "0";
-			iframe.style.overflow = "auto";
-			iframe.style.border = "1px solid #ccc";
+		previewBox.appendChild(closePreviewButton);
+		document.body.appendChild(previewBox);
 
-			iframe.onerror = function () {
-				showUnsupportedFormatMessage();
+		// Function to save preview box size to session storage
+		function savePreviewSize(width, height) {
+			sessionStorage.setItem('previewBoxWidth', width);
+			sessionStorage.setItem('previewBoxHeight', height);
+		}
+
+		// Function to load preview box size from session storage
+		function loadPreviewSize() {
+			return {
+				width: sessionStorage.getItem('previewBoxWidth') || '300px',
+				height: sessionStorage.getItem('previewBoxHeight') || '400px'
 			};
+		}
 
-			previewBox.innerHTML = '';
-			previewBox.appendChild(iframe);
+		function showUnsupportedFormatMessage() {
+			previewBox.innerHTML = `
+				<div style="padding: 20px; color: #a00; font-weight: bold;">
+					Keine Preview für dieses Dateiformat verfügbar.
+				</div>
+			`;
 			previewBox.appendChild(closePreviewButton);
-
-			iframe.onload = function () {
-				try {
-					const imgEl = iframe.contentWindow.document.getElementsByTagName("IMG")[0];
-					if (imgEl) {
-						// If there is an <img>, check if it's valid by reloading it outside the iframe
-						const testImg = new Image();
-						testImg.onload = function () {
-							// Image loaded fine → show the image instead of the iframe
-							const cleanImg = document.createElement("img");
-							cleanImg.src = imgEl.src;
-							previewBox.innerHTML = '';
-							previewBox.appendChild(cleanImg);
-							previewBox.appendChild(closePreviewButton);
-							previewBox.style.display = 'block';
-						};
-						testImg.onerror = function () {
-							showUnsupportedFormatMessage();
-						};
-						testImg.src = imgEl.src;
-					} else {
-						// No <img> found → assume it's a PDF or another supported preview → show the iframe
-						previewBox.style.display = 'block';
-					}
-				} catch (error) {
-					previewBox.style.display = 'block';
-				}
-			};
-
-			const linkRect = this.getBoundingClientRect();
-			const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-			const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-			previewBox.style.visibility = 'hidden';
 			previewBox.style.display = 'block';
+		}
 
-			const boxWidth = previewBox.offsetWidth;
-			const boxHeight = previewBox.offsetHeight;
-
-			let left = linkRect.right + 10 + scrollLeft;
-			let top = linkRect.top + scrollTop;
-
-			if (left + boxWidth > window.innerWidth + scrollLeft) {
-			left = linkRect.left - boxWidth - 10 + scrollLeft;
+		const resizeObserver = new ResizeObserver(entries => {
+			for (let entry of entries) {
+				savePreviewSize(entry.target.style.width, entry.target.style.height);
 			}
-
-			if (top + boxHeight > window.innerHeight + scrollTop) {
-			top = window.innerHeight + scrollTop - boxHeight - 10;
-			if (top < 0) top = 0; 
-			}
-
-			previewBox.style.left = `${left}px`;
-			previewBox.style.top = `${top}px`;
-
-			previewBox.style.visibility = 'visible';
-
 		});
-	});
+		resizeObserver.observe(previewBox);
 
-	this.removeIframe = removeIframe;
-},
-	
+		// Event-Listener for close-Button
+		closePreviewButton.addEventListener('click', function () {
+			previewBox.style.display = 'none';
+		});
+
+		// check for special field links first, otherwise fall back to .pdf-link ---
+		var linkElements = $('[id$="fieldValue_filename"]');
+		if (linkElements.length < 1) {
+			// fallback: bind to all .pdf-link elements
+			document.querySelectorAll('.pdf-link').forEach(link => {
+				link.addEventListener('mouseenter', function (e) {
+					const pdfUrl = this.dataset.pdfPreview;
+					if (!pdfUrl) {
+						previewBox.style.display = "none";
+						return;
+					}
+
+					const previewUrl = new URL(pdfUrl, window.location.href.split("index.php")[0]);
+					previewUrl.searchParams.set('mode', 'preview');
+
+					fetch(previewUrl)
+						.then(response => {
+							if (response.status === 204) {
+								showUnsupportedFormatMessage();
+							} else {
+								previewBox.style.display = "block";
+							}
+						});
+
+					const iframe = document.createElement('iframe');
+					iframe.id = "preview";
+					iframe.src = previewUrl;
+					iframe.width = "100%";
+					iframe.height = "100%";
+					iframe.frameBorder = "0";
+					iframe.style.overflow = "auto";
+					iframe.style.border = "1px solid #ccc";
+
+					iframe.onerror = function () {
+						showUnsupportedFormatMessage();
+					};
+
+					previewBox.innerHTML = '';
+					previewBox.appendChild(iframe);
+					previewBox.appendChild(closePreviewButton);
+
+					iframe.onload = function () {
+						try {
+							const imgEl = iframe.contentWindow.document.getElementsByTagName("IMG")[0];
+							if (imgEl) {
+								// If there is an <img>, check if it's valid by reloading it outside the iframe
+								const testImg = new Image();
+								testImg.onload = function () {
+									// Image loaded fine → show the image instead of the iframe
+									const cleanImg = document.createElement("img");
+									cleanImg.src = imgEl.src;
+									previewBox.innerHTML = '';
+									previewBox.appendChild(cleanImg);
+									previewBox.appendChild(closePreviewButton);
+									previewBox.style.display = 'block';
+								};
+								testImg.onerror = function () {
+									showUnsupportedFormatMessage();
+								};
+								testImg.src = imgEl.src;
+							} else {
+								// No <img> found → assume it's a PDF or another supported preview → show the iframe
+								previewBox.style.display = 'block';
+							}
+						} catch (error) {
+							previewBox.style.display = 'block';
+						}
+					};
+
+					const linkRect = this.getBoundingClientRect();
+					const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+					const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+					previewBox.style.visibility = 'hidden';
+					previewBox.style.display = 'block';
+
+					const boxWidth = previewBox.offsetWidth;
+					const boxHeight = previewBox.offsetHeight;
+
+					let left = linkRect.right + 10 + scrollLeft;
+					let top = linkRect.top + scrollTop;
+
+					if (left + boxWidth > window.innerWidth + scrollLeft) {
+						left = linkRect.left - boxWidth - 10 + scrollLeft;
+					}
+
+					if (top + boxHeight > window.innerHeight + scrollTop) {
+						top = window.innerHeight + scrollTop - boxHeight - 10;
+						if (top < 0) top = 0;
+					}
+
+					previewBox.style.left = `${left}px`;
+					previewBox.style.top = `${top}px`;
+
+					previewBox.style.visibility = 'visible';
+				});
+			});
+		} else {
+			// there are special field links (Detail view); bind to their anchors
+			document.querySelectorAll('[id$="fieldValue_filename"] a').forEach(link => {
+				link.addEventListener('mouseenter', function (e) {
+					const pdfUrl = link.href;
+					if (!pdfUrl) {
+						previewBox.style.display = "none";
+						return;
+					}
+
+					const previewUrl = new URL(pdfUrl, window.location.href.split("index.php")[0]);
+					previewUrl.searchParams.set('mode', 'preview');
+
+                    if (document.querySelector('#pdf-preview-box')) {
+                        removeIframe();
+                    }
+
+                    fetch(previewUrl)
+						.then(response => {
+							if (response.status === 204) {
+								showUnsupportedFormatMessage();
+							} else {
+								previewBox.style.display = "block";
+							}
+						});
+
+                    document.body.appendChild(previewBox);
+					const iframe = document.createElement('iframe');
+					iframe.id = "preview";
+					iframe.src = previewUrl;
+					iframe.width = "100%";
+					iframe.height = "100%";
+					iframe.frameBorder = "0";
+					iframe.style.overflow = "auto";
+					iframe.style.border = "1px solid #ccc";
+
+					iframe.onerror = function () {
+						showUnsupportedFormatMessage();
+					};
+
+					previewBox.innerHTML = '';
+					previewBox.appendChild(iframe);
+					previewBox.appendChild(closePreviewButton);
+
+					iframe.onload = function () {
+						try {
+							const imgEl = iframe.contentWindow.document.getElementsByTagName("IMG")[0];
+							if (imgEl) {
+								const testImg = new Image();
+								testImg.onload = function () {
+									const cleanImg = document.createElement("img");
+									cleanImg.src = imgEl.src;
+									previewBox.innerHTML = '';
+									previewBox.appendChild(cleanImg);
+									previewBox.appendChild(closePreviewButton);
+									previewBox.style.display = 'block';
+								};
+								testImg.onerror = function () {
+									showUnsupportedFormatMessage();
+								};
+								testImg.src = imgEl.src;
+							} else {
+								previewBox.style.display = 'block';
+							}
+						} catch (error) {
+							previewBox.style.display = 'block';
+						}
+					};
+
+					const linkRect = this.getBoundingClientRect();
+					const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+					const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+					previewBox.style.visibility = 'hidden';
+					previewBox.style.display = 'block';
+
+					const boxWidth = previewBox.offsetWidth;
+					const boxHeight = previewBox.offsetHeight;
+
+					let left = linkRect.right + 10 + scrollLeft;
+					let top = linkRect.top + scrollTop;
+
+					if (left + boxWidth > window.innerWidth + scrollLeft) {
+						left = linkRect.left - boxWidth - 10 + scrollLeft;
+					}
+
+					if (top + boxHeight > window.innerHeight + scrollTop) {
+						top = window.innerHeight + scrollTop - boxHeight - 10;
+						if (top < 0) top = 0;
+					}
+
+					previewBox.style.left = `${left}px`;
+					previewBox.style.top = `${top}px`;
+
+					previewBox.style.visibility = 'visible';
+				});
+			});
+		}
+
+		this.removeIframe = removeIframe;
+	},
 
 	/**
 	 * Function to register event for emails related record click
@@ -2253,9 +2362,17 @@ jQuery.Class("Vtiger_Detail_Js",{
 			var commentInfoBlock = currentTarget.closest('.singleComment');
 			var commentInfoContent = commentInfoBlock.find('.commentInfoContent');
 			var commentReason = commentInfoBlock.find('[name="editReason"]');
+            var externalComment = commentInfoBlock.find('[name="external"]').val();
+            const timeNeeded = commentInfoBlock.find('[name="timeNeeded"]').val();
 			var editCommentBlock = thisInstance.getEditCommentBlock();
 			editCommentBlock.find('.commentcontent').text(commentInfoContent.text());
 			editCommentBlock.find('[name="reasonToEdit"]').val(commentReason.text());
+            editCommentBlock.find('[name="timeNeeded"]').val(timeNeeded);
+            if (externalComment == '1') {
+                editCommentBlock.find('[name="externalComment"]').prop('checked', true);
+            } else {
+                editCommentBlock.find('[name="externalComment"]').prop('checked', false);
+            }
 			commentInfoContent.hide();
 			commentInfoBlock.find('.commentActionsContainer').hide();
 			editCommentBlock.appendTo(commentInfoBlock).show();
@@ -2302,60 +2419,78 @@ jQuery.Class("Vtiger_Detail_Js",{
 		});
 
 		detailContentsHolder.on('click','.detailViewSaveComment', function(e){
-            var element = jQuery(e.currentTarget);
-            if(!element.is(":disabled")) {
-                var dataObj = thisInstance.saveComment(e);
-                dataObj.then(function(){
-                    var commentsContainer = detailContentsHolder.find("[data-name='ModComments']");
-                    thisInstance.loadWidget(commentsContainer).then(function() {
+            const element = jQuery(e.currentTarget);
+            if(element.is(":disabled")) {
+                return;
+            }
+
+            const doSave = function () {
+                const dataObj = thisInstance.saveComment(e);
+                dataObj.then(function () {
+                    const commentsContainer = detailContentsHolder.find("[data-name='ModComments']");
+                    thisInstance.loadWidget(commentsContainer).then(function () {
                         element.removeAttr('disabled');
                     });
                 });
             }
+
+            if (e.currentTarget.getAttribute('data-mode') === 'sendMail') {
+                const message = app.vtranslate('LBL_DELETE_CONFIRMATION');
+                Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(function(data) {
+                    doSave();
+                })
+            } else {
+                doSave();
+            }
+
 		});
 
-		detailContentsHolder.on('click','.saveComment', function(e){
-            var element = jQuery(e.currentTarget);
-            if(!element.is(":disabled")) {
+        detailContentsHolder.on('click', '.saveComment', function (e) {
+            const element = jQuery(e.currentTarget);
+            if (element.is(":disabled")) {
+                return;
+            }
+
+            const doSave = function () {
                 var currentTarget = jQuery(e.currentTarget);
                 var mode = currentTarget.data('mode');
                 var dataObj = thisInstance.saveComment(e);
-                dataObj.then(function(data){
+                dataObj.then(function (data) {
                     var closestAddCommentBlock = currentTarget.closest('.addCommentBlock');
                     var commentTextAreaElement = closestAddCommentBlock.find('.commentcontent');
                     var commentInfoBlock = currentTarget.closest('.singleComment');
                     commentTextAreaElement.val('');
-                    if(mode == "add"){
+                    if (mode == "add") {
                         var commentId = data['result']['id'];
                         var commentHtml = thisInstance.getCommentUI(commentId);
-                        commentHtml.then(function(data){
+                        commentHtml.then(function (data) {
                             var commentBlock = closestAddCommentBlock.closest('.commentDetails');
                             var detailContentsHolder = thisInstance.getContentHolder();
-                            var noCommentsMsgContainer = jQuery('.noCommentsMsgContainer',detailContentsHolder);
+                            var noCommentsMsgContainer = jQuery('.noCommentsMsgContainer', detailContentsHolder);
                             noCommentsMsgContainer.remove();
-                            if(commentBlock.length > 0){
+                            if (commentBlock.length > 0) {
                                 closestAddCommentBlock.remove();
                                 var childComments = commentBlock.find('ul');
-                                if(childComments.length <= 0){
+                                if (childComments.length <= 0) {
                                     var currentChildCommentsCount = commentInfoBlock.find('.viewThreadBlock').data('childCommentsCount');
                                     var newChildCommentCount = currentChildCommentsCount + 1;
                                     commentInfoBlock.find('.childCommentsCount').text(newChildCommentCount);
                                     var parentCommentId = commentInfoBlock.find('.commentInfoHeader').data('commentid');
-                                    thisInstance.getChildComments(parentCommentId).then(function(responsedata){
+                                    thisInstance.getChildComments(parentCommentId).then(function (responsedata) {
                                         jQuery(responsedata).appendTo(commentBlock);
                                         commentInfoBlock.find('.viewThreadBlock').hide();
                                         commentInfoBlock.find('.hideThreadBlock').show();
                                     });
-                                }else {
-                                    jQuery('<ul class="liStyleNone"><li class="commentDetails">'+data+'</li></ul>').appendTo(commentBlock);
+                                } else {
+                                    jQuery('<ul class="liStyleNone"><li class="commentDetails">' + data + '</li></ul>').appendTo(commentBlock);
                                 }
                             } else {
-                                jQuery('<ul class="liStyleNone"><li class="commentDetails">'+data+'</li></ul>').prependTo(closestAddCommentBlock.closest('.commentContainer').find('.commentsList'));
-                                commentTextAreaElement.css({height : '71px'});
+                                jQuery('<ul class="liStyleNone"><li class="commentDetails">' + data + '</li></ul>').prependTo(closestAddCommentBlock.closest('.commentContainer').find('.commentsList'));
+                                commentTextAreaElement.css({height: '71px'});
                             }
                             commentInfoBlock.find('.commentActionsContainer').show();
                         });
-                    }else if(mode == "edit"){
+                    } else if (mode == "edit") {
                         var modifiedTime = commentInfoBlock.find('.commentModifiedTime');
                         var commentInfoContent = commentInfoBlock.find('.commentInfoContent');
                         var commentEditStatus = commentInfoBlock.find('[name="editStatus"]');
@@ -2363,13 +2498,13 @@ jQuery.Class("Vtiger_Detail_Js",{
                         commentInfoContent.html(data.result.commentcontent);
                         commentReason.html(data.result.reasontoedit);
                         modifiedTime.text(data.result.modifiedtime);
-                        modifiedTime.attr('title',data.result.modifiedtimetitle)
-                        if(commentEditStatus.hasClass('hide')){
+                        modifiedTime.attr('title', data.result.modifiedtimetitle)
+                        if (commentEditStatus.hasClass('hide')) {
                             commentEditStatus.removeClass('hide');
                         }
-						if(data.result.reasontoedit != ""){
-							commentInfoBlock.find('.editReason').removeClass('hide')
-						}
+                        if (data.result.reasontoedit != "") {
+                            commentInfoBlock.find('.editReason').removeClass('hide')
+                        }
                         commentInfoContent.show();
                         commentInfoBlock.find('.commentActionsContainer').show();
                         closestAddCommentBlock.remove();
@@ -2377,7 +2512,16 @@ jQuery.Class("Vtiger_Detail_Js",{
                     element.removeAttr('disabled');
                 });
             }
-		});
+
+            if (e.currentTarget.getAttribute('data-mode') === 'sendMail') {
+                const message = app.vtranslate('LBL_DELETE_CONFIRMATION');
+                Vtiger_Helper_Js.showConfirmationBox({'message' : message}).then(function(data) {
+                    doSave();
+                })
+            } else {
+                doSave();
+            }
+        });
 
 		detailContentsHolder.on('click','.moreRecentComments', function(){
 			var recentCommentsTab = thisInstance.getTabByLabel(thisInstance.detailViewRecentCommentsTabLabel);

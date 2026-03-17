@@ -625,7 +625,7 @@ class Vtiger_Functions {
 			$fields[$module[0]][] = $module[1];
 		}
 		if (is_array($fields['custom']) && count($fields['custom']) > 0) {
-			$description = self::getMergedDescriptionCustomVars($fields, $description);
+			$description = self::getMergedDescriptionCustomVars($fields, $description, $id, $parent_type);
 		}
 		//crm-now: handle optional blocks, skip it for Users as email send routine will call this function several times, Users first, and the description block will be gone aftre that
 		if ($parent_type != 'Users') {
@@ -634,10 +634,10 @@ class Vtiger_Functions {
 		return $description;
 	}
 
-	static function getMergedDescriptionCustomVars($fields, $description) {
-		global $current_user, $default_timezone;
+	static function getMergedDescriptionCustomVars($fields, $description, $id, $parent_type) {
+		global $current_user, $HELPDESK_SUPPORT_EMAIL_ID, $PORTAL_URL, $PORTAL_URL_ENG;
 		date_default_timezone_set($current_user->time_zone);
-		
+
 		$dateFormat = new IntlDateFormatter(
 			$current_user->language,
 			IntlDateFormatter::FULL,
@@ -663,6 +663,33 @@ class Vtiger_Functions {
 					break;
 				case 'currenttime': $token_value = $timeFormat->format(microtime(true));
 					break;
+                case 'currentyear': $token_value = date("Y");
+                    break;
+                case 'supportemail' : $token_value = $HELPDESK_SUPPORT_EMAIL_ID;
+                    break;
+                case 'logo' :
+                    $companyModel = Vtiger_CompanyDetails_Model::getInstanceById();
+                    $companyModel->getLogo()->getImagePath();
+                    break;
+                case 'customerportallink' :
+                    if($parent_type == 'HelpDesk') {
+                        $token_value = $PORTAL_URL_ENG . "/index.php?module=HelpDesk&action=index&ticketid=" . $id . "&fun=detail";
+                    } else {
+                        $token_value = $PORTAL_URL_ENG . "/index.php?module=" . $parent_type . "&action=index&id=" . $id . "&fun=detail";
+                    }
+                    break;
+                case 'kundenportallink' :
+                    if($parent_type == 'HelpDesk') {
+                        $token_value = $PORTAL_URL . "/index.php?module=HelpDesk&action=index&ticketid=" . $id . "&fun=detail";
+                    } else {
+                        $token_value = $PORTAL_URL . "/index.php?module=" . $parent_type . "&action=index&id=" . $id . "&fun=detail";
+                    }
+                    break;
+                default :
+                    if (key_exists($columnname, $companyDetails)) {
+                        $token_value = $companyDetails[$columnname];
+                    }
+                    break;
 			}
 			$description = str_replace($token_data, $token_value, $description);
 		}
@@ -1361,7 +1388,7 @@ class Vtiger_Functions {
 			return false;
 		}
 	}
-	
+
     public static function deleteAttachment($attachment) {
             global $adb;
             $attachId = $attachment['attachmentsid'];

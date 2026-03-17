@@ -116,16 +116,17 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     $focus = new Invoice();
     $focus->retrieve_entity_info($id, "Invoice");
     // get several values from the account: account name, buyer reference, account number
-    $sql = "select accountname, buyerreference, account_no from  vtiger_account where accountid= ?";
-    $acc_result = $adb->pquery($sql, array($focus->column_fields['account_id']));
+    $sql = "select accountname, buyerreference, account_no, siccode from  vtiger_account where accountid= ?";
+    $acc_result = $adb->pquery($sql, [$focus->column_fields['account_id']]);
     $account_name = decode_html($adb->query_result($acc_result, 0, 'accountname'));
     $buyer_reference = decode_html($adb->query_result($acc_result, 0, 'buyerreference'));
     $account_no = decode_html($adb->query_result($acc_result, 0, 'account_no'));
+    $siccode = decode_html($adb->query_result($acc_result, 0, 'siccode'));
 
     $invoice_no = $focus->column_fields['invoice_no'];
     //set currency format
     $sql = "select currency_symbol, currency_code from vtiger_currency_info where id= ?";
-    $curr_result = $adb->pquery($sql, array($focus->column_fields['currency_id']));
+    $curr_result = $adb->pquery($sql, [$focus->column_fields['currency_id']]);
     $currency_symbol = $adb->query_result($curr_result, 0, 'currency_symbol');
     $currency_code = $adb->query_result($curr_result, 0, 'currency_code');
     switch ($currency_code) {
@@ -137,6 +138,12 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
             break;
             //US Format
         case "USD":
+            $decimal_precision = 2;
+            $decimals_separator = '.';
+            $thousands_separator = ',';
+            break;
+            // CANADA Format
+        case "CAD":
             $decimal_precision = 2;
             $decimals_separator = '.';
             $thousands_separator = ',';
@@ -157,10 +164,22 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 
     // credit note?
     $invoice_status = $focus->column_fields["invoicestatus"];
+    // set pdf information
+    if ($invoice_status == 'Credit Invoice') {
+        $doc_name = 'CREDIT';
+        $invoiceTypeCode = 381;
+        $invoiceReferenceNo = $focus->column_fields["inv_no_reference"]; // reference to original invoice number TT1452
+        $signMultiplier = -1;
+    } else {
+        $doc_name = 'FACTURE';
+        $invoiceTypeCode = 380;
+        $invoiceReferenceNo = '';
+        $signMultiplier = 1;
+    }
 
     // get invoice date
     $invoice_date = $focus->column_fields["invoicedate"];
-    $invoice_date = getValidDisplayDate($invoice_date);
+    $invoice_date = (string) getValidDisplayDate($invoice_date);
     $invoice_date = str_replace("-", ".", $invoice_date);
 
     //number of lines after headline
@@ -184,7 +203,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     $pageradio = $pdf_config_details['pageradio'];
     // get company, tax and bank information from settings
     $add_query = "select * from vtiger_organizationdetails";
-    $result = $adb->pquery($add_query, array());
+    $result = $adb->pquery($add_query, []);
     $num_rows = $adb->num_rows($result);
 
     //
@@ -210,7 +229,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     if ($ownertype == 'Users') {
         // get owner information for user
         $sql = "SELECT * FROM vtiger_users,vtiger_crmentity WHERE vtiger_users.id = vtiger_crmentity.smownerid AND vtiger_crmentity.crmid = ? ";
-        $result = $adb->pquery($sql, array($_REQUEST['record']));
+        $result = $adb->pquery($sql, [$_REQUEST['record']]);
         $owner_lastname = $adb->query_result($result, 0, 'last_name');
         $owner_firstname = $adb->query_result($result, 0, 'first_name');
         $owner_id = $adb->query_result($result, 0, 'smownerid');
@@ -220,7 +239,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     } else {
         // get owner information for Groups
         $sql = "SELECT * FROM vtiger_groups,vtiger_crmentity WHERE vtiger_groups.groupid  = vtiger_crmentity.smownerid AND vtiger_crmentity.crmid = ? ";
-        $result = $adb->pquery($sql, array($_REQUEST['record']));
+        $result = $adb->pquery($sql, [$_REQUEST['record']]);
         $owner_lastname = '';
         $owner_firstname = $adb->query_result($result, 0, 'groupname');
         $owner_id = $adb->query_result($result, 0, 'smownerid');
@@ -232,7 +251,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     //display owner phone#?
     $ownerphone = $pdf_config_details['ownerphone'];
     //to display at product description based on tax type
-    $gproddetailarray = array($pdf_config_details['gprodname'], $pdf_config_details['gproddes'], $pdf_config_details['gprodcom']);
+    $gproddetailarray = [$pdf_config_details['gprodname'], $pdf_config_details['gproddes'], $pdf_config_details['gprodcom']];
     $gproddetails = 0;
     foreach ($gproddetailarray as $key => $value) {
         if ($value == 'true') {
@@ -244,7 +263,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         }
     }
     $iproddetails = 0;
-    $iproddetailarray = array($pdf_config_details['iprodname'], $pdf_config_details['iproddes'], $pdf_config_details['iprodcom']);
+    $iproddetailarray = [$pdf_config_details['iprodname'], $pdf_config_details['iproddes'], $pdf_config_details['iprodcom']];
     foreach ($iproddetailarray as $key => $value) {
         if ($value == 'true') {
             if ($key == 0) {
@@ -283,7 +302,6 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     $bill_code = decode_html($focus->column_fields["bill_code"]);
     $bill_country = decode_html($focus->column_fields["bill_country"]);
 
-
     //format contact name
     $contact_name = decode_html(getContactforPDF($focus->column_fields["contact_id"]));
     //get department of contact or account, contact wins
@@ -291,17 +309,16 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     //get contact department
     if (trim($focus->column_fields["contact_id"]) != '') {
         $sql = "select * from vtiger_contactdetails where contactid= ?";
-        $result = $adb->pquery($sql, array($focus->column_fields["contact_id"]));
+        $result = $adb->pquery($sql, [$focus->column_fields["contact_id"]]);
         $contact_department = decode_html(trim($adb->query_result($result, 0, "department")));
         $contact_firstname = decode_html(trim($adb->query_result($result, 0, "firstname")));
         $contact_lastname = decode_html(trim($adb->query_result($result, 0, "lastname")));
         $contact_salutation = decode_html(trim($adb->query_result($result, 0, "salutation")));
-
     }
     //get account department
     if ($contact_department == '' and trim($account_id) != '') {
         $sql = "select * from vtiger_account where accountid= ?";
-        $result = $adb->pquery($sql, array($account_id));
+        $result = $adb->pquery($sql, [$account_id]);
         $contact_department = decode_html(trim($adb->query_result($result, 0, "tickersymbol")));
     }
 
@@ -318,6 +335,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 
     // ************************ BEGIN POPULATE DATA ***************************
     //get the Associated Products for this Invoice
+    $invoice_received = (float) $focus->column_fields['received'];
     $focus->id = $focus->column_fields["record_id"];
     $associated_products = getAssociatedProducts("Invoice", $focus);
     $num_products = count($associated_products);
@@ -326,7 +344,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     $final_details = $associated_products[1]['final_details'];
 
     //getting the Net Total
-    $price_subtotal = $final_details["hdnSubTotal"];
+    $price_subtotal = $signMultiplier * $final_details["hdnSubTotal"];
     $price_subtotal_formated = number_format($price_subtotal, $decimal_precision, $decimals_separator, $thousands_separator);
 
     //Final discount amount/percentage
@@ -334,7 +352,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     $discount_percent = $final_details["discount_percentage_final"];
 
     if ($discount_amount != "" and $discount_amount != "0.00") {
-        $price_discount = $discount_amount;
+        $price_discount = $signMultiplier * $discount_amount;
         $price_discount_formated = number_format($price_discount, $decimal_precision, $decimals_separator, $thousands_separator);
     } elseif ($discount_percent != "" and $discount_percent != "0.00") {
         //This will be displayed near Discount label
@@ -356,10 +374,9 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 
     //To calculate the group tax amount
     if ($final_details['taxtype'] == 'group') {
-        $group_tax_total = $final_details['tax_totalamount'];
+        $group_tax_total = $signMultiplier * $final_details['tax_totalamount'];
         $price_salestax = $group_tax_total;
         $price_salestax_formated = number_format($price_salestax, $decimal_precision, $decimals_separator, $thousands_separator);
-
         $group_total_tax_percent = '0.00';
         $group_tax_details = $final_details['taxes'];
         for ($i = 0; $i < count($group_tax_details); $i++) {
@@ -368,7 +385,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     }
 
     //S&H amount
-    $sh_amount = $final_details['shipping_handling_charge'];
+    $sh_amount = $signMultiplier * $final_details['shipping_handling_charge'];
     $price_shipping_formated = number_format($sh_amount, $decimal_precision, $decimals_separator, $thousands_separator);
 
     //S&H taxes
@@ -377,7 +394,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     for ($i = 0; $i < count($sh_tax_details); $i++) {
         $sh_tax_percent = $sh_tax_percent + $sh_tax_details[$i]['percentage'];
     }
-    $sh_tax_amount = $final_details['shtax_totalamount'];
+    $sh_tax_amount = $signMultiplier * $final_details['shtax_totalamount'];
     $price_shipping_tax = number_format($sh_tax_amount, $decimal_precision, $decimals_separator, $thousands_separator);
 
     //to calculate the individuel tax amounts included we should get all available taxes and then retrieve the corresponding tax values
@@ -407,7 +424,6 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     // ************************ END POPULATE DATA ***************************
 
     if ($eInvoice) {
-
         // get country ISO code from country name
         $org_country_iso = getCountryISOCode($org_country);
         // get bill country ISO code from bill country name
@@ -424,7 +440,12 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         }
         // set document information
         $eInvoiceDocument
-            ->setDocumentInformation($invoice_no, "380", \DateTime::createFromFormat('d.m.Y', $invoice_date), "EUR")
+            ->setDocumentInformation(
+                $invoice_no,
+                $invoiceTypeCode,
+                \DateTime::createFromFormat('d.m.Y', $invoice_date),
+                "EUR", // BT-5 invoice currency
+            )
             ->addDocumentNote($org_name . ' | ' . $org_address . ' | ' . $org_code . ' ' . $org_city . ' | ' . $org_country . ' | ' . $org_management . ' | ' . $org_taxid, null, 'REG')
             ->setDocumentSupplyChainEvent(\DateTime::createFromFormat('d.m.Y', $invoice_date))
             ->setDocumentSeller($org_name, $org_taxid)
@@ -438,30 +459,51 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
             ->setDocumentBuyer($account_name, $account_no)
             ->setDocumentBuyerReference($buyer_reference)
             ->setDocumentBuyerAddress($bill_street, "", "", $bill_code, $bill_city, $bill_country_iso)
-            ->addDocumentTax("S", "VAT", $price_subtotal, ($price_total - $price_subtotal), number_format($group_total_tax_percent, 0), null, null, $price_subtotal)
-            ->setDocumentSummation($price_total, $price_total, $price_subtotal, 0.0, 0.0, $price_subtotal, ($price_total - $price_subtotal), null, 0.0)
+            // ->addDocumentTax("S", "VAT", $price_subtotal, ($price_total - $price_subtotal), number_format($group_total_tax_percent, 0), null, null, $price_subtotal)
             ->addDocumentPaymentMean(horstoeko\zugferd\codelists\ZugferdPaymentMeans::UNTDID_4461_58, null, null, null, null, null, $bank_iban, null, null, null);
         // ->addDocumentPaymentTerm($description);
 
+        if (!empty($invoiceReferenceNo)) {
+            $eInvoiceDocument->addDocumentInvoiceReferencedDocument($invoiceReferenceNo, null, new \DateTime($focus->column_fields["inv_date_reference"])); // Reference to original invoice in case of credit note
+        }
     }
-    //This is to get all prodcut details as row basis
+
+    //
+    // * This is the loop to get all prodcut details (line items) as row basis
+    //
+
+    $allItemsTaxTotal = 0.00;
+    $allItemsBaseAmountTotalS = 0.00;
+    $allItemsBaseAmountTotalE = 0.00;
     for ($i = 1, $j = $i - 1; $i <= $num_products; $i++, $j++) {
-        $product_code[$i] = $associated_products[$i]['hdnProductcode' . $i];
-        $product_name[$i] = decode_html($associated_products[$i]['productName' . $i]);
-        $prod_description[$i] = decode_html($associated_products[$i]['productDescription' . $i]);
-        $qty[$i] = $associated_products[$i]['qty' . $i];
-        $qty_formated[$i] = number_format($associated_products[$i]['qty' . $i], $decimal_precision, $decimals_separator, $thousands_separator);
-        $comment[$i] = decode_html($associated_products[$i]['comment' . $i]);
-        $unit_price[$i] = number_format($associated_products[$i]['unitPrice' . $i], $decimal_precision, $decimals_separator, $thousands_separator);
-        $list_price[$i] = number_format($associated_products[$i]['listPrice' . $i], $decimal_precision, $decimals_separator, $thousands_separator);
-        $list_pricet[$i] = $associated_products[$i]['listPrice' . $i];
-        $discount_total[$i] = $associated_products[$i]['discountTotal' . $i];
-        $discount_totalformated[$i] = number_format($associated_products[$i]['discountTotal' . $i], $decimal_precision, $decimals_separator, $thousands_separator);
+        $product_code[$i] = $associated_products[$i]['hdnProductcode' . $i];                        // file product codes array
+        $product_name[$i] = decode_html($associated_products[$i]['productName' . $i]);              // file products name array
+        $prod_description[$i] = decode_html($associated_products[$i]['productDescription' . $i]);   // file products description array
+        $qty[$i] = $associated_products[$i]['qty' . $i];                                            // file products quantity array
+        $qty_formated[$i] = number_format((float) $associated_products[$i]['qty' . $i], $decimal_precision, $decimals_separator, $thousands_separator);
+        $comment[$i] = decode_html($associated_products[$i]['comment' . $i]);                       // file products comment array
+
+        $unit_price[$i] = number_format($signMultiplier * (float)$associated_products[$i]['unitPrice' . $i], $decimal_precision, $decimals_separator, $thousands_separator);
+
+        $list_price[$i] = number_format($signMultiplier * (float)$associated_products[$i]['listPrice' . $i], $decimal_precision, $decimals_separator, $thousands_separator);
+
+        $list_pricet[$i] = $signMultiplier * (float)$associated_products[$i]['listPrice' . $i];                              // to calculate taxable total
+
+        $discount_total[$i] = $signMultiplier * (float)$associated_products[$i]['discountTotal' . $i];
+        $discount_totalformated[$i] = number_format((float)$discount_total[$i], $decimal_precision, $decimals_separator, $thousands_separator);
+
         //added by crm-now
         $usageunit[$i] = $associated_products[$i]['usageunit' . $i];
         //look whether the entry already exists, if the translated string is available then the translated string other wise original string will be returned
         $usageunit[$i] = getTranslatedString($usageunit[$i], 'Products');
-        $taxable_total = $qty[$i] * $list_pricet[$i] - $discount_total[$i];
+        $taxable_total = $signMultiplier * (floatval($qty[$i]) * floatval($list_pricet[$i]) - floatval($discount_total[$i]));
+
+        $thisItemTaxPercent = '0.00';
+        foreach ($associated_products[$i]['taxes'] as $key => $value) {
+            $thisItemTaxPercent += $value['percentage'];
+        }
+        // $allItemsTaxTotal += ($taxable_total * $thisItemTaxPercent) / 100;
+
         //get subproducts if exists
         if (!empty($associated_products[$i]['subProductArray' . $i])) {
             $subProductArray[$i] = $associated_products[$i]['subProductArray' . $i];
@@ -469,7 +511,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
             $subProductArray[$i] = '';
         }
         //create a subProduct string to be added to the main product
-        $subProdString = array();
+        $subProdString = [];
         if (is_array($subProductArray[$i]) && count($subProductArray[$i]) > 0) {
             for ($subprod_count = 0; $subprod_count < count($subProductArray[$i]); $subprod_count++) {
                 if ($subProductArray[$i][$subprod_count] != '') {
@@ -497,6 +539,17 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
             $producttotal = $taxable_total + $total_taxes;
             $product_line[$j][$pdf_strings['Tax']] = " ($total_tax_percent %) " . number_format($total_taxes, $decimal_precision, $decimals_separator, $thousands_separator);
             // combine product name, description and comment to one field based on settings
+            $totalTaxesPercArr[$total_tax_percent] += $total_taxes;
+
+            $allItemsTaxTotal += $total_taxes;
+            if (abs($total_taxes) != 0) {
+                $allItemsBaseAmountTotalS += $taxable_total * $signMultiplier;
+            } else {
+                $allItemsBaseAmountTotalE += $taxable_total * $signMultiplier;
+            }
+        } else {
+            $allItemsTaxTotal += ($taxable_total * $thisItemTaxPercent) / 100;
+            $allItemsBaseAmountTotalS += $taxable_total;
         }
 
         // combine product name, description and comment to one field based on settings
@@ -559,16 +612,96 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         $product_line[$j][$pdf_strings['LineTotal']] = $prod_total[$i];
 
         if ($eInvoice) {
+            $unitDiscountBT147 = (float)$associated_products[$i]['discountTotal' . $i];
+            $unitPriceNetBT146 = $signMultiplier * (float) sprintf('%.2f', (float)$associated_products[$i]['listPrice' . $i] - $unitDiscountBT147);
+
+            $catCode = 'S'; // standard rate
+            if ($thisItemTaxPercent == 0.00) {
+                $catCode = 'E'; // exempt
+            }
             $eInvoiceDocument
                 ->addNewPosition($i)
                 ->setDocumentPositionNote($product_name_long[$i])
-                ->setDocumentPositionProductDetails($product_name[$i], "", $product_code[$i])
-                ->setDocumentPositionNetPrice((float) sprintf('%.2f', $associated_products[$i]['listPrice' . $i] - $associated_products[$i]['discountTotal' . $i]))
-                ->setDocumentPositionQuantity((float) $qty_formated[$i], "H87")
-                ->addDocumentPositionTax('S', 'VAT', number_format($group_total_tax_percent, 0))
-                ->setDocumentPositionLineSummation((float) $producttotal);
+                ->setDocumentPositionProductDetails($product_name[$i], "", (string)$product_code[$i])
+                ->setDocumentPositionGrossPrice((float)$associated_products[$i]['listPrice' . $i])       // list price (gross) BT-148
+                ->setDocumentPositionNetPrice($unitPriceNetBT146 * $signMultiplier) // Unit price (net) BT-146
+                ->addDocumentPositionGrossPriceAllowanceCharge($signMultiplier * $unitDiscountBT147, false)    // Discount (net) BT-147:
+                ->setDocumentPositionQuantity((float) $qty_formated[$i] * $signMultiplier, "H87")
+                ->addDocumentPositionTax(
+                    $catCode,
+                    'VAT',
+                    number_format($thisItemTaxPercent, 0)
+                )
+                ->setDocumentPositionLineSummation((float) $qty_formated[$i] * $unitPriceNetBT146);
+            // ->setDocumentPositionLineSummation((float) $producttotal);
             // ->setDocumentPositionLineSummation((float) $prod_total[$i]);
         }
+    } // * end of line items loop
+
+    if ($eInvoice) {
+        //
+        // * add document tax information and handle group or individual tax types
+        //
+        if ($final_details['taxtype'] == 'group') {
+            $totalTaxAmmount = $price_total - $price_subtotal;
+            $eInvoiceDocument
+                ->addDocumentTax('S', "VAT", $price_subtotal, ($price_total - $price_subtotal), number_format($group_total_tax_percent, 0), null, null, $price_subtotal);
+            // $eInvoiceDocument
+            // ->addDocumentTax('E', "VAT", $price_subtotal, ($price_total - $price_subtotal), 0, null, null, $price_subtotal);
+        } else {
+            $totalTaxAmmount = $allItemsTaxTotal;
+            $eInvoiceDocument
+                ->addDocumentTax(
+                    'E',
+                    "VAT",
+                    // $price_subtotal - $allItemsBaseAmountTotalS,
+                    $allItemsBaseAmountTotalE,
+                    (($price_total - $price_subtotal) / 100 * $group_total_tax_percent) * $signMultiplier,
+                    number_format($group_total_tax_percent, 0),
+                    'umsatzsteuerfreie Leistung',
+                    null,
+                    // $price_subtotal
+                )
+                ->addDocumentTax(
+                    'S',
+                    "VAT",
+                    // $price_subtotal,
+                    $allItemsBaseAmountTotalS,
+                    $allItemsTaxTotal * $signMultiplier, // VAT amount BT-117
+                    (abs($allItemsTaxTotal) != 0) ? $sh_tax_percent : 0,
+                    null,
+                    null,
+                    // $price_subtotal
+                );
+        }
+        // file_put_contents('logs/ep4812.log', sprintf('allItemsBaseAmountTotalS %s %s %s', $allItemsBaseAmountTotalS, $allItemsBaseAmountTotalE, $sh_tax_percent) . PHP_EOL, FILE_APPEND);
+
+        $eInvoiceDocument->setDocumentSummation(
+            $price_total * $signMultiplier, // BT-112 (grandTotalAmount)
+            $price_total * $signMultiplier - $invoice_received * $signMultiplier, // BT-115 (duePayableAmount)
+            // $allItemsBaseAmountTotalS + ($price_subtotal - $allItemsBaseAmountTotalS), // BT-106 (lineTotalAmount)
+            $allItemsBaseAmountTotalS + $allItemsBaseAmountTotalE, // BT-106 (lineTotalAmount)
+            0.0, // BT-108 (chargeTotalAmount)
+            0.0, // BT-107 (allowanceTotalAmount)
+            // $price_subtotal, // BT-109 (taxBasisTotalAmount)
+            $allItemsBaseAmountTotalS + $allItemsBaseAmountTotalE, // BT-109 (taxBasisTotalAmount)
+            $totalTaxAmmount * $signMultiplier, // BT-110 or BT-111 (taxTotalAmount)
+            null, // roundingAmount BT-114
+            $invoice_received * $signMultiplier // totalPrepaidAmount BT-113
+        );
+    }
+
+
+    //e-invoice export requested?
+    if ($purpose == 'ExportXML') {
+        // get xml
+        $xml_data = file_get_contents($eInvoiceXmlFile);
+        $filename = $invoice_no . '.xml';
+        // redirect (download) xml
+        header('Content-Type: application/xml');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        echo $xml_data;
+        exit;
     }
 
     if ($eInvoice) {
@@ -621,13 +754,13 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         // 		$pdfDataObj['qriban'] = generateUniqueIBAN();
 
         //available countrylist
-        $countrylist = array(
+        $countrylist = [
             'SCHWEIZ' => 'CH',
             'Schweiz' => 'CH',
             'DEUTSCHLAND' => 'DE',
             'Deutschland' => 'DE',
             'Germany' => 'DE',
-        );
+        ];
 
         foreach ($countrylist as $country => $country_code) {
             if (strtoupper($org_country) == $country) {
@@ -651,7 +784,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 
         //create QR-Code
 
-        foreach (array('org_name', 'org_address', 'org_code', 'org_city', 'bill_country_code', 'contact_firstname', 'contact_lastname', 'ship_street', 'ship_code', 'ship_city', 'ship_country_code', ) as $key => $value) {
+        foreach (['org_name', 'org_address', 'org_code', 'org_city', 'bill_country_code', 'contact_firstname', 'contact_lastname', 'ship_street', 'ship_code', 'ship_city', 'ship_country_code', ] as $key => $value) {
             if (empty($$key)) {
                 $$key = "$key not set";
             }
@@ -708,12 +841,6 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
     $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
     $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
-    // set pdf information
-    if ($invoice_status == 'Credit Invoice') {
-        $doc_name = 'CREDIT';
-    } else {
-        $doc_name = 'FACTURE';
-    }
     if ($purpose == 'printsn' or $purpose == 'savesn') {
         $doc_name = 'SALESNOTE';
     }
@@ -741,9 +868,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     include("modules/Invoice/pdf_templates/body.php");
     //formating company name for file name
     $export_org = strtolower($account_name);
-    $export_org = preg_replace('/[^a-z0-9_]/i', '_', $export_org);
-    //remove not printable ascii char
-    $export_org = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $export_org);
+    $export_org = sanitizeUploadFileName($export_org, $upload_badext);
 
     if ($qr_feature) {
         $pdf->AddPage();
@@ -801,12 +926,18 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         // option: push pdf to the browser
         if ($purpose == 'printsn') {
             ob_end_clean();
-            $createdOutputPdfName = $export_org . '_' . $pdf_strings['SALESNOTE'] . '_' . $date_issued . '.pdf';
-            $createdOutputPdfPath = __DIR__ . '/' . $createdOutputPdfName;
+            $createdOutputPdfName = sanitizeUploadFileName(
+                $invoice_no . '_' . $export_org . '_' . $pdf_strings['SALESNOTE'] . '_' . $date_issued . '.pdf',
+                []
+            );
+            $createdOutputPdfPath = sys_get_temp_dir() . '/' . $createdOutputPdfName;
         } else {
             ob_end_clean();
-            $createdOutputPdfName = $export_org . '_' . $pdf_strings['FACTURE'] . '_' . $date_issued . '.pdf';
-            $createdOutputPdfPath = __DIR__ . '/' . $createdOutputPdfName;
+            $createdOutputPdfName = sanitizeUploadFileName(
+                $invoice_no . '_' . $export_org . '_' . $pdf_strings['FACTURE'] . '_' . $date_issued . '.pdf',
+                []
+            );
+            $createdOutputPdfPath = sys_get_temp_dir() . '/' . $createdOutputPdfName;
         }
     } elseif ($purpose == 'send') {
         // option: send pdf with mail
@@ -847,6 +978,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         header("Content-type:application/pdf");
         header("Content-Disposition:attachment;filename=\"" . basename($createdOutputPdfName) . "\"");
         readfile($createdOutputPdfPath);
+        unlink($createdOutputPdfPath); // delete file after download
         exit;
     } elseif ($purpose == 'save' || $purpose == 'savesn') {
         return $createdOutputPdfName;
@@ -856,6 +988,10 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 function getCountryISOCode(string $countryName): string
 {
     $countryName = trim($countryName);
+
+    if (strtoupper($countryName) == 'USA' || strtoupper($countryName) == 'U.S.A.') {
+        return 'US';
+    }
 
     // 1. Try match in German
     foreach (Countries::getNames('de') as $code => $nameDe) {
@@ -878,7 +1014,6 @@ function getCountryISOCode(string $countryName): string
 
 function swissQrCreatepng($pdfDataObj)
 {
-
     // This is an example how to create a typical qr bill:
     // - with reference number
     // - with known debtor
@@ -967,11 +1102,9 @@ function swissQrCreatepng($pdfDataObj)
         }
         $qrBill->getQrCode()->writeFile('storage/temp/qr' . $pdfDataObj['bill_number'] . '.png');
     } catch (Exception $e) {
-
         // $datei = fopen("test/testData.txt", "a+");
         // fwrite($datei, print_r($qrBill->getViolations(), TRUE));
         // fclose($datei);
-
     }
     return 'storage/temp/qr' . $pdfDataObj['bill_number'] . '.png';
 }

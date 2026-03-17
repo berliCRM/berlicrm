@@ -20,6 +20,10 @@
 		$meta = $handler->getMeta();
 		$entityName = $meta->getObjectEntityName($id);
 		
+		if ($entityName == null){
+			throw new WebServiceException(WebServiceErrorCode::$RECORDNOTFOUND,"Record you are trying to access is not found");
+		}
+
 		$types = vtws_listtypes(null, $user);
 		if(!in_array($entityName,$types['types'])){
 			throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED,"Permission to perform the operation is denied");

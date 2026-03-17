@@ -35,7 +35,7 @@
 						{/if}
 					{/if}
 				</li>
-				<br>	
+				<br>
 			{/foreach}
 		{else}
 			{include file='Comment.tpl'|@vtemplate_path COMMENT=$PARENT_COMMENTS}

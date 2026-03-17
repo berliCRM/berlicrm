@@ -149,7 +149,7 @@ class Users_SaveAjax_Action extends Vtiger_SaveAjax_Action {
 			// reset brute force protection
 			$query = "DELETE FROM berli_failed_logins WHERE user_name = ?;";
 			$db->pquery($query, array($recordModel->get('user_name')));
-			
+
 			$userModuleModel = Users_Module_Model::getInstance($moduleName);
 			$listViewUrl = $userModuleModel->getListViewUrl();
 			

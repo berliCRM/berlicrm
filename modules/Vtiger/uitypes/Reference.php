@@ -37,7 +37,7 @@ class Vtiger_Reference_UIType extends Vtiger_Base_UIType {
 		if( empty($referenceModuleList) ){
 			return '';
 		}
-		// it can land here if value are empty or referenceModuleList have not referenceEntityType in it. 
+		// it can land here if value are empty or referenceModuleList have not referenceEntityType in it.
 		return null;
 	}
 

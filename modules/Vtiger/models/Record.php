@@ -421,7 +421,7 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 		$adb = PearDatabase::getInstance();
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$matchingRecords = array();
-		
+
 		// do nothing for empty search value
 		if (!empty($searchKey)) {
 			//decide search mode
@@ -446,7 +446,7 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 					$searchColumns = $row['searchcolumn'];
 					$iModuleName = $row['name'];
 					$searchAll = $row['searchall'];
-					
+
 					// only search label fields if searchall isn't 1 and search isn't specified for certain module
 					if (empty($searchAll) && empty($moduleName)) {
 						$searchQuery = "SELECT crmid FROM vtiger_crmentity

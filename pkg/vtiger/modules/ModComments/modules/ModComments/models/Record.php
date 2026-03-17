@@ -13,48 +13,48 @@
  */
 class ModComments_Record_Model extends Vtiger_Record_Model {
 
-	/**
-	 * Functions gets the comment id
-	 */
-	public function getId() {
-		//TODO : check why is modcommentsid is not set
-		$id = $this->get('modcommentsid');
-		if(empty($id)) {
-			return $this->get('id');
-		}
-		return $this->get('modcommentsid');
-	}
+    /**
+     * Functions gets the comment id
+     */
+    public function getId() {
+        //TODO : check why is modcommentsid is not set
+        $id = $this->get('modcommentsid');
+        if(empty($id)) {
+            return $this->get('id');
+        }
+        return $this->get('modcommentsid');
+    }
 
-	public function setId($id) {
-		return $this->set('modcommentsid', $id);
-	}
+    public function setId($id) {
+        return $this->set('modcommentsid', $id);
+    }
 
-	/**
-	 * Function returns url to get child comments
-	 * @return <String> - url
-	 */
-	public function getChildCommentsUrl() {
-		return $this->getDetailViewUrl().'&mode=showChildComments';
-	}
+    /**
+     * Function returns url to get child comments
+     * @return <String> - url
+     */
+    public function getChildCommentsUrl() {
+        return $this->getDetailViewUrl().'&mode=showChildComments';
+    }
 
-	public function getImagePath() {
-		$commentor = $this->getCommentedByModel();
-		if($commentor && isRecordExists($customer)) {
-			$customer = $this->get('customer');
+    public function getImagePath() {
+        $commentor = $this->getCommentedByModel();
+        if($commentor) {
+            $customer = $this->get('customer');
             $isMailConverterType = $this->get('from_mailconverter');
-			if (!empty($customer) && $isMailConverterType != 1) {
+            if (!empty($customer) && $isMailConverterType != 1) {
                 $recordModel = Vtiger_Record_Model::getInstanceById($customer);
                 $imageDetails = $recordModel->getImageDetails();
                 if(!empty($imageDetails)) {
                     return $imageDetails[0]['path'].'_'.$imageDetails[0]['name'];
-                } 
+                }
 				else{
 					return vimage_path('CustomerPortal.png');
 				}
-			} 
+			}
 			else if($isMailConverterType == 1) {
                 return vimage_path('MailConverterComment.png');
-            } 
+            }
 			else {
 				$imagePath = $commentor->getImageDetails();
 				if (!empty($imagePath[0]['name'])) {
@@ -65,14 +65,14 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 		return false;
 	}
 
-	/**
-	 * Function to create an instance of ModComment_Record_Model
-	 * @param <Integer> $record
-	 * @return ModComment_Record_Model
-	 */
-	public static function getInstanceById($record, $module = NULL) {
-		$db = PearDatabase::getInstance();
-		$result = $db->pquery('SELECT vtiger_modcomments.*, vtiger_crmentity.smownerid,
+    /**
+     * Function to create an instance of ModComment_Record_Model
+     * @param <Integer> $record
+     * @return ModComment_Record_Model
+     */
+    public static function getInstanceById($record, $module = NULL) {
+        $db = PearDatabase::getInstance();
+        $result = $db->pquery('SELECT vtiger_modcomments.*, vtiger_crmentity.smownerid,
 					vtiger_crmentity.createdtime, vtiger_crmentity.modifiedtime FROM vtiger_modcomments
 					INNER JOIN vtiger_crmentity ON vtiger_modcomments.modcommentsid = vtiger_crmentity.crmid
 					WHERE modcommentsid = ? AND deleted = 0', array($record));
@@ -120,11 +120,11 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 		if(!empty($customer)) {
 			if (isRecordExists($customer)) {
 				return Vtiger_Record_Model::getInstanceById($customer, 'Contacts');
-			} 
+			}
 			else {
 				return false;
 			}
-		} 
+		}
 		else {
 			$commentedBy = $this->get('smownerid');
 			if($commentedBy) {
@@ -240,7 +240,7 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 		$result = $db->pquery($query, array($this->getId(), $parentRecordId));
 		if($db->num_rows($result)) {
 			return $db->num_rows($result);
-		} 
+		}
 		else {
 			return 0;
 		}
@@ -257,7 +257,7 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 		if(empty($parentCommentId)){
 			return;
 		}
-		
+
 		$parentRecordId = $this->get('related_to');
 
 		$listView = Vtiger_ListView_Model::getInstance('ModComments');
@@ -318,27 +318,57 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 		}
 	}
 
-	public function getCommentMailTo() {
-		$db = PearDatabase::getInstance();
+    /**
+     * Function to get the mail address the comment got sent to
+     * @return string|null
+     * @throws Exception
+     */
+    public function getCommentMailTo(): ?string
+    {
+        $db = PearDatabase::getInstance();
 
-		$query = 'SELECT mailto FROM vtiger_modcommentsscope WHERE modcommentsid = ?';
-		$result = $db->pquery($query, array($this->getId()));
-		if($db->num_rows($result)) {
-			return $db->query_result($result, 0, 'mailto');
-		} else {
-			return null;
-		}
-	}
+        $query = 'SELECT mailto FROM vtiger_modcommentsscope WHERE modcommentsid = ?';
+        $result = $db->pquery($query, array($this->getId()));
+        if($db->num_rows($result)) {
+            return $db->query_result($result, 0, 'mailto');
+        } else {
+            return null;
+        }
+    }
 
-	public function getExternalCommentId() {
-		$db = PearDatabase::getInstance();
+    /**
+     * Function to get the needed time for the comment
+     * @return string|null
+     * @throws Exception
+     */
+    public function getCommentTimeNeeded(): ?string
+    {
+        $db = PearDatabase::getInstance();
 
-		$query = 'SELECT external FROM vtiger_modcommentsscope WHERE modcommentsid = ?';
-		$result = $db->pquery($query, array($this->getId()));
-		if($db->num_rows($result)) {
-			return $db->query_result($result, 0, 'external');
-		} else {
-			return null;
-		}
-	}
+        $query = 'SELECT timeneeded FROM vtiger_modcommentsscope WHERE modcommentsid = ?';
+        $result = $db->pquery($query, array($this->getId()));
+        if($db->num_rows($result)) {
+            return $db->query_result($result, 0, 'timeneeded');
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Function to get the external state of comment
+     * @return string|null
+     * @throws Exception
+     */
+    public function getExternalCommentId(): ?string
+    {
+        $db = PearDatabase::getInstance();
+
+        $query = 'SELECT external FROM vtiger_modcommentsscope WHERE modcommentsid = ?';
+        $result = $db->pquery($query, array($this->getId()));
+        if($db->num_rows($result)) {
+            return $db->query_result($result, 0, 'external');
+        } else {
+            return null;
+        }
+    }
 }

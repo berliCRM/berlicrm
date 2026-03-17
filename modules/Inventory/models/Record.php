@@ -244,7 +244,7 @@ class Inventory_Record_Model extends Vtiger_Record_Model {
                 $fileName = getModuleSequenceNumber($moduleName, $recordId);
 		$controller->Output($fileName.'.pdf', 'D');
 	}
-	
+
 	/**
 	 * Function to get this record and details as PDF
 	 */

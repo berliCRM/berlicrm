@@ -35,8 +35,8 @@ class Google {
 			$this->createSettingsMenueEntry();
             //register handlers
             require_once 'modules/WSAPP/Utils.php';
-            wsapp_RegisterHandler('Google_vtigerHandler', 'Google_Vtiger_Handler', 'modules/Google/handlers/Vtiger.php'); 
-            wsapp_RegisterHandler('Google_vtigerSyncHandler', 'Google_VtigerSync_Handler', 'modules/Google/handlers/VtigerSync.php'); 
+            wsapp_RegisterHandler('Google_vtigerHandler', 'Google_Vtiger_Handler', 'modules/Google/handlers/Vtiger.php');
+            wsapp_RegisterHandler('Google_vtigerSyncHandler', 'Google_VtigerSync_Handler', 'modules/Google/handlers/VtigerSync.php');
         } else if ($eventType == 'module.disabled') {
             $this->removeMapWidget($forModules);
             $this->removeWidgetforSync($syncModules);

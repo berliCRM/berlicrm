@@ -96,10 +96,6 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 		$specificemails = json_encode($this->get('specificemails'));
 		$isReportScheduled = $this->get('isReportScheduled');
 
-		if ($this->get('specificemails') != 'false') {
-			$specificemails = Zend_Json::encode($this->get('specificemails'));
-		}
-		
         if($scheduleid != self::$SCHEDULED_ON_SPECIFIC_DATE) {
             $nextTriggerTime = $this->getNextTriggerTime();
 		}
@@ -489,7 +485,7 @@ class Reports_ScheduleReports_Model extends Vtiger_Base_Model {
 				$status = $scheduledReport->sendEmail();
 				Vtiger_Utils::ModuleLog('ScheduleReprot Send Mail Status ', $status);
 				if($status) {
-					// $scheduledReport->updateNextTriggerTime();
+					$scheduledReport->updateNextTriggerTime();
 					// remove entry from tracking table
 					$adb->pquery($deleteQuery, array($reportId));
 				}
