@@ -124,13 +124,13 @@ class VTUpdateFieldsTask extends VTTask {
 						$expression = $parser->expression();
 						$exprEvaluater = new VTFieldExpressionEvaluater($expression);
 						$fieldValue = $exprEvaluater->evaluate($entity);
-	                    $fieldValueInDB = $fieldValue;
-	                    //for Product Unit Price value converted with based product currency
-	                    if($fieldInstance && $fieldInstance->getFieldDataType() == 'currency' && $fieldName == 'unit_price') {
-	                        $fieldValue = $this->calculateProductUnitPrice($fieldValue);
-	                    }else{
+						$fieldValueInDB = $fieldValue;
+						//for Product Unit Price value converted with based product currency
+						if($fieldInstance && $fieldInstance->getFieldDataType() == 'currency' && $fieldName == 'unit_price') {
+							$fieldValue = $this->calculateProductUnitPrice($fieldValue);
+						}else{
 							$fieldValue = $this->convertValueToUserFormat($fieldInstance, $fieldValue);
-	                    }
+						}
 					} catch (Exception $e) {
 						throw new Exception("VTUpdateFieldsTask Workflow Error: ".$e->getMessage()." // Workflow ID: ".$this->workflowId." // Task ID: ".$this->id." // Summary: ".$this->summary);
 					}
@@ -199,7 +199,7 @@ class VTUpdateFieldsTask extends VTTask {
 			$focus->isLineItemUpdate = false;
 			// workaround to trigger ModTracker
 			if (!$scheduled) {
-				$focus->saveentity($moduleName);
+			$focus->saveentity($moduleName);
 			} else {
 				$focus->save($moduleName);
 			}

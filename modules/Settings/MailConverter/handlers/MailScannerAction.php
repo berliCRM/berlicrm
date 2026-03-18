@@ -190,11 +190,19 @@ class Vtiger_MailScannerAction {
 				$updateQuery = "UPDATE vtiger_troubletickets 
 				INNER JOIN vtiger_crmentity 
 				ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid 
-				SET status = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+				SET status = ? 
 				WHERE ticketid = ? AND status = 'Closed' ";
 				$adb->pquery($updateQuery, Array('Open', $linkfocus->id));
 
 				$returnid = $this->__CreateNewEmail($mailrecord, $this->module, $linkfocus, $mailscannerrule);
+
+                // TT596: Update parent ticket modifiedtime when comment is created via MailScanner
+                Vtiger_Functions::updateParentModifiedTime(
+                    $linkfocus->id,
+                    $this->module,
+                    $commentFocus->id,
+                    $mailscannerrule->assigned_to
+                );
 
 			} else {
 				// TODO If matching ticket was not found, create ticket?
@@ -217,9 +225,21 @@ class Vtiger_MailScannerAction {
 		$description = $mailrecord->getBodyText();
 
 		$contact = new Contacts();
-                $this->setDefaultValue('Contacts', $contact);
-		$contact->column_fields['firstname'] = $name[0];
-                $contact->column_fields['lastname'] = $name[1];
+        $this->setDefaultValue('Contacts', $contact);
+        $charsToDelOnFirstOrLastPosition = "#*, ";
+        $firstname = trim($name[0]);
+        $lastname = trim($name[1]);
+        if (strpos($firstname, ',') !== false || strpos($lastname, ',') !== false) {
+            // must swap 
+            $temporaryfirstname = $firstname;
+            $firstname = $lastname;
+            $lastname = $temporaryfirstname;
+        }
+        $firstname = trim($firstname, $charsToDelOnFirstOrLastPosition);
+        $lastname = trim($lastname, $charsToDelOnFirstOrLastPosition);
+
+		$contact->column_fields['firstname'] = $firstname;
+        $contact->column_fields['lastname'] = $lastname; 
 		$contact->column_fields['email'] = $email;
 		$contact->column_fields['assigned_user_id'] =  $mailscannerrule->assigned_to;
 		$contact->column_fields['description'] = $description;

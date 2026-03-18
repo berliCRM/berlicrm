@@ -18,7 +18,6 @@ class ModComments_Save_Action extends Vtiger_Save_Action {
         $request->set('userid', $currentUserModel->getId());
 
         $recordModel = $this->saveRecord($request);
-        $this->saveModcommentsScope($request, $recordModel);
         $responseFieldsToSent = array('reasontoedit','commentcontent');
         $fieldModelList = $recordModel->getModule()->getFields();
         foreach ($responseFieldsToSent as $fieldName) {
@@ -65,19 +64,15 @@ class ModComments_Save_Action extends Vtiger_Save_Action {
      */
     protected function getRecordModelFromRequest(Vtiger_Request $request) {
         $recordModel = parent::getRecordModelFromRequest($request);
+        $parentComments = $request->get('parent_comments');
+        if ($parentComments === 'undefined' || $parentComments === null) {
+            $parentComments = '';
+        }
 
         $recordModel->set('commentcontent', $request->getRaw('commentcontent'));
+        $recordModel->set('parent_comments', $parentComments);
         $recordModel->set('reasontoedit', $request->getRaw('reasontoedit'));
 
         return $recordModel;
-    }
-
-    protected function saveModcommentsScope(Vtiger_Request $request, Vtiger_Record_Model $recordModel) {
-        $adb = PearDatabase::getInstance();
-        $external = json_decode($request->get('external'));
-        $timeNeeded = $request->get('neededTime');
-
-        $query = "UPDATE vtiger_modcommentsscope SET external = ?, timeneeded = ? WHERE modcommentsid = ?";
-        $result = $adb->pquery($query, array($external, $timeNeeded, $recordModel->getId()));
     }
 }

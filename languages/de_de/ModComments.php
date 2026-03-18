@@ -25,12 +25,13 @@ $languageStrings = array(
 	'Creator' => 'Ersteller',
 	'Related To Comments' => 'bezogen auf',
 	'ReasonToEdit' => 'Grund für Bearbeitung',
-    
+    'LBL_MAIL_TO' => 'Mail gesendet an',
+    'LBL_EXTERNAL' => 'Externer Kommentar',
+
     'LBL_SHOW_REPLY' => 'Antwort einblenden',
     'LBL_SHOW_REPLIES' => '%d Antworten einblenden',
     'LBL_HIDE_REPLY' => 'Antwort ausblenden',
     'LBL_HIDE_REPLIES' => 'Antworten ausblenden',
-	
 );
 
 $jsLanguageStrings = array(

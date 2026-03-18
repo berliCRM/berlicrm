@@ -2,6 +2,23 @@
 
 class Users_ExportData_Action extends Vtiger_ExportData_Action{
 
+	public static $headers = array(
+									'user_name' => 'User Name',
+									'title' => 'Title',
+									'first_name' => 'First Name',
+									'last_name' => 'Last Name',
+									'email1' => 'Email',
+									'email2' => 'Other Email',
+									'secondaryemail' => 'Secondary Email',
+									'phone_work' => 'Office Phone',
+									'phone_mobile' => 'Mobile',
+									'phone_fax' => 'Fax',
+									'address_street' => 'Street',
+									'address_city' => 'City',
+									'address_state' => 'State', 
+									'address_country' => 'Country',
+									'address_postalcode' => 'Postal Code'
+									);
   /**
    * Function exports the data based on the mode
    * @param Vtiger_Request $request
@@ -15,14 +32,18 @@ class Users_ExportData_Action extends Vtiger_ExportData_Action{
     $this->focus = CRMEntity::getInstance($moduleName);
     $query = $this->getExportQuery($request);
     $result = $adb->pquery($query, array());
-    $headers=array('User Name','Title','First Name','Last Name','Email','Other Email','Secondary Email','Office Phone','Mobile','Fax','Street','City','State','Country','Postal Code');
+    $headers = array_values(self::$headers);
     foreach($headers as $header){
       $translatedHeaders[]=vtranslate(html_entity_decode($header, ENT_QUOTES), $moduleName);
     }
     $entries = array();
-    for($j=0; $j<$adb->num_rows($result); $j++) {
-      $entries[] = $adb->fetchByAssoc($result, $j);
-    }
+	while ($row = $adb->getNextRow($result, false)) {
+		$tmp = array();
+		foreach (self::$headers AS $columnName => $label) {
+			$tmp[] = $row[$columnName];
+		}
+		$entries[] = $tmp;
+	}
 
     $this->output($request, $translatedHeaders, $entries);
   }
@@ -41,7 +62,7 @@ class Users_ExportData_Action extends Vtiger_ExportData_Action{
     if(!empty($cvId)){
     $queryGenerator->initForCustomViewById($cvId);
   }
-    $acceptedFields=array('user_name','title','first_name','last_name','email1','email2','secondaryemail','phone_work','phone_mobile','phone_fax','address_street','address_city','address_state','address_country','address_postalcode');
+    $acceptedFields = array_keys(self::$headers);
     $queryGenerator->setFields($acceptedFields);
     $query = $queryGenerator->getQuery();
     return $query;

@@ -8,7 +8,9 @@
         "adodb/adodb-php": "^5.22",
         "smarty/smarty": "^5.4",
         "tecnickcom/tcpdf": "^6.8",
-        "horstoeko/zugferd":"^1"
+        "horstoeko/zugferd":"^1.0",
+        "symfony/intl": "^5.4",
+        "phpunit/phpunit": "8.5.52"
     },
     "_comment": "Where is phpspreadsheet used?"
 }

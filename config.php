@@ -25,4 +25,14 @@ $HELPDESK_SUPPORT_EMAIL_TEMPLATE = 3;
 global $set_utf8_special_chars_to_empty_string;
 $set_utf8_special_chars_to_empty_string = false;
 
-?>
+// settings for border color of ModComments
+global $modCommentsColors;
+$modCommentsColors = array(
+			'customer' => 'red',
+			'outgoing' => 'green',
+			'internal' => 'yellow'
+			);
+
+$HELPDESK_SUPPORT_EMAIL_TEMPLATE = 3;
+$PORTAL_EMAIL_TEMPLATE_DE = 1;
+$PORTAL_EMAIL_TEMPLATE_EN = 2;

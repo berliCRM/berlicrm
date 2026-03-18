@@ -15,42 +15,43 @@ require_once('include/utils/utils.php');
 require_once('modules/com_vtiger_workflow/VTTaskManager.inc');
 require_once('modules/com_vtiger_workflow/tasks/VTEmailTask.inc');
 
-class Install_InitSchema_Model {
+class Install_InitSchema_Model
+{
+    /**
+     * Function starts applying schema changes
+     */
+    public static function initialize()
+    {
+        global $adb;
+        $path = Install_Utils_Model::INSTALL_LOG;
+        file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Init DB from Session vars\n", FILE_APPEND);
+        $adb = PearDatabase::getInstance();
+        $configParams = $_SESSION['config_file_info'];
+        $adb->resetSettings($configParams['db_type'], $configParams['db_hostname'], $configParams['db_name'], $configParams['db_username'], $configParams['db_password']);
+        $adb->query('SET NAMES utf8');
 
-	/**
-	 * Function starts applying schema changes
-	 */
-	public static function initialize() {
-		global $adb;
-		$path = Install_Utils_Model::INSTALL_LOG;
-		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Init DB from Session vars\n", FILE_APPEND);
-		$adb = PearDatabase::getInstance();
-		$configParams = $_SESSION['config_file_info'];
-		$adb->resetSettings($configParams['db_type'], $configParams['db_hostname'], $configParams['db_name'], $configParams['db_username'], $configParams['db_password']);
-		$adb->query('SET NAMES utf8');
-		
-		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Set MultiQuery Mode (requires mysqli) and import SQL dump\n", FILE_APPEND);
-		$schema = file_get_contents('schema/DatabaseSchema.sql');
-		$delimiter = ';';
-		$queries = preg_split('/' . $delimiter . '\s*(\n|$)/', $schema);
-		foreach ($queries as $query) {
-			$query = trim($query);
-			if (!empty($query)) {
-				$adb->pquery($query);
-			}
-		}
+        file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Set MultiQuery Mode (requires mysqli) and import SQL dump\n", FILE_APPEND);
+        $schema = file_get_contents('schema/DatabaseSchema.sql');
+        $delimiter = ';';
+        $queries = preg_split('/' . $delimiter . '\s*(\n|$)/', $schema);
+        foreach ($queries as $query) {
+            $query = trim($query);
+            if (!empty($query)) {
+                $adb->pquery($query);
+            }
+        }
 		if ($adb->database->_failedQuery) {
-			return $adb->database->_failedQuery;
-		} else {
-			require 'vtigerversion.php';
-			$query = "UPDATE `vtiger_version` SET `tag_version` = ?";
-			$adb->pquery($query, array($current_release_tag));
-		}
+            return $adb->database->_failedQuery;
+        } else {
+            require 'vtigerversion.php';
+            $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
+            $adb->pquery($query, array($current_release_tag));
+        }
 
-		self::createCurrency();
+        self::createCurrency();
 
-		return true;
-	}
+        return true;
+    }
 
     /**
      * Function upgrades the schema with changes post 540 version
@@ -59,28 +60,28 @@ class Install_InitSchema_Model {
     {
         $migrateVersions = Migration_Module_Model::getInstance('')->getAllowedMigrationVersions();
 
-		define('VTIGER_UPGRADE', true);
-		$oldVersion = null;
-		foreach($migrateVersions as $migrateVersion) {
-			foreach($migrateVersion as $newVersion => $versionLabel) {
-				// Not ready?
-				if ($oldVersion == null) {
-					$oldVersion = $newVersion;
-					break;
-				}
-				$oldVersion = str_replace(array('.', ' '), '', $oldVersion);
-				$newVersion = str_replace(array('.', ' '), '', $newVersion);
-				$filename =  "modules/Migration/schema/".$oldVersion."_to_".$newVersion.".php";
-				if(is_file($filename)) {
-					include($filename);
-				}
-				$oldVersion = $newVersion;
-			}
-		}
+        define('VTIGER_UPGRADE', true);
+        $oldVersion = null;
+        foreach ($migrateVersions as $migrateVersion) {
+            foreach ($migrateVersion as $newVersion => $versionLabel) {
+                // Not ready?
+                if ($oldVersion == null) {
+                    $oldVersion = $newVersion;
+                    break;
+                }
+                $oldVersion = str_replace(array('.', ' '), '', $oldVersion);
+                $newVersion = str_replace(array('.', ' '), '', $newVersion);
+                $filename =  "modules/Migration/schema/".$oldVersion."_to_".$newVersion.".php";
+                if (is_file($filename)) {
+                    include($filename);
+                }
+                $oldVersion = $newVersion;
+            }
+        }
 
-		//crm-now: modifications during install
-		self::setCRMNOWmodifications();
-	}
+        //crm-now: modifications during install
+        self::setCRMNOWmodifications();
+    }
 
     //get currency from installation
     public static function createCurrency()
@@ -89,13 +90,13 @@ class Install_InitSchema_Model {
         $query = 'SELECT * FROM `vtiger_currencies` WHERE `currency_name` = ?;';
         $res = $adb->pquery($query, array($_SESSION['config_file_info']['currency_name']));
 
-		if ($res && $adb->num_rows($res) > 0) {
-			$row = $adb->getNextRow($res, false);
-			$query = 'UPDATE vtiger_currency_info SET currency_name = ?, currency_code = ?, currency_symbol = ? WHERE id = ?';
-			$params = array($row['currency_name'], $row['currency_code'], $row['currency_symbol'], '1');
-			$adb->pquery($query, $params);
-		}
-	}
+        if ($res && $adb->num_rows($res) > 0) {
+            $row = $adb->getNextRow($res, false);
+            $query = 'UPDATE vtiger_currency_info SET currency_name = ?, currency_code = ?, currency_symbol = ? WHERE id = ?';
+            $params = array($row['currency_name'], $row['currency_code'], $row['currency_symbol'], '1');
+            $adb->pquery($query, $params);
+        }
+    }
 
     public static function createUser()
     {
@@ -112,10 +113,10 @@ class Install_InitSchema_Model {
         $userLastName = $_SESSION['config_file_info']['lastname'];
         $userLanguage = $_SESSION['config_file_info']['default_language'];
         // create default admin user
-    	$user = CRMEntity::getInstance('Users');
-		//Fix for http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7974
+        $user = CRMEntity::getInstance('Users');
+        //Fix for http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7974
         $user->column_fields["first_name"] = $userFirstName;
-		$user->column_fields["last_name"] = $userLastName;
+        $user->column_fields["last_name"] = $userLastName;
         //Ends
         $user->column_fields["user_name"] = 'admin';
         $user->column_fields["status"] = 'Active';
@@ -130,32 +131,32 @@ class Install_InitSchema_Model {
         $user->column_fields["currency_id"] = 1;
         $user->column_fields["reminder_interval"] = '30 Minutes';
         $user->column_fields["reminder_next_time"] = date('Y-m-d H:i');
-		$user->column_fields["date_format"] = $userDateFormat;
-		$user->column_fields["hour_format"] = '24';
-		$user->column_fields["start_hour"] = '08:00';
-		$user->column_fields["end_hour"] = '23:00';
-		$user->column_fields["imagename"] = '';
-		$user->column_fields["internal_mailer"] = '1';
-		$user->column_fields["activity_view"] = 'This Week';
-		$user->column_fields["lead_view"] = 'Today';
-		$user->column_fields["dayoftheweek"] = 'Monday';
-		$user->column_fields["currency_decimal_separator"] = ',';
-		$user->column_fields["currency_grouping_separator"] = '.';
-		$user->column_fields["callduration"] = '30';
-		$user->column_fields["othereventduration"] = '30';
-		$user->column_fields["currency_symbol_placement"] = '1.0$';
-		$user->column_fields["currency_decimal_separator"] = ',';
-		$user->column_fields["currency_grouping_pattern"] = '123456789';
-		$user->column_fields["no_of_currency_decimals"] = '2';
-		$user->column_fields["lead_view"] = 'Last Week';
-		$user->column_fields["defaulteventstatus"] = 'Planned';
-		$user->column_fields["defaultactivitytype"] = 'Call';
+        $user->column_fields["date_format"] = $userDateFormat;
+        $user->column_fields["hour_format"] = '24';
+        $user->column_fields["start_hour"] = '08:00';
+        $user->column_fields["end_hour"] = '23:00';
+        $user->column_fields["imagename"] = '';
+        $user->column_fields["internal_mailer"] = '1';
+        $user->column_fields["activity_view"] = 'This Week';
+        $user->column_fields["lead_view"] = 'Today';
+        $user->column_fields["dayoftheweek"] = 'Monday';
+        $user->column_fields["currency_decimal_separator"] = ',';
+        $user->column_fields["currency_grouping_separator"] = '.';
+        $user->column_fields["callduration"] = '30';
+        $user->column_fields["othereventduration"] = '30';
+        $user->column_fields["currency_symbol_placement"] = '1.0$';
+        $user->column_fields["currency_decimal_separator"] = ',';
+        $user->column_fields["currency_grouping_pattern"] = '123456789';
+        $user->column_fields["no_of_currency_decimals"] = '2';
+        $user->column_fields["lead_view"] = 'Last Week';
+        $user->column_fields["defaulteventstatus"] = 'Planned';
+        $user->column_fields["defaultactivitytype"] = 'Call';
 
-		$adminEmail = (!empty($_SESSION['config_file_info']['admin_email'])) ? $_SESSION['config_file_info']['admin_email'] : 'admin@berlicrm.de';
-		$user->column_fields["email1"] = $adminEmail;
-		$user->column_fields["roleid"] = 'H2';
+        $adminEmail = (!empty($_SESSION['config_file_info']['admin_email'])) ? $_SESSION['config_file_info']['admin_email'] : 'admin@berlicrm.de';
+        $user->column_fields["email1"] = $adminEmail;
+        $user->column_fields["roleid"] = 'H2';
 
-		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Save User\n", FILE_APPEND);
+        file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Save User\n", FILE_APPEND);
         $user->save("Users");
         $adminUserId = 1;
 
@@ -200,10 +201,10 @@ class Install_InitSchema_Model {
         $userLastName = $_SESSION['config_file_info']['managerlastname'];
         $userLanguage = $_SESSION['config_file_info']['default_language'];
         // create default admin user
-    	$user = CRMEntity::getInstance('Users');
-		//Fix for http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7974
+        $user = CRMEntity::getInstance('Users');
+        //Fix for http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7974
         $user->column_fields["first_name"] = $userFirstName;
-		$user->column_fields["last_name"] = $userLastName;
+        $user->column_fields["last_name"] = $userLastName;
         //Ends
         $user->column_fields["user_name"] = $manangerlastname;
         $user->column_fields["status"] = 'Active';
@@ -218,46 +219,46 @@ class Install_InitSchema_Model {
         $user->column_fields["currency_id"] = 1;
         $user->column_fields["reminder_interval"] = '30 Minutes';
         $user->column_fields["reminder_next_time"] = date('Y-m-d H:i');
-		$user->column_fields["date_format"] = $userDateFormat;
-		$user->column_fields["hour_format"] = '24';
-		$user->column_fields["start_hour"] = '08:00';
-		$user->column_fields["end_hour"] = '23:00';
-		$user->column_fields["imagename"] = '';
-		$user->column_fields["internal_mailer"] = '1';
-		$user->column_fields["activity_view"] = 'This Week';
-		$user->column_fields["lead_view"] = 'Today';
-		$user->column_fields["dayoftheweek"] = 'Monday';
-		$user->column_fields["currency_decimal_separator"] = ',';
-		$user->column_fields["currency_grouping_separator"] = '.';
-		$user->column_fields["callduration"] = '30';
-		$user->column_fields["othereventduration"] = '30';
-		$user->column_fields["currency_symbol_placement"] = '1.0$';
-		$user->column_fields["currency_decimal_separator"] = ',';
-		$user->column_fields["currency_grouping_pattern"] = '123456789';
-		$user->column_fields["no_of_currency_decimals"] = '2';
-		$user->column_fields["lead_view"] = 'Last Week';
-		$user->column_fields["defaulteventstatus"] = 'Planned';
-		$user->column_fields["defaultactivitytype"] = 'Call';
+        $user->column_fields["date_format"] = $userDateFormat;
+        $user->column_fields["hour_format"] = '24';
+        $user->column_fields["start_hour"] = '08:00';
+        $user->column_fields["end_hour"] = '23:00';
+        $user->column_fields["imagename"] = '';
+        $user->column_fields["internal_mailer"] = '1';
+        $user->column_fields["activity_view"] = 'This Week';
+        $user->column_fields["lead_view"] = 'Today';
+        $user->column_fields["dayoftheweek"] = 'Monday';
+        $user->column_fields["currency_decimal_separator"] = ',';
+        $user->column_fields["currency_grouping_separator"] = '.';
+        $user->column_fields["callduration"] = '30';
+        $user->column_fields["othereventduration"] = '30';
+        $user->column_fields["currency_symbol_placement"] = '1.0$';
+        $user->column_fields["currency_decimal_separator"] = ',';
+        $user->column_fields["currency_grouping_pattern"] = '123456789';
+        $user->column_fields["no_of_currency_decimals"] = '2';
+        $user->column_fields["lead_view"] = 'Last Week';
+        $user->column_fields["defaulteventstatus"] = 'Planned';
+        $user->column_fields["defaultactivitytype"] = 'Call';
 
 
-		$adminEmail = (!empty($_SESSION['config_file_info']['admin_email'])) ? $_SESSION['config_file_info']['admin_email'] : 'admin@berlicrm.de';
-		$user->column_fields["email1"] = $adminEmail;
-		$user->column_fields["roleid"] = 'H2';
+        $adminEmail = (!empty($_SESSION['config_file_info']['admin_email'])) ? $_SESSION['config_file_info']['admin_email'] : 'admin@berlicrm.de';
+        $user->column_fields["email1"] = $adminEmail;
+        $user->column_fields["roleid"] = 'H2';
 
-		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Save User\n", FILE_APPEND);
+        file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Save User\n", FILE_APPEND);
         $user->save("Users");
         $adminUserId = 1;
 
-		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Update User ID\n", FILE_APPEND);
+        file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Update User ID\n", FILE_APPEND);
 
-		//Creating the flat files for admin user
-		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Create Privilege file\n", FILE_APPEND);
-		createUserPrivilegesfile($adminUserId);
-		file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Create Sharing file\n", FILE_APPEND);
-		createUserSharingPrivilegesfile($adminUserId);
+        //Creating the flat files for admin user
+        file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Create Privilege file\n", FILE_APPEND);
+        createUserPrivilegesfile($adminUserId);
+        file_put_contents($path, "[".date('Y-m-d h:i:s')."] ".__FILE__." ".__LINE__." Create Sharing file\n", FILE_APPEND);
+        createUserSharingPrivilegesfile($adminUserId);
 
-		return true;
-	}
+        return true;
+    }
 
     /**
      * Function add necessary schema for event handlers and workflows, also add defaul workflows
@@ -267,24 +268,24 @@ class Install_InitSchema_Model {
         global $adb;
         $adb = PearDatabase::getInstance();
 
-		// Register All the Events
-		self::registerEvents($adb);
+        // Register All the Events
+        self::registerEvents($adb);
 
-		// Register All the Entity Methods
-		self::registerEntityMethods($adb);
+        // Register All the Entity Methods
+        self::registerEntityMethods($adb);
 
-		// Populate Default Workflows
-		self::populateDefaultWorkflows($adb);
+        // Populate Default Workflows
+        self::populateDefaultWorkflows($adb);
 
-		// Populate Links
-		self::populateLinks();
+        // Populate Links
+        self::populateLinks();
 
-		// Set Help Information for Fields
-		self::setFieldHelpInfo();
+        // Set Help Information for Fields
+        self::setFieldHelpInfo();
 
-		// Register Cron Jobs
-		self::registerCronTasks();
-	}
+        // Register Cron Jobs
+        self::registerCronTasks();
+    }
 
     /**
      *  Register all the Cron Tasks
@@ -307,12 +308,12 @@ class Install_InitSchema_Model {
         vimport('~~include/events/include.inc');
         $em = new VTEventsManager($adb);
 
-		// Registering event for Recurring Invoices
-		$em->registerHandler('vtiger.entity.aftersave', 'modules/SalesOrder/RecurringInvoiceHandler.php', 'RecurringInvoiceHandler');
+        // Registering event for Recurring Invoices
+        $em->registerHandler('vtiger.entity.aftersave', 'modules/SalesOrder/RecurringInvoiceHandler.php', 'RecurringInvoiceHandler');
 
-		//Registering Entity Delta handler for before save and after save events of the record to track the field value changes
-		$em->registerHandler('vtiger.entity.beforesave', 'data/VTEntityDelta.php', 'VTEntityDelta');
-		$em->registerHandler('vtiger.entity.aftersave', 'data/VTEntityDelta.php', 'VTEntityDelta');
+        //Registering Entity Delta handler for before save and after save events of the record to track the field value changes
+        $em->registerHandler('vtiger.entity.beforesave', 'data/VTEntityDelta.php', 'VTEntityDelta');
+        $em->registerHandler('vtiger.entity.aftersave', 'data/VTEntityDelta.php', 'VTEntityDelta');
 
         // Workflow manager
         $dependentEventHandlers = array('VTEntityDelta');
@@ -325,12 +326,12 @@ class Install_InitSchema_Model {
             $dependentEventHandlersJson
         );
 
-		//Registering events for On modify
-		$em->registerHandler('vtiger.entity.afterrestore', 'modules/com_vtiger_workflow/VTEventHandler.inc', 'VTWorkflowEventHandler');
+        //Registering events for On modify
+        $em->registerHandler('vtiger.entity.afterrestore', 'modules/com_vtiger_workflow/VTEventHandler.inc', 'VTWorkflowEventHandler');
 
-		// Registering event for HelpDesk - To reset from_portal value
-		$em->registerHandler('vtiger.entity.aftersave.final', 'modules/HelpDesk/HelpDeskHandler.php', 'HelpDeskHandler');
-	}
+        // Registering event for HelpDesk - To reset from_portal value
+        $em->registerHandler('vtiger.entity.aftersave.final', 'modules/HelpDesk/HelpDeskHandler.php', 'HelpDeskHandler');
+    }
 
     /**
      * Function registers all the work flow custom entity methods
@@ -343,25 +344,25 @@ class Install_InitSchema_Model {
         vimport("~~modules/com_vtiger_workflow/VTEntityMethodManager.inc");
         $emm = new VTEntityMethodManager($adb);
 
-		// Registering method for Updating Inventory Stock
-		$emm->addEntityMethod("SalesOrder","UpdateInventory","include/InventoryHandler.php","handleInventoryProductRel");//Adding EntityMethod for Updating Products data after creating SalesOrder
-		$emm->addEntityMethod("Invoice","UpdateInventory","include/InventoryHandler.php","handleInventoryProductRel");//Adding EntityMethod for Updating Products data after creating Invoice
+        // Registering method for Updating Inventory Stock
+        $emm->addEntityMethod("SalesOrder", "UpdateInventory", "include/InventoryHandler.php", "handleInventoryProductRel");//Adding EntityMethod for Updating Products data after creating SalesOrder
+        $emm->addEntityMethod("Invoice", "UpdateInventory", "include/InventoryHandler.php", "handleInventoryProductRel");//Adding EntityMethod for Updating Products data after creating Invoice
 
-		// Register Entity Method for Customer Portal Login details email notification task
-		$emm->addEntityMethod("Contacts","SendPortalLoginDetails","modules/Contacts/ContactsHandler.php","Contacts_sendCustomerPortalLoginDetails");
+        // Register Entity Method for Customer Portal Login details email notification task
+        $emm->addEntityMethod("Contacts", "SendPortalLoginDetails", "modules/Contacts/ContactsHandler.php", "Contacts_sendCustomerPortalLoginDetails");
 
-		// Register Entity Method for Email notification on ticket creation from Customer portal
-		$emm->addEntityMethod("HelpDesk","NotifyOnPortalTicketCreation","modules/HelpDesk/HelpDeskHandler.php","HelpDesk_nofifyOnPortalTicketCreation");
+        // Register Entity Method for Email notification on ticket creation from Customer portal
+        $emm->addEntityMethod("HelpDesk", "NotifyOnPortalTicketCreation", "modules/HelpDesk/HelpDeskHandler.php", "HelpDesk_nofifyOnPortalTicketCreation");
 
-		// Register Entity Method for Email notification on ticket comment from Customer portal
-		$emm->addEntityMethod("HelpDesk","NotifyOnPortalTicketComment","modules/HelpDesk/HelpDeskHandler.php","HelpDesk_notifyOnPortalTicketComment");
+        // Register Entity Method for Email notification on ticket comment from Customer portal
+        $emm->addEntityMethod("HelpDesk", "NotifyOnPortalTicketComment", "modules/HelpDesk/HelpDeskHandler.php", "HelpDesk_notifyOnPortalTicketComment");
 
-		// Register Entity Method for Email notification to Record Owner on ticket change, which is not from Customer portal
-		$emm->addEntityMethod("HelpDesk","NotifyOwnerOnTicketChange","modules/HelpDesk/HelpDeskHandler.php","HelpDesk_notifyOwnerOnTicketChange");
+        // Register Entity Method for Email notification to Record Owner on ticket change, which is not from Customer portal
+        $emm->addEntityMethod("HelpDesk", "NotifyOwnerOnTicketChange", "modules/HelpDesk/HelpDeskHandler.php", "HelpDesk_notifyOwnerOnTicketChange");
 
-		// Register Entity Method for Email notification to Related Customer on ticket change, which is not from Customer portal
-		$emm->addEntityMethod("HelpDesk","NotifyParentOnTicketChange","modules/HelpDesk/HelpDeskHandler.php","HelpDesk_notifyParentOnTicketChange");
-	}
+        // Register Entity Method for Email notification to Related Customer on ticket change, which is not from Customer portal
+        $emm->addEntityMethod("HelpDesk", "NotifyParentOnTicketChange", "modules/HelpDesk/HelpDeskHandler.php", "HelpDesk_notifyParentOnTicketChange");
+    }
 
     /**
      * Function adds default system workflows
@@ -374,261 +375,261 @@ class Install_InitSchema_Model {
         vimport("~~modules/com_vtiger_workflow/VTEntityMethodManager.inc");
         vimport("~~modules/com_vtiger_workflow/VTTaskManager.inc");
 
-		// register the workflow tasks
-		$taskTypes = array();
-		$defaultModules = array('include' => array(), 'exclude'=>array());
-		$createToDoModules = array('include' => array("Leads","Accounts","Potentials","Contacts","HelpDesk","Campaigns","Quotes","PurchaseOrder","SalesOrder","Invoice"), 'exclude'=>array("Calendar", "FAQ", "Events"));
-		$createEventModules = array('include' => array("Leads","Accounts","Potentials","Contacts","HelpDesk","Campaigns"), 'exclude'=>array("Calendar", "FAQ", "Events"));
+        // register the workflow tasks
+        $taskTypes = array();
+        $defaultModules = array('include' => array(), 'exclude' => array());
+        $createToDoModules = array('include' => array("Leads","Accounts","Potentials","Contacts","HelpDesk","Campaigns","Quotes","PurchaseOrder","SalesOrder","Invoice"), 'exclude' => array("Calendar", "FAQ", "Events"));
+        $createEventModules = array('include' => array("Leads","Accounts","Potentials","Contacts","HelpDesk","Campaigns"), 'exclude' => array("Calendar", "FAQ", "Events"));
 
-		$taskTypes[] = array("name"=>"VTEmailTask", "label"=>"Send Mail", "classname"=>"VTEmailTask", "classpath"=>"modules/com_vtiger_workflow/tasks/VTEmailTask.inc", "templatepath"=>"com_vtiger_workflow/taskforms/VTEmailTask.tpl", "modules"=>$defaultModules, "sourcemodule"=>'');
-		$taskTypes[] = array("name"=>"VTEntityMethodTask", "label"=>"Invoke Custom Function", "classname"=>"VTEntityMethodTask", "classpath"=>"modules/com_vtiger_workflow/tasks/VTEntityMethodTask.inc", "templatepath"=>"com_vtiger_workflow/taskforms/VTEntityMethodTask.tpl", "modules"=>$defaultModules, "sourcemodule"=>'');
-		$taskTypes[] = array("name"=>"VTCreateTodoTask", "label"=>"Create Todo", "classname"=>"VTCreateTodoTask", "classpath"=>"modules/com_vtiger_workflow/tasks/VTCreateTodoTask.inc", "templatepath"=>"com_vtiger_workflow/taskforms/VTCreateTodoTask.tpl", "modules"=>$createToDoModules, "sourcemodule"=>'');
-		$taskTypes[] = array("name"=>"VTCreateEventTask", "label"=>"Create Event", "classname"=>"VTCreateEventTask", "classpath"=>"modules/com_vtiger_workflow/tasks/VTCreateEventTask.inc", "templatepath"=>"com_vtiger_workflow/taskforms/VTCreateEventTask.tpl", "modules"=>$createEventModules, "sourcemodule"=>'');
-		$taskTypes[] = array("name"=>"VTUpdateFieldsTask", "label"=>"Update Fields", "classname"=>"VTUpdateFieldsTask", "classpath"=>"modules/com_vtiger_workflow/tasks/VTUpdateFieldsTask.inc", "templatepath"=>"com_vtiger_workflow/taskforms/VTUpdateFieldsTask.tpl", "modules"=>$defaultModules, "sourcemodule"=>'');
-		$taskTypes[] = array("name"=>"VTCreateEntityTask", "label"=>"Create Entity", "classname"=>"VTCreateEntityTask", "classpath"=>"modules/com_vtiger_workflow/tasks/VTCreateEntityTask.inc", "templatepath"=>"com_vtiger_workflow/taskforms/VTCreateEntityTask.tpl", "modules"=>$defaultModules, "sourcemodule"=>'');
-		$taskTypes[] = array("name"=>"VTSMSTask", "label"=>"SMS Task", "classname"=>"VTSMSTask", "classpath"=>"modules/com_vtiger_workflow/tasks/VTSMSTask.inc", "templatepath"=>"com_vtiger_workflow/taskforms/VTSMSTask.tpl", "modules"=>$defaultModules, "sourcemodule"=>'SMSNotifier');
+        $taskTypes[] = array("name" => "VTEmailTask", "label" => "Send Mail", "classname" => "VTEmailTask", "classpath" => "modules/com_vtiger_workflow/tasks/VTEmailTask.inc", "templatepath" => "com_vtiger_workflow/taskforms/VTEmailTask.tpl", "modules" => $defaultModules, "sourcemodule" => '');
+        $taskTypes[] = array("name" => "VTEntityMethodTask", "label" => "Invoke Custom Function", "classname" => "VTEntityMethodTask", "classpath" => "modules/com_vtiger_workflow/tasks/VTEntityMethodTask.inc", "templatepath" => "com_vtiger_workflow/taskforms/VTEntityMethodTask.tpl", "modules" => $defaultModules, "sourcemodule" => '');
+        $taskTypes[] = array("name" => "VTCreateTodoTask", "label" => "Create Todo", "classname" => "VTCreateTodoTask", "classpath" => "modules/com_vtiger_workflow/tasks/VTCreateTodoTask.inc", "templatepath" => "com_vtiger_workflow/taskforms/VTCreateTodoTask.tpl", "modules" => $createToDoModules, "sourcemodule" => '');
+        $taskTypes[] = array("name" => "VTCreateEventTask", "label" => "Create Event", "classname" => "VTCreateEventTask", "classpath" => "modules/com_vtiger_workflow/tasks/VTCreateEventTask.inc", "templatepath" => "com_vtiger_workflow/taskforms/VTCreateEventTask.tpl", "modules" => $createEventModules, "sourcemodule" => '');
+        $taskTypes[] = array("name" => "VTUpdateFieldsTask", "label" => "Update Fields", "classname" => "VTUpdateFieldsTask", "classpath" => "modules/com_vtiger_workflow/tasks/VTUpdateFieldsTask.inc", "templatepath" => "com_vtiger_workflow/taskforms/VTUpdateFieldsTask.tpl", "modules" => $defaultModules, "sourcemodule" => '');
+        $taskTypes[] = array("name" => "VTCreateEntityTask", "label" => "Create Entity", "classname" => "VTCreateEntityTask", "classpath" => "modules/com_vtiger_workflow/tasks/VTCreateEntityTask.inc", "templatepath" => "com_vtiger_workflow/taskforms/VTCreateEntityTask.tpl", "modules" => $defaultModules, "sourcemodule" => '');
+        $taskTypes[] = array("name" => "VTSMSTask", "label" => "SMS Task", "classname" => "VTSMSTask", "classpath" => "modules/com_vtiger_workflow/tasks/VTSMSTask.inc", "templatepath" => "com_vtiger_workflow/taskforms/VTSMSTask.tpl", "modules" => $defaultModules, "sourcemodule" => 'SMSNotifier');
 
-		foreach ($taskTypes as $taskType) {
-			VTTaskType::registerTaskType($taskType);
-		}
+        foreach ($taskTypes as $taskType) {
+            VTTaskType::registerTaskType($taskType);
+        }
 
-		// Creating Workflow for Updating Inventory Stock for Invoice
-		$vtWorkFlow = new VTWorkflowManager($adb);
-		$invWorkFlow = $vtWorkFlow->newWorkFlow("Invoice");
-		$invWorkFlow->test = '[{"fieldname":"subject","operation":"does not contain","value":"`!`"}]';
-		$invWorkFlow->description = "LBL_INVENTORY_UPDATE";
-		$invWorkFlow->defaultworkflow = 1;
-		$vtWorkFlow->save($invWorkFlow);
+        // Creating Workflow for Updating Inventory Stock for Invoice
+        $vtWorkFlow = new VTWorkflowManager($adb);
+        $invWorkFlow = $vtWorkFlow->newWorkFlow("Invoice");
+        $invWorkFlow->test = '[{"fieldname":"subject","operation":"does not contain","value":"`!`"}]';
+        $invWorkFlow->description = "LBL_INVENTORY_UPDATE";
+        $invWorkFlow->defaultworkflow = 1;
+        $vtWorkFlow->save($invWorkFlow);
 
-		$tm = new VTTaskManager($adb);
-		$task = $tm->createTask('VTEntityMethodTask', $invWorkFlow->id);
-		$task->active=true;
-		$task->methodName = "UpdateInventory";
-		$tm->saveTask($task);
+        $tm = new VTTaskManager($adb);
+        $task = $tm->createTask('VTEntityMethodTask', $invWorkFlow->id);
+        $task->active = true;
+        $task->methodName = "UpdateInventory";
+        $tm->saveTask($task);
 
-		// Creating Workflow for Accounts when Notifyowner is true
-		$vtaWorkFlow = new VTWorkflowManager($adb);
-		$accWorkFlow = $vtaWorkFlow->newWorkFlow("Accounts");
-		$accWorkFlow->test = '[{"fieldname":"notify_owner","operation":"is","value":"true:boolean"}]';
-		$accWorkFlow->description = "LBL_SEND_OWNER_EMAIL";
-		$accWorkFlow->executionCondition=2;
-		$accWorkFlow->defaultworkflow = 1;
-		$vtaWorkFlow->save($accWorkFlow);
-		$id1=$accWorkFlow->id;
+        // Creating Workflow for Accounts when Notifyowner is true
+        $vtaWorkFlow = new VTWorkflowManager($adb);
+        $accWorkFlow = $vtaWorkFlow->newWorkFlow("Accounts");
+        $accWorkFlow->test = '[{"fieldname":"notify_owner","operation":"is","value":"true:boolean"}]';
+        $accWorkFlow->description = "LBL_SEND_OWNER_EMAIL";
+        $accWorkFlow->executionCondition = 2;
+        $accWorkFlow->defaultworkflow = 1;
+        $vtaWorkFlow->save($accWorkFlow);
+        $id1 = $accWorkFlow->id;
 
-		$tm = new VTTaskManager($adb);
-		$task = $tm->createTask('VTEmailTask',$accWorkFlow->id);
-		$task->active=true;
-		$task->methodName = "NotifyOwner";
-		$task->recepient = "\$(assigned_user_id : (Users) email1)";
-		$task->subject = "Regarding Account Creation";
-		$task->content = "An Account has been assigned to you on the CRM<br>Details of account are:<br><br>".
-				"Account Id: ".'<b>$account_no</b><br>'."Account Name: ".'<b>$accountname</b><br>'."Rating: ".'<b>$rating</b><br>'.
-				"Industry: ".'<b>$industry</b><br>'."Account Type: ".'<b>$accounttype</b><br>'.
-				"Description:".'<b>$description</b><br><br><br>'."Thank You";
-		$task->summary="An account has been created ";
-		$tm->saveTask($task);
-		$adb->pquery("update com_vtiger_workflows set defaultworkflow=? where workflow_id=?",array(1,$id1));
+        $tm = new VTTaskManager($adb);
+        $task = $tm->createTask('VTEmailTask', $accWorkFlow->id);
+        $task->active = true;
+        $task->methodName = "NotifyOwner";
+        $task->recepient = "\$(assigned_user_id : (Users) email1)";
+        $task->subject = "Regarding Account Creation";
+        $task->content = "An Account has been assigned to you on the CRM<br>Details of account are:<br><br>".
+                "Account Id: ".'<b>$account_no</b><br>'."Account Name: ".'<b>$accountname</b><br>'."Rating: ".'<b>$rating</b><br>'.
+                "Industry: ".'<b>$industry</b><br>'."Account Type: ".'<b>$accounttype</b><br>'.
+                "Description:".'<b>$description</b><br><br><br>'."Thank You";
+        $task->summary = "An account has been created ";
+        $tm->saveTask($task);
+        $adb->pquery("update com_vtiger_workflows set defaultworkflow=? where workflow_id=?", array(1,$id1));
 
-		// Creating Workflow for Contacts when Notifyowner is true
+        // Creating Workflow for Contacts when Notifyowner is true
 
-		$vtcWorkFlow = new VTWorkflowManager($adb);
-		$conWorkFlow = 	$vtcWorkFlow->newWorkFlow("Contacts");
-		$conWorkFlow->summary="A contact has been created ";
-		$conWorkFlow->executionCondition=2;
-		$conWorkFlow->test = '[{"fieldname":"notify_owner","operation":"is","value":"true:boolean"}]';
-		$conWorkFlow->description = "LBL_SEND_OWNER_EMAIL";
-		$conWorkFlow->defaultworkflow = 1;
-		$vtcWorkFlow->save($conWorkFlow);
-		$id1=$conWorkFlow->id;
-		$tm = new VTTaskManager($adb);
-		$task = $tm->createTask('VTEmailTask',$conWorkFlow->id);
-		$task->active=true;
-		$task->methodName = "NotifyOwner";
-		$task->recepient = "\$(assigned_user_id : (Users) email1)";
-		$task->subject = "Regarding Contact Creation";
-		$task->content = "A Contact has been assigned to you on the CRM<br>Details of Contact are :<br><br>".
-				"Contact Id:".'<b>$contact_no</b><br>'."LastName:".'<b>$lastname</b><br>'."FirstName:".'<b>$firstname</b><br>'.
-				"Lead Source:".'<b>$leadsource</b><br>'.
-				"Department:".'<b>$department</b><br>'.
-				"Description:".'<b>$description</b><br><br><br>'."Thank You<br>Admin";
-		$task->summary="A contact has been created ";
-		$tm->saveTask($task);
-		$adb->pquery("update com_vtiger_workflows set defaultworkflow=? where workflow_id=?",array(1,$id1));
+        $vtcWorkFlow = new VTWorkflowManager($adb);
+        $conWorkFlow = 	$vtcWorkFlow->newWorkFlow("Contacts");
+        $conWorkFlow->summary = "A contact has been created ";
+        $conWorkFlow->executionCondition = 2;
+        $conWorkFlow->test = '[{"fieldname":"notify_owner","operation":"is","value":"true:boolean"}]';
+        $conWorkFlow->description = "LBL_SEND_OWNER_EMAIL";
+        $conWorkFlow->defaultworkflow = 1;
+        $vtcWorkFlow->save($conWorkFlow);
+        $id1 = $conWorkFlow->id;
+        $tm = new VTTaskManager($adb);
+        $task = $tm->createTask('VTEmailTask', $conWorkFlow->id);
+        $task->active = true;
+        $task->methodName = "NotifyOwner";
+        $task->recepient = "\$(assigned_user_id : (Users) email1)";
+        $task->subject = "Regarding Contact Creation";
+        $task->content = "A Contact has been assigned to you on the CRM<br>Details of Contact are :<br><br>".
+                "Contact Id:".'<b>$contact_no</b><br>'."LastName:".'<b>$lastname</b><br>'."FirstName:".'<b>$firstname</b><br>'.
+                "Lead Source:".'<b>$leadsource</b><br>'.
+                "Department:".'<b>$department</b><br>'.
+                "Description:".'<b>$description</b><br><br><br>'."Thank You<br>Admin";
+        $task->summary = "A contact has been created ";
+        $tm->saveTask($task);
+        $adb->pquery("update com_vtiger_workflows set defaultworkflow=? where workflow_id=?", array(1,$id1));
 
 
-		// Creating Workflow for Contacts when PortalUser is true
+        // Creating Workflow for Contacts when PortalUser is true
 
-		$vtcWorkFlow = new VTWorkflowManager($adb);
-		$conpuWorkFlow = $vtcWorkFlow->newWorkFlow("Contacts");
-		$conpuWorkFlow->test = '[{"fieldname":"portal","operation":"is","value":"true:boolean"}]';
-		$conpuWorkFlow->description = "LBL_SEND_PORTAL_EMAIL";
-		$conpuWorkFlow->executionCondition=2;
-		$conpuWorkFlow->defaultworkflow = 1;
-		$vtcWorkFlow->save($conpuWorkFlow);
-		$id1=$conpuWorkFlow->id;
+        $vtcWorkFlow = new VTWorkflowManager($adb);
+        $conpuWorkFlow = $vtcWorkFlow->newWorkFlow("Contacts");
+        $conpuWorkFlow->test = '[{"fieldname":"portal","operation":"is","value":"true:boolean"}]';
+        $conpuWorkFlow->description = "LBL_SEND_PORTAL_EMAIL";
+        $conpuWorkFlow->executionCondition = 2;
+        $conpuWorkFlow->defaultworkflow = 1;
+        $vtcWorkFlow->save($conpuWorkFlow);
+        $id1 = $conpuWorkFlow->id;
 
-                $taskManager = new VTTaskManager($adb);
-                $task = $taskManager->createTask('VTEntityMethodTask', $id1);
-		$task->active = true;
-		$task->summary = 'Email Customer Portal Login Details';
-		$task->methodName = "SendPortalLoginDetails";
-		$taskManager->saveTask($task);
-		// Creating Workflow for Potentials
+        $taskManager = new VTTaskManager($adb);
+        $task = $taskManager->createTask('VTEntityMethodTask', $id1);
+        $task->active = true;
+        $task->summary = 'Email Customer Portal Login Details';
+        $task->methodName = "SendPortalLoginDetails";
+        $taskManager->saveTask($task);
+        // Creating Workflow for Potentials
 
-		$vtcWorkFlow = new VTWorkflowManager($adb);
-		$potentialWorkFlow = $vtcWorkFlow->newWorkFlow("Potentials");
-		$potentialWorkFlow->description = "LBL_SEND_POTENTIAL_EMAIL";
-		$potentialWorkFlow->executionCondition=1;
-		$potentialWorkFlow->defaultworkflow = 1;
-		$vtcWorkFlow->save($potentialWorkFlow);
-		$id1=$potentialWorkFlow->id;
+        $vtcWorkFlow = new VTWorkflowManager($adb);
+        $potentialWorkFlow = $vtcWorkFlow->newWorkFlow("Potentials");
+        $potentialWorkFlow->description = "LBL_SEND_POTENTIAL_EMAIL";
+        $potentialWorkFlow->executionCondition = 1;
+        $potentialWorkFlow->defaultworkflow = 1;
+        $vtcWorkFlow->save($potentialWorkFlow);
+        $id1 = $potentialWorkFlow->id;
 
-		$tm = new VTTaskManager($adb);
-		$task = $tm->createTask('VTEmailTask',$potentialWorkFlow->id);
+        $tm = new VTTaskManager($adb);
+        $task = $tm->createTask('VTEmailTask', $potentialWorkFlow->id);
 
-		$task->active=true;
-		$task->recepient = "\$(assigned_user_id : (Users) email1)";
-		$task->subject = "Regarding Potential Assignment";
-		$task->content = "An Potential has been assigned to you on the CRM<br>Details of Potential are :<br><br>".
-				"Potential No:".'<b>$potential_no</b><br>'."Potential Name:".'<b>$potentialname</b><br>'.
-				"Amount:".'<b>$amount</b><br>'.
-				"Expected Close Date:".'<b>$closingdate</b><br>'.
-				"Type:".'<b>$opportunity_type</b><br><br><br>'.
-				"Description :".'$description<br>'."<br>Thank You<br>Admin";
+        $task->active = true;
+        $task->recepient = "\$(assigned_user_id : (Users) email1)";
+        $task->subject = "Regarding Potential Assignment";
+        $task->content = "An Potential has been assigned to you on the CRM<br>Details of Potential are :<br><br>".
+                "Potential No:".'<b>$potential_no</b><br>'."Potential Name:".'<b>$potentialname</b><br>'.
+                "Amount:".'<b>$amount</b><br>'.
+                "Expected Close Date:".'<b>$closingdate</b><br>'.
+                "Type:".'<b>$opportunity_type</b><br><br><br>'.
+                "Description :".'$description<br>'."<br>Thank You<br>Admin";
 
-		$task->summary="A Potential has been created ";
-		$tm->saveTask($task);
+        $task->summary = "A Potential has been created ";
+        $tm->saveTask($task);
 
-		$workflowManager = new VTWorkflowManager($adb);
-		$taskManager = new VTTaskManager($adb);
+        $workflowManager = new VTWorkflowManager($adb);
+        $taskManager = new VTTaskManager($adb);
 
-		// Contact workflow on creation/modification
-		$contactWorkFlow = $workflowManager->newWorkFlow("Contacts");
-		$contactWorkFlow->test = '';
-		$contactWorkFlow->description = "LBL_CONT_CRE_OR_MOD";
-		$contactWorkFlow->executionCondition = VTWorkflowManager::$ON_EVERY_SAVE;
-		$contactWorkFlow->defaultworkflow = 1;
-		$workflowManager->save($contactWorkFlow);
+        // Contact workflow on creation/modification
+        $contactWorkFlow = $workflowManager->newWorkFlow("Contacts");
+        $contactWorkFlow->test = '';
+        $contactWorkFlow->description = "LBL_CONT_CRE_OR_MOD";
+        $contactWorkFlow->executionCondition = VTWorkflowManager::$ON_EVERY_SAVE;
+        $contactWorkFlow->defaultworkflow = 1;
+        $workflowManager->save($contactWorkFlow);
 
-		$tm = new VTTaskManager($adb);
-		$task = $tm->createTask('VTEmailTask',$contactWorkFlow->id);
+        $tm = new VTTaskManager($adb);
+        $task = $tm->createTask('VTEmailTask', $contactWorkFlow->id);
 
-		$task->active=true;
-		$task->recepient = "\$(assigned_user_id : (Users) email1)";
-		$task->subject = "Regarding Contact Assignment";
-		$task->content = "A Contact has been assigned to you on the CRM<br>The Details of the Contact are:<br><br>".
-				"Contact Id:".'<b>$contact_no</b><br>'."LastName:".'<b>$lastname</b><br>'."FirstName:".'<b>$firstname</b><br>'.
-				"Lead Source:".'<b>$leadsource</b><br>'.
-				"Department:".'<b>$department</b><br>'.
-				"<br>Thank You<br>";
+        $task->active = true;
+        $task->recepient = "\$(assigned_user_id : (Users) email1)";
+        $task->subject = "Regarding Contact Assignment";
+        $task->content = "A Contact has been assigned to you on the CRM<br>The Details of the Contact are:<br><br>".
+                "Contact Id:".'<b>$contact_no</b><br>'."LastName:".'<b>$lastname</b><br>'."FirstName:".'<b>$firstname</b><br>'.
+                "Lead Source:".'<b>$leadsource</b><br>'.
+                "Department:".'<b>$department</b><br>'.
+                "<br>Thank You<br>";
 
-		$task->summary="A contact has been created ";
-		$tm->saveTask($task);
-		$adb->pquery("update com_vtiger_workflows set defaultworkflow=? where workflow_id=?",array(1,$id1));
+        $task->summary = "A contact has been created ";
+        $tm->saveTask($task);
+        $adb->pquery("update com_vtiger_workflows set defaultworkflow=? where workflow_id=?", array(1,$id1));
 
-		// Trouble Tickets workflow on creation from Customer Portal
-		$helpDeskWorkflow = $workflowManager->newWorkFlow("HelpDesk");
-		$helpDeskWorkflow->test = '[{"fieldname":"from_portal","operation":"is","value":"true:boolean"}]';
-		$helpDeskWorkflow->description = "LBL_PORTAL_TICKET_CR_EMAIL";
-		$helpDeskWorkflow->executionCondition = VTWorkflowManager::$ON_FIRST_SAVE;
-		$helpDeskWorkflow->defaultworkflow = 1;
-		$workflowManager->save($helpDeskWorkflow);
+        // Trouble Tickets workflow on creation from Customer Portal
+        $helpDeskWorkflow = $workflowManager->newWorkFlow("HelpDesk");
+        $helpDeskWorkflow->test = '[{"fieldname":"from_portal","operation":"is","value":"true:boolean"}]';
+        $helpDeskWorkflow->description = "LBL_PORTAL_TICKET_CR_EMAIL";
+        $helpDeskWorkflow->executionCondition = VTWorkflowManager::$ON_FIRST_SAVE;
+        $helpDeskWorkflow->defaultworkflow = 1;
+        $workflowManager->save($helpDeskWorkflow);
 
-		$task = $taskManager->createTask('VTEntityMethodTask', $helpDeskWorkflow->id);
-		$task->active = true;
-		$task->summary = 'Notify Record Owner and the Related Contact when Ticket is created from Portal';
-		$task->methodName = "NotifyOnPortalTicketCreation";
-		$taskManager->saveTask($task);
+        $task = $taskManager->createTask('VTEntityMethodTask', $helpDeskWorkflow->id);
+        $task->active = true;
+        $task->summary = 'Notify Record Owner and the Related Contact when Ticket is created from Portal';
+        $task->methodName = "NotifyOnPortalTicketCreation";
+        $taskManager->saveTask($task);
 
-		// Trouble Tickets workflow on ticket update from Customer Portal
-		$helpDeskWorkflow = $workflowManager->newWorkFlow("HelpDesk");
-		$helpDeskWorkflow->test = '[{"fieldname":"from_portal","operation":"is","value":"true:boolean"}]';
-		$helpDeskWorkflow->description = "LBL_PORTAL_TICKET_UP_EMAIL";
-		$helpDeskWorkflow->executionCondition = VTWorkflowManager::$ON_MODIFY;
-		$helpDeskWorkflow->defaultworkflow = 1;
-		$workflowManager->save($helpDeskWorkflow);
+        // Trouble Tickets workflow on ticket update from Customer Portal
+        $helpDeskWorkflow = $workflowManager->newWorkFlow("HelpDesk");
+        $helpDeskWorkflow->test = '[{"fieldname":"from_portal","operation":"is","value":"true:boolean"}]';
+        $helpDeskWorkflow->description = "LBL_PORTAL_TICKET_UP_EMAIL";
+        $helpDeskWorkflow->executionCondition = VTWorkflowManager::$ON_MODIFY;
+        $helpDeskWorkflow->defaultworkflow = 1;
+        $workflowManager->save($helpDeskWorkflow);
 
-		$task = $taskManager->createTask('VTEntityMethodTask', $helpDeskWorkflow->id);
-		$task->active = true;
-		$task->summary = 'Notify Record Owner when Comment is added to a Ticket from Customer Portal';
-		$task->methodName = "NotifyOnPortalTicketComment";
-		$taskManager->saveTask($task);
+        $task = $taskManager->createTask('VTEntityMethodTask', $helpDeskWorkflow->id);
+        $task->active = true;
+        $task->summary = 'Notify Record Owner when Comment is added to a Ticket from Customer Portal';
+        $task->methodName = "NotifyOnPortalTicketComment";
+        $taskManager->saveTask($task);
 
-		// Trouble Tickets workflow on ticket change, which is not from Customer Portal - Both Record Owner and Related Customer
-		$helpDeskWorkflow = $workflowManager->newWorkFlow("HelpDesk");
-		$helpDeskWorkflow->test = '[{"fieldname":"from_portal","operation":"is","value":"false:boolean"}]';
-		$helpDeskWorkflow->description = "Workflow for Ticket Change, not from the Portal";
-		$helpDeskWorkflow->executionCondition = VTWorkflowManager::$ON_EVERY_SAVE;
-		$helpDeskWorkflow->defaultworkflow = 1;
-		$workflowManager->save($helpDeskWorkflow);
+        // Trouble Tickets workflow on ticket change, which is not from Customer Portal - Both Record Owner and Related Customer
+        $helpDeskWorkflow = $workflowManager->newWorkFlow("HelpDesk");
+        $helpDeskWorkflow->test = '[{"fieldname":"from_portal","operation":"is","value":"false:boolean"}]';
+        $helpDeskWorkflow->description = "Workflow for Ticket Change, not from the Portal";
+        $helpDeskWorkflow->executionCondition = VTWorkflowManager::$ON_EVERY_SAVE;
+        $helpDeskWorkflow->defaultworkflow = 1;
+        $workflowManager->save($helpDeskWorkflow);
 
-		$task = $taskManager->createTask('VTEntityMethodTask', $helpDeskWorkflow->id);
-		$task->active = true;
-		$task->summary = 'Notify Record Owner on Ticket Change, which is not done from Portal';
-		$task->methodName = "NotifyOwnerOnTicketChange";
-		$taskManager->saveTask($task);
+        $task = $taskManager->createTask('VTEntityMethodTask', $helpDeskWorkflow->id);
+        $task->active = true;
+        $task->summary = 'Notify Record Owner on Ticket Change, which is not done from Portal';
+        $task->methodName = "NotifyOwnerOnTicketChange";
+        $taskManager->saveTask($task);
 
-		$task = $taskManager->createTask('VTEntityMethodTask', $helpDeskWorkflow->id);
-		$task->active = true;
-		$task->summary = 'Notify Related Customer on Ticket Change, which is not done from Portal';
-		$task->methodName = "NotifyParentOnTicketChange";
-		$taskManager->saveTask($task);
+        $task = $taskManager->createTask('VTEntityMethodTask', $helpDeskWorkflow->id);
+        $task->active = true;
+        $task->summary = 'Notify Related Customer on Ticket Change, which is not done from Portal';
+        $task->methodName = "NotifyParentOnTicketChange";
+        $taskManager->saveTask($task);
 
-		// Events workflow when Send Notification is checked
-		$eventsWorkflow = $workflowManager->newWorkFlow("Events");
-		$eventsWorkflow->test = '[{"fieldname":"sendnotification","operation":"is","value":"true:boolean"}]';
-		$eventsWorkflow->description = "LBL_EVENT_NOTIFY_EMAIL";
-		$eventsWorkflow->executionCondition = VTWorkflowManager::$ON_EVERY_SAVE;
-		$eventsWorkflow->defaultworkflow = 1;
-		$workflowManager->save($eventsWorkflow);
+        // Events workflow when Send Notification is checked
+        $eventsWorkflow = $workflowManager->newWorkFlow("Events");
+        $eventsWorkflow->test = '[{"fieldname":"sendnotification","operation":"is","value":"true:boolean"}]';
+        $eventsWorkflow->description = "LBL_EVENT_NOTIFY_EMAIL";
+        $eventsWorkflow->executionCondition = VTWorkflowManager::$ON_EVERY_SAVE;
+        $eventsWorkflow->defaultworkflow = 1;
+        $workflowManager->save($eventsWorkflow);
 
-		$task = $taskManager->createTask('VTEmailTask', $eventsWorkflow->id);
-		$task->active = true;
-		$task->summary = 'Send Notification Email to Record Owner';
-		$task->recepient = "\$(assigned_user_id : (Users) email1)";
-		$task->subject = "Event :  \$subject";
-		$task->content = '$(assigned_user_id : (Users) first_name) $(assigned_user_id : (Users) last_name) ,<br/>'
-						.'<b>Activity Notification Details:</b><br/>'
-						.'Subject             : $subject<br/>'
-						.'Start date and time : $date_start  $time_start ( $(general : (__VtigerMeta__) dbtimezone) ) <br/>'
-						.'End date and time   : $due_date  $time_end ( $(general : (__VtigerMeta__) dbtimezone) ) <br/>'
-						.'Status              : $eventstatus <br/>'
-						.'Priority            : $taskpriority <br/>'
-						.'Related To          : $(parent_id : (Leads) lastname) $(parent_id : (Leads) firstname) $(parent_id : (Accounts) accountname) '
-												.'$(parent_id : (Potentials) potentialname) $(parent_id : (HelpDesk) ticket_title) <br/>'
-						.'Contacts List       : $(contact_id : (Contacts) lastname) $(contact_id : (Contacts) firstname) <br/>'
-						.'Location            : $location <br/>'
-						.'Description         : $description';
-		$taskManager->saveTask($task);
+        $task = $taskManager->createTask('VTEmailTask', $eventsWorkflow->id);
+        $task->active = true;
+        $task->summary = 'Send Notification Email to Record Owner';
+        $task->recepient = "\$(assigned_user_id : (Users) email1)";
+        $task->subject = "Event :  \$subject";
+        $task->content = '$(assigned_user_id : (Users) first_name) $(assigned_user_id : (Users) last_name) ,<br/>'
+                        .'<b>Activity Notification Details:</b><br/>'
+                        .'Subject             : $subject<br/>'
+                        .'Start date and time : $date_start  $time_start ( $(general : (__VtigerMeta__) dbtimezone) ) <br/>'
+                        .'End date and time   : $due_date  $time_end ( $(general : (__VtigerMeta__) dbtimezone) ) <br/>'
+                        .'Status              : $eventstatus <br/>'
+                        .'Priority            : $taskpriority <br/>'
+                        .'Related To          : $(parent_id : (Leads) lastname) $(parent_id : (Leads) firstname) $(parent_id : (Accounts) accountname) '
+                                                .'$(parent_id : (Potentials) potentialname) $(parent_id : (HelpDesk) ticket_title) <br/>'
+                        .'Contacts List       : $(contact_id : (Contacts) lastname) $(contact_id : (Contacts) firstname) <br/>'
+                        .'Location            : $location <br/>'
+                        .'Description         : $description';
+        $taskManager->saveTask($task);
 
-		// Calendar workflow when Send Notification is checked
-		$calendarWorkflow = $workflowManager->newWorkFlow("Calendar");
-		$calendarWorkflow->test = '[{"fieldname":"sendnotification","operation":"is","value":"true:boolean"}]';
-		$calendarWorkflow->description = "LBL_TASK_NOTIFY_EMAIL";
-		$calendarWorkflow->executionCondition = VTWorkflowManager::$ON_EVERY_SAVE;
-		$calendarWorkflow->defaultworkflow = 1;
-		$workflowManager->save($calendarWorkflow);
+        // Calendar workflow when Send Notification is checked
+        $calendarWorkflow = $workflowManager->newWorkFlow("Calendar");
+        $calendarWorkflow->test = '[{"fieldname":"sendnotification","operation":"is","value":"true:boolean"}]';
+        $calendarWorkflow->description = "LBL_TASK_NOTIFY_EMAIL";
+        $calendarWorkflow->executionCondition = VTWorkflowManager::$ON_EVERY_SAVE;
+        $calendarWorkflow->defaultworkflow = 1;
+        $workflowManager->save($calendarWorkflow);
 
-		$task = $taskManager->createTask('VTEmailTask', $calendarWorkflow->id);
-		$task->active = true;
-		$task->summary = 'Send Notification Email to Record Owner';
-		$task->recepient = "\$(assigned_user_id : (Users) email1)";
-		$task->subject = "Task :  \$subject";
-		$task->content = '$(assigned_user_id : (Users) first_name) $(assigned_user_id : (Users) last_name) ,<br/>'
-						.'<b>Task Notification Details:</b><br/>'
-						.'Subject : $subject<br/>'
-						.'Start date and time : $date_start  $time_start ( $(general : (__VtigerMeta__) dbtimezone) ) <br/>'
-						.'End date and time   : $due_date ( $(general : (__VtigerMeta__) dbtimezone) ) <br/>'
-						.'Status              : $taskstatus <br/>'
-						.'Priority            : $taskpriority <br/>'
-						.'Related To          : $(parent_id : (Leads) lastname) $(parent_id : (Leads) firstname) $(parent_id : (Accounts) accountname) '
-						.'$(parent_id         : (Potentials) potentialname) $(parent_id : (HelpDesk) ticket_title) <br/>'
-						.'Contacts List       : $(contact_id : (Contacts) lastname) $(contact_id : (Contacts) firstname) <br/>'
-						.'Location            : $location <br/>'
-						.'Description         : $description';
-		$taskManager->saveTask($task);
-	}
+        $task = $taskManager->createTask('VTEmailTask', $calendarWorkflow->id);
+        $task->active = true;
+        $task->summary = 'Send Notification Email to Record Owner';
+        $task->recepient = "\$(assigned_user_id : (Users) email1)";
+        $task->subject = "Task :  \$subject";
+        $task->content = '$(assigned_user_id : (Users) first_name) $(assigned_user_id : (Users) last_name) ,<br/>'
+                        .'<b>Task Notification Details:</b><br/>'
+                        .'Subject : $subject<br/>'
+                        .'Start date and time : $date_start  $time_start ( $(general : (__VtigerMeta__) dbtimezone) ) <br/>'
+                        .'End date and time   : $due_date ( $(general : (__VtigerMeta__) dbtimezone) ) <br/>'
+                        .'Status              : $taskstatus <br/>'
+                        .'Priority            : $taskpriority <br/>'
+                        .'Related To          : $(parent_id : (Leads) lastname) $(parent_id : (Leads) firstname) $(parent_id : (Accounts) accountname) '
+                        .'$(parent_id         : (Potentials) potentialname) $(parent_id : (HelpDesk) ticket_title) <br/>'
+                        .'Contacts List       : $(contact_id : (Contacts) lastname) $(contact_id : (Contacts) firstname) <br/>'
+                        .'Location            : $location <br/>'
+                        .'Description         : $description';
+        $taskManager->saveTask($task);
+    }
 
     /**
      * Function adds default details view links
@@ -688,21 +689,21 @@ class Install_InitSchema_Model {
         $field1 = Vtiger_Field::getInstance('hours', $helpDeskModule);
         $field2 = Vtiger_Field::getInstance('days', $helpDeskModule);
 
-		$field1->setHelpInfo('This gives the estimated hours for the Ticket.'.
-					'<br>When the same ticket is added to a Service Contract,'.
-					'based on the Tracking Unit of the Service Contract,'.
-					'Used units is updated whenever a ticket is Closed.');
+        $field1->setHelpInfo('This gives the estimated hours for the Ticket.'.
+                    '<br>When the same ticket is added to a Service Contract,'.
+                    'based on the Tracking Unit of the Service Contract,'.
+                    'Used units is updated whenever a ticket is Closed.');
 
-		$field2->setHelpInfo('This gives the estimated days for the Ticket.'.
-					'<br>When the same ticket is added to a Service Contract,'.
-					'based on the Tracking Unit of the Service Contract,'.
-					'Used units is updated whenever a ticket is Closed.');
+        $field2->setHelpInfo('This gives the estimated days for the Ticket.'.
+                    '<br>When the same ticket is added to a Service Contract,'.
+                    'based on the Tracking Unit of the Service Contract,'.
+                    'Used units is updated whenever a ticket is Closed.');
 
-		$usersModuleInstance = Vtiger_Module::getInstance('Users');
-		$field1 = Vtiger_Field::getInstance('currency_grouping_pattern', $usersModuleInstance);
-		$field2 = Vtiger_Field::getInstance('currency_decimal_separator', $usersModuleInstance);
-		$field3 = Vtiger_Field::getInstance('currency_grouping_separator', $usersModuleInstance);
-		$field4 = Vtiger_Field::getInstance('currency_symbol_placement', $usersModuleInstance);
+        $usersModuleInstance = Vtiger_Module::getInstance('Users');
+        $field1 = Vtiger_Field::getInstance('currency_grouping_pattern', $usersModuleInstance);
+        $field2 = Vtiger_Field::getInstance('currency_decimal_separator', $usersModuleInstance);
+        $field3 = Vtiger_Field::getInstance('currency_grouping_separator', $usersModuleInstance);
+        $field4 = Vtiger_Field::getInstance('currency_symbol_placement', $usersModuleInstance);
 
         $field1->setHelpInfo("<b>Currency - Digit Grouping Pattern</b> <br/><br/>".
                                     "This pattern specifies the format in which the currency separator will be placed.");
@@ -752,22 +753,22 @@ class Install_InitSchema_Model {
         $adb->pquery("INSERT INTO `vtiger_settings_field` (`fieldid` ,`blockid` ,`name` ,`iconpath` ,`description` ,`linkto` ,`sequence` ,`active`, `pinned`)
 		VALUES (".generateQuestionMarks($params).")", $params);
 
-		//crm-now: add all modules to tracking (this was done in migration script)
-		file_put_contents($path, "[".date('Y-m-d h:i:s')."] Update Modtracker tracked modules\n", FILE_APPEND);
-		if(file_exists('modules/ModTracker/ModTrackerUtils.php')) {
-			require_once 'modules/ModTracker/ModTrackerUtils.php';
-			$modules = $adb->pquery('SELECT * FROM vtiger_tab WHERE isentitytype = ?;', array(1));
-			$rows = $adb->num_rows($modules);
-			for($i=0; $i<$rows; $i++) {
-				$tabid=$adb->query_result($modules, $i, 'tabid');
-				$module=$adb->query_result($modules, $i, 'name');
-				file_put_contents($path, "[".date('Y-m-d h:i:s')."] Track $module\n", FILE_APPEND);
-				ModTrackerUtils::modTrac_changeModuleVisibility($tabid, 'module_enable');
-			}
-		}
+        //crm-now: add all modules to tracking (this was done in migration script)
+        file_put_contents($path, "[".date('Y-m-d h:i:s')."] Update Modtracker tracked modules\n", FILE_APPEND);
+        if (file_exists('modules/ModTracker/ModTrackerUtils.php')) {
+            require_once 'modules/ModTracker/ModTrackerUtils.php';
+            $modules = $adb->pquery('SELECT * FROM vtiger_tab WHERE isentitytype = ?;', array(1));
+            $rows = $adb->num_rows($modules);
+            for ($i = 0; $i < $rows; $i++) {
+                $tabid = $adb->query_result($modules, $i, 'tabid');
+                $module = $adb->query_result($modules, $i, 'name');
+                file_put_contents($path, "[".date('Y-m-d h:i:s')."] Track $module\n", FILE_APPEND);
+                ModTrackerUtils::modTrac_changeModuleVisibility($tabid, 'module_enable');
+            }
+        }
 
-		// set default language specifics
-		if ($_SESSION['config_file_info']['default_language'] == "de_de") {
+        // set default language specifics
+        if ($_SESSION['config_file_info']['default_language'] == "de_de") {
 
             // german defaults for new users
             $adb->query("UPDATE vtiger_field SET defaultvalue = 'This Week' WHERE tablename = 'vtiger_users' AND columnname = 'activity_view'");
@@ -787,140 +788,28 @@ class Install_InitSchema_Model {
             $adb->query("UPDATE vtiger_field SET defaultvalue = 'Call' WHERE tablename = 'vtiger_users' AND columnname = 'defaultactivitytype'");
         }
 
-		//save language after package is installed
-		$query = 'SELECT * FROM vtiger_users;';
-		$res = $adb->pquery($query, array());
-		global $default_language;
-		while ($row = $adb->fetch_row($res, false)) {
-			$userId = $row['id'];
-			$userRecordModel = Users_Record_Model::getInstanceById($userId, 'Users');
-			$userRecordModel->set('mode', 'edit');
-			$userRecordModel->set('language', $default_language);
-			$userRecordModel->save();
-		}
-
-		self::startWidgetGui();
-		self::translateSettings();
-		self::translateWorkflowstasks();
-		self::removeGroups();
-		self::addingSalutation();
-        self::addNewRelatedLists();
-
-        //
-        // Adding some fields needed for E-Rechnung *** START ***
-        //
-        $arrFields = array(
-            'Accounts' => array(
-                'LBL_CUSTOM_INFORMATION' => array(
-                    array('Leitweg-ID', 'buyerreference', 'V~O', 1, 'VARCHAR(50)', '', 'Die Leitweg-ID ist ein Kennzeichen einer elektronischen Rechnung zur eindeutigen Adressierung von öffentlichen Auftraggebern in Deutschland (Beispiele: Behörden, Kommunen, Ministerien).'),
-                )
-                ),
-            'Invoice' => array(
-                'LBL_INVOICE_INFORMATION' => array(
-                    // array('Statusdatum', 'statusdate', 'D~O', 5, 'DATE', '', 'Datum des letzten Status, nicht ändern, wird vom automatischen Mahnwesen verwendet.'), // Datum
-                    array('Lieferdatum', 'deliveryperiod', 'D~O', 5, 'DATE', '', 'Lieferdatum, wird für E-Rechnung verwendet'), // Datum
-                )
-
-                //'27' => array(
-                //      array('Kunde', 'kundenid', 'V~O', 10, 'VARCHAR(100)', 'Kunden')//, // Bezugsfeld
-                //),
-
-            )
-        );
-
-        foreach ($arrFields as $moduleName => $blocks) {
-            // echo "Start $moduleName...<br>";
-            $moduleInstance = Vtiger_Module::getInstance($moduleName);
-            if (!$moduleInstance) {
-                die("$moduleName no instance");
-            }
-
-            // echo "first step $moduleName...<br>";
-
-            foreach ($blocks as $blockName => $fieldInfos) {
-
-
-                // echo "BLOCKs..<br>";
-
-                $blockInstance = Vtiger_Block::getInstance($blockName, $moduleInstance);
-
-                if (!$blockInstance) {
-                    // die ("\"$blockName\" no block instance found");
-
-                    //// to create new block
-                    $blockInstance = new Vtiger_Block();
-                    $blockInstance->label = $blockName;
-                    $moduleInstance->addBlock($blockInstance);
-
-                } else {
-                    // if we need to del the BLOCK:
-                    //$blockInstance->delete();
-                    //echo "The Block: \"$blockName\" is deleted! from Module \"$moduleName\" ..<br>";
-                    // die ("The Block: \"$blockName\" is deleted! from Module \"$moduleName\" ");
-                }
-
-                // echo "foreachs..<br>";
-
-                foreach ($fieldInfos as $fieldInfo) {
-                    $fieldObj = Vtiger_Field::getInstance($fieldInfo[1], $moduleInstance);
-
-
-                    if (!$fieldObj) {
-
-                        // echo "Adding $moduleName field {$fieldInfo[0]}...<br>";
-                        $fieldObj = new Vtiger_Field();
-                        $fieldObj->name = $fieldInfo[1];
-                        $fieldObj->label = $fieldInfo[0];
-                        $fieldObj->table = $moduleInstance->basetable;
-                        $fieldObj->typeofdata = $fieldInfo[2];
-                        $fieldObj->uitype = $fieldInfo[3];
-                        $fieldObj->columntype = $fieldInfo[4];
-                        $fieldObj->info_type = 'BAS';
-                        $fieldObj->displaytype = '1';
-                        if (!empty($fieldInfo[6])) {
-                            $fieldObj->helpinfo = $fieldInfo[6];
-                        }
-
-                        if (($fieldInfo[3] == 16 || $fieldInfo[3] == 33) && !empty($fieldInfo[5])) {
-                            $fieldObj->setPicklistValues($fieldInfo[5]);
-                        }
-
-                        $blockInstance->addField($fieldObj);
-
-                        if ($fieldInfo[3] == 10 && isset($fieldInfo[5])) {
-                            $query = "SELECT * FROM vtiger_fieldmodulerel WHERE fieldid = ?;";
-                            $res = $adb->pquery($query, array($fieldObj->id));
-
-                            // echo "fieldid " . ($fieldObj->id) . "...<br>";
-
-
-                            if ($adb->num_rows($res) == 0) {
-                                $query = "INSERT INTO vtiger_fieldmodulerel VALUES(?, ?, ?, ?, ?);";
-                                $adb->pquery($query, array($fieldObj->id, $moduleName, $fieldInfo[5], null, null));
-                                $relInstance = Vtiger_Module::getInstance($fieldInfo[5]);
-                                $relInstance->setRelatedList($moduleInstance, $moduleName, array('ADD'), 'get_dependents_list');
-                            }
-                        } elseif ($fieldInfo[3] == 13) {
-                            $query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
-                            $res = $adb->pquery($query, array($moduleInstance->getId(), getTabId('Emails')));
-
-                            if ($adb->num_rows($res) == 0) {
-                                $relInstance = Vtiger_Module::getInstance('Emails');
-                                $moduleInstance->setRelatedList($relInstance, 'Emails', array('ADD'), 'get_emails');
-                            }
-                        }
-
-                    } else {
-                        // echo "fieldObj: \"$fieldInfo[0]\" exist !  ..<br>";
-                        //$fieldObj->delete();
-                        //echo "fieldObj delete   ..<br>";
-                    }
-                }
-            }
+        //save language after package is installed
+        $query = 'SELECT * FROM vtiger_users;';
+        $res = $adb->pquery($query, array());
+        global $default_language;
+        while ($row = $adb->fetch_row($res, false)) {
+            $userId = $row['id'];
+            $userRecordModel = Users_Record_Model::getInstanceById($userId, 'Users');
+            $userRecordModel->set('mode', 'edit');
+            $userRecordModel->set('language', $default_language);
+            $userRecordModel->save();
         }
-        //
-        // Adding some fields needed for E-Rechnung *** END ***
-        //
+
+        self::startWidgetGui();
+        self::translateSettings();
+        self::translateWorkflowstasks();
+        self::removeGroups();
+        self::addingSalutation();
+        self::addNewFields();
+		self::addUITypes();
+		self::addNewWebservices();
+		self::addNewRelatedLists();
+        self::addNewConfigEditSettingTables();
 
         //last step, set info this system was installed
         $path = Install_Utils_Model::INSTALL_FINISHED;
@@ -970,24 +859,24 @@ class Install_InitSchema_Model {
         $recordModel->set('profile_permissions', $permissions);
         $recordModel->save();
 
-		$profileId = $recordModel->getId();
+        $profileId = $recordModel->getId();
 
-		$organizationRecordModel = Settings_Roles_Record_Model::getInstanceById('H2');
-		$organizationRecordModel->set('mode', 'edit');
-		$organizationRecordModel->set('profileIds', array($profileId));
-		$roleName = $organizationRecordModel->get('rolename');
-		$roleName = html_entity_decode($roleName);
-		$organizationRecordModel->set('rolename', $roleName);
-		$organizationRecordModel->save();
+        $organizationRecordModel = Settings_Roles_Record_Model::getInstanceById('H2');
+        $organizationRecordModel->set('mode', 'edit');
+        $organizationRecordModel->set('profileIds', array($profileId));
+        $roleName = $organizationRecordModel->get('rolename');
+        $roleName = html_entity_decode($roleName);
+        $organizationRecordModel->set('rolename', $roleName);
+        $organizationRecordModel->save();
 
-		$roleRecordModel = new Settings_Roles_Record_Model();
-		$parentRole = Settings_Roles_Record_Model::getInstanceById('H1');
+        $roleRecordModel = new Settings_Roles_Record_Model();
+        $parentRole = Settings_Roles_Record_Model::getInstanceById('H1');
 
-		$roleRecordModel->set('rolename', 'CRM Administrator');
-		$roleRecordModel->set('profileIds', array('1'));
-		$roleRecordModel->set('allowassignedrecordsto', 1);
-		$parentRole->addChildRole($roleRecordModel);
-	}
+        $roleRecordModel->set('rolename', 'CRM Administrator');
+        $roleRecordModel->set('profileIds', array('1'));
+        $roleRecordModel->set('allowassignedrecordsto', 1);
+        $parentRole->addChildRole($roleRecordModel);
+    }
 
     private static function translateSettings()
     {
@@ -1033,207 +922,209 @@ class Install_InitSchema_Model {
         global $current_user;
         $current_user = Users::getActiveAdminUser();
 
-		$adb = PearDatabase::getInstance();
-		$query = "SELECT * FROM `com_vtiger_workflowtasks` WHERE task LIKE '%VTEmailTask%' AND summary NOT LIKE 'LBL_%'";
-		$result = $adb->pquery($query, array());
+        $adb = PearDatabase::getInstance();
+        $query = "SELECT * FROM `com_vtiger_workflowtasks` WHERE task LIKE '%VTEmailTask%' AND summary NOT LIKE 'LBL_%'";
+        $result = $adb->pquery($query, array());
 
-		$translations = array(
-			'An account has been created ' => array(
-				'Eine Organisation wurde erstellt',
-				'Regarding Account Assignment' => array(
-					'Zuweisung einer erstellten Organisation',
-					'Ihnen wurde eine Organisation im CRM zugewiesen<br>Details der Organisation sind:<br><br>Organisations ID: <b>$account_no</b><br>Organisationsname: <b>$accountname</b><br>Wertung: <b>$rating</b><br>Branche: <b>$industry</b><br>Typ: <b>$accounttype</b><br>Beschreibung:<b>$description</b><br><br><br>Mit freundlichen Gr&uuml;&szlig;en<br> Administrator'
-				)
-			),
-			'A contact has been created ' => array(
-				'Eine Person wurde erstellt',
-				'Regarding Contact Creation' => array(
-					'Zuweisung einer erstellten Person',
-					'Ihnen wurde eine Person im CRM zugewiesen.<br>Die Details zur der Person sind:<br><br>Person ID:<b>$contact_no</b><br>Nachname:<b>$lastname</b><br>Vorname:<b>$firstname</b><br>Leadquelle:<b>$leadsource</b><br>Abteilung:<b>$department</b><br>Beschreibung:<b>$description</b><br><br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Administrator'
-				),
-				'Regarding Contact Assignment' => array(
-					'Erstellung oder Veränderung einer zugewiesenen Person',
-					'Ihnen wurde eine Person im CRM zugewiesen.<br>Die Details zur der Person sind:<br><br>Person ID:<b>$contact_no</b><br>Nachname:<b>$lastname</b><br>Vorname:<b>$firstname</b><br>Leadquelle:<b>$leadsource</b><br>Abteilung:<b>$department</b><br><br>Beschreibung:<b>$description</b><br><br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Administrator'
-				)
-			),
-			'A Potential has been created ' => array(
-				'Eine Potential wurde erstellt',
-				'Regarding Potential Assignment' => array(
-					'Zuweisung eines Potentials',
-					'Ihnen wurde ein Potential im CRM zugewiesen<br>Details des Potentials sind:<br><br>Potential Nr.:<b>$potential_no</b><br>Potentialname:<b>$potentialname</b><br>Betrag:<b>$amount</b><br>Erwartetes Abschlussdatum:<b>$closingdate ($_DATE_FORMAT_)</b><br>Typ:<b>$opportunity_type</b><br><br><br>Beschreibung:$description<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Administrator'
-				)
-			),
-			'Notify Related Contact when Ticket is created from Portal' => array(
-				'Benachrichtigung an betreffende Person, bei Ticket-Erstellung vom Portal',
-				'[From Portal] $ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title' => array(
-					'[From Portal] $ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title', 'Ticket Nr.: $ticket_no<br>Ticket ID : $(general : (__VtigerMeta__) recordId)<br>Tickettitel: $ticket_title<br><br>Beschreibung:<br>$description'
-				)
-			),
-			'Send Email to Contact on Ticket Update' => array(
-				'Sendet E-Mail an Person bei einer Ticketaktualisierung',
-				'$ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title' => array(
-					'$ticket_no [ Ticket Id: $(general : (__VtigerMeta__) recordId) ] $ticket_title',
-					'Ticket ID: $(general : (__VtigerMeta__) recordId)<br>Tickettitel: $ticket_title<br><br>Sehr geehrte:r $(contact_id : (Contacts) lastname) $(contact_id : (Contacts) firstname),<br><br>auf das Ticket wurde reagiert. Die Details dazu lauten wie folgt:<br><br>Ticket Nr.: $ticket_no<br>Status: $ticketstatus<br>Kategorie: $ticketcategories<br>Gewichtung: $ticketseverities<br>Priorit&auml;t: $ticketpriorities<br><br>Beschreibung: <br>$description<br><br>L&ouml;sung: <br>$solution<br>Die Kommentare dazu: <br> $allComments<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Support Administrator'
-				)
-			),
-			'Send Notification Email to Record Owner' => array(
-				'Sendet Benachrichtigung an den Zuständigen',
-				'Event :  $subject' => array(
-					'Ereignis:  $subject',
-					'$(assigned_user_id : (Users) last_name) $(assigned_user_id : (Users) first_name) ,<br/><b>Details zur Aktivitätsbenachrichtigung:</b><br/>Betreff: $subject<br/>Startdatum &-zeit: $date_start ($(general : (__VtigerMeta__) usertimezone))<br/>Enddatum &-zeit: $due_date ($(general : (__VtigerMeta__) usertimezone)) <br/>Status: $eventstatus <br/>Priorit&auml;t: $taskpriority <br/>Bezogen auf: $(parent_id : (Leads) lastname) $(parent_id : (Leads) firstname) $(parent_id : (Accounts) accountname) $(parent_id : (Potentials) potentialname) $(parent_id : (HelpDesk) ticket_title) $(parent_id : (Campaigns) campaignname) <br/>Personenliste: $contact_id <br/>Ort: $location <br/>Beschreibung: $description'
-				),
-				'Task :  $subject' => array(
-					'Aufgabe:  $subject',
-					'$(assigned_user_id : (Users) last_name) $(assigned_user_id : (Users) first_name) ,<br/><b>Details zur Aufgabenbenachrichtigung:</b><br/>Betreff: $subject<br/>Startdatum &-zeit: $date_start ($(general : (__VtigerMeta__) usertimezone))<br/>Enddatum &-zeit: $due_date ($_DATE_FORMAT_) <br/>Status: $taskstatus <br/>Priorit&auml;t: $taskpriority <br/>Bezogen auf: $(parent_id : (Leads) lastname) $(parent_id : (Leads) firstname) $(parent_id : (Accounts) accountname) $(parent_id : (Potentials) potentialname) $(parent_id : (HelpDesk) ticket_title) $(parent_id : (Campaigns) campaignname) <br/>Personenliste: $contact_id <br/>Beschreibung: $description'
-				)
-			),
-			'Comment Added From Portal : Send Email to Record Owner' => array(
-				'Kommentar hinzugefügt von Portal: E-Mail an Zuständigen schicken',
-				'Respond to Ticket ID## $(general : (__VtigerMeta__) recordId) ## in Customer Portal - URGENT' => array(
-					'Antwort auf Ticket ID## $(general : (__VtigerMeta__) recordId) ## im Kunden Portal - URGENT',
-					'Sehr geehrte:r $(assigned_user_id : (Users) last_name) $(assigned_user_id : (Users) first_name),<br><br>Der Kunde hat die folgenden zusätzlichen Informationen zu Ihrer Antwort bereitgestellt:<br><br><b>$lastComment</b><br><br>Bitte schnellstmöglich auf das Ticket reagieren.<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Support Administrator'
-				)
-			),
-			'Comment Added From CRM : Send Email to Contact, where Contact is not a Portal User' => array(
-				'Kommentar hinzugefügt von CRM: E-Mail an Person senden, wenn Person kein Portalnutzer ist',
-				'$ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title' => array(
-					'$ticket_no [ Ticket ID: $(general : (__VtigerMeta__) recordId) ] $ticket_title',
-					'Sehr geehrte:r $(contact_id : (Contacts) lastname) $(contact_id : (Contacts) firstname),<br><br>auf das Ticket wurde reagiert. Die Details dazu lauten wie folgt:<br><br>Ticket Nr.: $ticket_no<br>Status: $ticketstatus<br>Kategorie: $ticketcategories<br>Gewichtung: $ticketseverities<br>Priorit&auml;t: $ticketpriorities<br><br>Beschreibung: <br>$description<br><br>L&ouml;sung: <br>$solution<br>Die Kommentare sind: <br>$allComments<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Support Administrator'
-				)
-			),
-			'Comment Added From CRM : Send Email to Contact, where Contact is Portal User' => array(
-				'Kommentar hinzugefügt von CRM: E-Mail an Person senden, wenn Person ein Portalnutzer ist',
-				'$ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title' => array(
-					'$ticket_no [ Ticket ID: $(general : (__VtigerMeta__) recordId) ] $ticket_title',
-					'Ticket Nr.: $ticket_no<br>Ticket ID: $(general : (__VtigerMeta__) recordId)<br>Thema: $ticket_title<br><br>Sehr geehrte:r $(contact_id : (Contacts) lastname) $(contact_id : (Contacts) firstname),<br><br>Es gibt eine Antwort auf <b>$ticket_title</b> im "Kundenportal". Sie können den folgenden Link verwenden, um die Antwort zu sehen:<br><a href="$(general : (__VtigerMeta__) portaldetailviewurl)">Ticket Details</a><br><br>Mit freundlichen Gr&uuml;&szlig;en<br>$(general : (__VtigerMeta__) supportName)'
-				)
-			),
-			'Comment Added From CRM : Send Email to Organization' => array(
-				'Kommentar hinzugefügt von CRM: E-Mail an Organisation senden',
-				'$ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title' => array(
-					'$ticket_no [ Ticket ID : $(general : (__VtigerMeta__) recordId) ] $ticket_title',
-					'Ticket ID: $(general : (__VtigerMeta__) recordId)<br>Tickettitel : $ticket_title<br><br>Sehr geehrte:r $(parent_id : (Accounts) accountname),<br><br>auf das Ticket wurde reagiert. Die Details dazu lauten wie folgt:<br><br>Ticket Nr.: $ticket_no<br>Status: $ticketstatus<br>Kategorie: $ticketcategories<br>Gewichtung: $ticketseverities<br>Priorit&auml;t: $ticketpriorities<br><br>Beschreibung: <br>$description<br><br>L&ouml;sung: <br>$solution<br>Die Kommentare sind: <br>$allComments<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Support Administrator'
-				)
-			),
-			'Notify Record Owner when Ticket is created from Portal' => array(
-				'Zuständigen benachrichtigen, wenn ein Ticket vom Portal erstellt wurde',
-				'[From Portal] $ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title' => array(
-					'[From Portal] $ticket_no [ Ticket ID: $(general : (__VtigerMeta__) recordId) ] $ticket_title',
-					'Ticket Nr.: $ticket_no<br>Ticket ID: $(general : (__VtigerMeta__) recordId)<br>Tickettitel: $ticket_title<br><br>$description'
-				)
-			),
-			'Send Email to Record Owner on Ticket Update' => array(
-				'Sendet Zuständigen eine E-Mail zur Ticketaktualisierung',
-				'Ticket Number : $ticket_no $ticket_title' => array(
-					'Ticket Nummer: $ticket_no $ticket_title',
-					'Ticket ID : $(general : (__VtigerMeta__) recordId)<br>Tickettitel: $ticket_title<br><br>Sehr geehrte:r $(assigned_user_id : (Users) last_name) $(assigned_user_id : (Users) first_name),<br><br>auf das Ticket wurde reagiert. Die Details dazu lauten wie folgt:<br><br>Ticket Nr.: $ticket_no<br>Status: $ticketstatus<br>Kategorie: $ticketcategories<br>Gewichtung: $ticketseverities<br>Priorit&auml;t: $ticketpriorities<br><br>Beschreibung: <br>$description<br><br>L&ouml;sung: <br>$solution$allComments<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Support Administrator'
-				)
-			),
-			'Ticket Creation From CRM : Send Email to Record Owner' => array(
-				'Ticketerstellung von CRM: E-Mail an Zuständigen schicken',
-				'Ticket Number : $ticket_no $ticket_title' => array(
-					'Ticket Nummer: $ticket_no $ticket_title',
-					'Ticket ID: $(general : (__VtigerMeta__) recordId)<br>Tickettitel: $ticket_title<br><br>Sehr geehrte:r $(assigned_user_id : (Users) last_name) $(assigned_user_id : (Users) first_name),<br><br>auf das Ticket wurde reagiert. Die Details dazu lauten wie folgt:<br><br>Ticket Nr.: $ticket_no<br>Status: $ticketstatus<br>Kategorie: $ticketcategories<br>Gewichtung: $ticketseverities<br>Priorit&auml;t: $ticketpriorities<br><br>Beschreibung: <br>$description<br><br>L&ouml;sung: <br>$solution$allComments<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Support Administrator'
-				)
-			),
-			'Send Email to Organization on Ticket Update' =>  array(
-				'Sendet E-Mail an Organisation zur Ticketaktualisierung',
-				'$ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title' => array(
-					'$ticket_no [ Ticket ID: $(general : (__VtigerMeta__) recordId) ] $ticket_title',
-					'Ticket ID: $(general : (__VtigerMeta__) recordId)<br>Tickettitel : $ticket_title<br><br>Sehr geehrte Damen und Herren von $(parent_id : (Accounts) accountname),<br><br>auf das Ticket wurde reagiert. Die Details dazu lauten wie folgt:<br><br>Ticket Nr.: $ticket_no<br>Status: $ticketstatus<br>Kategorie: $ticketcategories<br>Gewichtung: $ticketseverities<br>Priorit&auml;t: $ticketpriorities<br><br>Beschreibung: <br>$description<br><br>L&ouml;sung: <br>$solution<br>Die Kommentare sind: <br>$allComments<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Support Administrator'
-				)
-			),
-			'Ticket Creation From CRM : Send Email to Organization' => array(
-				'Ticketerstellung von CRM: Sendet E-Mail an Organisation',
-				'$ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title' => array(
-					'$ticket_no [ Ticket ID: $(general : (__VtigerMeta__) recordId) ] $ticket_title',
-					'Ticket ID : $(general : (__VtigerMeta__) recordId)<br>Ticket Title : $ticket_title<br><br>Sehr geehrte:r $(parent_id : (Accounts) accountname),<br><br>auf das Ticket wurde reagiert. Die Details dazu lauten wie folgt:<br><br>Ticket Nr.: $ticket_no<br>Status: $ticketstatus<br>Kategorie: $ticketcategories<br>Gewichtung: $ticketseverities<br>Priorit&auml;t: $ticketpriorities<br><br>Beschreibung: <br>$description<br><br>L&ouml;sung: <br>$solution<br>Die Kommentare sind: <br>$allComments<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Support Administrator'
-				)
-			),
-			'Ticket Creation From CRM : Send Email to Contact' => array(
-				'Ticketerstellung von CRM: Sendet E-Mail an Person',
-				'$ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title' => array(
-					'$ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title',
-					'Ticket ID : $(general : (__VtigerMeta__) recordId)<br>Tickettitle : $ticket_title<br><br>Sehr geehrte:r  $(contact_id : (Contacts) lastname) $(contact_id : (Contacts) firstname),<br><br>auf das Ticket wurde reagiert. Die Details dazu lauten wie folgt:<br><br>Ticket Nr.: $ticket_no<br>Status : $ticketstatus<br>Kategorie: $ticketcategories<br>Gewichtung: $ticketseverities<br>Priorit&auml;t: $ticketpriorities<br><br>Beschreibung: <br>$description<br><br>L&ouml;sung: <br>$solution<br>Die Kommentare sind: <br>$allComments<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Support Administrator'
-				)
-			),
-		);
+        $translations = array(
+            'An account has been created ' => array(
+                'Eine Organisation wurde erstellt',
+                'Regarding Account Assignment' => array(
+                    'Zuweisung einer erstellten Organisation',
+                    'Ihnen wurde eine Organisation im CRM zugewiesen<br>Details der Organisation sind:<br><br>Organisations ID: <b>$account_no</b><br>Organisationsname: <b>$accountname</b><br>Wertung: <b>$rating</b><br>Branche: <b>$industry</b><br>Typ: <b>$accounttype</b><br>Beschreibung:<b>$description</b><br><br><br>Mit freundlichen Gr&uuml;&szlig;en<br> Administrator'
+                )
+            ),
+            'A contact has been created ' => array(
+                'Eine Person wurde erstellt',
+                'Regarding Contact Creation' => array(
+                    'Zuweisung einer erstellten Person',
+                    'Ihnen wurde eine Person im CRM zugewiesen.<br>Die Details zur der Person sind:<br><br>Person ID:<b>$contact_no</b><br>Nachname:<b>$lastname</b><br>Vorname:<b>$firstname</b><br>Leadquelle:<b>$leadsource</b><br>Abteilung:<b>$department</b><br>Beschreibung:<b>$description</b><br><br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Administrator'
+                ),
+                'Regarding Contact Assignment' => array(
+                    'Erstellung oder Veränderung einer zugewiesenen Person',
+                    'Ihnen wurde eine Person im CRM zugewiesen.<br>Die Details zur der Person sind:<br><br>Person ID:<b>$contact_no</b><br>Nachname:<b>$lastname</b><br>Vorname:<b>$firstname</b><br>Leadquelle:<b>$leadsource</b><br>Abteilung:<b>$department</b><br><br>Beschreibung:<b>$description</b><br><br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Administrator'
+                )
+            ),
+            'A Potential has been created ' => array(
+                'Eine Potential wurde erstellt',
+                'Regarding Potential Assignment' => array(
+                    'Zuweisung eines Potentials',
+                    'Ihnen wurde ein Potential im CRM zugewiesen<br>Details des Potentials sind:<br><br>Potential Nr.:<b>$potential_no</b><br>Potentialname:<b>$potentialname</b><br>Betrag:<b>$amount</b><br>Erwartetes Abschlussdatum:<b>$closingdate ($_DATE_FORMAT_)</b><br>Typ:<b>$opportunity_type</b><br><br><br>Beschreibung:$description<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Administrator'
+                )
+            ),
+            'Notify Related Contact when Ticket is created from Portal' => array(
+                'Benachrichtigung an betreffende Person, bei Ticket-Erstellung vom Portal',
+                '[From Portal] $ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title' => array(
+                    '[From Portal] $ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title', 'Ticket Nr.: $ticket_no<br>Ticket ID : $(general : (__VtigerMeta__) recordId)<br>Tickettitel: $ticket_title<br><br>Beschreibung:<br>$description'
+                )
+            ),
+            'Send Email to Contact on Ticket Update' => array(
+                'Sendet E-Mail an Person bei einer Ticketaktualisierung',
+                '$ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title' => array(
+                    '$ticket_no [ Ticket Id: $(general : (__VtigerMeta__) recordId) ] $ticket_title',
+                    'Ticket ID: $(general : (__VtigerMeta__) recordId)<br>Tickettitel: $ticket_title<br><br>Sehr geehrte:r $(contact_id : (Contacts) lastname) $(contact_id : (Contacts) firstname),<br><br>auf das Ticket wurde reagiert. Die Details dazu lauten wie folgt:<br><br>Ticket Nr.: $ticket_no<br>Status: $ticketstatus<br>Kategorie: $ticketcategories<br>Gewichtung: $ticketseverities<br>Priorit&auml;t: $ticketpriorities<br><br>Beschreibung: <br>$description<br><br>L&ouml;sung: <br>$solution<br>Die Kommentare dazu: <br> $allComments<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Support Administrator'
+                )
+            ),
+            'Send Notification Email to Record Owner' => array(
+                'Sendet Benachrichtigung an den Zuständigen',
+                'Event :  $subject' => array(
+                    'Ereignis:  $subject',
+                    '$(assigned_user_id : (Users) last_name) $(assigned_user_id : (Users) first_name) ,<br/><b>Details zur Aktivitätsbenachrichtigung:</b><br/>Betreff: $subject<br/>Startdatum &-zeit: $date_start ($(general : (__VtigerMeta__) usertimezone))<br/>Enddatum &-zeit: $due_date ($(general : (__VtigerMeta__) usertimezone)) <br/>Status: $eventstatus <br/>Priorit&auml;t: $taskpriority <br/>Bezogen auf: $(parent_id : (Leads) lastname) $(parent_id : (Leads) firstname) $(parent_id : (Accounts) accountname) $(parent_id : (Potentials) potentialname) $(parent_id : (HelpDesk) ticket_title) $(parent_id : (Campaigns) campaignname) <br/>Personenliste: $contact_id <br/>Ort: $location <br/>Beschreibung: $description'
+                ),
+                'Task :  $subject' => array(
+                    'Aufgabe:  $subject',
+                    '$(assigned_user_id : (Users) last_name) $(assigned_user_id : (Users) first_name) ,<br/><b>Details zur Aufgabenbenachrichtigung:</b><br/>Betreff: $subject<br/>Startdatum &-zeit: $date_start ($(general : (__VtigerMeta__) usertimezone))<br/>Enddatum &-zeit: $due_date ($_DATE_FORMAT_) <br/>Status: $taskstatus <br/>Priorit&auml;t: $taskpriority <br/>Bezogen auf: $(parent_id : (Leads) lastname) $(parent_id : (Leads) firstname) $(parent_id : (Accounts) accountname) $(parent_id : (Potentials) potentialname) $(parent_id : (HelpDesk) ticket_title) $(parent_id : (Campaigns) campaignname) <br/>Personenliste: $contact_id <br/>Beschreibung: $description'
+                )
+            ),
+            'Comment Added From Portal : Send Email to Record Owner' => array(
+                'Kommentar hinzugefügt von Portal: E-Mail an Zuständigen schicken',
+                'Respond to Ticket ID## $(general : (__VtigerMeta__) recordId) ## in Customer Portal - URGENT' => array(
+                    'Antwort auf Ticket ID## $(general : (__VtigerMeta__) recordId) ## im Kunden Portal - URGENT',
+                    'Sehr geehrte:r $(assigned_user_id : (Users) last_name) $(assigned_user_id : (Users) first_name),<br><br>Der Kunde hat die folgenden zusätzlichen Informationen zu Ihrer Antwort bereitgestellt:<br><br><b>$lastComment</b><br><br>Bitte schnellstmöglich auf das Ticket reagieren.<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Support Administrator'
+                )
+            ),
+            'Comment Added From CRM : Send Email to Contact, where Contact is not a Portal User' => array(
+                'Kommentar hinzugefügt von CRM: E-Mail an Person senden, wenn Person kein Portalnutzer ist',
+                '$ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title' => array(
+                    '$ticket_no [ Ticket ID: $(general : (__VtigerMeta__) recordId) ] $ticket_title',
+                    'Sehr geehrte:r $(contact_id : (Contacts) lastname) $(contact_id : (Contacts) firstname),<br><br>auf das Ticket wurde reagiert. Die Details dazu lauten wie folgt:<br><br>Ticket Nr.: $ticket_no<br>Status: $ticketstatus<br>Kategorie: $ticketcategories<br>Gewichtung: $ticketseverities<br>Priorit&auml;t: $ticketpriorities<br><br>Beschreibung: <br>$description<br><br>L&ouml;sung: <br>$solution<br>Die Kommentare sind: <br>$allComments<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Support Administrator'
+                )
+            ),
+            'Comment Added From CRM : Send Email to Contact, where Contact is Portal User' => array(
+                'Kommentar hinzugefügt von CRM: E-Mail an Person senden, wenn Person ein Portalnutzer ist',
+                '$ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title' => array(
+                    '$ticket_no [ Ticket ID: $(general : (__VtigerMeta__) recordId) ] $ticket_title',
+                    'Ticket Nr.: $ticket_no<br>Ticket ID: $(general : (__VtigerMeta__) recordId)<br>Thema: $ticket_title<br><br>Sehr geehrte:r $(contact_id : (Contacts) lastname) $(contact_id : (Contacts) firstname),<br><br>Es gibt eine Antwort auf <b>$ticket_title</b> im "Kundenportal". Sie können den folgenden Link verwenden, um die Antwort zu sehen:<br><a href="$(general : (__VtigerMeta__) portaldetailviewurl)">Ticket Details</a><br><br>Mit freundlichen Gr&uuml;&szlig;en<br>$(general : (__VtigerMeta__) supportName)'
+                )
+            ),
+            'Comment Added From CRM : Send Email to Organization' => array(
+                'Kommentar hinzugefügt von CRM: E-Mail an Organisation senden',
+                '$ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title' => array(
+                    '$ticket_no [ Ticket ID : $(general : (__VtigerMeta__) recordId) ] $ticket_title',
+                    'Ticket ID: $(general : (__VtigerMeta__) recordId)<br>Tickettitel : $ticket_title<br><br>Sehr geehrte:r $(parent_id : (Accounts) accountname),<br><br>auf das Ticket wurde reagiert. Die Details dazu lauten wie folgt:<br><br>Ticket Nr.: $ticket_no<br>Status: $ticketstatus<br>Kategorie: $ticketcategories<br>Gewichtung: $ticketseverities<br>Priorit&auml;t: $ticketpriorities<br><br>Beschreibung: <br>$description<br><br>L&ouml;sung: <br>$solution<br>Die Kommentare sind: <br>$allComments<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Support Administrator'
+                )
+            ),
+            'Notify Record Owner when Ticket is created from Portal' => array(
+                'Zuständigen benachrichtigen, wenn ein Ticket vom Portal erstellt wurde',
+                '[From Portal] $ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title' => array(
+                    '[From Portal] $ticket_no [ Ticket ID: $(general : (__VtigerMeta__) recordId) ] $ticket_title',
+                    'Ticket Nr.: $ticket_no<br>Ticket ID: $(general : (__VtigerMeta__) recordId)<br>Tickettitel: $ticket_title<br><br>$description'
+                )
+            ),
+            'Send Email to Record Owner on Ticket Update' => array(
+                'Sendet Zuständigen eine E-Mail zur Ticketaktualisierung',
+                'Ticket Number : $ticket_no $ticket_title' => array(
+                    'Ticket Nummer: $ticket_no $ticket_title',
+                    'Ticket ID : $(general : (__VtigerMeta__) recordId)<br>Tickettitel: $ticket_title<br><br>Sehr geehrte:r $(assigned_user_id : (Users) last_name) $(assigned_user_id : (Users) first_name),<br><br>auf das Ticket wurde reagiert. Die Details dazu lauten wie folgt:<br><br>Ticket Nr.: $ticket_no<br>Status: $ticketstatus<br>Kategorie: $ticketcategories<br>Gewichtung: $ticketseverities<br>Priorit&auml;t: $ticketpriorities<br><br>Beschreibung: <br>$description<br><br>L&ouml;sung: <br>$solution$allComments<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Support Administrator'
+                )
+            ),
+            'Ticket Creation From CRM : Send Email to Record Owner' => array(
+                'Ticketerstellung von CRM: E-Mail an Zuständigen schicken',
+                'Ticket Number : $ticket_no $ticket_title' => array(
+                    'Ticket Nummer: $ticket_no $ticket_title',
+                    'Ticket ID: $(general : (__VtigerMeta__) recordId)<br>Tickettitel: $ticket_title<br><br>Sehr geehrte:r $(assigned_user_id : (Users) last_name) $(assigned_user_id : (Users) first_name),<br><br>auf das Ticket wurde reagiert. Die Details dazu lauten wie folgt:<br><br>Ticket Nr.: $ticket_no<br>Status: $ticketstatus<br>Kategorie: $ticketcategories<br>Gewichtung: $ticketseverities<br>Priorit&auml;t: $ticketpriorities<br><br>Beschreibung: <br>$description<br><br>L&ouml;sung: <br>$solution$allComments<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Support Administrator'
+                )
+            ),
+            'Send Email to Organization on Ticket Update' =>  array(
+                'Sendet E-Mail an Organisation zur Ticketaktualisierung',
+                '$ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title' => array(
+                    '$ticket_no [ Ticket ID: $(general : (__VtigerMeta__) recordId) ] $ticket_title',
+                    'Ticket ID: $(general : (__VtigerMeta__) recordId)<br>Tickettitel : $ticket_title<br><br>Sehr geehrte Damen und Herren von $(parent_id : (Accounts) accountname),<br><br>auf das Ticket wurde reagiert. Die Details dazu lauten wie folgt:<br><br>Ticket Nr.: $ticket_no<br>Status: $ticketstatus<br>Kategorie: $ticketcategories<br>Gewichtung: $ticketseverities<br>Priorit&auml;t: $ticketpriorities<br><br>Beschreibung: <br>$description<br><br>L&ouml;sung: <br>$solution<br>Die Kommentare sind: <br>$allComments<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Support Administrator'
+                )
+            ),
+            'Ticket Creation From CRM : Send Email to Organization' => array(
+                'Ticketerstellung von CRM: Sendet E-Mail an Organisation',
+                '$ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title' => array(
+                    '$ticket_no [ Ticket ID: $(general : (__VtigerMeta__) recordId) ] $ticket_title',
+                    'Ticket ID : $(general : (__VtigerMeta__) recordId)<br>Ticket Title : $ticket_title<br><br>Sehr geehrte:r $(parent_id : (Accounts) accountname),<br><br>auf das Ticket wurde reagiert. Die Details dazu lauten wie folgt:<br><br>Ticket Nr.: $ticket_no<br>Status: $ticketstatus<br>Kategorie: $ticketcategories<br>Gewichtung: $ticketseverities<br>Priorit&auml;t: $ticketpriorities<br><br>Beschreibung: <br>$description<br><br>L&ouml;sung: <br>$solution<br>Die Kommentare sind: <br>$allComments<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Support Administrator'
+                )
+            ),
+            'Ticket Creation From CRM : Send Email to Contact' => array(
+                'Ticketerstellung von CRM: Sendet E-Mail an Person',
+                '$ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title' => array(
+                    '$ticket_no [ Ticket Id : $(general : (__VtigerMeta__) recordId) ] $ticket_title',
+                    'Ticket ID : $(general : (__VtigerMeta__) recordId)<br>Tickettitle : $ticket_title<br><br>Sehr geehrte:r  $(contact_id : (Contacts) lastname) $(contact_id : (Contacts) firstname),<br><br>auf das Ticket wurde reagiert. Die Details dazu lauten wie folgt:<br><br>Ticket Nr.: $ticket_no<br>Status : $ticketstatus<br>Kategorie: $ticketcategories<br>Gewichtung: $ticketseverities<br>Priorit&auml;t: $ticketpriorities<br><br>Beschreibung: <br>$description<br><br>L&ouml;sung: <br>$solution<br>Die Kommentare sind: <br>$allComments<br><br>Mit freundlichen Gr&uuml;&szlig;en<br>Support Administrator'
+                )
+            ),
+        );
 
-		while($row = $adb->getNextRow($result, false)){
-			$task = $row['task'];
-			$taskId = $row['task_id'];
-			$taskObject = unserialize($task);
-			$taskClass = get_class($taskObject);
-			$summary = $taskObject->summary;
-			$subject = $taskObject->subject;
-			if(isset($translations[$summary][0])) {
-				$taskObject->summary = $translations[$summary][0];
-				if(isset($translations[$summary][$subject][0])) {
-				$taskObject->subject = $translations[$summary][$subject][0];
-				$taskObject->content = $translations[$summary][$subject][1];
-				$task = serialize($taskObject);
-				$adb->pquery("UPDATE `com_vtiger_workflowtasks` SET task = ? WHERE task_id = ?;", array($task, $taskId));
-				}
-			}
-		}
+        while ($row = $adb->getNextRow($result, false)) {
+            $task = $row['task'];
+            $taskId = $row['task_id'];
+            $taskObject = unserialize($task);
+            $taskClass = get_class($taskObject);
+            $summary = $taskObject->summary;
+            $subject = $taskObject->subject;
+            if (isset($translations[$summary][0])) {
+                $taskObject->summary = $translations[$summary][0];
+                if (isset($translations[$summary][$subject][0])) {
+                    $taskObject->subject = $translations[$summary][$subject][0];
+                    $taskObject->content = $translations[$summary][$subject][1];
+                    $task = serialize($taskObject);
+                    $adb->pquery("UPDATE `com_vtiger_workflowtasks` SET task = ? WHERE task_id = ?;", array($task, $taskId));
+                }
+            }
+        }
 
-		$query = "SELECT * FROM `com_vtiger_workflowtasks` WHERE task LIKE '%VTEntityMethodTask%' AND summary NOT LIKE 'LBL_%'";
-		$result = $adb->pquery($query, array());
+        $query = "SELECT * FROM `com_vtiger_workflowtasks` WHERE task LIKE '%VTEntityMethodTask%' AND summary NOT LIKE 'LBL_%'";
+        $result = $adb->pquery($query, array());
 
-		$translations = array('Email Customer Portal Login Details' => array('E-Mail Kundenportal Login Details'),
-							  'Update Inventory Products' => array('Aktualisierung vom Lagerbestand')
-						);
-
-
-		while($row = $adb->getNextRow($result, false)){
-			$task = $row['task'];
-			$taskId = $row['task_id'];
-			$taskObject = unserialize($task, ['allowed_classes' => ['VTEntityMethodTask']]);
-			$taskClass = get_class($taskObject);
-			$summary = $taskObject->summary;
-			if(isset($translations[$summary][0])) {
-				$taskObject->summary = $translations[$summary][0];
-				$task = serialize($taskObject);
-				$adb->pquery("UPDATE `com_vtiger_workflowtasks` SET task = ? WHERE task_id = ?;", array($task, $taskId));
-			}
-		}
-
-		$query = "SELECT * FROM `com_vtiger_workflowtasks` WHERE task LIKE '%VTUpdateFieldsTask%' AND summary NOT LIKE 'LBL_%'";
-		$result = $adb->pquery($query, array());
-
-		$translations = array('update forecast amount' => array('Aktualisierung vom Forecast Betrag'),
-						);
+        $translations = array('Email Customer Portal Login Details' => array('E-Mail Kundenportal Login Details'),
+                              'Update Inventory Products' => array('Aktualisierung vom Lagerbestand')
+                        );
 
 
-		while($row = $adb->getNextRow($result, false)){
-			$task = $row['task'];
-			$taskId = $row['task_id'];
-			$taskObject = unserialize($task, ['allowed_classes' => ['VTUpdateFieldsTask']]);
-			$taskClass = get_class($taskObject);
-			$summary = $taskObject->summary;
-			if(isset($translations[$summary][0])) {
-				$taskObject->summary = $translations[$summary][0];
-				$task = serialize($taskObject);
-				$adb->pquery("UPDATE `com_vtiger_workflowtasks` SET task = ? WHERE task_id = ?;", array($task, $taskId));
-			}
-		}
+        while ($row = $adb->getNextRow($result, false)) {
+            $task = $row['task'];
+            $taskId = $row['task_id'];
+            $taskObject = unserialize($task, ['allowed_classes' => ['VTEntityMethodTask']]);
+            $taskClass = get_class($taskObject);
+            $summary = $taskObject->summary;
+            if (isset($translations[$summary][0])) {
+                $taskObject->summary = $translations[$summary][0];
+                $task = serialize($taskObject);
+                $adb->pquery("UPDATE `com_vtiger_workflowtasks` SET task = ? WHERE task_id = ?;", array($task, $taskId));
+            }
+        }
 
-	}
+        $query = "SELECT * FROM `com_vtiger_workflowtasks` WHERE task LIKE '%VTUpdateFieldsTask%' AND summary NOT LIKE 'LBL_%'";
+        $result = $adb->pquery($query, array());
+
+        $translations = array('update forecast amount' => array('Aktualisierung vom Forecast Betrag'),
+                        );
+
+
+        while ($row = $adb->getNextRow($result, false)) {
+            $task = $row['task'];
+            $taskId = $row['task_id'];
+            $taskObject = unserialize($task, ['allowed_classes' => ['VTUpdateFieldsTask']]);
+            $taskClass = get_class($taskObject);
+            $summary = $taskObject->summary;
+            if (isset($translations[$summary][0])) {
+                $taskObject->summary = $translations[$summary][0];
+                $task = serialize($taskObject);
+                $adb->pquery("UPDATE `com_vtiger_workflowtasks` SET task = ? WHERE task_id = ?;", array($task, $taskId));
+            }
+        }
+
+    }
 
     private static function removeGroups()
     {
         global $adb;
 
-		$query = 'SELECT * FROM vtiger_groups WHERE groupid > 2;';
-		$res = $adb->pquery($query, array());
-		$groupRecordModel = Settings_Groups_Record_Model::getInstance('2');
-		while ($row = $adb->fetch_row($res, false)) {
-			$groupId = $row['groupid'];
-			$recordModel = Settings_Groups_Record_Model::getInstance($groupId);
-			$recordModel->delete($groupRecordModel);
-		}
+        $query = 'SELECT * FROM vtiger_groups WHERE groupid > 2;';
+        $res = $adb->pquery($query, array());
+        $groupRecordModel = Settings_Groups_Record_Model::getInstance('2');
+        if ($groupRecordModel) {
+            while ($row = $adb->fetch_row($res, false)) {
+                $groupId = $row['groupid'];
+                $recordModel = Settings_Groups_Record_Model::getInstance($groupId);
+                $recordModel->delete($groupRecordModel);
+            }
+        }
 
-	}
+    }
 
     private static function startWidgetGui()
     {
@@ -1251,46 +1142,287 @@ class Install_InitSchema_Model {
         }
     }
 
-	// adding a missing salutetype
-	private static function addingSalutation():void {
-		$pickListFieldName = 'Sehr geehrte Frau Prof.'; 
-		$pickListName = 'salutationtype';
-		$moduleName = 'Contacts';
-		$moduleModel = Settings_Picklist_Module_Model::getInstance($moduleName);
-		$fieldModel = Settings_Picklist_Field_Model::getInstance($pickListName, $moduleModel);
-		$rolesSelected = array();
-		$roleRecordList = Settings_Roles_Record_Model::getAll(true);
-		foreach($roleRecordList AS $roleRecord) {
-			$rolesSelected[] = $roleRecord->getId();
+    // adding a missing salutetype
+    private static function addingSalutation():void {
+        $pickListFieldName = 'Sehr geehrte Frau Prof.';
+        $pickListName = 'salutationtype';
+        $moduleName = 'Contacts';
+        $moduleModel = Settings_Picklist_Module_Model::getInstance($moduleName);
+        $fieldModel = Settings_Picklist_Field_Model::getInstance($pickListName, $moduleModel);
+        $rolesSelected = array();
+        $roleRecordList = Settings_Roles_Record_Model::getAll(true);
+        foreach($roleRecordList AS $roleRecord) {
+            $rolesSelected[] = $roleRecord->getId();
+        }
+        $moduleModel->addPickListValues($fieldModel, $pickListFieldName, $rolesSelected);
+    }
+
+	public static function addUITypes() {
+		global $adb;
+
+		$uiTypesToAdd = array('crmnow15' => 'UserPicklist');
+		$query = "SELECT * FROM vtiger_ws_fieldtype WHERE uitype = ?;";
+		$iQuery = "INSERT INTO vtiger_ws_fieldtype VALUES(?,?,?);";
+		$uQuery = "UPDATE vtiger_ws_fieldtype_seq SET id = ?;";
+
+		foreach ($uiTypesToAdd AS $uitype => $fieldType) {
+			$res = $adb->pquery($query, array($uitype));
+
+			if ($res && $adb->num_rows($res) == 0) {
+				$adb->pquery($iQuery, array(NULL, $uitype, $fieldType));
+				$lastId = $adb->getLastInsertID();
+				$adb->pquery($uQuery, array($lastId));
+			}
 		}
-		$moduleModel->addPickListValues($fieldModel, $pickListFieldName, $rolesSelected);
 	}
 
-    public static function addNewRelatedLists() {
-        global $adb;
+	private static function addNewWebservices() {
+		global $adb;
 
-        $query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
+		$query = "SELECT * FROM vtiger_ws_operation WHERE name = ?;";
 
-        $relations = array(
+		$wsName = 'get_new_multi_relations';
+		$res = $adb->pquery($query, array($wsName));
+		if ($res && $adb->num_rows($res) == 0) {
+			// add new webservice operation get_new_multi_relations
+			$operationId = vtws_addWebserviceOperation($wsName, 'include/Webservices/Custom/getNewMultiRelations.php', 'berli_get_new_multi_relations', 'GET', '0');
+			vtws_addWebserviceOperationParam($operationId, 'id', 'string', '1');
+			vtws_addWebserviceOperationParam($operationId, 'relModule', 'string', '2');
+		}
+	}
+
+	public static function addNewRelatedLists() {
+		global $adb;
+
+		$query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
+
+		$relations = array(
             'Vendors' => array('Documents' => array(array('ADD', 'SELECT'), 'get_attachments')),
             'HelpDesk' => array('Emails' => array(array(), 'get_emails'))
         );
 
-        foreach ($relations AS $moduleName => $relation) {
-            foreach ($relation AS $relModuleName => $details) {
-                $actions = $details[0];
-                $methodName = $details[1];
-                $tabId = getTabId($moduleName);
-                $relTabId = getTabId($relModuleName);
+		foreach ($relations AS $moduleName => $relation) {
+			foreach ($relation AS $relModuleName => $details) {
+				$actions = $details[0];
+				$methodName = $details[1];
+				$tabId = getTabId($moduleName);
+				$relTabId = getTabId($relModuleName);
 
-                $res = $adb->pquery($query, array($tabId, $relTabId));
+				$res = $adb->pquery($query, array($tabId, $relTabId));
 
-                if ($adb->num_rows($res) == 0) {
-                    $moduleInstance = Vtiger_Module::getInstance($moduleName);
-                    $relInstance = Vtiger_Module::getInstance($relModuleName);
-                    $moduleInstance->setRelatedList($relInstance , $relModuleName, $actions, $methodName);
+				if ($adb->num_rows($res) == 0) {
+					$moduleInstance = Vtiger_Module::getInstance($moduleName);
+					$relInstance = Vtiger_Module::getInstance($relModuleName);
+					$moduleInstance->setRelatedList($relInstance , $relModuleName, $actions, $methodName);
+				}
+			}
+		}
+	}
+
+    public static function addNewConfigEditSettingTables() {
+		global $adb;
+
+        $errors = '';
+        // "New tables for config settings to set on email sending from ticket another email or name <br>";
+        $query = "CREATE TABLE IF NOT EXISTS `vtiger_settings_config` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `config_key` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+        `label` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+        `description` text COLLATE utf8_unicode_ci,
+        `is_active` tinyint(1) NOT NULL DEFAULT '1',
+        `updated_at` datetime DEFAULT NULL,
+        `updated_by_user_id` int(11) DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `uniq_config_key` (`config_key`),
+        KEY `idx_updated_by_user_id` (`updated_by_user_id`)
+        ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci  ";
+        $res = $adb->pquery($query, array());
+        if(!$res) {
+            $errors = $errors."Error creating table vtiger_settings_config. \n";
+        }
+        // Check if FK already exists
+        try {
+            $check = $adb->pquery("SELECT CONSTRAINT_NAME
+                FROM information_schema.REFERENTIAL_CONSTRAINTS
+                WHERE CONSTRAINT_NAME = 'fk_settings_config_updated_by_user'
+            ");
+            if ($adb->num_rows($check) == 0) {
+                // Try to add FK
+                try {
+                    $adb->pquery("ALTER TABLE `vtiger_settings_config`
+                        ADD CONSTRAINT `fk_settings_config_updated_by_user`
+                        FOREIGN KEY (`updated_by_user_id`)
+                        REFERENCES `vtiger_users` (`id`)
+                        ON DELETE SET NULL "
+                    );
+                } catch (Exception $e) {
+                    // FK creation failed (e.g., already exists or other issue)
+                    $errors = $errors. "Error adding foreign key. \n"  ;
+                }
+            }
+        } catch (Exception $e) {
+            // information_schema query failed (extremely rare)
+            $errors = $errors. "Error checking foreign key.\n";
+        }
+
+        $query2 = "CREATE TABLE IF NOT EXISTS `vtiger_settings_config_param` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `config_id` int(11) NOT NULL,
+        `param_key` varchar(191) COLLATE utf8_unicode_ci NOT NULL,
+        `param_value` longtext COLLATE utf8_unicode_ci,
+        `value_type` varchar(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'string',
+        `sort_order` int(11) NOT NULL DEFAULT '0',
+        `updated_at` datetime DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `uniq_config_param` (`config_id`,`param_key`),
+        KEY `idx_config_id` (`config_id`)
+        ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci  ";
+        $res2 = $adb->pquery($query2, array());
+        if(!$res2) {
+            $errors = $errors. "Error creating table vtiger_settings_config_param. \n" ;
+        }
+        // Check if FK already exists
+        try {
+            $check2 = $adb->pquery("SELECT CONSTRAINT_NAME
+                FROM information_schema.REFERENTIAL_CONSTRAINTS
+                WHERE CONSTRAINT_NAME = 'fk_settings_config_param_config'
+            ");
+            if ($adb->num_rows($check2) == 0) {
+                // Try to add FK
+                try {
+                    $adb->pquery("ALTER TABLE `vtiger_settings_config_param`
+                        ADD CONSTRAINT `fk_settings_config_param_config`
+                        FOREIGN KEY (`config_id`)
+                        REFERENCES `vtiger_settings_config` (`id`)
+                        ON DELETE CASCADE 
+                    ");
+                } catch (Exception $e) {
+                    $errors = $errors.  "Error adding foreign key fk_settings_config_param_config.\n"  ;
+                }
+            }
+        } catch (Exception $e) {
+            $errors = $errors.  "Error checking foreign key fk_settings_config_param_config.\n "  ;
+        }
+
+        return $errors;
+	}
+
+    public static function addNewFields() {
+        global $adb;
+
+        //
+        // Adding some fields *** START ***
+        //
+        $arrFields = array(
+            // needed for E-Rechnung
+            'Accounts' => array(
+                'LBL_CUSTOM_INFORMATION' => array(
+                    array('Leitweg-ID', 'buyerreference', 'V~O', 1, 'VARCHAR(50)', '', 'Die Leitweg-ID ist ein Kennzeichen einer elektronischen Rechnung zur eindeutigen Adressierung von öffentlichen Auftraggebern in Deutschland (Beispiele: Behörden, Kommunen, Ministerien).'),
+                )
+            ),
+            'Invoice' => array(
+                'LBL_INVOICE_INFORMATION' => array(
+                    // array('Statusdatum', 'statusdate', 'D~O', 5, 'DATE', '', 'Datum des letzten Status, nicht ändern, wird vom automatischen Mahnwesen verwendet.'), // Datum
+                    array('Lieferdatum', 'deliveryperiod', 'D~O', 5, 'DATE', '', 'Lieferdatum, wird für E-Rechnung verwendet'), // Datum
+                ),
+            ),
+
+            // for HelpDesk
+            'HelpDesk' => array(
+                'LBL_TICKET_INFORMATION' => array(
+                    array('Owner', 'ticketowner', 'V~O', 'crmnow15', 'VARCHAR(100)', '', 'Der Prozessverantwortliche des Tickets.')
+                )
+            ),
+
+            'ModComments' => array(
+                'LBL_OTHER_INFORMATION' => array(
+                    array('LBL_MAIL_TO', 'mailto', 'E~O', 13, 'VARCHAR(100)'),
+                    array('LBL_EXTERNAL', 'external', 'C~O', 56, 'VARCHAR(3)'),
+                    array('LBL_TIME_NEEDED', 'timeneeded', 'T~O', 2, 'varchar(50)'),
+                    array('LBL_CC', 'carboncopy', 'V~O', 1, 'VARCHAR(255)'),
+                    array('LBL_BCC', 'blindcarboncopy', 'V~O', 1, 'VARCHAR(255)'),
+                )
+            ),
+
+            'Users' => array(
+                'LBL_USER_ADV_OPTIONS' => array( // '83' is 'LBL_USER_ADV_OPTIONS' => 'erweiterte Optionen',
+                    array('LBL_SSO_UNIQUE_ID'	,'sso_unique_id'   		,'V~O'     	,1   	,'VARCHAR(255)'   ),
+                )
+            )
+
+        );
+
+        foreach ($arrFields as $moduleName => $blocks) {
+            $moduleInstance = Vtiger_Module::getInstance($moduleName);
+            if (!$moduleInstance) {
+                die("$moduleName no instance");
+            }
+
+            foreach ($blocks as $blockName => $fieldInfos) {
+                $blockInstance = Vtiger_Block::getInstance($blockName, $moduleInstance);
+
+                if (!$blockInstance) {
+                    //// to create new block
+                    $blockInstance = new Vtiger_Block();
+                    $blockInstance->label = $blockName;
+                    $moduleInstance->addBlock($blockInstance);
+
+                } else {
+                    // if we need to del the BLOCK:
+                    //$blockInstance->delete();
+                }
+
+                foreach ($fieldInfos as $fieldInfo) {
+                    $fieldObj = Vtiger_Field::getInstance($fieldInfo[1], $moduleInstance);
+
+                    if (!$fieldObj) {
+                        $fieldObj = new Vtiger_Field();
+                        $fieldObj->name = $fieldInfo[1];
+                        $fieldObj->label = $fieldInfo[0];
+                        $fieldObj->table = $moduleInstance->basetable;
+                        $fieldObj->typeofdata = $fieldInfo[2];
+                        $fieldObj->uitype = $fieldInfo[3];
+                        $fieldObj->columntype = $fieldInfo[4];
+                        $fieldObj->info_type = 'BAS';
+                        $fieldObj->displaytype = '1';
+                        if (!empty($fieldInfo[6])) {
+                            $fieldObj->helpinfo = $fieldInfo[6];
+                        }
+
+                        if (($fieldInfo[3] == 16 || $fieldInfo[3] == 33) && !empty($fieldInfo[5])) {
+                            $fieldObj->setPicklistValues($fieldInfo[5]);
+                        }
+
+                        $blockInstance->addField($fieldObj);
+
+                        if ($fieldInfo[3] == 10 && isset($fieldInfo[5])) {
+                            $query = "SELECT * FROM vtiger_fieldmodulerel WHERE fieldid = ?;";
+                            $res = $adb->pquery($query, array($fieldObj->id));
+
+                            if ($adb->num_rows($res) == 0) {
+                                $query = "INSERT INTO vtiger_fieldmodulerel VALUES(?, ?, ?, ?, ?);";
+                                $adb->pquery($query, array($fieldObj->id, $moduleName, $fieldInfo[5], null, null));
+                                $relInstance = Vtiger_Module::getInstance($fieldInfo[5]);
+                                $relInstance->setRelatedList($moduleInstance, $moduleName, array('ADD'), 'get_dependents_list');
+                            }
+                        } elseif ($fieldInfo[3] == 13) {
+                            $query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
+                            $res = $adb->pquery($query, array($moduleInstance->getId(), getTabId('Emails')));
+
+                            if ($adb->num_rows($res) == 0) {
+                                $relInstance = Vtiger_Module::getInstance('Emails');
+                                $moduleInstance->setRelatedList($relInstance, 'Emails', array('ADD'), 'get_emails');
+                            }
+                        }
+
+                    } else {
+                        //$fieldObj->delete();
+                    }
                 }
             }
         }
+        //
+        // Adding some fields *** END ***
+        //
     }
 }

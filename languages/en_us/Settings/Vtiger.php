@@ -39,7 +39,7 @@ $languageStrings = array(
 	'LBL_COMPANY_INFORMATION' => 'Company Information',
 	'LBL_COMPANY_LOGO' => 'Company Logo',
 	'LBL_CONFIG_DESCRIPTION' => 'Edit the Configuration details of the CRM',
-	'LBL_CONFIG_EDITOR' => 'Configuration Editor',
+	'LBL_CONFIG_EDITOR' => 'Editor for system functions',
 	'LBL_CONFIG_EDITOR_DESCRIPTION' => 'Update configuration file of the application',
 	'LBL_CONFIG_FILE' => 'config.inc.php',
 	'LBL_CREATING_NEW' => 'Creating new',
@@ -97,7 +97,7 @@ $languageStrings = array(
 	'LBL_MAIL_SCANNER' => 'Mail Converter',
 	'LBL_MAILSENDERROR'=>'Mail could not be sent to the admin user. Please check the admin emailid/Server settings',
 	'LBL_MAIL_SERVER_DESCRIPTION' => 'Configure Outgoing Mail Server details',
-	'LBL_MAIL_SERVER_SETTINGS' => 'Outgoing Server',
+	'LBL_MAIL_SERVER_SETTINGS' => 'Outgoing Mail Server',
 	'LBL_MAIL_SERVER_SMTP'=>'Mail Server Settings (SMTP)',
 	'LBL_MAX_ENTRIES_PER_PAGE_IN_LISTVIEW' => 'Maximum entries per page in List View',
 	'LBL_MAX_HISTORY_VIEWED' => 'Maximum History Viewed',
@@ -119,7 +119,7 @@ $languageStrings = array(
 	'LBL_OTHER_SETTINGS' => 'Other Settings',
 	'LBL_OUTGOING_SERVER_DESC' => 'Configure your Outgoing Mail Server details',
     'LBL_OUTGOING_SERVER_NOTE' => 'NOTE: Here you set up the outgoing mail server for all CRM users. For an encrypted link use the following formats: ssl://smtp.myaddress.com or tls://smtp.myaddress.com. If a special port is required you may use ssl://smtp.myaddress.com:portno. If the "From Email" field is left blank then the email address of the logged in user will be used as FROM address. After Saving an email is send to the CRM administrator to confirm working server credentials.',
-	'LBL_OUTGOING_SERVER' => 'Outgoing Server',
+	'LBL_OUTGOING_SERVER' => 'Outgoing Mail Server',
 	'LBL_PASSWORD' => 'Password',
 	'LBL_PICKLIST_DEPENDENCY_DESCRIPTION' => 'Setup Dependency between Picklist values in each module',
 	'LBL_PICKLIST_DEPENDENCY_SETUP' => 'Picklist Dependency Setup',
@@ -296,7 +296,7 @@ $languageStrings = array(
 	'LBL_SEARCH_SETUP' => 'Search Setup',
 	
 	'LBL_INACTIVE_USERS' => 'inactive Users',
-	
+
 	//added for default values in Tax Index
 	'LBL_VAT' => 'VAT',
 	'LBL_SALES_TAX' => 'Sales',
@@ -305,7 +305,29 @@ $languageStrings = array(
     //ADDED FOR BACKUP DOWNLOAD
     'LBL_DOWNLOAD_BACKUP_FILE' => 'Download Backup Archive',
     'LBL_BACKUP_INSTRUCTIONS' => 'You can download a complete, daily backup of your CRM\'s content as ZIP-archive.<br><b>It\'s strongly adviced to store the file on a secure device.</b>',
-    'LBL_DOWNLOAD' => 'Start download'
+    'LBL_DOWNLOAD' => 'Start download',
+
+    // added for Config (Mail, common signature)
+    'LBL_CONFIGSIGNATURE_EDITOR' => 'Editor for email signatures',
+    'LBL_CONFIG_SIG' => 'Shared signature details',
+    'LBL_HEADLINE_CONF_SIG' => 'Here you can define a shared email signature that will be automatically appended to all outgoing emails.',
+    'LBL_FIELD1_CONF_SIG' => 'Activate signature for all emails',
+    'LBL_FIELD2_CONF_SIG' => 'Signature',
+    'LBL_CONFIGTICKETMAIL_EDITOR' => 'Email sender for tickets',
+    'LBL_HEADLINE_CONFIGTICKETMAIL' => 'Here you can define the email sender address for tickets. If you leave this empty, the helpdesk information above will be used as the sender.',
+    'LBL_HEADLINE_CONFIGTICKETMAIL_EDITOR' => 'Here you can define the email sender address for tickets.',
+    'LBL_CONFIGTICKETMAIL_BLOCK_EDITOR' => 'Ticket email sender settings',
+    'LBL_CONFIGTICKETMAIL_FIELD0_EDITOR' => 'Activate ticket email sender',
+    'LBL_CONFIGTICKETMAIL_FIELD1_EDITOR' => 'Ticket sender name',
+    'LBL_CONFIGTICKETMAIL_FIELD2_EDITOR' => 'Ticket sender email address',
+    'LBL_CONFIGTICKETMAIL_FIELD3_EDITOR' => 'Reply‑to sender name',
+    'LBL_CONFIGTICKETMAIL_FIELD4_EDITOR' => 'Reply‑to email address',
+    'LBL_CONFIGSIG_HEADLINE_EDITOR' => 'Here you can define a shared email signature that will be automatically appended to all outgoing emails.',
+    'LBL_CONFIGSIG_FIELD1_EDITOR' => 'Signature active for all emails',
+    'LBL_CONFIGSIGL_FIELD2_EDITOR' => 'Signature',
+    'LBL_CONFIGTICKETMAIL_FIELD0' => 'Sender information for tickets active',
+    'LBL_LAST_CHANGED' => 'last changed',
+    'LBL_LAST_CHANGED_BY' => 'changed by',
 
 );
 

@@ -229,7 +229,7 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
 			foreach($searchParams AS $fieldListGroup){
 				foreach($fieldListGroup AS $fieldSearchInfo){
 					$fieldName = $fieldSearchInfo[0];
-					$filterFieldModel = $relationModule->getFieldByColumn($fieldName);
+					$filterFieldModel = $relationModule->getField($fieldName);
 					$tmpFields[] = $fieldName;
 					if ($filterFieldModel && $filterFieldModel->isReferenceField()) {
 						$pos = stripos($query,' WHERE ');
@@ -521,7 +521,7 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
 			foreach($searchParams AS $fieldListGroup){
 				foreach($fieldListGroup AS $fieldSearchInfo){
 					$fieldName = $fieldSearchInfo[0];
-					$filterFieldModel = $relationModule->getFieldByColumn($fieldName);
+					$filterFieldModel = $relationModule->getField($fieldName);
 					$tmpFields[] = $fieldName;
 					if ($filterFieldModel && $filterFieldModel->isReferenceField()) {
 						$pos = stripos($relationQuery,' WHERE ');

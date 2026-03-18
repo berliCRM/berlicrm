@@ -8,8 +8,9 @@
  * All Rights Reserved.
  ************************************************************************************/
 $languageStrings = array(
-	'EmailTemplate'                => 'E-Mail Vorlage'              , 
-	'LBL_TEMPLATE_NAME'            => 'Vorlagenname'               , 
-	'LBL_DESCRIPTION'              => 'Beschreibung'                , 
-	'LBL_SUBJECT'                  => 'Betreff'                     , 
+	'EmailTemplate'=> 'E-Mail Vorlage' , 
+	'EmailTemplates'=> 'E-Mail Vorlagen' , 
+	'LBL_TEMPLATE_NAME' => 'Vorlagenname', 
+	'LBL_DESCRIPTION' => 'Beschreibung' , 
+	'LBL_SUBJECT' => 'Betreff' , 
 );

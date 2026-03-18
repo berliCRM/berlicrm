@@ -75,6 +75,11 @@ class Contacts_SaveAjax_Action extends Vtiger_SaveAjax_Action {
                     }
                     $recordModel->set($fieldName, $fieldValue);
                 }
+                if($fieldName == "firstname" || $fieldName == "lastname"){
+                    $charsToDelOnFirstOrLastPosition = "#*, ";
+                    $fieldValue = trim( $fieldValue, $charsToDelOnFirstOrLastPosition);
+                    $recordModel->set($fieldName, $fieldValue);
+                }
             }
         }
 

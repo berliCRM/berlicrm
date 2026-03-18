@@ -159,6 +159,9 @@ class Inventory_Record_Model extends Vtiger_Record_Model {
 	 */
 	function setRecordFieldValues($parentRecordModel) {
 		$currentUser = Users_Record_Model::getCurrentUserModel();
+        require_once('modules/Invoice/Invoice.php');
+
+        $replaceDatePlaceholderFieldList = array('terms_conditions', 'description');
 
 		$fieldsList = array_keys($this->getModule()->getFields());
 		$parentFieldsList = array_keys($parentRecordModel->getModule()->getFields());
@@ -166,9 +169,15 @@ class Inventory_Record_Model extends Vtiger_Record_Model {
 		$commonFields = array_intersect($fieldsList, $parentFieldsList);
 		foreach ($commonFields as $fieldName) {
 			if (getFieldVisibilityPermission($parentRecordModel->getModuleName(), $currentUser->getId(), $fieldName) == 0) {
-				$this->set($fieldName, $parentRecordModel->get($fieldName));
-			}
-		}
+
+                $myFieldContent = $parentRecordModel->get($fieldName);
+                // replace date placeholders with real values in specified fields
+                if(in_array($fieldName, $replaceDatePlaceholderFieldList)) {
+                    $myFieldContent = Invoice::replaceDatePlaceholder($myFieldContent);
+                }
+                $this->set($fieldName, $myFieldContent);
+            }
+        }
 
 		return $recordModel;
 	}
@@ -210,9 +219,14 @@ class Inventory_Record_Model extends Vtiger_Record_Model {
 	 * Function to get URL for Export the record as PDF
 	 * @return <type>
 	 */
-	public function getExportPDFUrl() {
-		return "index.php?module=".$this->getModuleName()."&action=ExportPDF&record=".$this->getId();
-	}
+    public function getExportPDFUrl(string $printSn = '')
+    {
+        if (!empty($printSn)) {
+            $printSn = '&printsn='.$printSn;
+        }
+        return "index.php?module=".$this->getModuleName()."&action=ExportPDF".$printSn."&record=".$this->getId();
+    }
+
 	/**
 	 * Function to get URL for Export the record as PDF
 	 * @return <type>

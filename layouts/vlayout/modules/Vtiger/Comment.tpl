@@ -10,7 +10,11 @@
  ********************************************************************************/
 -->*}
 {strip}
-	<div class="commentDiv">
+	{assign var=COMMENT_TYPE value=$COMMENT->getCommentType()}
+	{if !isset($COMMENTS_COLORS) || empty($COMMENTS_COLORS)}
+		{$COMMENTS_COLORS = ['customer' => 'red', 'outgoing' => 'green', 'internal' => 'yellow']}
+	{/if}
+	<div class="commentDiv" style="border: 1px solid {if isset($COMMENTS_COLORS[$COMMENT_TYPE])}{$COMMENTS_COLORS[$COMMENT_TYPE]}{/if};">
 		<div class="singleComment">
 			<div class="commentInfoHeader row-fluid" data-commentid="{$COMMENT->getId()}"
 				data-parentcommentid="{$COMMENT->get('parent_comments')}">
@@ -27,24 +31,32 @@
 							{assign var=COMMENTOR value=$COMMENT->getCommentedByModel()}
 							<div class="inner">
 								<span class="commentorName pull-left">
-								<strong>
-									{if $COMMENTOR}
-										{$COMMENTOR->getName()}
-									{else}
-										{vtranslate('LBL_DELETED')}
-									{/if}
-								</strong>
-							</span>
+									<strong>
+										{if $COMMENTOR}
+											{$COMMENTOR->getName()}
+										{else}
+											{vtranslate('LBL_DELETED')}
+										{/if}
+									</strong>
+								</span>
 								<span class="pull-right">
 									<p class="muted"><small
 											title="{Vtiger_Util_Helper::formatDateTimeIntoDayString($COMMENT->getCommentedTime())}">{Vtiger_Util_Helper::formatDateDiffInStrings($COMMENT->getCommentedTime())}&nbsp;&nbsp;
 											({Vtiger_Util_Helper::convertDateTimeIntoUsersDisplayFormat($COMMENT->getCommentedTime())})</small>
 									</p>
+									{assign var=TIMENEEDED value=Vtiger_Util_Helper::convertTimeIntoUsersDisplayFormat($COMMENT->get('timeneeded'))}
+									{if $TIMENEEDED neq "00:00:00" and $TIMENEEDED neq false}
+										<p class="muted">
+											<small class="pull-right">
+												{vtranslate('LBL_TIME_NEEDED', $MODULE_NAME)}:&nbsp{Vtiger_Util_Helper::convertTimeIntoUsersDisplayFormat($COMMENT->get('timeneeded'))}
+											</small>
+										</p>
+									{/if}
 								</span>
-								{if $COMMENT->getCommentMailTo() != NULL}
+								{if $COMMENT->get('mailto') != NULL}
 									<div class="muted displayInlineBlock marginBottom10px">
 										({vtranslate('LBL_MAILTO',$MODULE_NAME)}:&nbsp;
-										{$COMMENT->getCommentMailTo()})
+										{$COMMENT->get('mailto')})
 									</div>
 								{/if}
 								<div class="clearfix"></div>
@@ -59,8 +71,8 @@
 			<div class="row-fluid commentActionsContainer">
 				{if $EDIT_PERMISSION}
 					{if $MODULE_NAME == 'HelpDesk'}
-                        {assign var=EXTERNAL_COMMENT value=$COMMENT->getExternalCommentId()}
-                        {assign var=TIME_NEEDED value=$COMMENT->getCommentTimeNeeded()}
+                        {assign var=EXTERNAL_COMMENT value=$COMMENT->get('external')}
+                        {assign var=TIME_NEEDED value=$COMMENT->get('timeneeded')}
 						<input type="hidden" name="external" value="{$EXTERNAL_COMMENT}">
                         <input type="hidden" name="timeNeeded" value="{$TIME_NEEDED}">
 					{/if}
@@ -97,8 +109,7 @@
 										class="icon-share-alt"></i>{vtranslate('LBL_REPLY',$MODULE_NAME)}</a>
 							{/if}
 							{if $CURRENTUSER->getId() eq $COMMENT->get('userid') && $EDIT_PERMISSION}
-								{if $CREATE_PERMISSION}&nbsp;<span style="color:black">|</span>&nbsp;
-							{/if}
+								{if $CREATE_PERMISSION}&nbsp;<span style="color:black">|</span>&nbsp;{/if}
 								<a class="cursorPointer editComment feedback">
 									{vtranslate('LBL_EDIT',$MODULE_NAME)}
 								</a>
@@ -106,8 +117,7 @@
 						</span>
 						{assign var=CHILD_COMMENTS_COUNT value=$COMMENT->getChildCommentsCount()}
 						{if $CHILD_COMMENTS_MODEL neq null and ($CHILDS_ROOT_PARENT_ID neq $PARENT_COMMENT_ID)}
-							{if $EDIT_PERMISSION}&nbsp;<span style="color:black">|</span>&nbsp;
-						{/if}
+							{if $EDIT_PERMISSION}&nbsp;<span style="color:black">|</span>&nbsp;{/if}
 							<span class="viewThreadBlock" data-child-comments-count="{$CHILD_COMMENTS_COUNT}">
 								<a class="cursorPointer viewThread">
 									{if $CHILD_COMMENTS_COUNT eq 1}
@@ -130,12 +140,12 @@
 							</span>
 						{elseif $CHILD_COMMENTS_MODEL neq null and ($CHILDS_ROOT_PARENT_ID eq $PARENT_COMMENT_ID)}
 							{if $CREATE_PERMISSION || $EDIT_PERMISSION}
-							&nbsp;
-							<span style="color:black">
-								|
-							</span>
-							&nbsp;
-						{/if}
+								&nbsp;
+								<span style="color:black">
+									|
+								</span>
+								&nbsp;
+							{/if}
 							<span class="hide viewThreadBlock" data-child-comments-count="{$CHILD_COMMENTS_COUNT}">
 								<a class="cursorPointer viewThread">
 									{if $CHILD_COMMENTS_COUNT eq 1}

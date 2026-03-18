@@ -1,11 +1,11 @@
 <?php
 
 /*********************************************************************************
- ** The contents of this file are subject to the vtiger CRM Public License Version 1.0
+** The contents of this file are subject to the vtiger CRM Public License Version 1.0
  * ("License"); You may not use this file except in compliance with the License
  * The Original Code is:  crm-now, www.crm-now.com
- * Portions created by crm-now are Copyright (C)  crm-now c/o im-netz Neue Medien GmbH.
- * All Rights Reserved.
+* Portions created by crm-now are Copyright (C)  crm-now c/o im-netz Neue Medien GmbH.
+* All Rights Reserved.
  *
  ********************************************************************************/
 //
@@ -45,12 +45,12 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     // try to auto-set $qr_feature if not already set in config.inc.php
     if (!isset($qr_feature)) {
         /*
-                                                                                                                          if (is_dir('vendor/sprain/swiss-qr-bill')) {
-                                                                                                                              $qr_feature = true;
-                                                                                                                          } else {
-                                                                                                                              $qr_feature = false;
-                                                                                                                          }
-                                                                                                                          */
+        if (is_dir('vendor/sprain/swiss-qr-bill')) {
+            $qr_feature = true;
+        } else {
+            $qr_feature = false;
+        }
+        */
         $qr_feature = false;
     }
 

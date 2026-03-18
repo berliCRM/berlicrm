@@ -42,6 +42,9 @@ $languageStrings = array(
 	'LBL_RECORDS_LIST' => 'Ticketliste',
 	'LBL_REGARDS'=> 'Mit freundlichen Grüßen,',
 	'LBL_RELATED_TO' => 'bezogen auf',
+	'LBL_HELPDESK_COMMENT_MAIL_NOTICE' => 'Der Ticketkunde wird automatisch als Empfänger verwendet. Hier können optional CC, BCC oder Anhänge hinzugefügt werden.',
+	'LBL_HELPDESK_DROP_FILES_HERE' => 'Dateien hierher ziehen',
+	'LBL_HELPDESK_OR_CLICK_TO_SELECT' => 'oder klicken, um Anhänge auszuwählen',
 	'LBL_RESPOND'=> 'Bitte kümmern Sie sich darum.',
 	'LBL_RESPONDTO_TICKETID' =>'Antwort zum Ticket Nr.',
 	'LBL_RESPONSE_TO_TICKET_NUMBER' =>'Antwort zum Ticket Nr.',
@@ -82,6 +85,7 @@ $languageStrings = array(
 	'Update History' => 'Update Historie',
 	'Urgent'=>'dringend',
 	'Wait For Response'=>'warte auf Zuarbeit',
+	'Owner' => 'Besitzer',
 );
 
 $jsLanguageStrings = array(

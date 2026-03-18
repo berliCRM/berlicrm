@@ -149,4 +149,6 @@ $jsLanguageStrings = array(
 	'JS_SELECTED_FIELDS_REACTIVATED' => 'Selected Fields Reactivated',
 	'JS_SPECIAL_CHARACTERS' => 'Special Characters like',
 	'JS_BLOCKRENAMED'=>'Block has been renamed to ',
+	'JS_LENGTHEXCEEDED' => 'field label too long, up to 50 characters allowed',
+	'JS_DUPLICATE_LABEL' => 'label not changed, identified duplicate',
 );

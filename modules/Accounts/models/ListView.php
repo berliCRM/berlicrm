@@ -52,6 +52,16 @@ class Accounts_ListView_Model extends Vtiger_ListView_Model {
 			);
 			$massActionLinks['LISTVIEWMASSACTION'][] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
 		}
+		
+		if($currentUserModel->hasModuleActionPermission($moduleModel->getId(), 'EditView')) {
+			$massActionLink = array(
+				'linktype' => 'LISTVIEWMASSACTION',
+				'linklabel' => 'Übersicht letzte Aktivitäten',
+				'linkurl' => 'javascript:window.open("index.php?module='.$moduleModel->getName().'&action=ExportOverviewActivities")',
+				'linkicon' => ''
+			);
+			$massActionLinks['LISTVIEWMASSACTION'][] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
+		}
 
 		return $massActionLinks;
 	}

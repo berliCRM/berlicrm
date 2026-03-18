@@ -61,11 +61,11 @@ class Vtiger_Request {
 			}
 		}
 
-		// Purify the value
-		if (!empty($value) && $purify) {
-			$value = vtlib_purify($value);
-		}
-
+        $noPurifyKeys = ['reportname', 'description'];
+        //Handled for null because vtlib_purify returns empty string
+        if (!empty($value) && $purify && !in_array($key, $noPurifyKeys)) {
+            $value = vtlib_purify($value);
+        }
 		return $value;
 	}
 

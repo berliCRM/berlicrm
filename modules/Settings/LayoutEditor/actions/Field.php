@@ -51,7 +51,7 @@ class Settings_LayoutEditor_Field_Action extends Settings_Vtiger_Index_Action {
 		
 			if (strlen($request->get("newlabelValue"))>50) {
 				$response = new Vtiger_Response();
-				$response->setError('JS_LENGTHEXCEEDED');
+				$response->setError(vtranslate('JS_LENGTHEXCEEDED'));
 				$response->emit();
 				return;
 			}
@@ -63,7 +63,7 @@ class Settings_LayoutEditor_Field_Action extends Settings_Vtiger_Index_Action {
 			$res = $adb->pquery($q,array($tabid, $request->get("newlabelValue")));
 			if ($adb->num_rows($res)>0) {
 				$response = new Vtiger_Response();
-				$response->setError('JS_DUPLICATE_LABEL');
+				$response->setError(vtranslate('JS_DUPLICATE_LABEL'));
 				$response->emit();
 				return;
 			}
@@ -84,6 +84,8 @@ class Settings_LayoutEditor_Field_Action extends Settings_Vtiger_Index_Action {
 		if($fieldInstance->getFieldDataType() == 'date') {
 			$dateInstance = new Vtiger_Date_UIType();
 			$defaultValue = $dateInstance->getDBInsertedValue($defaultValue);
+		} elseif ($fieldInstance->getFieldDataType() == 'double') {
+			$defaultValue = CurrencyField::convertToDBFormat($defaultValue);
 		}
 
 		if(is_array($defaultValue)) {

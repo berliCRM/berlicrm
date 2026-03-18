@@ -995,7 +995,10 @@ jQuery.Class("Vtiger_List_Js",{
                     fieldsChanged = true;
                 }
 			}
-			if(fieldsChanged == false){
+
+			var massDeleteCheckboxes = form.find('input[name^="mass_delete_check_"]:checked').length > 0;
+
+			if(fieldsChanged == false && !massDeleteCheckboxes) {
 				Vtiger_Helper_Js.showPnotify(app.vtranslate('NONE_OF_THE_FIELD_VALUES_ARE_CHANGED_IN_MASS_EDIT'));
 				form.find('[name="saveButton"]').removeAttr('disabled');
 				aDeferred.reject();

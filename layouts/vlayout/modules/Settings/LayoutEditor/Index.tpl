@@ -60,11 +60,11 @@
                                 <div class="row-fluid layoutBlockHeader">
                                     <div class="blockLabel span5 padding10 marginLeftZero">
                                         <img class="alignMiddle" src="{vimage_path('drag.png')}" />&nbsp;&nbsp;
-                                        {assign var=BLOCK_LABEL_TRANS value=vtranslate($BLOCK_LABEL_KEY, $SELECTED_MODULE_NAME)}
+										{assign var=BLOCK_LABEL_TRANS value=vtranslate($BLOCK_LABEL_KEY, $SELECTED_MODULE_NAME)}
                                         <strong>{$BLOCK_LABEL_TRANS}</strong>
-					{if $BLOCK_LABEL_TRANS != $BLOCK_LABEL_KEY}
-						<span class="no-drag" style="opacity:0.50;">&nbsp;&nbsp;({$BLOCK_LABEL_KEY})</span>
-					{/if}
+										{if $BLOCK_LABEL_TRANS != $BLOCK_LABEL_KEY}
+											<span class="no-drag" style="opacity:0.50;">&nbsp;&nbsp;({$BLOCK_LABEL_KEY})</span>
+										{/if}
                                     </div>
                                     <div class="span6 marginLeftZero" style="float:right !important;"><div class="pull-right btn-toolbar blockActions" style="margin: 4px;">
                                             {if $BLOCK_MODEL->isAddCustomFieldEnabled()}
@@ -272,7 +272,7 @@
                                                        {else if $FIELD_MODEL->get('uitype') eq 19}
 															<textarea class="input-medium" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  name="fieldDefaultValue" data-fieldinfo='{$FIELD_INFO|json_encode}'>{$FIELD_MODEL->get('defaultvalue')}</textarea>
                                                        {else}
-															<input type="text" class="input-medium" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  name="fieldDefaultValue" value="{$FIELD_MODEL->get('defaultvalue')}" data-fieldinfo='{$FIELD_INFO|json_encode}' />
+                                                            <input type="text" class="input-medium" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !$FIELD_MODEL->hasDefaultValue()} disabled="" {/if}  name="fieldDefaultValue" value="{$FIELD_MODEL->getEditViewDisplayValue($FIELD_MODEL->get('defaultvalue'))}" data-fieldinfo='{$FIELD_INFO|json_encode}'/>
                                                         {/if}
                                                     {/if}
                                                 </div>

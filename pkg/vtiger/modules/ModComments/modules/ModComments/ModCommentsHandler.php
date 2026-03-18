@@ -15,7 +15,12 @@ require_once 'modules/HelpDesk/HelpDesk.php';
 class ModCommentsHandler extends VTEventHandler {
 
 	function handleEvent($eventName, $data) {
-		
+		global $current_user;
+        //$roleid = $current_user->roleid; 
+        //$currency_id = $current_user->currency_id; 
+        $current_user_id = $current_user->id;
+        //$current_date_time = date('Y-m-d H:i:s');
+        $current_record_id = $data->getId();
 		$moduleName = $data->getModuleName();
 
         // Validate the event target
@@ -31,11 +36,13 @@ class ModCommentsHandler extends VTEventHandler {
 			$db = PearDatabase::getInstance();
 
 			$relatedToId = $data->get('related_to');
+
 			if ($relatedToId) {
-				$moduleName = getSalesEntityType($relatedToId);
-				$focus = CRMEntity::getInstance($moduleName);
-				$focus->retrieve_entity_info($relatedToId, $moduleName);
+				$moduleNameRelated = getSalesEntityType($relatedToId);
+				$focus = CRMEntity::getInstance($moduleNameRelated);
+				$focus->retrieve_entity_info($relatedToId, $moduleNameRelated);
 				$focus->id = $relatedToId;
+
 				$fromPortal = $data->get('from_portal');
 				if ($fromPortal) {
 					$focus->column_fields['from_portal'] = $fromPortal;
@@ -58,6 +65,14 @@ class ModCommentsHandler extends VTEventHandler {
 
 				$relatedToEventHandler->handleEvent($eventName, $entityData, $entityCache);
 				$util->revertUser();
+
+                // TT596 write datetime to the parent record.
+                Vtiger_Functions::updateParentModifiedTime(
+                    $relatedToId,
+                    $moduleNameRelated,
+                    $current_record_id,
+                    $current_user_id
+                );
 			}
 		}
 	}

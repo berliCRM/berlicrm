@@ -6,6 +6,7 @@ $languageStrings = Array (
 	'LBL_WRITE_ACCESS_FOR' => 'You do not have create privileges for ',
 	'LBL_MODULE_DENIED' => 'The module access is denied.',
 	'LBL_PROBLEM_UPLOAD' => 'There has been an upload problem. Please reload the page an try again.',
+    'LBL_FOLDER' => 'foldername',
 );
 
 ?>

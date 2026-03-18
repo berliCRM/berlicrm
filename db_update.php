@@ -60,6 +60,35 @@ else {
 	echo "retrievedocattachment already exists<br>";
 }
 // check existance (for migrated clients)
+// add new webservice operation get_new_multi_relations
+echo "Adding new Webservices 'get_new_multi_relations' START<br>";
+$query = "SELECT * FROM vtiger_ws_operation WHERE name = ?;";
+$res = $adb->pquery($query, array('get_new_multi_relations'));
+if ($res && $adb->num_rows($res) == 0) {
+	$operationId = vtws_addWebserviceOperation('get_new_multi_relations', 'include/Webservices/Custom/getNewMultiRelations.php', 'berli_get_new_multi_relations', 'GET', '0');
+	if ($operationId) {
+		vtws_addWebserviceOperationParam($operationId,'id','string','1');
+		vtws_addWebserviceOperationParam($operationId,'relModule','string','2');
+		echo "Adding new Webservices 'get_new_multi_relations' DONE<br>";
+	} 
+    else {
+		echo "ERROR WHILE TRYING TO GET WS-ID!<br>";
+	}
+} 
+else {
+	$errorMsg = $adb->database->errorMsg();
+	if (!empty($errorMsg)) {
+		echo "QUERY ERROR: ".$adb->database->errorMsg().'<br>';
+	} 
+    elseif ($adb->num_rows($res) != 0) {
+		echo "Webservices 'get_new_multi_relations' already present<br>";
+	} 
+    else {
+		echo 'UNKNOWN ERROR<br>';
+	}
+}
+echo '<br>';
+// check existance (for migrated clients)
 $query = "SELECT * FROM `vtiger_ws_operation` WHERE `name` = 'update_product_relations'";
 $res = $adb->pquery($query, array());
 if ($adb->num_rows($res) > 0) {
@@ -73,6 +102,10 @@ if ($adb->num_rows($res) > 0) {
 else {
 	echo "update_product_relations already exists<br>";
 }
+
+
+
+
 // check existance (for migrated clients)
 $query = "SELECT * FROM `vtiger_ws_operation` WHERE `name` = 'get_multi_relations'";
 $res = $adb->pquery($query, array());
@@ -570,7 +603,7 @@ else{
 
 // module update standard if module exist.
 $moduleToUpdateArr = array('Pdfsettings', 'Projects', 'EmailTemplates', 'berlimap', 'MailManager', 
-	'Mailchimp', 'SMSNotifier', 'crmtogo', 'ServiceContracts' 
+	'Mailchimp', 'SMSNotifier', 'crmtogo', 'ServiceContracts', 'ModComments', 'berliWidgets', 'Search'
 );
 foreach($moduleToUpdateArr as $moduleToUpdate){
 	if( Vtiger_Module::getInstance($moduleToUpdate) ){
@@ -1235,8 +1268,344 @@ function isComposerUsed(string $projectPath = __DIR__): bool
 }
 
 echo "end";
-// ######################################################## Adding extra fields for eInvoice ... 
 
+echo 'Adding UITypes for new fields<br>';
+require_once('modules/Install/models/InitSchema.php');
+Install_InitSchema_Model::addUITypes();
+
+//// Rev 25666 von 2025.11.26
+echo 'Adding Fields...<br>';#
+$arrFields = array(
+    // for HelpDesk
+    'HelpDesk' => array(
+        'LBL_TICKET_INFORMATION' => array(
+            array('Owner', 'ticketowner', 'V~O', 'crmnow15', 'VARCHAR(100)', '', 'Der Prozessverantwortliche des Tickets.')
+        )
+    )
+);
+
+foreach ($arrFields as $moduleName => $blocks) {
+    echo "Start $moduleName...<br>";
+    $moduleInstance = Vtiger_Module::getInstance($moduleName);
+    if (!$moduleInstance) {
+        die("$moduleName no instance");
+    }
+
+    echo "first step $moduleName...<br>";
+
+    foreach ($blocks as $blockName => $fieldInfos) {
+
+
+        echo "BLOCKs..<br>";
+
+        $blockInstance = Vtiger_Block::getInstance($blockName, $moduleInstance);
+
+        if (!$blockInstance) {
+            // die ("\"$blockName\" no block instance found");
+
+            //// to create new block
+            $blockInstance = new Vtiger_Block();
+            $blockInstance->label = $blockName;
+            $moduleInstance->addBlock($blockInstance);
+
+        } else {
+            // if we need to del the BLOCK:
+            //$blockInstance->delete();
+            //echo "The Block: \"$blockName\" is deleted! from Module \"$moduleName\" ..<br>";
+            // die ("The Block: \"$blockName\" is deleted! from Module \"$moduleName\" ");
+        }
+
+        echo "foreachs..<br>";
+
+        foreach ($fieldInfos as $fieldInfo) {
+            $fieldObj = Vtiger_Field::getInstance($fieldInfo[1], $moduleInstance);
+
+
+            if (!$fieldObj) {
+
+                echo "Adding $moduleName field {$fieldInfo[0]}...<br>";
+                $fieldObj = new Vtiger_Field();
+                $fieldObj->name = $fieldInfo[1];
+                $fieldObj->label = $fieldInfo[0];
+                $fieldObj->table = $moduleInstance->basetable;
+                $fieldObj->typeofdata = $fieldInfo[2];
+                $fieldObj->uitype = $fieldInfo[3];
+                $fieldObj->columntype = $fieldInfo[4];
+                $fieldObj->info_type = 'BAS';
+                $fieldObj->displaytype = '1';
+                if (!empty($fieldInfo[6])) {
+                    $fieldObj->helpinfo = $fieldInfo[6];
+                }
+
+                if (($fieldInfo[3] == 16 || $fieldInfo[3] == 33) && !empty($fieldInfo[5])) {
+                    $fieldObj->setPicklistValues($fieldInfo[5]);
+                }
+
+                $blockInstance->addField($fieldObj);
+
+                if ($fieldInfo[3] == 10 && isset($fieldInfo[5])) {
+                    $query = "SELECT * FROM vtiger_fieldmodulerel WHERE fieldid = ?;";
+                    $res = $adb->pquery($query, array($fieldObj->id));
+
+                    echo "fieldid " . ($fieldObj->id) . "...<br>";
+
+
+                    if ($adb->num_rows($res) == 0) {
+                        $query = "INSERT INTO vtiger_fieldmodulerel VALUES(?, ?, ?, ?, ?);";
+                        $adb->pquery($query, array($fieldObj->id, $moduleName, $fieldInfo[5], null, null));
+                        $relInstance = Vtiger_Module::getInstance($fieldInfo[5]);
+                        $relInstance->setRelatedList($moduleInstance, $moduleName, array('ADD'), 'get_dependents_list');
+                    }
+                } elseif ($fieldInfo[3] == 13) {
+                    $query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
+                    $res = $adb->pquery($query, array($moduleInstance->getId(), getTabId('Emails')));
+
+                    if ($adb->num_rows($res) == 0) {
+                        $relInstance = Vtiger_Module::getInstance('Emails');
+                        $moduleInstance->setRelatedList($relInstance, 'Emails', array('ADD'), 'get_emails');
+                    }
+                }
+
+            } else {
+                echo "fieldObj: \"$fieldInfo[0]\" exist !  ..<br>";
+                //$fieldObj->delete();
+                //echo "fieldObj delete   ..<br>";
+            }
+        }
+    }
+}
+echo "Fields added.<br><br>";
+
+// ######################################################## Adding extra fields for eInvoice ... 
+echo 'Adding new RelatedLists... START<br>';
+Install_InitSchema_Model::addNewRelatedLists();
+echo 'Adding new RelatedLists... DONE<br>';
+
+echo "<br>Add new column to vtiger_modcommentsscope START...";
+//first check if the column already exists
+$query = "SELECT COUNT(*) AS cnt
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_NAME = ?
+	AND COLUMN_NAME = ?;";
+$result = $adb->pquery($query, array("vtiger_modcommentsscope", "timeneeded"));
+try {
+    $cnt = (int)$adb->query_result($result, 0, 'cnt');
+    if ($cnt > 0) {
+        echo "<br>column already exists";
+    } else {
+        $query = "ALTER TABLE `vtiger_modcommentsscope`
+                    ADD COLUMN `timeneeded` time DEFAULT NULL";
+        $adb->pquery($query, array());
+    }
+} catch (Exception $e) {
+    echo "<br>Failed adding new column to vtiger_modcommentsscope";
+}
+echo "<br>Add new column to vtiger_modcommentsscope DONE...";
+
+
+
+
+/// 
+echo "Add new Field to Modul: Users, Block: 83 ('LBL_USER_ADV_OPTIONS' ) ...<br>";
+$arrFields = array(
+    'Users' => array(
+        'LBL_USER_ADV_OPTIONS' => array( // 83 is 'LBL_USER_ADV_OPTIONS' => 'erweiterte Optionen',
+            array('LBL_SSO_UNIQUE_ID'	,'sso_unique_id'   		,'V~O'     	,1   	,'VARCHAR(255)'   ),
+        )
+    )
+);
+
+foreach ($arrFields as $moduleName => $blocks) {
+    $moduleInstance = Vtiger_Module::getInstance($moduleName);
+    if (!$moduleInstance) {
+        die("$moduleName no instance");
+    }
+
+    foreach ($blocks as $blockName => $fieldInfos) {
+        $blockInstance = Vtiger_Block::getInstance($blockName, $moduleInstance);
+
+        if (!$blockInstance) {
+            //// to create new block
+            $blockInstance = new Vtiger_Block();
+            $blockInstance->label = $blockName;
+            $moduleInstance->addBlock($blockInstance);
+
+        } else {
+            // if we need to del the BLOCK:
+            //$blockInstance->delete();
+        }
+
+        foreach ($fieldInfos as $fieldInfo) {
+            $fieldObj = Vtiger_Field::getInstance($fieldInfo[1], $moduleInstance);
+            if (!$fieldObj) {
+                $fieldObj = new Vtiger_Field();
+                $fieldObj->name = $fieldInfo[1];
+                $fieldObj->label = $fieldInfo[0];
+                $fieldObj->table = $moduleInstance->basetable;
+                $fieldObj->typeofdata = $fieldInfo[2];
+                $fieldObj->uitype = $fieldInfo[3];
+                $fieldObj->columntype = $fieldInfo[4];
+                $fieldObj->info_type = 'BAS';
+                $fieldObj->displaytype = '1';
+                if (!empty($fieldInfo[6])) {
+                    $fieldObj->helpinfo = $fieldInfo[6];
+                }
+
+                if (($fieldInfo[3] == 16 || $fieldInfo[3] == 33) && !empty($fieldInfo[5])) {
+                    $fieldObj->setPicklistValues($fieldInfo[5]);
+                }
+
+                $blockInstance->addField($fieldObj);
+
+                if ($fieldInfo[3] == 10 && isset($fieldInfo[5])) {
+                    $query = "SELECT * FROM vtiger_fieldmodulerel WHERE fieldid = ?;";
+                    $res = $adb->pquery($query, array($fieldObj->id));
+
+                    if ($adb->num_rows($res) == 0) {
+                        $query = "INSERT INTO vtiger_fieldmodulerel VALUES(?, ?, ?, ?, ?);";
+                        $adb->pquery($query, array($fieldObj->id, $moduleName, $fieldInfo[5], null, null));
+                        $relInstance = Vtiger_Module::getInstance($fieldInfo[5]);
+                        $relInstance->setRelatedList($moduleInstance, $moduleName, array('ADD'), 'get_dependents_list');
+                    }
+                } elseif ($fieldInfo[3] == 13) {
+                    $query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
+                    $res = $adb->pquery($query, array($moduleInstance->getId(), getTabId('Emails')));
+
+                    if ($adb->num_rows($res) == 0) {
+                        $relInstance = Vtiger_Module::getInstance('Emails');
+                        $moduleInstance->setRelatedList($relInstance, 'Emails', array('ADD'), 'get_emails');
+                    }
+                }
+
+            } else {
+                //$fieldObj->delete();
+            }
+        }
+    }
+}
+// need set the sequence to 2 to set it right from accesskey in the block. (But in Object we have no set sequence, no variable of it.)
+echo "<br>set sequence of 'sso_unique_id'. ";
+$query = "UPDATE `vtiger_field` SET `sequence` = '2' WHERE `vtiger_field`.`columnname` = 'sso_unique_id' ";
+$adb->pquery($query, array());
+echo " set sequence of 'sso_unique_id' to 2 done.<br>";
+echo "Add new Field to Modul: Users, Block: ('LBL_USER_ADV_OPTIONS' ) END ...<br>";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Rev. 25928
+$deleteChoice = isset($_POST['delete_modcommentsscope']) ? strtolower(trim($_POST['delete_modcommentsscope'])) : null;
+
+if ($deleteChoice !== null) {
+    echo "Delete decision received for table 'vtiger_modcommentsscope' ...<br>";
+    if ($deleteChoice === 'yes') {
+        echo "Removing table 'vtiger_modcommentsscope' ...<br>";
+        $query = 'DROP TABLE `vtiger_modcommentsscope`';
+        $res = $adb->pquery($query, array());
+        if (!$res) {
+            echo "Error: " . $adb->database->errorMsg() . "<br>";
+        } else {
+            echo "Table 'vtiger_modcommentsscope' deleted successfully.<br>";
+        }
+        echo "Removing table 'vtiger_modcommentsscope' END ...<br>";
+    } else {
+        echo "Skipping deletion of table 'vtiger_modcommentsscope' based on user choice.<br>";
+    }
+    return;
+}
+
+// Adding ModComments Fields
+echo "Add new fields to the module: ModComments, Block: LBL_OTHER_INFORMATION ...<br>";
+Install_InitSchema_Model::addNewFields();
+echo "Add new fields to the module: ModComments, Block: LBL_OTHER_INFORMATION END ...<br>";
+
+
+
+
+echo "Migrate ModComments fields from vtiger_modcommentsscope START...<br>";
+function tableExists($tableName) {
+    global $adb;
+    $query = "SELECT 1 FROM $tableName LIMIT 1;";
+    try {
+        $res = $adb->pquery($query, array());
+        return $res !== false;
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
+$sourceTable = 'vtiger_modcommentsscope';
+$targetTable = 'vtiger_modcomments';
+$requiredColumns = array('mailto', 'external', 'timeneeded');
+
+if (!tableExists($sourceTable)) {
+    return "Source table '$sourceTable' not found, nothing to migrate.<br>"
+        . "Migrate ModComments fields from vtiger_modcommentsscope END...<br>";
+}
+
+if (!tableExists($targetTable)) {
+    return "Target table '$targetTable' not found, migration skipped.<br>"
+        . "Migrate ModComments fields from vtiger_modcommentsscope END...<br>";
+}
+
+$missingColumns = array();
+foreach ($requiredColumns as $col) {
+    if (!columnExists($col, $targetTable)) {
+        $missingColumns[] = $col;
+    }
+}
+
+if (!empty($missingColumns)) {
+    return "Missing columns in '$targetTable': " . implode(', ', $missingColumns) . ". Migration skipped.<br>"
+        . "Migrate ModComments fields from vtiger_modcommentsscope END...<br>";
+}
+
+$query = "UPDATE vtiger_modcomments mc
+    INNER JOIN vtiger_modcommentsscope ms ON mc.modcommentsid = ms.modcommentsid
+    SET mc.mailto = COALESCE(NULLIF(mc.mailto,''), ms.mailto),
+        mc.external = COALESCE(NULLIF(mc.external,''), ms.external),
+        mc.timeneeded = COALESCE(NULLIF(mc.timeneeded,''), ms.timeneeded);";
+
+$res = $adb->pquery($query, array());
+if (!$res) {
+    echo "Error: " . $adb->database->errorMsg() . "<br>";
+} else {
+    $affected = $adb->getAffectedRowCount($res);
+    echo "Migrated $affected records into '$targetTable'.<br>";
+}
+
+echo "Migrate ModComments fields from vtiger_modcommentsscope END...<br>";
+
+
+echo "Delete prompt for table 'vtiger_modcommentsscope' ...<br>";
+echo "<form method='post' style='margin:10px 0;'>";
+echo "<label>Do you want to delete table <strong>vtiger_modcommentsscope</strong>?</label><br>";
+echo "<button type='submit' name='delete_modcommentsscope' value='yes'>Yes, delete table</button> ";
+echo "<button type='submit' name='delete_modcommentsscope' value='no'>No, keep table</button>";
+echo "</form>";
+echo "Awaiting user decision for deleting 'vtiger_modcommentsscope'.<br>";
+
+
+
+
+
+
+echo "New tables for config settings to set on email sending from ticket another email or name <br>";
+$errors = Install_InitSchema_Model::addNewConfigEditSettingTables();
+if(!empty($errors)){
+    echo $errors;
+}
+echo "New tables done<br>";
 
 
 
@@ -1245,3 +1614,5 @@ echo "end";
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
 $adb->pquery($query, array($current_release_tag));
 echo "<h2>Finished updating to $current_release_tag!</h2>";
+
+

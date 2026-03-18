@@ -216,7 +216,7 @@ class Settings_LayoutEditor_Module_Model extends Vtiger_Module_Model {
                                break;
                Case 'Email' :
                                $uitype = 13;
-                               $type = "VARCHAR(50) default '' "; //adodb type
+                               $type = "VARCHAR(100) default '' "; //adodb type
                                $uichekdata='E~O';
                                break;
                Case 'Time' :

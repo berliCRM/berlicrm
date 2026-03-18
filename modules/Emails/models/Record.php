@@ -10,6 +10,8 @@
 
 class Emails_Record_Model extends Vtiger_Record_Model {
 	public $fromAddress = '';
+    public $senderName = '';
+    public $senderEmail = '';
 
 	/**
 	 * Function to get the Detail View url for the record
@@ -64,7 +66,22 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 		else {
 			$replyTo = $fromEmail;
 		}
+
+        if(!empty($this->senderEmail)){
+			$replyTo = $this->senderEmail;
+            $fromEmail = $this->senderEmail;
+		}
+
 		$userName = $currentUserModel->getName();
+		// do not use user's name if from was set on purpose
+		// TO ADD: use given name instead
+		if (!empty($this->fromAddress)) {
+			$userName = '';
+		}
+
+        if (!empty($this->senderName)) {
+			$userName = $this->senderName;
+		}
 
 		// To eliminate the empty value of an array
 		$toEmailInfo = array_filter($this->get('toemailinfo'));
@@ -92,10 +109,22 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 		$attachments = $this->getAttachmentDetails();
 		$status = false;
 
+        require_once 'modules/Settings/Vtiger/models/ConfigSignature.php';
+        $signatureModel = Settings_Vtiger_ConfigSignature::getInstance();
+        $datasignature = $signatureModel ->getData();
+        if($datasignature["enabled"] == 1){
+            $signature_html = $datasignature["signature_html"];
+
+            $signature_html_decoded = decode_html($signature_html);
+            $contents = $this->get('description');
+            $contents .= ('' .$signature_html_decoded. '<br>');
+            $this->set('description', $contents );
+        }
+
 		// Merge Users module merge tags based on current user.
 		$mergedDescription = getMergedDescription($this->get('description'), $currentUserModel->getId(), 'Users');
-                $mergedSubject = getMergedDescription($this->get('subject'),$currentUserModel->getId(), 'Users');
-                
+        $mergedSubject = getMergedDescription($this->get('subject'),$currentUserModel->getId(), 'Users');
+
 		foreach($toEmailInfo as $id => $emails) {
 			set_time_limit(0);
 			$mailer->reinitialize();
@@ -155,46 +184,45 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 				$description = str_replace('$logo$',"<img src='cid:logo' />", $description);
 				$logo = true;
 			}
-
-			foreach($emails as $email) {
-				$mailer->msgHTML('');
-				// if ($parentModule) {
-					// $mailer->Body = $this->getTrackImageDetails($id, $this->isEmailTrackEnabled());
-				// }
-				$mailer->msgHTML($mailer->Body.$description);
-
-                // create non-html alternative body
-                $mailer->AltBody = decode_html(strip_tags(preg_replace(array("/<p>/i","/<br>/i","/<br \/>/i"),array("\n","\n","\n"),$mailer->Body)));
-				$mailer->Subject = $subject;
-				$mailer->AddAddress($email);
-
-				//Adding attachments to mail
-				if(is_array($attachments)) {
-					foreach($attachments as $attachment) {
-						$fileNameWithPath = $rootDirectory.$attachment['path'].$attachment['fileid']."_".$attachment['attachment'];
-						if(is_file($fileNameWithPath)) {
-							$mailer->AddAttachment($fileNameWithPath, $attachment['attachment']);
-						}
-					}
-				}
-				if ($logo) {
-					//While sending email template and which has '$logo$' then it should replace with company logo
-					$mailer->AddEmbeddedImage(dirname(__FILE__).'/../../../layouts/vlayout/skins/images/logo_mail.jpg', 'logo', 'logo.jpg', 'base64', 'image/jpg');
-				}
-
-				$ccs = array_filter(explode(',',$this->get('ccmail')));
-				$bccs = array_filter(explode(',',$this->get('bccmail')));
-
-				if(!empty($ccs)) {
-					foreach($ccs as $cc) $mailer->AddCC($cc);
-				}
-				if(!empty($bccs)) {
-					foreach($bccs as $bcc) $mailer->AddBCC($bcc);
-				}
-			}
-
 			$errorMsg = 1;
 			try {
+				foreach($emails as $email) {
+					$mailer->msgHTML('');
+					// if ($parentModule) {
+						// $mailer->Body = $this->getTrackImageDetails($id, $this->isEmailTrackEnabled());
+					// }
+					$mailer->msgHTML($mailer->Body.$description);
+
+					// create non-html alternative body
+					$mailer->AltBody = decode_html(strip_tags(preg_replace(array("/<p>/i","/<br>/i","/<br \/>/i"),array("\n","\n","\n"),$mailer->Body)));
+					$mailer->Subject = $subject;
+					$mailer->AddAddress($email);
+
+					//Adding attachments to mail
+					if(is_array($attachments)) {
+						foreach($attachments as $attachment) {
+							$fileNameWithPath = $rootDirectory.$attachment['path'].$attachment['fileid']."_".$attachment['attachment'];
+							if(is_file($fileNameWithPath)) {
+								$mailer->AddAttachment($fileNameWithPath, $attachment['attachment']);
+							}
+						}
+					}
+					if ($logo) {
+						//While sending email template and which has '$logo$' then it should replace with company logo
+						$mailer->AddEmbeddedImage(dirname(__FILE__).'/../../../layouts/vlayout/skins/images/logo_mail.jpg', 'logo', 'logo.jpg', 'base64', 'image/jpg');
+					}
+
+					$ccs = array_filter(explode(',',$this->get('ccmail')));
+					$bccs = array_filter(explode(',',$this->get('bccmail')));
+
+					if(!empty($ccs)) {
+						foreach($ccs as $cc) $mailer->AddCC($cc);
+					}
+					if(!empty($bccs)) {
+						foreach($bccs as $bcc) $mailer->AddBCC($bcc);
+					}
+				}
+
 				$status = $mailer->Send(true);
 			} catch (Exception $e) {
 				$errorMsg = $e->getMessage();

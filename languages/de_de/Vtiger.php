@@ -643,7 +643,7 @@ $languageStrings = array(
 	'LBL_HIDE_PROMOTION' => 'Promotion verbergen',
 	'LBL_SHOW_PROMOTION' => 'Promotion zeigen',
 
-	//customerportal forgot password 
+	//customerportal forgot password
 	'LBL_LOGIN_DETAILS' => 'Login Details',
 	'LBL_USERNAME' => ' Nutzername',
 	'LBL_PASSWORD' => 'Passwort',
@@ -1023,7 +1023,6 @@ $jsLanguageStrings = array(
 	'SHOULD_BE_LESS_THAN_TODAY' => 'muss vor heute liegen',
 	'SINGLE_Accounts' => 'Organisation',
 	'SINGLE_Contacts' => 'Person',
-	'SINGLE_Vendors' => 'Lieferantenname',
 
 	//Promotion translations
 	'JS_HIDE_PROMOTION' => 'Promotion verbergen',
@@ -1042,6 +1041,7 @@ $jsLanguageStrings = array(
 
 	//Edit view mode Translations
 	'JS_CHANGES_WILL_BE_LOST' => 'Ihre Änderungen werden verloren gehen!',
+    'SINGLE_Vendors' => 'Lieferantenname',
 
 	//Mass edit failure
 	'JS_MASS_EDIT_NOT_SUCCESSFULL' => 'Die Massenbearbeitung war für einige Datensätze nicht erfolgreich.',
@@ -1112,7 +1112,7 @@ $jsLanguageStrings = array(
 	'JS_MM_TITLE' => 'Neue Emails',
 	'JS_MM_TEXT' => 'Sie haben %d neue %s erhalten',
 
-	//No Tax exist 
+	//No Tax exist
 	'JS_LBL_NO_TAXES' => 'Keine Steuern festgelegt',
 	'JS_LBL_SET_TAX_FOR' => 'setze Steuer für',
 

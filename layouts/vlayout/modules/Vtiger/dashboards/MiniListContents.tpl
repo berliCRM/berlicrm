@@ -29,7 +29,7 @@
 		{assign var=fieldName value=$FIELD->get('name')}
 		{assign var=fieldValue value=$RECORD->get($fieldName)}
 
-		<div class="span{$SPANSIZE} textOverflowEllipsis" title="{strip_tags($RECORD->get($FIELD->get('name')))}">		
+		<div class="span{$SPANSIZE} textOverflowEllipsis" title="{strip_tags($RECORD->get($FIELD->get('name')))}">
 			{if $fieldName eq 'filename'}
 				{assign var=recordId value=$RECORD->getId()}
 				{assign var=fileDetails value=$RECORD->getFileDetails()}
@@ -45,7 +45,7 @@
 			{/if}
 			{if $smarty.foreach.minilistWidgetModelRowHeaders.last}
 					<a href="{$RECORD->getDetailViewUrl()}" class="pull-right"><i title="{vtranslate('LBL_SHOW_COMPLETE_DETAILS',$MODULE_NAME)}" class="icon-th-list alignMiddle"></i></a>
-			{/if}			
+			{/if}
 		</div>
 	{/foreach}
 

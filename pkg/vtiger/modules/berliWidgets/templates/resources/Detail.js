@@ -120,6 +120,22 @@ function uploadData(formdata) {
 		var aDeferred = jQuery.Deferred();
 		var recordid = $('#recordid').val();
 
+        var folderid = $('#folder_selection').val();
+
+        var folderidtype = $('#folder_selection_type').val();
+
+	    var source_module = $('#module').val();
+
+        if (folderid !="") {
+            formdata.append("folderid",folderid);
+        }
+        if (folderidtype !="") {
+            formdata.append("folderidtype",folderidtype);
+        }
+        if (source_module !="") {
+            formdata.append("source_module",source_module);
+        }
+
 		let element = $(".upload-area");
 		if (element != null) {
 			for (let a = 0; a < element.length; a++) {

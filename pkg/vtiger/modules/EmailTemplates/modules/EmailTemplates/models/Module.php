@@ -11,59 +11,59 @@
 
 class EmailTemplates_Module_Model extends Vtiger_Module_Model {
 
-    /**
-     * Function to get Alphabet Search Field
-     */
-    public function getAlphabetSearchField() {
-        return 'templatename';
-    }
+	/**
+	 * Function to get Alphabet Search Field 
+	 */
+	public function getAlphabetSearchField() {
+		return 'templatename';
+	}
 
-    /**
-     * Function to get the url for the Create Record view of the module
-     * @return <String> - url
-     */
-    public function getCreateRecordUrl() {
-        return 'index.php?module=' . $this->get('name') . '&view=' . $this->getEditViewName();
-    }
+	/**
+	 * Function to get the url for the Create Record view of the module
+	 * @return <String> - url
+	 */
+	public function getCreateRecordUrl() {
+		return 'index.php?module=' . $this->get('name') . '&view=' . $this->getEditViewName();
+	}
 
-    /**
-     * Function to save a given record model of the current module
-     * @param EmailtTemplates_Record_Model $recordModel
-     * @return <integer> template id
-     */
-    public function saveRecord($recordModel) {
-        $db = PearDatabase::getInstance();
-        $templateid = $recordModel->getId();
-        if(empty($templateid)){
-            $templateid = $db->getUniqueID('vtiger_emailtemplates');
-            $sql = "INSERT INTO vtiger_emailtemplates(templatename, subject, description, body, deleted, templateid) VALUES (?,?,?,?,?,?)";
-        }else{
-            $sql = "UPDATE vtiger_emailtemplates SET templatename=?, subject=?, description=?, body=?, deleted=? WHERE templateid = ?";
-        }
-        $params = array(decode_html($recordModel->get('templatename')), decode_html($recordModel->get('subject')),
-            decode_html($recordModel->get('description')), $recordModel->get('body'), 0, $templateid);
-        $db->pquery($sql, $params);
-        return $recordModel->setId($templateid);
-    }
+	/**
+	 * Function to save a given record model of the current module
+	 * @param EmailtTemplates_Record_Model $recordModel
+	 * @return <integer> template id
+	 */
+	public function saveRecord($recordModel) {
+		$db = PearDatabase::getInstance();
+		$templateid = $recordModel->getId();
+		if(empty($templateid)){
+			$templateid = $db->getUniqueID('vtiger_emailtemplates');
+			$sql = "INSERT INTO vtiger_emailtemplates(templatename, subject, description, body, deleted, templateid) VALUES (?,?,?,?,?,?)";
+		}else{
+			$sql = "UPDATE vtiger_emailtemplates SET templatename=?, subject=?, description=?, body=?, deleted=? WHERE templateid = ?";
+		}
+		$params = array(decode_html($recordModel->get('templatename')), decode_html($recordModel->get('subject')),
+				decode_html($recordModel->get('description')), $recordModel->get('body'), 0, $templateid);
+		$db->pquery($sql, $params);
+		return $recordModel->setId($templateid);
+	}
 
-    /**
-     * Function to delete the email template
-     * @param type $recordIds
-     */
-    public function deleteRecord($recordModel) {
-        $recordId = $recordModel->getId();
-        $db = PearDatabase::getInstance();
-        $db->pquery('DELETE FROM vtiger_emailtemplates WHERE templateid = ? ', array($recordId));
-    }
-
-    /**
-     * Function to delete all the email templates
-     * @param type $recordIds
-     */
-    public function deleteAllRecords() {
-        $db = PearDatabase::getInstance();
-        $db->pquery('DELETE FROM vtiger_emailtemplates', array());
-    }
+	/**
+	 * Function to delete the email template
+	 * @param type $recordIds
+	 */
+	public function deleteRecord($recordModel) {
+		$recordId = $recordModel->getId();
+		$db = PearDatabase::getInstance();
+		$db->pquery('DELETE FROM vtiger_emailtemplates WHERE templateid = ? ', array($recordId));
+	}
+	
+	/**
+	 * Function to delete all the email templates
+	 * @param type $recordIds
+	 */
+	public function deleteAllRecords() {
+		$db = PearDatabase::getInstance();
+		$db->pquery('DELETE FROM vtiger_emailtemplates', array());
+	}
 
     /**
      * Function to get Email template fields from modules

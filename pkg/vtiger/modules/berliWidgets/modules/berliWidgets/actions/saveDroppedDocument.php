@@ -25,7 +25,20 @@ class berliWidgets_saveDroppedDocument_Action extends Vtiger_Action_Controller {
 		$parentid = $request->get('recordid');
 		$action = $request->get('action');
 		$type = $request->get('type');
-		
+		$moduleName = $request->getModule();
+        $sourcemodule = $request->get('source_module');
+        $parentmodule = $request->get('parentmodule');
+        
+        $folderid = $request->get('folderid');
+        if (empty($folderid)) {
+			$folderid = 1;
+		}
+
+        $doctype = $request->get('doctype');
+        if(empty($doctype) || $doctype == "default" || $doctype == "Default"){
+            $doctype = "Standard";
+        }
+        
 		if(!$this->checkModuleWriteAccessForCurrentUser('Documents')) {
 			$errorMessage = getTranslatedString('LBL_WRITE_ACCESS_FOR', $currentModule)." ".getTranslatedString('Documents')." ".getTranslatedString('LBL_MODULE_DENIED', $currentModule);
 			$result = array('success'=>false, 'error'=>$errorMessage);
@@ -63,23 +76,66 @@ class berliWidgets_saveDroppedDocument_Action extends Vtiger_Action_Controller {
 				//sanitize the file name
 				$binFile = sanitizeUploadFileName($files['name'], vglobal('upload_badext'));
 				$fileName = ltrim(basename(" ".$binFile));
-				$folderid = 1;
 				
+                $fileNameType = '';
+                $nameArr = pathinfo($fileName);
+                if(empty($fileNameType)){
+                    $fileNameType = $nameArr['extension'];
+                }
+
+                $docSetArray = array(
+                    'label'=> $fileName,
+                    'notes_title'=> $fileName,
+                    'filename'=> $fileName,
+                    'filetype'=> $filetype,
+                    'filestatus'=> "1",
+                    'filelocationtype'=> "I",
+                    'folderid'=> $folderid, // detect folderid // 'vtiger_attachmentsfolder' //
+                    'filesize'=> $filesize,
+                    'notecontent'=> "",
+                    'file_name_type'=> $fileNameType,
+                    'assigned_user_id' => $current_user->getId(),
+                    'parentid' => $parentid,
+                    'parentmodule' => $parentmodule,
+                    'action' => $action,
+                    'modulename' => $moduleName,
+                    'sourcemodule' => $sourcemodule,
+                    'notesid' => "",
+                    'attachid'=> "",
+                );
+
 				$documentRecordModel = Vtiger_Record_Model::getCleanInstance('Documents');
-				$documentRecordModel->set('label', $fileName);
-				$documentRecordModel->set('notes_title', $fileName);
-				$documentRecordModel->set('filename', $fileName);
-				$documentRecordModel->set('filetype', $filetype);
-				$documentRecordModel->set('filestatus', 1);
-				$documentRecordModel->set('filelocationtype', 'I');
-				$documentRecordModel->set('folderid', $folderid);
-				$documentRecordModel->set('filesize', $filesize);
-				$documentRecordModel->set('assigned_user_id', $current_user->getId());
+
+				$documentRecordModel->set('label', $docSetArray['label']);
+				$documentRecordModel->set('notes_title', $docSetArray['notes_title']);
+				$documentRecordModel->set('filename', $docSetArray['filename']);
+				$documentRecordModel->set('filetype', $docSetArray['filetype']);
+				$documentRecordModel->set('filestatus', $docSetArray['filestatus']);
+				$documentRecordModel->set('filelocationtype', $docSetArray['filelocationtype']);
+				$documentRecordModel->set('folderid', $docSetArray['folderid']);
+				$documentRecordModel->set('filesize', $docSetArray['filesize']);
+				$documentRecordModel->set('notecontent', $docSetArray['notecontent']);
+				$documentRecordModel->set('assigned_user_id', $docSetArray['assigned_user_id']);
+
 				$documentRecordModel->save();
+                
+                // new notesid are created
+                $notesid = $documentRecordModel->getId();
+                $docSetArray['notesid'] = $notesid;
+
 				// Link document to entity
-				$db->pquery("INSERT INTO vtiger_senotesrel(crmid, notesid) VALUES(?,?)", array($parentid, $documentRecordModel->getId()));
-				
-				$result =  array('success'=>true, 'docid'=>$documentRecordModel->getId());
+				$db->pquery("INSERT INTO vtiger_senotesrel(crmid, notesid) VALUES(?,?)", array($parentid, $notesid ));
+
+                // Relation of Documents: ( vtiger_notes => vtiger_seattachmentsrel => vtiger_attachments )
+                $sqlAttach = "SELECT * FROM vtiger_seattachmentsrel WHERE  crmid = ? ";
+                $resultAttach = $db->pquery($sqlAttach, array( $notesid ));
+                $attachid = "";
+                while ($rowAttach = $db->getNextRow($resultAttach, false)) {
+                    $attachid = $rowAttach['attachmentsid'];
+                }
+                
+                $result =  array('success'=>true, 'docid'=>$notesid, 'attachid'=>$attachid);
+                $docSetArray['attachid'] = $attachid;
 
 			}
 			else {

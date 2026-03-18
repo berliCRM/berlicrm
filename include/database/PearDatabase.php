@@ -465,8 +465,10 @@ class PearDatabase{
     }
 
     function getRowCount(&$result){
-		if(isset($result) && !empty($result))
-		    $rows= $result->RecordCount();
+        $rows = 0;
+		if(isset($result) && !empty($result)){
+            $rows = $result->RecordCount();
+        }
 		return $rows;
     }
 
@@ -822,7 +824,7 @@ class PearDatabase{
 			mysql_close($this->database->_connectionID);
 	    }else if($this->dbType=="mysqli"){
                 mysqli_close($this->database->_connectionID);
-            } 
+            }
             else {
 			$this->database->disconnect();
 	    }

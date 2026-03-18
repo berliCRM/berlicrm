@@ -4,7 +4,7 @@
 <name>Verteiler</name>
 <label>Verteiler</label>
 <parent>Marketing</parent>
-<version>1.4</version>
+<version>1.5</version>
 <dependencies>
 <vtiger_version>6.5.0</vtiger_version>
 <vtiger_max_version>6.*</vtiger_max_version>

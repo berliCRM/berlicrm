@@ -113,6 +113,8 @@
 						{else}
 							{$LISTVIEW_ENTRY->get('currencySymbol')}{$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)}
 						{/if}
+					{else if $LISTVIEW_HEADER->get('uitype') eq 'crmnow15'}
+						{$LISTVIEW_ENTRY->getDisplayValue($LISTVIEW_HEADERNAME)}
 					{else}
 						{if $LISTVIEW_HEADER->getFieldDataType() eq 'double'}
 							{decimalFormat($LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME))}

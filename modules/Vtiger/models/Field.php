@@ -1173,5 +1173,20 @@ class Vtiger_Field_Model extends Vtiger_Field {
         }
         return $fieldModelList;
     }
+	
+	/**
+	 * Function to get all the available user picklist values for the current field
+	 * @return <Array> List of picklist values.
+	 */
+	public function getUserPicklistValues() {
+		$currentUser = Users_Record_Model::getCurrentUserModel();
+		$userList = $currentUser->getAccessibleUsers();
+		$pickListValues = array();
+		if (!empty($userList)) {
+			$pickListValues = $userList;
+		}
+		
+		return $pickListValues;
+    }
 
 }
