@@ -1402,15 +1402,12 @@ try {
 }
 echo "<br>Add new column to vtiger_modcommentsscope DONE...";
 
-
-
-
-/// 
-echo "Add new Field to Modul: Users, Block: 83 ('LBL_USER_ADV_OPTIONS' ) ...<br>";
+//  'LBL_USER_ADV_OPTIONS' => 'erweiterte Optionen',
+echo "Add new Field to Modul: Users, Block: ('LBL_USER_ADV_OPTIONS' ) 'erweiterte Optionen' ...<br>";
 $arrFields = array(
     'Users' => array(
-        'LBL_USER_ADV_OPTIONS' => array( // 83 is 'LBL_USER_ADV_OPTIONS' => 'erweiterte Optionen',
-            array('LBL_SSO_UNIQUE_ID'	,'sso_unique_id'   		,'V~O'     	,1   	,'VARCHAR(255)'   ),
+        'LBL_USER_ADV_OPTIONS' => array( 
+            array('LBL_SSO_UNIQUE_ID' ,'sso_unique_id' ,'V~O' ,1 ,'VARCHAR(255)'   ),
         )
     )
 );
@@ -1491,19 +1488,7 @@ echo " set sequence of 'sso_unique_id' to 2 done.<br>";
 echo "Add new Field to Modul: Users, Block: ('LBL_USER_ADV_OPTIONS' ) END ...<br>";
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-// Rev. 25928
+//  
 $deleteChoice = isset($_POST['delete_modcommentsscope']) ? strtolower(trim($_POST['delete_modcommentsscope'])) : null;
 
 if ($deleteChoice !== null) {
@@ -1528,8 +1513,6 @@ if ($deleteChoice !== null) {
 echo "Add new fields to the module: ModComments, Block: LBL_OTHER_INFORMATION ...<br>";
 Install_InitSchema_Model::addNewFields();
 echo "Add new fields to the module: ModComments, Block: LBL_OTHER_INFORMATION END ...<br>";
-
-
 
 
 echo "Migrate ModComments fields from vtiger_modcommentsscope START...<br>";
@@ -1596,19 +1579,12 @@ echo "</form>";
 echo "Awaiting user decision for deleting 'vtiger_modcommentsscope'.<br>";
 
 
-
-
-
-
 echo "New tables for config settings to set on email sending from ticket another email or name <br>";
 $errors = Install_InitSchema_Model::addNewConfigEditSettingTables();
 if(!empty($errors)){
     echo $errors;
 }
 echo "New tables done<br>";
-
-
-
 
 
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
