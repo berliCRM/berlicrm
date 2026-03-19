@@ -47,10 +47,12 @@ function send_mail($module,$to_email,$from_name,$from_email,$subject,$contents,$
 	//if module is HelpDesk then from_email will come based on support email id
 	try {
 		if($from_email == '') {
-				//if from email is not defined, then use the useremailid as the from address
-				$from_email = getUserEmailId('user_name',$from_name);
+			//if from email is not defined, then use the useremailid as the from address
+			$from_email = getUserEmailId('user_name',$from_name);
 		}
 
+	
+		
 		//if the newly defined from email field is set, then use this email address as the from address
 		//and use the username as the reply-to address
 		$cachedFromEmail = VTCacheUtils::getOutgoingMailFromEmailAddress();
@@ -72,6 +74,16 @@ function send_mail($module,$to_email,$from_name,$from_email,$subject,$contents,$
 			$from_email = $from_email_field;
 		}
 
+		require_once 'modules/Settings/Vtiger/models/ConfigTicketEmailAddress.php';
+		$emailForTicketModel = Settings_Vtiger_ConfigTicketEmailAddress::getInstance();
+		$data = $emailForTicketModel->getData();
+		
+		if($data["sender_email"]!="" && stripos($subject, 'Ticket') !== false){
+			$from_email = $data["sender_email"];
+			$from_name = $data["sender_name"];
+			$replyToEmail = $from_email;		
+		}	
+		
 		if($module != "Calendar")
 			$contents = addSignature($contents,$from_name);
 
@@ -125,7 +137,7 @@ function getUserEmailId($name,$val)
 			$email = $adb->query_result($res,0,'email2');
 			if($email == '')
 			{
-				$email = $adb->query_result($res,0,'secondaryemail ');
+				$email = $adb->query_result($res,0,'secondaryemail');
 			}
 		}
 		$adb->println("Email id is selected  => '".$email."'");
@@ -148,23 +160,37 @@ function addSignature($contents, $fromname)
 	$adb->println("Inside the function addSignature");
 
     $sign = VTCacheUtils::getUserSignature($fromname);
-    if($sign === null) {
-        $result = $adb->pquery("select signature, first_name, last_name from vtiger_users where user_name=?", array($fromname));
-        $sign = html_entity_decode($adb->query_result($result,0,"signature"));
+    if ($sign === null) {
+        $result = $adb->pquery(
+            "select signature, first_name, last_name from vtiger_users where user_name=?",
+            array($fromname)
+        );
+        $sign = html_entity_decode($adb->query_result($result, 0, "signature"), ENT_QUOTES, 'UTF-8');
         VTCacheUtils::setUserSignature($fromname, $sign);
-        VTCacheUtils::setUserFullName($fromname, $adb->query_result($result,0,"first_name").' '.$adb->query_result($result,0,"last_name"));
+        VTCacheUtils::setUserFullName(
+            $fromname,
+            $adb->query_result($result, 0, "first_name") . ' ' . $adb->query_result($result, 0, "last_name")
+        );
     }
 
     $sign = nl2br($sign);
 
-	if($sign != '')
-	{
-		$contents .= '<br><br>'.$sign;
-		$adb->println("Signature is added with the body => '.".$sign."'");
-	}
-	else
-	{
-		$adb->println("Signature is empty for the user => '".$fromname."'");
+	require_once 'modules/Settings/Vtiger/models/ConfigSignature.php';
+	$signatureModel = Settings_Vtiger_ConfigSignature::getInstance();
+	$signatureData = $signatureModel->getData();
+
+    $signatureHtml = '';
+    if ($signatureData['enabled'] == 1 && !empty($signatureData['signature_html'])) {
+        $signatureHtml = html_entity_decode($signatureData['signature_html'], ENT_QUOTES, 'UTF-8');
+    }
+
+    $finalSign = $sign . $signatureHtml;
+
+	if ($finalSign != '') {
+		$contents .= '<br><br>' . $finalSign;
+		$adb->println("Signature is added with the body => '." . $finalSign . "'");
+	} else {
+		$adb->println("Signature is empty for the user => '" . $fromname . "'");
 	}
 	return $contents;
 }
