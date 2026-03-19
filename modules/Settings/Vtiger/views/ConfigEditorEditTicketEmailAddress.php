@@ -67,7 +67,7 @@ class Settings_Vtiger_ConfigEditorEditTicketEmailAddress_View extends Settings_V
 	 * @param Vtiger_Request $request
 	 * @return string
 	 */
-	public function getPageTitle(Vtiger_Request $request) {
+	public function getPageTitle(Vtiger_Request $request): string {
 		$qualifiedModuleName = $request->getModule(false);
 		return vtranslate('LBL_CONFIG_EDITOR', $qualifiedModuleName);
 	}
@@ -81,7 +81,7 @@ class Settings_Vtiger_ConfigEditorEditTicketEmailAddress_View extends Settings_V
 	 * @param Vtiger_Request $request
 	 * @return array List of Vtiger_JsScript_Model instances
 	 */
-	public function getHeaderScripts(Vtiger_Request $request) {
+	public function getHeaderScripts(Vtiger_Request $request): array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 
 		$jsFileNames = array(
