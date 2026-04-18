@@ -7,6 +7,6 @@
         "symfony/intl": "^5.4"
     },
     "require": {
-        "phpunit/phpunit": "8.5.52"
+        "phpunit/phpunit": "12.5.22"
     }
 }
