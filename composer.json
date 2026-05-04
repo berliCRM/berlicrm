@@ -4,7 +4,11 @@
     "type": "project",
     "require": {
         "horstoeko/zugferd": "^1.0",
-        "symfony/intl": "^5.4"
+        "symfony/intl": "^5.4",
+        "league/oauth2-client": "*",
+        "stevenmaguire/oauth2-keycloak": "*",
+        "phpmailer/phpmailer": "*",
+        "thenetworg/oauth2-azure": "*"
     },
     "require": {
         "phpunit/phpunit": "8.5.52"
