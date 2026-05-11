@@ -8,9 +8,7 @@
         "league/oauth2-client": "*",
         "stevenmaguire/oauth2-keycloak": "*",
         "phpmailer/phpmailer": "*",
-        "thenetworg/oauth2-azure": "*"
+        "thenetworg/oauth2-azure": "*",
+        "phpunit/phpunit": "8.5.52"        
     },
-    "require": {
-        "phpunit/phpunit": "8.5.52"
-    }
 }
