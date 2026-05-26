@@ -115,18 +115,22 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     //retreiving the Invoice  info
     $focus = new Invoice();
     $focus->retrieve_entity_info($id, "Invoice");
+
     // get several values from the account: account name, buyer reference, account number
-    $sql = "select accountname, buyerreference, account_no, siccode from  vtiger_account where accountid= ?";
+    $sql = "select accountname, buyerreference, account_no, siccode, email1 from  vtiger_account where accountid= ?";
     $acc_result = $adb->pquery($sql, [$focus->column_fields['account_id']]);
     $account_name = decode_html($adb->query_result($acc_result, 0, 'accountname'));
     $buyer_reference = decode_html($adb->query_result($acc_result, 0, 'buyerreference'));
     $account_no = decode_html($adb->query_result($acc_result, 0, 'account_no'));
+    $account_email = decode_html($adb->query_result($acc_result, 0, 'email1'));
     $siccode = decode_html($adb->query_result($acc_result, 0, 'siccode'));
 
     $invoice_no = $focus->column_fields['invoice_no'];
     $deliveryperiod = $focus->column_fields['deliveryperiod'];
     $deliveryperiod = getValidDisplayDate($deliveryperiod);
-    $deliveryperiod = str_replace("-", ".", $deliveryperiod);    
+    $deliveryperiod = str_replace("-", ".", $deliveryperiod);
+    $invoice_buyer_purchaseorder_no = $focus->column_fields['vtiger_purchaseorder']; // buyer purchase order number
+    //file_put_contents('logs/ep4812.log', sprintf('%s %s %s', __LINE__, $invoice_no, $invoice_buyer_purchaseorder_no) . PHP_EOL, FILE_APPEND);
     //set currency format
     $sql = "select currency_symbol, currency_code from vtiger_currency_info where id= ?";
     $curr_result = $adb->pquery($sql, [$focus->column_fields['currency_id']]);
@@ -438,7 +442,9 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         // get bill country ISO code from bill country name
         $bill_country_iso = getCountryISOCode($bill_country);
 
-        if ($default_export_e_invoice == "zugferd") {
+        if ($purpose == 'ExportXML') {
+            $eInvoiceDocument = horstoeko\zugferd\ZugferdDocumentBuilder::CreateNew(horstoeko\zugferd\ZugferdProfiles::PROFILE_XRECHNUNG_3);
+        } elseif ($default_export_e_invoice == "zugferd") {
             $eInvoiceDocument = horstoeko\zugferd\ZugferdDocumentBuilder::CreateNew(horstoeko\zugferd\ZugferdProfiles::PROFILE_EXTENDED);
         } else {
             $eInvoiceDocument = horstoeko\zugferd\ZugferdDocumentBuilder::CreateNew(horstoeko\zugferd\ZugferdProfiles::PROFILE_XRECHNUNG_3);
@@ -448,6 +454,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
             $valid_till = $invoice_date;
         }
         // set document information
+        file_put_contents('logs/ep4812.log', sprintf('%s %s %s', $invoice_no, $invoice_date, $invoice_buyer_purchaseorder_no) . PHP_EOL, FILE_APPEND);
         $eInvoiceDocument
             ->setDocumentInformation(
                 $invoice_no,
@@ -456,7 +463,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
                 "EUR" // BT-5 invoice currency
             )
             ->addDocumentNote($org_name . ' | ' . $org_address . ' | ' . $org_code . ' ' . $org_city . ' | ' . $org_country . ' | ' . $org_management . ' | ' . $org_taxid, null, 'REG')
-            // ->setDocumentSupplyChainEvent(\DateTime::createFromFormat('d.m.Y', $invoice_date))
+            ->setDocumentSupplyChainEvent(\DateTime::createFromFormat('d.m.Y', $invoice_date))
             ->setDocumentSeller($org_name, $org_taxid)
             ->addDocumentSellerGlobalId($org_taxid, "0088") // ! should be german HRB number instead of $org_taxid
             // ->addDocumentSellerGlobalId($HRB, "9930") // ! should be german HRB number instead of $org_taxid
@@ -468,6 +475,9 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
             // ->setDocumentBuyer($contact_salutation . " " . $contact_firstname . " " . $contact_lastname, $account_no)
             ->setDocumentBuyer($account_name, $account_no)
             ->setDocumentBuyerReference($buyer_reference)
+            ->setDocumentSellerCommunication('EM', $owner_mail)
+            ->setDocumentBuyerCommunication('EM', $account_email)
+            ->setDocumentBuyerOrderReferencedDocument($invoice_buyer_purchaseorder_no, null)
             ->setDocumentBuyerAddress($bill_street, "", "", $bill_code, $bill_city, $bill_country_iso)
             // ->addDocumentTax("S", "VAT", $price_subtotal, ($price_total - $price_subtotal), number_format($group_total_tax_percent, 0), null, null, $price_subtotal)
             ->addDocumentPaymentMean(horstoeko\zugferd\codelists\ZugferdPaymentMeans::UNTDID_4461_58, null, null, null, null, null, $bank_iban, null, null, null);
@@ -479,7 +489,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         // add delivery date, if not empty
         if (!empty($deliveryperiod)) {
             $eInvoiceDocument->setDocumentSupplyChainEvent(\DateTime::createFromFormat('d.m.Y', $deliveryperiod));
-        }        
+        }
     }
 
     //
@@ -729,6 +739,9 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         if ($purpose == 'ExportXML') {
             // get xml
             $xml_data = file_get_contents($eInvoiceXmlFile);
+
+            // $xml_data = setTradePartyEmailURIUniversalCommunication($xml_data, $owner_mail, $account_email);
+
             $filename = $invoice_no . '.xml';
             // redirect (download) xml
             header('Content-Type: application/xml');
