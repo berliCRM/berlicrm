@@ -124,6 +124,9 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     $siccode = decode_html($adb->query_result($acc_result, 0, 'siccode'));
 
     $invoice_no = $focus->column_fields['invoice_no'];
+    $deliveryperiod = $focus->column_fields['deliveryperiod'];
+    $deliveryperiod = getValidDisplayDate($deliveryperiod);
+    $deliveryperiod = str_replace("-", ".", $deliveryperiod);    
     //set currency format
     $sql = "select currency_symbol, currency_code from vtiger_currency_info where id= ?";
     $curr_result = $adb->pquery($sql, [$focus->column_fields['currency_id']]);
@@ -453,7 +456,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
                 "EUR" // BT-5 invoice currency
             )
             ->addDocumentNote($org_name . ' | ' . $org_address . ' | ' . $org_code . ' ' . $org_city . ' | ' . $org_country . ' | ' . $org_management . ' | ' . $org_taxid, null, 'REG')
-            ->setDocumentSupplyChainEvent(\DateTime::createFromFormat('d.m.Y', $invoice_date))
+            // ->setDocumentSupplyChainEvent(\DateTime::createFromFormat('d.m.Y', $invoice_date))
             ->setDocumentSeller($org_name, $org_taxid)
             ->addDocumentSellerGlobalId($org_taxid, "0088") // ! should be german HRB number instead of $org_taxid
             // ->addDocumentSellerGlobalId($HRB, "9930") // ! should be german HRB number instead of $org_taxid
@@ -473,6 +476,10 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         if (!empty($invoiceReferenceNo)) {
             $eInvoiceDocument->addDocumentInvoiceReferencedDocument($invoiceReferenceNo, null, new \DateTime($focus->column_fields["inv_date_reference"])); // Reference to original invoice in case of credit note
         }
+        // add delivery date, if not empty
+        if (!empty($deliveryperiod)) {
+            $eInvoiceDocument->setDocumentSupplyChainEvent(\DateTime::createFromFormat('d.m.Y', $deliveryperiod));
+        }        
     }
 
     //
