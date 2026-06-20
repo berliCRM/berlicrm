@@ -457,7 +457,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
             ->setDocumentSellerContact($owner_firstname . ' ' . $owner_lastname, "", $org_phone, $org_fax, $owner_mail)
             // ->setDocumentBuyer($contact_salutation . " " . $contact_firstname . " " . $contact_lastname, $account_no)
             ->setDocumentBuyer($account_name, $account_no)
-            ->setDocumentBuyerReference($buyer_reference)
+            ->setDocumentBuyerReference(!empty($buyer_reference) ? $buyer_reference : $invoice_no)
             ->setDocumentBuyerAddress($bill_street, "", "", $bill_code, $bill_city, $bill_country_iso)
             // ->addDocumentTax("S", "VAT", $price_subtotal, ($price_total - $price_subtotal), number_format($group_total_tax_percent, 0), null, null, $price_subtotal)
             ->addDocumentPaymentMean(horstoeko\zugferd\codelists\ZugferdPaymentMeans::UNTDID_4461_58, null, null, null, null, null, $bank_iban, null, null, null);
@@ -626,13 +626,13 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
                 ->setDocumentPositionGrossPrice((float)$associated_products[$i]['listPrice' . $i])       // list price (gross) BT-148
                 ->setDocumentPositionNetPrice($unitPriceNetBT146 * $signMultiplier) // Unit price (net) BT-146
                 ->addDocumentPositionGrossPriceAllowanceCharge($signMultiplier * $unitDiscountBT147, false)    // Discount (net) BT-147:
-                ->setDocumentPositionQuantity((float) $qty_formated[$i] * $signMultiplier, "H87")
+                ->setDocumentPositionQuantity(floatval($qty[$i]) * $signMultiplier, "H87")
                 ->addDocumentPositionTax(
                     $catCode,
                     'VAT',
                     number_format($thisItemTaxPercent, 0)
                 )
-                ->setDocumentPositionLineSummation((float) $qty_formated[$i] * $unitPriceNetBT146);
+                ->setDocumentPositionLineSummation(floatval($qty[$i]) * $unitPriceNetBT146);
             // ->setDocumentPositionLineSummation((float) $producttotal);
             // ->setDocumentPositionLineSummation((float) $prod_total[$i]);
         }
@@ -643,13 +643,54 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         // * add document tax information and handle group or individual tax types
         //
         if ($final_details['taxtype'] == 'group') {
-            $totalTaxAmmount = $price_total - $price_subtotal;
+            $totalTaxAmmount = $group_tax_total; // Bug fix: was ($price_total - $price_subtotal) = -180, must be actual VAT total
+            if ((float)$price_discount > 0.0) {
+                $eInvoiceDocument->addDocumentAllowanceCharge(
+                    (float)$price_discount, // BT-92 actual discount amount
+                    false,                  // false = allowance (discount), not charge
+                    'S',
+                    'VAT',
+                    (float)$group_total_tax_percent, // BT-96 VAT rate applicable to discount
+                    null,
+                    null,
+                    (float)$price_subtotal, // BT-94 basis from which discount is calculated
+                    null,
+                    null,
+                    '95',    // BT-93 reason code: "Discount" (UNTDID 5189)
+                    'Rabatt' // BT-97 reason text
+                );
+            }
             $eInvoiceDocument
-                ->addDocumentTax('S', "VAT", $price_subtotal, ($price_total - $price_subtotal), number_format($group_total_tax_percent, 0), null, null, $price_subtotal);
+                ->addDocumentTax('S', "VAT", (float)$nettoprice, $group_tax_total * $signMultiplier, number_format($group_total_tax_percent, 0));
             // $eInvoiceDocument
             // ->addDocumentTax('E', "VAT", $price_subtotal, ($price_total - $price_subtotal), 0, null, null, $price_subtotal);
         } else {
-            $totalTaxAmmount = $allItemsTaxTotal;
+            // Apportion header discount across tax categories by line-total weight
+            $allItemsBaseTotal = $allItemsBaseAmountTotalS + $allItemsBaseAmountTotalE;
+            $headerDiscountS = ($allItemsBaseTotal > 0)
+                ? (float)$price_discount * $allItemsBaseAmountTotalS / $allItemsBaseTotal
+                : 0.0;
+            $correctedBaseS = $allItemsBaseAmountTotalS - $headerDiscountS;
+            $correctedTaxS = ($sh_tax_percent > 0 && abs($allItemsTaxTotal) != 0)
+                ? $correctedBaseS * $sh_tax_percent / 100
+                : $allItemsTaxTotal;
+            $totalTaxAmmount = $correctedTaxS;
+            if ((float)$price_discount > 0.0) {
+                $eInvoiceDocument->addDocumentAllowanceCharge(
+                    (float)$price_discount,
+                    false,
+                    'S',
+                    'VAT',
+                    (float)$sh_tax_percent,
+                    null,
+                    null,
+                    (float)$allItemsBaseAmountTotalS,
+                    null,
+                    null,
+                    '95',
+                    'Rabatt'
+                );
+            }
             $eInvoiceDocument
                 ->addDocumentTax(
                     'E',
@@ -666,8 +707,8 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
                     'S',
                     "VAT",
                     // $price_subtotal,
-                    $allItemsBaseAmountTotalS,
-                    $allItemsTaxTotal * $signMultiplier, // VAT amount BT-117
+                    $correctedBaseS,
+                    $correctedTaxS * $signMultiplier, // VAT amount BT-117 (post-discount)
                     (abs($allItemsTaxTotal) != 0) ? $sh_tax_percent : 0,
                     null,
                     null,
@@ -682,9 +723,9 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
             // $allItemsBaseAmountTotalS + ($price_subtotal - $allItemsBaseAmountTotalS), // BT-106 (lineTotalAmount)
             $allItemsBaseAmountTotalS + $allItemsBaseAmountTotalE, // BT-106 (lineTotalAmount)
             0.0, // BT-108 (chargeTotalAmount)
-            0.0, // BT-107 (allowanceTotalAmount)
+            (float)$price_discount, // BT-107 (allowanceTotalAmount)
             // $price_subtotal, // BT-109 (taxBasisTotalAmount)
-            $allItemsBaseAmountTotalS + $allItemsBaseAmountTotalE, // BT-109 (taxBasisTotalAmount)
+            $allItemsBaseAmountTotalS + $allItemsBaseAmountTotalE - (float)$price_discount, // BT-109 (taxBasisTotalAmount)
             $totalTaxAmmount * $signMultiplier, // BT-110 or BT-111 (taxTotalAmount)
             null, // roundingAmount BT-114
             $invoice_received * $signMultiplier // totalPrepaidAmount BT-113
