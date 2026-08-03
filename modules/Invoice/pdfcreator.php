@@ -352,7 +352,8 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 
     //getting the Net Total
     $price_subtotal = $signMultiplier * $final_details["hdnSubTotal"];
-    $price_subtotal_formated = number_format($price_subtotal, $decimal_precision, $decimals_separator, $thousands_separator);
+    $price_subtotal_formated = number_format($final_details["hdnSubTotal"], $decimal_precision, $decimals_separator, $thousands_separator);
+    //$price_subtotal_formated = number_format($price_subtotal, $decimal_precision, $decimals_separator, $thousands_separator);
 
     //Final discount amount/percentage
     $discount_amount = $final_details["discountTotal_final"];
@@ -509,7 +510,9 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 
         $unit_price[$i] = number_format($signMultiplier * (float)$associated_products[$i]['unitPrice' . $i], $decimal_precision, $decimals_separator, $thousands_separator);
 
-        $list_price[$i] = number_format($signMultiplier * (float)$associated_products[$i]['listPrice' . $i], $decimal_precision, $decimals_separator, $thousands_separator);
+        $list_price[$i] = number_format((float)$associated_products[$i]['listPrice' . $i], $decimal_precision, $decimals_separator, $thousands_separator);
+        // old code before TT2092 (not shure, if really ok now)
+        // $list_price[$i] = number_format($signMultiplier * (float)$associated_products[$i]['listPrice' . $i], $decimal_precision, $decimals_separator, $thousands_separator);
 
         $list_pricet[$i] = $signMultiplier * (float)$associated_products[$i]['listPrice' . $i];                              // to calculate taxable total
 
