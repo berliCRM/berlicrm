@@ -10,6 +10,7 @@
         "phpmailer/phpmailer": "*",
         "thenetworg/oauth2-azure": "*",
         "phpunit/phpunit": "8.5.52",
-        "adodb/adodb-php": "^5.22"        
+        "adodb/adodb-php": "^5.22",
+        "smarty/smarty": "^5.8"        
     }
 }
