@@ -1422,14 +1422,14 @@ foreach ($arrFields as $moduleName => $blocks) {
         $blockInstance = Vtiger_Block::getInstance($blockName, $moduleInstance);
 
         if (!$blockInstance) {
-            //// to create new block
+            // create new block
             $blockInstance = new Vtiger_Block();
             $blockInstance->label = $blockName;
             $moduleInstance->addBlock($blockInstance);
 
         } else {
-            // if we need to del the BLOCK:
-            //$blockInstance->delete();
+            // if need to del the BLOCK:
+            // $blockInstance->delete();
         }
 
         foreach ($fieldInfos as $fieldInfo) {
@@ -1475,7 +1475,7 @@ foreach ($arrFields as $moduleName => $blocks) {
                 }
 
             } else {
-                //$fieldObj->delete();
+                // $fieldObj->delete();
             }
         }
     }
@@ -1488,59 +1488,57 @@ echo " set sequence of 'sso_unique_id' to 2 done.<br>";
 echo "Add new Field to Modul: Users, Block: ('LBL_USER_ADV_OPTIONS' ) END ...<br>";
 
 
-//  
-$deleteChoice = isset($_POST['delete_modcommentsscope']) ? strtolower(trim($_POST['delete_modcommentsscope'])) : null;
 
-if ($deleteChoice !== null) {
-    echo "Delete decision received for table 'vtiger_modcommentsscope' ...<br>";
-    if ($deleteChoice === 'yes') {
-        echo "Removing table 'vtiger_modcommentsscope' ...<br>";
-        $query = 'DROP TABLE `vtiger_modcommentsscope`';
-        $res = $adb->pquery($query, array());
-        if (!$res) {
-            echo "Error: " . $adb->database->errorMsg() . "<br>";
-        } else {
-            echo "Table 'vtiger_modcommentsscope' deleted successfully.<br>";
-        }
-        echo "Removing table 'vtiger_modcommentsscope' END ...<br>";
-    } else {
-        echo "Skipping deletion of table 'vtiger_modcommentsscope' based on user choice.<br>";
-    }
-    return;
-}
-
-// Adding ModComments Fields
+// ------------------------------------------------------------ //// see TAG 48 db_script START ////
+// Add new fields to ModComments
+// ------------------------------------------------------------
 echo "Add new fields to the module: ModComments, Block: LBL_OTHER_INFORMATION ...<br>";
 Install_InitSchema_Model::addNewFields();
 echo "Add new fields to the module: ModComments, Block: LBL_OTHER_INFORMATION END ...<br>";
 
 
-echo "Migrate ModComments fields from vtiger_modcommentsscope START...<br>";
+// ------------------------------------------------------------
+// Helper functions
+// ------------------------------------------------------------
 function tableExists($tableName) {
     global $adb;
-    $query = "SELECT 1 FROM $tableName LIMIT 1;";
-    try {
-        $res = $adb->pquery($query, array());
-        return $res !== false;
-    } catch (Exception $e) {
-        return false;
-    }
+    $tableNameEsc = $adb->sql_escape_string($tableName);
+    $query = "SHOW TABLES LIKE '$tableNameEsc'";
+    $res = $adb->pquery($query, array());
+    return ($res && $adb->num_rows($res) > 0);
 }
+
+function columnExists($column, $table) {
+    global $adb;
+    $res = $adb->pquery("SHOW COLUMNS FROM $table LIKE ?", array($column));
+    return ($res && $adb->num_rows($res) > 0);
+}
+
+
+// ------------------------------------------------------------
+// Migration from vtiger_modcommentsscope to vtiger_modcomments
+// ------------------------------------------------------------
+echo "Migrate ModComments fields from vtiger_modcommentsscope START...<br>";
 
 $sourceTable = 'vtiger_modcommentsscope';
 $targetTable = 'vtiger_modcomments';
 $requiredColumns = array('mailto', 'external', 'timeneeded');
 
+$canMigrate = true;
+
+// Check source table
 if (!tableExists($sourceTable)) {
-    return "Source table '$sourceTable' not found, nothing to migrate.<br>"
-        . "Migrate ModComments fields from vtiger_modcommentsscope END...<br>";
+    echo "Source table '$sourceTable' not found, nothing to migrate.<br>";
+    $canMigrate = false;
 }
 
+// Check target table
 if (!tableExists($targetTable)) {
-    return "Target table '$targetTable' not found, migration skipped.<br>"
-        . "Migrate ModComments fields from vtiger_modcommentsscope END...<br>";
+    echo "Target table '$targetTable' not found, migration skipped.<br>";
+    $canMigrate = false;
 }
 
+// Check required columns
 $missingColumns = array();
 foreach ($requiredColumns as $col) {
     if (!columnExists($col, $targetTable)) {
@@ -1549,34 +1547,67 @@ foreach ($requiredColumns as $col) {
 }
 
 if (!empty($missingColumns)) {
-    return "Missing columns in '$targetTable': " . implode(', ', $missingColumns) . ". Migration skipped.<br>"
-        . "Migrate ModComments fields from vtiger_modcommentsscope END...<br>";
+    echo "Missing columns in '$targetTable': " . implode(', ', $missingColumns) . ". Migration skipped.<br>";
+    $canMigrate = false;
 }
 
-$query = "UPDATE vtiger_modcomments mc
-    INNER JOIN vtiger_modcommentsscope ms ON mc.modcommentsid = ms.modcommentsid
-    SET mc.mailto = COALESCE(NULLIF(mc.mailto,''), ms.mailto),
-        mc.external = COALESCE(NULLIF(mc.external,''), ms.external),
-        mc.timeneeded = COALESCE(NULLIF(mc.timeneeded,''), ms.timeneeded);";
 
-$res = $adb->pquery($query, array());
-if (!$res) {
-    echo "Error: " . $adb->database->errorMsg() . "<br>";
+// ------------------------------------------------------------
+// Execute migration
+// ------------------------------------------------------------
+if ($canMigrate) {
+    echo "Running migration...<br>";
+
+    $query = " UPDATE vtiger_modcomments mc
+        INNER JOIN vtiger_modcommentsscope ms ON mc.modcommentsid = ms.modcommentsid
+        SET mc.mailto = COALESCE(NULLIF(mc.mailto,''), ms.mailto),
+            mc.external = COALESCE(NULLIF(mc.external,''), ms.external),
+            mc.timeneeded = COALESCE(NULLIF(mc.timeneeded,''), ms.timeneeded);
+    ";
+
+    $res = $adb->pquery($query, array());
+
+    if (!$res) {
+        echo "Error: " . $adb->database->errorMsg() . "<br>";
+    } else {
+        $affected = $adb->getAffectedRowCount($res);
+        echo "Migrated $affected records into '$targetTable'.<br>";
+    }
+}
+
+echo "Migrate ModComments fields from vtiger_modcommentsscope END....<br>";
+
+
+// ------------------------------------------------------------
+// Optional table deletion 
+// ------------------------------------------------------------
+
+// NOTE:
+// This code is intentionally commented out.
+// If you want to delete the table in a future release,
+// simply remove the comment markers.
+
+/*
+echo "Deleting table '$sourceTable' ...<br>";
+
+if (tableExists($sourceTable)) {
+    $query = "DROP TABLE `$sourceTable`";
+    $res = $adb->pquery($query, array());
+
+    if (!$res) {
+        echo "Error deleting table '$sourceTable': " . $adb->database->errorMsg() . "<br>";
+    } else {
+        echo "Table '$sourceTable' deleted successfully.<br>";
+    }
 } else {
-    $affected = $adb->getAffectedRowCount($res);
-    echo "Migrated $affected records into '$targetTable'.<br>";
+    echo "Table '$sourceTable' does not exist, nothing to delete.<br>";
 }
 
-echo "Migrate ModComments fields from vtiger_modcommentsscope END...<br>";
+echo "Delete operation for '$sourceTable' END.<br>"; //// see TAG 48 db_script END ////
+*/
 
 
-echo "Delete prompt for table 'vtiger_modcommentsscope' ...<br>";
-echo "<form method='post' style='margin:10px 0;'>";
-echo "<label>Do you want to delete table <strong>vtiger_modcommentsscope</strong>?</label><br>";
-echo "<button type='submit' name='delete_modcommentsscope' value='yes'>Yes, delete table</button> ";
-echo "<button type='submit' name='delete_modcommentsscope' value='no'>No, keep table</button>";
-echo "</form>";
-echo "Awaiting user decision for deleting 'vtiger_modcommentsscope'.<br>";
+
 
 
 echo "New tables for config settings to set on email sending from ticket another email or name <br>";
