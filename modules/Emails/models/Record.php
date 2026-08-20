@@ -7,10 +7,50 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  *************************************************************************************/
-
+ 
+/**
+ * Email record model with extended sender/signature handling.
+ *
+ * In addition to the default vtiger email behavior, this model supports:
+ * - overriding the visible sender name via {@see $senderName}
+ * - overriding the sender/reply-to address via {@see $senderEmail}
+ * - optional custom from-address handling via {@see $fromAddress}
+ * - appending a globally configured HTML signature to outgoing mails
+ * - merge-tag processing per recipient context
+ * - logging sent mails to berlicrm_mailtracker
+ *
+ * @package Emails
+ */
 class Emails_Record_Model extends Vtiger_Record_Model {
+
+	/**
+	 * Optional custom "from" address override.
+	 *
+	 * If set, this value may be used as the outgoing sender address when no
+	 * system-wide from address is configured.
+	 *
+	 * @var string
+	 */
 	public $fromAddress = '';
+
+	/**
+	 * Optional custom sender display name.
+	 *
+	 * If provided, this value overrides the default current user's display name
+	 * when composing the outgoing email.
+	 *
+	 * @var string
+	 */
     public $senderName = '';
+
+	/**
+	 * Optional custom sender email address.
+	 *
+	 * If provided, this value overrides both the effective sender email address
+	 * and the reply-to address for the outgoing email.
+	 *
+	 * @var string
+	 */
     public $senderEmail = '';
 
 	/**
@@ -24,7 +64,19 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 	}
 
 	/**
-	 * Function to save an Email
+	 * Persists the email record and related document links.
+	 *
+	 * Behavior:
+	 * - Ensures `date_start` and `time_start` are set for non-MailManager emails
+	 * - Forces activity type to "Emails"
+	 * - Saves the record via the module model
+	 * - Re-links associated Documents (vtiger_senotesrel)
+	 *
+	 * Notes:
+	 * - When `email_flag` is "MailManager", date/time is not overwritten
+	 * - Existing document links are cleared before re-inserting
+	 *
+	 * @return void
 	 */
 	public function save() {
         //Opensource fix for MailManager data mail attachment
@@ -45,7 +97,30 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 	}
 
 	/**
-	 * Function sends mail
+	 * Sends the email to all resolved recipients.
+	 *
+	 * Workflow:
+	 * - resolves sender and reply-to values
+	 * - expands recipient email information from stored UI fields
+	 * - loads attachments linked to the email record
+	 * - applies Users merge tags based on the current user
+	 * - applies recipient/module-specific merge tags per target record
+	 * - injects the optional global HTML signature from ConfigSignature
+	 * - replaces the special $logo$ placeholder with an embedded logo image
+	 * - sends the mail through {@see Emails_Mailer_Model}
+	 * - appends the sent message to the active mailbox folder when available
+	 * - logs the send result in berlicrm_mailtracker
+	 *
+	 * Notes:
+	 * - The method processes recipient groups from `toemailinfo` and `saved_toid`.
+	 * - Sender overrides via {@see $senderName} and {@see $senderEmail} take precedence
+	 *   over the current user's default identity.
+	 * - A global HTML signature is appended only when enabled in
+	 *   Settings_Vtiger_ConfigSignature.
+	 *
+	 * @return bool|string
+	 *         Returns the mailer success status on success, otherwise an error
+	 *         message string from the mailer/exception handling.
 	 */
 	public function send() {
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
@@ -525,8 +600,17 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 	}
 
 	/**
-	 * Function checks if the mail is sent or not
-	 * @return <Boolean>
+	 * Checks whether the email has been sent.
+	 *
+	 * Behavior:
+	 * - Lazily loads `email_flag` from vtiger_emaildetails if not already available
+	 * - Compares the flag against "SENT"
+	 *
+	 * Notes:
+	 * - Returns false if no database entry exists
+	 * - Used to determine delivery state of the email record
+	 *
+	 * @return bool True if the email is marked as sent, false otherwise
 	 */
 	public function isSentMail(){
 		if(!array_key_exists('email_flag', $this->getData())){
@@ -546,24 +630,50 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 		return false;
 	}
 
-        //Opensource fix for data updation for mail attached from mailmanager
-        public function isFromMailManager(){ 
-            if(!array_key_exists('email_flag', $this->getData())){ 
-                    $db = PearDatabase::getInstance(); 
-                    $query = 'SELECT email_flag FROM vtiger_emaildetails WHERE emailid=?'; 
-                    $result = $db->pquery($query,array($this->getId())); 
-                    if($db->num_rows($result)>0) { 
-                            $this->set('email_flag',$db->query_result($result,0,'email_flag')); 
-                    } else { 
-                            //If not row exits then make it as false 
-                            return false; 
-                    } 
-            } 
-            if($this->get('email_flag') == "MailManager"){ 
-                    return true; 
-            } 
-            return false; 
-        } 
+	/**
+	 * Checks whether the email record originates from MailManager.
+	 *
+	 * Behavior:
+	 * - Lazily loads `email_flag` from vtiger_emaildetails if not already present
+	 * - Evaluates whether the flag equals "MailManager"
+	 *
+	 * Notes:
+	 * - Returns false if no database entry exists for the email id
+	 * - Used to distinguish system-imported emails from manually created ones
+	 *
+	 * @return bool True if the email was created via MailManager, false otherwise
+	 */
+	public function isFromMailManager(){ 
+		if(!array_key_exists('email_flag', $this->getData())){ 
+				$db = PearDatabase::getInstance(); 
+				$query = 'SELECT email_flag FROM vtiger_emaildetails WHERE emailid=?'; 
+				$result = $db->pquery($query,array($this->getId())); 
+				if($db->num_rows($result)>0) { 
+						$this->set('email_flag',$db->query_result($result,0,'email_flag')); 
+				} else { 
+						//If not row exits then make it as false 
+						return false; 
+				} 
+		} 
+		if($this->get('email_flag') == "MailManager"){ 
+				return true; 
+		} 
+		return false; 
+	} 
+
+
+	/**
+	 * Returns the CRM entity type of a related record id used in email context.
+	 *
+	 * The method first checks vtiger_crmentity.setype. If the detected setype is
+	 * not one of the modules allowed for email relations, it falls back to checking
+	 * whether the id belongs to a Users record.
+	 *
+	 * @param int|string $id CRM record id to inspect.
+	 *
+	 * @return string Related module name (for example Contacts, Accounts, Users),
+	 *                or an empty string if no matching entity type is found.
+	 */	
 	function getEntityType($id) {
 		$db = PearDatabase::getInstance();
 		$moduleModel = $this->getModule();
@@ -584,9 +694,16 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 		}
 		return $relatedModule;
 	}
+
 	/**
-	 * Function returns the attachment count for an email
-	 * @return <string> number of attachments
+	 * Returns the number of active attachments linked to the given email record.
+	 *
+	 * Counts attachments connected through vtiger_seattachmentsrel and ignores
+	 * deleted attachment entities.
+	 *
+	 * @param int $parentid CRM id of the email record.
+	 *
+	 * @return int Number of linked, non-deleted attachments.
 	 */
 	function getAttachmentCount($parentid) {
 		$db = PearDatabase::getInstance();
