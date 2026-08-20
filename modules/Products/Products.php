@@ -107,49 +107,53 @@ class Products extends CRMEntity {
 	{
 		global $adb, $log;
 		$log->debug("Entering into insertTaxInformation($tablename, $module) method ...");
-		$tax_details = getAllTaxes();
+		$action = $_REQUEST['action'];
+		// skip this if MassSave or Webservices was used as those values aren't provided and existing values would be deleted
+		if ($action != 'MassSave' && !isset($_REQUEST['operation'])) {
+			$tax_details = getAllTaxes();
 
-		$tax_per = '';
-		//Save the Product - tax relationship if corresponding tax check box is enabled
-		//Delete the existing tax if any
-		if($this->mode == 'edit')
-		{
+			$tax_per = '';
+			//Save the Product - tax relationship if corresponding tax check box is enabled
+			//Delete the existing tax if any
+			if($this->mode == 'edit')
+			{
+				for($i=0;$i<count($tax_details);$i++)
+				{
+					$taxid = getTaxId($tax_details[$i]['taxname']);
+					$sql = "delete from vtiger_producttaxrel where productid=? and taxid=?";
+					$adb->pquery($sql, array($this->id,$taxid));
+				}
+			}
+			//crm-now: save values to taxclass
+			$arr_taxes = array();
 			for($i=0;$i<count($tax_details);$i++)
 			{
-				$taxid = getTaxId($tax_details[$i]['taxname']);
-				$sql = "delete from vtiger_producttaxrel where productid=? and taxid=?";
-				$adb->pquery($sql, array($this->id,$taxid));
-			}
-		}
-		//crm-now: save values to taxclass
-		$arr_taxes = array();
-		for($i=0;$i<count($tax_details);$i++)
-		{
-			$tax_name = $tax_details[$i]['taxname'];
-			$tax_checkname = $tax_details[$i]['taxname']."_check";
-			if($_REQUEST[$tax_checkname] == 'on' || $_REQUEST[$tax_checkname] == 1)
-			{
-				$taxid = getTaxId($tax_name);
-				$tax_per = $_REQUEST[$tax_name];
-				if($tax_per == '')
+				$tax_name = $tax_details[$i]['taxname'];
+				$tax_checkname = $tax_details[$i]['taxname']."_check";
+				if($_REQUEST[$tax_checkname] == 'on' || $_REQUEST[$tax_checkname] == 1)
 				{
-					$log->debug("Tax selected but value not given so default value will be saved.");
-					$tax_per = getTaxPercentage($tax_name);
+					$taxid = getTaxId($tax_name);
+					$tax_per = $_REQUEST[$tax_name];
+					if($tax_per == '')
+					{
+						$log->debug("Tax selected but value not given so default value will be saved.");
+						$tax_per = getTaxPercentage($tax_name);
+					}
+
+					$log->debug("Going to save the Product - $tax_name tax relationship");
+
+					$query = "insert into vtiger_producttaxrel values(?,?,?)";
+					$adb->pquery($query, array($this->id,$taxid,$tax_per));
+					$arr_taxes[] = $tax_per;
 				}
-
-				$log->debug("Going to save the Product - $tax_name tax relationship");
-
-				$query = "insert into vtiger_producttaxrel values(?,?,?)";
-				$adb->pquery($query, array($this->id,$taxid,$tax_per));
-				$arr_taxes[] = $tax_per;
 			}
+			$query = "UPDATE vtiger_products 
+			INNER JOIN vtiger_crmentity 
+			ON vtiger_crmentity.crmid = vtiger_products.productid 
+			SET taxclass = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+			WHERE productid = ?;";
+			$adb->pquery($query, array(implode(', ', $arr_taxes), $this->id));
 		}
-		$query = "UPDATE vtiger_products 
-		INNER JOIN vtiger_crmentity 
-		ON vtiger_crmentity.crmid = vtiger_products.productid 
-		SET taxclass = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
-		WHERE productid = ?;";
-		$adb->pquery($query, array(implode(', ', $arr_taxes), $this->id));
 
 		$log->debug("Exiting from insertTaxInformation($tablename, $module) method ...");
 	}
