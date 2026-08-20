@@ -363,11 +363,18 @@ class VtigerCRMObjectMeta extends EntityMeta {
 		
 		$this->computeAccess();
 		
-		$cv = new CustomView();
-		$module_info = $cv->getCustomViewModuleInfo($this->getTabName());
+		// do not rely on CustomView to get block ids as it's unreliable for Calendar for our purposes (description block/field missing)
+		// also e.g. SalesOrder block LBL_RELATED_PRODUCTS fields are straight up ignored
+		// no clue why blocks are used instead of fields directly
+		$adb = PearDatabase::getInstance();
+		$query = "SELECT DISTINCT vtiger_field.block FROM vtiger_field
+				  INNER JOIN vtiger_tab ON vtiger_tab.tabid = vtiger_field.tabid
+				  WHERE vtiger_tab.name = ? AND vtiger_field.presence in (0,2)
+				  ORDER BY vtiger_field.block;";
+		$result = $adb->pquery($query, array($this->objectName));
 		$blockArray = array();
-		foreach($cv->module_list[$this->getTabName()] as $label=>$blockList){
-			$blockArray = array_merge($blockArray,explode(',',$blockList));
+		while ($row = $adb->getNextRow($result, false)) {
+			$blockArray[] = $row['block'];
 		}
 		$this->retrieveMetaForBlock($blockArray);
 		
