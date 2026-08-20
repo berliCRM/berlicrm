@@ -144,14 +144,12 @@ class Products extends CRMEntity {
 				$arr_taxes[] = $tax_per;
 			}
 		}
-		if (!empty($arr_taxes)) {
-			$query = "UPDATE vtiger_products 
-			INNER JOIN vtiger_crmentity 
-			ON vtiger_crmentity.crmid = vtiger_products.productid 
-			SET taxclass = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
-			WHERE productid = ?;";
-			$adb->pquery($query, array(implode(', ', $arr_taxes), $this->id));
-		}
+		$query = "UPDATE vtiger_products 
+		INNER JOIN vtiger_crmentity 
+		ON vtiger_crmentity.crmid = vtiger_products.productid 
+		SET taxclass = ? , vtiger_crmentity.modifiedtime = '".(date('Y-m-d H:i:s'))."' 
+		WHERE productid = ?;";
+		$adb->pquery($query, array(implode(', ', $arr_taxes), $this->id));
 
 		$log->debug("Exiting from insertTaxInformation($tablename, $module) method ...");
 	}
