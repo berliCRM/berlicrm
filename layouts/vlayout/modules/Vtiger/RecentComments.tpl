@@ -118,6 +118,12 @@
 										{/if}
 									</div>
 									<div class="row-fluid">
+										{assign var=COMMENT_ID value=$COMMENT->getId()}
+										{if $MODULE_NAME == 'HelpDesk' && isset($COMMENT_NUMBERS[$COMMENT_ID])}
+											<span class="pull-left helpDeskCommentNumber">
+												<small class="muted">#{$COMMENT_NUMBERS[$COMMENT_ID]}</small>
+											</span>
+										{/if}
 										<div class="pull-right commentActions">
 											<span>
 												{if $CREATE_PERMISSION}

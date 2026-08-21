@@ -57,6 +57,14 @@
 					</div>
 				</div>
 			{/if}
+			{assign var=COMMENT_ID value=$COMMENT->getId()}
+			{if $MODULE_NAME == 'HelpDesk' && isset($COMMENT_NUMBERS[$COMMENT_ID])}
+				<div class="row-fluid">
+					<span class="pull-left helpDeskCommentNumber">
+						<small class="muted">#{$COMMENT_NUMBERS[$COMMENT_ID]}</small>
+					</span>
+				</div>
+			{/if}
 			<div class="row-fluid commentActionsDiv">
 				<span class="pull-right commentActions">
 					{assign var=CHILD_COMMENTS_COUNT value=$COMMENT->getChildCommentsCount()}

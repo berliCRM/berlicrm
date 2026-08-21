@@ -309,6 +309,31 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
         }
     }
 
+    /**
+     * crm-now Extension
+     * Function returns portal-compatible comment numbers by comment id.
+     * @return <Array>
+     */
+    public static function getCommentNumbersByParentRecord($parentRecordId) {
+        $db = PearDatabase::getInstance();
+        $query = 'SELECT vtiger_modcomments.modcommentsid
+            FROM vtiger_modcomments
+            INNER JOIN vtiger_crmentity ON vtiger_modcomments.modcommentsid = vtiger_crmentity.crmid
+                AND vtiger_crmentity.deleted = 0
+            WHERE vtiger_modcomments.related_to = ?
+            ORDER BY vtiger_crmentity.createdtime ASC, vtiger_modcomments.modcommentsid ASC';
+        $result = $db->pquery($query, array($parentRecordId));
+        $rows = $db->num_rows($result);
+        $commentNumbers = array();
+
+        for ($i = 0; $i < $rows; $i++) {
+            $commentId = $db->query_result($result, $i, 'modcommentsid');
+            $commentNumbers[$commentId] = $i + 1;
+        }
+
+        return $commentNumbers;
+    }
+
     public function getCommentType() {
         $type = 'unknown';
         $customerId = $this->get('customer');

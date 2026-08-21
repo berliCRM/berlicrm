@@ -439,6 +439,7 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
         global $modCommentsColors;
         $viewer->assign('COMMENTS_COLORS', $modCommentsColors);
         $this->assignTicketStatusForCommentForm($viewer, $moduleName, $parentId);
+        $this->assignHelpDeskCommentNumbers($viewer, $moduleName, $parentId);
 
         return $viewer->view('RecentComments.tpl', $moduleName, 'true');
     }
@@ -492,6 +493,8 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
         $viewer->assign('PARENT_COMMENTS', $childComments);
         $viewer->assign('CURRENTUSER', $currentUserModel);
         $viewer->assign('COMMENTS_MODULE_MODEL', $modCommentsModel);
+        $viewer->assign('MODULE_NAME', $moduleName);
+        $this->assignHelpDeskCommentNumbers($viewer, $moduleName, $parentCommentModel->get('related_to'));
 
         return $viewer->view('CommentsList.tpl', $moduleName, 'true');
     }
@@ -516,14 +519,24 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 
         $viewer = $this->getViewer($request);
         $viewer->assign('CURRENTUSER', $currentUserModel);
+        $viewer->assign('MODULE_NAME', $moduleName);
         $viewer->assign('COMMENTS_MODULE_MODEL', $modCommentsModel);
         $viewer->assign('PARENT_COMMENTS', $parentCommentModels);
         $viewer->assign('CURRENT_COMMENT', $currentCommentModel);
         global $modCommentsColors;
         $viewer->assign('COMMENTS_COLORS', $modCommentsColors);
         $this->assignTicketStatusForCommentForm($viewer, $moduleName, $parentRecordId);
+        $this->assignHelpDeskCommentNumbers($viewer, $moduleName, $parentRecordId);
 
         return $viewer->view('ShowAllComments.tpl', $moduleName, 'true');
+    }
+
+    protected function assignHelpDeskCommentNumbers($viewer, $moduleName, $parentRecordId) {
+        if($moduleName !== 'HelpDesk' || empty($parentRecordId)) {
+            return;
+        }
+
+        $viewer->assign('COMMENT_NUMBERS', ModComments_Record_Model::getCommentNumbersByParentRecord($parentRecordId));
     }
 
     protected function assignTicketStatusForCommentForm($viewer, $moduleName, $parentRecordId) {

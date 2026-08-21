@@ -93,6 +93,14 @@
 					</div>
 				</div>
 			{/if}
+			{assign var=COMMENT_ID value=$COMMENT->getId()}
+			{if $MODULE_NAME == 'HelpDesk' && isset($COMMENT_NUMBERS[$COMMENT_ID])}
+				<div class="row-fluid">
+					<span class="pull-left helpDeskCommentNumber">
+						<small class="muted">#{$COMMENT_NUMBERS[$COMMENT_ID]}</small>
+					</span>
+				</div>
+			{/if}
 			<div class="row-fluid commentActionsDiv">
 				<div class="pull-right commentActions">
 					{if $CHILDS_ROOT_PARENT_MODEL}
