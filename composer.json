@@ -9,6 +9,7 @@
         "stevenmaguire/oauth2-keycloak": "*",
         "phpmailer/phpmailer": "*",
         "thenetworg/oauth2-azure": "*",
-        "phpunit/phpunit": "8.5.52"
+        "phpunit/phpunit": "8.5.52",
+		"webklex/php-imap": "*"
     }
 }
