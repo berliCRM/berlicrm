@@ -28,17 +28,18 @@
 						<label class="muted pull-right marginRight10px">{vtranslate('LBL_SELECT_ACCOUNT_TYPE',$MODULE)}</label>
 					</td>
 					<td class="fieldValue narrowWidthType" style="width: 70%;">
-						<select id="_mbox_helper" class="chzn-select small" onchange="MailManager.handle_settings_confighelper(this);">
+						<select id="_mbox_helper" name="_mbox_helper" class="chzn-select small" onchange="MailManager.handle_settings_confighelper(this);">
 							<option value=''>{vtranslate('JSLBL_Choose_Server_Type',$MODULE)}</option>
 							<option value='gmail' {if $SERVERNAME eq 'gmail'} selected {/if}>{vtranslate('JSLBL_Gmail',$MODULE)}</option>
 							<option value='yahoo' {if $SERVERNAME eq 'yahoo'} selected {/if}>{vtranslate('JSLBL_Yahoo',$MODULE)}</option>
 							<option value='fastmail' {if $SERVERNAME eq 'fastmail'} selected {/if}>{vtranslate('JSLBL_Fastmail',$MODULE)}</option>
+							<option value='office365' {if $SERVERNAME eq 'office365'} selected {/if}>Office 365</option>
 							<option value='other' {if $SERVERNAME eq 'other'} selected {/if}>{vtranslate('JSLBL_Other',$MODULE)}</option>
 						</select>
 					</td>
 				</tr>
 
-				<tr class="settings_details" {if $SERVERNAME eq ''} style="display:none;"{/if}>
+				<tr class="settings_details" {if $SERVERNAME eq '' || $SERVERNAME == 'office365'} style="display:none;"{/if}>
 					<td class="fieldLabel" nowrap>
 						<label class="muted pull-right marginRight10px"><font color="red">*</font> {vtranslate('LBL_Mail_Server',$MODULE)}</label>
 					</td>
@@ -46,7 +47,7 @@
 						<input name="_mbox_server" value="{$MAILBOX->server()}" data-validation-engine="validate[required]]" type="text" class="detailedViewTextBox" onblur="this.className='detailedViewTextBox'" onfocus="this.className='detailedViewTextBoxOn'" placeholder="mail.company.com or 192.168.X.X">
 					</td>
 				</tr>
-				<tr class="settings_details" {if $SERVERNAME eq ''} style="display:none;"{/if}>
+				<tr class="settings_details_uname" {if $SERVERNAME eq ''} style="display:none;"{/if}>
 					<td class="fieldLabel" nowrap>
 						<label class="muted pull-right marginRight10px"><font color="red">*</font> {vtranslate('LBL_Username',$MODULE)}</label>
 					</td>
@@ -54,7 +55,7 @@
 						<input name="_mbox_user" id="_mbox_user" onkeypress="MailManager.showSelectFolderDesc();" value="{$MAILBOX->username()}" type="text" class="detailedViewTextBox" onblur="this.className='detailedViewTextBox'" onfocus="this.className='detailedViewTextBoxOn'" placeholder="{vtranslate('LBL_Your_Mailbox_Account',$MODULE)}">
 					</td>
 				</tr>
-				<tr class="settings_details" {if $SERVERNAME eq ''} style="display:none;"{/if}>
+				<tr class="settings_details" {if $SERVERNAME eq '' || $SERVERNAME == 'office365'} style="display:none;"{/if}>
 					<td class="fieldLabel" nowrap>
 						<label class="muted pull-right marginRight10px"><font color="red">*</font> {vtranslate('LBL_Password',$MODULE)}</label>
 					</td>
@@ -90,6 +91,21 @@
 						<input type="radio" name="_mbox_certvalidate" value="novalidate-cert" {if strcasecmp($MAILBOX->certvalidate(), 'novalidate-cert')===0}checked=true{/if}> {vtranslate('LBL_Do_Not_Validate_Cert',$MODULE)}
 					</td>
 				</tr>
+				{if $OAUTH_DETAILS}
+					{foreach $OAUTH_DETAILS AS $OAUTH_KEY => $OAUTH_VALUE}
+						{if $OAUTH_KEY == 'enabled' || $OAUTH_KEY == 'provider' || strpos($OAUTH_KEY, 'hidden_') === 0}
+							{continue}
+						{/if}
+							<tr class="office365_settings" {if $SERVERNAME != 'office365'} style="display:none;" {/if}>
+								<td class="fieldLabel" nowrap>
+									<label class="muted pull-right marginRight10px">{$OAUTH_KEY}</label>
+								</td>
+								<td class="fieldValue narrowWidthType" nowrap>
+									<input name="{$OAUTH_KEY}" id={$OAUTH_KEY}" value="{$OAUTH_VALUE}" type="text" class="detailedViewTextBox" onblur="this.className='detailedViewTextBox'" onfocus="this.className='detailedViewTextBoxOn'">
+								</td>
+							</tr>
+					{/foreach}
+				{/if}
 
 				<tr class="refresh_settings" {if $MAILBOX && $MAILBOX->exists()}{else} style="display:none;" {/if}>
 					<td class="fieldLabel" nowrap>
@@ -125,6 +141,9 @@
 		<br>
 
 		<div class="row-fluid refresh_settings" {if $MAILBOX && $MAILBOX->exists()}{else}style="display:none;" {/if}>
+			<input type="hidden" id="refresh_token_exists" value="{if !empty($OAUTH_DETAILS['hidden_refresh_token'])}1{else}0{/if}">
+			<button class="btn btn-success saveButton" id="refresh_token_button">
+			</button>
 			<div class="pull-right">
 				<button class="btn btn-success" onclick="MailManager.save_settings(this.form);"><strong>{vtranslate('LBL_SAVE_BUTTON_LABEL',$MODULE)}</strong></button>
 				{if $MAILBOX && $MAILBOX->exists()}

@@ -25,9 +25,8 @@
 						<img class="alignMiddle pull-left" src="{if !empty($IMAGE_PATH)}{$IMAGE_PATH}{else}{vimage_path('DefaultUserIcon.png')}{/if}">
 					</div>
 					<div class="span11 commentorInfo">
-						{assign var=COMMENTOR value=$COMMENT->getCommentedByModel()}
 						<div class="inner">
-							<span class="commentorName pull-left"><strong>{$COMMENTOR->getName()}</strong>{include file='CommentMailInfo.tpl'|@vtemplate_path COMMENT=$COMMENT}</span>
+							<span class="commentorName pull-left"><strong>{$COMMENT->getCommentedByName()|escape:'html'}</strong>{include file='CommentMailInfo.tpl'|@vtemplate_path COMMENT=$COMMENT}</span>
 							<span class="pull-right">
 								<p class="muted"><small title="{Vtiger_Util_Helper::formatDateTimeIntoDayString($COMMENT->getCommentedTime())}" class="commentModifiedTime">{Vtiger_Util_Helper::formatDateDiffInStrings($COMMENT->getCommentedTime())}&nbsp;&nbsp; ({Vtiger_Util_Helper::convertDateTimeIntoUsersDisplayFormat($COMMENT->getCommentedTime())})</small></p>
 							</span>

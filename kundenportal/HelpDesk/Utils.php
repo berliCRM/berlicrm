@@ -99,48 +99,70 @@ function SavePassword($version)
 {
 	global $client;
 	
-	$customer_id = $_SESSION['customer_id'];
 	$customer_name = $_SESSION['customer_name'];
-	$oldpw = trim($_REQUEST['old_password']);
-	$newpw = trim($_REQUEST['new_password']);
-	$confirmpw = trim($_REQUEST['confirm_password']);
+	$oldpw = isset($_POST['old_password']) ? (string) $_POST['old_password'] : '';
+	$newpw = isset($_POST['new_password']) ? (string) $_POST['new_password'] : '';
+	$confirmpw = isset($_POST['confirm_password']) ? (string) $_POST['confirm_password'] : '';
+
+	if ($newpw !== $confirmpw) {
+		return getTranslatedString('MSG_ENTER_NEW_PASSWORDS_SAME');
+	}
+
+	if ($newpw === $oldpw) {
+		return getTranslatedString('MSG_PASSWORD_MUST_DIFFER');
+	}
+
+	if (!isPortalPasswordValid($newpw)) {
+		return getTranslatedString('MSG_PASSWORD_POLICY');
+	}
 
 	$params = Array('user_name'=>"$customer_name",'user_password'=>"$oldpw",'version'=>"$version",'login'=>'false');
 	$result = $client->call('authenticate_user',$params);
-	$sessionid = $_SESSION['customer_sessionid'];
-	if($oldpw == $result[0]['user_password'])
+	if(
+		is_array($result)
+		&& isset($result[0])
+		&& is_array($result[0])
+		&& isset($result[0]['user_password'], $result[0]['id'])
+		&& is_string($result[0]['user_password'])
+		&& hash_equals($result[0]['user_password'], $oldpw)
+	)
 	{
-		if(strcasecmp($newpw,$confirmpw) == 0)
-		{
-			$customerid = $result[0]['id'];
-						
-		//	$customerid = $_SESSION['customer_id'];
-			$sessionid = $_SESSION['customer_sessionid'];
+		$customerid = $result[0]['id'];
+		$sessionid = $_SESSION['customer_sessionid'];
 
-			$params = Array(Array('id'=>"$customerid", 'sessionid'=>"$sessionid", 'username'=>"$customer_name",'password'=>"$newpw",'version'=>"$version"));
+		$params = Array(Array('id'=>"$customerid", 'sessionid'=>"$sessionid", 'username'=>"$customer_name",'password'=>"$newpw",'version'=>"$version"));
 
-			$result_change_password = $client->call('change_password',$params);
-			if($result_change_password[0] == 'MORE_THAN_ONE_USER'){
-				$errormsg .= getTranslatedString('MORE_THAN_ONE_USER');
-			}else{
-				$errormsg .= getTranslatedString('MSG_PASSWORD_CHANGED');
-			}
+		$result_change_password = $client->call('change_password',$params);
+		if(is_array($result_change_password) && isset($result_change_password[0]) && $result_change_password[0] == 'MORE_THAN_ONE_USER'){
+			return getTranslatedString('MORE_THAN_ONE_USER');
 		}
-		else
-		{
-			$errormsg .= getTranslatedString('MSG_ENTER_NEW_PASSWORDS_SAME');
-		}
-	}elseif($result[0] == 'INVALID_USERNAME_OR_PASSWORD') {
-		$errormsg .= getTranslatedString('LBL_ENTER_VALID_USER');	
-	}elseif($result[0] == 'MORE_THAN_ONE_USER'){
-		$errormsg .= getTranslatedString('MORE_THAN_ONE_USER');
-	}
-	else
-	{
-		$errormsg .= getTranslatedString('MSG_YOUR_PASSWORD_WRONG');
+
+		return getTranslatedString('MSG_PASSWORD_CHANGED');
 	}
 
-	return $errormsg;
+	$resultCode = '';
+	if (is_array($result) && isset($result[0]) && is_string($result[0])) {
+		$resultCode = $result[0];
+	} elseif (is_string($result)) {
+		$resultCode = $result;
+	}
+
+	if($resultCode == 'INVALID_USERNAME_OR_PASSWORD') {
+		return getTranslatedString('LBL_ENTER_VALID_USER');
+	}
+	if($resultCode == 'MORE_THAN_ONE_USER'){
+		return getTranslatedString('MORE_THAN_ONE_USER');
+	}
+
+	return getTranslatedString('MSG_YOUR_PASSWORD_WRONG');
+}
+
+function isPortalPasswordValid($password)
+{
+	return strlen($password) >= 10
+		&& preg_match('/[A-Z]/', $password)
+		&& preg_match('/[0-9]/', $password)
+		&& preg_match('/[^A-Za-z0-9\s]/', $password);
 }
 
 function getTicketAttachmentsList($ticketid)
@@ -159,69 +181,87 @@ function getTicketAttachmentsList($ticketid)
 function AddAttachment()
 {
 	global $client, $Server_Path;
-	$ticketid = $_REQUEST['ticketid'];
-	$ownerid = $_SESSION['customer_id'];
+	global $upload_dir;
 
-	$filename = $_FILES['customerfile']['name'];
-	$filetype = $_FILES['customerfile']['type'];
-	$filesize = $_FILES['customerfile']['size'];
-	$fileerror = $_FILES['customerfile']['error'];
-	if (isset($_REQUEST['customerfile_hidden'])) {
-		$filename = $_REQUEST['customerfile_hidden'];
+	$ticketid = isset($_POST['ticketid']) && is_scalar($_POST['ticketid'])
+		? (string) $_POST['ticketid']
+		: '';
+	$upload = isset($_FILES['customerfile']) && is_array($_FILES['customerfile'])
+		? $_FILES['customerfile']
+		: array();
+	$fileerror = isset($upload['error']) ? (int) $upload['error'] : UPLOAD_ERR_NO_FILE;
+
+	if ($fileerror === UPLOAD_ERR_NO_FILE) {
+		return getTranslatedString('LBL_GIVE_VALID_FILE');
 	}
-	
-	$upload_error = '';
-	if($fileerror == 4)
-	{
-		$upload_error = getTranslatedString('LBL_GIVE_VALID_FILE');
+	if ($fileerror === UPLOAD_ERR_INI_SIZE || $fileerror === UPLOAD_ERR_FORM_SIZE) {
+		return getTranslatedString('LBL_UPLOAD_FILE_LARGE');
 	}
-	elseif($fileerror == 2)
-	{
-		$upload_error = getTranslatedString('LBL_UPLOAD_FILE_LARGE');
-	}
-	elseif($fileerror == 3)
-	{
-		$upload_error = getTranslatedString('LBL_PROBLEM_UPLOAD');
+	if ($fileerror !== UPLOAD_ERR_OK) {
+		return getTranslatedString('LBL_PROBLEM_UPLOAD');
 	}
 
-	//Copy the file in temp and then read and pass the contents of the file as a string to db
-	global	$upload_dir;
-	if(!is_dir($upload_dir)) {
-		echo getTranslatedString('LBL_NOTSET_UPLOAD_DIR');
-		exit;
+	$uploadedPath = isset($upload['tmp_name']) ? (string) $upload['tmp_name'] : '';
+	if ($uploadedPath === '' || !is_uploaded_file($uploadedPath)) {
+		return getTranslatedString('LBL_UPLOAD_VALID_FILE');
 	}
-	if($filesize > 0)
-	{
-		if(move_uploaded_file($_FILES["customerfile"]["tmp_name"],$upload_dir.'/'.$filename))
-		{
-			$filecontents = base64_encode(fread(fopen($upload_dir.'/'.$filename, "r"), $filesize));
+
+	$filename = isset($upload['name']) ? (string) $upload['name'] : '';
+	$filename = basename(str_replace('\\', '/', $filename));
+	$filename = preg_replace('/[\x00-\x1F\x7F]/', '', $filename);
+	if (!is_string($filename) || $filename === '') {
+		$filename = 'attachment';
+	}
+	$filename = substr($filename, 0, 255);
+
+	$temporaryDirectory = is_dir($upload_dir) && is_writable($upload_dir)
+		? $upload_dir
+		: sys_get_temp_dir();
+	if (!is_dir($temporaryDirectory) || !is_writable($temporaryDirectory)) {
+		return getTranslatedString('LBL_NOTSET_UPLOAD_DIR');
+	}
+
+	$temporaryPath = tempnam($temporaryDirectory, 'kp_upload_');
+	if ($temporaryPath === false || !move_uploaded_file($uploadedPath, $temporaryPath)) {
+		if (is_string($temporaryPath) && is_file($temporaryPath)) {
+			unlink($temporaryPath);
 		}
-
-		$customerid = $_SESSION['customer_id'];
-		$sessionid = $_SESSION['customer_sessionid'];
-
-		$params = Array(Array(
-				'id'=>"$customerid",
-				'sessionid'=>"$sessionid",
-				'ticketid'=>"$ticketid",
-				'filename'=>"$filename",
-				'filetype'=>"$filetype",
-				'filesize'=>"$filesize",
-				'filecontents'=>"$filecontents"
-			));
-		if($filecontents != ''){
-			$commentresult = $client->call('add_ticket_attachment', $params, $Server_Path, $Server_Path);
-		}else{
-			echo getTranslatedString('LBL_FILE_HAS_NO_CONTENTS');
-			exit();
-		}	
-	}
-	else
-	{
-		$upload_error = getTranslatedString('LBL_UPLOAD_VALID_FILE');
+		return getTranslatedString('LBL_PROBLEM_UPLOAD');
 	}
 
-	return $upload_error;
+	try {
+		$rawContents = file_get_contents($temporaryPath);
+		$filesize = filesize($temporaryPath);
+		$filetype = 'application/octet-stream';
+		if (class_exists('finfo')) {
+			$fileInfo = new finfo(FILEINFO_MIME_TYPE);
+			$detectedType = $fileInfo->file($temporaryPath);
+			if (is_string($detectedType) && $detectedType !== '') {
+				$filetype = $detectedType;
+			}
+		}
+	} finally {
+		unlink($temporaryPath);
+	}
+
+	if (!is_string($rawContents) || $rawContents === '' || $filesize === false || $filesize <= 0) {
+		return getTranslatedString('LBL_FILE_HAS_NO_CONTENTS');
+	}
+
+	$customerid = $_SESSION['customer_id'];
+	$sessionid = $_SESSION['customer_sessionid'];
+	$params = Array(Array(
+		'id'=>"$customerid",
+		'sessionid'=>"$sessionid",
+		'ticketid'=>"$ticketid",
+		'filename'=>"$filename",
+		'filetype'=>"$filetype",
+		'filesize'=>(int) $filesize,
+		'filecontents'=>base64_encode($rawContents)
+	));
+	$client->call('add_ticket_attachment', $params, $Server_Path, $Server_Path);
+
+	return '';
 }
 
 ?>

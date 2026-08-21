@@ -83,6 +83,13 @@ class Zend_Json_Decoder
     protected $_token;
 
     /**
+     * Value of the current token.
+     *
+     * @var mixed
+     */
+    protected $_tokenValue;
+
+    /**
      * Flag indicating how objects should be decoded
      *
      * @var int
@@ -320,7 +327,7 @@ class Zend_Json_Decoder
         $i          = $this->_offset;
         $start      = $i;
 
-        switch ($str{$i}) {
+        switch ($str[$i]) {
             case '{':
                $this->_token = self::LBRACE;
                break;
@@ -347,13 +354,13 @@ class Zend_Json_Decoder
                         break;
                     }
 
-                    $chr = $str{$i};
+                    $chr = $str[$i];
                     if ($chr == '\\') {
                         $i++;
                         if ($i >= $str_length) {
                             break;
                         }
-                        $chr = $str{$i};
+                        $chr = $str[$i];
                         switch ($chr) {
                             case '"' :
                                 $result .= '"';
@@ -425,7 +432,7 @@ class Zend_Json_Decoder
             return($this->_token);
         }
 
-        $chr = $str{$i};
+        $chr = $str[$i];
         if ($chr == '-' || $chr == '.' || ($chr >= '0' && $chr <= '9')) {
             if (preg_match('/-?([0-9])*(\.[0-9]*)?((e|E)((-|\+)?)[0-9]+)?/s',
                 $str, $matches, PREG_OFFSET_CAPTURE, $start) && $matches[0][1] == $start) {
@@ -454,4 +461,3 @@ class Zend_Json_Decoder
         return($this->_token);
     }
 }
-

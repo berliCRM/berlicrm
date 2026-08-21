@@ -28,16 +28,9 @@
 							     src="{if !empty($IMAGE_PATH)}{$IMAGE_PATH}{else}{vimage_path('DefaultUserIcon.png')}{/if}">
 						</div>
 						<div class="span11 commentorInfo">
-							{assign var=COMMENTOR value=$COMMENT->getCommentedByModel()}
 							<div class="inner">
 								<span class="commentorName pull-left">
-									<strong>
-										{if $COMMENTOR}
-											{$COMMENTOR->getName()}
-										{else}
-											{vtranslate('LBL_DELETED')}
-										{/if}
-										</strong>
+									<strong>{$COMMENT->getCommentedByName()|escape:'html'}</strong>
 										{include file='CommentMailInfo.tpl'|@vtemplate_path COMMENT=$COMMENT}
 									</span>
 								<span class="pull-right">

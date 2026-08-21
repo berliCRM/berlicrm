@@ -161,11 +161,11 @@ class Settings_Search_Module_Model extends Settings_Vtiger_Module_Model {
 			}
 		}
 
-		$sql = "UPDATE vtiger_crmentity INNER JOIN berli_globalsearch_data ON vtiger_crmentity.crmid = berli_globalsearch_data.gscrmid";
+		$sql = "UPDATE berli_globalsearch_data INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = berli_globalsearch_data.gscrmid";
 		$sql .= " LEFT JOIN $tablename ON vtiger_crmentity.crmid = $tablename.$entityidfield ";
 		$sql .= $sql_ext;
 		$sql .= $otherquery;
-		$sql .= " SET vtiger_crmentity.label = CONCAT_WS(' |', $sql_searchcolumn), berli_globalsearch_data.searchlabel = CONCAT_WS(' |', $sql_searchcolumn)";
+		$sql .= " SET berli_globalsearch_data.searchlabel = CONCAT_WS(' |', $sql_searchcolumn)";
 		$sql .= " WHERE vtiger_crmentity.setype = '$modulename'";
 		$adb->query($sql);
 		$log->debug("Exiting Settings_Search_Module_Model::UpdateLabels() method ...");

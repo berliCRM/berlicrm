@@ -20,6 +20,7 @@ class MailManager_Mailbox_Model {
 	protected $mId;
 	protected $mServerName;
     protected $mFolder;
+	protected $mailId;
 
 	public function exists() {
 		return !empty($this->mId);
@@ -108,6 +109,14 @@ class MailManager_Mailbox_Model {
 	public function folder() {
 		return $this->mFolder;
 	}
+	
+	public function setMailId($value) {
+		$this->mailId = $value;
+	}
+
+	public function mailId() {
+		return $this->mailId;
+	}
 
 	public function delete() {
 		$db = PearDatabase::getInstance();
@@ -126,18 +135,18 @@ class MailManager_Mailbox_Model {
 		$isUpdate = !empty($this->mId);
 
 		$sql = "";
-		$parameters = array($this->username(), $this->server(), $this->username(), $this->password(false), $this->protocol(), $this->ssltype(), $this->certvalidate(), $this->refreshTimeOut(),$this->folder(), $currentUserModel->getId());
+		$parameters = array($this->username(), $this->server(), $this->username(), $this->password(false), $this->protocol(), $this->ssltype(), $this->certvalidate(), $this->refreshTimeOut(),$this->folder(), $this->mailId(), $currentUserModel->getId());
 
 		if ($isUpdate) {
-			$sql = "UPDATE vtiger_mail_accounts SET display_name=?, mail_servername=?, mail_username=?, mail_password=?, mail_protocol=?, ssltype=?, sslmeth=?, box_refresh=?, sent_folder=? WHERE user_id=? AND account_id=?";
+			$sql = "UPDATE vtiger_mail_accounts SET display_name=?, mail_servername=?, mail_username=?, mail_password=?, mail_protocol=?, ssltype=?, sslmeth=?, box_refresh=?, sent_folder=?, mail_id = ? WHERE user_id=? AND account_id=?";
 			$parameters[] = $this->mId;
 		} else {
-			$sql = "INSERT INTO vtiger_mail_accounts(display_name, mail_servername, mail_username, mail_password, mail_protocol, ssltype, sslmeth, box_refresh,sent_folder, user_id, mails_per_page, account_name, status, set_default, account_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			$parameters[] = vglobal('list_max_entries_per_page'); // Number of emails per page
 			$parameters[] = $this->username();
 			$parameters[] = 1; // Status
 			$parameters[] = '0'; // Set Default
 			$parameters[] = $account_id;
+			$sql = "INSERT INTO vtiger_mail_accounts(display_name, mail_servername, mail_username, mail_password, mail_protocol, ssltype, sslmeth, box_refresh, sent_folder, mail_id, user_id, mails_per_page, account_name, status, set_default, account_id) VALUES (".generateQuestionMarks($parameters).")";
 		}
 		$db->pquery($sql, $parameters);
 		if (!$isUpdate) {
@@ -153,16 +162,23 @@ class MailManager_Mailbox_Model {
 
 		$result = $db->pquery("SELECT * FROM vtiger_mail_accounts WHERE user_id=? AND status=1 AND set_default=0", array($currentUserModel->getId()));
 		if ($db->num_rows($result)) {
-			$instance->mServer = trim($db->query_result($result, 0, 'mail_servername'));
-			$instance->mUsername = trim($db->query_result($result, 0, 'mail_username'));
-			$instance->mPassword = trim($db->query_result($result, 0, 'mail_password'));
-			$instance->mProtocol = trim($db->query_result($result, 0, 'mail_protocol'));
-			$instance->mSSLType = trim($db->query_result($result, 0, 'ssltype'));
-			$instance->mCertValidate = trim($db->query_result($result, 0, 'sslmeth'));
-			$instance->mId = trim($db->query_result($result, 0, 'account_id'));
-			$instance->mRefreshTimeOut = trim($db->query_result($result, 0, 'box_refresh'));
-            $instance->mFolder = trim($db->query_result($result, 0, 'sent_folder'));
-			$instance->mServerName = self::setServerName($instance->mServer);
+			$row = $db->getNextRow($result, false);
+			$instance->mServer = trim($row['mail_servername']);
+			$instance->mUsername = trim($row['mail_username']);
+			$instance->mPassword = trim($row['mail_password']);
+			$instance->mProtocol = trim($row['mail_protocol']);
+			$instance->mSSLType = trim($row['ssltype']);
+			$instance->mCertValidate = trim($row['sslmeth']);
+			$instance->mId = trim($row['account_id']);
+			$instance->mRefreshTimeOut = trim($row['box_refresh']);
+            $instance->mFolder = trim($row['sent_folder']);
+			$instance->mailId = trim($row['mail_id']);
+			if (!empty($instance->mailId)) {
+				$instance->mServerName = $instance->mailId;
+			} else {
+				$instance->mServerName = self::setServerName($instance->mServer);
+			}
+			
 		}
 		return $instance;
 	}

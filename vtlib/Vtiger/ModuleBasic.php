@@ -313,6 +313,14 @@ class Vtiger_ModuleBasic {
                         if($adb->num_rows($result)==0){
                             $adb->pquery("INSERT INTO vtiger_entityname(tabid, modulename, tablename, fieldname, entityidfield, entityidcolumn) VALUES(?,?,?,?,?,?)",
                                     Array($this->id, $this->name, $fieldInstance->table, $fieldInstance->name, $this->entityidfield, $this->entityidcolumn));
+
+                            // Add newly installed entity modules to the global search.
+                            // Existing modules keep their configured search settings on updates.
+                            if($this->name != 'Users' && $this->name != 'PBXManager'
+                                    && Vtiger_Utils::CheckTable('berli_globalsearch_settings')) {
+                                $adb->pquery('INSERT IGNORE INTO berli_globalsearch_settings (gstabid) VALUES (?)',
+                                        array($this->id));
+                            }
                             self::log("Setting entity identifier ... DONE");
                         }else{ 
                             $adb->pquery("UPDATE vtiger_entityname SET fieldname=?,entityidfield=?,entityidcolumn=? WHERE tablename=? AND tabid=?", 

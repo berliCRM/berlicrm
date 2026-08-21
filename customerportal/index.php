@@ -10,34 +10,43 @@
  ********************************************************************************/
 
 
-session_start();
-/** Function to  return a string with backslashes stripped off
- * @param $value -- value:: Type string
- * @returns $value -- value:: Type string array
- */
+require_once('session_security_manager.php');
+SessionSecurityManager::init();
 include_once('include/utils/utils.php');
 
-function stripslashes_checkstrings($value){
-	if(is_string($value)){
-		return stripslashes($value);
+function portalDownloadFilename($value)
+{
+	$filename = basename(str_replace('\\', '/', (string) $value));
+	$filename = preg_replace('/[\x00-\x1F\x7F]/', '', $filename);
+	if (!is_string($filename) || $filename === '') {
+		return 'download';
 	}
-	return $value;
+
+	return substr($filename, 0, 200);
 }
 
-if(get_magic_quotes_gpc() == 1){
-	$_REQUEST = array_map("stripslashes_checkstrings", $_REQUEST);
-	$_POST = array_map("stripslashes_checkstrings", $_POST);
-	$_GET = array_map("stripslashes_checkstrings", $_GET);
+function portalDownloadContentType($value)
+{
+	$contentType = trim((string) $value);
+	if (preg_match('#^[a-z0-9][a-z0-9!#$&^_.+-]*/[a-z0-9][a-z0-9!#$&^_.+-]*$#i', $contentType)) {
+		return $contentType;
+	}
+
+	return 'application/octet-stream';
 }
 
 include("include.php");
 include("version.php");
+$is_logged = 0;
+$isAjax = false;
+
 if($_REQUEST){
-if($_REQUEST['param'] && $_REQUEST['param'] == 'forgot_password')
+if(($_REQUEST['param'] ?? '') == 'forgot_password')
 {
+	SessionSecurityManager::requireValidPostRequest($_POST['__csrf_token'] ?? '');
 	global $client;
 
-	$email = $_REQUEST['email_id'];
+	$email = $_POST['email_id'] ?? '';
 	$params = array('email' => "$email");
 	$result = $client->call('send_mail_for_password', $params);
          $_REQUEST['mail_send_message'] = $result;
@@ -50,27 +59,29 @@ else {
 
 }
 
-if($_REQUEST['logout'] == 'true')
+if(($_REQUEST['logout'] ?? '') == 'true')
 {
-	$customerid = $_SESSION['customer_id'];
-	$sessionid = $_SESSION['customer_sessionid'];
+	$customerid = $_SESSION['customer_id'] ?? '';
+	$sessionid = $_SESSION['customer_sessionid'] ?? '';
 
-	$params = Array(Array('id' => "$customerid", 'sessionid'=>"$sessionid", 'flag'=>"logout"));
-	$result = $client->call('update_login_details', $params);
+	if ($customerid !== '' && $sessionid !== '') {
+		$params = Array(Array('id' => "$customerid", 'sessionid'=>"$sessionid", 'flag'=>"logout"));
+		$result = $client->call('update_login_details', $params);
+	}
 
-	session_destroy();
+	SessionSecurityManager::destroy();
 	include("login.php");
 }
 else
 {
 	$module = '';
 	$action = 'login.php';
-	$isAjax = ($_REQUEST['ajax'] == 'true');
+	$isAjax = (($_REQUEST['ajax'] ?? '') == 'true');
 	
-	if($_SESSION['customer_id'] != '')
+	if(!empty($_SESSION['customer_id']))
 	{
 		$customerid = $_SESSION['customer_id'];
-		$sessionid = $_SESSION['customer_sessionid'];
+		$sessionid = $_SESSION['customer_sessionid'] ?? '';
 
 		// Set customer account id
 		if(isset($_SESSION['customer_account_id'])) {
@@ -86,10 +97,10 @@ else
 		//Added to download attachments
 		if($_REQUEST['downloadfile'] == 'true' && requestValidateReadAccess())
 		{
-			$filename = $_REQUEST['filename'];
-			$fileType = $_REQUEST['filetype'];
+			$filename = isset($_REQUEST['filename']) ? (string) $_REQUEST['filename'] : '';
+			$fileType = isset($_REQUEST['filetype']) ? (string) $_REQUEST['filetype'] : '';
 			//$fileid = $_REQUEST['fileid'];
-			$filesize = $_REQUEST['filesize'];
+			$filesize = isset($_REQUEST['filesize']) ? (int) $_REQUEST['filesize'] : 0;
 
 			//Added for enhancement from Rosa Weber
 
@@ -136,12 +147,24 @@ else
 			$customerid = $_SESSION['customer_id'];
 			$sessionid = $_SESSION['customer_sessionid'];
 
-			header("Content-type: $fileType");
-			header("Content-length: $filesize");
+			$decodedContent = base64_decode((string) $fileContent, true);
+			if ($decodedContent === false) {
+				http_response_code(502);
+				exit('Invalid attachment data.');
+			}
+			$filename = portalDownloadFilename($filename);
+			$fileType = portalDownloadContentType($fileType);
+			$filesize = strlen($decodedContent);
+			$asciiFilename = preg_replace('/[^\x20-\x7E]/', '_', $filename);
+			$asciiFilename = str_replace(array('"', '\\'), '_', $asciiFilename);
+
+			header("Content-Type: $fileType");
+			header("Content-Length: $filesize");
 			header("Cache-Control: private");
-			header("Content-Disposition: attachment; filename=$filename");
+			header('X-Content-Type-Options: nosniff');
+			header('Content-Disposition: attachment; filename="'.$asciiFilename.'"; filename*=UTF-8\'\''.rawurlencode($filename));
 			header("Content-Description: PHP Generated Data");
-			echo base64_decode($fileContent);
+			echo $decodedContent;
 			exit;
 		}
 		if($_REQUEST['module'] != '' && $_REQUEST['action'] != '')

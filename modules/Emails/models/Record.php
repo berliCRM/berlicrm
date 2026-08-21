@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  *************************************************************************************/
- 
+
 /**
  * Email record model with extended sender/signature handling.
  *
@@ -23,123 +23,123 @@
  */
 class Emails_Record_Model extends Vtiger_Record_Model {
 
-	/**
-	 * Optional custom "from" address override.
-	 *
-	 * If set, this value may be used as the outgoing sender address when no
-	 * system-wide from address is configured.
-	 *
-	 * @var string
-	 */
-	public $fromAddress = '';
+    /**
+     * Optional custom "from" address override.
+     *
+     * If set, this value may be used as the outgoing sender address when no
+     * system-wide from address is configured.
+     *
+     * @var string
+     */
+    public $fromAddress = '';
 
-	/**
-	 * Optional custom sender display name.
-	 *
-	 * If provided, this value overrides the default current user's display name
-	 * when composing the outgoing email.
-	 *
-	 * @var string
-	 */
+    /**
+     * Optional custom sender display name.
+     *
+     * If provided, this value overrides the default current user's display name
+     * when composing the outgoing email.
+     *
+     * @var string
+     */
     public $senderName = '';
 
-	/**
-	 * Optional custom sender email address.
-	 *
-	 * If provided, this value overrides both the effective sender email address
-	 * and the reply-to address for the outgoing email.
-	 *
-	 * @var string
-	 */
+    /**
+     * Optional custom sender email address.
+     *
+     * If provided, this value overrides both the effective sender email address
+     * and the reply-to address for the outgoing email.
+     *
+     * @var string
+     */
     public $senderEmail = '';
-	
-	/**
-	 * Optional flag to send emails without looking up entities
-	 * If provided, this value will prevent array keys to be treated as entity IDs
-	 *
-	 * @var boolean
-	*/
-	public $sendWithoutRelation = false;
 
-	/**
-	 * Function to get the Detail View url for the record
-	 * @return <String> - Record Detail View Url
-	 */
-	public function getDetailViewUrl() {
-		$parent_infos = array_filter(explode('|', $this->get('parent_id')));
-		list($parentId, $status) = explode('@', reset($parent_infos));
-		return 'Javascript:Vtiger_Index_Js.showEmailPreview("'.$this->getId().'","'.$parentId.'")';
-	}
+    /**
+     * Optional flag to send emails without looking up entities
+     * If provided, this value will prevent array keys to be treated as entity IDs
+     *
+     * @var boolean
+     */
+    public $sendWithoutRelation = false;
 
-	/**
-	 * Persists the email record and related document links.
-	 *
-	 * Behavior:
-	 * - Ensures `date_start` and `time_start` are set for non-MailManager emails
-	 * - Forces activity type to "Emails"
-	 * - Saves the record via the module model
-	 * - Re-links associated Documents (vtiger_senotesrel)
-	 *
-	 * Notes:
-	 * - When `email_flag` is "MailManager", date/time is not overwritten
-	 * - Existing document links are cleared before re-inserting
-	 *
-	 * @return void
-	 */
-	public function save() {
+    /**
+     * Function to get the Detail View url for the record
+     * @return <String> - Record Detail View Url
+     */
+    public function getDetailViewUrl() {
+        $parent_infos = array_filter(explode('|', $this->get('parent_id')));
+        list($parentId, $status) = explode('@', reset($parent_infos));
+        return 'Javascript:Vtiger_Index_Js.showEmailPreview("'.$this->getId().'","'.$parentId.'")';
+    }
+
+    /**
+     * Persists the email record and related document links.
+     *
+     * Behavior:
+     * - Ensures `date_start` and `time_start` are set for non-MailManager emails
+     * - Forces activity type to "Emails"
+     * - Saves the record via the module model
+     * - Re-links associated Documents (vtiger_senotesrel)
+     *
+     * Notes:
+     * - When `email_flag` is "MailManager", date/time is not overwritten
+     * - Existing document links are cleared before re-inserting
+     *
+     * @return void
+     */
+    public function save() {
         //Opensource fix for MailManager data mail attachment
-		if ($this->get('email_flag') != "MailManager" && empty($this->get('date_start'))) { 
-			$this->set('date_start', date('Y-m-d')); 
-			$this->set('time_start', date('H:i')); 
-		}
-		$this->set('activitytype', 'Emails');
+        if ($this->get('email_flag') != "MailManager" && empty($this->get('date_start'))) {
+            $this->set('date_start', date('Y-m-d'));
+            $this->set('time_start', date('H:i'));
+        }
+        $this->set('activitytype', 'Emails');
 
-		//$currentUserModel = Users_Record_Model::getCurrentUserModel();
-		//$this->set('assigned_user_id', $currentUserModel->getId());
-		$this->getModule()->saveRecord($this);
-		$documentIds = $this->get('documentids');
-		if (!empty ($documentIds)) {
+        //$currentUserModel = Users_Record_Model::getCurrentUserModel();
+        //$this->set('assigned_user_id', $currentUserModel->getId());
+        $this->getModule()->saveRecord($this);
+        $documentIds = $this->get('documentids');
+        if (!empty ($documentIds)) {
             $this->deleteDocumentLink();
-			$this->saveDocumentDetails();
-		}
-	}
+            $this->saveDocumentDetails();
+        }
+    }
 
-	/**
-	 * Sends the email to all resolved recipients.
-	 *
-	 * Workflow:
-	 * - resolves sender and reply-to values
-	 * - expands recipient email information from stored UI fields
-	 * - loads attachments linked to the email record
-	 * - applies Users merge tags based on the current user
-	 * - applies recipient/module-specific merge tags per target record
-	 * - injects the optional global HTML signature from ConfigSignature
-	 * - replaces the special $logo$ placeholder with an embedded logo image
-	 * - sends the mail through {@see Emails_Mailer_Model}
-	 * - appends the sent message to the active mailbox folder when available
-	 * - logs the send result in berlicrm_mailtracker
-	 *
-	 * Notes:
-	 * - The method processes recipient groups from `toemailinfo` and `saved_toid`.
-	 * - Sender overrides via {@see $senderName} and {@see $senderEmail} take precedence
-	 *   over the current user's default identity.
-	 * - A global HTML signature is appended only when enabled in
-	 *   Settings_Vtiger_ConfigSignature.
-	 *
-	 * @return bool|string
-	 *         Returns the mailer success status on success, otherwise an error
-	 *         message string from the mailer/exception handling.
-	 */
-	public function send() {
-		$currentUserModel = Users_Record_Model::getCurrentUserModel();
-		$rootDirectory =  vglobal('root_directory');
-		// add slash should it be missing
-		if (substr($rootDirectory, -1) != '/') {
-			$rootDirectory .= '/';
-		}
-		$db = PearDatabase::getInstance();
-		
-		$query = 'CREATE TABLE IF NOT EXISTS `berlicrm_mailtracker` (
+    /**
+     * Sends the email to all resolved recipients.
+     *
+     * Workflow:
+     * - resolves sender and reply-to values
+     * - expands recipient email information from stored UI fields
+     * - loads attachments linked to the email record
+     * - applies Users merge tags based on the current user
+     * - applies recipient/module-specific merge tags per target record
+     * - injects the optional global HTML signature from ConfigSignature
+     * - replaces the special $logo$ placeholder with an embedded logo image
+     * - sends the mail through {@see Emails_Mailer_Model}
+     * - appends the sent message to the active mailbox folder when available
+     * - logs the send result in berlicrm_mailtracker
+     *
+     * Notes:
+     * - The method processes recipient groups from `toemailinfo` and `saved_toid`.
+     * - Sender overrides via {@see $senderName} and {@see $senderEmail} take precedence
+     *   over the current user's default identity.
+     * - A global HTML signature is appended only when enabled in
+     *   Settings_Vtiger_ConfigSignature.
+     *
+     * @return bool|string
+     *         Returns the mailer success status on success, otherwise an error
+     *         message string from the mailer/exception handling.
+     */
+    public function send() {
+        $currentUserModel = Users_Record_Model::getCurrentUserModel();
+        $rootDirectory =  vglobal('root_directory');
+        // add slash should it be missing
+        if (substr($rootDirectory, -1) != '/') {
+            $rootDirectory .= '/';
+        }
+        $db = PearDatabase::getInstance();
+
+        $query = 'CREATE TABLE IF NOT EXISTS `berlicrm_mailtracker` (
 				 `id` int(11) NOT NULL AUTO_INCREMENT,
 				 `subject` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
 				 `receiver` text COLLATE utf8_unicode_ci NOT NULL,
@@ -151,37 +151,48 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 				 PRIMARY KEY (`id`)
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
 
-		$res = $db->pquery($query, array());
+        $res = $db->pquery($query, array());
 
-		$mailer = Emails_Mailer_Model::getInstance();
-		$mailer->IsHTML(true);
+        $mailer = Emails_Mailer_Model::getInstance();
+        $mailer->IsHTML(true);
 
-		$fromEmail = $this->getFromEmailAddress();
-		if (empty($fromEmail)) {
-			$replyTo = $currentUserModel->get('email1');
-		}
-		else {
-			$replyTo = $fromEmail;
-		}
+        // EmailConfigurator //crm-now: added to support FROM selection 
+        $fromEmail = '';
+        $replyTo = '';
+        $userName = '';
+        $fromMailAddress = trim($_REQUEST['fromAddress']);
+        if (empty($fromMailAddress)) {
+            $fromEmail = $this->getFromEmailAddress();
+            if (empty($fromEmail)) {
+                $replyTo = $currentUserModel->get('email1');
+            }
+            else {
+                $replyTo = $fromEmail;
+            }
+            $userName = $currentUserModel->getName();
+        }
+        else {
+            $fromEmail = $fromMailAddress;
+            $replyTo = $fromMailAddress;
+            $sql = "SELECT email_firstname, email_lastname FROM crmnow_emailconfig where email_address =?";
+            $result = $db->pquery($sql, array($fromEmail));
+            if ($result && $db->num_rows($result) > 0) {
+                $email_firstname = $db->query_result($result, 0, 'email_firstname');
+                $email_lastname = $db->query_result($result, 0, 'email_lastname');
+                $userName = $email_firstname.' '.$email_lastname;
+            }
+        }
 
-        if(!empty($this->senderEmail)){
-			$replyTo = $this->senderEmail;
+        if (!empty(trim((string) $this->senderEmail))) {
             $fromEmail = $this->senderEmail;
-		}
+            $replyTo = $this->senderEmail;
+        }
+        if (!empty(trim((string) $this->senderName))) {
+            $userName = $this->senderName;
+        }
 
-		$userName = $currentUserModel->getName();
-		// do not use user's name if from was set on purpose
-		// TO ADD: use given name instead
-		if (!empty($this->fromAddress)) {
-			$userName = '';
-		}
-
-        if (!empty($this->senderName)) {
-			$userName = $this->senderName;
-		}
-
-		// To eliminate the empty value of an array
-		$toEmailInfo = array_filter($this->get('toemailinfo'));
+        // To eliminate the empty value of an array
+        $toEmailInfo = array_filter($this->get('toemailinfo'));
         $toMailNamesList = array_filter($this->get('toMailNamesList'));
         foreach($toMailNamesList as $id => $emailData){
             foreach($emailData as $key => $email){
@@ -191,60 +202,60 @@ class Emails_Record_Model extends Vtiger_Record_Model {
             }
         }
         $emailsInfo = array();
-		foreach ($toEmailInfo as $id => $emails) {
+        foreach ($toEmailInfo as $id => $emails) {
             foreach($emails as $key => $value){
                 array_push($emailsInfo, $value);
             }
-		}
+        }
 
         $toFieldData = array_diff(explode(',', $this->get('saved_toid')), $emailsInfo);
-		$toEmailsData = array();
-		$i = 1;
-		foreach ($toFieldData as $value) {
-			if (!empty($value)) {
-				$toEmailInfo['to'.$i++] = array($value);
-			}
-		}
-		$attachments = $this->getAttachmentDetails();
-		$status = false;
+        $toEmailsData = array();
+        $i = 1;
+        foreach ($toFieldData as $value) {
+            if (!empty($value)) {
+                $toEmailInfo['to'.$i++] = array($value);
+            }
+        }
+        $attachments = $this->getAttachmentDetails();
+        $status = false;
 
-		// Merge Users module merge tags based on current user.
-		$mergedDescription = getMergedDescription($this->get('description'), $currentUserModel->getId(), 'Users');
+        // Merge Users module merge tags based on current user.
+        $mergedDescription = getMergedDescription($this->get('description'), $currentUserModel->getId(), 'Users');
         $mergedSubject = getMergedDescription($this->get('subject'),$currentUserModel->getId(), 'Users');
 
-		require_once 'modules/Settings/Vtiger/models/ConfigSignature.php';
-		$signatureModel = Settings_Vtiger_ConfigSignature::getInstance();
-		$datasignature = $signatureModel->getData();
+        require_once 'modules/Settings/Vtiger/models/ConfigSignature.php';
+        $signatureModel = Settings_Vtiger_ConfigSignature::getInstance();
+        $datasignature = $signatureModel->getData();
 
-		$globalSignatureHtml = '';
-		if (!empty($datasignature['enabled']) && (string)$datasignature['enabled'] === '1' && !empty($datasignature['signature_html'])) {
-			$globalSignatureHtml = html_entity_decode($datasignature['signature_html'], ENT_QUOTES, 'UTF-8');
-		}
-		
-		$total = count($toEmailInfo);
-		global $mailerQueueTreshold;
-		if (empty($mailerQueueTreshold)) {
-			$mailerQueueTreshold = 5000;
-		}
-		$instant = ($total < $mailerQueueTreshold) ? true : false;
+        $globalSignatureHtml = '';
+        if (!empty($datasignature['enabled']) && (string)$datasignature['enabled'] === '1' && !empty($datasignature['signature_html'])) {
+            $globalSignatureHtml = html_entity_decode($datasignature['signature_html'], ENT_QUOTES, 'UTF-8');
+        }
 
-		foreach($toEmailInfo as $id => $emails) {
-			$logo = false;
-			set_time_limit(0);
-			$mailer->reinitialize();
-			$mailer->ConfigSenderInfo($fromEmail, $userName, $replyTo);
-			$old_mod_strings = vglobal('mod_strings');
-			$description = $this->get('description');
+        $total = count($toEmailInfo);
+        global $mailerQueueTreshold;
+        if (empty($mailerQueueTreshold)) {
+            $mailerQueueTreshold = 5000;
+        }
+        $instant = ($total < $mailerQueueTreshold) ? true : false;
+
+        foreach($toEmailInfo as $id => $emails) {
+            $logo = false;
+            set_time_limit(0);
+            $mailer->reinitialize();
+            $mailer->ConfigSenderInfo($fromEmail, $userName, $replyTo);
+            $old_mod_strings = vglobal('mod_strings');
+            $description = $this->get('description');
             $subject = $this->get('subject');
-			if (!$this->sendWithoutRelation) {
-				$parentModule = $this->getEntityType($id);
-			}
+            if (!$this->sendWithoutRelation) {
+                $parentModule = $this->getEntityType($id);
+            }
 
             if ($parentModule) {
-				$recordModel = Vtiger_Record_Model::getInstanceById($id,$parentModule);
-				$column_fields = $recordModel->entity->column_fields;
-				$names = vtws_getModuleNameList();
-				
+                $recordModel = Vtiger_Record_Model::getInstanceById($id,$parentModule);
+                $column_fields = $recordModel->entity->column_fields;
+                $names = vtws_getModuleNameList();
+
                 $currentLanguage = Vtiger_Language_Handler::getLanguage();
                 $moduleLanguageStrings = Vtiger_Language_Handler::getModuleStringsFromFile($currentLanguage,$parentModule);
                 vglobal('mod_strings', $moduleLanguageStrings['languageStrings']);
@@ -252,98 +263,98 @@ class Emails_Record_Model extends Vtiger_Record_Model {
                 if ($parentModule != 'Users') {
                     // Apply merge for non-Users module merge tags.
                     $description = getMergedDescription($mergedDescription, $id, $parentModule);
-					foreach ($names as $tab) {
-						$recordModel = Vtiger_Record_Model::getCleanInstance($tab);
-						$table_index = $recordModel->entity->table_index;
-						$search_index = $table_index;
-						// special for accounts
-						if ($table_index == 'accountid' && array_key_exists('account_id', $column_fields)) {
-							$search_index = 'account_id';
-						}
-						if ((array_key_exists($search_index, $column_fields)  && !empty($column_fields[$search_index]))) {
-							$description = getMergedDescription($description,$column_fields[$search_index],$tab);
-						}
-					}
+                    foreach ($names as $tab) {
+                        $recordModel = Vtiger_Record_Model::getCleanInstance($tab);
+                        $table_index = $recordModel->entity->table_index;
+                        $search_index = $table_index;
+                        // special for accounts
+                        if ($table_index == 'accountid' && array_key_exists('account_id', $column_fields)) {
+                            $search_index = 'account_id';
+                        }
+                        if ((array_key_exists($search_index, $column_fields)  && !empty($column_fields[$search_index]))) {
+                            $description = getMergedDescription($description,$column_fields[$search_index],$tab);
+                        }
+                    }
                     $subject = getMergedDescription($mergedSubject, $id, $parentModule);
-					foreach ($names as $tab) {
-						$recordModel = Vtiger_Record_Model::getCleanInstance($tab);
-						$table_index = $recordModel->entity->table_index;
-						$search_index = $table_index;
-						// special for accounts
-						if ($table_index == 'accountid' && array_key_exists('account_id', $column_fields)) {
-							$search_index = 'account_id';
-						}
-						if ((array_key_exists($search_index, $column_fields)  && !empty($column_fields[$search_index]))) {
-							$subject = getMergedDescription($subject,$column_fields[$search_index],$tab);
-						}
-					}
-                } 
-				else {
+                    foreach ($names as $tab) {
+                        $recordModel = Vtiger_Record_Model::getCleanInstance($tab);
+                        $table_index = $recordModel->entity->table_index;
+                        $search_index = $table_index;
+                        // special for accounts
+                        if ($table_index == 'accountid' && array_key_exists('account_id', $column_fields)) {
+                            $search_index = 'account_id';
+                        }
+                        if ((array_key_exists($search_index, $column_fields)  && !empty($column_fields[$search_index]))) {
+                            $subject = getMergedDescription($subject,$column_fields[$search_index],$tab);
+                        }
+                    }
+                }
+                else {
                     // Re-merge the description for user tags based on actual user.
                     $description = getMergedDescription($description, $id, 'Users');
                     $subject = getMergedDescription($mergedSubject, $id, 'Users');
                     vglobal('mod_strings', $old_mod_strings);
                 }
-			}
+            }
 
-			if (strpos($description, '$logo$') !== false) {
-				$description = str_replace('$logo$', "<img src='cid:logo' />", $description);
-				$logo = true;
-			}
-			
-			// add global signature if exists
-			if ($globalSignatureHtml !== '') {
-				$description .= '<br><br>' . $globalSignatureHtml;
-			}
-			
-			$errorMsg = 1;
-			try {
-				foreach($emails as $email) {
-					$mailer->msgHTML('');
-					// if ($parentModule) {
-						// $mailer->Body = $this->getTrackImageDetails($id, $this->isEmailTrackEnabled());
-					// }
-					$mailer->msgHTML($mailer->Body.$description);
+            if (strpos($description, '$logo$') !== false) {
+                $description = str_replace('$logo$', "<img src='cid:logo' />", $description);
+                $logo = true;
+            }
 
-					// create non-html alternative body
-					$mailer->AltBody = decode_html(strip_tags(preg_replace(array("/<p>/i","/<br>/i","/<br \/>/i"),array("\n","\n","\n"),$mailer->Body)));
-					$mailer->Subject = $subject;
-					$mailer->AddAddress($email);
+            // add global signature if exists
+            if ($globalSignatureHtml !== '') {
+                $description .= '<br><br>' . $globalSignatureHtml;
+            }
 
-					//Adding attachments to mail
-					if(is_array($attachments)) {
-						foreach($attachments as $attachment) {
-							$fileNameWithPath = $rootDirectory.$attachment['path'].$attachment['fileid']."_".$attachment['attachment'];
-							if(is_file($fileNameWithPath)) {
-								$mailer->AddAttachment($fileNameWithPath, $attachment['attachment']);
-							}
-						}
-					}
-					if ($logo) {
-						//While sending email template and which has '$logo$' then it should replace with company logo
-						$mailer->AddEmbeddedImage(dirname(__FILE__).'/../../../layouts/vlayout/skins/images/logo_mail.jpg', 'logo', 'logo.jpg', 'base64', 'image/jpg');
-					}
+            $errorMsg = 1;
+            try {
+                foreach($emails as $email) {
+                    $mailer->msgHTML('');
+                    // if ($parentModule) {
+                    // $mailer->Body = $this->getTrackImageDetails($id, $this->isEmailTrackEnabled());
+                    // }
+                    $mailer->msgHTML($mailer->Body.$description);
 
-					$ccs = array_filter(explode(',',$this->get('ccmail')));
-					$bccs = array_filter(explode(',',$this->get('bccmail')));
+                    // create non-html alternative body
+                    $mailer->AltBody = decode_html(strip_tags(preg_replace(array("/<p>/i","/<br>/i","/<br \/>/i"),array("\n","\n","\n"),$mailer->Body)));
+                    $mailer->Subject = $subject;
+                    $mailer->AddAddress($email);
 
-					if(!empty($ccs)) {
-						foreach($ccs as $cc) $mailer->AddCC($cc);
-					}
-					if(!empty($bccs)) {
-						foreach($bccs as $bcc) $mailer->AddBCC($bcc);
-					}
-				}
-				if (!$instant) {
-					$mailer->unalteredBody = $description;
-				}
-				$status = $mailer->Send($instant, $id, $this->sendWithoutRelation);
-			} catch (Exception $e) {
-				$errorMsg = $e->getMessage();
-			}
-			if(!$status) {
-				$status = $errorMsg = $mailer->getError();
-			} else {
+                    //Adding attachments to mail
+                    if(is_array($attachments)) {
+                        foreach($attachments as $attachment) {
+                            $fileNameWithPath = $rootDirectory.$attachment['path'].$attachment['fileid']."_".$attachment['attachment'];
+                            if(is_file($fileNameWithPath)) {
+                                $mailer->AddAttachment($fileNameWithPath, $attachment['attachment']);
+                            }
+                        }
+                    }
+                    if ($logo) {
+                        //While sending email template and which has '$logo$' then it should replace with company logo
+                        $mailer->AddEmbeddedImage(dirname(__FILE__).'/../../../layouts/vlayout/skins/images/logo_mail.jpg', 'logo', 'logo.jpg', 'base64', 'image/jpg');
+                    }
+
+                    $ccs = array_filter(explode(',',$this->get('ccmail')));
+                    $bccs = array_filter(explode(',',$this->get('bccmail')));
+
+                    if(!empty($ccs)) {
+                        foreach($ccs as $cc) $mailer->AddCC($cc);
+                    }
+                    if(!empty($bccs)) {
+                        foreach($bccs as $bcc) $mailer->AddBCC($bcc);
+                    }
+                }
+                if (!$instant) {
+                    $mailer->unalteredBody = $description;
+                }
+                $status = $mailer->Send($instant, $id, $this->sendWithoutRelation);
+            } catch (Exception $e) {
+                $errorMsg = $e->getMessage();
+            }
+            if(!$status) {
+                $status = $errorMsg = $mailer->getError();
+            } else {
                 $mailString=$mailer->getMailString();
                 $mailBoxModel = MailManager_Mailbox_Model::activeInstance();
                 $folderName = $mailBoxModel->folder();
@@ -352,145 +363,145 @@ class Emails_Record_Model extends Vtiger_Record_Model {
                     imap_append($connector->mBox, $connector->mBoxUrl.$folderName, $mailString, "\\Seen");
                 }
             }
-			
-			// track emails here
-			if ($instant) {
-				// auto_inc ID, subject, receiver, send_date, send_user, crmid, smtp_answer, messageId
-				$mtQuery = "INSERT INTO berlicrm_mailtracker VALUES(?,?,?,?,?,?,?,?);";
-				$cDT = date('Y-m-d H:i:s');
-				$allReveivers = json_encode($mailer->getAllRecipientAddresses());
-				$messageId = '';
-				if ($errorMsg == 1) {
-					$messageId = $mailer->getLastMessageID();
-				}
-				$db->pquery($mtQuery, array(NULL, $subject, $allReveivers, $cDT, $currentUserModel->getId(), $id, $errorMsg, $messageId));
-			}
-		}
-		return $status;
-	}
 
-	/**
-	 * Returns the From Email address that will be used for the sent mails
-	 * @return <String> - from email address
-	 */
-	function getFromEmailAddress() {
-		$db = PearDatabase::getInstance();
-		$currentUserModel = Users_Record_Model::getCurrentUserModel();
+            // track emails here
+            if ($instant) {
+                // auto_inc ID, subject, receiver, send_date, send_user, crmid, smtp_answer, messageId
+                $mtQuery = "INSERT INTO berlicrm_mailtracker VALUES(?,?,?,?,?,?,?,?);";
+                $cDT = date('Y-m-d H:i:s');
+                $allReveivers = json_encode($mailer->getAllRecipientAddresses());
+                $messageId = '';
+                if ($errorMsg == 1) {
+                    $messageId = $mailer->getLastMessageID();
+                }
+                $db->pquery($mtQuery, array(NULL, $subject, $allReveivers, $cDT, $currentUserModel->getId(), $id, $errorMsg, $messageId));
+            }
+        }
+        return $status;
+    }
 
-		$fromEmail = false;
-		$result = $db->pquery('SELECT from_email_field FROM vtiger_systems WHERE server_type=?', array('email'));
-		if ($db->num_rows($result)) {
-			$fromEmail = decode_html($db->query_result($result, 0, 'from_email_field'));
-		}
-		if (isset($this->fromAddress) && !empty($this->fromAddress) && empty($fromEmail)) {
-			$fromEmail = $this->fromAddress;
-		}
-		if (empty($fromEmail)) $fromEmail = $currentUserModel->get('email1');
-		return $fromEmail;
-	}
+    /**
+     * Returns the From Email address that will be used for the sent mails
+     * @return <String> - from email address
+     */
+    function getFromEmailAddress() {
+        $db = PearDatabase::getInstance();
+        $currentUserModel = Users_Record_Model::getCurrentUserModel();
 
-	/**
-	 * Function returns the attachment details for a email
-	 * @return <Array> List of attachments
-	 */
-	function getAttachmentDetails() {
-		$db = PearDatabase::getInstance();
+        $fromEmail = false;
+        $result = $db->pquery('SELECT from_email_field FROM vtiger_systems WHERE server_type=?', array('email'));
+        if ($db->num_rows($result)) {
+            $fromEmail = decode_html($db->query_result($result, 0, 'from_email_field'));
+        }
+        if (isset($this->fromAddress) && !empty($this->fromAddress) && empty($fromEmail)) {
+            $fromEmail = $this->fromAddress;
+        }
+        if (empty($fromEmail)) $fromEmail = $currentUserModel->get('email1');
+        return $fromEmail;
+    }
 
-		$attachmentRes = $db->pquery("SELECT * FROM vtiger_attachments
+    /**
+     * Function returns the attachment details for a email
+     * @return <Array> List of attachments
+     */
+    function getAttachmentDetails() {
+        $db = PearDatabase::getInstance();
+
+        $attachmentRes = $db->pquery("SELECT * FROM vtiger_attachments
 						INNER JOIN vtiger_seattachmentsrel ON vtiger_attachments.attachmentsid = vtiger_seattachmentsrel.attachmentsid
 						WHERE vtiger_seattachmentsrel.crmid = ?", array($this->getId()));
-		$numOfRows = $db->num_rows($attachmentRes);
+        $numOfRows = $db->num_rows($attachmentRes);
         $attachmentsList = array();
-		if($numOfRows) {
-			for($i=0; $i<$numOfRows; $i++) {
-				$attachmentsList[$i]['fileid'] = $db->query_result($attachmentRes, $i, 'attachmentsid');
-				$attachmentsList[$i]['attachment'] = decode_html($db->query_result($attachmentRes, $i, 'name'));
+        if($numOfRows) {
+            for($i=0; $i<$numOfRows; $i++) {
+                $attachmentsList[$i]['fileid'] = $db->query_result($attachmentRes, $i, 'attachmentsid');
+                $attachmentsList[$i]['attachment'] = decode_html($db->query_result($attachmentRes, $i, 'name'));
                 $path = $db->query_result($attachmentRes, $i, 'path');
-				$attachmentsList[$i]['path'] = $path;
+                $attachmentsList[$i]['path'] = $path;
                 $attachmentsList[$i]['size'] = filesize($path.$attachmentsList[$i]['fileid'].'_'.$attachmentsList[$i]['attachment']);
                 $attachmentsList[$i]['type'] = $db->query_result($attachmentRes, $i, 'type');
-			}
-		}
+            }
+        }
 
-		$documentsList = $this->getRelatedDocuments();
+        $documentsList = $this->getRelatedDocuments();
 
         //Attachments are getting duplicated when forwarding a mail in Mail Manager.
-		if($documentsList) {
-			foreach ($documentsList as $document) {
-				$flag = false;
-				foreach ($attachmentsList as $attachment) {
-					if($attachment['fileid'] == $document['fileid']) {
-						$flag = true;
-						break;
-					}
-				}
-				if(!$flag) $attachmentsList[] = $document;
-			}
-		}
+        if($documentsList) {
+            foreach ($documentsList as $document) {
+                $flag = false;
+                foreach ($attachmentsList as $attachment) {
+                    if($attachment['fileid'] == $document['fileid']) {
+                        $flag = true;
+                        break;
+                    }
+                }
+                if(!$flag) $attachmentsList[] = $document;
+            }
+        }
 
-		return $attachmentsList;
-	}
+        return $attachmentsList;
+    }
 
-	/**
-	 * Function returns the document details for a email
-	 * @return <Array> List of Documents
-	 */
-	public function getRelatedDocuments() {
-		$db = PearDatabase::getInstance();
+    /**
+     * Function returns the document details for a email
+     * @return <Array> List of Documents
+     */
+    public function getRelatedDocuments() {
+        $db = PearDatabase::getInstance();
 
-		$documentRes = $db->pquery("SELECT * FROM vtiger_senotesrel
+        $documentRes = $db->pquery("SELECT * FROM vtiger_senotesrel
 						INNER JOIN vtiger_crmentity ON vtiger_senotesrel.notesid = vtiger_crmentity.crmid AND vtiger_senotesrel.crmid = ?
 						INNER JOIN vtiger_notes ON vtiger_notes.notesid = vtiger_senotesrel.notesid
 						INNER JOIN vtiger_seattachmentsrel ON vtiger_seattachmentsrel.crmid = vtiger_notes.notesid
 						INNER JOIN vtiger_attachments ON vtiger_attachments.attachmentsid = vtiger_seattachmentsrel.attachmentsid
 						WHERE vtiger_crmentity.deleted = 0", array($this->getId()));
-		$numOfRows = $db->num_rows($documentRes);
+        $numOfRows = $db->num_rows($documentRes);
 
-		if($numOfRows) {
-			for($i=0; $i<$numOfRows; $i++) {
-				$documentsList[$i]['name'] = $db->query_result($documentRes, $i, 'filename');
-				$filesize = $db->query_result($documentRes, $i, 'filesize');
-				$documentsList[$i]['size'] = $this->getFormattedFileSize($filesize);
-				$documentsList[$i]['docid'] = $db->query_result($documentRes, $i, 'notesid');
-				$documentsList[$i]['path'] = $db->query_result($documentRes, $i, 'path');
-				$documentsList[$i]['fileid'] = $db->query_result($documentRes, $i, 'attachmentsid');
-				$documentsList[$i]['attachment'] = decode_html($db->query_result($documentRes, $i, 'name'));
+        if($numOfRows) {
+            for($i=0; $i<$numOfRows; $i++) {
+                $documentsList[$i]['name'] = $db->query_result($documentRes, $i, 'filename');
+                $filesize = $db->query_result($documentRes, $i, 'filesize');
+                $documentsList[$i]['size'] = $this->getFormattedFileSize($filesize);
+                $documentsList[$i]['docid'] = $db->query_result($documentRes, $i, 'notesid');
+                $documentsList[$i]['path'] = $db->query_result($documentRes, $i, 'path');
+                $documentsList[$i]['fileid'] = $db->query_result($documentRes, $i, 'attachmentsid');
+                $documentsList[$i]['attachment'] = decode_html($db->query_result($documentRes, $i, 'name'));
                 $documentsList[$i]['type'] = $db->query_result($documentRes, $i, 'type');
-			}
-		}
-		return $documentsList;
-	}
+            }
+        }
+        return $documentsList;
+    }
 
-	/**
-	 * Function to get File size
-	 * @param <Integer> $filesize
-	 * @return <String> filesize
-	 */
-	public function getFormattedFileSize($filesize) {
-		if($filesize < 1024) {
-			$filesize = sprintf("%0.2f",round($filesize, 2)).'B';
-		} else if($filesize > 1024 && $filesize < 1048576) {
-			$filesize = sprintf("%0.2f",round($filesize/1024, 2)).'KB';
-		} else if($filesize > 1048576) {
-			$filesize = sprintf("%0.2f",round($filesize/(1024*1024), 2)).'MB';
-		}
-		return $filesize;
-	}
+    /**
+     * Function to get File size
+     * @param <Integer> $filesize
+     * @return <String> filesize
+     */
+    public function getFormattedFileSize($filesize) {
+        if($filesize < 1024) {
+            $filesize = sprintf("%0.2f",round($filesize, 2)).'B';
+        } else if($filesize > 1024 && $filesize < 1048576) {
+            $filesize = sprintf("%0.2f",round($filesize/1024, 2)).'KB';
+        } else if($filesize > 1048576) {
+            $filesize = sprintf("%0.2f",round($filesize/(1024*1024), 2)).'MB';
+        }
+        return $filesize;
+    }
 
-	/**
-	 * Function to save details of document and email
-	 */
-	public function saveDocumentDetails() {
-		$db = PearDatabase::getInstance();
-		$record = $this->getId();
+    /**
+     * Function to save details of document and email
+     */
+    public function saveDocumentDetails() {
+        $db = PearDatabase::getInstance();
+        $record = $this->getId();
 
-		$documentIds = array_unique($this->get('documentids'));
+        $documentIds = array_unique($this->get('documentids'));
 
-		$count = count($documentIds);
-		for ($i=0; $i<$count; $i++) {
-			$db->pquery("INSERT INTO vtiger_senotesrel(crmid, notesid) VALUES(?, ?)", array($record, $documentIds[$i]));
-		}
-	}
+        $count = count($documentIds);
+        for ($i=0; $i<$count; $i++) {
+            $db->pquery("INSERT INTO vtiger_senotesrel(crmid, notesid) VALUES(?, ?)", array($record, $documentIds[$i]));
+        }
+    }
 
     /**
      * Function which will remove all the exising document links with email
@@ -525,216 +536,216 @@ class Emails_Record_Model extends Vtiger_Record_Model {
         $db->pquery('UPDATE vtiger_crmentity SET deleted=0 WHERE crmid IN('.generateQuestionMarks($attachmentIdList).')',$attachmentIdList);
         $db->pquery('DELETE FROM vtiger_attachments WHERE attachmentsid IN('.generateQuestionMarks($attachmentIdList).')',$attachmentIdList);
         $db->pquery('DELETE FROM vtiger_seattachmentsrel WHERE crmid=? and attachmentsid IN('.generateQuestionMarks($attachmentIdList).')',
-                array_merge(array($this->getId()),$attachmentIdList));
+            array_merge(array($this->getId()),$attachmentIdList));
 
     }
 
-	/**
-	 * Function to check the total size of files is morethan max upload size or not
-	 * @param <Array> $documentIds
-	 * @return <Boolean> true/false
-	 */
-	public function checkUploadSize($documentIds = false) {
-		$totalFileSize = 0;
-		if (!empty ($_FILES)) {
-			foreach ($_FILES as $fileDetails) {
-				$totalFileSize = $totalFileSize + (int) $fileDetails['size'];
-			}
-		}
-		if (!empty ($documentIds)) {
-			$count = count($documentIds);
-			for ($i=0; $i<$count; $i++) {
-				$documentRecordModel = Vtiger_Record_Model::getInstanceById($documentIds[$i], 'Documents');
-				$totalFileSize = $totalFileSize + (int) $documentRecordModel->get('filesize');
-			}
-		}
+    /**
+     * Function to check the total size of files is morethan max upload size or not
+     * @param <Array> $documentIds
+     * @return <Boolean> true/false
+     */
+    public function checkUploadSize($documentIds = false) {
+        $totalFileSize = 0;
+        if (!empty ($_FILES)) {
+            foreach ($_FILES as $fileDetails) {
+                $totalFileSize = $totalFileSize + (int) $fileDetails['size'];
+            }
+        }
+        if (!empty ($documentIds)) {
+            $count = count($documentIds);
+            for ($i=0; $i<$count; $i++) {
+                $documentRecordModel = Vtiger_Record_Model::getInstanceById($documentIds[$i], 'Documents');
+                $totalFileSize = $totalFileSize + (int) $documentRecordModel->get('filesize');
+            }
+        }
 
-		if ($totalFileSize > Vtiger_Util_Helper::getMaxUploadSizeInBytes()) {
-			return false;
-		}
-		return true;
-	}
+        if ($totalFileSize > Vtiger_Util_Helper::getMaxUploadSizeInBytes()) {
+            return false;
+        }
+        return true;
+    }
 
-	/**
-	 * Function to get Track image details
-	 * @param <Integer> $crmId
-	 * @param <boolean> $emailTrack true/false
-	 * @return <String>
-	 */
-	public function getTrackImageDetails($crmId, $emailTrack = true) {
-		$siteURL = vglobal('site_URL');
-		$applicationKey = vglobal('application_unique_key');
-		$emailId = $this->getId();
+    /**
+     * Function to get Track image details
+     * @param <Integer> $crmId
+     * @param <boolean> $emailTrack true/false
+     * @return <String>
+     */
+    public function getTrackImageDetails($crmId, $emailTrack = true) {
+        $siteURL = vglobal('site_URL');
+        $applicationKey = vglobal('application_unique_key');
+        $emailId = $this->getId();
 
-		$trackURL = "$siteURL/modules/Emails/actions/TrackAccess.php?record=$emailId&parentId=$crmId&applicationKey=$applicationKey";
-		$imageDetails = "<img src='$trackURL' alt='' width='1' height='1'>";
-		return $imageDetails;
-	}
-
-
-	/**
-	 * Function check email track enabled or not
-	 * @return <boolean> true/false
-	 */
-	public function isEmailTrackEnabled() {
-		//In future this track will be coming from client side/User preferences
-		return true;
-	}
-
-	/**
-	 * Function to update Email track details
-	 * @param <String> $parentId
-	 */
-	public function updateTrackDetails($parentId) {
-		$db = PearDatabase::getInstance();
-		$recordId = $this->getId();
-
-		$db->pquery("INSERT INTO vtiger_email_access(crmid, mailid, accessdate, accesstime) VALUES(?, ?, ?, ?)", array($parentId, $recordId, date('Y-m-d'), date('Y-m-d H:i:s')));
-
-		$result = $db->pquery("SELECT 1 FROM vtiger_email_track WHERE crmid = ? AND mailid = ?", array($parentId, $recordId));
-		if ($db->num_rows($result)>0) {
-			$db->pquery("UPDATE vtiger_email_track SET access_count = access_count+1 WHERE crmid = ? AND mailid = ?", array($parentId, $recordId));
-		} else {
-			$db->pquery("INSERT INTO vtiger_email_track(crmid, mailid, access_count) values(?, ?, ?)", array($parentId, $recordId, 1));
-		}
-	}
-
-	/**
-	 * Function to set Access count value by default as 0
-	 */
-	public function setAccessCountValue() {
-		$record = $this->getId();
-		$moduleName = $this->getModuleName();
-
-		$focus = new $moduleName();
-		$focus->setEmailAccessCountValue($record);
-	}
-
-	/**
-	 * Function to get Access count value
-	 * @param <String> $parentId
-	 * @return <String>
-	 */
-	public function getAccessCountValue($parentId) {
-		$db = PearDatabase::getInstance();
-
-		$result = $db->pquery("SELECT access_count FROM vtiger_email_track WHERE crmid = ? AND mailid = ?", array($parentId, $this->getId()));
-		return $db->query_result($result, 0, 'access_count');
-	}
-
-	/**
-	 * Checks whether the email has been sent.
-	 *
-	 * Behavior:
-	 * - Lazily loads `email_flag` from vtiger_emaildetails if not already available
-	 * - Compares the flag against "SENT"
-	 *
-	 * Notes:
-	 * - Returns false if no database entry exists
-	 * - Used to determine delivery state of the email record
-	 *
-	 * @return bool True if the email is marked as sent, false otherwise
-	 */
-	public function isSentMail(){
-		if(!array_key_exists('email_flag', $this->getData())){
-			$db = PearDatabase::getInstance();
-			$query = 'SELECT email_flag FROM vtiger_emaildetails WHERE emailid=?';
-			$result = $db->pquery($query,array($this->getId()));
-			if($db->num_rows($result)>0) {
-				$this->set('email_flag',$db->query_result($result,0,'email_flag'));
-			} else {
-				//If not row exits then make it as false
-				return false;
-			}
-		}
-		if($this->get('email_flag') == "SENT"){
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Checks whether the email record originates from MailManager.
-	 *
-	 * Behavior:
-	 * - Lazily loads `email_flag` from vtiger_emaildetails if not already present
-	 * - Evaluates whether the flag equals "MailManager"
-	 *
-	 * Notes:
-	 * - Returns false if no database entry exists for the email id
-	 * - Used to distinguish system-imported emails from manually created ones
-	 *
-	 * @return bool True if the email was created via MailManager, false otherwise
-	 */
-	public function isFromMailManager(){ 
-		if(!array_key_exists('email_flag', $this->getData())){ 
-				$db = PearDatabase::getInstance(); 
-				$query = 'SELECT email_flag FROM vtiger_emaildetails WHERE emailid=?'; 
-				$result = $db->pquery($query,array($this->getId())); 
-				if($db->num_rows($result)>0) { 
-						$this->set('email_flag',$db->query_result($result,0,'email_flag')); 
-				} else { 
-						//If not row exits then make it as false 
-						return false; 
-				} 
-		} 
-		if($this->get('email_flag') == "MailManager"){ 
-				return true; 
-		} 
-		return false; 
-	} 
+        $trackURL = "$siteURL/modules/Emails/actions/TrackAccess.php?record=$emailId&parentId=$crmId&applicationKey=$applicationKey";
+        $imageDetails = "<img src='$trackURL' alt='' width='1' height='1'>";
+        return $imageDetails;
+    }
 
 
-	/**
-	 * Returns the CRM entity type of a related record id used in email context.
-	 *
-	 * The method first checks vtiger_crmentity.setype. If the detected setype is
-	 * not one of the modules allowed for email relations, it falls back to checking
-	 * whether the id belongs to a Users record.
-	 *
-	 * @param int|string $id CRM record id to inspect.
-	 *
-	 * @return string Related module name (for example Contacts, Accounts, Users),
-	 *                or an empty string if no matching entity type is found.
-	 */	
-	function getEntityType($id) {
-		$db = PearDatabase::getInstance();
-		$moduleModel = $this->getModule();
-		$emailRelatedModules = $moduleModel->getEmailRelatedModules();
-		$relatedModule = '';
-		if (!empty($id)) {
-			$sql = "SELECT setype FROM vtiger_crmentity WHERE crmid=? AND deleted = 0";
-			$result = $db->pquery($sql, array($id));
-			$relatedModule = $db->query_result($result, 0, "setype");
+    /**
+     * Function check email track enabled or not
+     * @return <boolean> true/false
+     */
+    public function isEmailTrackEnabled() {
+        //In future this track will be coming from client side/User preferences
+        return true;
+    }
 
-			if(!in_array($relatedModule, $emailRelatedModules)){
-				$sql = 'SELECT id FROM vtiger_users WHERE id=?';
-				$result = $db->pquery($sql, array($id));
-				if($db->num_rows($result) > 0){
-					$relatedModule = 'Users';
-				}
-			}
-		}
-		return $relatedModule;
-	}
+    /**
+     * Function to update Email track details
+     * @param <String> $parentId
+     */
+    public function updateTrackDetails($parentId) {
+        $db = PearDatabase::getInstance();
+        $recordId = $this->getId();
 
-	/**
-	 * Returns the number of active attachments linked to the given email record.
-	 *
-	 * Counts attachments connected through vtiger_seattachmentsrel and ignores
-	 * deleted attachment entities.
-	 *
-	 * @param int $parentid CRM id of the email record.
-	 *
-	 * @return int Number of linked, non-deleted attachments.
-	 */
-	function getAttachmentCount($parentid) {
-		$db = PearDatabase::getInstance();
-		$attachmentRes = $db->pquery("SELECT COUNT(*) as count FROM vtiger_attachments
+        $db->pquery("INSERT INTO vtiger_email_access(crmid, mailid, accessdate, accesstime) VALUES(?, ?, ?, ?)", array($parentId, $recordId, date('Y-m-d'), date('Y-m-d H:i:s')));
+
+        $result = $db->pquery("SELECT 1 FROM vtiger_email_track WHERE crmid = ? AND mailid = ?", array($parentId, $recordId));
+        if ($db->num_rows($result)>0) {
+            $db->pquery("UPDATE vtiger_email_track SET access_count = access_count+1 WHERE crmid = ? AND mailid = ?", array($parentId, $recordId));
+        } else {
+            $db->pquery("INSERT INTO vtiger_email_track(crmid, mailid, access_count) values(?, ?, ?)", array($parentId, $recordId, 1));
+        }
+    }
+
+    /**
+     * Function to set Access count value by default as 0
+     */
+    public function setAccessCountValue() {
+        $record = $this->getId();
+        $moduleName = $this->getModuleName();
+
+        $focus = new $moduleName();
+        $focus->setEmailAccessCountValue($record);
+    }
+
+    /**
+     * Function to get Access count value
+     * @param <String> $parentId
+     * @return <String>
+     */
+    public function getAccessCountValue($parentId) {
+        $db = PearDatabase::getInstance();
+
+        $result = $db->pquery("SELECT access_count FROM vtiger_email_track WHERE crmid = ? AND mailid = ?", array($parentId, $this->getId()));
+        return $db->query_result($result, 0, 'access_count');
+    }
+
+    /**
+     * Checks whether the email has been sent.
+     *
+     * Behavior:
+     * - Lazily loads `email_flag` from vtiger_emaildetails if not already available
+     * - Compares the flag against "SENT"
+     *
+     * Notes:
+     * - Returns false if no database entry exists
+     * - Used to determine delivery state of the email record
+     *
+     * @return bool True if the email is marked as sent, false otherwise
+     */
+    public function isSentMail(){
+        if(!array_key_exists('email_flag', $this->getData())){
+            $db = PearDatabase::getInstance();
+            $query = 'SELECT email_flag FROM vtiger_emaildetails WHERE emailid=?';
+            $result = $db->pquery($query,array($this->getId()));
+            if($db->num_rows($result)>0) {
+                $this->set('email_flag',$db->query_result($result,0,'email_flag'));
+            } else {
+                //If not row exits then make it as false
+                return false;
+            }
+        }
+        if($this->get('email_flag') == "SENT"){
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Checks whether the email record originates from MailManager.
+     *
+     * Behavior:
+     * - Lazily loads `email_flag` from vtiger_emaildetails if not already present
+     * - Evaluates whether the flag equals "MailManager"
+     *
+     * Notes:
+     * - Returns false if no database entry exists for the email id
+     * - Used to distinguish system-imported emails from manually created ones
+     *
+     * @return bool True if the email was created via MailManager, false otherwise
+     */
+    public function isFromMailManager(){
+        if(!array_key_exists('email_flag', $this->getData())){
+            $db = PearDatabase::getInstance();
+            $query = 'SELECT email_flag FROM vtiger_emaildetails WHERE emailid=?';
+            $result = $db->pquery($query,array($this->getId()));
+            if($db->num_rows($result)>0) {
+                $this->set('email_flag',$db->query_result($result,0,'email_flag'));
+            } else {
+                //If not row exits then make it as false
+                return false;
+            }
+        }
+        if($this->get('email_flag') == "MailManager"){
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * Returns the CRM entity type of a related record id used in email context.
+     *
+     * The method first checks vtiger_crmentity.setype. If the detected setype is
+     * not one of the modules allowed for email relations, it falls back to checking
+     * whether the id belongs to a Users record.
+     *
+     * @param int|string $id CRM record id to inspect.
+     *
+     * @return string Related module name (for example Contacts, Accounts, Users),
+     *                or an empty string if no matching entity type is found.
+     */
+    function getEntityType($id) {
+        $db = PearDatabase::getInstance();
+        $moduleModel = $this->getModule();
+        $emailRelatedModules = $moduleModel->getEmailRelatedModules();
+        $relatedModule = '';
+        if (!empty($id)) {
+            $sql = "SELECT setype FROM vtiger_crmentity WHERE crmid=? AND deleted = 0";
+            $result = $db->pquery($sql, array($id));
+            $relatedModule = $db->query_result($result, 0, "setype");
+
+            if(!in_array($relatedModule, $emailRelatedModules)){
+                $sql = 'SELECT id FROM vtiger_users WHERE id=?';
+                $result = $db->pquery($sql, array($id));
+                if($db->num_rows($result) > 0){
+                    $relatedModule = 'Users';
+                }
+            }
+        }
+        return $relatedModule;
+    }
+
+    /**
+     * Returns the number of active attachments linked to the given email record.
+     *
+     * Counts attachments connected through vtiger_seattachmentsrel and ignores
+     * deleted attachment entities.
+     *
+     * @param int $parentid CRM id of the email record.
+     *
+     * @return int Number of linked, non-deleted attachments.
+     */
+    function getAttachmentCount($parentid) {
+        $db = PearDatabase::getInstance();
+        $attachmentRes = $db->pquery("SELECT COUNT(*) as count FROM vtiger_attachments
 						INNER JOIN vtiger_crmentity on vtiger_crmentity.crmid = vtiger_attachments.attachmentsid
 						INNER JOIN vtiger_seattachmentsrel ON vtiger_attachments.attachmentsid = vtiger_seattachmentsrel.attachmentsid
 						WHERE vtiger_seattachmentsrel.crmid = ? AND vtiger_crmentity.deleted = 0", array($parentid));
-		$numOfRows = $db->query_result($attachmentRes, 0, "count");
-		return ($numOfRows);
-	}
+        $numOfRows = $db->query_result($attachmentRes, 0, "count");
+        return ($numOfRows);
+    }
 }

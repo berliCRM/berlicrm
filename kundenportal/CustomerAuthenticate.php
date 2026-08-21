@@ -8,16 +8,19 @@
  * All Rights Reserved.
  *
  ********************************************************************************/
+require_once('session_security_manager.php');
+SessionSecurityManager::init();
+SessionSecurityManager::requireValidPostRequest($_POST['__csrf_token'] ?? '');
+
 include("include.php");
 include("version.php");
 require_once("PortalConfig.php");
 require_once("include/utils/utils.php");
 
 global $version,$default_language,$result;
-$username = trim($_REQUEST['username']);
-$password = trim($_REQUEST['pw']);
+$username = trim($_POST['username'] ?? '');
+$password = trim($_POST['pw'] ?? '');
 
-session_start();
 setPortalCurrentLanguage();
 $default_language = getPortalCurrentLanguage();
 checkFileAccess("language/".$default_language.".lang.php");
@@ -45,12 +48,19 @@ if ($err)
 	exit;
 }
 
-if(strtolower($result[0]['user_name']) == strtolower($username) && strtolower($result[0]['user_password']) == strtolower($password))
+if(
+	is_array($result)
+	&& isset($result[0])
+	&& is_array($result[0])
+	&& isset($result[0]['user_name'], $result[0]['user_password'])
+	&& strtolower($result[0]['user_name']) == strtolower($username)
+	&& strtolower($result[0]['user_password']) == strtolower($password)
+)
 {
-	session_start();
 	$_SESSION['customer_id'] = $result[0]['id'];
 	$_SESSION['customer_sessionid'] = $result[0]['sessionid'];
 	$_SESSION['customer_name'] = $result[0]['user_name'];
+	SessionSecurityManager::onLogin($_SESSION['customer_id']);
 	$_SESSION['last_login'] = $result[0]['last_login_time'];
 	$_SESSION['support_start_date'] = $result[0]['support_start_date'];
 	$_SESSION['support_end_date'] = $result[0]['support_end_date'];
@@ -62,33 +72,45 @@ if(strtolower($result[0]['user_name']) == strtolower($username) && strtolower($r
 	$result2 = $client->call('update_login_details', $params1, $Server_Path, $Server_Path);
 
 	$params = array('customerid'=>$customerid);
-	$permission = $client->call('get_modules',$params,$Server_path,$Server_path);
-	$module = $permission[0];		
+	$permission = $client->call('get_modules',$params,$Server_Path,$Server_Path);
 	
-	if($permission == '')
+	if(!is_array($permission) || empty($permission))
 	{
 		echo getTranslatedString('LBL_NO_PERMISSION_FOR_ANY_MODULE');
 		exit;
 	}
+	$module = $permission[0];
 	
 	// Store the permitted modules in session for re-use
 	$_SESSION['__permitted_modules'] = $permission;
 	
 	header("Location: index.php?action=index&module=$module");
+	exit;
 }
 else
 {
-	if($result[0] == 'NOT COMPATIBLE'){
+	$resultCode = '';
+	if (is_array($result) && isset($result[0]) && is_string($result[0])) {
+		$resultCode = $result[0];
+	} 
+	elseif (is_string($result)) {
+		$resultCode = $result;
+	}
+
+	if($resultCode == 'NOT COMPATIBLE'){
 		$error_msg = "LBL_VERSION_INCOMPATIBLE";
-	}elseif($result[0] == 'INVALID_USERNAME_OR_PASSWORD') {
+	}
+		elseif($resultCode == 'INVALID_USERNAME_OR_PASSWORD') {
 		$error_msg = "LBL_ENTER_VALID_USER";	
-	}elseif($result[0] == 'MORE_THAN_ONE_USER'){
+	}
+		elseif($resultCode == 'MORE_THAN_ONE_USER'){
 		$error_msg = "MORE_THAN_ONE_USER";
 	}
 	else
 		$error_msg = "LBL_CANNOT_CONNECT_SERVER";
 
 	header("Location: login.php?login_error=" . base64_encode($error_msg));
+	exit;
 }
 
 ?>

@@ -221,6 +221,11 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 			$viewer->assign('SUBJECT', decode_html($request->get('subject')));
 		}
 		$this->assignTemplateFields($request);
+
+        // EmailConfigurator 
+        $this->assignEmailFromAddresses($viewer);
+		$viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
+
 		echo $viewer->view('ComposeEmailForm.tpl', $moduleName, true);
 	}
 
@@ -377,6 +382,11 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
         $viewer->assign('RECORDID', $request->get('record'));
 		$viewer->assign('RELATED_LOAD', true);
 		$viewer->assign('EMAIL_MODE', 'edit');
+
+        // EmailConfigurator 
+        $this->assignEmailFromAddresses($viewer);
+		$viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
+
 		echo $viewer->view('ComposeEmailForm.tpl', $moduleName, true);
 	}
 
@@ -388,6 +398,11 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		$viewer->assign('TOMAIL_INFO', array());
         $viewer->assign('RELATED_LOAD', true);
 		$viewer->assign('EMAIL_MODE', 'forward');
+
+        // EmailConfigurator 
+        $this->assignEmailFromAddresses($viewer);
+		$viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
+
 		echo $viewer->view('ComposeEmailForm.tpl', $moduleName, true);
 	}
 
@@ -441,4 +456,18 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 			// still to do
 		}
 	}
+
+    // EmailConfigurator 
+    public function assignEmailFromAddresses(&$viewer) {
+        global $adb;
+        $emailaddresses = array();
+        $sql = "SELECT * FROM crmnow_emailconfig order by email_lastname ASC";
+        $result = $adb->pquery($sql, array());
+        while ($result && $row = $adb->fetchByAssoc($result,-1,false)) {
+            $emailaddresses[]=$row;
+        }
+        $viewer->assign("FROMADDRESSES",$emailaddresses);
+    }
+
+
 }

@@ -44,7 +44,10 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
             $isMailConverterType = $this->get('from_mailconverter');
             if (!empty($customer) && isRecordExists($customer) && $isMailConverterType != 1) {
                 $recordModel = Vtiger_Record_Model::getInstanceById($customer);
+				// could also be Account
+				if (method_exists($recordModel, 'getImageDetails')) {
                 $imageDetails = $recordModel->getImageDetails();
+				}
                 if(!empty($imageDetails)) {
                     return $imageDetails[0]['path'].'_'.$imageDetails[0]['name'];
                 }
@@ -56,7 +59,10 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
                 return vimage_path('MailConverterComment.png');
             }
             else {
+				// could also be Account
+				if (method_exists($commentor, 'getImageDetails')) {
                 $imagePath = $commentor->getImageDetails();
+				}
                 if (!empty($imagePath[0]['name'])) {
                     return $imagePath[0]['path'];
                 }
@@ -119,7 +125,7 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
         $customer = $this->get('customer');
         if(!empty($customer)) {
             if (isRecordExists($customer)) {
-                return Vtiger_Record_Model::getInstanceById($customer, 'Contacts');
+                return Vtiger_Record_Model::getInstanceById($customer);
             }
             else {
                 return false;
@@ -137,6 +143,19 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
             }
         }
         return false;
+    }
+
+    /**
+     * Return the display name of the person who wrote the comment.
+     */
+    public function getCommentedByName() {
+        $commentedByModel = $this->getCommentedByModel();
+        if ($commentedByModel) {
+            return $commentedByModel->getName();
+        }
+
+        $mailFrom = trim((string) $this->get('mailfrom'));
+        return $mailFrom !== '' ? $mailFrom : vtranslate('LBL_DELETED');
     }
 
     /**
@@ -382,7 +401,7 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
         }
 
         foreach ($additionalFields as $fieldName) {
-            if ($moduleModel && $moduleModel->getField($fieldName)) {
+            if ($moduleModel && $moduleModel->getField($fieldName) && !in_array($fieldName, $fields)) {
                 $fields[] = $fieldName;
             }
         }

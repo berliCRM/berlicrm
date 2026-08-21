@@ -16,8 +16,9 @@
                 {vtranslate('LBL_SET_NEW_STATUS', $MODULE_NAME)}:
             </label>
             <select id="comment_ticketstatus" name="comment_ticketstatus" class="input-max">
+                <option value="" selected>{vtranslate('LBL_STATUS_UNCHANGED', $MODULE_NAME)}</option>
                 {foreach key=TICKET_STATUS item=TICKET_STATUS_LABEL from=$TICKET_STATUS_PICKLIST_VALUES}
-                    <option value="{$TICKET_STATUS}" {if $TICKET_STATUS eq $CURRENT_TICKET_STATUS}selected{/if}>{$TICKET_STATUS_LABEL}</option>
+                    <option value="{$TICKET_STATUS}">{$TICKET_STATUS_LABEL}</option>
                 {/foreach}
             </select>
         </div>

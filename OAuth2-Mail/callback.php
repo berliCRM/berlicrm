@@ -12,39 +12,46 @@ use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING ^E_DEPRECATED);
 ini_set('display_errors', 'on');
 
-// todo: check which provider sent this callback
-if (true) {
-	if (isset($_REQUEST['code'])) {
-		global $site_URL;
-		$code = $_REQUEST['code'];
-		
-		require_once 'modules/Settings/Vtiger/models/ConfigoAuth.php';
-		$settingsoAuth = Settings_Vtiger_oAuth::getInstance();
-		$oAuthDetails = $settingsoAuth->getData();
+$csrfState = $_REQUEST['state'];
+$code = $_REQUEST['code'];
 
-		$scopes = ['offline_access',
-				   'https://outlook.office.com/SMTP.Send'
-				  ];
-		$provider = new Azure([
-			'clientId'               => $oAuthDetails['client_id'],
-			'clientSecret'           => $oAuthDetails['client_secret'],
-			'tenant'                 => $oAuthDetails['tenant_id'],
-			'redirectUri'            => $site_URL.'OAuth2-Mail/callback.php',
-			'defaultEndPointVersion' => Azure::ENDPOINT_VERSION_2_0,
-			'scopes'                 => $scopes
-		]);
-		$token = $provider->getAccessToken('authorization_code', [
-			'code' => $code
+// todo: check which provider sent this callback
+if (!empty($csrfState)) {
+	if (!empty($code)) {
+		try {
+			require_once 'modules/Settings/Vtiger/models/ConfigoAuth.php';
+			
+			$settingsoAuth = Settings_Vtiger_oAuth::getInstance('callback', $csrfState);
+			$oAuthDetails = $settingsoAuth->getData();
+
+			$scopes = ['offline_access',
+					   'https://outlook.office.com/SMTP.Send'
+					  ];
+		
+			$provider = new Azure([
+				'clientId'               => $oAuthDetails['client_id'],
+				'clientSecret'           => $oAuthDetails['client_secret'],
+				'tenant'                 => $oAuthDetails['tenant_id'],
+				'redirectUri'            => 'https://alexberli48.i1.crm-now.de/OAuth2-Mail/callback.php',
+				'defaultEndPointVersion' => Azure::ENDPOINT_VERSION_2_0,
+				'scopes'                 => $scopes
 			]);
-		$refreshToken = $token->getRefreshToken();
-		$expires = $token->getExpires();
-		// save refresh token
-		$request = new Vtiger_Request(array('hidden_refresh_token' => $refreshToken, 'hidden_refresh_token_expire' => $expires));
-		$settingsoAuth->save($request);
+			$token = $provider->getAccessToken('authorization_code', [
+				'code' => $code
+				]);
+			$refreshToken = $token->getRefreshToken();
+			$expires = $token->getExpires();
+			$accessToken = $token->getToken();
+			// save refresh token
+			$request = new Vtiger_Request(array('hidden_refresh_token' => $refreshToken, 'hidden_refresh_token_expire' => $expires, 'hidden_access_token' => $accessToken, 'hidden_access_token_expire' => $expires));
+			$settingsoAuth->save($request);
+		} catch (Exception $e) {
+			echo 'ERROR: '.$e->getMessage();
+		}
 		echo "Token successfully created";
 	} else {
 		echo "Expected Code not present";
 	}
 } else {
-	echo "Unknown Provider Callback";
+	echo "No CSRF State sent";
 }
