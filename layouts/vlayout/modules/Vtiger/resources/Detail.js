@@ -661,7 +661,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 		}
 		const external = closestCommentBlock.find('#externalComment').is(':checked') ? 'on' : '0';
 		const neededTime = closestCommentBlock.find('#timeNeeded').val();
-		const ticketStatus = closestCommentBlock.find('[name="ticketstatus"]').val();
+		const ticketStatus = closestCommentBlock.find('[name="comment_ticketstatus"]').val();
 		var mailData = currentTarget.data('mailData') || {};
 		var postData = {
 			'commentcontent': commentContentValue,
@@ -2640,7 +2640,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 				const refreshComments = function () {
 					const commentsContainer = detailContentsHolder.find("[data-name='ModComments']");
 					const updatesContainer = detailContentsHolder.find("[data-name='LBL_UPDATES']");
-					const ticketStatus = commentsContainer.find('[name="ticketstatus"]').find(":selected").text();
+					const ticketStatus = commentsContainer.find('[name="comment_ticketstatus"]').find(":selected").text();
 					detailContentsHolder.find("[name='ticketstatus']").closest('td').find('[class="value"]').text(ticketStatus);
 					thisInstance.loadWidget(commentsContainer).then(function () {
 						element.removeAttr('disabled');
@@ -2684,7 +2684,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 					thisInstance.showCommentMailErrorNotification(data);
 					var closestAddCommentBlock = currentTarget.closest('.addCommentBlock');
 					var commentTextAreaElement = closestAddCommentBlock.find('.commentcontent');
-					var selectedTicketStatus = closestAddCommentBlock.find('[name="ticketstatus"]').val();
+					var selectedTicketStatus = closestAddCommentBlock.find('[name="comment_ticketstatus"]').val();
 					var commentInfoBlock = currentTarget.closest('.singleComment');
 					if (typeof selectedTicketStatus !== 'undefined') {
 						thisInstance.getContentHolder().find('[name="ticketstatus"]').val(selectedTicketStatus);
