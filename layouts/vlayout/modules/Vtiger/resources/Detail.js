@@ -1017,16 +1017,20 @@ jQuery.Class("Vtiger_Detail_Js", {
 		if (typeof parentCommentId !== 'undefined' && parentCommentId !== null && parentCommentId !== '' && parentCommentId !== 'undefined') {
 			normalizedParentCommentId = parentCommentId;
 		}
-		const external = closestCommentBlock.find('#externalComment').is(':checked') ? 'on' : '0';
-		const neededTime = closestCommentBlock.find('#timeNeeded').val();
+		const externalCommentElement = closestCommentBlock.find('[name="externalComment"]');
+		const timeNeededElement = closestCommentBlock.find('[name="timeNeeded"]');
 		const ticketStatus = closestCommentBlock.find('[name="comment_ticketstatus"]').val();
 		var mailData = currentTarget.data('mailData') || {};
 		var postData = {
 			'commentcontent': commentContentValue,
 			'related_to': thisInstance.getRecordId(),
-			'module': 'ModComments',
-			'external': external,
-			'timeneeded' : neededTime,
+			'module': 'ModComments'
+		}
+		if (externalCommentElement.length) {
+			postData['external'] = externalCommentElement.is(':checked') ? 'on' : '0';
+		}
+		if (timeNeededElement.length) {
+			postData['timeneeded'] = timeNeededElement.val();
 		}
 		if (typeof ticketStatus !== 'undefined') {
 			postData['ticketstatus'] = ticketStatus;
@@ -2939,11 +2943,13 @@ jQuery.Class("Vtiger_Detail_Js", {
 			var editCommentBlock = thisInstance.getEditCommentBlock();
 			editCommentBlock.find('.commentcontent').text(commentInfoContent.text());
 			editCommentBlock.find('[name="reasonToEdit"]').val(commentReason.text());
-			editCommentBlock.find('[name="timeNeeded"]').val(timeNeeded);
-			if (externalComment == '1') {
-				editCommentBlock.find('[name="externalComment"]').prop('checked', true);
-			} else {
-				editCommentBlock.find('[name="externalComment"]').prop('checked', false);
+			const editTimeNeededElement = editCommentBlock.find('[name="timeNeeded"]');
+			if (editTimeNeededElement.length) {
+				editTimeNeededElement.val(timeNeeded || '');
+			}
+			const editExternalCommentElement = editCommentBlock.find('[name="externalComment"]');
+			if (editExternalCommentElement.length) {
+				editExternalCommentElement.prop('checked', externalComment == '1');
 			}
 			commentInfoContent.hide();
 			commentInfoBlock.find('.summaryCommentEllipsis').hide();

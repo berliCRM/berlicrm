@@ -46,7 +46,7 @@
 											({Vtiger_Util_Helper::convertDateTimeIntoUsersDisplayFormat($COMMENT->getCommentedTime())})</small>
 									</p>
 									{assign var=TIMENEEDED value=Vtiger_Util_Helper::convertTimeIntoUsersDisplayFormat($COMMENT->get('timeneeded'))}
-									{if $TIMENEEDED neq "00:00:00" and $TIMENEEDED neq false}
+									{if $MODULE_NAME == 'HelpDesk' && $TIMENEEDED neq "00:00:00" and $TIMENEEDED neq false}
 										<p class="muted">
 											<small class="pull-right">
 												{vtranslate('LBL_TIME_NEEDED', $MODULE_NAME)}:&nbsp{Vtiger_Util_Helper::convertTimeIntoUsersDisplayFormat($COMMENT->get('timeneeded'))}
