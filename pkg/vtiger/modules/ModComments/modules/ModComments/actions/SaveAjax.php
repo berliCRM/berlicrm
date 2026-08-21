@@ -124,7 +124,6 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
     public function sendMail(Vtiger_Request $request, Vtiger_Record_Model $recordModel, array $attachmentDocumentIds = array(), array $mailTemplate = array()): void
     {
         global $HELPDESK_SUPPORT_EMAIL_ID;
-        $db = PearDatabase::getInstance();
 
         $email = '';
         $name = '';
@@ -223,16 +222,59 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
             $emailsRecordModel->save();
         }
 
-        // Not using record model for this because mailto has to be set after record model got saved and this would trigger aftersave handler a second time.
-        // This is not wanted because things like ModTracker would count this as two different edits/saves
-        $query = "UPDATE vtiger_modcomments SET mailto = ?, external  = ?, carboncopy = ?, blindcarboncopy = ? WHERE modcommentsid = ?";
-        $db->pquery($query, array(
-            $email,
-            true,
-            trim((string) $request->get('carboncopy')),
-            trim((string) $request->get('blindcarboncopy')),
-            $recordModel->getId()
+        // Not using record model for this because these values are set after record save and this would trigger aftersave handlers a second time.
+        // This is not wanted because things like ModTracker would count this as two different edits/saves.
+        $this->updateCommentMailMetadata($recordModel->getId(), array(
+            'mailto' => $email,
+            'external' => true,
+            'carboncopy' => trim((string) $request->get('carboncopy')),
+            'blindcarboncopy' => trim((string) $request->get('blindcarboncopy')),
+            'mailfrom' => $from_email,
+            'emailid' => $emailsRecordModel->getId(),
         ));
+    }
+
+    protected function updateCommentMailMetadata($commentId, array $metadata): void
+    {
+        $setClauses = array();
+        $params = array();
+        foreach ($metadata as $columnName => $columnValue) {
+            if (!$this->isModCommentsColumnAvailable($columnName)) {
+                continue;
+            }
+            $setClauses[] = $columnName . ' = ?';
+            $params[] = $columnValue;
+        }
+
+        if (empty($setClauses)) {
+            return;
+        }
+
+        $params[] = $commentId;
+        $db = PearDatabase::getInstance();
+        $db->pquery(
+            'UPDATE vtiger_modcomments SET ' . implode(', ', $setClauses) . ' WHERE modcommentsid = ?',
+            $params
+        );
+    }
+
+    protected function isModCommentsColumnAvailable($columnName): bool
+    {
+        static $availableColumns = null;
+
+        if ($availableColumns === null) {
+            $availableColumns = array();
+            $db = PearDatabase::getInstance();
+            $result = $db->pquery('DESCRIBE vtiger_modcomments', array());
+            if ($result) {
+                $rowCount = $db->num_rows($result);
+                for ($i = 0; $i < $rowCount; $i++) {
+                    $availableColumns[$db->query_result($result, $i, 'field')] = true;
+                }
+            }
+        }
+
+        return !empty($availableColumns[$columnName]);
     }
 
     /**

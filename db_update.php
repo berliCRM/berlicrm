@@ -1490,11 +1490,11 @@ echo "Add new Field to Modul: Users, Block: ('LBL_USER_ADV_OPTIONS' ) END ...<br
 
 
 // ------------------------------------------------------------ //// see TAG 48 db_script START ////
-// Add new fields to ModComments
+// Add new fields to ModComments: "Block: LBL_OTHER_INFORMATION", "email metadata", 
 // ------------------------------------------------------------
-echo "Add new fields to the module: ModComments, Block: LBL_OTHER_INFORMATION ...<br>";
+echo "Add new fields to the module: ModComments, START ...<br>";
 Install_InitSchema_Model::addNewFields();
-echo "Add new fields to the module: ModComments, Block: LBL_OTHER_INFORMATION END ...<br>";
+echo "Add new fields to the module: ModComments, END ...<br>";
 
 
 // ------------------------------------------------------------
