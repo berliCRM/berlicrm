@@ -115,7 +115,6 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     //retreiving the Invoice  info
     $focus = new Invoice();
     $focus->retrieve_entity_info($id, "Invoice");
-
     // get several values from the account: account name, buyer reference, account number
     $sql = "select accountname, buyerreference, account_no, siccode, email1 from  vtiger_account where accountid= ?";
     $acc_result = $adb->pquery($sql, [$focus->column_fields['account_id']]);
@@ -382,7 +381,9 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 
     //To calculate the group tax amount
     if ($final_details['taxtype'] == 'group') {
-        $group_tax_total = $signMultiplier * $final_details['tax_totalamount'];
+        $group_tax_total = $final_details['tax_totalamount'];
+        // old code before TT2092 (not shure, if really ok now)
+        // $group_tax_total = $signMultiplier * $final_details['tax_totalamount'];
         $price_salestax = $group_tax_total;
         $price_salestax_formated = number_format($price_salestax, $decimal_precision, $decimals_separator, $thousands_separator);
         $group_total_tax_percent = '0.00';
@@ -455,7 +456,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
             $valid_till = $invoice_date;
         }
         // set document information
-        file_put_contents('logs/ep4812.log', sprintf('%s %s %s', $invoice_no, $invoice_date, $invoice_buyer_purchaseorder_no) . PHP_EOL, FILE_APPEND);
+        // file_put_contents('logs/ep4812.log', sprintf('%s %s %s', $invoice_no, $invoice_date, $invoice_buyer_purchaseorder_no) . PHP_EOL, FILE_APPEND);
         $eInvoiceDocument
             ->setDocumentInformation(
                 $invoice_no,
