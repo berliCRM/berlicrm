@@ -88,6 +88,7 @@ $languageStrings = array(
 	'Wait For Response'=>'warte auf Zuarbeit',
 	'Owner' => 'Besitzer',
 	'LBL_SET_NEW_STATUS' => 'Neuen Status setzen',
+	'LBL_STATUS_UNCHANGED' => 'unverändert',
 );
 
 $jsLanguageStrings = array(

@@ -74,15 +74,19 @@ class Verteiler_ListView_Model extends Vtiger_ListView_Model {
         }
 
         $listQuery = $this->getQuery();
-        
+
         // add joins to verteilercontrel to count related entries in one query (sortable, and probably faster ** turns out, it's not **)
-        // $queryColumns = $queryGenerator->getSelectClauseColumnSQL();
-        // $queryFrom = $queryGenerator->getFromClause();
-        // $queryWhere = $queryGenerator->getWhereClause();
-        // $listQuery = "SELECT $queryColumns, count(vtiger_verteilercontrel.contactid) as totalrelated $queryFrom 
-            // LEFT JOIN vtiger_verteilercontrel ON vtiger_verteilercontrel.verteilerid = vtiger_verteiler.verteilerid
-            // LEFT JOIN vtiger_crmentity as ent2 ON (ent2.crmid = vtiger_verteilercontrel.contactid AND ent2.deleted = 0)
-            // $queryWhere GROUP BY vtiger_verteilercontrel.verteilerid";
+        $queryColumns = $queryGenerator->getSelectClauseColumnSQL();
+        $queryFrom = $queryGenerator->getFromClause();
+        $queryWhere = $queryGenerator->getWhereClause();
+
+        $listQuery = "SELECT $queryColumns, COUNT(vtiger_verteilercontrel.contactid) AS totalrelated $queryFrom 
+        LEFT JOIN vtiger_verteilercontrel 
+            ON vtiger_verteilercontrel.verteilerid = vtiger_verteiler.verteilerid 
+        LEFT JOIN vtiger_crmentity AS ent2 
+            ON (ent2.crmid = vtiger_verteilercontrel.contactid AND ent2.deleted = 0) 
+        $queryWhere 
+        GROUP BY vtiger_verteiler.verteilerid ";
 
 		$sourceModule = $this->get('src_module');
 		if(!empty($sourceModule)) {
@@ -130,10 +134,13 @@ class Verteiler_ListView_Model extends Vtiger_ListView_Model {
             }
 		}
 
-        // if ($_REQUEST['orderby']=="Einträge") {
-            // $listQuery .= " ORDER BY totalrelated $sortOrder";
-        // }
+        // Problem, REQUEST have only the translated string.  $moduleName = 'Verteiler'
+        $translated = vtranslate('LBL_ENTRIES', $moduleName);
+        if ($_REQUEST['orderby'] == $translated || $_REQUEST['orderby'] == 'totalrelated'){  //|| $_REQUEST['orderby'] == 'Einträge' || $_REQUEST['orderby'] == 'Entries' ) {
+            $listQuery .= " ORDER BY totalrelated $sortOrder";
+        }
 
+        
 		$viewid = ListViewSession::getCurrentView($moduleName);
 		if(empty($viewid)) {
             $viewid = $pagingModel->get('viewid');

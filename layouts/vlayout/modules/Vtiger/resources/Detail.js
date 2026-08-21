@@ -1032,7 +1032,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 		if (timeNeededElement.length) {
 			postData['timeneeded'] = timeNeededElement.val();
 		}
-		if (typeof ticketStatus !== 'undefined') {
+		if (typeof ticketStatus !== 'undefined' && ticketStatus !== '') {
 			postData['ticketstatus'] = ticketStatus;
 		}
 
@@ -3015,7 +3015,9 @@ jQuery.Class("Vtiger_Detail_Js", {
 				const refreshComments = function () {
 					const commentsContainer = detailContentsHolder.find("[data-name='ModComments']");
 					const updatesContainer = detailContentsHolder.find("[data-name='LBL_UPDATES']");
-					thisInstance.updateSummaryPicklistFieldDisplay('ticketstatus', ticketStatus, ticketStatusLabel);
+					if (typeof ticketStatus !== 'undefined' && ticketStatus !== '') {
+						thisInstance.updateSummaryPicklistFieldDisplay('ticketstatus', ticketStatus, ticketStatusLabel);
+					}
 					thisInstance.loadWidget(commentsContainer).then(function () {
 						element.removeAttr('disabled');
 					});
@@ -3060,7 +3062,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 					var commentTextAreaElement = closestAddCommentBlock.find('.commentcontent');
 					var selectedTicketStatus = closestAddCommentBlock.find('[name="comment_ticketstatus"]').val();
 					var commentInfoBlock = currentTarget.closest('.singleComment');
-					if (typeof selectedTicketStatus !== 'undefined') {
+					if (typeof selectedTicketStatus !== 'undefined' && selectedTicketStatus !== '') {
 						thisInstance.getContentHolder().find('[name="ticketstatus"]').val(selectedTicketStatus);
 					}
 					commentTextAreaElement.val('');
