@@ -7,11 +7,19 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-require_once("modules/Emails/PHPMailer/src/PHPMailer.php");
-require_once("modules/Emails/PHPMailer/src/SMTP.php");
-require_once("modules/Emails/PHPMailer/src/Exception.php");
+$includePath = 'vendor/autoload.php';
+if (file_exists($includePath)) {
+	require_once($includePath);
+} else {
+	require_once("modules/Emails/PHPMailer/src/PHPMailer.php");
+	require_once("modules/Emails/PHPMailer/src/SMTP.php");
+	require_once("modules/Emails/PHPMailer/src/Exception.php");
+}
 use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\OAuth;
 use PHPMailer\PHPMailer\SMTP;
+use TheNetworg\OAuth2\Client\Provider\Azure;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 include_once('include/utils/CommonUtils.php');
 include_once('config.inc.php');
 include_once('include/database/PearDatabase.php');
@@ -74,6 +82,55 @@ class Vtiger_Mailer extends PHPMailer {
 			$this->ConfigSenderInfo($adb->query_result($result, 0, 'from_email_field'));
 
 			$this->_serverConfigured = true;
+			// oAuth
+			require_once 'modules/Settings/Vtiger/models/ConfigoAuth.php';
+			$settingsoAuth = Settings_Vtiger_oAuth::getInstance();
+			$oAuthDetails = $settingsoAuth->getData();
+			if ($oAuthDetails['provider'] == 'AZURE') {
+				$constants = $settingsoAuth->getClassConstants();
+				if (isset($constants['CONFIG_KEY'])) {
+					unset($constants['CONFIG_KEY']);
+				}
+				if (isset($constants['PARAM_ENABLED'])) {
+					unset($constants['PARAM_ENABLED']);
+				}
+				$present = true;
+				foreach ($constants AS $name => $value) {
+					if (empty($oAuthDetails[$value])) {
+						$present = false;
+						break;
+					}
+				}
+				if ($present) {
+					$this->Host = 'smtp.office365.com';
+					$this->Port = 587;
+					$this->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+
+					$this->SMTPAuth = true;
+					$this->AuthType = 'XOAUTH2';
+					
+					// OAuth2 provider (Azure / Entra ID)
+					// PHPMailer will use the refresh token to fetch/refresh access tokens automatically
+					$scopes = ['offline_access',
+							   'https://outlook.office.com/SMTP.Send'
+							  ];
+					$provider = new Azure([
+						'clientId'               => $oAuthDetails['client_id'],
+						'clientSecret'           => $oAuthDetails['client_secret'],
+						'tenant'                 => $oAuthDetails['tenant_id'],
+						'defaultEndPointVersion' => Azure::ENDPOINT_VERSION_2_0,
+						'scopes'                 => $scopes
+					]);
+
+					$this->setOAuth(new OAuth([
+						'provider'      => $provider,
+						'clientId'      => $oAuthDetails['client_id'],
+						'clientSecret'  => $oAuthDetails['client_secret'],
+						'refreshToken'  => $oAuthDetails['refresh_token'],
+						'userName'      => $oAuthDetails['user_name'],
+					]));
+				}
+			}
 //			$this->Sender= getReturnPath($this->Host);
 		}
 	}
@@ -136,6 +193,15 @@ class Vtiger_Mailer extends PHPMailer {
 	 */
 	function Send($sync=false, $linktoid=false, $ignoreConfigCheck = false) {
 		if(!$ignoreConfigCheck && !$this->_serverConfigured) return;
+		// oAuth
+		/* require_once 'modules/Settings/Vtiger/models/ConfigoAuth.php';
+		$settingsoAuth = Settings_Vtiger_oAuth::getInstance();
+		$oAuthDetails = $settingsoAuth->getData();
+		if ($oAuthDetails['provider'] == 'AZURE' && !empty($oAuthDetails['user_name'])) {
+			// overwrite FROM for now
+			$this->From = $oAuthDetails['user_name'];
+		}
+		*/
 
 		if($sync) return parent::Send();
 

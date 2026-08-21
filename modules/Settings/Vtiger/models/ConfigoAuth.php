@@ -19,10 +19,12 @@ class Settings_Vtiger_oAuth extends Vtiger_Base_Model {
 	const PARAM_ENABLED = 'enabled';
 
 	/** @var string */
+	const PARAM_USER_NAME = 'user_name';
 	const PARAM_PROVIDER = 'provider';
 	const PARAM_TENANT_ID = 'tenant_id';
 	const PARAM_CLIENT_ID  = 'client_id';
 	const PARAM_CLIENT_SECRET = 'client_secret';
+	const PARAM_REFRESH = 'refresh_token';
 
 	/**
 	 * Get singleton-like instance of the signature configuration model.

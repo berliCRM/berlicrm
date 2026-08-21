@@ -7,11 +7,17 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
+ 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\OAuth;
+use PHPMailer\PHPMailer\SMTP;
+use TheNetworg\OAuth2\Client\Provider\Azure;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 
 class Settings_Vtiger_OutgoingServerEdit_View extends Settings_Vtiger_Index_View {
 	
 	const OAUTH_PROVIDERS = ['AZURE' => []
-								   ];
+							];
     
     public function process(Vtiger_Request $request) {
         $systemDetailsModel = Settings_Vtiger_Systems_Model::getInstanceFromServerType('email', 'OutgoingServer');
@@ -20,10 +26,10 @@ class Settings_Vtiger_OutgoingServerEdit_View extends Settings_Vtiger_Index_View
 		
 		// oAuth Support
 		// requires vendor/autoload.php
-		$includePath = __DIR__ . '/../vendor/autoload.php';
+		$includePath = 'vendor/autoload.php';
 		if (file_exists($includePath)) {
 			require_once($includePath);
-			if (class_exists('Azure') && class_exists('OAuth')) {
+			if (class_exists('TheNetworg\OAuth2\Client\Provider\Azure') && class_exists('PHPMailer\PHPMailer\OAuth')) {
 				$viewer->assign('OAUTH_PROVIDERS', array_keys(self::OAUTH_PROVIDERS));
 				require_once 'modules/Settings/Vtiger/models/ConfigoAuth.php';
 				$settingsoAuth = Settings_Vtiger_oAuth::getInstance();
@@ -31,13 +37,6 @@ class Settings_Vtiger_OutgoingServerEdit_View extends Settings_Vtiger_Index_View
 				$viewer->assign('OAUTH_DETAILS', $oAuthDetails);
 			}
 		}
-		// if (true) {
-			// $viewer->assign('OAUTH_PROVIDERS', array_keys(self::OAUTH_PROVIDERS));
-			// require_once 'modules/Settings/Vtiger/models/ConfigoAuth.php';
-			// $settingsoAuth = Settings_Vtiger_oAuth::getInstance();
-			// $oAuthDetails = $settingsoAuth->getData();
-			// $viewer->assign('OAUTH_DETAILS', $oAuthDetails);
-		// }
 		
         $viewer->assign('MODEL',$systemDetailsModel);
 		$viewer->assign('QUALIFIED_MODULE', $qualifiedName);
