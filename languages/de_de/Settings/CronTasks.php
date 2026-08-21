@@ -22,6 +22,12 @@ $languageStrings = array(
 	'Sequence' => 'Reihenfolge',
 	'Status' => 'Status',
 	'Frequency(H:M)' => 'Frequenz (h:m)',
+	'LBL_CRON_MAIL_SENDER_SETTINGS' => 'Cron Mail Absender',
+	'LBL_CRON_MAIL_SENDER_DESCRIPTION' => 'Diese Werte werden als Absender für E-Mails in Bezug auf Crons verwendet.',
+	'LBL_CRON_MAIL_SENDER_NAME' => 'Absendername',
+	'LBL_CRON_MAIL_SENDER_EMAIL' => 'Absender E-Mail',
+	'LBL_CRON_MAIL_SENDER_SAVED' => 'Cron Mail Absender wurde gespeichert.',
+	'LBL_INVALID_CRON_MAIL_SENDER_NAME' => 'Ungültiger Cron Mail Absendername',
 	//translation missed in en_us
 	'RecurringInvoice' => 'wiederkehrende Rechnung',
 	'SendReminder' => 'Erinnerung senden',
