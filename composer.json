@@ -10,5 +10,5 @@
         "phpmailer/phpmailer": "*",
         "thenetworg/oauth2-azure": "*",
         "phpunit/phpunit": "8.5.52"
-    },
+    }
 }
