@@ -347,6 +347,7 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
         $parentRecordId = $request->get('record');
         $pageNumber = $request->get('page');
         $limit = $request->get('limit');
+        $pagin = $request->get('pagin');
         $moduleName = $request->getModule();
 
         // Filter aus Request
@@ -369,6 +370,10 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
             $pagingModel->set('limit', $standardLimitNr);
             $limit = $standardLimitNr;
         }
+        $PAGINATIONSHOW = true;
+        if(!empty($pagin)) {
+			$PAGINATIONSHOW = false;
+		}
 
         $recentActivities = '';
         $totalRecordCountNr = '';
@@ -400,7 +405,8 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
         $viewer->assign('FILTER_FIELD', $filterField);
         $viewer->assign('SEARCH_TERM', $searchTerm);
         $viewer->assign('SORT_ORDER', $sortOrder);
-
+        $viewer->assign('PAGINATIONSHOW', $PAGINATIONSHOW);
+        
         echo $viewer->view('RecentActivities.tpl', $moduleName, 'true');
     }
 

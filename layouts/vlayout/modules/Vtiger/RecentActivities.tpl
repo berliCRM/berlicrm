@@ -13,97 +13,99 @@
 <div class="recentActivitiesContainer" id="updates">
     
 	<div>
-        <div class="row-fluid" id="updatesPagination">
-            {if !empty($RECENT_ACTIVITIES)}
-                {assign var=CURRENT_PAGE value=$PAGING_MODEL->get('page')}
-                {assign var=PREV_PAGE value=$CURRENT_PAGE-1}
-                {assign var=NEXT_PAGE value=$CURRENT_PAGE+1}
-                {assign var=TOTAL_COUNT value=$PAGING_MODEL->get('totalCount')}
+        {if $PAGINATIONSHOW} 
+            <div class="row-fluid" id="updatesPagination">
+                {if !empty($RECENT_ACTIVITIES)}
+                    {assign var=CURRENT_PAGE value=$PAGING_MODEL->get('page')}
+                    {assign var=PREV_PAGE value=$CURRENT_PAGE-1}
+                    {assign var=NEXT_PAGE value=$CURRENT_PAGE+1}
+                    {assign var=TOTAL_COUNT value=$PAGING_MODEL->get('totalCount')}
 
-                <div class="span8">
-                    <div class="pull-left">
-                    
-                    </div>
-                    <div class="row-fluid" id="updatesFilterBar" style="margin-bottom:10px;">
-
-                        <div class="span4">
-                            <input type="text" id="updatesSearchTerm" class="input-medium" 
-                            value="{$SEARCH_TERM}">
-                        </div>
+                    <div class="span8">
+                        <div class="pull-left">
                         
-                        <div class="span3">
-                            <select id="updatesFieldFilter" class="input-medium">
-                                <option value="">-- Feld auswählen --</option>
-                                {foreach from=$MODULE_FIELDS key=FIELDNAME item=FIELD}
-                                    <option value="{$FIELDNAME}" 
-                                        {if $FIELDNAME eq $FILTER_FIELD}
-                                            selected
-                                        {/if}
-                                    >
-                                        {vtranslate($FIELD->get('label'), $MODULE_NAME)}
-                                    </option>
-                                {/foreach}
-                            </select>
                         </div>
-                        
-                        <div class="span3">
-                            <select id="updatesSortOrder" class="input-medium">
-                                <option value="DESC" {if $SORT_ORDER eq 'DESC'}selected{/if}>absteigend</option>
-                                <option value="ASC"  {if $SORT_ORDER eq 'ASC'}selected{/if}>aufsteigend</option>
-                            </select>
-                        </div>
+                        <div class="row-fluid" id="updatesFilterBar" style="margin-bottom:10px;">
 
-                        <div class="span1">
-                            <button class="btn btn-primary" id="updatesApplyFilter"> <i class="icon-white icon-search"></i></button>
+                            <div class="span4">
+                                <input type="text" id="updatesSearchTerm" class="input-medium" 
+                                value="{$SEARCH_TERM}">
+                            </div>
+                            
+                            <div class="span3">
+                                <select id="updatesFieldFilter" class="input-medium">
+                                    <option value="">-- Feld auswählen --</option>
+                                    {foreach from=$MODULE_FIELDS key=FIELDNAME item=FIELD}
+                                        <option value="{$FIELDNAME}" 
+                                            {if $FIELDNAME eq $FILTER_FIELD}
+                                                selected
+                                            {/if}
+                                        >
+                                            {vtranslate($FIELD->get('label'), $MODULE_NAME)}
+                                        </option>
+                                    {/foreach}
+                                </select>
+                            </div>
+                            
+                            <div class="span3">
+                                <select id="updatesSortOrder" class="input-medium">
+                                    <option value="DESC" {if $SORT_ORDER eq 'DESC'}selected{/if}>absteigend</option>
+                                    <option value="ASC"  {if $SORT_ORDER eq 'ASC'}selected{/if}>aufsteigend</option>
+                                </select>
+                            </div>
+
+                            <div class="span1">
+                                <button class="btn btn-primary" id="updatesApplyFilter"> <i class="icon-white icon-search"></i></button>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="span4">
-                    <div class="pull-right">
+                    <div class="span4">
+                        <div class="pull-right">
 
-                        <span class="pageNumbersText">
-                            {if $TOTAL_COUNT gt 0}
-                                {$TOTAL_COUNT} {vtranslate('LBL_UPDATES',$MODULE_NAME)} &nbsp;
+                            <span class="pageNumbersText">
+                                {if $TOTAL_COUNT gt 0}
+                                    {$TOTAL_COUNT} {vtranslate('LBL_UPDATES',$MODULE_NAME)} &nbsp;
+                                {else}
+                                    <span>&nbsp;</span>
+                                {/if}
+                            </span>
+
+                            {if $PREV_PAGE gt 0}
+                                <a href="javascript:void(0)"
+                                    class="btn btn-mini relatedListPreviousPageButton updatesPageLink"
+                                    data-page="{$PREV_PAGE}">
+                                    <i class="icon-chevron-left"></i>
+                                </a>
                             {else}
-                                <span>&nbsp;</span>
+                                <a href="javascript:void(0)"
+                                    class="btn btn-mini disabled">
+                                    <i class="icon-chevron-left"></i>
+                                </a>
                             {/if}
-                        </span>
 
-                        {if $PREV_PAGE gt 0}
-                            <a href="javascript:void(0)"
-                                class="btn btn-mini relatedListPreviousPageButton updatesPageLink"
-                                data-page="{$PREV_PAGE}">
-                                <i class="icon-chevron-left"></i>
-                            </a>
-                        {else}
-                            <a href="javascript:void(0)"
-                                class="btn btn-mini disabled">
-                                <i class="icon-chevron-left"></i>
-                            </a>
-                        {/if}
+                            <span style="margin:0 10px;">
+                                {vtranslate('LBL_PAGE',$MODULE_NAME)} {$CURRENT_PAGE}
+                            </span>
 
-                        <span style="margin:0 10px;">
-                            {vtranslate('LBL_PAGE',$MODULE_NAME)} {$CURRENT_PAGE}
-                        </span>
+                            {if $PAGING_MODEL->isNextPageExists()}
+                                <a href="javascript:void(0)"
+                                    class="btn btn-mini relatedListNextPageButton updatesPageLink"
+                                    data-page="{$NEXT_PAGE}">
+                                    <i class="icon-chevron-right"></i>
+                                </a>
+                            {else}
+                                <a href="javascript:void(0)"
+                                    class="btn btn-mini disabled">
+                                    <i class="icon-chevron-right"></i>
+                                </a>
+                            {/if}
 
-                        {if $PAGING_MODEL->isNextPageExists()}
-                            <a href="javascript:void(0)"
-                                class="btn btn-mini relatedListNextPageButton updatesPageLink"
-                                data-page="{$NEXT_PAGE}">
-                                <i class="icon-chevron-right"></i>
-                            </a>
-                        {else}
-                            <a href="javascript:void(0)"
-                                class="btn btn-mini disabled">
-                                <i class="icon-chevron-right"></i>
-                            </a>
-                        {/if}
-
+                        </div>
                     </div>
-                </div>
-            {/if}
-        </div>
+                {/if}
+            </div>
+        {/if}
 
         {if !empty($RECENT_ACTIVITIES)}
             <ul class="unstyled">
