@@ -25,6 +25,9 @@ include_once('vtlib/Vtiger/Event.php');
 class Vtiger_Mailer extends PHPMailer {
 
 	var $_serverConfigured = false;
+	
+	// save body that will be sent by queue here
+	var $unalteredBody = '';
 
 	/**
 	 * Constructor
@@ -176,6 +179,21 @@ class Vtiger_Mailer extends PHPMailer {
 					'(id INTEGER, path TEXT, name VARCHAR(100), encoding VARCHAR(50), type VARCHAR(100))',
 					true);
 			}
+			if(!Vtiger_Utils::CheckTable('berlicrm_mailtracker')) {
+				Vtiger_Utils::CreateTable('`berlicrm_mailtracker`',
+					'(
+					`id` int(11) NOT NULL AUTO_INCREMENT,
+					`subject` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+					`receiver` text COLLATE utf8_unicode_ci NOT NULL,
+					`send_date` datetime NOT NULL,
+					`send_user` int(11) NOT NULL,
+					`crmid` int(11) DEFAULT NULL,
+					`smtp_answer` text COLLATE utf8_unicode_ci NOT NULL,
+					`messageid` text COLLATE utf8_unicode_ci,
+					PRIMARY KEY (`id`)
+					)',
+					true);
+			}
 			$this->_queueinitialized = true;
 		}
 		return true;
@@ -189,7 +207,7 @@ class Vtiger_Mailer extends PHPMailer {
 			global $adb;
 			$uniqueid = self::__getUniqueId();
 			$adb->pquery('INSERT INTO vtiger_mailer_queue(id,fromname,fromemail,content_type,subject,body,mailer,relcrmid) VALUES(?,?,?,?,?,?,?,?)',
-				Array($uniqueid, $this->FromName, $this->From, $this->ContentType, $this->Subject, $this->Body, $this->Mailer, $linktoid));
+				Array($uniqueid, $this->FromName, $this->From, $this->ContentType, $this->Subject, $this->unalteredBody, $this->Mailer, $linktoid));
 			$queueid = $uniqueid; //$adb->database->Insert_ID();
 			foreach($this->to as $toinfo) {
 				if(empty($toinfo[0])) continue;
@@ -231,46 +249,59 @@ class Vtiger_Mailer extends PHPMailer {
 	 * Dispatch (send) email that was queued.
 	 */
 	static function dispatchQueue(Vtiger_Mailer_Listener $listener=null) {
-		global $adb;
+		global $adb, $mailerScheduleLimit;
 		if(!Vtiger_Utils::CheckTable('vtiger_mailer_queue')) return;
+		
+		if (empty($mailerScheduleLimit)) {
+			$mailerScheduleLimit = 10000;
+		}
 
 		$mailer = new self();
 		$queue = $adb->pquery('SELECT * FROM vtiger_mailer_queue WHERE failed != ?', array(1));
 		if($adb->num_rows($queue)) {
-			for($index = 0; $index < $adb->num_rows($queue); ++$index) {
+			$currentUserModel = Users_Record_Model::getCurrentUserModel();
+			$counter = 0;
+			$infos = '';
+			while ($queue_record = $adb->getNextRow($queue, false)) {
 				$mailer->reinitialize();
 
-				$queue_record = $adb->fetch_array($queue, $index);
 				$queueid = $queue_record['id'];
 				$relcrmid= $queue_record['relcrmid'];
 
 				$mailer->From = $queue_record['fromemail'];
-				$mailer->FromName = decode_html($queue_record['fromname']);
-				$mailer->Subject= decode_html($queue_record['subject']);
+				$mailer->FromName = ($queue_record['fromname']);
+				$mailer->Subject = ($queue_record['subject']);
 				$mailer->msgHTML($queue_record['body']);
-				$mailer->Mailer=$queue_record['mailer'];
-				$mailer->ContentType = $queue_record['content_type'];
-
+				$mailer->Mailer = $queue_record['mailer'];
+				if (!empty($queue_record['content_type'])) {
+					$mailer->ContentType = $queue_record['content_type'];
+				}
+				
 				$emails = $adb->pquery('SELECT * FROM vtiger_mailer_queueinfo WHERE id=?', Array($queueid));
-				for($eidx = 0; $eidx < $adb->num_rows($emails); ++$eidx) {
-					$email_record = $adb->fetch_array($emails, $eidx);
-					if($email_record['type'] == 'TO') $mailer->AddAddress($email_record['email'], decode_html($email_record['name']));
-					else if($email_record['type'] == 'CC') $mailer->AddCC($email_record['email'], decode_html($email_record['name']));
-					else if($email_record['type'] == 'BCC') $mailer->AddBCC($email_record['email'], decode_html($email_record['name']));
-					else if($email_record['type'] == 'RPLYTO') $mailer->AddReplyTo($email_record['email'], decode_html($email_record['name']));
+				while ($email_record = $adb->getNextRow($emails, false)) {
+					if($email_record['type'] == 'TO') $mailer->AddAddress($email_record['email'], ($email_record['name']));
+					else if($email_record['type'] == 'CC') $mailer->AddCC($email_record['email'], ($email_record['name']));
+					else if($email_record['type'] == 'BCC') $mailer->AddBCC($email_record['email'], ($email_record['name']));
+					else if($email_record['type'] == 'RPLYTO') $mailer->AddReplyTo($email_record['email'], ($email_record['name']));
 				}
 
 				$attachments = $adb->pquery('SELECT * FROM vtiger_mailer_queueattachments WHERE id=?', Array($queueid));
-				for($aidx = 0; $aidx < $adb->num_rows($attachments); ++$aidx) {
-					$attachment_record = $adb->fetch_array($attachments, $aidx);
+				while ($attachment_record = $adb->getNextRow($attachments, false)) {
 					if($attachment_record['path'] != '') {
 						$mailer->AddAttachment($attachment_record['path'], $attachment_record['name'],
 												$attachment_record['encoding'], $attachment_record['type']);
 					}
 				}
-				$sent = $mailer->Send(true);
+
+				try {
+					$sent = $mailer->Send(true);
+				} catch (Exception $e) {
+					$sent = false;
+					$mailer->ErrorInfo = $e->getMessage();
+				}
 				if($sent) {
-					Vtiger_Event::trigger('vtiger.mailer.mailsent', $relcrmid);
+					// Event doesn't exist for now in vtiger_eventhandlers, but an object is generated anyway so skip it for now to save time
+					// Vtiger_Event::trigger('vtiger.mailer.mailsent', $relcrmid);
 					if($listener) {
 						$listener->mailsent($queueid);
 					}
@@ -283,7 +314,62 @@ class Vtiger_Mailer extends PHPMailer {
 					}
 					$adb->pquery('UPDATE vtiger_mailer_queue SET failed=?, failreason=? WHERE id=?', Array(1, $mailer->ErrorInfo, $queueid));
 				}
+				
+				// auto_inc ID, subject, receiver, send_date, send_user, crmid, smtp_answer, messageId
+				$mtQuery = "INSERT INTO berlicrm_mailtracker VALUES(?,?,?,?,?,?,?,?);";
+				$cDT = date('Y-m-d H:i:s');
+				$allReveivers = json_encode($mailer->getAllRecipientAddresses());
+				$messageId = '';
+				if ($sent == 1) {
+					$messageId = $mailer->getLastMessageID();
+					$errorMsg = $sent;
+				} else {
+					$errorMsg = $mailer->ErrorInfo;
+				}
+				
+				$adb->pquery($mtQuery, array(NULL, $queue_record['subject'], $allReveivers, $cDT, $currentUserModel->getId(), $relcrmid, $errorMsg, $messageId));
+				
+				$counter += 1;
+				$infos .= "$counter: TO: '{$allReveivers}' SUBJECT: '{$queue_record['subject']}' ID: '$relcrmid' STATUS: '$errorMsg'<br>";
+				if ($counter >= $mailerScheduleLimit) {
+					break;
+				}
+				set_time_limit(0);
 			}
+			// send info mail
+			global $HELPDESK_SUPPORT_EMAIL_ID, $HELPDESK_SUPPORT_NAME, $dbconfig, $current_user;
+			$mailer->reinitialize();
+			$mailer->From = $HELPDESK_SUPPORT_EMAIL_ID;
+			$mailer->FromName = $HELPDESK_SUPPORT_NAME;
+			$mailer->AddAddress($current_user->email1, 'Admin');
+			$mailer->Subject = "Information Massenmailing {$dbconfig['db_name']}";
+			$mailer->Mailer = 'smtp';
+			$mailer->ContentType = 'text/html';
+			
+			$mailer->msgHTML($infos);
+			try {
+				$mailer->Send(true);
+			} catch (Exception $e) {
+				syslog(LOG_DEBUG, __FILE__);
+				syslog(LOG_DEBUG, serialize($e->getMessage()));
+			}
+			// also create new Document
+			include_once('modules/Documents/Documents.php');
+			$date = date('Y-m-d H:i:s');
+			if(function_exists('date_default_timezone_set')) {
+				$default_timezone = 'Europe/Amsterdam';
+				$oldTimezone = date_default_timezone_get();
+				@date_default_timezone_set($default_timezone);
+				$date = date('Y-m-d H:i:s');
+				@date_default_timezone_set($oldTimezone);
+			}
+			$documents = new Documents();
+			$documents->column_fields['assigned_user_id'] = $current_user->id;
+			$documents->column_fields['notes_title'] 	= 	"Information Massenmailing {$date}";
+			$documents->column_fields['smownerid']	=	$current_user->id;
+			$documents->column_fields['notecontent'] = $infos;
+			$documents->column_fields['folderid'] = 1;
+			$documents->save("Documents");
 		}
 	}
 }

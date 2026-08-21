@@ -130,6 +130,20 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 			$rootDirectory .= '/';
 		}
 		$db = PearDatabase::getInstance();
+		
+		$query = 'CREATE TABLE IF NOT EXISTS `berlicrm_mailtracker` (
+				 `id` int(11) NOT NULL AUTO_INCREMENT,
+				 `subject` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+				 `receiver` text COLLATE utf8_unicode_ci NOT NULL,
+				 `send_date` datetime NOT NULL,
+				 `send_user` int(11) NOT NULL,
+				 `crmid` int(11) DEFAULT NULL,
+				 `smtp_answer` text COLLATE utf8_unicode_ci NOT NULL,
+				 `messageid` text COLLATE utf8_unicode_ci,
+				 PRIMARY KEY (`id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
+
+		$res = $db->pquery($query, array());
 
 		$mailer = Emails_Mailer_Model::getInstance();
 		$mailer->IsHTML(true);
@@ -196,6 +210,13 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 		if (!empty($datasignature['enabled']) && (string)$datasignature['enabled'] === '1' && !empty($datasignature['signature_html'])) {
 			$globalSignatureHtml = html_entity_decode($datasignature['signature_html'], ENT_QUOTES, 'UTF-8');
 		}
+		
+		$total = count($toEmailInfo);
+		global $mailerQueueTreshold;
+		if (empty($mailerQueueTreshold)) {
+			$mailerQueueTreshold = 5000;
+		}
+		$instant = ($total < $mailerQueueTreshold) ? true : false;
 
 		foreach($toEmailInfo as $id => $emails) {
 			$logo = false;
@@ -301,8 +322,10 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 						foreach($bccs as $bcc) $mailer->AddBCC($bcc);
 					}
 				}
-
-				$status = $mailer->Send(true);
+				if (!$instant) {
+					$mailer->unalteredBody = $description;
+				}
+				$status = $mailer->Send($instant, $id);
 			} catch (Exception $e) {
 				$errorMsg = $e->getMessage();
 			}
@@ -319,29 +342,17 @@ class Emails_Record_Model extends Vtiger_Record_Model {
             }
 			
 			// track emails here
-			$query = 'CREATE TABLE IF NOT EXISTS `berlicrm_mailtracker` (
-			 `id` int(11) NOT NULL AUTO_INCREMENT,
-			 `subject` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-			 `receiver` text COLLATE utf8_unicode_ci NOT NULL,
-			 `send_date` datetime NOT NULL,
-			 `send_user` int(11) NOT NULL,
-			 `crmid` int(11) DEFAULT NULL,
-			 `smtp_answer` text COLLATE utf8_unicode_ci NOT NULL,
-			 `messageid` text COLLATE utf8_unicode_ci,
-			 PRIMARY KEY (`id`)
-			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
-
-			$res = $db->pquery($query, array());
-			
-			// auto_inc ID, subject, receiver, send_date, send_user, crmid, smtp_answer, messageId
-			$mtQuery = "INSERT INTO berlicrm_mailtracker VALUES(?,?,?,?,?,?,?,?);";
-			$cDT = date('Y-m-d H:i:s');
-			$allReveivers = json_encode($mailer->getAllRecipientAddresses());
-			$messageId = '';
-			if ($errorMsg == 1) {
-				$messageId = $mailer->getLastMessageID();
+			if ($instant) {
+				// auto_inc ID, subject, receiver, send_date, send_user, crmid, smtp_answer, messageId
+				$mtQuery = "INSERT INTO berlicrm_mailtracker VALUES(?,?,?,?,?,?,?,?);";
+				$cDT = date('Y-m-d H:i:s');
+				$allReveivers = json_encode($mailer->getAllRecipientAddresses());
+				$messageId = '';
+				if ($errorMsg == 1) {
+					$messageId = $mailer->getLastMessageID();
+				}
+				$db->pquery($mtQuery, array(NULL, $subject, $allReveivers, $cDT, $currentUserModel->getId(), $id, $errorMsg, $messageId));
 			}
-			$db->pquery($mtQuery, array(NULL, $subject, $allReveivers, $cDT, $currentUserModel->getId(), $id, $errorMsg, $messageId));
 		}
 		return $status;
 	}

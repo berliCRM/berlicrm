@@ -809,6 +809,7 @@ class Install_InitSchema_Model
 		self::addNewWebservices();
 		self::addNewRelatedLists();
         self::addNewConfigEditSettingTables();
+		self::alterTables();
 
         //last step, set info this system was installed
         $path = Install_Utils_Model::INSTALL_FINISHED;
@@ -1409,4 +1410,20 @@ class Install_InitSchema_Model
         // Adding some fields *** END ***
         //
     }
+	
+	public static function alterTables() {
+		global $adb;
+		$ret = true;
+		
+		$alterStatements = array("ALTER TABLE `vtiger_mailer_queue` MODIFY body MEDIUMTEXT;" // base64 inline images can be saved there
+								);
+		foreach ($alterStatements AS $index => $query) {
+			$tmp = $adb->pquery($query, array());
+			if (!$tmp) {
+				$ret[$index] = $adb->database->errorMsg();
+			}
+		}
+		
+		return $ret;
+	}
 }
