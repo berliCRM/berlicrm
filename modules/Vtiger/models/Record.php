@@ -492,7 +492,7 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 					
 					// only search label fields if searchall isn't 1 and search isn't specified for certain module
 					if (empty($searchAll) && empty($moduleName)) {
-						$searchQuery = "SELECT crmid FROM vtiger_crmentity
+						$searchQuery = "SELECT DISTINCT vtiger_crmentity.crmid FROM vtiger_crmentity
 										LEFT JOIN berli_globalsearch_data ON berli_globalsearch_data.gscrmid = vtiger_crmentity.crmid
 										WHERE vtiger_crmentity.deleted = 0 AND vtiger_crmentity.setype = ? AND (vtiger_crmentity.label LIKE ? OR berli_globalsearch_data.searchlabel LIKE ?)";
 						$searchRes = $adb->pquery($searchQuery, array($iModuleName, "%{$searchKey}%", "%{$searchKey}%"));
@@ -533,6 +533,9 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 						while ($searchRow = $adb->getNextRow($searchRes, false)) {
 							// we only got one field, id, so we don't have to lookup it's fieldname
 							$crmId = $searchRow[0];
+							if (isset($matchingRecords[$iModuleName][$crmId])) {
+								continue;
+							}
 							// catch converted Leads this way
 							try {
 								$recordModel = Vtiger_Record_Model::getInstanceById($crmId, $iModuleName);
@@ -543,7 +546,7 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 							if ($displayLabel !== '') {
 								$recordModel->set('label', $displayLabel);
 							}
-							$matchingRecords[$iModuleName][] = $recordModel;
+							$matchingRecords[$iModuleName][$crmId] = $recordModel;
 						}
 					}
 				}
