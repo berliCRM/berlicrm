@@ -54,8 +54,11 @@ class MailManager_IMAPMessage_Model extends Vtiger_MailRecord  {
 			$this->__parseHeader($message);
 			$this->__parseBody($message);
 			if ($fetchbody) {
-				// Save for further use
-				$this->saveToDB($this->mUid);
+				$loaded = $this->readFromDB($this->mUid);
+				if (!$loaded) {
+					// Save for further use
+					$this->saveToDB($this->mUid);
+				}
 			}
 		}
 	}
@@ -262,7 +265,7 @@ class MailManager_IMAPMessage_Model extends Vtiger_MailRecord  {
 		$db = PearDatabase::getInstance();
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$result = $db->pquery("SELECT * FROM vtiger_mailmanager_mailrecord LEFT JOIN vtiger_mailmanager_mailrel ON muniqueid=mailuid
-			WHERE userid=? AND muid=?", array($currentUserModel->getId(), $uid));
+			WHERE userid=? AND muniqueid=?", array($currentUserModel->getId(), $uid));
 		if ($db->num_rows($result)) {
 			$resultrow = $db->fetch_array($result);
 			$this->mUid  = decode_html($resultrow['muid']);
