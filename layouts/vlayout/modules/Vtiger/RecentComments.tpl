@@ -11,47 +11,27 @@
 -->*}
 {strip}
 
-	{* Change to this also refer: AddCommentForm.tpl *}
-	{assign var="COMMENT_TEXTAREA_DEFAULT_ROWS" value="2"}
-
 	<div class="commentContainer recentComments">
 		<div class="commentTitle row-fluid">
 			{assign var=CREATE_PERMISSION value=$COMMENTS_MODULE_MODEL->isPermitted('CreateView')}
 			{assign var=EDIT_PERMISSION value=$COMMENTS_MODULE_MODEL->isPermitted('EditView')}
 			{if $CREATE_PERMISSION}
-				<div class="addCommentBlock">
-					<div>
-						<textarea name="commentcontent" class="commentcontent"
-						          placeholder="{vtranslate('LBL_ADD_YOUR_COMMENT_HERE', $MODULE_NAME)}"
-						          rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"></textarea>
-					</div>
-					<div class="pull-right">
-						{if $MODULE_NAME == 'HelpDesk'}
-							<button class="btn saveButton detailViewSaveComment" type="button"
-							        data-mode="sendMail"><strong>{vtranslate('LBL_SEND_MAIL_AND_POST', $MODULE_NAME)}</strong></button>
-						{/if}
-						<button class="btn btn-success detailViewSaveComment" type="button"
-						        data-mode="add"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
-					</div>
-					{if $MODULE_NAME == 'HelpDesk'}
-						<div>
-							<input type="checkbox" id="externalComment" name="externalComment">&nbsp;
-							<label for="externalComment"
-							       style="display:inline;">{vtranslate('LBL_EXTERNAL_COMMENT', $MODULE_NAME)}</label>
-						</div>
-						<div class="pushDown input-append">
-							<div class="time">
-								<label for="timeNeeded">{vtranslate('LBL_TIME_NEEDED', $MODULE_NAME)}:</label>
-								<input id="timeNeeded" type="text" data-format="24" class="timepicker-default input-small" value="00:00" name="timeNeeded"
-								       data-validation-engine="validate[funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" />
-								<span class="add-on cursorPointer">
-									<i class="icon-time"></i>
-								</span>
-							</div>
-							{include file='CommentTicketStatusSelect.tpl'|@vtemplate_path:$MODULE_NAME}
-						</div>
-					{/if}
-				</div>
+				{include file='CommentForm.tpl'|@vtemplate_path
+				COMMENT_FORM_BLOCK_CLASS='addCommentBlock'
+				COMMENT_FORM_IS_HIDDEN=false
+				COMMENT_FORM_IS_NESTED=false
+				COMMENT_FORM_MODE='add'
+				COMMENT_FORM_TEXTAREA_CLASS='commentcontent'
+				COMMENT_FORM_PLACEHOLDER='LBL_ADD_YOUR_COMMENT_HERE'
+				COMMENT_FORM_POST_BUTTON_CLASS='btn btn-success detailViewSaveComment'
+				COMMENT_FORM_SHOW_SEND_MAIL=true
+				COMMENT_FORM_SEND_MAIL_BUTTON_CLASS='btn saveButton detailViewSaveComment'
+				COMMENT_FORM_SHOW_CANCEL=false
+				COMMENT_FORM_CANCEL_CLASS=''
+				COMMENT_FORM_SHOW_REASON=false
+				COMMENT_FORM_STYLE=''
+				COMMENT_FORM_HELPDESK_FIELDS='full'
+				COMMENT_FORM_TIME_NEEDED_VALUE='00:00'}
 			{/if}
 		</div>
 		<hr><br>
@@ -178,62 +158,40 @@
 			</div>
 		{/if}
 		{if $CREATE_PERMISSION}
-			<div class="hide basicAddCommentBlock">
-				<div class="row-fluid">
-					<span class="span1">&nbsp;</span>
-					<div class="span11">
-						<textarea class="commentcontenthidden fullWidthAlways" name="commentcontent"
-						          rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"
-						          placeholder="{vtranslate('LBL_ADD_YOUR_COMMENT_HERE', $MODULE_NAME)}"></textarea>
-					</div>
-				</div>
-				<div class="pull-right">
-					<button class="btn btn-success detailViewSaveComment" type="button"
-					        data-mode="add"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
-					<a class="cursorPointer closeCommentBlock cancelLink"
-					   type="reset">{vtranslate('LBL_CANCEL', $MODULE_NAME)}</a>
-				</div>
-			</div>
+			{include file='CommentForm.tpl'|@vtemplate_path
+			COMMENT_FORM_BLOCK_CLASS='basicAddCommentBlock'
+			COMMENT_FORM_IS_HIDDEN=true
+			COMMENT_FORM_IS_NESTED=true
+			COMMENT_FORM_MODE='add'
+			COMMENT_FORM_TEXTAREA_CLASS='commentcontenthidden fullWidthAlways'
+			COMMENT_FORM_PLACEHOLDER='LBL_ADD_YOUR_COMMENT_HERE'
+			COMMENT_FORM_POST_BUTTON_CLASS='btn btn-success detailViewSaveComment'
+			COMMENT_FORM_SHOW_SEND_MAIL=false
+			COMMENT_FORM_SEND_MAIL_BUTTON_CLASS=''
+			COMMENT_FORM_SHOW_CANCEL=true
+			COMMENT_FORM_CANCEL_CLASS='cancelLink'
+			COMMENT_FORM_SHOW_REASON=false
+			COMMENT_FORM_STYLE=''
+			COMMENT_FORM_HELPDESK_FIELDS=''
+			COMMENT_FORM_TIME_NEEDED_VALUE='00:00'}
 		{/if}
 		{if $EDIT_PERMISSION}
-			<div class="hide basicEditCommentBlock" style="min-height: 150px;">
-				<div class="row-fluid">
-					<span class="span1">&nbsp;</span>
-					<div class="span11">
-						<input type="text" name="reasonToEdit"
-						       placeholder="{vtranslate('LBL_REASON_FOR_CHANGING_COMMENT', $MODULE_NAME)}"
-						       class="input-block-level" />
-					</div>
-				</div>
-				<div class="row-fluid">
-					<span class="span1">&nbsp;</span>
-					<div class="span11">
-						<textarea class="commentcontenthidden fullWidthAlways" name="commentcontent"
-						          rows="{$COMMENT_TEXTAREA_DEFAULT_ROWS}"></textarea>
-					</div>
-				</div>
-				<div class="pull-right">
-					<button class="btn btn-success detailViewSaveComment" type="button"
-					        data-mode="edit"><strong>{vtranslate('LBL_POST', $MODULE_NAME)}</strong></button>
-					<a class="cursorPointer closeCommentBlock cancelLink"
-					   type="reset">{vtranslate('LBL_CANCEL', $MODULE_NAME)}</a>
-				</div>
-				{if $MODULE_NAME == 'HelpDesk'}
-					<div>
-						<input type="checkbox" id="externalComment" name="externalComment">&nbsp;
-						<label for="externalComment"
-						       style="display:inline;">{vtranslate('LBL_EXTERNAL_COMMENT', $MODULE_NAME)}</label>
-					</div>
-					<div class="input-append time pushDown">
-						<label for="timeNeeded">{vtranslate('LBL_TIME_NEEDED', $MODULE_NAME)}:</label>
-						<input id="timeNeeded" type="text" data-format="24" class="timepicker-default input-small" value="{$TIMENEEDED}" name="timeNeeded"
-						       data-validation-engine="validate[funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" />
-						<span class="add-on cursorPointer">
-                                <i class="icon-time"></i>
-                        </span>
-					</div>
-				{/if}
-			</div>
+			{include file='CommentForm.tpl'|@vtemplate_path
+			COMMENT_FORM_BLOCK_CLASS='basicEditCommentBlock'
+			COMMENT_FORM_IS_HIDDEN=true
+			COMMENT_FORM_IS_NESTED=true
+			COMMENT_FORM_MODE='edit'
+			COMMENT_FORM_TEXTAREA_CLASS='commentcontenthidden fullWidthAlways'
+			COMMENT_FORM_PLACEHOLDER=''
+			COMMENT_FORM_POST_BUTTON_CLASS='btn btn-success detailViewSaveComment'
+			COMMENT_FORM_SHOW_SEND_MAIL=false
+			COMMENT_FORM_SEND_MAIL_BUTTON_CLASS=''
+			COMMENT_FORM_SHOW_CANCEL=true
+			COMMENT_FORM_CANCEL_CLASS='cancelLink'
+			COMMENT_FORM_SHOW_REASON=true
+			COMMENT_FORM_STYLE='min-height: 150px;'
+			COMMENT_FORM_HELPDESK_FIELDS='external_time'
+			COMMENT_FORM_TIME_NEEDED_VALUE='00:00'}
 		{/if}
 	</div>
 {/strip}
