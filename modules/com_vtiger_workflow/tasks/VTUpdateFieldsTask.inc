@@ -82,6 +82,8 @@ class VTUpdateFieldsTask extends VTTask {
 
 						$date = explode(' ', $fieldValue);
 						$fieldValue = $date[0];
+					} elseif ($fieldDataType == 'double' && $fieldInstance->getUiType() != 9 && !empty($fieldValue)) {
+						$fieldValue = CurrencyField::convertToUserFormat($fieldValue, $current_user, true, false);
 					}
                     //for Product Unit Price value converted with based product currency
                     if($fieldDataType == 'currency' && $fieldName == 'unit_price') {
@@ -183,7 +185,7 @@ class VTUpdateFieldsTask extends VTTask {
 			foreach ($focus->column_fields as $fieldName => $fieldValue) {
 				$focus->column_fields[$fieldName] = html_entity_decode($fieldValue, ENT_QUOTES, $default_charset);
 			}
-			$focus->column_fields = DataTransform::sanitizeNumberFieldsForInsert($focus->column_fields,$handlerMeta);
+			// $focus->column_fields = DataTransform::sanitizeNumberFieldsForInsert($focus->column_fields,$handlerMeta);
 			$_REQUEST['file'] = '';
 			$_REQUEST['ajxaction'] = '';
 
