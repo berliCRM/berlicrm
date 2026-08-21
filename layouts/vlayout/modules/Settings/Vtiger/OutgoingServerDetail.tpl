@@ -39,6 +39,32 @@
 					<td class="{$WIDTHTYPE}" style="border-left: none;"><span>{if $MODEL->isSmtpAuthEnabled()}{vtranslate('LBL_YES', $QUALIFIED_MODULE)} {else}{vtranslate('LBL_NO', $QUALIFIED_MODULE)}{/if}</span></td></tr>
 			</tbody>
 		</table>
+		{if $OAUTH_DETAILS}
+			<table class="table table-bordered table-condensed themeTableColor">
+				<thead>
+					<tr class="blockHeader">
+						<th colspan="2" class="{$WIDTHTYPE}">
+							<span class="alignMiddle">oAuth Provider</span>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					{foreach $OAUTH_DETAILS AS $OAUTH_KEY => $OAUTH_VALUE}
+						{if $OAUTH_KEY == 'enabled'}
+							{continue}
+						{/if}
+						<tr>
+							<td width="25%" class="{$WIDTHTYPE}">
+								<label class="muted pull-right marginRight10px">{$OAUTH_KEY}</label>
+							</td>
+							<td class="{$WIDTHTYPE}" style="border-left: none;">
+								<span>{$OAUTH_VALUE}</span>
+							</td>
+						</tr>
+					{/foreach}
+				</tbody>
+			</table>
+		{/if}
 	</div>
 </div>
 {/strip}

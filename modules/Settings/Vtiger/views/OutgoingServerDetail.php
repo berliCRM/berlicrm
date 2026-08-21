@@ -14,6 +14,25 @@ class Settings_Vtiger_OutgoingServerDetail_View extends Settings_Vtiger_Index_Vi
         $systemDetailsModel = Settings_Vtiger_Systems_Model::getInstanceFromServerType('email', 'OutgoingServer');
         $viewer = $this->getViewer($request);
         $qualifiedName = $request->getModule(false);
+		
+		// oAuth Support
+		// requires vendor/autoload.php
+		$includePath = __DIR__ . '/../vendor/autoload.php';
+		if (file_exists($includePath)) {
+			require_once($includePath);
+			if (class_exists('Azure') && class_exists('OAuth')) {
+				require_once 'modules/Settings/Vtiger/models/ConfigoAuth.php';
+				$settingsoAuth = Settings_Vtiger_oAuth::getInstance();
+				$oAuthDetails = $settingsoAuth->getData();
+				$viewer->assign('OAUTH_DETAILS', $oAuthDetails);
+			}
+		}
+		// if (true) {
+			// require_once 'modules/Settings/Vtiger/models/ConfigoAuth.php';
+			// $settingsoAuth = Settings_Vtiger_oAuth::getInstance();
+			// $oAuthDetails = $settingsoAuth->getData();
+			// $viewer->assign('OAUTH_DETAILS', $oAuthDetails);
+		// }
         
         $viewer->assign('MODEL',$systemDetailsModel);
 		$viewer->assign('QUALIFIED_MODULE', $qualifiedName);

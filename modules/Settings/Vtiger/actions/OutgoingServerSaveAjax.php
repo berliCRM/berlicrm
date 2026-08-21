@@ -24,6 +24,10 @@ class Settings_Vtiger_OutgoingServerSaveAjax_Action extends Settings_Vtiger_Basi
             $id = $outgoingServerSettingsModel->save($request);
             $data = $outgoingServerSettingsModel->getData();
             $response->setResult($data);
+			
+			require_once 'modules/Settings/Vtiger/models/ConfigoAuth.php';
+			$settingsoAuth = Settings_Vtiger_oAuth::getInstance();
+			$settingsoAuth->save($request);
         }catch(Exception $e) {
             $response->setError($e->getCode(), $e->getMessage());
         }
