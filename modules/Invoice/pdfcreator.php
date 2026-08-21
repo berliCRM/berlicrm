@@ -444,7 +444,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
                 $invoice_no,
                 $invoiceTypeCode,
                 \DateTime::createFromFormat('d.m.Y', $invoice_date),
-                "EUR", // BT-5 invoice currency
+                "EUR" // BT-5 invoice currency
             )
             ->addDocumentNote($org_name . ' | ' . $org_address . ' | ' . $org_code . ' ' . $org_city . ' | ' . $org_country . ' | ' . $org_management . ' | ' . $org_taxid, null, 'REG')
             ->setDocumentSupplyChainEvent(\DateTime::createFromFormat('d.m.Y', $invoice_date))
@@ -659,7 +659,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
                     (($price_total - $price_subtotal) / 100 * $group_total_tax_percent) * $signMultiplier,
                     number_format($group_total_tax_percent, 0),
                     'umsatzsteuerfreie Leistung',
-                    null,
+                    null
                     // $price_subtotal
                 )
                 ->addDocumentTax(
@@ -670,7 +670,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
                     $allItemsTaxTotal * $signMultiplier, // VAT amount BT-117
                     (abs($allItemsTaxTotal) != 0) ? $sh_tax_percent : 0,
                     null,
-                    null,
+                    null
                     // $price_subtotal
                 );
         }
