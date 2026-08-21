@@ -126,8 +126,11 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     $siccode = decode_html($adb->query_result($acc_result, 0, 'siccode'));
 
     $invoice_no = $focus->column_fields['invoice_no'];
+    $deliveryperiod = $focus->column_fields['deliveryperiod'];
+    $deliveryperiod = getValidDisplayDate($deliveryperiod);
+    $deliveryperiod = str_replace("-", ".", $deliveryperiod);
     $invoice_buyer_purchaseorder_no = $focus->column_fields['vtiger_purchaseorder']; // buyer purchase order number
-    file_put_contents('logs/ep4812.log', sprintf('%s %s %s', __LINE__, $invoice_no, $invoice_buyer_purchaseorder_no) . PHP_EOL, FILE_APPEND);
+    //file_put_contents('logs/ep4812.log', sprintf('%s %s %s', __LINE__, $invoice_no, $invoice_buyer_purchaseorder_no) . PHP_EOL, FILE_APPEND);
     //set currency format
     $sql = "select currency_symbol, currency_code from vtiger_currency_info where id= ?";
     $curr_result = $adb->pquery($sql, [$focus->column_fields['currency_id']]);
@@ -482,6 +485,10 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 
         if (!empty($invoiceReferenceNo)) {
             $eInvoiceDocument->addDocumentInvoiceReferencedDocument($invoiceReferenceNo, null, new \DateTime($focus->column_fields["inv_date_reference"])); // Reference to original invoice in case of credit note
+        }
+        // add delivery date, if not empty
+        if (!empty($deliveryperiod)) {
+            $eInvoiceDocument->setDocumentSupplyChainEvent(\DateTime::createFromFormat('d.m.Y', $deliveryperiod));
         }
     }
 
