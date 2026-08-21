@@ -167,12 +167,16 @@ class Vtiger_MailScannerAction {
 			// Get the ticket record that was created by SENDER earlier
 			$fromemail = $mailrecord->_from[0];
 
-			$linkfocus = $mailscanner->GetTicketRecord($usesubject, $fromemail);
-            
-            $commentedBy = $mailscanner->LookupContact($fromemail);
-            if(!$commentedBy) {
-                $commentedBy = $mailscanner->LookupAccount($fromemail);
-            }
+			// The ticket reference is sufficient for replies. Forwarded ticket mails can
+			// legitimately be answered by somebody other than the ticket's contact.
+			$linkfocus = $mailscanner->GetTicketRecord($usesubject);
+
+			// Every sender is represented by a Contacts record. An existing contact is
+			// reused; a new one is created without changing the ticket's contact_id.
+			$commentedBy = false;
+			if ($linkfocus) {
+				$commentedBy = $this->__GetOrCreateReplyContact($mailscanner, $mailrecord, $mailscannerrule);
+			}
 
 			// If matching ticket is found, update comment, attach email
 			if($linkfocus) {
@@ -180,12 +184,13 @@ class Vtiger_MailScannerAction {
 				$commentFocus->column_fields['commentcontent'] = $mailrecord->getBodyText();
 				$commentFocus->column_fields['related_to'] = $linkfocus->id;
 				$commentFocus->column_fields['assigned_user_id'] =  $mailscannerrule->assigned_to;
-                if($commentedBy) {
-                    $commentFocus->column_fields['customer'] = $commentedBy;
-                    $commentFocus->column_fields['from_mailconverter'] = 1;
-                } else {
-                    $commentFocus->column_fields['userid'] = $mailscannerrule->assigned_to;
-                }
+				$commentFocus->column_fields['mailfrom'] = $fromemail;
+				if($commentedBy) {
+					$commentFocus->column_fields['customer'] = $commentedBy;
+					$commentFocus->column_fields['from_mailconverter'] = 1;
+				} else {
+					$commentFocus->column_fields['userid'] = $mailscannerrule->assigned_to;
+				}
 				$commentFocus->saveentity('ModComments');
 
 				// Set the ticket status to Open if its Closed
@@ -198,13 +203,13 @@ class Vtiger_MailScannerAction {
 
 				$returnid = $this->__CreateNewEmail($mailrecord, $this->module, $linkfocus, $mailscannerrule);
 
-                // TT596: Update parent ticket modifiedtime when comment is created via MailScanner
-                Vtiger_Functions::updateParentModifiedTime(
-                    $linkfocus->id,
-                    $this->module,
-                    $commentFocus->id,
-                    $mailscannerrule->assigned_to
-                );
+				// TT596: Update parent ticket modifiedtime when comment is created via MailScanner
+				Vtiger_Functions::updateParentModifiedTime(
+					$linkfocus->id,
+					$this->module,
+					$commentFocus->id,
+					$mailscannerrule->assigned_to
+				);
 
 			} else {
 				// TODO If matching ticket was not found, create ticket?
@@ -215,33 +220,75 @@ class Vtiger_MailScannerAction {
 	}
 
 	/**
+	 * Find or create the Contacts record for a ticket reply sender.
+	 *
+	 * The contact is intentionally not assigned to the ticket: HelpDesk supports
+	 * one primary contact only, while the comment's customer field records who
+	 * actually sent this reply.
+	 */
+	function __GetOrCreateReplyContact($mailscanner, $mailrecord, $mailscannerrule) {
+		$fromemail = trim((string) $mailrecord->_from[0]);
+		if ($fromemail === '') {
+			return false;
+		}
+
+		$contactid = $mailscanner->LookupContact($fromemail);
+		if ($contactid) {
+			return $contactid;
+		}
+
+		$name = $this->getName($mailrecord);
+		$charsToTrim = "#*, ";
+		$firstname = trim((string) $name[0], $charsToTrim);
+		$lastname = trim((string) $name[1], $charsToTrim);
+		if (strpos($firstname, ',') !== false || strpos($lastname, ',') !== false) {
+			$temporaryFirstname = $firstname;
+			$firstname = $lastname;
+			$lastname = $temporaryFirstname;
+		}
+		if ($lastname === '') {
+			$lastname = $fromemail;
+		}
+
+		$contact = new Contacts();
+		$this->setDefaultValue('Contacts', $contact);
+		$contact->column_fields['firstname'] = $firstname;
+		$contact->column_fields['lastname'] = $lastname;
+		$contact->column_fields['email'] = $fromemail;
+		$contact->column_fields['assigned_user_id'] = $mailscannerrule->assigned_to;
+		$contact->save('Contacts');
+
+		return $contact->id;
+	}
+
+	/**
 	 * Create ticket action.
 	 */
 	function __CreateContact($mailscanner, $mailrecord, $mailscannerrule) {
-        if($mailscanner->LookupContact($mailrecord->_from[0])) {
-            $this->lookup = 'FROM';
-            return $this->__LinkToRecord($mailscanner, $mailrecord, $mailscannerrule);
-        }
-                $name = $this->getName($mailrecord);
+		if($mailscanner->LookupContact($mailrecord->_from[0])) {
+			$this->lookup = 'FROM';
+			return $this->__LinkToRecord($mailscanner, $mailrecord, $mailscannerrule);
+		}
+		$name = $this->getName($mailrecord);
 		$email = $mailrecord->_from[0];
 		$description = $mailrecord->getBodyText();
 
 		$contact = new Contacts();
-        $this->setDefaultValue('Contacts', $contact);
-        $charsToDelOnFirstOrLastPosition = "#*, ";
-        $firstname = trim($name[0]);
-        $lastname = trim($name[1]);
-        if (strpos($firstname, ',') !== false || strpos($lastname, ',') !== false) {
-            // must swap 
-            $temporaryfirstname = $firstname;
-            $firstname = $lastname;
-            $lastname = $temporaryfirstname;
-        }
-        $firstname = trim($firstname, $charsToDelOnFirstOrLastPosition);
-        $lastname = trim($lastname, $charsToDelOnFirstOrLastPosition);
+		$this->setDefaultValue('Contacts', $contact);
+		$charsToDelOnFirstOrLastPosition = "#*, ";
+		$firstname = trim($name[0]);
+		$lastname = trim($name[1]);
+		if (strpos($firstname, ',') !== false || strpos($lastname, ',') !== false) {
+			// must swap
+			$temporaryfirstname = $firstname;
+			$firstname = $lastname;
+			$lastname = $temporaryfirstname;
+		}
+		$firstname = trim($firstname, $charsToDelOnFirstOrLastPosition);
+		$lastname = trim($lastname, $charsToDelOnFirstOrLastPosition);
 
 		$contact->column_fields['firstname'] = $firstname;
-        $contact->column_fields['lastname'] = $lastname; 
+		$contact->column_fields['lastname'] = $lastname;
 		$contact->column_fields['email'] = $email;
 		$contact->column_fields['assigned_user_id'] =  $mailscannerrule->assigned_to;
 		$contact->column_fields['description'] = $description;
@@ -256,18 +303,18 @@ class Vtiger_MailScannerAction {
 	 * Create Lead action.
 	 */
 	function __CreateLead($mailscanner, $mailrecord, $mailscannerrule) {
-        if($mailscanner->LookupLead($mailrecord->_from[0])) {
-            $this->lookup = 'FROM';
-            return $this->__LinkToRecord($mailscanner, $mailrecord, $mailscannerrule);
-        }
+		if($mailscanner->LookupLead($mailrecord->_from[0])) {
+			$this->lookup = 'FROM';
+			return $this->__LinkToRecord($mailscanner, $mailrecord, $mailscannerrule);
+		}
 		$name = $this->getName($mailrecord);
 		$email = $mailrecord->_from[0];
 		$description = $mailrecord->getBodyText();
 
 		$lead = new Leads();
-        $this->setDefaultValue('Leads', $lead);
+		$this->setDefaultValue('Leads', $lead);
 		$lead->column_fields['firstname'] = $name[0];
-        $lead->column_fields['lastname'] = $name[1];
+		$lead->column_fields['lastname'] = $name[1];
 		$lead->column_fields['email'] = $email;
 		$lead->column_fields['assigned_user_id'] = $mailscannerrule->assigned_to;
 		$lead->column_fields['description'] = $description;
@@ -282,16 +329,16 @@ class Vtiger_MailScannerAction {
 	 * Create Account action.
 	 */
 	function __CreateAccount($mailscanner, $mailrecord, $mailscannerrule) {
-        if($mailscanner->LookupAccount($mailrecord->_from[0])) {
-            $this->lookup = 'FROM';
-            return $this->__LinkToRecord($mailscanner, $mailrecord, $mailscannerrule);
-        }
+		if($mailscanner->LookupAccount($mailrecord->_from[0])) {
+			$this->lookup = 'FROM';
+			return $this->__LinkToRecord($mailscanner, $mailrecord, $mailscannerrule);
+		}
 		$name = $this->getName($mailrecord);
 		$email = $mailrecord->_from[0];
 		$description = $mailrecord->getBodyText();
 
 		$account = new Accounts();
-        $this->setDefaultValue('Accounts', $account);
+		$this->setDefaultValue('Accounts', $account);
 		$account->column_fields['accountname'] = $name[0].' '.$name[1];
 		$account->column_fields['email1'] = $email;
 		$account->column_fields['assigned_user_id'] =  $mailscannerrule->assigned_to;
@@ -314,20 +361,20 @@ class Vtiger_MailScannerAction {
 		// There will be only on FROM address to email, so pick the first one
 		$fromemail = $mailrecord->_from[0];
 		$contactLinktoid = $mailscanner->LookupContact($fromemail);
-        if(!$contactLinktoid) {
-            $contactLinktoid = $this-> __CreateContact($mailscanner, $mailrecord, $mailscannerrule);
-        }
+		if(!$contactLinktoid) {
+			$contactLinktoid = $this-> __CreateContact($mailscanner, $mailrecord, $mailscannerrule);
+		}
 		if ($contactLinktoid)
 			$linktoid = $mailscanner->getAccountId($contactLinktoid);
-        if(!$linktoid)
-                $linktoid = $mailscanner->LookupAccount($fromemail);
+		if(!$linktoid)
+			$linktoid = $mailscanner->LookupAccount($fromemail);
 
 		// Create trouble ticket record
 		$ticket = new HelpDesk();
-                $this->setDefaultValue('HelpDesk', $ticket);
+		$this->setDefaultValue('HelpDesk', $ticket);
 		if(empty($ticket->column_fields['ticketstatus']) || $ticket->column_fields['ticketstatus'] == '?????')
-                    $ticket->column_fields['ticketstatus'] = 'Open';
-                $ticket->column_fields['ticket_title'] = $usetitle;
+			$ticket->column_fields['ticketstatus'] = 'Open';
+		$ticket->column_fields['ticket_title'] = $usetitle;
 		$ticket->column_fields['description'] = $description;
 		$ticket->column_fields['assigned_user_id'] =  $mailscannerrule->assigned_to;
 		if ($contactLinktoid)
@@ -338,38 +385,38 @@ class Vtiger_MailScannerAction {
 
 		// Associate any attachement of the email to ticket
 		$this->__SaveAttachements($mailrecord, 'HelpDesk', $ticket, $mailscannerrule->folderid);
-                
-                if($contactLinktoid)
-                    $relatedTo = $contactLinktoid;
-                else
-                    $relatedTo = $linktoid;
-                $this->linkMail($mailscanner, $mailrecord, $relatedTo, $mailscannerrule);
-                
+
+		if($contactLinktoid)
+			$relatedTo = $contactLinktoid;
+		else
+			$relatedTo = $linktoid;
+		$this->linkMail($mailscanner, $mailrecord, $relatedTo, $mailscannerrule);
+
 		return $ticket->id;
 	}
-        
-        /**
-         * Function to link email record to contact/account/lead
-         * record if exists with same email id
-         * @param type $mailscanner
-         * @param type $mailrecord
-         */
-        function linkMail($mailscanner, $mailrecord, $relatedTo, $mailscannerrule) {
-            $fromemail = $mailrecord->_from[0];
-            
-            $linkfocus = $mailscanner->GetContactRecord($fromemail, $relatedTo);
-            $module = 'Contacts';
-            if(!$linkfocus) {
-                $linkfocus = $mailscanner->GetAccountRecord($fromemail, $relatedTo);
-                $module = 'Accounts';
-            }
 
-            if($linkfocus) {
-                $this->__CreateNewEmail($mailrecord, $module, $linkfocus, $mailscannerrule);
-            }
-        }
+	/**
+	 * Function to link email record to contact/account/lead
+	 * record if exists with same email id
+	 * @param type $mailscanner
+	 * @param type $mailrecord
+	 */
+	function linkMail($mailscanner, $mailrecord, $relatedTo, $mailscannerrule) {
+		$fromemail = $mailrecord->_from[0];
 
-        /**
+		$linkfocus = $mailscanner->GetContactRecord($fromemail, $relatedTo);
+		$module = 'Contacts';
+		if(!$linkfocus) {
+			$linkfocus = $mailscanner->GetAccountRecord($fromemail, $relatedTo);
+			$module = 'Accounts';
+		}
+
+		if($linkfocus) {
+			$this->__CreateNewEmail($mailrecord, $module, $linkfocus, $mailscannerrule);
+		}
+	}
+
+	/**
 	 * Add email to CRM record like Contacts/Accounts
 	 */
 	function __LinkToRecord($mailscanner, $mailrecord, $mailscannerrule) {
@@ -414,11 +461,11 @@ class Vtiger_MailScannerAction {
 		if(!$current_user) {
 			$current_user = Users::getActiveAdminUser();
 		}
-        $assignedToId = $linkfocus->column_fields['assigned_user_id'];
-        if(vtws_getOwnerType($assignedToId) == 'Groups') {
-            $assignedToId = Users::getActiveAdminId();
-        }
-        
+		$assignedToId = $linkfocus->column_fields['assigned_user_id'];
+		if(vtws_getOwnerType($assignedToId) == 'Groups') {
+			$assignedToId = Users::getActiveAdminId();
+		}
+
 		$focus = new Emails();
 		$focus->column_fields['parent_type'] = $module;
 		$focus->column_fields['activitytype'] = 'Emails';
@@ -541,49 +588,49 @@ class Vtiger_MailScannerAction {
 
 		return true;
 	}
-    
-    function setDefaultValue($module, $moduleObj) { 
-        $moduleInstance = Vtiger_Module_Model::getInstance($module);
-        
-        $fieldInstances = Vtiger_Field_Model::getAllForModule($moduleInstance);
-        foreach($fieldInstances as $blockInstance) {
-            foreach($blockInstance as $fieldInstance) {
-                $fieldName = $fieldInstance->getName();
-                $defaultValue = $fieldInstance->getDefaultFieldValue();
-                if($defaultValue) {
-                    $moduleObj->column_fields[$fieldName] = decode_html($defaultValue);
-                }
-                if($fieldInstance->isMandatory() && !$defaultValue) {
-                    $moduleObj->column_fields[$fieldName] = Vtiger_Util_Helper::getDefaultMandatoryValue($fieldInstance->getFieldDataType());
-                }
-            }
-        }
-    }
-    
-    /**
-     * Function to get Mail Sender's Name
-     * @param <Vtiger_MailRecord Object> $mailrecord
-     * @return <Array> containing First Name and Last Name
-     */
-    function getName($mailrecord) {
-        $name = $mailrecord->_fromname;
-        if(!empty($name)) {
-            $nameParts = explode(' ', $name);
-            if(count($nameParts) > 1) {
-                $firstName = $nameParts[0];
-                unset($nameParts[0]);
-                $lastName = implode(' ', $nameParts);
-            } else {
-                $firstName = '';
-                $lastName = $nameParts[0];
-            }
-        } else {
-            $firstName = '';
-            $lastName = $mailrecord->_from[0];
-        }
-        
-        return array($firstName, $lastName);
-    }
-    
+
+	function setDefaultValue($module, $moduleObj) {
+		$moduleInstance = Vtiger_Module_Model::getInstance($module);
+
+		$fieldInstances = Vtiger_Field_Model::getAllForModule($moduleInstance);
+		foreach($fieldInstances as $blockInstance) {
+			foreach($blockInstance as $fieldInstance) {
+				$fieldName = $fieldInstance->getName();
+				$defaultValue = $fieldInstance->getDefaultFieldValue();
+				if($defaultValue) {
+					$moduleObj->column_fields[$fieldName] = decode_html($defaultValue);
+				}
+				if($fieldInstance->isMandatory() && !$defaultValue) {
+					$moduleObj->column_fields[$fieldName] = Vtiger_Util_Helper::getDefaultMandatoryValue($fieldInstance->getFieldDataType());
+				}
+			}
+		}
+	}
+
+	/**
+	 * Function to get Mail Sender's Name
+	 * @param <Vtiger_MailRecord Object> $mailrecord
+	 * @return <Array> containing First Name and Last Name
+	 */
+	function getName($mailrecord) {
+		$name = $mailrecord->_fromname;
+		if(!empty($name)) {
+			$nameParts = explode(' ', $name);
+			if(count($nameParts) > 1) {
+				$firstName = $nameParts[0];
+				unset($nameParts[0]);
+				$lastName = implode(' ', $nameParts);
+			} else {
+				$firstName = '';
+				$lastName = $nameParts[0];
+			}
+		} else {
+			$firstName = '';
+			$lastName = $mailrecord->_from[0];
+		}
+
+		return array($firstName, $lastName);
+	}
+
 }
 ?>

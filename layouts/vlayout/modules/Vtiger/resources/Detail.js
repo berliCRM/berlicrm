@@ -1133,7 +1133,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 			return;
 		}
 		triggerElement.removeData('mailData');
-		var modalUrl = 'index.php?module=' + app.getModuleName() + '&view=SendCommentMailModal';
+		var modalUrl = 'index.php?module=' + app.getModuleName() + '&view=SendCommentMailModal&record=' + thisInstance.getRecordId();
 		app.showModalWindow(null, modalUrl, function (modalContainer) {
 			var modal = jQuery(modalContainer);
 			var fileInput = modal.find('.js-comment-mail-files');
