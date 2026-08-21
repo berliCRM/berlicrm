@@ -145,8 +145,8 @@ class Vtiger_Mailer extends PHPMailer {
 						'provider'      => $provider,
 						'clientId'      => $oAuthDetails['client_id'],
 						'clientSecret'  => $oAuthDetails['client_secret'],
-						'refreshToken'  => $oAuthDetails['refresh_token'],
-						'userName'      => $oAuthDetails['user_name'],
+						'refreshToken'  => $oAuthDetails['hidden_refresh_token'],
+						'userName'      => $this->Username
 					]));
 				}
 			}
