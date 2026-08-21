@@ -50,7 +50,7 @@
 				</thead>
 				<tbody>
 					{foreach $OAUTH_DETAILS AS $OAUTH_KEY => $OAUTH_VALUE}
-						{if $OAUTH_KEY == 'enabled'}
+						{if $OAUTH_KEY == 'enabled' || strpos($OAUTH_KEY, 'hidden_') === 0}
 							{continue}
 						{/if}
 						<tr>

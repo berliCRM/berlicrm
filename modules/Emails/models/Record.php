@@ -52,6 +52,14 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 	 * @var string
 	 */
     public $senderEmail = '';
+	
+	/**
+	 * Optional flag to send emails without looking up entities
+	 * If provided, this value will prevent array keys to be treated as entity IDs
+	 *
+	 * @var boolean
+	*/
+	public $sendWithoutRelation = false;
 
 	/**
 	 * Function to get the Detail View url for the record
@@ -193,7 +201,9 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 		$toEmailsData = array();
 		$i = 1;
 		foreach ($toFieldData as $value) {
-			$toEmailInfo['to'.$i++] = array($value);
+			if (!empty($value)) {
+				$toEmailInfo['to'.$i++] = array($value);
+			}
 		}
 		$attachments = $this->getAttachmentDetails();
 		$status = false;
@@ -226,7 +236,9 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 			$old_mod_strings = vglobal('mod_strings');
 			$description = $this->get('description');
             $subject = $this->get('subject');
-			$parentModule = $this->getEntityType($id);
+			if (!$this->sendWithoutRelation) {
+				$parentModule = $this->getEntityType($id);
+			}
 
             if ($parentModule) {
 				$recordModel = Vtiger_Record_Model::getInstanceById($id,$parentModule);
@@ -325,7 +337,7 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 				if (!$instant) {
 					$mailer->unalteredBody = $description;
 				}
-				$status = $mailer->Send($instant, $id);
+				$status = $mailer->Send($instant, $id, $this->sendWithoutRelation);
 			} catch (Exception $e) {
 				$errorMsg = $e->getMessage();
 			}

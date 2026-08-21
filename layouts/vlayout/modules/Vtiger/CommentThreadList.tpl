@@ -23,7 +23,7 @@
 					<div class="span11 commentorInfo">
 						{assign var=COMMENTOR value=$COMMENT->getCommentedByModel()}
 						<div class="inner">
-							<span class="commentorName pull-left"><strong>{$COMMENTOR->getName()}</strong></span>
+							<span class="commentorName pull-left"><strong>{$COMMENTOR->getName()}</strong>{include file='CommentMailInfo.tpl'|@vtemplate_path COMMENT=$COMMENT}</span>
 							<span class="pull-right">
 								<p class="muted"><small title="{Vtiger_Util_Helper::formatDateTimeIntoDayString($COMMENT->getCommentedTime())}" class="commentModifiedTime">{Vtiger_Util_Helper::formatDateDiffInStrings($COMMENT->getCommentedTime())}&nbsp;&nbsp; ({Vtiger_Util_Helper::convertDateTimeIntoUsersDisplayFormat($COMMENT->getCommentedTime())})</small></p>
 							</span>
@@ -45,7 +45,7 @@
 						<span class="{if empty($REASON_TO_EDIT)}hide{/if} span6 marginLeftZero editReason">
 							[ {vtranslate('LBL_EDIT_REASON',$MODULE_NAME)} ] : <span  name="editReason" class="textOverflowEllipsis">{nl2br($REASON_TO_EDIT)}</span>
 						</span>
-						</small></p>
+							</small></p>
 						{if $COMMENT->getCommentedTime() neq $COMMENT->getModifiedTime()}
 							<span class="{if empty($REASON_TO_EDIT)}row-fluid{else} span6{/if}">
 								<span class="pull-right">

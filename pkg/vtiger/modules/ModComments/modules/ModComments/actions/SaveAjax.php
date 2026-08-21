@@ -40,9 +40,15 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 
         $recordModel = $this->saveRecord($request);
 
+        $commentMailError = null;
         if ($request->get('sendMail')) {
-            $attachmentDocumentIds = $this->saveUploadedDocuments();
-            $this->sendMail($request, $recordModel, $attachmentDocumentIds);
+            $mailTemplate = $this->getMailTemplate();
+            if ($mailTemplate === null) {
+                $commentMailError = vtranslate('LBL_HELPDESK_COMMENT_MAIL_TEMPLATE_NOT_FOUND', 'HelpDesk');
+            } else {
+                $attachmentDocumentIds = $this->saveUploadedDocuments();
+                $this->sendMail($request, $recordModel, $attachmentDocumentIds, $mailTemplate);
+            }
         }
 
         $fieldModelList = $recordModel->getModule()->getFields();
@@ -55,6 +61,9 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 
         $result['_recordLabel'] = $recordModel->getName();
         $result['_recordId'] = $recordModel->getId();
+        if ($commentMailError !== null) {
+            $result['commentMailError'] = $commentMailError;
+        }
 
         $response = new Vtiger_Response();
         $response->setEmitType(Vtiger_Response::$EMIT_JSON);
@@ -69,9 +78,11 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
      */
     public function saveRecord($request): Vtiger_Record_Model
     {
+        $ticketStatusChange = $this->getTicketStatusChangeFromRequest($request);
         $recordModel = $this->getRecordModelFromRequest($request);
 
         $recordModel->save();
+        $this->saveRelatedTicketStatusChange($ticketStatusChange);
         if ($request->get('relationOperation')) {
             $parentModuleName = $request->get('sourceModule');
             $parentModuleModel = Vtiger_Module_Model::getInstance($parentModuleName);
@@ -83,6 +94,57 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
             $relationModel->addRelation($parentRecordId, $relatedRecordId);
         }
         return $recordModel;
+    }
+
+    protected function getTicketStatusChangeFromRequest(Vtiger_Request $request): ?array
+    {
+        if (!$request->has('ticketstatus')) {
+            return null;
+        }
+
+        $relatedRecordId = $request->get('related_to');
+        if (empty($relatedRecordId) || getSalesEntityType($relatedRecordId) !== 'HelpDesk') {
+            return null;
+        }
+
+        $ticketRecordModel = Vtiger_Record_Model::getInstanceById($relatedRecordId, 'HelpDesk');
+        $currentTicketStatus = $ticketRecordModel->get('ticketstatus');
+        $selectedTicketStatus = trim((string) $request->get('ticketstatus'));
+
+        if ($selectedTicketStatus === '' || $selectedTicketStatus === $currentTicketStatus) {
+            return null;
+        }
+
+        $ticketStatusField = $ticketRecordModel->getModule()->getField('ticketstatus');
+        if (
+            empty($ticketStatusField)
+            || !$ticketStatusField->isEditable()
+            || !Users_Privileges_Model::isPermitted('HelpDesk', 'Save', $relatedRecordId)
+        ) {
+            throw new AppException('LBL_PERMISSION_DENIED');
+        }
+
+        $allowedTicketStatuses = $ticketStatusField->getPicklistValues();
+        if (empty($allowedTicketStatuses)) {
+            $allowedTicketStatuses = array();
+        }
+        if (!array_key_exists($selectedTicketStatus, $allowedTicketStatuses)) {
+            throw new AppException('LBL_PERMISSION_DENIED');
+        }
+
+        return array($ticketRecordModel, $selectedTicketStatus);
+    }
+
+    protected function saveRelatedTicketStatusChange(?array $ticketStatusChange): void
+    {
+        if ($ticketStatusChange === null) {
+            return;
+        }
+
+        [$ticketRecordModel, $selectedTicketStatus] = $ticketStatusChange;
+        $ticketRecordModel->set('mode', 'edit');
+        $ticketRecordModel->set('ticketstatus', $selectedTicketStatus);
+        $ticketRecordModel->save();
     }
 
     /**
@@ -112,17 +174,22 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
      * @return void
      * @throws Exception
      */
-    public function sendMail(Vtiger_Request $request, Vtiger_Record_Model $recordModel, array $attachmentDocumentIds = array()): void
+    public function sendMail(Vtiger_Request $request, Vtiger_Record_Model $recordModel, array $attachmentDocumentIds = array(), array $mailTemplate = array()): void
     {
         global $HELPDESK_SUPPORT_EMAIL_ID;
-        $db = PearDatabase::getInstance();
 
         $email = '';
         $name = '';
         $relatedId = $recordModel->get('related_to');
         $relatedRecordModel = Vtiger_Record_Model::getInstanceById($relatedId);
         $parent_id = '';
-        [$subject, $contents] = array_map('decode_html', self::getMailTemplate());
+        if (empty($mailTemplate)) {
+            $mailTemplate = $this->getMailTemplate();
+            if ($mailTemplate === null) {
+                return;
+            }
+        }
+        [$subject, $contents] = array_map('decode_html', $mailTemplate);
 
         $subject = getMergedDescription($subject, $relatedId, 'HelpDesk');
         $contents = getMergedDescription($contents, $relatedId, 'HelpDesk');
@@ -208,23 +275,66 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
             $emailsRecordModel->save();
         }
 
-        // Not using record model for this because mailto has to be set after record model got saved and this would trigger aftersave handler a second time.
-        // This is not wanted because things like ModTracker would count this as two different edits/saves
-        $query = "UPDATE vtiger_modcomments SET mailto = ?, external  = ?, carboncopy = ?, blindcarboncopy = ? WHERE modcommentsid = ?";
-        $db->pquery($query, array(
-            $email,
-            true,
-            trim((string) $request->get('carboncopy')),
-            trim((string) $request->get('blindcarboncopy')),
-            $recordModel->getId()
+        // Not using record model for this because these values are set after record save and this would trigger aftersave handlers a second time.
+        // This is not wanted because things like ModTracker would count this as two different edits/saves.
+        $this->updateCommentMailMetadata($recordModel->getId(), array(
+            'mailto' => $email,
+            'external' => true,
+            'carboncopy' => trim((string) $request->get('carboncopy')),
+            'blindcarboncopy' => trim((string) $request->get('blindcarboncopy')),
+            'mailfrom' => $from_email,
+            'emailid' => $emailsRecordModel->getId(),
         ));
     }
 
+    protected function updateCommentMailMetadata($commentId, array $metadata): void
+    {
+        $setClauses = array();
+        $params = array();
+        foreach ($metadata as $columnName => $columnValue) {
+            if (!$this->isModCommentsColumnAvailable($columnName)) {
+                continue;
+            }
+            $setClauses[] = $columnName . ' = ?';
+            $params[] = $columnValue;
+        }
+
+        if (empty($setClauses)) {
+            return;
+        }
+
+        $params[] = $commentId;
+        $db = PearDatabase::getInstance();
+        $db->pquery(
+            'UPDATE vtiger_modcomments SET ' . implode(', ', $setClauses) . ' WHERE modcommentsid = ?',
+            $params
+        );
+    }
+
+    protected function isModCommentsColumnAvailable($columnName): bool
+    {
+        static $availableColumns = null;
+
+        if ($availableColumns === null) {
+            $availableColumns = array();
+            $db = PearDatabase::getInstance();
+            $result = $db->pquery('DESCRIBE vtiger_modcomments', array());
+            if ($result) {
+                $rowCount = $db->num_rows($result);
+                for ($i = 0; $i < $rowCount; $i++) {
+                    $availableColumns[$db->query_result($result, $i, 'field')] = true;
+                }
+            }
+        }
+
+        return !empty($availableColumns[$columnName]);
+    }
+
     /**
-     * @return array
+     * @return array|null
      * @throws Exception
      */
-    public function getMailTemplate(): array
+    public function getMailTemplate(): ?array
     {
         global $HELPDESK_SUPPORT_EMAIL_TEMPLATE;
 
@@ -232,8 +342,11 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 
         $query = "SELECT vtiger_emailtemplates.subject,vtiger_emailtemplates.body
 					FROM vtiger_emailtemplates
-					WHERE vtiger_emailtemplates.templateid=?";
+					WHERE vtiger_emailtemplates.templateid=? AND vtiger_emailtemplates.deleted=0";
         $result = $db->pquery($query, array($HELPDESK_SUPPORT_EMAIL_TEMPLATE));
+        if (!$result || (int) $db->num_rows($result) === 0) {
+            return null;
+        }
         return array($db->query_result($result,0,'subject'), $db->query_result($result,0,'body'));
     }
 

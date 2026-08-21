@@ -169,12 +169,7 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 
         $listView = Vtiger_ListView_Model::getInstance('ModComments');
         $queryGenerator = $listView->get('query_generator');
-        $queryGenerator->setFields(
-            array('parent_comments', 'createdtime', 'modifiedtime', 'related_to',
-                'assigned_user_id', 'commentcontent', 'creator', 'id', 'customer', 'reasontoedit', 'userid', 'from_mailconverter',
-                'timeneeded', 'external', 'carboncopy', 'blindcarboncopy', 'mailto'
-            )
-        );
+        $queryGenerator->setFields(self::getCommentListFields(array('from_mailconverter')));
 
         $query = $queryGenerator->getQuery();
         $query = $query ." AND related_to = ? 
@@ -203,12 +198,7 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 
         $listView = Vtiger_ListView_Model::getInstance('ModComments');
         $queryGenerator = $listView->get('query_generator');
-        $queryGenerator->setFields(
-            array('parent_comments', 'createdtime', 'modifiedtime', 'related_to', 'id',
-                'assigned_user_id', 'commentcontent', 'creator', 'customer', 'reasontoedit', 'userid',
-                'timeneeded', 'external', 'carboncopy', 'blindcarboncopy', 'mailto'
-            )
-        );
+        $queryGenerator->setFields(self::getCommentListFields());
         $query = $queryGenerator->getQuery();
 
         //Condition are directly added as query_generator transforms the
@@ -264,9 +254,7 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 
         $listView = Vtiger_ListView_Model::getInstance('ModComments');
         $queryGenerator = $listView->get('query_generator');
-        $queryGenerator->setFields(array('parent_comments', 'createdtime', 'modifiedtime', 'related_to', 'id',
-            'timeneeded', 'external', 'carboncopy', 'blindcarboncopy', 'mailto',
-            'assigned_user_id', 'commentcontent', 'creator', 'reasontoedit', 'userid'));
+        $queryGenerator->setFields(self::getCommentListFields());
         $query = $queryGenerator->getQuery();
 
         //Condition are directly added as query_generator transforms the
@@ -333,9 +321,45 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
         } elseif (!empty($userId)) {
             $type = 'internal';
         } else {
-			// comment created by Webservices?
-			$type = 'internal';
-		}
+            // comment created by Webservices?
+            $type = 'internal';
+        }
         return $type;
+    }
+
+    protected static function getCommentListFields(array $additionalFields = array()) {
+        $fields = array(
+            'parent_comments',
+            'createdtime',
+            'modifiedtime',
+            'related_to',
+            'assigned_user_id',
+            'commentcontent',
+            'creator',
+            'id',
+            'customer',
+            'reasontoedit',
+            'userid',
+            'timeneeded',
+            'external',
+            'carboncopy',
+            'blindcarboncopy',
+            'mailto',
+        );
+
+        $moduleModel = Vtiger_Module_Model::getInstance('ModComments');
+        foreach (array('mailfrom', 'emailid') as $fieldName) {
+            if ($moduleModel && $moduleModel->getField($fieldName)) {
+                $fields[] = $fieldName;
+            }
+        }
+
+        foreach ($additionalFields as $fieldName) {
+            if ($moduleModel && $moduleModel->getField($fieldName)) {
+                $fields[] = $fieldName;
+            }
+        }
+
+        return $fields;
     }
 }
