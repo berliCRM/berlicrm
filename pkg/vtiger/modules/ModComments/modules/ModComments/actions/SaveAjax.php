@@ -314,6 +314,7 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         $documentIds = array();
         $files = $_FILES['attachments'];
         $count = is_array($files['name']) ? count($files['name']) : 0;
+        $attachmentFolderId = $this->getTicketCommentAttachmentFolderId();
 
         for ($index = 0; $index < $count; $index++) {
             if ((int) $files['error'][$index] !== UPLOAD_ERR_OK || empty($files['name'][$index])) {
@@ -324,7 +325,7 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
                 'name' => $files['name'][$index],
                 'tmp_name' => $files['tmp_name'][$index],
                 'size' => $files['size'][$index],
-            ));
+            ), $attachmentFolderId);
 
             if ($documentId) {
                 $documentIds[] = $documentId;
@@ -334,7 +335,15 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         return $documentIds;
     }
 
-    protected function saveUploadedDocument(array $file)
+    protected function getTicketCommentAttachmentFolderId(): int
+    {
+        require_once 'modules/Settings/Vtiger/models/ConfigTicketEmailAddress.php';
+
+        $configModel = Settings_Vtiger_ConfigTicketEmailAddress::getInstance();
+        return $configModel->getAttachmentFolderId();
+    }
+
+    protected function saveUploadedDocument(array $file, $folderId = 1)
     {
         require_once 'modules/Settings/MailConverter/handlers/MailAttachmentMIME.php';
 
@@ -383,7 +392,7 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         $document->column_fields['filename'] = $fileName;
         $document->column_fields['filestatus'] = 1;
         $document->column_fields['filelocationtype'] = 'I';
-        $document->column_fields['folderid'] = 1;
+        $document->column_fields['folderid'] = (int) $folderId;
         $document->column_fields['filesize'] = $file['size'];
         $document->column_fields['assigned_user_id'] = $currentUserModel->getId();
         $existingFiles = $_FILES;

@@ -324,6 +324,7 @@ $languageStrings = array(
     'LBL_CONFIGTICKETMAIL_FIELD0' => 'Sender information for tickets active',
     'LBL_LAST_CHANGED' => 'last changed',
     'LBL_LAST_CHANGED_BY' => 'changed by',
+    'LBL_CONFIGTICKETMAIL_ATTACHMENT_FOLDER_EDITOR' => 'Document folder for ticket comment attachments',
 
 );
 
