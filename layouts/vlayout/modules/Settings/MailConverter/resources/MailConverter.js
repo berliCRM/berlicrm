@@ -8,7 +8,7 @@
  *************************************************************************************/
 
 jQuery.Class('Settings_MailConverter_Index_Js',{
-	
+
 	mailConverterInstance : false,
 
 	triggerRuleEdit : function(url){
@@ -27,7 +27,7 @@ jQuery.Class('Settings_MailConverter_Index_Js',{
 			});
 		});
 	},
-	
+
 	triggerDeleteRule : function(currentElement,url){
 		var deleteElement = jQuery(currentElement);
 		var message = app.vtranslate('LBL_DELETE_CONFIRMATION');
@@ -44,7 +44,7 @@ jQuery.Class('Settings_MailConverter_Index_Js',{
 								var currentSequenceElement = jQuery(element).find('.sequenceNumber');
 								var updatedNumber = parseInt(currentSequenceElement.text())-1;
 								currentSequenceElement.text(updatedNumber);
-							});	
+							});
 						}
 						closestBlock.remove();
 						var params = {
@@ -60,7 +60,7 @@ jQuery.Class('Settings_MailConverter_Index_Js',{
 			});
 	}
 },{
-	
+
 	registerSortableEvent : function() {
 		var thisInstance = this;
 		var sequenceList = {};
@@ -72,7 +72,7 @@ jQuery.Class('Settings_MailConverter_Index_Js',{
 				ui.placeholder.height(ui.helper.height());
 			},
 			update: function(e, ui ) {
-				
+
 				jQuery('[data-blockid]',container).each(function(i){
 					sequenceList[++i] = jQuery(this).data('id');
 				});
@@ -101,25 +101,25 @@ jQuery.Class('Settings_MailConverter_Index_Js',{
 			}
 		});
 	},
-	
+
 	saveRuleEvent : function() {
 		var thisInstance = this;
 		jQuery('#ruleSave').on('submit',function(e){
 			var form = jQuery(e.currentTarget);
 			var validationResult = form.validationEngine('validate');
-            var progressIndicatorElement = jQuery.progressIndicator({
-                'position' : 'html',
-                'blockInfo' : {
-                    'enabled' : true
-                }
-            });
+			var progressIndicatorElement = jQuery.progressIndicator({
+				'position' : 'html',
+				'blockInfo' : {
+					'enabled' : true
+				}
+			});
 			if(validationResult == true) {
 				var params = form.serializeFormData();
-                app.hideModalWindow();
+				app.hideModalWindow();
 				AppConnector.request(params).then(function(data) {
-                    progressIndicatorElement.progressIndicator({
-                        'mode' : 'hide'
-                    })
+					progressIndicatorElement.progressIndicator({
+						'mode' : 'hide'
+					})
 					if(typeof data.result != 'undefined') {
 						var params = {
 							module : app.getModuleName(),
@@ -129,7 +129,7 @@ jQuery.Class('Settings_MailConverter_Index_Js',{
 							view : 'RuleAjax'
 						}
 						thisInstance.getRule(params);
-						
+
 						var params = {
 							title : app.vtranslate('JS_MESSAGE'),
 							text: data.result.message,
@@ -143,11 +143,11 @@ jQuery.Class('Settings_MailConverter_Index_Js',{
 			e.preventDefault();
 		});
 	},
-	
+
 	setAssignedTo : function() {
 		jQuery("#actions").change(function() {
 			var selectedAction = jQuery("#actions").val();
-			if(!(selectedAction=="CREATE_HelpDesk_FROM" || selectedAction=="CREATE_Leads_SUBJECT" || selectedAction=="CREATE_Contacts_SUBJECT" || selectedAction=="CREATE_Accounts_SUBJECT")) {
+			if(!(selectedAction=="CREATE_HelpDesk_FROM" || selectedAction=="UPDATE_HelpDesk_SUBJECT" || selectedAction=="CREATE_Leads_SUBJECT" || selectedAction=="CREATE_Contacts_SUBJECT" || selectedAction=="CREATE_Accounts_SUBJECT")) {
 				jQuery("#assignedTo").val("");
 				jQuery("#assignedToBlock").hide();
 			} else {
@@ -155,7 +155,7 @@ jQuery.Class('Settings_MailConverter_Index_Js',{
 			}
 		});
 	},
-	
+
 	openMailBox : function() {
 		jQuery(".mailBoxDropdown").change(function() {
 			var id = jQuery(".mailBoxDropdown option:selected").val();
@@ -163,29 +163,29 @@ jQuery.Class('Settings_MailConverter_Index_Js',{
 			window.location.assign(path);
 		});
 	},
-	
+
 	disableFolderSelection : function() {
-		var checked = jQuery("input[type=checkbox][name=folders]:checked").length >= 2;     
+		var checked = jQuery("input[type=checkbox][name=folders]:checked").length >= 2;
 		jQuery("input[type=checkbox][name=folders]").not(":checked").attr("disabled", checked);
-	    
+
 		jQuery("input[type=checkbox][name=folders]").click(function() {
-			var checked = jQuery("input[type=checkbox][name=folders]:checked").length >= 2;     
+			var checked = jQuery("input[type=checkbox][name=folders]:checked").length >= 2;
 			jQuery("input[type=checkbox][name=folders]").not(":checked").attr("disabled", checked);
 		});
 	},
-	
+
 	getRule : function(params) {
-         var progressIndicatorElement = jQuery.progressIndicator({ 
-                'position' : 'html',
-                'blockInfo' : {
-                    'enabled' : true
-                }
-            });
+		var progressIndicatorElement = jQuery.progressIndicator({
+			'position' : 'html',
+			'blockInfo' : {
+				'enabled' : true
+			}
+		});
 		var ruleId = params.record;
 		AppConnector.request(params).then(function(data){
-             progressIndicatorElement.progressIndicator({
-                        'mode' : 'hide'
-                    })
+			progressIndicatorElement.progressIndicator({
+				'mode' : 'hide'
+			})
 			var currentBlock = jQuery('[data-blockid="block_'+ruleId+'"]')
 			if(currentBlock.length > 0){
 				var previousValue = currentBlock.prevAll('[data-blockid]').first().find('.sequenceNumber').text();
@@ -201,7 +201,7 @@ jQuery.Class('Settings_MailConverter_Index_Js',{
 			}
 		});
 	},
-	
+
 	registerEvents : function() {
 		this.registerSortableEvent();
 		this.openMailBox();
