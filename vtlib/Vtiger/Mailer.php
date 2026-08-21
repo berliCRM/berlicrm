@@ -88,6 +88,9 @@ class Vtiger_Mailer extends PHPMailer {
 			// End
 			
 			if(empty($this->SMTPAuth)) $this->SMTPAuth = false;
+			
+			// set CharSet here
+			$this->CharSet = PHPMailer::CHARSET_UTF8;
 
 			$this->ConfigSenderInfo($fromValue);
 
