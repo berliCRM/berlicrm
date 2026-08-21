@@ -332,7 +332,10 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
             $type = 'outgoing';
         } elseif (!empty($userId)) {
             $type = 'internal';
-        }
+        } else {
+			// comment created by Webservices?
+			$type = 'internal';
+		}
         return $type;
     }
 }
