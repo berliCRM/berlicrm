@@ -1036,6 +1036,22 @@ jQuery.Class("Emails_MassEdit_Js",{},{
 				//update toemailnameslist hidden element value
 			}
 			mailInfoElement.val(JSON.stringify(previousValue));
+			// remove entry from toMailNamesList
+			if (mailInfo.emailid != undefined) {
+				var toMailNamesListElement = this.getMassEmailForm().find('[name="toMailNamesList"]');
+				var previousValue = JSON.parse(toMailNamesListElement.val());
+				if (previousValue[mailInfo.id] != undefined ) {
+					jQuery(previousValue[mailInfo.id]).each(function(index) {
+						if (jQuery(this).first()[0].value == mailInfo.emailid) {
+							previousValue[mailInfo.id].splice(index, 1);
+						}
+					});
+					if (previousValue[mailInfo.id].length == 0) {
+						delete previousValue[mailInfo.id];
+					}
+					toMailNamesListElement.val(JSON.stringify(previousValue));
+				}
+			}
 		}
 	},
 
