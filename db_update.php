@@ -1628,6 +1628,87 @@ echo "Install_InitSchema_Model::alterTables() END<br>";
 
 
 
+// ---------------------------------------------------------
+// EmailConfigurator installation into Settings
+// ---------------------------------------------------------
+echo "Install Email Configurator into Settings START<br>";
+{
+    // Retrieve the current maximum fieldid from vtiger_settings_field
+    $sql0 = "SELECT MAX(fieldid) AS max_fieldid FROM vtiger_settings_field";
+    $params0 = array();
+    $res0 = $adb->pquery($sql0, $params0);
+    $max_fieldid = 0;
+
+    while ($rowSelect = $adb->getNextRow($res0, false)) {
+        $max_fieldid = $rowSelect['max_fieldid'];
+    }
+
+    if ($max_fieldid > 0) {
+
+        // ---------------------------------------------------------
+        // (001) Insert new Settings entry for EmailConfigurator
+        // Block ID 5 = "Integration" section in Settings
+        // ---------------------------------------------------------
+        echo "(001) Insert new entry into vtiger_settings_field ...<br>";
+
+        $sql1 = "INSERT INTO `vtiger_settings_field`
+                (`fieldid`, `blockid`, `name`, `iconpath`, `description`, `linkto`, `sequence`, `active`, `pinned`)
+                VALUES
+                (?, 5, 'LBL_EMAILCONFIGURATOR', NULL, 'LBL_EMAILCONFIGURATOR_DESCRIPTION',
+                'index.php?module=EmailConfigurator&view=Index&parent=Settings', 14, 0, 0)";
+        $params1 = array($max_fieldid + 1);
+        $res1 = $adb->pquery($sql1, $params1);
+
+        // ---------------------------------------------------------
+        // (002) Update sequence table for vtiger_settings_field
+        // ---------------------------------------------------------
+        echo "(002) Update vtiger_settings_field_seq ...<br>";
+
+        $sql2 = "UPDATE `vtiger_settings_field_seq` SET `id` = ?";
+        $params2 = array($max_fieldid + 2);
+        $res2 = $adb->pquery($sql2, $params2);
+
+        // ---------------------------------------------------------
+        // (003) Create EmailConfigurator data table
+        // Stores configured sender addresses
+        // ---------------------------------------------------------
+        echo "(003) Create table crmnow_emailconfig ...<br>";
+
+        $sql3 = "CREATE TABLE IF NOT EXISTS `crmnow_emailconfig` (
+            `emailid` int(11) NOT NULL AUTO_INCREMENT,
+            `email_firstname` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
+            `email_lastname` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
+            `email_address` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
+            `email_desc` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
+            PRIMARY KEY (`emailid`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=11;";
+        $params3 = array();
+        $res3 = $adb->pquery($sql3, $params3);
+
+        // ---------------------------------------------------------
+        // (004) Create sequence table for EmailConfigurator
+        // ---------------------------------------------------------
+        echo "(004) Create table crmnow_emailconfig_seq ...<br>";
+
+        $sql4 = "CREATE TABLE IF NOT EXISTS `crmnow_emailconfig_seq` (
+            `id` int(11) NOT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+        $params4 = array();
+        $res4 = $adb->pquery($sql4, $params4);
+
+        // ---------------------------------------------------------
+        // (005) Initialize sequence table with starting value
+        // ---------------------------------------------------------
+        echo "(005) Insert initial sequence value into crmnow_emailconfig_seq ...<br>";
+
+        $sql5 = "INSERT INTO `crmnow_emailconfig_seq` (`id`) VALUES (?)";
+        $params5 = array(0);
+        $res5 = $adb->pquery($sql5, $params5);
+
+    }
+}
+echo "Install Email Configurator into Settings END<br>";
+
 
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
 $adb->pquery($query, array($current_release_tag));

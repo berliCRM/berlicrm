@@ -156,29 +156,33 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 		$mailer = Emails_Mailer_Model::getInstance();
 		$mailer->IsHTML(true);
 
-		$fromEmail = $this->getFromEmailAddress();
-		if (empty($fromEmail)) {
-			$replyTo = $currentUserModel->get('email1');
+        // EmailConfigurator //crm-now: added to support FROM selection 
+        $fromEmail = '';
+        $replyTo = '';
+        $userName = '';
+		$fromMailAddress = trim($_REQUEST['fromAddress']);
+		if (empty($fromMailAddress)) {
+            $fromEmail = $this->getFromEmailAddress();
+            if (empty($fromEmail)) {
+                $replyTo = $currentUserModel->get('email1');
+            }
+            else {
+                $replyTo = $fromEmail;
+            }
+			$userName = $currentUserModel->getName();
 		}
 		else {
-			$replyTo = $fromEmail;
+			$fromEmail = $fromMailAddress;
+			$replyTo = $fromMailAddress;
+			$sql = "SELECT email_firstname, email_lastname FROM crmnow_emailconfig where email_address =?";
+			$result = $db->pquery($sql, array($fromEmail));
+			if ($result && $db->num_rows($result) > 0) {
+				$email_firstname = $db->query_result($result, 0, 'email_firstname');
+				$email_lastname = $db->query_result($result, 0, 'email_lastname');
+				$userName = $email_firstname.' '.$email_lastname;
+			}
 		}
 
-        if(!empty($this->senderEmail)){
-			$replyTo = $this->senderEmail;
-            $fromEmail = $this->senderEmail;
-		}
-
-		$userName = $currentUserModel->getName();
-		// do not use user's name if from was set on purpose
-		// TO ADD: use given name instead
-		if (!empty($this->fromAddress)) {
-			$userName = '';
-		}
-
-        if (!empty($this->senderName)) {
-			$userName = $this->senderName;
-		}
 
 		// To eliminate the empty value of an array
 		$toEmailInfo = array_filter($this->get('toemailinfo'));
