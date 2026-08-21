@@ -123,7 +123,7 @@ function getReportFieldValue ($report, $picklistArray, $dbField, $valueArray, $f
 		if($value!='') {
 			$fieldvalue = getTranslatedCurrencyString($value);
 		}
-	} elseif (in_array($dbField->name,$report->ui101_fields) && !empty($value)) {
+	} elseif ((in_array($dbField->name, $report->ui101_fields) || $fieldType == 'UserPicklist') && !empty($value)) {
 		$entityNames = getEntityName('Users', $value);
 		$fieldvalue = $entityNames[$value];
 	} elseif( $fieldType == 'date' && !empty($value)) {
