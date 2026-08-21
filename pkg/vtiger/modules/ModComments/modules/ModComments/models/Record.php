@@ -173,11 +173,13 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 
         $query = $queryGenerator->getQuery();
         $query = $query ." AND related_to = ? 
+        AND (parent_comments = '' OR parent_comments IS NULL OR parent_comments = 'undefined')
 		ORDER BY vtiger_crmentity.createdtime DESC
 		LIMIT $startIndex, $limit";
 
         $result = $db->pquery($query, array($parentRecordId));
         $rows = $db->num_rows($result);
+        $recordInstances = array();
 
         for ($i=0; $i<$rows; $i++) {
             $row = $db->query_result_rowdata($result, $i);
