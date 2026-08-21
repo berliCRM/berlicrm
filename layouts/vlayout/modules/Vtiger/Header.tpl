@@ -13,7 +13,7 @@
 <html>
 	<head>
 		<title>
-			{vtranslate($PAGETITLE, $MODULE_NAME)}
+			{$smarty.server.HTTP_HOST|regex_replace:"/\..*/":""}: {vtranslate($PAGETITLE, $MODULE_NAME)}
 		</title>
 		<link id="favicon" REL="SHORTCUT ICON" HREF="layouts/vlayout/skins/images/favicon.ico">
 		<meta name="viewport" content="width=device-width, initial-scale=0.7">
