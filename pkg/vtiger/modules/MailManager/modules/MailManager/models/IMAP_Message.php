@@ -52,21 +52,11 @@ class MailManager_IMAPMessage_Model extends Vtiger_MailRecord  {
 			// // Unique ID based on sequence number
 			$this->mUid = $message->message_id->toString();
 			$this->__parseHeader($message);
+			$this->__parseBody($message);
 			if ($fetchbody) {
-				// Lookup if there was previous cached message
-				// $loaded = $this->readFromDB($this->mUid);
+				// Save for further use
+				$this->saveToDB($this->mUid);
 			}
-			if (!$loaded) {
-				$this->__parseBody($message);
-				if ($fetchbody) {
-					// Save for further use
-					$loaded = $this->saveToDB($this->mUid);
-				}
-			}
-			// if ($loaded) {
-				// $this->setRead(true);
-				// $this->setMsgNo(intval($msgno));
-			// }
 		}
 	}
 	
@@ -119,9 +109,18 @@ class MailManager_IMAPMessage_Model extends Vtiger_MailRecord  {
 
 		if($message->hasAttachments()) {
 		    $attachments = $message->getAttachments();
+			$usedNames = array();
+			$counter = 1;
 			foreach ($attachments AS $attachment) {
-				// can name be not unique in this case?
-				$this->_attachments[$attachment->name] = $attachment->content;
+				$fileName = $attachment->name;
+				if (in_array($fileName, $usedNames)) {
+					$tmp = explode('.', $fileName);
+					$ext = array_pop($tmp);
+					$fileName = implode('.', $tmp)."_$counter.$ext";
+					$counter += 1;
+				}
+				$this->_attachments[$fileName] = $attachment->content;
+				$usedNames[] = $fileName;
 			}
 		}
 
