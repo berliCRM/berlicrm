@@ -87,6 +87,7 @@ $languageStrings = array(
 	'Urgent'=>'dringend',
 	'Wait For Response'=>'warte auf Zuarbeit',
 	'Owner' => 'Besitzer',
+	'LBL_SET_NEW_STATUS' => 'Neuen Status setzen',
 );
 
 $jsLanguageStrings = array(

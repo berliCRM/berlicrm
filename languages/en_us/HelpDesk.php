@@ -85,4 +85,5 @@ $languageStrings = array(
 	'Update History' => 'Update History',
 	'Urgent'=>'Urgent',
 	'Wait For Response'=>'Wait For Response',
+	'LBL_SET_NEW_STATUS' => 'Set New Status',
 );
