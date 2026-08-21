@@ -72,7 +72,7 @@
 						<input type="hidden" name="timeNeeded" value="{$TIME_NEEDED}">
 					{/if}
 					{assign var="REASON_TO_EDIT" value=$COMMENT->get('reasontoedit')}
-					<div class="row-fluid editedStatus" name="editStatus">
+					<div class="row-fluid editedStatus{if empty($REASON_TO_EDIT) and $COMMENT->getCommentedTime() eq $COMMENT->getModifiedTime()} hide{/if}" name="editStatus">
 						<div class="row-fluid">
 							<span class="{if empty($REASON_TO_EDIT)}hide{/if} span6 editReason">
 								<p><small>[ {vtranslate('LBL_EDIT_REASON',$MODULE_NAME)} ] : <span name="editReason"

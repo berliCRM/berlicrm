@@ -11,7 +11,7 @@
 -->*}
 {strip}
 
-	<div class="commentContainer recentComments">
+	<div class="commentContainer recentComments" data-show-more-label="{vtranslate('LBL_SHOW_MORE', 'Vtiger')}" data-show-less-label="{vtranslate('LBL_SHOW_LESS', 'Vtiger')}">
 		<div class="commentTitle row-fluid">
 			{assign var=CREATE_PERMISSION value=$COMMENTS_MODULE_MODEL->isPermitted('CreateView')}
 			{assign var=EDIT_PERMISSION value=$COMMENTS_MODULE_MODEL->isPermitted('EditView')}

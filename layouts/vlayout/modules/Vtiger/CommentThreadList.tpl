@@ -43,7 +43,7 @@
 		<div class="row-fluid commentActionsContainer">
 			{if $EDIT_PERMISSION}
 				{assign var="REASON_TO_EDIT" value=$COMMENT->get('reasontoedit')}
-				<div class="row-fluid editedStatus"  name="editStatus">
+				<div class="row-fluid editedStatus{if empty($REASON_TO_EDIT) and $COMMENT->getCommentedTime() eq $COMMENT->getModifiedTime()} hide{/if}"  name="editStatus">
 					<div class="row-fluid">
 						<p class="span6 marginLeftZero"><small>
 						<span class="{if empty($REASON_TO_EDIT)}hide{/if} span6 marginLeftZero editReason">

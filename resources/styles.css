@@ -567,7 +567,6 @@ td.listViewEntryValue .row-fluid input {
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   word-wrap: break-word;
-  margin-bottom: 10px;
 }
 .commentContainer .commentTitle textarea {
   width: 100%;
@@ -672,9 +671,71 @@ td.listViewEntryValue .row-fluid input {
   width: 100%;
   resize: none;
 }
+.commentContainer .addCommentBlock .ticketCommentEditor {
+  position: relative;
+}
+.commentContainer .addCommentBlock .ticketCommentEditor .commentcontent {
+  padding-right: 150px !important;
+}
+.commentContainer .addCommentBlock .ticketCommentCompletionContainer {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+}
+.commentContainer .addCommentBlock .ticketCommentCompletion {
+  background: #f8fafc;
+  border: 1px solid #cfd6df;
+  color: #53616f;
+  font-size: 12px;
+  line-height: 18px;
+  padding: 3px 8px;
+  text-shadow: none;
+  -webkit-box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  -moz-box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+.commentContainer .addCommentBlock .ticketCommentCompletion:hover,
+.commentContainer .addCommentBlock .ticketCommentCompletion:focus {
+  background: #ffffff;
+  border-color: #aeb7c2;
+  color: #2f3b46;
+}
+.commentContainer .addCommentBlock .ticketCommentCompletion[disabled] {
+  background: #f1f3f5;
+  color: #8a949e;
+  opacity: 0.55;
+  pointer-events: none;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+.commentContainer .addCommentBlock .ticketCommentCompletionLabelCompact {
+  display: none;
+}
+@media (max-width: 480px) {
+  .commentContainer .addCommentBlock .ticketCommentEditor .commentcontent {
+    padding-right: 70px !important;
+  }
+  .commentContainer .addCommentBlock .ticketCommentCompletionLabelFull {
+    display: none;
+  }
+  .commentContainer .addCommentBlock .ticketCommentCompletionLabelCompact {
+    display: inline;
+  }
+}
 .commentContainer .commentInfoContent {
   padding: 1px 0;
   word-wrap: break-word;
+}
+.recentComments .commentInfoContent.summaryCommentCollapsed {
+  overflow: hidden;
+}
+.recentComments .summaryCommentEllipsis {
+  line-height: inherit;
+}
+.recentComments .summaryCommentToggle {
+  font-size: 12px;
 }
 .commentTitle .span1 {
   -webkit-box-sizing: border-box;
