@@ -11,6 +11,6 @@
         "thenetworg/oauth2-azure": "*"
     },
     "require": {
-        "phpunit/phpunit": "12.5.22"
+        "phpunit/phpunit": "8.5.52"
     }
 }
