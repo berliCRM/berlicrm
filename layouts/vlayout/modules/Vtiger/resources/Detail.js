@@ -597,6 +597,38 @@ jQuery.Class("Vtiger_Detail_Js", {
 		return aDeferred.promise();
 	},
 
+	updateSummaryPicklistFieldDisplay: function (fieldName, fieldValue, fieldDisplayValue) {
+		if (typeof fieldValue === 'undefined' || typeof fieldDisplayValue === 'undefined') {
+			return;
+		}
+
+		var fieldValueElement = this.getContentHolder().find('#' + app.getModuleName() + '_detailView_fieldValue_' + fieldName);
+		if (fieldValueElement.length <= 0) {
+			fieldValueElement = this.getContentHolder().find('[name="' + fieldName + '"]').closest('td.fieldValue').first();
+		}
+		if (fieldValueElement.length <= 0) {
+			return;
+		}
+
+		var detailViewValue = fieldValueElement.children('.value').first();
+		if (detailViewValue.length <= 0) {
+			detailViewValue = fieldValueElement.children('.row-fluid').children('.value').first();
+		}
+		if (detailViewValue.length <= 0) {
+			return;
+		}
+		detailViewValue.empty().text(fieldDisplayValue);
+
+		var editElement = fieldValueElement.children('.edit').first();
+		if (editElement.length <= 0) {
+			editElement = fieldValueElement.children('.row-fluid').children('.edit').first();
+		}
+		var fieldElement = editElement.find('[name="' + fieldName + '"]');
+		fieldElement.val(fieldValue).data('selectedValue', fieldValue).attr('data-selected-value', fieldValue);
+		fieldElement.trigger('liszt:updated').trigger('chosen:updated');
+		editElement.find('.fieldname').data('prevValue', fieldValue).attr('data-prev-value', fieldValue);
+	},
+
 
 	getRelatedListCurrentPageNum: function () {
 		return jQuery('input[name="currentPageNum"]', this.getContentHolder()).val();
@@ -2636,12 +2668,15 @@ jQuery.Class("Vtiger_Detail_Js", {
 			}
 
 			const doSave = function () {
+				const commentBlock = element.closest('.addCommentBlock');
+				const ticketStatusSelect = commentBlock.find('[name="comment_ticketstatus"]').first();
+				const ticketStatus = ticketStatusSelect.val();
+				const ticketStatusLabel = ticketStatusSelect.find(':selected').text();
 				const dataObj = thisInstance.saveComment(e);
 				const refreshComments = function () {
 					const commentsContainer = detailContentsHolder.find("[data-name='ModComments']");
 					const updatesContainer = detailContentsHolder.find("[data-name='LBL_UPDATES']");
-					const ticketStatus = commentsContainer.find('[name="comment_ticketstatus"]').find(":selected").text();
-					detailContentsHolder.find("[name='ticketstatus']").closest('td').find('[class="value"]').text(ticketStatus);
+					thisInstance.updateSummaryPicklistFieldDisplay('ticketstatus', ticketStatus, ticketStatusLabel);
 					thisInstance.loadWidget(commentsContainer).then(function () {
 						element.removeAttr('disabled');
 					});

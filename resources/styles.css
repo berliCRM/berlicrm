@@ -1,15 +1,15 @@
 /* common berlicrm style sheet */
 .clearfix {
-	clear: both;
+  clear: both;
 }
 .ui-autocomplete {
-    max-height: 400px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    width:300px;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width:300px;
 }
 .fieldTypesList {
-    min-width:28em;
+  min-width:28em;
 }
 .opacity .actions {
   opacity: 0.25;
@@ -23,12 +23,12 @@
   font-weight: bold !important;
 }
 .xIcon {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    text-shadow: 0 1px 0 #ffffff;
-    color:#bbb;
-    font-size: 16px;
-    font-weight: bold;
-    vertical-align: middle;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-shadow: 0 1px 0 #ffffff;
+  color:#bbb;
+  font-size: 16px;
+  font-weight: bold;
+  vertical-align: middle;
 }
 .dashboardHeading h2 {
   padding-bottom: 8px;
@@ -141,8 +141,8 @@
 .dashboardWidget .dashboardWidgetContent {
   padding: 10px 0;
 }
-.dashboardWidget .dashboardWidgetContent .dashboard_notebookWidget_viewarea { 
-  height: 200px; 
+.dashboardWidget .dashboardWidgetContent .dashboard_notebookWidget_viewarea {
+  height: 200px;
 }
 .dashboardWidget .widgeticons {
   text-align:right;
@@ -183,14 +183,14 @@
 @font-face {
   font-family: 'Open Sans';
   font-style: normal;
-  font-weight: 400; 
+  font-weight: 400;
   src: url('./fonts/OpenSans-Regular-webfont.eot'); /* IE9 Compat Modes */
   src: local(''),
-       url('./fonts/OpenSans-Regular-webfont.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       /* url('./fontsOpenSans-Regular-webfont.woff2') format('woff2'), /* Super Modern Browsers */
-       url('./fonts/OpenSans-Regular-webfont.woff') format('woff'), /* Modern Browsers */
-       url('./fonts/OpenSans-Regular-webfont.ttf') format('truetype'), /* Safari, Android, iOS */
-       url('./fonts/OpenSans-Regular-webfont.svg#OpenSans') format('svg'); /* Legacy iOS */
+  url('./fonts/OpenSans-Regular-webfont.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    /* url('./fontsOpenSans-Regular-webfont.woff2') format('woff2'), /* Super Modern Browsers */
+  url('./fonts/OpenSans-Regular-webfont.woff') format('woff'), /* Modern Browsers */
+  url('./fonts/OpenSans-Regular-webfont.ttf') format('truetype'), /* Safari, Android, iOS */
+  url('./fonts/OpenSans-Regular-webfont.svg#OpenSans') format('svg'); /* Legacy iOS */
 }
 body {
   width: 100%;
@@ -470,24 +470,24 @@ textarea {
   color: red;
   text-align: center;
 }
-.wide { 
-  padding: 8px!important; 
-} 
-.medium { 
-  padding: 5px 6px!important; 
-} 
-.narrow { 
-  padding: 2px 4px!important; 
-} 
-.table thead th.narrow { 
-  vertical-align: middle; 
-} 
-td.listViewEntryValue .row-fluid input { 
-  padding: 0; 
-  margin-bottom: 0; 
-} 
-.listViewContentDiv { 
-  position: relative; 
+.wide {
+  padding: 8px!important;
+}
+.medium {
+  padding: 5px 6px!important;
+}
+.narrow {
+  padding: 2px 4px!important;
+}
+.table thead th.narrow {
+  vertical-align: middle;
+}
+td.listViewEntryValue .row-fluid input {
+  padding: 0;
+  margin-bottom: 0;
+}
+.listViewContentDiv {
+  position: relative;
 }
 .summaryView {
   border: 1px solid #eaeaea;
@@ -609,15 +609,17 @@ td.listViewEntryValue .row-fluid input {
 .commentContainer .addCommentBlock .commentsControls {
   display: inline-block;
 }
-.commentContainer .commentsList > .liStyleNone > .commentDetails .commentDiv {
+.commentContainer .commentsList .liStyleNone > .commentDetails {
+  display: block;
+}
+.commentContainer .commentsList .liStyleNone > .commentDetails .commentDiv {
   width: 100%;
 }
 .commentContainer .commentDetails {
-  background: #ffffff;
-  border: 1px solid #dddddd;
-  margin-bottom: 5px;
-  border-radius: 2px;
-  padding: 10px 10px 5px;
+  background: transparent;
+  border: 0;
+  margin: 8px 0 0;
+  padding: 0;
   display: inline-block;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -625,7 +627,20 @@ td.listViewEntryValue .row-fluid input {
   word-wrap: break-word;
 }
 .commentContainer .commentDetails .commentDiv {
-  
+  background: #ffffff;
+  border-radius: 2px;
+  padding: 10px 10px 5px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  word-wrap: break-word;
+}
+.commentContainer .commentDetails > ul.liStyleNone {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.commentContainer .commentsList > .liStyleNone > .commentDetails:first-child {
+  margin-top: 0;
 }
 .commentContainer .commentorInfo p {
   margin-bottom: 0;

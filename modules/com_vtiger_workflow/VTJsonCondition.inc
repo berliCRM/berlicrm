@@ -164,7 +164,7 @@ class VTJsonCondition {
 		if($fieldInstance && $fieldInstance->getFieldDataType() == 'datetime') {
 			//Convert the DB Date Time Format to User Date Time Format
 			
-			$date = new DateTimeField($fieldValue);
+			$date = new DateTimeField($fieldValue);                 
 			$fieldValue = $date->getDisplayDateTimeValue();
 			$valueArray = explode(' ', $value);
 			if(count($valueArray) == 1) {
@@ -192,6 +192,14 @@ class VTJsonCondition {
                 $condition = ($condition == 'is') ? 'contains' : 'does not contain';
             } 
         }
+		$referenceName = '';
+		if (!empty($fieldValue) && $fieldInstance && $fieldInstance->getFieldDataType() == 'reference') {
+			try {
+				$referenceName = vtws_getName($fieldValue, $current_user);
+			} catch (Exception $e) {
+				$referenceName = '';
+			}
+		}
 		switch ($condition) {
 			case "equal to":
 				return $fieldValue == $value;
@@ -213,6 +221,8 @@ class VTJsonCondition {
 					} else {
 						return $fieldValue === 'off' || $fieldValue === 0 || $fieldValue === '0' || $fieldValue === '';
 					}
+				} elseif ($fieldInstance && $fieldInstance->getFieldDataType() == 'reference') {
+					return $referenceName == $value;
 				} else {
 					return $fieldValue == $value;
 				}
@@ -224,6 +234,8 @@ class VTJsonCondition {
 					} else {
 						return $fieldValue === 'on' || $fieldValue === 1 || $fieldValue === '1';
 					}
+				} elseif ($fieldInstance && $fieldInstance->getFieldDataType() == 'reference') {
+					return $referenceName != $value;
 				} else {
 					return $fieldValue != $value;
 				}

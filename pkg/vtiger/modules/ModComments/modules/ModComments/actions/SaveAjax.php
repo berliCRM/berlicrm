@@ -8,8 +8,11 @@
  * All Rights Reserved.
  *************************************************************************************/
 
+require_once 'modules/ModComments/actions/TicketStatusChangeTrait.php';
+
 class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 {
+    use ModComments_TicketStatusChangeTrait;
 
     /**
      * @param Vtiger_Request $request
@@ -94,57 +97,6 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
             $relationModel->addRelation($parentRecordId, $relatedRecordId);
         }
         return $recordModel;
-    }
-
-    protected function getTicketStatusChangeFromRequest(Vtiger_Request $request): ?array
-    {
-        if (!$request->has('ticketstatus')) {
-            return null;
-        }
-
-        $relatedRecordId = $request->get('related_to');
-        if (empty($relatedRecordId) || getSalesEntityType($relatedRecordId) !== 'HelpDesk') {
-            return null;
-        }
-
-        $ticketRecordModel = Vtiger_Record_Model::getInstanceById($relatedRecordId, 'HelpDesk');
-        $currentTicketStatus = $ticketRecordModel->get('ticketstatus');
-        $selectedTicketStatus = trim((string) $request->get('ticketstatus'));
-
-        if ($selectedTicketStatus === '' || $selectedTicketStatus === $currentTicketStatus) {
-            return null;
-        }
-
-        $ticketStatusField = $ticketRecordModel->getModule()->getField('ticketstatus');
-        if (
-            empty($ticketStatusField)
-            || !$ticketStatusField->isEditable()
-            || !Users_Privileges_Model::isPermitted('HelpDesk', 'Save', $relatedRecordId)
-        ) {
-            throw new AppException('LBL_PERMISSION_DENIED');
-        }
-
-        $allowedTicketStatuses = $ticketStatusField->getPicklistValues();
-        if (empty($allowedTicketStatuses)) {
-            $allowedTicketStatuses = array();
-        }
-        if (!array_key_exists($selectedTicketStatus, $allowedTicketStatuses)) {
-            throw new AppException('LBL_PERMISSION_DENIED');
-        }
-
-        return array($ticketRecordModel, $selectedTicketStatus);
-    }
-
-    protected function saveRelatedTicketStatusChange(?array $ticketStatusChange): void
-    {
-        if ($ticketStatusChange === null) {
-            return;
-        }
-
-        [$ticketRecordModel, $selectedTicketStatus] = $ticketStatusChange;
-        $ticketRecordModel->set('mode', 'edit');
-        $ticketRecordModel->set('ticketstatus', $selectedTicketStatus);
-        $ticketRecordModel->save();
     }
 
     /**
@@ -246,7 +198,7 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         }
 
         $emailsRecordModel = Vtiger_Record_Model::getCleanInstance('Emails');
-        $emailsRecordModel->set('subject', htmlspecialchars_decode($subject));
+        $emailsRecordModel->set('subject', htmlspecialchars_decode($subject, ENT_QUOTES | ENT_HTML5));
         $emailsRecordModel->set('description', $contents);
         $emailsRecordModel->set('email_flag', 'SENT');
         $emailsRecordModel->set('assigned_user_id', Users_Record_Model::getCurrentUserModel()->getId());
@@ -362,6 +314,7 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         $documentIds = array();
         $files = $_FILES['attachments'];
         $count = is_array($files['name']) ? count($files['name']) : 0;
+        $attachmentFolderId = $this->getTicketCommentAttachmentFolderId();
 
         for ($index = 0; $index < $count; $index++) {
             if ((int) $files['error'][$index] !== UPLOAD_ERR_OK || empty($files['name'][$index])) {
@@ -372,7 +325,7 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
                 'name' => $files['name'][$index],
                 'tmp_name' => $files['tmp_name'][$index],
                 'size' => $files['size'][$index],
-            ));
+            ), $attachmentFolderId);
 
             if ($documentId) {
                 $documentIds[] = $documentId;
@@ -382,7 +335,15 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         return $documentIds;
     }
 
-    protected function saveUploadedDocument(array $file)
+    protected function getTicketCommentAttachmentFolderId(): int
+    {
+        require_once 'modules/Settings/Vtiger/models/ConfigTicketEmailAddress.php';
+
+        $configModel = Settings_Vtiger_ConfigTicketEmailAddress::getInstance();
+        return $configModel->getAttachmentFolderId();
+    }
+
+    protected function saveUploadedDocument(array $file, $folderId = 1)
     {
         require_once 'modules/Settings/MailConverter/handlers/MailAttachmentMIME.php';
 
@@ -431,7 +392,7 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         $document->column_fields['filename'] = $fileName;
         $document->column_fields['filestatus'] = 1;
         $document->column_fields['filelocationtype'] = 'I';
-        $document->column_fields['folderid'] = 1;
+        $document->column_fields['folderid'] = (int) $folderId;
         $document->column_fields['filesize'] = $file['size'];
         $document->column_fields['assigned_user_id'] = $currentUserModel->getId();
         $existingFiles = $_FILES;

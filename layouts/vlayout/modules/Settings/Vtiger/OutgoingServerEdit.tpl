@@ -91,6 +91,10 @@
 					</tbody>
 				</table>
 				<br>
+				<input type="hidden" id="refresh_token_exists" value="{if !empty($OAUTH_DETAILS['hidden_refresh_token'])}1{else}0{/if}">
+				<button class="btn btn-success saveButton" id="refresh_token_button">
+				</button>
+				<br><br>
 			{/if}
 			<div class="alert alert-info">{vtranslate('LBL_OUTGOING_SERVER_NOTE', $QUALIFIED_MODULE)}</div>
 		</form>

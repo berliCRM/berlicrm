@@ -329,8 +329,9 @@ $languageStrings = array(
 	'LBL_CONFIGSIGL_FIELD2_EDITOR' => 'Signatur',
 	'LBL_CONFIGTICKETMAIL_FIELD0' => 'Absender Angabe für Tickets aktiv',
 	'LBL_LAST_CHANGED' => 'zuletzt geändert',
-	'LBL_LAST_CHANGED_BY' => 'gändert durch', 
-	
+	'LBL_LAST_CHANGED_BY' => 'gändert durch',
+    'LBL_CONFIGTICKETMAIL_ATTACHMENT_FOLDER_EDITOR' => 'Dokumentenverzeichnis für Ticket-Kommentar-Anhänge',
+
 
 );
 

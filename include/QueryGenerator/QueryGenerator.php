@@ -1001,12 +1001,15 @@ class QueryGenerator {
 				$fieldObject = $fields[$fieldName];
 				$columnName = $fieldObject->getColumnName();
 				$tableName = $fieldObject->getTableName();
+				// fix for aliasnames
+				$tableName .= $conditionInfo['referenceField'];
+				$fieldObject->setTableName($tableName);
 				$valueSQL = $this->getConditionValue($conditionInfo['value'], $conditionInfo['SQLOperator'], $fieldObject);
 
                 $fieldSql = "(";
                 if ($conditionInfo['SQLOperator'] == "n") $fieldSql .= "NOT "; // NULL-safe nonequality fix
 
-				$fieldSql .= $tableName.$conditionInfo['referenceField'].'.'.$columnName.' '.$valueSQL[0].")";
+				$fieldSql .= $tableName.'.'.$columnName.' '.$valueSQL[0].")";
 				$fieldSqlList[$index] = $fieldSql;
 			}
 		}

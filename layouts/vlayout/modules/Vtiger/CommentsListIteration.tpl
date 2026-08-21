@@ -10,18 +10,17 @@
  ********************************************************************************/
 -->*}
 {strip}
-{if !empty($CHILD_COMMENTS_MODEL)}
-<ul class="liStyleNone">
-	{foreach item=COMMENT from=$CHILD_COMMENTS_MODEL}
-		<li class="commentDetails">
-		{include file='CommentThreadList.tpl'|@vtemplate_path COMMENT=$COMMENT}
-		{assign var=CHILD_COMMENTS value=$COMMENT->getChildComments()}
-		{if !empty($CHILD_COMMENTS)}
-			{include file='CommentsListIteration.tpl'|@vtemplate_path CHILD_COMMENTS_MODEL=$COMMENT->getChildComments()}
-		{/if}
-		</li>
-		<br>
-	{/foreach}
-</ul>
-{/if}
+	{if !empty($CHILD_COMMENTS_MODEL)}
+		<ul class="liStyleNone">
+			{foreach item=COMMENT from=$CHILD_COMMENTS_MODEL}
+				<li class="commentDetails">
+					{include file='CommentThreadList.tpl'|@vtemplate_path COMMENT=$COMMENT SHOW_DETAIL_VIEW_THREAD_LINK=$SHOW_DETAIL_VIEW_THREAD_LINK|default:false}
+					{assign var=CHILD_COMMENTS value=$COMMENT->getChildComments()}
+					{if !empty($CHILD_COMMENTS)}
+						{include file='CommentsListIteration.tpl'|@vtemplate_path CHILD_COMMENTS_MODEL=$COMMENT->getChildComments() SHOW_DETAIL_VIEW_THREAD_LINK=$SHOW_DETAIL_VIEW_THREAD_LINK|default:false}
+					{/if}
+				</li>
+			{/foreach}
+		</ul>
+	{/if}
 {/strip}
