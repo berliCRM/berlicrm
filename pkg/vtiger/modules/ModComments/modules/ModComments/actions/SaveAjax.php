@@ -210,9 +210,10 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 
         // Not using record model for this because mailto has to be set after record model got saved and this would trigger aftersave handler a second time.
         // This is not wanted because things like ModTracker would count this as two different edits/saves
-        $query = "UPDATE vtiger_modcomments SET mailto = ?, carboncopy = ?, blindcarboncopy = ? WHERE modcommentsid = ?";
+        $query = "UPDATE vtiger_modcomments SET mailto = ?, external  = ?, carboncopy = ?, blindcarboncopy = ? WHERE modcommentsid = ?";
         $db->pquery($query, array(
             $email,
+            true,
             trim((string) $request->get('carboncopy')),
             trim((string) $request->get('blindcarboncopy')),
             $recordModel->getId()

@@ -139,9 +139,8 @@ function getReportFieldValue ($report, $picklistArray, $dbField, $valueArray, $f
             $date = new DateTimeField($fieldvalue);
             $fieldvalue = $date->getDisplayDateTimeValue();
 		}
-	} elseif( $fieldType == "datetime" && !empty($value)) {
-		$date = new DateTimeField($value);
-		$fieldvalue = $date->getDisplayDateTimeValue();
+	} elseif (($fieldType == "datetime" || $fld_type == 'datetime') && !empty($value)) {
+		$fieldvalue = Vtiger_Util_Helper::convertDateTimeIntoUsersDisplayFormat($value);
 	} elseif( $fieldType == 'time' && !empty($value) && $field->getFieldName()
 			!= 'duration_hours') {
 		if($field->getFieldName() == "time_start" || $field->getFieldName() == "time_end") {
@@ -201,9 +200,6 @@ function getReportFieldValue ($report, $picklistArray, $dbField, $valueArray, $f
 		$fieldvalue = str_ireplace(' |##| ', ', ', $fieldvalue);
 	} elseif ($fld_type == "date" || $fieldType == 'date') {
 		$fieldvalue = DateTimeField::convertToUserFormat($fieldvalue);
-	} elseif ($fld_type == "datetime" || $fieldType == 'datetime') {
-		$date = new DateTimeField($fieldvalue);
-		$fieldvalue = $date->getDisplayDateTimeValue();
 	}
 
 	// Added to render html tag for description fields
