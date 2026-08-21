@@ -380,6 +380,9 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         $group_total_tax_percent = '0.00';
         $group_tax_details = $final_details['taxes'];
         for ($i = 0; $i < count($group_tax_details); $i++) {
+            if ($group_tax_details[$i]['taxlabel'] == 'Mwst16') {
+                continue;
+            }
             $group_total_tax_percent = $group_total_tax_percent + $group_tax_details[$i]['percentage'];
         }
     }
@@ -405,6 +408,9 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         $taxtype_listings['percentage' . $tax_count] = $tax_details[$tax_count]['percentage'];
         $taxtype_listings['value' . $tax_count] = '0';
     }
+
+    // custom demand connectware, hide discount if not used
+    $hasDiscount == false;
 
     //Population of current date
     $addyear = strtotime("+0 year");
@@ -454,7 +460,8 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
             ->addDocumentSellerTaxRegistration("VA", $org_taxid)
             ->addDocumentPaymentTerm($description, \DateTime::createFromFormat('d.m.Y', $valid_till))
             ->setDocumentSellerAddress($org_address, "", "", $org_code, $org_city, $org_country_iso)
-            ->setDocumentSellerContact($owner_firstname . ' ' . $owner_lastname, "", $org_phone, $org_fax, $owner_mail)
+            // ->setDocumentSellerContact($owner_firstname . ' ' . $owner_lastname, "", $org_phone, $org_fax, $owner_mail) // CII-SR-236: FaxUniversalCommunication should not be present
+            ->setDocumentSellerContact($owner_firstname . ' ' . $owner_lastname, "", $org_phone, '', $owner_mail)
             // ->setDocumentBuyer($contact_salutation . " " . $contact_firstname . " " . $contact_lastname, $account_no)
             ->setDocumentBuyer($account_name, $account_no)
             ->setDocumentBuyerReference($buyer_reference)
@@ -500,6 +507,9 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
 
         $thisItemTaxPercent = '0.00';
         foreach ($associated_products[$i]['taxes'] as $key => $value) {
+            if ($value['taxlabel'] == 'Mwst16') {
+                continue;
+            }
             $thisItemTaxPercent += $value['percentage'];
         }
         // $allItemsTaxTotal += ($taxable_total * $thisItemTaxPercent) / 100;
@@ -528,6 +538,9 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
             $total_tax_percent = '0.00';
             //This loop is to get all tax percentage and then calculate the total of all taxes
             for ($tax_count = 0; $tax_count < count($associated_products[$i]['taxes']); $tax_count++) {
+                if ($associated_products[$i]['taxes'][$tax_count]['taxlabel'] == 'Mwst16') {
+                    continue;
+                }
                 $tax_percent = $associated_products[$i]['taxes'][$tax_count]['percentage'];
                 $total_tax_percent = $total_tax_percent + $tax_percent;
                 $tax_amount = (($taxable_total * $tax_percent) / 100);
@@ -609,6 +622,10 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         $product_line[$j][$pdf_strings['Unit']] = $usageunit[$i];
         $product_line[$j][$pdf_strings['UnitPrice']] = $list_price[$i];
         $product_line[$j][$pdf_strings['Discount']] = $discount_totalformated[$i];
+        // custom demand connectware, hide discount if not used
+        if ($discount_total[$i] > 0) {
+            $hasDiscount = true;
+        }
         $product_line[$j][$pdf_strings['LineTotal']] = $prod_total[$i];
 
         if ($eInvoice) {
@@ -619,20 +636,24 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
             if ($thisItemTaxPercent == 0.00) {
                 $catCode = 'E'; // exempt
             }
+            // Add position/lineitem to e-invoice
+
             $eInvoiceDocument
                 ->addNewPosition($i)
-                ->setDocumentPositionNote($product_name_long[$i])
-                ->setDocumentPositionProductDetails($product_name[$i], "", (string)$product_code[$i])
+                ->setDocumentPositionNote($product_name_long[$i]) // Free text BT-127:
+                ->setDocumentPositionProductDetails($product_name[$i], "", (string)$product_code[$i]) // BT-153?
                 ->setDocumentPositionGrossPrice((float)$associated_products[$i]['listPrice' . $i])       // list price (gross) BT-148
                 ->setDocumentPositionNetPrice($unitPriceNetBT146 * $signMultiplier) // Unit price (net) BT-146
                 ->addDocumentPositionGrossPriceAllowanceCharge($signMultiplier * $unitDiscountBT147, false)    // Discount (net) BT-147:
-                ->setDocumentPositionQuantity((float) $qty_formated[$i] * $signMultiplier, "H87")
+                // ->setDocumentPositionQuantity((float) $qty_formated[$i] * $signMultiplier, "H87") // Quantity BT-129
+                ->setDocumentPositionQuantity((float) $associated_products[$i]['qty' . $i] * $signMultiplier, "H87") // Quantity BT-129
                 ->addDocumentPositionTax(
                     $catCode,
                     'VAT',
                     number_format($thisItemTaxPercent, 0)
                 )
-                ->setDocumentPositionLineSummation((float) $qty_formated[$i] * $unitPriceNetBT146);
+                // ->setDocumentPositionLineSummation((float) $qty_formated[$i] * $unitPriceNetBT146);
+                ->setDocumentPositionLineSummation((float) $associated_products[$i]['qty' . $i] * $unitPriceNetBT146);
             // ->setDocumentPositionLineSummation((float) $producttotal);
             // ->setDocumentPositionLineSummation((float) $prod_total[$i]);
         }
@@ -674,7 +695,6 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
                     // $price_subtotal
                 );
         }
-        // file_put_contents('logs/ep4812.log', sprintf('allItemsBaseAmountTotalS %s %s %s', $allItemsBaseAmountTotalS, $allItemsBaseAmountTotalE, $sh_tax_percent) . PHP_EOL, FILE_APPEND);
 
         $eInvoiceDocument->setDocumentSummation(
             $price_total * $signMultiplier, // BT-112 (grandTotalAmount)
@@ -692,22 +712,23 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     }
 
 
-    //e-invoice export requested?
-    if ($purpose == 'ExportXML') {
-        // get xml
-        $xml_data = file_get_contents($eInvoiceXmlFile);
-        $filename = $invoice_no . '.xml';
-        // redirect (download) xml
-        header('Content-Type: application/xml');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
-        echo $xml_data;
-        exit;
-    }
 
     if ($eInvoice) {
         // write xml
         $eInvoiceDocument
-            ->writeFile($eInvoiceXmlFile);
+        ->writeFile($eInvoiceXmlFile);
+
+        //e-invoice export requested?
+        if ($purpose == 'ExportXML') {
+            // get xml
+            $xml_data = file_get_contents($eInvoiceXmlFile);
+            $filename = $invoice_no . '.xml';
+            // redirect (download) xml
+            header('Content-Type: application/xml');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            echo $xml_data;
+            exit;
+        }
 
         // which type? xrechnung = only xml ; zugferd = bundle
         $export_type = $default_export_e_invoice;
