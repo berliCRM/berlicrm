@@ -1,11 +1,15 @@
 <?php
 
+require_once('session_security_manager.php');
+SessionSecurityManager::init();
 require_once("PortalConfig.php");
 require_once("include/utils/utils.php");
 include("language/$default_language.lang.php");
 
 function GetForgotPasswordUI($mail_send_message='')
 {
+	$csrfToken = htmlspecialchars(SessionSecurityManager::getCsrfToken(), ENT_QUOTES, 'UTF-8');
+	$list = '';
 	$list .= '<html class="bg-gray"><head>';
 	$list .= '<link rel="stylesheet" type="text/css" href="css/style.css">';
 	$list .= '<meta name="viewport" content="width=device-width,initial-scale=1" />';
@@ -21,9 +25,9 @@ function GetForgotPasswordUI($mail_send_message='')
 
     $list .= '<body class="bg-gray">';
     $list .= '<div class="form-box" id="login-box">';
-	$list .= '<div class="header" style="font-weight: 400;">'.getTranslatedString('LBL_FORGOT_LOGIN').'</div>';
+    $list .= '<div class="header" style="font-weight: 400;">'.getTranslatedString('LBL_FORGOT_LOGIN').'</div>';
     $list .= '<form name="forgot_password" action="index.php" method="post">';
-    $list .= '<input type="hidden" name="email_id">';
+    $list .= '<input type="hidden" name="__csrf_token" value="'.$csrfToken.'">';
     $list .= '<input type="hidden" name="param" value="forgot_password">';
 		$list .= '<div class="body bg-gray">';
 		$list .= '<div class="form-group">';
@@ -37,7 +41,7 @@ function GetForgotPasswordUI($mail_send_message='')
 
 	return $list;
 }
-if($_REQUEST['mail_send_message'] != '')
+if(($_REQUEST['mail_send_message'] ?? '') != '')
 {
 	$mail_send_message = explode("@@@",$_REQUEST['mail_send_message']);
 
@@ -61,12 +65,12 @@ if($_REQUEST['mail_send_message'] != '')
 		echo $list;
 	}
 }
-elseif($_REQUEST['param'] == 'forgot_password')
+elseif(($_REQUEST['param'] ?? '') == 'forgot_password')
 {
 	$list = GetForgotPasswordUI();
         echo $list;
 }
-elseif($_REQUEST['param'] == 'sign_up')
+elseif(($_REQUEST['param'] ?? '') == 'sign_up')
 {
 	echo 'Anmelden..........';
 }

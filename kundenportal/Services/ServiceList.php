@@ -44,6 +44,7 @@ if($allow_all == 'true'){
 					<li id="onlymine_false"><a>'.getTranslatedString('ALL').'</a></li>
 				</ul>
 			</div></div></div></section>';
+			}
 	      		
 	      		echo '<section class="content"><div class="row">';
 	    		echo '<div class="col-xs-12">';

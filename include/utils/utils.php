@@ -1886,24 +1886,42 @@ function _phpset_memorylimit_MB($newvalue)
  * @param String -- $fileName - File name to be sanitized
  * @return String - Sanitized file name
  */
-function sanitizeUploadFileName($fileName, $badFileExtensions)
-{
+function sanitizeUploadFileName(string $fileName, array $badFileExtensions): string {
+    // 1. Remove control characters & invisible Unicode (Zero Width Space, BOM, etc.)
+    $clean = preg_replace('/[\x00-\x1F\x7F\x{200B}-\x{200F}\x{FEFF}]/u', '', $fileName);
     $fileName = sanitizeFilename($fileName);
-    $fileName = preg_replace('/\s+/', '_', iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $fileName)); //replace space with _ in filename
-    $fileName = rtrim($fileName, '\\/<>?*:"<>|');
+    // 2. Replace forbidden filesystem characters with underscore
+    $clean = str_replace(
+        ['\\','/',':','*','?','"','<','>','|'],
+        '_',
+        $clean
+    );
 
-    // Trim any excess dots or underscores from start and end
-    $fileName = trim($fileName, '._');
+    // 3. Replace whitespace with underscores
+    $clean = preg_replace('/\s+/', '_', $clean);
 
-    $fileNameParts = explode(".", $fileName);
-    $countOfFileNameParts = count($fileNameParts);
+    // 4. Allow only safe characters:
+    //    \p{L} = all letters (incl. umlauts, accents, non-Latin alphabets)
+    //    \p{N} = all digits
+    //    plus: dot, underscore, dash
+    $clean = preg_replace('/[^\p{L}\p{N}._-]/u', '_', $clean);
+
+    // 5. Collapse multiple underscores into one
+    $clean = preg_replace('/_+/', '_', $clean);
+
+    // 6. Trim leading/trailing dots, underscores, dashes
+    $clean = trim($clean, '._- ');
+
+    // 7. Handle bad extensions
+    $fileNameParts = explode(".", $clean);
+    $countOfParts = count($fileNameParts);
     $badExtensionFound = false;
 
-    for ($i = 0;$i < $countOfFileNameParts;++$i) {
-        $partOfFileName = $fileNameParts[$i];
-        if (in_array(strtolower($partOfFileName), $badFileExtensions)) {
+    for ($i = 0; $i < $countOfParts; ++$i) {
+        $part = strtolower($fileNameParts[$i]);
+        if (in_array($part, $badFileExtensions, true)) {
             $badExtensionFound = true;
-            $fileNameParts[$i] = $partOfFileName . 'file';
+            $fileNameParts[$i] = $part . 'file';
         }
     }
 
@@ -1912,6 +1930,7 @@ function sanitizeUploadFileName($fileName, $badFileExtensions)
     if ($badExtensionFound) {
         $newFileName .= ".txt";
     }
+
     return $newFileName;
 }
 
