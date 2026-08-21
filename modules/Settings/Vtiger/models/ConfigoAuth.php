@@ -19,12 +19,13 @@ class Settings_Vtiger_oAuth extends Vtiger_Base_Model {
 	const PARAM_ENABLED = 'enabled';
 
 	/** @var string */
-	const PARAM_USER_NAME = 'user_name';
+	// const PARAM_USER_NAME = 'user_name';
 	const PARAM_PROVIDER = 'provider';
 	const PARAM_TENANT_ID = 'tenant_id';
 	const PARAM_CLIENT_ID  = 'client_id';
 	const PARAM_CLIENT_SECRET = 'client_secret';
-	const PARAM_REFRESH = 'refresh_token';
+	const PARAM_REFRESH = 'hidden_refresh_token';
+	const PARAM_REFRESH_EXPIRE = 'hidden_refresh_token_expire';
 
 	/**
 	 * Get singleton-like instance of the signature configuration model.
@@ -221,6 +222,10 @@ class Settings_Vtiger_oAuth extends Vtiger_Base_Model {
 		}
 		$sort = 0;
 		foreach ($constants AS $name => $value) {
+			// only set values that are provided in request
+			if (!$request->has($value)) {
+				continue;
+			}
 			$requestValue = $request->get($value);
 			$query = "INSERT INTO vtiger_settings_config_param
 					 (config_id, param_key, param_value, sort_order, updated_at)

@@ -75,7 +75,7 @@
 							</td>
 						</tr>
 						{foreach $OAUTH_DETAILS AS $OAUTH_KEY => $OAUTH_VALUE}
-							{if $OAUTH_KEY == 'enabled' || $OAUTH_KEY == 'provider'}
+							{if $OAUTH_KEY == 'enabled' || $OAUTH_KEY == 'provider' || strpos($OAUTH_KEY, 'hidden_') === 0}
 								{continue}
 							{/if}
 							<tr>
