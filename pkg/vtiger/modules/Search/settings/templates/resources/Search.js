@@ -16,6 +16,71 @@ var Settings_Index_Js = {
 		$('.SearchFieldsEdit .updateLabels').click(Settings_Index_Js.updateLabels);
 		$('.SearchFieldsEdit .turn_off').click(Settings_Index_Js.replacement);
 		$('.SearchFieldsEdit .globalsearchall').click(Settings_Index_Js.searchallfields);
+		Settings_Index_Js.restoreFieldSelectionOrder();
+	},
+	getSelectedValuesInOrder: function (target) {
+		var selectedValues = target.val() || [];
+		var orderedValues = [];
+		var chosen = target.data('chosen');
+
+		if (!jQuery.isArray(selectedValues)) {
+			selectedValues = [selectedValues];
+		}
+
+		if (chosen && chosen.search_choices && chosen.results_data) {
+			chosen.search_choices.find('li.search-choice').each(function () {
+				var resultIndex = jQuery(this).find('a.search-choice-close').attr('rel');
+				var resultData = chosen.results_data[resultIndex];
+
+				if (resultData && jQuery.inArray(resultData.value, selectedValues) !== -1 &&
+						jQuery.inArray(resultData.value, orderedValues) === -1) {
+					orderedValues.push(resultData.value);
+				}
+			});
+		}
+
+		jQuery.each(selectedValues, function (index, value) {
+			if (jQuery.inArray(value, orderedValues) === -1) {
+				orderedValues.push(value);
+			}
+		});
+
+		return orderedValues;
+	},
+	restoreFieldSelectionOrder: function () {
+		$('.SearchFieldsEdit .fieldname').each(function () {
+			var target = jQuery(this);
+			var configuredOrder = target.attr('data-selected-order') || '';
+			var chosen = target.data('chosen');
+			var orderedChoices = [];
+
+			if (!configuredOrder || !chosen || !chosen.search_choices || !chosen.results_data) {
+				return;
+			}
+
+			jQuery.each(configuredOrder.split(','), function (index, value) {
+				value = jQuery.trim(value);
+				if (!value) {
+					return;
+				}
+
+				jQuery.each(chosen.results_data, function (resultIndex, resultData) {
+					if (resultData.value === value && resultData.selected) {
+						var choice = chosen.search_choices
+							.find('a.search-choice-close[rel="' + resultData.array_index + '"]')
+							.closest('li.search-choice');
+						if (choice.length) {
+							orderedChoices.push(choice.detach());
+						}
+						return false;
+					}
+				});
+			});
+
+			jQuery.each(orderedChoices, function (index, choice) {
+				choice.insertBefore(chosen.search_container);
+			});
+		});
 	},
 	replacement: function (e) {
 		var thisInstance = this;
@@ -49,6 +114,10 @@ var Settings_Index_Js = {
 		var target = $(e.currentTarget);
 		var name = target.attr("name");
 		var value = target.val();
+		if (target.hasClass('fieldname')) {
+			value = Settings_Index_Js.getSelectedValuesInOrder(target);
+			target.attr('data-selected-order', value.join(','));
+		}
 		var closestTrElement = target.closest('tr');
 		var progress = $.progressIndicator({
 			'message': app.vtranslate('Saving changes'),
