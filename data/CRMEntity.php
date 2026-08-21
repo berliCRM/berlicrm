@@ -2120,6 +2120,13 @@ class CRMEntity
                     $more_relation .= " LEFT JOIN $tname ON $tname.$relmap[0] = $relmap[1].$relmap[2]";
                 }
             }
+			// fix for PurchaseOrders
+			if ($related_module == 'PurchaseOrder' && !isset($other->related_tables['vtiger_pobillads'])) {
+				$more_relation .= " LEFT JOIN vtiger_pobillads ON vtiger_pobillads.pobilladdressid = vtiger_purchaseorder.purchaseorderid";
+			}
+			if ($related_module == 'PurchaseOrder' && !isset($other->related_tables['vtiger_poshipads'])) {
+				$more_relation .= " LEFT JOIN vtiger_poshipads ON vtiger_poshipads.poshipaddressid = vtiger_purchaseorder.purchaseorderid";
+			}
 
             $query .= " FROM $other->table_name";
             $query .= " INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = $other->table_name.$other->table_index";

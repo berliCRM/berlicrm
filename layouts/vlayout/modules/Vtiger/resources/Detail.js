@@ -381,6 +381,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 				app.registerEventForTextAreaFields(jQuery(".commentcontent"))
 				app.registerEventForTimeFields();
 				thisInstance.registerCommentMailPopovers(contentContainer);
+				thisInstance.initializeSummaryCommentToggle(contentContainer);
 				contentContainer.trigger(thisInstance.widgetPostLoad, { 'widgetName': relatedModuleName })
 				aDeferred.resolve(params);
 			},
@@ -444,6 +445,74 @@ jQuery.Class("Vtiger_Detail_Js", {
 		thisInstance.registerEventForEmailsRelatedRecord();
 	},
 
+	initializeSummaryCommentToggle: function (container) {
+		container = container || this.getContentHolder();
+		var thisInstance = this;
+		var maxLines = 5;
+		var visibleTextLines = maxLines - 1;
+
+		jQuery(container).filter('.commentInfoContent').add(jQuery(container).find('.commentInfoContent')).filter(function () {
+			return jQuery(this).closest('.recentComments').length > 0;
+		}).each(function () {
+			var commentContent = jQuery(this);
+			var singleComment = commentContent.closest('.singleComment');
+			var toggleElement = singleComment.find('.summaryCommentToggle');
+			var ellipsisElement = singleComment.find('.summaryCommentEllipsis');
+			commentContent.removeClass('summaryCommentCollapsed summaryCommentExpanded');
+			commentContent.css('max-height', '');
+			toggleElement.remove();
+			ellipsisElement.remove();
+
+			if (!commentContent.is(':visible')) {
+				return;
+			}
+
+			var lineHeight = parseFloat(commentContent.css('line-height'));
+			if (isNaN(lineHeight) || lineHeight <= 0) {
+				var fontSize = parseFloat(commentContent.css('font-size'));
+				lineHeight = (isNaN(fontSize) || fontSize <= 0) ? 18 : fontSize * 1.4;
+			}
+			var collapsedHeight = Math.ceil(lineHeight * visibleTextLines);
+			var fullVisibleHeight = Math.ceil(lineHeight * maxLines);
+
+			if (commentContent[0].scrollHeight <= fullVisibleHeight + 1) {
+				return;
+			}
+
+			commentContent
+				.addClass('summaryCommentCollapsed')
+				.css('max-height', collapsedHeight + 'px');
+
+			thisInstance.getSummaryCommentEllipsisElement().insertAfter(commentContent);
+
+			var commentActionsDiv = singleComment.find('.commentActionsDiv').first();
+			thisInstance.getSummaryCommentToggleElement(commentContent, false, collapsedHeight).prependTo(commentActionsDiv);
+		});
+	},
+
+	getSummaryCommentEllipsisElement: function () {
+		return jQuery('<div/>', {
+			'class': 'summaryCommentEllipsis',
+			'text': '...'
+		});
+	},
+
+	getSummaryCommentToggleElement: function (commentContent, expanded, collapsedHeight) {
+		var label = this.getSummaryCommentToggleLabel(commentContent, expanded);
+		return jQuery('<a/>', {
+			'href': 'javascript:void(0);',
+			'class': 'summaryCommentToggle cursorPointer pull-left',
+			'text': label
+		}).data('collapsedHeight', collapsedHeight);
+	},
+
+	getSummaryCommentToggleLabel: function (commentContent, expanded) {
+		var recentCommentsContainer = commentContent.closest('.recentComments');
+		var labelAttribute = expanded ? 'show-less-label' : 'show-more-label';
+		var fallbackLabel = expanded ? 'weniger anzeigen' : 'mehr anzeigen';
+		return recentCommentsContainer.attr('data-' + labelAttribute) || fallbackLabel;
+	},
+
 	/**
 	 * Function to load only Comments Widget.
 	 */
@@ -484,6 +553,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 				//Attach popover events
 				detailContentsHolder.find('[rel=popover]').popover();
 				thisInstance.registerCommentMailPopovers(detailContentsHolder);
+				thisInstance.initializeSummaryCommentToggle(detailContentsHolder);
 				thisInstance.getForm().validationEngine();
 				aDeferred.resolve(responseData);
 			},
@@ -660,10 +730,266 @@ jQuery.Class("Vtiger_Detail_Js", {
 		return aDeferred.promise();
 	},
 
+	showTicketCommentCompletionError: function (message) {
+		Vtiger_Helper_Js.showPnotify({
+			title: app.vtranslate('JS_MESSAGE'),
+			text: message || app.vtranslate('JS_TICKET_COMMENT_COMPLETION_FAILED'),
+			animation: 'show',
+			type: 'error'
+		});
+	},
+
+	resizeTicketCommentTextarea: function (commentContent) {
+		app.registerEventForTextAreaFields(commentContent);
+		if (typeof autosize !== 'undefined' && typeof autosize.update === 'function') {
+			autosize.update(commentContent.get());
+		}
+		commentContent.trigger('input').trigger('autosize:update');
+	},
+
+	updateTicketCommentCompletionButtonState: function (commentBlock) {
+		var block = jQuery(commentBlock);
+		block.find('.ticketCommentCompletion').each(function () {
+			var button = jQuery(this);
+			if (button.data('requestRunning')) {
+				return;
+			}
+
+			var currentBlock = button.closest('.addCommentBlock, .basicAddCommentBlock');
+			var commentContent = currentBlock.find('.commentcontent');
+			var hasCommentText = jQuery.trim(commentContent.val()) !== '';
+			button.prop('disabled', !hasCommentText);
+			if (hasCommentText) {
+				button.removeAttr('disabled');
+			} else {
+				button.attr('disabled', 'disabled');
+			}
+		});
+	},
+
+	registerTicketCommentCompletionStateEvents: function (container) {
+		var thisInstance = this;
+		var context = container || thisInstance.getContentHolder();
+
+		context.find('.ticketCommentCompletion').each(function () {
+			thisInstance.updateTicketCommentCompletionButtonState(jQuery(this).closest('.addCommentBlock, .basicAddCommentBlock'));
+		});
+
+		thisInstance.getContentHolder()
+			.off('input.ticketCommentCompletion change.ticketCommentCompletion keyup.ticketCommentCompletion', '.commentcontent')
+			.on('input.ticketCommentCompletion change.ticketCommentCompletion keyup.ticketCommentCompletion', '.commentcontent', function (e) {
+				thisInstance.updateTicketCommentCompletionButtonState(jQuery(e.currentTarget).closest('.addCommentBlock, .basicAddCommentBlock'));
+			});
+	},
+
+	streamAutocompleteTicketComment: function (button, commentContent, commentContentValue) {
+		var thisInstance = this;
+		var accumulatedContent = '';
+		var responseOffset = 0;
+		var eventBuffer = '';
+		var hasError = false;
+		var errorMessage = '';
+		var receivedDone = false;
+
+		var requestData = {
+			module: 'ModComments',
+			action: 'TicketCommentCompletion',
+			related_to: thisInstance.getRecordId(),
+			commentcontent: commentContentValue,
+			stream: 1
+		};
+
+		if (typeof csrfMagicName !== 'undefined' && typeof csrfMagicToken !== 'undefined') {
+			requestData[csrfMagicName] = csrfMagicToken;
+		}
+
+		var finishRequest = function () {
+			button.removeData('requestRunning');
+			commentContent.trigger('change');
+			thisInstance.resizeTicketCommentTextarea(commentContent);
+			thisInstance.updateTicketCommentCompletionButtonState(button.closest('.addCommentBlock'));
+		};
+
+		var processEventBlock = function (block) {
+			var eventName = 'message';
+			var dataLines = [];
+			var lines = block.split(/\r?\n/);
+			for (var i = 0; i < lines.length; i++) {
+				var line = lines[i];
+				if (line.indexOf('event:') === 0) {
+					eventName = jQuery.trim(line.substring(6));
+				} else if (line.indexOf('data:') === 0) {
+					dataLines.push(jQuery.trim(line.substring(5)));
+				}
+			}
+
+			if (dataLines.length === 0) {
+				return;
+			}
+
+			var payload = {};
+			try {
+				payload = JSON.parse(dataLines.join('\n'));
+			} catch (e) {
+				return;
+			}
+
+			if (eventName === 'chunk' && payload.content) {
+				accumulatedContent += payload.content;
+				commentContent.val(accumulatedContent);
+				thisInstance.resizeTicketCommentTextarea(commentContent);
+				return;
+			}
+
+			if (eventName === 'done') {
+				receivedDone = true;
+				if (payload.commentcontent) {
+					accumulatedContent = payload.commentcontent;
+					commentContent.val(accumulatedContent);
+					thisInstance.resizeTicketCommentTextarea(commentContent);
+				}
+				return;
+			}
+
+			if (eventName === 'error') {
+				hasError = true;
+				errorMessage = payload.message || app.vtranslate('JS_TICKET_COMMENT_COMPLETION_FAILED');
+			}
+		};
+
+		var processResponse = function (flushRemainder) {
+			var newResponseText = xhr.responseText.substring(responseOffset);
+			responseOffset = xhr.responseText.length;
+			eventBuffer += newResponseText;
+
+			var eventEnd;
+			while ((eventEnd = eventBuffer.search(/\r?\n\r?\n/)) !== -1) {
+				var separatorMatch = eventBuffer.substring(eventEnd).match(/^\r?\n\r?\n/);
+				var separatorLength = separatorMatch ? separatorMatch[0].length : 2;
+				processEventBlock(eventBuffer.substring(0, eventEnd));
+				eventBuffer = eventBuffer.substring(eventEnd + separatorLength);
+			}
+
+			if (flushRemainder && jQuery.trim(eventBuffer) !== '') {
+				processEventBlock(eventBuffer);
+				eventBuffer = '';
+			}
+		};
+
+		var xhr = new XMLHttpRequest();
+		xhr.open('POST', 'index.php', true);
+		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+		xhr.setRequestHeader('Accept', 'text/event-stream');
+
+		xhr.onreadystatechange = function () {
+			if (xhr.readyState === 3 || xhr.readyState === 4) {
+				processResponse(xhr.readyState === 4);
+			}
+		};
+
+		xhr.onload = function () {
+			finishRequest();
+			if (xhr.status < 200 || xhr.status >= 300) {
+				if (jQuery.trim(accumulatedContent) === '') {
+					commentContent.val(commentContentValue);
+				}
+				thisInstance.showTicketCommentCompletionError(app.vtranslate('JS_TICKET_COMMENT_COMPLETION_FAILED'));
+				return;
+			}
+
+			if (hasError) {
+				if (jQuery.trim(accumulatedContent) === '') {
+					commentContent.val(commentContentValue);
+				}
+				thisInstance.showTicketCommentCompletionError(errorMessage);
+				return;
+			}
+
+			if (!receivedDone && jQuery.trim(accumulatedContent) === '') {
+				commentContent.val(commentContentValue);
+				thisInstance.showTicketCommentCompletionError(app.vtranslate('JS_TICKET_COMMENT_COMPLETION_FAILED'));
+			}
+		};
+
+		xhr.onerror = function () {
+			finishRequest();
+			if (jQuery.trim(accumulatedContent) === '') {
+				commentContent.val(commentContentValue);
+			}
+			thisInstance.showTicketCommentCompletionError(app.vtranslate('JS_TICKET_COMMENT_COMPLETION_FAILED'));
+		};
+
+		commentContent.val('');
+		xhr.send(jQuery.param(requestData));
+	},
+
 	/**
 	 * function to save comment
 	 * return json response
 	 */
+	autocompleteTicketComment: function (buttonElement) {
+		var thisInstance = this;
+		var button = jQuery(buttonElement);
+		if (button.data('requestRunning')) {
+			return;
+		}
+
+		var commentBlock = button.closest('.addCommentBlock');
+		var commentContent = commentBlock.find('.commentcontent');
+		var commentContentValue = jQuery.trim(commentContent.val());
+		if (commentContentValue === '') {
+			Vtiger_Helper_Js.showPnotify({
+				title: app.vtranslate('JS_MESSAGE'),
+				text: app.vtranslate('JS_TICKET_COMMENT_COMPLETION_EMPTY_DRAFT'),
+				animation: 'show',
+				type: 'error'
+			});
+			return;
+		}
+
+		button.data('requestRunning', true);
+		button.attr('disabled', 'disabled');
+		if (parseInt(button.data('streamEnabled'), 10) === 1 && window.XMLHttpRequest) {
+			thisInstance.streamAutocompleteTicketComment(button, commentContent, commentContentValue);
+			return;
+		}
+
+		var progressIndicatorElement = jQuery.progressIndicator({});
+
+		AppConnector.request({
+			module: 'ModComments',
+			action: 'TicketCommentCompletion',
+			related_to: thisInstance.getRecordId(),
+			commentcontent: commentContentValue
+		}).then(
+			function (data) {
+				progressIndicatorElement.progressIndicator({ 'mode': 'hide' });
+				button.removeData('requestRunning');
+				button.removeAttr('disabled');
+
+				if (data && data.success && data.result && data.result.commentcontent) {
+					commentContent.val(data.result.commentcontent);
+					commentContent.trigger('change');
+					thisInstance.resizeTicketCommentTextarea(commentContent);
+					thisInstance.updateTicketCommentCompletionButtonState(button.closest('.addCommentBlock'));
+					return;
+				}
+
+				var message = app.vtranslate('JS_TICKET_COMMENT_COMPLETION_FAILED');
+				if (data && data.error && data.error.message) {
+					message = data.error.message;
+				}
+				thisInstance.showTicketCommentCompletionError(message);
+			},
+			function () {
+				progressIndicatorElement.progressIndicator({ 'mode': 'hide' });
+				button.removeData('requestRunning');
+				button.removeAttr('disabled');
+				thisInstance.showTicketCommentCompletionError(app.vtranslate('JS_TICKET_COMMENT_COMPLETION_FAILED'));
+			}
+		);
+	},
+
 	saveComment: function (e) {
 		var thisInstance = this;
 		var aDeferred = jQuery.Deferred();
@@ -691,16 +1017,20 @@ jQuery.Class("Vtiger_Detail_Js", {
 		if (typeof parentCommentId !== 'undefined' && parentCommentId !== null && parentCommentId !== '' && parentCommentId !== 'undefined') {
 			normalizedParentCommentId = parentCommentId;
 		}
-		const external = closestCommentBlock.find('#externalComment').is(':checked') ? 'on' : '0';
-		const neededTime = closestCommentBlock.find('#timeNeeded').val();
+		const externalCommentElement = closestCommentBlock.find('[name="externalComment"]');
+		const timeNeededElement = closestCommentBlock.find('[name="timeNeeded"]');
 		const ticketStatus = closestCommentBlock.find('[name="comment_ticketstatus"]').val();
 		var mailData = currentTarget.data('mailData') || {};
 		var postData = {
 			'commentcontent': commentContentValue,
 			'related_to': thisInstance.getRecordId(),
-			'module': 'ModComments',
-			'external': external,
-			'timeneeded' : neededTime,
+			'module': 'ModComments'
+		}
+		if (externalCommentElement.length) {
+			postData['external'] = externalCommentElement.is(':checked') ? 'on' : '0';
+		}
+		if (timeNeededElement.length) {
+			postData['timeneeded'] = timeNeededElement.val();
 		}
 		if (typeof ticketStatus !== 'undefined') {
 			postData['ticketstatus'] = ticketStatus;
@@ -2585,6 +2915,10 @@ jQuery.Class("Vtiger_Detail_Js", {
 			var commentInfoBlock = currentTarget.closest('.singleComment');
 			commentInfoBlock.find('.commentActionsContainer').show();
 			commentInfoBlock.find('.commentInfoContent').show();
+			if (commentInfoBlock.find('.commentInfoContent').hasClass('summaryCommentCollapsed')) {
+				commentInfoBlock.find('.summaryCommentEllipsis').show();
+			}
+			commentInfoBlock.find('.summaryCommentToggle').show();
 			thisInstance.removeCommentBlockIfExists();
 		});
 
@@ -2609,13 +2943,17 @@ jQuery.Class("Vtiger_Detail_Js", {
 			var editCommentBlock = thisInstance.getEditCommentBlock();
 			editCommentBlock.find('.commentcontent').text(commentInfoContent.text());
 			editCommentBlock.find('[name="reasonToEdit"]').val(commentReason.text());
-			editCommentBlock.find('[name="timeNeeded"]').val(timeNeeded);
-			if (externalComment == '1') {
-				editCommentBlock.find('[name="externalComment"]').prop('checked', true);
-			} else {
-				editCommentBlock.find('[name="externalComment"]').prop('checked', false);
+			const editTimeNeededElement = editCommentBlock.find('[name="timeNeeded"]');
+			if (editTimeNeededElement.length) {
+				editTimeNeededElement.val(timeNeeded || '');
+			}
+			const editExternalCommentElement = editCommentBlock.find('[name="externalComment"]');
+			if (editExternalCommentElement.length) {
+				editExternalCommentElement.prop('checked', externalComment == '1');
 			}
 			commentInfoContent.hide();
+			commentInfoBlock.find('.summaryCommentEllipsis').hide();
+			commentInfoBlock.find('.summaryCommentToggle').hide();
 			commentInfoBlock.find('.commentActionsContainer').hide();
 			editCommentBlock.appendTo(commentInfoBlock).show();
 			app.registerEventForTextAreaFields(jQuery('.commentcontent', commentInfoBlock));
@@ -2637,6 +2975,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 			thisInstance.getChildComments(commentId).then(function (data) {
 				var comments = jQuery(data).appendTo(jQuery(e.currentTarget).closest('.commentDetails'));
 				thisInstance.registerCommentMailPopovers(comments);
+				thisInstance.initializeSummaryCommentToggle(comments);
 				commentActionsBlock.find('.hideThreadBlock').show();
 				currentTargetParent.hide();
 			});
@@ -2725,6 +3064,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 						thisInstance.getContentHolder().find('[name="ticketstatus"]').val(selectedTicketStatus);
 					}
 					commentTextAreaElement.val('');
+					commentTextAreaElement.trigger('change');
 					if (mode == "add") {
 						var commentId = data['result']['id'];
 						var commentHtml = thisInstance.getCommentUI(commentId);
@@ -2744,16 +3084,19 @@ jQuery.Class("Vtiger_Detail_Js", {
 									thisInstance.getChildComments(parentCommentId).then(function (responsedata) {
 										var comments = jQuery(responsedata).appendTo(commentBlock);
 										thisInstance.registerCommentMailPopovers(comments);
+										thisInstance.initializeSummaryCommentToggle(comments);
 										commentInfoBlock.find('.viewThreadBlock').hide();
 										commentInfoBlock.find('.hideThreadBlock').show();
 									});
 								} else {
 									var comments = jQuery('<ul class="liStyleNone"><li class="commentDetails">' + data + '</li></ul>').appendTo(commentBlock);
 									thisInstance.registerCommentMailPopovers(comments);
+									thisInstance.initializeSummaryCommentToggle(comments);
 								}
 							} else {
 								var comments = jQuery('<ul class="liStyleNone"><li class="commentDetails">' + data + '</li></ul>').prependTo(closestAddCommentBlock.closest('.commentContainer').find('.commentsList'));
 								thisInstance.registerCommentMailPopovers(comments);
+								thisInstance.initializeSummaryCommentToggle(comments);
 								commentTextAreaElement.css({height: '71px'});
 							}
 							commentInfoBlock.find('.commentActionsContainer').show();
@@ -2767,6 +3110,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 						commentReason.html(data.result.reasontoedit);
 						modifiedTime.text(data.result.modifiedtime);
 						modifiedTime.attr('title', data.result.modifiedtimetitle)
+						thisInstance.initializeSummaryCommentToggle(commentInfoBlock);
 						if (commentEditStatus.hasClass('hide')) {
 							commentEditStatus.removeClass('hide');
 						}
@@ -2788,9 +3132,39 @@ jQuery.Class("Vtiger_Detail_Js", {
 			}
 		});
 
+		detailContentsHolder.on('click', '.ticketCommentCompletion', function (e) {
+			if (jQuery(e.currentTarget).is(':disabled')) {
+				return;
+			}
+			thisInstance.autocompleteTicketComment(e.currentTarget);
+		});
+
 		detailContentsHolder.on('click', '.moreRecentComments', function () {
 			var recentCommentsTab = thisInstance.getTabByLabel(thisInstance.detailViewRecentCommentsTabLabel);
 			recentCommentsTab.trigger('click');
+		});
+
+		detailContentsHolder.on('click', '.summaryCommentToggle', function (e) {
+			var toggleElement = jQuery(e.currentTarget);
+			var singleComment = toggleElement.closest('.singleComment');
+			var commentContent = singleComment.find('.commentInfoContent').first();
+			var ellipsisElement = singleComment.find('.summaryCommentEllipsis');
+			var isExpanded = commentContent.hasClass('summaryCommentExpanded');
+			if (isExpanded) {
+				commentContent
+					.removeClass('summaryCommentExpanded')
+					.addClass('summaryCommentCollapsed')
+					.css('max-height', toggleElement.data('collapsedHeight') + 'px');
+				ellipsisElement.show();
+				toggleElement.text(thisInstance.getSummaryCommentToggleLabel(commentContent, false));
+			} else {
+				commentContent
+					.removeClass('summaryCommentCollapsed')
+					.addClass('summaryCommentExpanded')
+					.css('max-height', '');
+				ellipsisElement.hide();
+				toggleElement.text(thisInstance.getSummaryCommentToggleLabel(commentContent, true));
+			}
 		});
 
 		// Pagination
@@ -2872,6 +3246,8 @@ jQuery.Class("Vtiger_Detail_Js", {
 		thisInstance.loadWidgets();
 
 		app.registerEventForTextAreaFields(jQuery('.commentcontent'));
+		thisInstance.registerTicketCommentCompletionStateEvents(detailContentsHolder);
+		thisInstance.initializeSummaryCommentToggle(detailContentsHolder);
 		this.registerEventForTotalRecordsCount();
 	}
 });

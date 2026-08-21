@@ -122,7 +122,7 @@ class Emails extends CRMEntity {
 				$myids = explode("|", $parent_id);
 
 				foreach ($myids as $id) {
-					if (empty($id) || empty($realid[0])) {
+					if (empty($id)) {
 						continue;
 					}
 					$realid = explode("@", $id);

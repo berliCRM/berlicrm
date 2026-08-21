@@ -8,6 +8,8 @@
  * All Rights Reserved.
  *************************************************************************************/
 
+require_once 'modules/Settings/CronTasks/models/Config.php';
+
 class Settings_CronTasks_List_View extends Settings_Vtiger_List_View {
 
 	public function initializeListViewContents(Vtiger_Request $request, Vtiger_Viewer $viewer) {
@@ -30,9 +32,21 @@ class Settings_CronTasks_List_View extends Settings_Vtiger_List_View {
 		$viewer->assign('QUALIFIED_MODULE', $qualifiedModuleName);
 		$viewer->assign('MODULE_MODEL', $listViewModel->getModule());
 		$viewer->assign('PAGING_MODEL', $pagingModel);
+		$viewer->assign('PAGE_NUMBER', 1);
+		$viewer->assign('ORDER_BY', 'sequence');
+		$viewer->assign('SORT_ORDER', 'ASC');
+		$viewer->assign('NEXT_SORT_ORDER', 'DESC');
+		$viewer->assign('SORT_IMAGE', 'icon-chevron-up');
+		$viewer->assign('COLUMN_NAME', 'sequence');
+		$viewer->assign('LISTVIEW_ENTRIES_COUNT', count($this->listViewEntries));
+		$viewer->assign('LISTVIEW_COUNT', count($this->listViewEntries));
 		$viewer->assign('LISTVIEW_HEADERS', $this->listViewHeaders);
 		$viewer->assign('LISTVIEW_ENTRIES', $this->listViewEntries);
 		$viewer->assign('CURRENT_USER_MODEL', Users_Record_Model::getCurrentUserModel());
+		$viewer->assign('CRON_MAIL_CONFIG', Settings_CronTasks_Config_Model::getInstance()->getData());
+		$viewer->assign('CRON_MAIL_SAVE_STATUS', $request->get('cronMailSaved'));
+		$viewer->assign('SETTINGS_BLOCK', $request->get('block'));
+		$viewer->assign('SETTINGS_FIELDID', $request->get('fieldid'));
 	}
 
 }

@@ -11,7 +11,7 @@
 -->*}
 {strip}
 
-	<div class="commentContainer recentComments">
+	<div class="commentContainer recentComments" data-show-more-label="{vtranslate('LBL_SHOW_MORE', 'Vtiger')}" data-show-less-label="{vtranslate('LBL_SHOW_LESS', 'Vtiger')}">
 		<div class="commentTitle row-fluid">
 			{assign var=CREATE_PERMISSION value=$COMMENTS_MODULE_MODEL->isPermitted('CreateView')}
 			{assign var=EDIT_PERMISSION value=$COMMENTS_MODULE_MODEL->isPermitted('EditView')}
@@ -31,7 +31,7 @@
 				COMMENT_FORM_SHOW_REASON=false
 				COMMENT_FORM_STYLE=''
 				COMMENT_FORM_HELPDESK_FIELDS='full'
-				COMMENT_FORM_TIME_NEEDED_VALUE='00:00'}
+				COMMENT_FORM_TIME_NEEDED_VALUE=''}
 			{/if}
 		</div>
 		<hr><br>
@@ -65,7 +65,7 @@
 			COMMENT_FORM_SHOW_REASON=false
 			COMMENT_FORM_STYLE=''
 			COMMENT_FORM_HELPDESK_FIELDS=''
-			COMMENT_FORM_TIME_NEEDED_VALUE='00:00'}
+			COMMENT_FORM_TIME_NEEDED_VALUE=''}
 		{/if}
 		{if $EDIT_PERMISSION}
 			{include file='CommentForm.tpl'|@vtemplate_path
@@ -83,7 +83,7 @@
 			COMMENT_FORM_SHOW_REASON=true
 			COMMENT_FORM_STYLE='min-height: 150px;'
 			COMMENT_FORM_HELPDESK_FIELDS='full'
-			COMMENT_FORM_TIME_NEEDED_VALUE='00:00'}
+			COMMENT_FORM_TIME_NEEDED_VALUE=''}
 		{/if}
 	</div>
 {/strip}

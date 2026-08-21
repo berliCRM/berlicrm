@@ -107,6 +107,50 @@ class VTEntityDelta extends VTEventHandler {
 	function getNewEntity($moduleName, $recordId) {
 		return self::$newEntity[$moduleName][$recordId];
 	}
+
+	/**
+	 * Releases the cached delta data for one completely processed CRM record.
+	 *
+	 * VTEntityDelta keeps old entity data, new entity data and the calculated
+	 * field delta in static arrays so every handler participating in the same
+	 * save can access them. Long-running bulk imports can save many thousands of
+	 * records in one PHP process. Without an explicit cleanup those static arrays
+	 * retain every processed entity until the process ends and can exhaust the
+	 * available PHP or operating-system memory.
+	 *
+	 * Call this only after vtiger.entity.aftersave.final has completed. At that
+	 * point workflows, module handlers and ModTracker have already consumed the
+	 * delta belonging to this save.
+	 *
+	 * @param string $moduleName CRM module name.
+	 * @param int    $recordId   CRM record ID.
+	 *
+	 * @return void
+	 */
+	public static function clearEntity($moduleName, $recordId) {
+		$moduleName = (string)$moduleName;
+		$recordId = (int)$recordId;
+
+		if ($moduleName === '' || $recordId <= 0) {
+			return;
+		}
+
+		unset(self::$oldEntity[$moduleName][$recordId]);
+		unset(self::$newEntity[$moduleName][$recordId]);
+		unset(self::$entityDelta[$moduleName][$recordId]);
+
+		if (isset(self::$oldEntity[$moduleName]) && empty(self::$oldEntity[$moduleName])) {
+			unset(self::$oldEntity[$moduleName]);
+		}
+
+		if (isset(self::$newEntity[$moduleName]) && empty(self::$newEntity[$moduleName])) {
+			unset(self::$newEntity[$moduleName]);
+		}
+
+		if (isset(self::$entityDelta[$moduleName]) && empty(self::$entityDelta[$moduleName])) {
+			unset(self::$entityDelta[$moduleName]);
+		}
+	}
 	
 	function hasChanged($moduleName, $recordId, $fieldName, $fieldValue = NULL) {
 		if(empty(self::$oldEntity[$moduleName][$recordId])) {

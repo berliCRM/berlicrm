@@ -46,7 +46,7 @@
 											({Vtiger_Util_Helper::convertDateTimeIntoUsersDisplayFormat($COMMENT->getCommentedTime())})</small>
 									</p>
 									{assign var=TIMENEEDED value=Vtiger_Util_Helper::convertTimeIntoUsersDisplayFormat($COMMENT->get('timeneeded'))}
-									{if $TIMENEEDED neq "00:00:00" and $TIMENEEDED neq false}
+									{if $MODULE_NAME == 'HelpDesk' && $TIMENEEDED neq "00:00:00" and $TIMENEEDED neq false}
 										<p class="muted">
 											<small class="pull-right">
 												{vtranslate('LBL_TIME_NEEDED', $MODULE_NAME)}:&nbsp{Vtiger_Util_Helper::convertTimeIntoUsersDisplayFormat($COMMENT->get('timeneeded'))}
@@ -72,7 +72,7 @@
 						<input type="hidden" name="timeNeeded" value="{$TIME_NEEDED}">
 					{/if}
 					{assign var="REASON_TO_EDIT" value=$COMMENT->get('reasontoedit')}
-					<div class="row-fluid editedStatus" name="editStatus">
+					<div class="row-fluid editedStatus{if empty($REASON_TO_EDIT) and $COMMENT->getCommentedTime() eq $COMMENT->getModifiedTime()} hide{/if}" name="editStatus">
 						<div class="row-fluid">
 							<span class="{if empty($REASON_TO_EDIT)}hide{/if} span6 editReason">
 								<p><small>[ {vtranslate('LBL_EDIT_REASON',$MODULE_NAME)} ] : <span name="editReason"

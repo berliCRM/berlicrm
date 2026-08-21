@@ -218,11 +218,7 @@ class VtigerCRMObjectMeta extends EntityMeta {
 		$idComponents = vtws_getIdComponents($webserviceId);
 		$id=$idComponents[1];
 		
-		$permitted = isPermitted($this->getTabName(),$operation,$id);
-		if(strcmp($permitted,"yes")===0){
-			return true;
-		}
-		return false;
+		return Users_Privileges_Model::isPermitted($this->getTabName(), $operation, $id);
 	}
 	
 	function hasAssignPrivilege($webserviceId){
@@ -397,7 +393,7 @@ class VtigerCRMObjectMeta extends EntityMeta {
 		$tabid = $this->getTabId();
 		require('user_privileges/user_privileges_'.$this->user->id.'.php');
 		if($is_admin == true || $profileGlobalPermission[1] == 0 || $profileGlobalPermission[2] ==0){
-			$sql = "select *, '0' as readonly from vtiger_field where tabid =? and block in (".generateQuestionMarks($block).") and displaytype in (1,2,3,4,5)";
+			$sql = "select *, '0' as readonly from vtiger_field where tabid =? and block in (".generateQuestionMarks($block).") and displaytype in (1,2,3,4,5) and presence in (0,2)";
 			$params = array($tabid, $block);	
 		}else{
 			$profileList = getCurrentUserProfileList();

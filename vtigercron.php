@@ -26,6 +26,7 @@ if (file_exists('config_override.php')) {
 // Extended inclusions
 require_once 'includes/Loader.php';
 vimport('includes.runtime.EntryPoint');
+require_once 'modules/Settings/CronTasks/models/Config.php';
 
 $version = explode('.', phpversion());
 
@@ -69,6 +70,14 @@ if ((PHP_SAPI === "cgi-fcgi" && empty($_SESSION)) || empty($_SERVER['REMOTE_ADDR
     //set global current user permissions
     global $current_user, $site_URL;
     $current_user = Users::getActiveAdminUser();
+    $cronMailConfig = Settings_CronTasks_Config_Model::getInstance()->getData();
+    $cronMailRecipientEmail = trim((string)$cronMailConfig['sender_email']);
+    $cronMailNotificationEmail = 'mb@crm-now.de';
+    $cronMailSenderEmail = !empty($HELPDESK_SUPPORT_EMAIL_ID) ? trim((string)$HELPDESK_SUPPORT_EMAIL_ID) : '';
+    $cronMailSenderName = !empty($HELPDESK_SUPPORT_NAME) ? trim((string)$HELPDESK_SUPPORT_NAME) : '';
+    if ($cronMailSenderName === '') {
+        $cronMailSenderName = $current_user->user_name;
+    }
 
     echo sprintf('[CRON],"%s",%s,Instance,"%s","",[STARTS]', $cronRunId, $site_URL, $cronStarts) . "\n";
     foreach ($cronTasks as $cronTask) {
@@ -92,8 +101,15 @@ if ((PHP_SAPI === "cgi-fcgi" && empty($_SESSION)) || empty($_SERVER['REMOTE_ADDR
                 if ($lastStart == 0 || $now - $lastStart > 86400) {
                     $subject = sprintf(vtranslate('LBL_CRON_TIMEOUT_SUBJECT'), $cronTask->getName(), $site_URL);
                     $content = sprintf(vtranslate('LBL_CRON_TIMEOUT_CONTENT'), $site_URL, $cronTask->getName());
-                    send_mail('Settings', $current_user->email1, $current_user->user_name, $current_user->email1, $subject, $content);
-                    echo sprintf("[INFO] %s - running for more than 24h, informed admin and restarted", $cronTask->getName());
+                    if (!empty($cronMailSenderEmail)) {
+                        if (!empty($cronMailRecipientEmail)) {
+                            send_mail('Settings', $cronMailRecipientEmail, $cronMailSenderName, $cronMailSenderEmail, $subject, $content, '', '', '', '', '', true);
+                        }
+                        if (!empty($cronMailNotificationEmail) && strcasecmp($cronMailNotificationEmail, $cronMailRecipientEmail) !== 0) {
+                            send_mail('Settings', $cronMailNotificationEmail, $cronMailSenderName, $cronMailSenderEmail, $subject, $content, '', '', '', '', '', true);
+                        }
+                    }
+                    echo sprintf("[INFO] %s - running for more than 24h, sent notification and restarted", $cronTask->getName());
                     // if time since last start < 24h just skip it
                 } else {
                     echo sprintf("[INFO] %s - not ready to run because it is running already", $cronTask->getName());
