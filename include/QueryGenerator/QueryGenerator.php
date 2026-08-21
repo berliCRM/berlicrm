@@ -1041,7 +1041,7 @@ class QueryGenerator {
         $inEqualityFieldTypes = array('currency','percentage','double','integer','number');
         
 		if(is_string($value) && $this->ignoreComma == false) {
-            $commaSeparatedFieldTypes = array('picklist', 'multipicklist', 'owner', 'date', 'datetime', 'time');
+            $commaSeparatedFieldTypes = array('picklist', 'multipicklist', 'owner', 'date', 'datetime', 'time', 'UserPicklist');
             if(in_array($field->getFieldDataType(), $commaSeparatedFieldTypes)) {
                 $valueArray = explode(',' , $value);
                 if ($field->getFieldDataType() == 'multipicklist' && in_array($operator, array('e', 'n'))) {
