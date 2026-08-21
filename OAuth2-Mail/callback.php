@@ -15,6 +15,7 @@ ini_set('display_errors', 'on');
 // todo: check which provider sent this callback
 if (true) {
 	if (isset($_REQUEST['code'])) {
+		global $site_URL;
 		$code = $_REQUEST['code'];
 		
 		require_once 'modules/Settings/Vtiger/models/ConfigoAuth.php';
@@ -28,7 +29,7 @@ if (true) {
 			'clientId'               => $oAuthDetails['client_id'],
 			'clientSecret'           => $oAuthDetails['client_secret'],
 			'tenant'                 => $oAuthDetails['tenant_id'],
-			'redirectUri'            => 'https://alexberli48.i1.crm-now.de/OAuth2-Mail/callback.php',
+			'redirectUri'            => $site_URL.'OAuth2-Mail/callback.php',
 			'defaultEndPointVersion' => Azure::ENDPOINT_VERSION_2_0,
 			'scopes'                 => $scopes
 		]);
