@@ -393,8 +393,13 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 	}
 
 	/**
-	 * Function to get details for user have the permissions to do actions
-	 * @return <Boolean> - true/false
+	 * Return the columns configured for a module's global-search result label.
+	 *
+	 * The configured display fields take precedence over the entity identifier
+	 * fields. Entity identifier fields are used as the fallback.
+	 *
+	 * @param int $tabid Module tab ID.
+	 * @return string[] Configured field column names in display order.
 	 */
 	public static function getDisplayLabelsArray ($tabid) {
 		$db = PearDatabase::getInstance();
@@ -415,6 +420,14 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 
 	/**
 	 * Build the configured global-search label from field column names.
+	 *
+	 * Values are formatted through their field UI type and joined in the same
+	 * order in which the columns occur in the global-search settings.
+	 *
+	 * @param Vtiger_Record_Model $recordModel Search-result record.
+	 * @param string[] $displayFields Configured field column names.
+	 * @return string Plain-text result label, or an empty string if no configured
+	 *                value can be resolved.
 	 */
 	protected static function getSearchResultDisplayLabel($recordModel, $displayFields) {
 		if (empty($displayFields)) {
@@ -428,7 +441,8 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 			$displayField = trim($displayField);
 			$fieldModel = isset($moduleFields[$displayField]) ? $moduleFields[$displayField] : false;
 
-			// Global-search settings store column names, which can differ from field names.
+			// Global-search settings store database column names, whereas record data
+			// and module field maps are keyed by field name.
 			if (!$fieldModel) {
 				foreach ($moduleFields as $candidateFieldModel) {
 					if ($candidateFieldModel->get('column') == $displayField) {
@@ -441,7 +455,8 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 			if ($fieldModel) {
 				$displayValue = $recordModel->getDisplayValue($fieldModel->get('name'));
 				if (is_scalar($displayValue)) {
-					// Related fields can return an HTML link; search labels must be plain text.
+					// UI types for related fields may return an anchor element. The result
+					// label is rendered inside another link and must therefore remain plain text.
 					$displayValue = trim(strip_tags((string)$displayValue));
 					if ($displayValue !== '') {
 						$displayValues[] = $displayValue;
@@ -454,9 +469,14 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 	}
 
 	/**
-	 * Static Function to get the list of records matching the search key
-	 * @param <String> $searchKey
-	 * @return <Array> - List of Vtiger_Record_Model or Module Specific Record Model instances
+	 * Return records matching a global or module-specific search term.
+	 *
+	 * Search behavior and result labels are controlled by
+	 * berli_globalsearch_settings. Results are keyed by module and CRM record ID.
+	 *
+	 * @param string $searchKey Search term.
+	 * @param string|false $moduleName Optional module restriction.
+	 * @return Vtiger_Record_Model[][] Matching records grouped by module and CRM ID.
 	 */
 	public static function getSearchResult($searchKey, $moduleName = false) {
 		$adb = PearDatabase::getInstance();
@@ -492,6 +512,7 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 					
 					// only search label fields if searchall isn't 1 and search isn't specified for certain module
 					if (empty($searchAll) && empty($moduleName)) {
+						// The search-data join can otherwise return a CRM record more than once.
 						$searchQuery = "SELECT DISTINCT vtiger_crmentity.crmid FROM vtiger_crmentity
 										LEFT JOIN berli_globalsearch_data ON berli_globalsearch_data.gscrmid = vtiger_crmentity.crmid
 										WHERE vtiger_crmentity.deleted = 0 AND vtiger_crmentity.setype = ? AND (vtiger_crmentity.label LIKE ? OR berli_globalsearch_data.searchlabel LIKE ?)";
@@ -533,6 +554,8 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 						while ($searchRow = $adb->getNextRow($searchRes, false)) {
 							// we only got one field, id, so we don't have to lookup it's fieldname
 							$crmId = $searchRow[0];
+							// QueryGenerator joins can produce multiple rows for one CRM record.
+							// Keep distinct records, not merely distinct display labels.
 							if (isset($matchingRecords[$iModuleName][$crmId])) {
 								continue;
 							}
@@ -543,6 +566,7 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 								continue;
 							}
 							$displayLabel = self::getSearchResultDisplayLabel($recordModel, $displayFields);
+							// Preserve the standard entity label when no configured value is available.
 							if ($displayLabel !== '') {
 								$recordModel->set('label', $displayLabel);
 							}
