@@ -62,30 +62,46 @@ class Vtiger_Mailer extends PHPMailer {
 
 		global $adb;
 		$result = $adb->pquery("SELECT * FROM vtiger_systems WHERE server_type=?", Array('email'));
-		if($adb->num_rows($result)) {
+		// check for save in Settings
+		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'Save' && isset($_REQUEST['server'])) {
+			$this->Host = $_REQUEST['server'];
+			$this->Username = $_REQUEST['server_username'];
+			$this->Password = $_REQUEST['server_password'];
+			$this->SMTPAuth = $_REQUEST['smtp_auth'];
+			$fromValue = $_REQUEST['from_email_field'];
+		} elseif($adb->num_rows($result)) {
 			$this->Host = $adb->query_result($result, 0, 'server');
 			$this->Username = decode_html($adb->query_result($result, 0, 'server_username'));
 			$this->Password = decode_html($adb->query_result($result, 0, 'server_password'));
 			$this->SMTPAuth = $adb->query_result($result, 0, 'smtp_auth');
-            
-            // To support TLS
-            $hostinfo = explode("://", $this->Host);
-            $smtpsecure = $hostinfo[0];
-            if($smtpsecure == 'tls'){
-                $this->SMTPSecure = $smtpsecure;
-                $this->Host = $hostinfo[1];
-            }
-            // End
-            
+			$fromValue = $adb->query_result($result, 0, 'from_email_field');
+		}
+        
+		if (!empty($this->Host)) {
+			// To support TLS
+			$hostinfo = explode("://", $this->Host);
+			$smtpsecure = $hostinfo[0];
+			if($smtpsecure == 'tls'){
+				$this->SMTPSecure = $smtpsecure;
+				$this->Host = $hostinfo[1];
+			}
+			// End
+			
 			if(empty($this->SMTPAuth)) $this->SMTPAuth = false;
 
-			$this->ConfigSenderInfo($adb->query_result($result, 0, 'from_email_field'));
+			$this->ConfigSenderInfo($fromValue);
 
 			$this->_serverConfigured = true;
 			// oAuth
 			require_once 'modules/Settings/Vtiger/models/ConfigoAuth.php';
 			$settingsoAuth = Settings_Vtiger_oAuth::getInstance();
 			$oAuthDetails = $settingsoAuth->getData();
+			// rewrite with $_REQUEST data
+			if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'Save' && isset($_REQUEST['server'])) {
+				$request = new Vtiger_Request($_REQUEST);
+				$settingsoAuth->save($request);
+				$oAuthDetails = $settingsoAuth->getData();
+			}
 			if ($oAuthDetails['provider'] == 'AZURE') {
 				$constants = $settingsoAuth->getClassConstants();
 				if (isset($constants['CONFIG_KEY'])) {
@@ -131,7 +147,6 @@ class Vtiger_Mailer extends PHPMailer {
 					]));
 				}
 			}
-//			$this->Sender= getReturnPath($this->Host);
 		}
 	}
 
@@ -194,14 +209,13 @@ class Vtiger_Mailer extends PHPMailer {
 	function Send($sync=false, $linktoid=false, $ignoreConfigCheck = false) {
 		if(!$ignoreConfigCheck && !$this->_serverConfigured) return;
 		// oAuth
-		/* require_once 'modules/Settings/Vtiger/models/ConfigoAuth.php';
-		$settingsoAuth = Settings_Vtiger_oAuth::getInstance();
-		$oAuthDetails = $settingsoAuth->getData();
-		if ($oAuthDetails['provider'] == 'AZURE' && !empty($oAuthDetails['user_name'])) {
-			// overwrite FROM for now
-			$this->From = $oAuthDetails['user_name'];
-		}
-		*/
+		// require_once 'modules/Settings/Vtiger/models/ConfigoAuth.php';
+		// $settingsoAuth = Settings_Vtiger_oAuth::getInstance();
+		// $oAuthDetails = $settingsoAuth->getData();
+		// if ($oAuthDetails['provider'] == 'AZURE' && !empty($oAuthDetails['user_name'])) {
+			// // overwrite FROM for now
+			// $this->From = $oAuthDetails['user_name'];
+		// }
 
 		if($sync) return parent::Send();
 
