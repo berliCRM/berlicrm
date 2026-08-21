@@ -46,6 +46,8 @@
 									{vtranslate('JSLBL_Yahoo',$MODULE)}
 								{else if $SERVERNAME eq 'fastmail'}
 									{vtranslate('JSLBL_Fastmail',$MODULE)}
+								{else if $SERVERNAME eq 'office365'}
+									Office 365
 								{else if $SERVERNAME eq 'other'}
 									{vtranslate('JSLBL_Other',$MODULE)}
 								{/if}

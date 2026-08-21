@@ -18,6 +18,7 @@ class MailManager_Folder_Model {
 	protected $mPageStart;
 	protected $mPageEnd;
 	protected $mPageLimit;
+	protected $nativeFolder;
 
 	public function __construct($name='') {
 		$this->setName($name);
@@ -112,6 +113,14 @@ class MailManager_Folder_Model {
 
 	public function setUnreadCount($unreadCount) {
 		$this->mUnreadCount = $unreadCount;
+	}
+	
+	public function setNativeFolder($nFolder) {
+		$this->nativeFolder = $nFolder;
+	}
+	
+	public function getNativeFolder() {
+		return $this->nativeFolder;
 	}
 }
 

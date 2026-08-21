@@ -22,11 +22,11 @@ class Settings_Vtiger_CreateoAuthLink_Action extends Settings_Vtiger_Basic_Actio
 		if (file_exists($includePath)) {
 			require_once($includePath);
 			$provider = $request->get('provider');
+			$type = $request->get('type');
 			if ($provider == 'AZURE') {
 				if (class_exists('TheNetworg\OAuth2\Client\Provider\Azure')) {
 					require_once 'modules/Settings/Vtiger/models/ConfigoAuth.php';
-					$settingsoAuth = Settings_Vtiger_oAuth::getInstance();
-					$settingsoAuth->save($request);
+					$settingsoAuth = Settings_Vtiger_oAuth::getInstance($type);
 					$oAuthDetails = $settingsoAuth->getData();
 					$scopes = ['offline_access',
 					   'https://outlook.office.com/SMTP.Send'
@@ -42,6 +42,8 @@ class Settings_Vtiger_CreateoAuthLink_Action extends Settings_Vtiger_Basic_Actio
 					$authUrl = $provider->getAuthorizationUrl([
 						'scope' => $scopes
 					]);
+					$request->set('hidden_csrf_state', $provider->getState());
+					$settingsoAuth->save($request);
 					$response->setResult($authUrl);
 				}
 			} else {

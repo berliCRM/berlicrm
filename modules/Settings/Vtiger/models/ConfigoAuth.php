@@ -26,14 +26,22 @@ class Settings_Vtiger_oAuth extends Vtiger_Base_Model {
 	const PARAM_CLIENT_SECRET = 'client_secret';
 	const PARAM_REFRESH = 'hidden_refresh_token';
 	const PARAM_REFRESH_EXPIRE = 'hidden_refresh_token_expire';
+	const PARAM_ACCESS_TOKEN = 'hidden_access_token';
+	const PARAM_ACCESS_TOKEN_EXPIRE = 'hidden_access_token_expire';
+	const PARAM_CSRF_STATE = 'hidden_csrf_state';
+	
+	var $type = 'smtp';
+	var $csrfState = '';
 
 	/**
 	 * Get singleton-like instance of the signature configuration model.
 	 *
 	 * @return self
 	 */
-	public static function getInstance() {
+	public static function getInstance($type = 'smtp', $csrfState = '') {
 		$instance = new self();
+		$instance->type = $type;
+		$instance->csrfState = $csrfState;
 		$instance->load();
 		return $instance;
 	}
@@ -59,14 +67,31 @@ class Settings_Vtiger_oAuth extends Vtiger_Base_Model {
 	 * @return int
 	 */
 	protected function ensureConfigId(PearDatabase $db) {
-		$result = $db->pquery(
-			"SELECT id FROM vtiger_settings_config WHERE config_key = ? LIMIT 1",
-			[self::CONFIG_KEY]
-		);
+		if (!empty($this->csrfState)) {
+			$result = $db->pquery(
+				"SELECT vtiger_settings_config.id FROM vtiger_settings_config
+				 INNER JOIN vtiger_settings_config_param ON vtiger_settings_config_param.config_id = vtiger_settings_config.id
+				 WHERE param_key = ? AND param_value = ? LIMIT 1;",
+				[self::PARAM_CSRF_STATE, $this->csrfState]
+			);
+		} else {
+			$currentUser = Users_Record_Model::getCurrentUserModel();
+			$cKey = self::CONFIG_KEY.'_'.$this->type;
+			if($this->type != 'smtp' && $currentUser->getId() !== false) {
+				$cKey .= '_'.$currentUser->getId();
+			}
+			
+			$result = $db->pquery(
+				"SELECT id FROM vtiger_settings_config WHERE config_key = ? LIMIT 1",
+				[$cKey]
+			);
+		}
 
 		if ($result && $db->num_rows($result)) {
 			$row = $db->fetchByAssoc($result, 0);
 			return (int)$row['id'];
+		} elseif (!empty($this->csrfState)) {
+			throw new Exception('No match found for: '.$this->csrfState);
 		}
 
 		$now = gmdate('Y-m-d H:i:s');
@@ -77,7 +102,7 @@ class Settings_Vtiger_oAuth extends Vtiger_Base_Model {
 			 (config_key, label, description, is_active, updated_at, updated_by_user_id)
 			 VALUES (?, ?, ?, ?, ?, ?)",
 			[
-				self::CONFIG_KEY,
+				$cKey,
 				'oAuth',
 				'oAuth Parameter',
 				1,
