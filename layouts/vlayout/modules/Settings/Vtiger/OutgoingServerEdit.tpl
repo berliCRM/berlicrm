@@ -52,7 +52,46 @@
 						<td class="{$WIDTHTYPE}" style="border-left: none;"><input type="checkbox" name="smtp_auth" {if $MODEL->isSmtpAuthEnabled()}checked{/if}/></td></tr>
 				</tbody>
 			</table>
-			<br>	
+			<br>
+			{if $OAUTH_PROVIDERS}
+				<table class="table table-bordered table-condensed themeTableColor">
+					<thead>
+						<tr class="blockHeader">
+							<th colspan="2" class="{$WIDTHTYPE}">oAuth Provider</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td width="20%" class="{$WIDTHTYPE}">
+								<label class="muted pull-right marginRight10px">Anbieter</label>
+							</td>
+							<td class="{$WIDTHTYPE}">
+								<select id="provider" name="provider">
+									<option>-</option>
+									{foreach $OAUTH_PROVIDERS AS $OAUTH_PROVIDER}
+										<option value="{$OAUTH_PROVIDER}" {if $OAUTH_PROVIDER == $OAUTH_DETAILS['provider']}selected{/if}>{$OAUTH_PROVIDER}</option>
+									{/foreach}
+								</select>
+							</td>
+						</tr>
+						{foreach $OAUTH_DETAILS AS $OAUTH_KEY => $OAUTH_VALUE}
+							{if $OAUTH_KEY == 'enabled' || $OAUTH_KEY == 'provider'}
+								{continue}
+							{/if}
+							<tr>
+								<td width="20%" class="{$WIDTHTYPE}">
+									<label class="muted pull-right marginRight10px">{$OAUTH_KEY}</label>
+								</td>
+								<td class="{$WIDTHTYPE}">
+									<input type="text" name="{$OAUTH_KEY}" id="{$OAUTH_KEY}" value="{$OAUTH_VALUE}">
+								</td>
+							</td>
+							</tr>
+						{/foreach}
+					</tbody>
+				</table>
+				<br>
+			{/if}
 			<div class="alert alert-info">{vtranslate('LBL_OUTGOING_SERVER_NOTE', $QUALIFIED_MODULE)}</div>
 		</form>
 	</div>
