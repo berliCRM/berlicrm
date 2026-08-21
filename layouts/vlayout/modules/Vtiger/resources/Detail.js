@@ -694,6 +694,16 @@ jQuery.Class("Vtiger_Detail_Js", {
 		return true;
 	},
 
+	showCommentMailErrorNotification: function (response) {
+		if (response && response.result && response.result.commentMailError) {
+			Vtiger_Helper_Js.showPnotify({
+				text: response.result.commentMailError,
+				type: 'error',
+				delay: 7000
+			});
+		}
+	},
+
 	showSendMailCommentModal: function (triggerElement, callback) {
 		var thisInstance = this;
 		var commentBlock = triggerElement.closest('.addCommentBlock');
@@ -2581,7 +2591,8 @@ jQuery.Class("Vtiger_Detail_Js", {
 					});
 				};
 				dataObj.then(
-					function () {
+					function (data) {
+						thisInstance.showCommentMailErrorNotification(data);
 						refreshComments();
 					},
 					function () {
@@ -2613,6 +2624,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 				var mode = currentTarget.data('mode');
 				var dataObj = thisInstance.saveComment(e);
 				dataObj.then(function (data) {
+					thisInstance.showCommentMailErrorNotification(data);
 					var closestAddCommentBlock = currentTarget.closest('.addCommentBlock');
 					var commentTextAreaElement = closestAddCommentBlock.find('.commentcontent');
 					var commentInfoBlock = currentTarget.closest('.singleComment');

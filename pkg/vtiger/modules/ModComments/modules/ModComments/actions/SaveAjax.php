@@ -40,9 +40,15 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 
         $recordModel = $this->saveRecord($request);
 
+        $commentMailError = null;
         if ($request->get('sendMail')) {
-            $attachmentDocumentIds = $this->saveUploadedDocuments();
-            $this->sendMail($request, $recordModel, $attachmentDocumentIds);
+            $mailTemplate = $this->getMailTemplate();
+            if ($mailTemplate === null) {
+                $commentMailError = vtranslate('LBL_HELPDESK_COMMENT_MAIL_TEMPLATE_NOT_FOUND', 'HelpDesk');
+            } else {
+                $attachmentDocumentIds = $this->saveUploadedDocuments();
+                $this->sendMail($request, $recordModel, $attachmentDocumentIds, $mailTemplate);
+            }
         }
 
         $fieldModelList = $recordModel->getModule()->getFields();
@@ -55,6 +61,9 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 
         $result['_recordLabel'] = $recordModel->getName();
         $result['_recordId'] = $recordModel->getId();
+        if ($commentMailError !== null) {
+            $result['commentMailError'] = $commentMailError;
+        }
 
         $response = new Vtiger_Response();
         $response->setEmitType(Vtiger_Response::$EMIT_JSON);
@@ -112,7 +121,7 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
      * @return void
      * @throws Exception
      */
-    public function sendMail(Vtiger_Request $request, Vtiger_Record_Model $recordModel, array $attachmentDocumentIds = array()): void
+    public function sendMail(Vtiger_Request $request, Vtiger_Record_Model $recordModel, array $attachmentDocumentIds = array(), array $mailTemplate = array()): void
     {
         global $HELPDESK_SUPPORT_EMAIL_ID;
         $db = PearDatabase::getInstance();
@@ -122,7 +131,13 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         $relatedId = $recordModel->get('related_to');
         $relatedRecordModel = Vtiger_Record_Model::getInstanceById($relatedId);
         $parent_id = '';
-        [$subject, $contents] = array_map('decode_html', self::getMailTemplate());
+        if (empty($mailTemplate)) {
+            $mailTemplate = $this->getMailTemplate();
+            if ($mailTemplate === null) {
+                return;
+            }
+        }
+        [$subject, $contents] = array_map('decode_html', $mailTemplate);
 
         $subject = getMergedDescription($subject, $relatedId, 'HelpDesk');
         $contents = getMergedDescription($contents, $relatedId, 'HelpDesk');
@@ -221,10 +236,10 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
     }
 
     /**
-     * @return array
+     * @return array|null
      * @throws Exception
      */
-    public function getMailTemplate(): array
+    public function getMailTemplate(): ?array
     {
         global $HELPDESK_SUPPORT_EMAIL_TEMPLATE;
 
@@ -232,8 +247,11 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
 
         $query = "SELECT vtiger_emailtemplates.subject,vtiger_emailtemplates.body
 					FROM vtiger_emailtemplates
-					WHERE vtiger_emailtemplates.templateid=?";
+					WHERE vtiger_emailtemplates.templateid=? AND vtiger_emailtemplates.deleted=0";
         $result = $db->pquery($query, array($HELPDESK_SUPPORT_EMAIL_TEMPLATE));
+        if (!$result || (int) $db->num_rows($result) === 0) {
+            return null;
+        }
         return array($db->query_result($result,0,'subject'), $db->query_result($result,0,'body'));
     }
 

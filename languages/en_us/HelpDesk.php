@@ -42,6 +42,7 @@ $languageStrings = array(
 	'LBL_REGARDS'=> 'Regards',
 	'LBL_RELATED_TO' => 'Related To',
 	'LBL_HELPDESK_COMMENT_MAIL_NOTICE' => 'The ticket customer will be used as the recipient automatically. Add optional CC, BCC, or attachments here.',
+	'LBL_HELPDESK_COMMENT_MAIL_TEMPLATE_NOT_FOUND' => 'The email template for the ticket reply could not be found. Please check the settings in the Email Templates module.',
 	'LBL_HELPDESK_DROP_FILES_HERE' => 'Drag files here',
 	'LBL_HELPDESK_OR_CLICK_TO_SELECT' => 'or click to select attachments',
 	'LBL_RESPOND'=> 'Kindly respond to above ticket at the earliest.',
