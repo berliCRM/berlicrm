@@ -128,7 +128,7 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
      */
     public function sendMail(Vtiger_Request $request, Vtiger_Record_Model $recordModel, array $attachmentDocumentIds = array(), array $mailTemplate = array()): void
     {
-        global $HELPDESK_SUPPORT_EMAIL_ID;
+        global $HELPDESK_SUPPORT_EMAIL_ID, $HELPDESK_SUPPORT_NAME;
 
         $email = '';
         $name = '';
@@ -171,11 +171,13 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action
         $emailForTicketModel = Settings_Vtiger_ConfigTicketEmailAddress::getInstance();
         $data = $emailForTicketModel->getData();
         $from_email = $HELPDESK_SUPPORT_EMAIL_ID;
-        $sender_name = '';
+        $sender_name = $HELPDESK_SUPPORT_NAME;
         // If the checkbox is activated, then the data from the configuration menu should be set as the "sender".
         if($data["enabled"] == 1){
             $sender_email = $data["sender_email"];
-            $sender_name = $data["sender_name"];
+            if (!empty(trim((string) $data["sender_name"]))) {
+                $sender_name = $data["sender_name"];
+            }
             $reply_to_email = $data["reply_to_email"];
             //$reply_to_name = $data["reply_to_name"];
             if(empty($sender_email) && empty($reply_to_email)){
