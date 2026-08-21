@@ -274,7 +274,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 	},
 
 	/*
-	 * Function to get the related module container 
+	 * Function to get the related module container
 	 */
 	getRelatedModuleContainer: function () {
 		if (this.getRelatedModulesContainer == false) {
@@ -661,6 +661,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 		}
 		const external = closestCommentBlock.find('#externalComment').is(':checked') ? 'on' : '0';
 		const neededTime = closestCommentBlock.find('#timeNeeded').val();
+		const ticketStatus = closestCommentBlock.find('[name="ticketstatus"]').val();
 		var mailData = currentTarget.data('mailData') || {};
 		var postData = {
 			'commentcontent': commentContentValue,
@@ -668,6 +669,9 @@ jQuery.Class("Vtiger_Detail_Js", {
 			'module': 'ModComments',
 			'external': external,
 			'timeneeded' : neededTime,
+		}
+		if (typeof ticketStatus !== 'undefined') {
+			postData['ticketstatus'] = ticketStatus;
 		}
 
 		if (commentMode == "edit") {
@@ -2635,9 +2639,13 @@ jQuery.Class("Vtiger_Detail_Js", {
 				const dataObj = thisInstance.saveComment(e);
 				const refreshComments = function () {
 					const commentsContainer = detailContentsHolder.find("[data-name='ModComments']");
+					const updatesContainer = detailContentsHolder.find("[data-name='LBL_UPDATES']");
+					const ticketStatus = commentsContainer.find('[name="ticketstatus"]').find(":selected").val();
+					detailContentsHolder.find("[name='ticketstatus']").closest('td').find('[class="value"]').text(ticketStatus);
 					thisInstance.loadWidget(commentsContainer).then(function () {
 						element.removeAttr('disabled');
 					});
+					thisInstance.loadWidget(updatesContainer);
 				};
 				dataObj.then(
 					function (data) {
@@ -2676,7 +2684,11 @@ jQuery.Class("Vtiger_Detail_Js", {
 					thisInstance.showCommentMailErrorNotification(data);
 					var closestAddCommentBlock = currentTarget.closest('.addCommentBlock');
 					var commentTextAreaElement = closestAddCommentBlock.find('.commentcontent');
+					var selectedTicketStatus = closestAddCommentBlock.find('[name="ticketstatus"]').val();
 					var commentInfoBlock = currentTarget.closest('.singleComment');
+					if (typeof selectedTicketStatus !== 'undefined') {
+						thisInstance.getContentHolder().find('[name="ticketstatus"]').val(selectedTicketStatus);
+					}
 					commentTextAreaElement.val('');
 					if (mode == "add") {
 						var commentId = data['result']['id'];

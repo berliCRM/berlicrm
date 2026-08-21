@@ -39,13 +39,16 @@
 							<label for="externalComment"
 							       style="display:inline;">{vtranslate('LBL_EXTERNAL_COMMENT', $MODULE_NAME)}</label>
 						</div>
-						<div class="input-append time pushDown">
-							<label for="timeNeeded">{vtranslate('LBL_TIME_NEEDED', $MODULE_NAME)}:</label>
-							<input id="timeNeeded" type="text" data-format="24" class="timepicker-default input-small" value="00:00" name="timeNeeded"
-							       data-validation-engine="validate[funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" />
-							<span class="add-on cursorPointer">
-                                <i class="icon-time"></i>
-                            </span>
+						<div class="pushDown input-append">
+							<div class="time">
+								<label for="timeNeeded">{vtranslate('LBL_TIME_NEEDED', $MODULE_NAME)}:</label>
+								<input id="timeNeeded" type="text" data-format="24" class="timepicker-default input-small" value="00:00" name="timeNeeded"
+								       data-validation-engine="validate[funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" />
+								<span class="add-on cursorPointer">
+									<i class="icon-time"></i>
+								</span>
+							</div>
+							{include file='CommentTicketStatusSelect.tpl'|@vtemplate_path:$MODULE_NAME}
 						</div>
 					{/if}
 				</div>
