@@ -412,6 +412,47 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 		}
 		return $serachcol_array;
 	}
+
+	/**
+	 * Build the configured global-search label from field column names.
+	 */
+	protected static function getSearchResultDisplayLabel($recordModel, $displayFields) {
+		if (empty($displayFields)) {
+			return '';
+		}
+
+		$moduleFields = $recordModel->getModule()->getFields();
+		$displayValues = array();
+
+		foreach ($displayFields as $displayField) {
+			$displayField = trim($displayField);
+			$fieldModel = isset($moduleFields[$displayField]) ? $moduleFields[$displayField] : false;
+
+			// Global-search settings store column names, which can differ from field names.
+			if (!$fieldModel) {
+				foreach ($moduleFields as $candidateFieldModel) {
+					if ($candidateFieldModel->get('column') == $displayField) {
+						$fieldModel = $candidateFieldModel;
+						break;
+					}
+				}
+			}
+
+			if ($fieldModel) {
+				$displayValue = $recordModel->getDisplayValue($fieldModel->get('name'));
+				if (is_scalar($displayValue)) {
+					// Related fields can return an HTML link; search labels must be plain text.
+					$displayValue = trim(strip_tags((string)$displayValue));
+					if ($displayValue !== '') {
+						$displayValues[] = $displayValue;
+					}
+				}
+			}
+		}
+
+		return implode(' | ', $displayValues);
+	}
+
 	/**
 	 * Static Function to get the list of records matching the search key
 	 * @param <String> $searchKey
@@ -447,6 +488,7 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 					$searchColumns = $row['searchcolumn'];
 					$iModuleName = $row['name'];
 					$searchAll = $row['searchall'];
+					$displayFields = array_filter(array_map('trim', explode(',', (string)$row['displayfield'])));
 					
 					// only search label fields if searchall isn't 1 and search isn't specified for certain module
 					if (empty($searchAll) && empty($moduleName)) {
@@ -495,6 +537,11 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 							try {
 								$recordModel = Vtiger_Record_Model::getInstanceById($crmId, $iModuleName);
 							} catch (Exception $e) {
+								continue;
+							}
+							$displayLabel = self::getSearchResultDisplayLabel($recordModel, $displayFields);
+							if ($displayLabel !== '') {
+								$recordModel->set('label', $displayLabel);
 							}
 							$matchingRecords[$iModuleName][] = $recordModel;
 						}
