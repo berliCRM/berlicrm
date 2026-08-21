@@ -1607,15 +1607,26 @@ echo "Delete operation for '$sourceTable' END.<br>"; //// see TAG 48 db_script E
 */
 
 
-
-
-
 echo "New tables for config settings to set on email sending from ticket another email or name <br>";
 $errors = Install_InitSchema_Model::addNewConfigEditSettingTables();
 if(!empty($errors)){
     echo $errors;
 }
 echo "New tables done<br>";
+
+
+// do some table modifications
+echo "Install_InitSchema_Model::alterTables() START<br>";
+$status = Install_InitSchema_Model::alterTables();
+if ($status !== true) {
+	echo "Errors (Check Index to get Query):<pre>";
+	var_dump($status);
+	echo "</pre>";
+}
+echo "Install_InitSchema_Model::alterTables() END<br>";
+
+
+
 
 
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
