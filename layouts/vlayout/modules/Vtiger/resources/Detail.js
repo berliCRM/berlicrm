@@ -2640,7 +2640,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 				const refreshComments = function () {
 					const commentsContainer = detailContentsHolder.find("[data-name='ModComments']");
 					const updatesContainer = detailContentsHolder.find("[data-name='LBL_UPDATES']");
-					const ticketStatus = commentsContainer.find('[name="ticketstatus"]').find(":selected").val();
+					const ticketStatus = commentsContainer.find('[name="ticketstatus"]').find(":selected").text();
 					detailContentsHolder.find("[name='ticketstatus']").closest('td').find('[class="value"]').text(ticketStatus);
 					thisInstance.loadWidget(commentsContainer).then(function () {
 						element.removeAttr('disabled');
