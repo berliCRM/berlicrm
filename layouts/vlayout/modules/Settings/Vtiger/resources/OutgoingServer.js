@@ -141,6 +141,7 @@ jQuery.Class("Settings_Vtiger_OutgoingServer_Js",{},{
 				function(data) {
 					//after load the contents register the edit view events
 					thisInstance.registerEditViewEvents();
+					thisInstance.registerButtonEvents();
 					progressIndicatorElement.progressIndicator({'mode':'hide'});
 				},
 				function(error, err) {
@@ -150,11 +151,70 @@ jQuery.Class("Settings_Vtiger_OutgoingServer_Js",{},{
 		});
 	},
 	
+	registerButtonEvents : function(){
+		var refreshTokenButton = jQuery('#refresh_token_button');
+		var refreshTokenStatus = jQuery('#refresh_token_exists');
+		if (refreshTokenButton) {
+			if (refreshTokenStatus && refreshTokenStatus.val() == 1) {
+				var txt = 'Token existiert';
+				var title = 'Token erneuern?';
+			} else {
+				var txt = 'Token existiert NICHT';
+				var title = 'Token erstellen?';
+			}
+			refreshTokenButton.prop('title', title);
+			refreshTokenButton.html('<strong>'+txt+'</strong>');
+			
+			refreshTokenButton.click(function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				var progressIndicatorElement = jQuery.progressIndicator({
+					'position' : 'html',
+					'blockInfo' : {
+						'enabled' : true
+					}
+				});
+				
+				
+				var fields = ['provider', 'tenant_id', 'client_id', 'client_secret'];
+				var empty = [];
+				var data = {};
+				jQuery.each(fields, function(key, value) {
+					var tmp = jQuery('#'+value);
+					if (!tmp || tmp.val() == '') {
+						empty.push(value);
+					}
+					data[value] = tmp.val();
+				});
+				if (jQuery(empty).length > 0) {
+					alert('Folgende Werte dürfen nicht leer sein: '+empty.join(', '));
+				} else {
+					data.module = app.getModuleName();
+					data.parent = app.getParentModuleName();
+					data.action = 'CreateoAuthLink';
+					AppConnector.request(data).then(
+						function(data){
+							progressIndicatorElement.progressIndicator({'mode':'hide'});
+							if (data.success) {
+								window.open(data.result, '_blank').focus();
+							}
+						},
+						function(error, err) {
+							progressIndicatorElement.progressIndicator({'mode':'hide'});
+							alert(error);
+						}
+					);
+				}
+			});
+		}
+	},
+	
 	registerEvents: function() {
 		var thisInstance = this;
 		
 		if(jQuery('#OutgoingServerForm').length > 0) {
 			thisInstance.registerEditViewEvents();
+			thisInstance.registerButtonEvents();
 		} else {
 			thisInstance.registerDetailViewEvents();
 		}
