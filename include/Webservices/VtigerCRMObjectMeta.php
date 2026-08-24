@@ -218,11 +218,7 @@ class VtigerCRMObjectMeta extends EntityMeta {
 		$idComponents = vtws_getIdComponents($webserviceId);
 		$id=$idComponents[1];
 		
-		$permitted = isPermitted($this->getTabName(),$operation,$id);
-		if(strcmp($permitted,"yes")===0){
-			return true;
-		}
-		return false;
+		return Users_Privileges_Model::isPermitted($this->getTabName(), $operation, $id);
 	}
 	
 	function hasAssignPrivilege($webserviceId){
@@ -363,11 +359,18 @@ class VtigerCRMObjectMeta extends EntityMeta {
 		
 		$this->computeAccess();
 		
-		$cv = new CustomView();
-		$module_info = $cv->getCustomViewModuleInfo($this->getTabName());
+		// do not rely on CustomView to get block ids as it's unreliable for Calendar for our purposes (description block/field missing)
+		// also e.g. SalesOrder block LBL_RELATED_PRODUCTS fields are straight up ignored
+		// no clue why blocks are used instead of fields directly
+		$adb = PearDatabase::getInstance();
+		$query = "SELECT DISTINCT vtiger_field.block FROM vtiger_field
+				  INNER JOIN vtiger_tab ON vtiger_tab.tabid = vtiger_field.tabid
+				  WHERE vtiger_tab.name = ? AND vtiger_field.presence in (0,2)
+				  ORDER BY vtiger_field.block;";
+		$result = $adb->pquery($query, array($this->objectName));
 		$blockArray = array();
-		foreach($cv->module_list[$this->getTabName()] as $label=>$blockList){
-			$blockArray = array_merge($blockArray,explode(',',$blockList));
+		while ($row = $adb->getNextRow($result, false)) {
+			$blockArray[] = $row['block'];
 		}
 		$this->retrieveMetaForBlock($blockArray);
 		
@@ -390,7 +393,7 @@ class VtigerCRMObjectMeta extends EntityMeta {
 		$tabid = $this->getTabId();
 		require('user_privileges/user_privileges_'.$this->user->id.'.php');
 		if($is_admin == true || $profileGlobalPermission[1] == 0 || $profileGlobalPermission[2] ==0){
-			$sql = "select *, '0' as readonly from vtiger_field where tabid =? and block in (".generateQuestionMarks($block).") and displaytype in (1,2,3,4,5)";
+			$sql = "select *, '0' as readonly from vtiger_field where tabid =? and block in (".generateQuestionMarks($block).") and displaytype in (1,2,3,4,5) and presence in (0,2)";
 			$params = array($tabid, $block);	
 		}else{
 			$profileList = getCurrentUserProfileList();

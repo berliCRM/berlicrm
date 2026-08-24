@@ -340,7 +340,9 @@ class NumberField {
 			$value = str_replace("$decimalSeparator", ".", $value);
 		}
 		else{
-			// and here we go only if it is only one point as separator. Example 2.000 or 2.00 or 2.0 // nothing to do.
+			// and here we go only if it is only one point as separator. Example 2.000 or 2.00 or 2.0 //   do same.
+            $value = str_replace("$currencySeparator", "", $value);
+			$value = str_replace("$decimalSeparator", ".", $value);
 		}
 
 		//$value = round($value, $this->maxNumberOfDecimals);

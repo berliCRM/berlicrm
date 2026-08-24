@@ -451,7 +451,7 @@ class soap_transport_http extends nusoap_base {
 	* @access   public
 	* @deprecated
 	*/
-	function sendHTTPS($data, $timeout=0, $response_timeout=30, $cookies) {
+	function sendHTTPS($data, $timeout=0, $response_timeout=30, $cookies=NULL) {
 		return $this->send($data, $timeout, $response_timeout, $cookies);
 	}
 	

@@ -9,27 +9,27 @@
  ********************************************************************************/
 -->*}
 {strip}
-<div class="container-fluid" id="ConfigEditorDetails">
-	{assign var=WIDTHTYPE value=$CURRENT_USER_MODEL->get('rowheight')}
-	<div class="widget_header row-fluid">
-		<div class="span8"><h3>{vtranslate('LBL_CONFIG_EDITOR', $QUALIFIED_MODULE)}</h3></div>
-		<div class="span4">
-			<div class="pull-right">
-				<button class="btn editButton" data-url='{$MODEL->getEditViewUrl()}' type="button" title="{vtranslate('LBL_EDIT', $QUALIFIED_MODULE)}"><strong>{vtranslate('LBL_EDIT', $QUALIFIED_MODULE)}</strong></button>
+	<div class="container-fluid" id="ConfigEditorDetails">
+		{assign var=WIDTHTYPE value=$CURRENT_USER_MODEL->get('rowheight')}
+		<div class="widget_header row-fluid">
+			<div class="span8"><h3>{vtranslate('LBL_CONFIG_EDITOR', $QUALIFIED_MODULE)}</h3></div>
+			<div class="span4">
+				<div class="pull-right">
+					<button class="btn editButton" data-url='{$MODEL->getEditViewUrl()}' type="button" title="{vtranslate('LBL_EDIT', $QUALIFIED_MODULE)}"><strong>{vtranslate('LBL_EDIT', $QUALIFIED_MODULE)}</strong></button>
+				</div>
 			</div>
 		</div>
-	</div>
-	<hr>
-	<div class="contents">
-		<table class="table table-bordered table-condensed themeTableColor">
-			<thead>
+		<hr>
+		<div class="contents">
+			<table class="table table-bordered table-condensed themeTableColor">
+				<thead>
 				<tr class="blockHeader">
 					<th colspan="2" class="{$WIDTHTYPE}">
-						<span class="alignMiddle">{vtranslate('LBL_CONFIG_FILE', $QUALIFIED_MODULE)}</span> 
+						<span class="alignMiddle">{vtranslate('LBL_CONFIG_FILE', $QUALIFIED_MODULE)}</span>
 					</th>
 				</tr>
-			</thead>
-			<tbody>
+				</thead>
+				<tbody>
 				{assign var=FIELD_DATA value=$MODEL->getViewableData()}
 				{foreach key=FIELD_NAME item=FIELD_DETAILS from=$MODEL->getEditableFields()}
 					<tr><td width="30%" class="{$WIDTHTYPE}"><label class="muted marginRight10px pull-right">{vtranslate($FIELD_DETAILS['label'], $QUALIFIED_MODULE)}</label></td>
@@ -40,52 +40,52 @@
 								{if $FIELD_NAME == 'upload_maxsize'}&nbsp;{vtranslate('LBL_MB', $QUALIFIED_MODULE)}{/if}</span>
 						</td></tr>
 				{/foreach}
-			</tbody>
-		</table>
-	</div>
-</div>
-
-<div>
-    <p></p>
-</div>
-{* ============================= *
- * Ticket Mail Sender Details
- * ============================= *}
-<div class="container-fluid" id="ConfigTicketMailSenderDetails">
-	{assign var=WIDTHTYPE value=$CURRENT_USER_MODEL->get('rowheight')}
-
-	<div class="widget_header row-fluid">
-		<div class="span8">
-			<h3>{vtranslate('LBL_CONFIGTICKETMAIL_EDITOR', $QUALIFIED_MODULE)}</h3>
+				</tbody>
+			</table>
 		</div>
-		<div class="span4">
-			<div class="pull-right">
-				<button class="btn editButton"
-						data-url='{$MODEL->getEditViewUrlTicketMail()}'
-						type="button"
-						title="{vtranslate('LBL_EDIT', $QUALIFIED_MODULE)}">
-					<strong>{vtranslate('LBL_EDIT', $QUALIFIED_MODULE)}</strong>
-				</button>
+	</div>
+
+	<div>
+		<p></p>
+	</div>
+	{* ============================= *
+     * Ticket Mail Sender Details
+     * ============================= *}
+	<div class="container-fluid" id="ConfigTicketMailSenderDetails">
+		{assign var=WIDTHTYPE value=$CURRENT_USER_MODEL->get('rowheight')}
+
+		<div class="widget_header row-fluid">
+			<div class="span8">
+				<h3>{vtranslate('LBL_CONFIGTICKETMAIL_EDITOR', $QUALIFIED_MODULE)}</h3>
+			</div>
+			<div class="span4">
+				<div class="pull-right">
+					<button class="btn editButton"
+					        data-url='{$MODEL->getEditViewUrlTicketMail()}'
+					        type="button"
+					        title="{vtranslate('LBL_EDIT', $QUALIFIED_MODULE)}">
+						<strong>{vtranslate('LBL_EDIT', $QUALIFIED_MODULE)}</strong>
+					</button>
+				</div>
 			</div>
 		</div>
-	</div>
 
-	<div class="col-md-10">
-		{vtranslate('LBL_HEADLINE_CONFIGTICKETMAIL', $QUALIFIED_MODULE)}
-	</div>
+		<div class="col-md-10">
+			{vtranslate('LBL_HEADLINE_CONFIGTICKETMAIL', $QUALIFIED_MODULE)}
+		</div>
 
-	<hr>
+		<hr>
 
-	<div class="contents">
-		<table class="table table-bordered table-condensed themeTableColor">
-			<thead>
+		<div class="contents">
+			<table class="table table-bordered table-condensed themeTableColor">
+				<thead>
 				<tr class="blockHeader">
 					<th colspan="2" class="{$WIDTHTYPE}">
 						<span class="alignMiddle">{vtranslate('LBL_CONFIGTICKETMAIL_BLOCK_EDITOR', $QUALIFIED_MODULE)}</span>
 					</th>
 				</tr>
-			</thead>
-			<tbody>
+				</thead>
+				<tbody>
 
 				<tr>
 					<td width="30%" class="{$WIDTHTYPE}">
@@ -95,7 +95,7 @@
 					</td>
 					<td style="border-left: none;" class="{$WIDTHTYPE}">
 						<input type="checkbox" disabled="disabled"
-							{if !empty($TICKETEMAIL_DATA.enabled)}checked="checked"{/if} />
+						       {if !empty($TICKETEMAIL_DATA.enabled)}checked="checked"{/if} />
 					</td>
 				</tr>
 
@@ -106,8 +106,8 @@
 						</label>
 					</td>
 					<td style="border-left: none;" class="{$WIDTHTYPE}">
-                        <span>{$TICKETEMAIL_DATA.sender_name}</span>
-						
+						<span>{$TICKETEMAIL_DATA.sender_name}</span>
+
 					</td>
 				</tr>
 
@@ -119,6 +119,23 @@
 					</td>
 					<td style="border-left: none;" class="{$WIDTHTYPE}">
 						<span>{$TICKETEMAIL_DATA.sender_email}</span>
+					</td>
+				</tr>
+
+				<tr>
+					<td width="30%" class="{$WIDTHTYPE}">
+						<label class="muted marginRight10px pull-right">
+							{vtranslate('LBL_CONFIGTICKETMAIL_ATTACHMENT_FOLDER_EDITOR', $QUALIFIED_MODULE)}
+						</label>
+					</td>
+					<td style="border-left: none;" class="{$WIDTHTYPE}">
+						<span>
+							{if !empty($TICKETEMAIL_DATA.attachment_folder_name)}
+								{$TICKETEMAIL_DATA.attachment_folder_name}
+							{else}
+								-
+							{/if}
+						</span>
 					</td>
 				</tr>
 
@@ -158,43 +175,43 @@
 					</td>
 				</tr>
 
-			</tbody>
-		</table>
-	</div>
-</div>
-
-<div><p></p></div>
-
-{* ============================= *
- * Signature Details
- * ============================= *}
-<div class="container-fluid" id="ConfigSignatureEditorDetails">
-	{assign var=WIDTHTYPE value=$CURRENT_USER_MODEL->get('rowheight')}
-	<div class="widget_header row-fluid">
-		<div class="span8"><h3>{vtranslate('LBL_CONFIGSIGNATURE_EDITOR', $QUALIFIED_MODULE)}</h3></div>
-		<div class="span4">
-			<div class="pull-right">
-				<button class="btn editButton" data-url='{$MODEL->getEditViewUrlSignature()}' type="button" title="{vtranslate('LBL_EDIT', $QUALIFIED_MODULE)}"><strong>{vtranslate('LBL_EDIT', $QUALIFIED_MODULE)}</strong></button>
-			</div>
+				</tbody>
+			</table>
 		</div>
 	</div>
 
-	<div class="col-md-10">
-		{vtranslate('LBL_CONFIGSIG_HEADLINE_EDITOR', $QUALIFIED_MODULE)}
-	</div>
+	<div><p></p></div>
 
-	<hr>
+	{* ============================= *
+     * Signature Details
+     * ============================= *}
+	<div class="container-fluid" id="ConfigSignatureEditorDetails">
+		{assign var=WIDTHTYPE value=$CURRENT_USER_MODEL->get('rowheight')}
+		<div class="widget_header row-fluid">
+			<div class="span8"><h3>{vtranslate('LBL_CONFIGSIGNATURE_EDITOR', $QUALIFIED_MODULE)}</h3></div>
+			<div class="span4">
+				<div class="pull-right">
+					<button class="btn editButton" data-url='{$MODEL->getEditViewUrlSignature()}' type="button" title="{vtranslate('LBL_EDIT', $QUALIFIED_MODULE)}"><strong>{vtranslate('LBL_EDIT', $QUALIFIED_MODULE)}</strong></button>
+				</div>
+			</div>
+		</div>
 
-	<div class="contents">
-		<table class="table table-bordered table-condensed themeTableColor">
-			<thead>
+		<div class="col-md-10">
+			{vtranslate('LBL_CONFIGSIG_HEADLINE_EDITOR', $QUALIFIED_MODULE)}
+		</div>
+
+		<hr>
+
+		<div class="contents">
+			<table class="table table-bordered table-condensed themeTableColor">
+				<thead>
 				<tr class="blockHeader">
 					<th colspan="2" class="{$WIDTHTYPE}">
 						<span class="alignMiddle">{vtranslate('LBL_CONFIGSIGNATURE_EDITOR', $QUALIFIED_MODULE)}</span>
 					</th>
 				</tr>
-			</thead>
-			<tbody>
+				</thead>
+				<tbody>
 
 				<tr>
 					<td width="30%" class="{$WIDTHTYPE}">
@@ -204,7 +221,7 @@
 					</td>
 					<td style="border-left: none;" class="{$WIDTHTYPE}">
 						<input type="checkbox" disabled="disabled"
-							{if !empty($SIGNATURE_DATA.enabled)}checked="checked"{/if} />
+						       {if !empty($SIGNATURE_DATA.enabled)}checked="checked"{/if} />
 					</td>
 				</tr>
 
@@ -259,8 +276,8 @@
 					</td>
 				</tr>
 
-			</tbody>
-		</table>
+				</tbody>
+			</table>
+		</div>
 	</div>
-</div>
 {/strip}

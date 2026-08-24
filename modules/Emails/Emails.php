@@ -109,6 +109,13 @@ class Emails extends CRMEntity {
 					}
 				}
 			}
+            
+            // EmailConfigurator //crm-now: added for modified FROM address 
+			if (isset($_REQUEST['fromAddress']) && trim($_REQUEST['fromAddress']) != '') {
+				$update_q = 'UPDATE vtiger_emaildetails SET from_email = ? where emailid = ? ';
+				$adb->pquery($update_q, array(trim($_REQUEST['fromAddress']), $actid));
+			}
+
 		} else {
 			if (isset($this->column_fields['parent_id']) && $this->column_fields['parent_id'] != '') {
 				$adb->pquery("DELETE FROM vtiger_seactivityrel WHERE crmid = ? AND activityid = ? ",
@@ -117,7 +124,7 @@ class Emails extends CRMEntity {
 				$myids = explode("|", $parent_id);
 
 				foreach ($myids as $id) {
-					if (empty($id) || empty($realid[0])) {
+					if (empty($id)) {
 						continue;
 					}
 					$realid = explode("@", $id);

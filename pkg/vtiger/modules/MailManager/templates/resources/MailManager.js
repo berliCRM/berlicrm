@@ -188,7 +188,7 @@ if (typeof(MailManager) == 'undefined') {
 		},
 
 		updateMailFolders : function() {
-			AppConnector.request(MailManager._baseurl() + "_operation=mainui").then(function(response) { 
+			AppConnector.request(MailManager._baseurl() + "_operation=mainui").then(function(response) {
 				//var response = MailManager.removeHidElement(transport.responseText);
 				response = JSON.parse(response);
 				jQuery('#_mainfolderdiv_').html(response['result']['ui']);
@@ -203,7 +203,7 @@ if (typeof(MailManager) == 'undefined') {
 		},
 
 		quicklinks_update: function() {
-			AppConnector.request(MailManager._baseurl() + "_operation=mainui&_operationarg=_quicklinks").then(function(response) { 
+			AppConnector.request(MailManager._baseurl() + "_operation=mainui&_operationarg=_quicklinks").then(function(response) {
 				//var response = MailManager.removeHidElement(transport.responseText);
 				response = JSON.parse(response);
 				jQuery("#_quicklinks_mainuidiv_").html(response['result']['ui']);
@@ -316,7 +316,7 @@ if (typeof(MailManager) == 'undefined') {
 					'enabled' : true
 				}
 			});
-			AppConnector.request(MailManager._baseurl() + "_operation=settings&_operationarg=edit").then(function(response) { 
+			AppConnector.request(MailManager._baseurl() + "_operation=settings&_operationarg=edit").then(function(response) {
 				response = JSON.parse(response);
 				progressIndicatorElement.progressIndicator({
 					'mode' : 'hide'
@@ -329,8 +329,9 @@ if (typeof(MailManager) == 'undefined') {
 				// Update the seleted folders to highlight them.
 				MailManager.updateSelectedFolder('mm_settings');
 				jQuery('#mm_selected_folder').val('mm_settings');
-				
+
 				MailManager.triggerUI5Resize();
+					MailManager.registerButtonEvents();
 			}
 			);
 		},
@@ -345,7 +346,7 @@ if (typeof(MailManager) == 'undefined') {
 					'enabled' : true
 				}
 			});
-			AppConnector.request(MailManager._baseurl() + "_operation=settings&_operationarg=detail").then(function(response) { 
+			AppConnector.request(MailManager._baseurl() + "_operation=settings&_operationarg=detail").then(function(response) {
 				response = JSON.parse(response);
 				progressIndicatorElement.progressIndicator({
 					'mode' : 'hide'
@@ -367,6 +368,9 @@ if (typeof(MailManager) == 'undefined') {
 		handle_settings_confighelper: function(selectBox){
 			var form = selectBox.form;
 
+			jQuery('.office365_settings').hide();
+			jQuery('.additional_settings').hide();
+
 			var useServer = '', useProtocol = '', useSSLType = '', useCert = '';
 			if (selectBox.value == 'gmail' || selectBox.value == 'yahoo') {
 				useServer = 'imap.gmail.com';
@@ -377,23 +381,29 @@ if (typeof(MailManager) == 'undefined') {
 				useSSLType = 'ssl';
 				useCert = 'novalidate-cert';
 				jQuery('.settings_details').show();
-				jQuery('.additional_settings').hide();
+				jQuery('.settings_details_uname').show();
 			} else  if (selectBox.value == 'fastmail') {
 				useServer = 'mail.messagingengine.com';
 				useProtocol = 'IMAP2';
 				useSSLType = 'tls';
 				useCert = 'novalidate-cert';
 				jQuery('.settings_details').show();
-				jQuery('.additional_settings').hide();
+				jQuery('.settings_details_uname').show();
 			} else if (selectBox.value == 'other') {
 				useServer = '';
 				useProtocol = 'IMAP4';
 				useSSLType = 'ssl';
 				useCert = 'novalidate-cert';
 				jQuery('.settings_details').show();
+				jQuery('.settings_details_uname').show();
 				jQuery('.additional_settings').show();
+			} else if (selectBox.value == 'office365') {
+				jQuery('.settings_details').hide();
+				jQuery('.settings_details_uname').show();
+				jQuery('.office365_settings').show();
 			} else {
 				jQuery('.settings_details').hide();
+				jQuery('.settings_details_uname').hide();
 			}
 			jQuery('.refresh_settings').show();
 			// Clear the User Name and Password field
@@ -417,7 +427,7 @@ if (typeof(MailManager) == 'undefined') {
 
 		/* Save the settings */
 		save_settings: function(form){
-			if(form._mbox_server.value == "") {
+			if(form._mbox_server.value == "" && form._mbox_helper.value != 'office365') {
 				alert(app.vtranslate('JSLBL_SERVERNAME_CANNOT_BE_EMPTY'));
 				return false;
 			}
@@ -425,7 +435,7 @@ if (typeof(MailManager) == 'undefined') {
 				alert(app.vtranslate('JSLBL_USERNAME_CANNOT_BE_EMPTY'));
 				return false;
 			}
-			if(form._mbox_pwd.value == "") {
+			if(form._mbox_pwd.value == "" && form._mbox_helper.value != 'office365') {
 				alert(app.vtranslate('JSLBL_PASSWORD_CANNOT_BE_EMPTY'));
 				return false;
 			}
@@ -438,14 +448,16 @@ if (typeof(MailManager) == 'undefined') {
 				}
 			});
 			var url = MailManager._baseurl() + "_operation=settings&_operationarg=save&" + Form.serialize(form);
-			AppConnector.request(url).then(function(data) { 
-				data = JSON.parse(data);
+			AppConnector.request(url).then(function(data) {
+				try {
+					var parsed = JSON.parse(data);
+				} catch (parseError) {
+					var parsed = data;
+				}
 				progressIndicatorElement.progressIndicator({
 					'mode' : 'hide'
 				})
-				//var response = MailManager.removeHidElement(transport.responseText);
-				//var responseJSON = JSON.parse(response);
-				if (data['success']) {
+				if (parsed['success']) {
 					jQuery('#isMailBoxExists').val(1);
 					jQuery('#folders').find(':last-child').remove();
 					MailManager_QuickCreate_Js.foldersClicked = false;
@@ -454,7 +466,11 @@ if (typeof(MailManager) == 'undefined') {
 					imageEle.attr('src', imagePath);
 					MailManager.mainui();
 				} else {
-					alert(app.vtranslate(data['error']['message']));
+					if (parsed['error']) {
+						alert(app.vtranslate(parsed['error']['message']));
+					} else {
+						alert(app.vtranslate(data));
+					}
 				}
 			}
 			);
@@ -470,7 +486,7 @@ if (typeof(MailManager) == 'undefined') {
 					'enabled' : true
 				}
 			});
-			AppConnector.request(MailManager._baseurl() + "_operation=settings&_operationarg=remove&" + Form.serialize(form)).then(function(responseJSON) { 
+			AppConnector.request(MailManager._baseurl() + "_operation=settings&_operationarg=remove&" + Form.serialize(form)).then(function(responseJSON) {
 				responseJSON = JSON.parse(responseJSON);
 				progressIndicatorElement.progressIndicator({
 					'mode' : 'hide'
@@ -545,14 +561,14 @@ if (typeof(MailManager) == 'undefined') {
 
 				// Update the current selected folder, which will be used to highlight the selected folder
 				jQuery('#mm_selected_folder').val(name);
-				
+
 				MailManager.mail_close();
 				//var response = MailManager.removeHidElement(transport.responseText);
 				jQuery('#_contentdiv_').html(response.result);
-				
+
 				// Clear last open mail
 				jQuery('#_contentdiv2_').html('');
-				
+
 				// Updates the drop down used for move emails
 				MailManager.updateMoveFolderList();
 
@@ -639,7 +655,7 @@ if (typeof(MailManager) == 'undefined') {
 					'enabled' : true
 				}
 			});
-			AppConnector.request(MailManager._baseurl() + "_operation=folder&_operationarg=open&" + frmparams).then(function(response) { 
+			AppConnector.request(MailManager._baseurl() + "_operation=folder&_operationarg=open&" + frmparams).then(function(response) {
 				response = JSON.parse(response);
 				progressIndicatorElement.progressIndicator({
 					'mode' : 'hide'
@@ -673,7 +689,7 @@ if (typeof(MailManager) == 'undefined') {
 			jQuery('#_mailrow_' + msgno).removeClass('fontBold');
 			jQuery('#_mailrow_' + msgno).addClass('mm_normal');
 
-			AppConnector.request(MailManager._baseurl() + "_operation=mail&_operationarg=open&_folder=" + encodeURIComponent(folder) + "&_msgno=" + encodeURIComponent(msgno)).then(function(responseJSON) { 
+			AppConnector.request(MailManager._baseurl() + "_operation=mail&_operationarg=open&_folder=" + encodeURIComponent(folder) + "&_msgno=" + encodeURIComponent(msgno)).then(function(responseJSON) {
 				responseJSON = JSON.parse(responseJSON);
 				progressIndicatorElement.progressIndicator({
 					'mode' : 'hide'
@@ -719,7 +735,7 @@ if (typeof(MailManager) == 'undefined') {
 					'enabled' : true
 				}
 			});
-			AppConnector.request(MailManager._baseurl() + "_operation=mail&_operationarg=mark&_markas=unread&_folder=" + encodeURIComponent(folder) + "&_msgno=" + encodeURIComponent(msgno)).then(function(responseJSON) { 
+			AppConnector.request(MailManager._baseurl() + "_operation=mail&_operationarg=mark&_markas=unread&_folder=" + encodeURIComponent(folder) + "&_msgno=" + encodeURIComponent(msgno)).then(function(responseJSON) {
 				responseJSON = JSON.parse(responseJSON);
 				progressIndicatorElement.progressIndicator({
 					'mode' : 'hide'
@@ -770,7 +786,7 @@ if (typeof(MailManager) == 'undefined') {
 			AppConnector.request(MailManager._baseurl() + "_operation=relation&_operationarg=find&_mfrom=" + encodeURIComponent(meta['from']) +
 			'&_msendto='+ encodeURIComponent(meta['sendto']) +
 			'&_folder=' +encodeURIComponent(meta['folder']) +'&_msgno=' +encodeURIComponent(meta['msgno']) +'&_msguid=' +
-			encodeURIComponent(meta['msguid'].replace('<', '&lt;').replace('>', '&gt;'))).then(function(responseJSON) { 
+			encodeURIComponent(meta['msguid'].replace('<', '&lt;').replace('>', '&gt;'))).then(function(responseJSON) {
 				responseJSON = JSON.parse(responseJSON);
 				jQuery('#_mailrecord_findrel_btn_').html(MailManager.i18n('JSLBL_Find_Relation_Now'));
 				jQuery("#_mailrecord_findrel_btn_").attr('disabled', false);
@@ -806,14 +822,14 @@ if (typeof(MailManager) == 'undefined') {
 					'enabled' : true
 				}
 			});
-			AppConnector.request(MailManager._baseurl() + "_operation=relation&_operationarg=link&" + frmparams).then(function(responseJSON) { 
+			AppConnector.request(MailManager._baseurl() + "_operation=relation&_operationarg=link&" + frmparams).then(function(responseJSON) {
 				progressIndicatorElement.progressIndicator({
 					'mode' : 'hide'
 				})
 				//var response = MailManager.removeHidElement(transport.responseText);
 
 				document.getElementById("_mailopen_fromcrmid").innerHTML = linkto;
-		
+
 				//var resultJSON = responseJSON['result'];
 				//if (resultJSON['ui']) {
 				//	jQuery('#_mailrecord_relationshipdiv_').html(resultJSON['ui']);
@@ -2145,7 +2161,7 @@ if (typeof(MailManager) == 'undefined') {
 				imageEle.attr('src', imagePath);
 
 				if(MailManager_QuickCreate_Js.foldersClicked == false) {
-					AppConnector.request(MailManager._baseurl() + "_operation=folder&_operationarg=getFoldersList").then(function(response) { 
+					AppConnector.request(MailManager._baseurl() + "_operation=folder&_operationarg=getFoldersList").then(function(response) {
 						response = JSON.parse(response);
 						jQuery('#folders').append(response.result);
 						progressElement.progressIndicator({'mode':'hide'});
@@ -2157,6 +2173,70 @@ if (typeof(MailManager) == 'undefined') {
 
 		triggerUI5Resize: function() {
 			if (parent.resizeUI5Iframe) parent.resizeUI5Iframe(self.document.body.scrollHeight);
+		},
+
+		registerButtonEvents : function(){
+			var refreshTokenButton = jQuery('#refresh_token_button');
+			var refreshTokenStatus = jQuery('#refresh_token_exists');
+			if (refreshTokenButton) {
+				if (refreshTokenStatus && refreshTokenStatus.val() == 1) {
+					var txt = 'Token existiert';
+					var title = 'Token erneuern?';
+				} else {
+					var txt = 'Token existiert NICHT';
+					var title = 'Token erstellen?';
+				}
+				refreshTokenButton.prop('title', title);
+				refreshTokenButton.html('<strong>'+txt+'</strong>');
+
+				refreshTokenButton.click(function(e) {
+					e.preventDefault();
+					e.stopPropagation();
+					var progressIndicatorElement = jQuery.progressIndicator({
+						'position' : 'html',
+						'blockInfo' : {
+							'enabled' : true
+						}
+					});
+
+
+					var fields = ['tenant_id', 'client_id', 'client_secret'];
+					var empty = [];
+					var data = {};
+					jQuery.each(fields, function(key, value) {
+						var tmp = jQuery('#'+value);
+						if (!tmp || tmp.val() == '') {
+							empty.push(value);
+						}
+						data[value] = tmp.val();
+					});
+					if (jQuery(empty).length > 0) {
+						alert('Folgende Werte dürfen nicht leer sein: '+empty.join(', '));
+					} else {
+						data.module = 'Vtiger';
+						data.parent = 'Settings';
+						data.action = 'CreateoAuthLink';
+						data.provider = 'AZURE';
+						data.type = 'mailmanager';
+						AppConnector.request(data).then(
+							function(data){
+								progressIndicatorElement.progressIndicator({'mode':'hide'});
+								if (data.success) {
+									if (data.success) {
+										window.open(data.result, '_blank').focus();
+									}
+								} else {
+									alert(data.error.message);
+								}
+							},
+							function(error, err) {
+								progressIndicatorElement.progressIndicator({'mode':'hide'});
+								alert(error);
+							}
+						);
+					}
+				});
+			}
 		}
 	}
 }

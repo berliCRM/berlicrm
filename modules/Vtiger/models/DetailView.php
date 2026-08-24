@@ -251,7 +251,7 @@ class Vtiger_DetailView_Model extends Vtiger_Base_Model {
 					'linktype' => 'DETAILVIEWWIDGET',
 					'linklabel' => 'LBL_UPDATES',
 					'linkurl' => 'module='.$this->getModuleName().'&view=Detail&record='.$this->getRecord()->getId().
-							'&mode=showRecentActivities&page=1&limit=5',
+							'&mode=showRecentActivities&page=1&limit=5&pagin=1',
 			);
 		}
 

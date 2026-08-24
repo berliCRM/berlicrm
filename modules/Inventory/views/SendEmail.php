@@ -40,6 +40,10 @@ class Inventory_SendEmail_View extends Vtiger_ComposeEmail_View {
         $viewer->assign('ATTACHMENTS', $attachmentDetails);
 		$this->assignTemplateFields($request);
 
+        // EmailConfigurator
+        $this->assignEmailFromAddresses($viewer);
+		$viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
+
         echo $viewer->view('ComposeEmailForm.tpl', 'Emails', true);
     }
 

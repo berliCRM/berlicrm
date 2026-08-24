@@ -1402,15 +1402,12 @@ try {
 }
 echo "<br>Add new column to vtiger_modcommentsscope DONE...";
 
-
-
-
-/// 
-echo "Add new Field to Modul: Users, Block: 83 ('LBL_USER_ADV_OPTIONS' ) ...<br>";
+//  'LBL_USER_ADV_OPTIONS' => 'erweiterte Optionen',
+echo "Add new Field to Modul: Users, Block: ('LBL_USER_ADV_OPTIONS' ) 'erweiterte Optionen' ...<br>";
 $arrFields = array(
     'Users' => array(
-        'LBL_USER_ADV_OPTIONS' => array( // 83 is 'LBL_USER_ADV_OPTIONS' => 'erweiterte Optionen',
-            array('LBL_SSO_UNIQUE_ID'	,'sso_unique_id'   		,'V~O'     	,1   	,'VARCHAR(255)'   ),
+        'LBL_USER_ADV_OPTIONS' => array( 
+            array('LBL_SSO_UNIQUE_ID' ,'sso_unique_id' ,'V~O' ,1 ,'VARCHAR(255)'   ),
         )
     )
 );
@@ -1425,14 +1422,14 @@ foreach ($arrFields as $moduleName => $blocks) {
         $blockInstance = Vtiger_Block::getInstance($blockName, $moduleInstance);
 
         if (!$blockInstance) {
-            //// to create new block
+            // create new block
             $blockInstance = new Vtiger_Block();
             $blockInstance->label = $blockName;
             $moduleInstance->addBlock($blockInstance);
 
         } else {
-            // if we need to del the BLOCK:
-            //$blockInstance->delete();
+            // if need to del the BLOCK:
+            // $blockInstance->delete();
         }
 
         foreach ($fieldInfos as $fieldInfo) {
@@ -1478,7 +1475,7 @@ foreach ($arrFields as $moduleName => $blocks) {
                 }
 
             } else {
-                //$fieldObj->delete();
+                // $fieldObj->delete();
             }
         }
     }
@@ -1492,72 +1489,56 @@ echo "Add new Field to Modul: Users, Block: ('LBL_USER_ADV_OPTIONS' ) END ...<br
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-// Rev. 25928
-$deleteChoice = isset($_POST['delete_modcommentsscope']) ? strtolower(trim($_POST['delete_modcommentsscope'])) : null;
-
-if ($deleteChoice !== null) {
-    echo "Delete decision received for table 'vtiger_modcommentsscope' ...<br>";
-    if ($deleteChoice === 'yes') {
-        echo "Removing table 'vtiger_modcommentsscope' ...<br>";
-        $query = 'DROP TABLE `vtiger_modcommentsscope`';
-        $res = $adb->pquery($query, array());
-        if (!$res) {
-            echo "Error: " . $adb->database->errorMsg() . "<br>";
-        } else {
-            echo "Table 'vtiger_modcommentsscope' deleted successfully.<br>";
-        }
-        echo "Removing table 'vtiger_modcommentsscope' END ...<br>";
-    } else {
-        echo "Skipping deletion of table 'vtiger_modcommentsscope' based on user choice.<br>";
-    }
-    return;
-}
-
-// Adding ModComments Fields
-echo "Add new fields to the module: ModComments, Block: LBL_OTHER_INFORMATION ...<br>";
+// ------------------------------------------------------------ //// see TAG 48 db_script START ////
+// Add new fields to ModComments: "Block: LBL_OTHER_INFORMATION", "email metadata", 
+// ------------------------------------------------------------
+echo "Add new fields to the module: ModComments, START ...<br>";
 Install_InitSchema_Model::addNewFields();
-echo "Add new fields to the module: ModComments, Block: LBL_OTHER_INFORMATION END ...<br>";
+echo "Add new fields to the module: ModComments, END ...<br>";
 
 
-
-
-echo "Migrate ModComments fields from vtiger_modcommentsscope START...<br>";
+// ------------------------------------------------------------
+// Helper functions
+// ------------------------------------------------------------
 function tableExists($tableName) {
     global $adb;
-    $query = "SELECT 1 FROM $tableName LIMIT 1;";
-    try {
-        $res = $adb->pquery($query, array());
-        return $res !== false;
-    } catch (Exception $e) {
-        return false;
-    }
+    $tableNameEsc = $adb->sql_escape_string($tableName);
+    $query = "SHOW TABLES LIKE '$tableNameEsc'";
+    $res = $adb->pquery($query, array());
+    return ($res && $adb->num_rows($res) > 0);
 }
+
+function columnExists($column, $table) {
+    global $adb;
+    $res = $adb->pquery("SHOW COLUMNS FROM $table LIKE ?", array($column));
+    return ($res && $adb->num_rows($res) > 0);
+}
+
+
+// ------------------------------------------------------------
+// Migration from vtiger_modcommentsscope to vtiger_modcomments
+// ------------------------------------------------------------
+echo "Migrate ModComments fields from vtiger_modcommentsscope START...<br>";
 
 $sourceTable = 'vtiger_modcommentsscope';
 $targetTable = 'vtiger_modcomments';
 $requiredColumns = array('mailto', 'external', 'timeneeded');
 
+$canMigrate = true;
+
+// Check source table
 if (!tableExists($sourceTable)) {
-    return "Source table '$sourceTable' not found, nothing to migrate.<br>"
-        . "Migrate ModComments fields from vtiger_modcommentsscope END...<br>";
+    echo "Source table '$sourceTable' not found, nothing to migrate.<br>";
+    $canMigrate = false;
 }
 
+// Check target table
 if (!tableExists($targetTable)) {
-    return "Target table '$targetTable' not found, migration skipped.<br>"
-        . "Migrate ModComments fields from vtiger_modcommentsscope END...<br>";
+    echo "Target table '$targetTable' not found, migration skipped.<br>";
+    $canMigrate = false;
 }
 
+// Check required columns
 $missingColumns = array();
 foreach ($requiredColumns as $col) {
     if (!columnExists($col, $targetTable)) {
@@ -1566,38 +1547,64 @@ foreach ($requiredColumns as $col) {
 }
 
 if (!empty($missingColumns)) {
-    return "Missing columns in '$targetTable': " . implode(', ', $missingColumns) . ". Migration skipped.<br>"
-        . "Migrate ModComments fields from vtiger_modcommentsscope END...<br>";
+    echo "Missing columns in '$targetTable': " . implode(', ', $missingColumns) . ". Migration skipped.<br>";
+    $canMigrate = false;
 }
 
-$query = "UPDATE vtiger_modcomments mc
-    INNER JOIN vtiger_modcommentsscope ms ON mc.modcommentsid = ms.modcommentsid
-    SET mc.mailto = COALESCE(NULLIF(mc.mailto,''), ms.mailto),
-        mc.external = COALESCE(NULLIF(mc.external,''), ms.external),
-        mc.timeneeded = COALESCE(NULLIF(mc.timeneeded,''), ms.timeneeded);";
 
-$res = $adb->pquery($query, array());
-if (!$res) {
-    echo "Error: " . $adb->database->errorMsg() . "<br>";
+// ------------------------------------------------------------
+// Execute migration
+// ------------------------------------------------------------
+if ($canMigrate) {
+    echo "Running migration...<br>";
+
+    $query = " UPDATE vtiger_modcomments mc
+        INNER JOIN vtiger_modcommentsscope ms ON mc.modcommentsid = ms.modcommentsid
+        SET mc.mailto = COALESCE(NULLIF(mc.mailto,''), ms.mailto),
+            mc.external = COALESCE(NULLIF(mc.external,''), ms.external),
+            mc.timeneeded = COALESCE(NULLIF(mc.timeneeded,''), ms.timeneeded);
+    ";
+
+    $res = $adb->pquery($query, array());
+
+    if (!$res) {
+        echo "Error: " . $adb->database->errorMsg() . "<br>";
+    } else {
+        $affected = $adb->getAffectedRowCount($res);
+        echo "Migrated $affected records into '$targetTable'.<br>";
+    }
+}
+
+echo "Migrate ModComments fields from vtiger_modcommentsscope END....<br>";
+
+
+// ------------------------------------------------------------
+// Optional table deletion 
+// ------------------------------------------------------------
+
+// NOTE:
+// This code is intentionally commented out.
+// If you want to delete the table in a future release,
+// simply remove the comment markers.
+
+/*
+echo "Deleting table '$sourceTable' ...<br>";
+
+if (tableExists($sourceTable)) {
+    $query = "DROP TABLE `$sourceTable`";
+    $res = $adb->pquery($query, array());
+
+    if (!$res) {
+        echo "Error deleting table '$sourceTable': " . $adb->database->errorMsg() . "<br>";
+    } else {
+        echo "Table '$sourceTable' deleted successfully.<br>";
+    }
 } else {
-    $affected = $adb->getAffectedRowCount($res);
-    echo "Migrated $affected records into '$targetTable'.<br>";
+    echo "Table '$sourceTable' does not exist, nothing to delete.<br>";
 }
 
-echo "Migrate ModComments fields from vtiger_modcommentsscope END...<br>";
-
-
-echo "Delete prompt for table 'vtiger_modcommentsscope' ...<br>";
-echo "<form method='post' style='margin:10px 0;'>";
-echo "<label>Do you want to delete table <strong>vtiger_modcommentsscope</strong>?</label><br>";
-echo "<button type='submit' name='delete_modcommentsscope' value='yes'>Yes, delete table</button> ";
-echo "<button type='submit' name='delete_modcommentsscope' value='no'>No, keep table</button>";
-echo "</form>";
-echo "Awaiting user decision for deleting 'vtiger_modcommentsscope'.<br>";
-
-
-
-
+echo "Delete operation for '$sourceTable' END.<br>"; //// see TAG 48 db_script END ////
+*/
 
 
 echo "New tables for config settings to set on email sending from ticket another email or name <br>";
@@ -1608,7 +1615,99 @@ if(!empty($errors)){
 echo "New tables done<br>";
 
 
+// do some table modifications
+echo "Install_InitSchema_Model::alterTables() START<br>";
+$status = Install_InitSchema_Model::alterTables();
+if ($status !== true) {
+	echo "Errors (Check Index to get Query):<pre>";
+	var_dump($status);
+	echo "</pre>";
+}
+echo "Install_InitSchema_Model::alterTables() END<br>";
 
+
+
+
+// ---------------------------------------------------------
+// EmailConfigurator installation into Settings
+// ---------------------------------------------------------
+echo "Install Email Configurator into Settings START<br>";
+{
+    // Retrieve the current maximum fieldid from vtiger_settings_field
+    $sql0 = "SELECT MAX(fieldid) AS max_fieldid FROM vtiger_settings_field";
+    $params0 = array();
+    $res0 = $adb->pquery($sql0, $params0);
+    $max_fieldid = 0;
+
+    while ($rowSelect = $adb->getNextRow($res0, false)) {
+        $max_fieldid = $rowSelect['max_fieldid'];
+    }
+
+    if ($max_fieldid > 0) {
+
+        // ---------------------------------------------------------
+        // (001) Insert new Settings entry for EmailConfigurator
+        // Block ID 5 = "Integration" section in Settings
+        // ---------------------------------------------------------
+        echo "(001) Insert new entry into vtiger_settings_field ...<br>";
+
+        $sql1 = "INSERT INTO `vtiger_settings_field`
+                (`fieldid`, `blockid`, `name`, `iconpath`, `description`, `linkto`, `sequence`, `active`, `pinned`)
+                VALUES
+                (?, 5, 'LBL_EMAILCONFIGURATOR', NULL, 'LBL_EMAILCONFIGURATOR_DESCRIPTION',
+                'index.php?module=EmailConfigurator&view=Index&parent=Settings', 14, 0, 0)";
+        $params1 = array($max_fieldid + 1);
+        $res1 = $adb->pquery($sql1, $params1);
+
+        // ---------------------------------------------------------
+        // (002) Update sequence table for vtiger_settings_field
+        // ---------------------------------------------------------
+        echo "(002) Update vtiger_settings_field_seq ...<br>";
+
+        $sql2 = "UPDATE `vtiger_settings_field_seq` SET `id` = ?";
+        $params2 = array($max_fieldid + 2);
+        $res2 = $adb->pquery($sql2, $params2);
+
+        // ---------------------------------------------------------
+        // (003) Create EmailConfigurator data table
+        // Stores configured sender addresses
+        // ---------------------------------------------------------
+        echo "(003) Create table crmnow_emailconfig ...<br>";
+
+        $sql3 = "CREATE TABLE IF NOT EXISTS `crmnow_emailconfig` (
+            `emailid` int(11) NOT NULL AUTO_INCREMENT,
+            `email_firstname` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
+            `email_lastname` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
+            `email_address` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
+            `email_desc` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
+            PRIMARY KEY (`emailid`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=11;";
+        $params3 = array();
+        $res3 = $adb->pquery($sql3, $params3);
+
+        // ---------------------------------------------------------
+        // (004) Create sequence table for EmailConfigurator
+        // ---------------------------------------------------------
+        echo "(004) Create table crmnow_emailconfig_seq ...<br>";
+
+        $sql4 = "CREATE TABLE IF NOT EXISTS `crmnow_emailconfig_seq` (
+            `id` int(11) NOT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+        $params4 = array();
+        $res4 = $adb->pquery($sql4, $params4);
+
+        // ---------------------------------------------------------
+        // (005) Initialize sequence table with starting value
+        // ---------------------------------------------------------
+        echo "(005) Insert initial sequence value into crmnow_emailconfig_seq ...<br>";
+
+        $sql5 = "INSERT INTO `crmnow_emailconfig_seq` (`id`) VALUES (?)";
+        $params5 = array(0);
+        $res5 = $adb->pquery($sql5, $params5);
+
+    }
+}
+echo "Install Email Configurator into Settings END<br>";
 
 
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";

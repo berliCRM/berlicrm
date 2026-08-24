@@ -9,7 +9,10 @@
  * All Rights Reserved.
  * *********************************************************************************** */
 
+require_once 'modules/ModComments/actions/TicketStatusChangeTrait.php';
+
 class ModComments_Save_Action extends Vtiger_Save_Action {
+    use ModComments_TicketStatusChangeTrait;
 
     public function process(Vtiger_Request $request) {
         $recordId = $request->get('record');
@@ -42,8 +45,10 @@ class ModComments_Save_Action extends Vtiger_Save_Action {
      * @return <RecordModel> - record Model of saved record
      */
     public function saveRecord($request) {
+        $ticketStatusChange = $this->getTicketStatusChangeFromRequest($request);
         $recordModel = $this->getRecordModelFromRequest($request);
         $recordModel->save();
+        $this->saveRelatedTicketStatusChange($ticketStatusChange);
         if($request->get('relationOperation')) {
             $parentModuleName = $request->get('sourceModule');
             $parentModuleModel = Vtiger_Module_Model::getInstance($parentModuleName);

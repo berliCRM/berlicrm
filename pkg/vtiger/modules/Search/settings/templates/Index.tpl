@@ -60,7 +60,7 @@
 								{vtranslate($item['modulename'],$item['modulename'])}
 							</td>
 							<td>
-								<select multiple class="chzn-select col-md-4 fieldname" name="fieldname">
+								<select multiple class="chzn-select col-md-4 fieldname" name="fieldname" data-selected-order="{$item['displayfield']|escape:'html'}">
 									<optgroup>
 										{foreach from=$Field item=fieldTab }
 											<option value="{$fieldTab['columnname']}" {if $item['displayfield'] neq ''} {if $MODULE_MODEL->compare_vale($item['displayfield'],$fieldTab['columnname'])}selected{/if}{else}{if $MODULE_MODEL->compare_vale($item['fieldname'],$fieldTab['columnname'])}selected{/if}{/if}>

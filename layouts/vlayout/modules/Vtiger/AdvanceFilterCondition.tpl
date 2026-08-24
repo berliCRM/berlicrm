@@ -61,7 +61,14 @@
 								{$FIELD_INFO['type'] = 'picklist'}
 						{/if}
 					{/if}
-					data-fieldinfo='{json_encode($FIELD_INFO)|replace:"'":"&#039;"}' 
+					{if $FIELD_MODEL->getFieldDataType() == 'UserPicklist'}
+						{assign var=PICKLIST_VALUES value=$FIELD_MODEL->getUserPicklistValues()}
+						{if !empty($PICKLIST_VALUES)}
+							{$FIELD_INFO['picklistvalues'] = $PICKLIST_VALUES}
+							{$FIELD_INFO['type'] = 'picklist'}
+						{/if}
+					{/if}
+					data-fieldinfo='{json_encode($FIELD_INFO)|replace:"'":"&#039;"}'
                     {if !empty($SPECIAL_VALIDATOR)}data-validator='{json_encode($SPECIAL_VALIDATOR)}'{/if}>
 					{if $SOURCE_MODULE neq $MODULE_MODEL->get('name')}
 						({vtranslate($MODULE_MODEL->get('name'), $MODULE_MODEL->get('name'))})  {vtranslate($FIELD_MODEL->get('label'), $MODULE_MODEL->get('name'))}

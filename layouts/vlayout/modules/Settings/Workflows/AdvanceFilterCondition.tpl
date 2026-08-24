@@ -36,7 +36,7 @@
 						{assign var=PICKLIST_VALUES value = Calendar_Field_Model::getReccurencePicklistValues()}
 						{$FIELD_INFO['picklistvalues'] = $PICKLIST_VALUES}
 					{/if}
-					data-fieldinfo='{$FIELD_INFO|@json_encode}' 
+					data-fieldinfo='{$FIELD_INFO|@json_encode|replace:"'":"&#039;"}' 
                     {if !empty($SPECIAL_VALIDATOR)}data-validator='{$SPECIAL_VALIDATOR|@json_encode}'{/if}>
 					{if $SELECTED_MODULE_NAME neq $MODULE_MODEL->get('name')} 
 						({vtranslate($MODULE_MODEL->get('name'), $MODULE_MODEL->get('name'))})  {vtranslate($FIELD_MODEL->get('label'), $MODULE_MODEL->get('name'))}

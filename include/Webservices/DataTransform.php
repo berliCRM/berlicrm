@@ -149,8 +149,12 @@
 			$recordString = DataTransform::$recordString;
 			
 			$allFields = $meta->getFieldColumnMapping();
+			$moduleFields = $meta->getModuleFields();
 			$newRow = array();
 			foreach($allFields as $field=>$col){
+				if(isset($moduleFields[$field]) && (int)$moduleFields[$field]->getPresence() === 1){
+					continue;
+				}
 				$newRow[$field] = $row[$field];
 			}
 			if(isset($row[$recordString])){

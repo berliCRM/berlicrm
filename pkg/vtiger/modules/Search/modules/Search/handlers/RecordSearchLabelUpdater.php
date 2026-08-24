@@ -20,19 +20,16 @@ class Settings_Search_RecordSearchLabelUpdater_Handler extends VTEventHandler {
             if($module != "Users"){
                 $labelInfo = self::computeCRMRecordLabelsForSearch($module, $id,true);
 				if (count($labelInfo) > 0) {
-					$label = decode_html($labelInfo[$id]['name']);
-					$search = decode_html($labelInfo[$id]['search']);
+					$search = decode_html(implode(' |', array_filter(array(
+						$labelInfo[$id]['name'],
+						$labelInfo[$id]['search']
+					))));
                     $res = $adb->pquery('SELECT * FROM berli_globalsearch_data where gscrmid =?', array($id));
                     $rows = $adb->num_rows($res);
 					if ($rows==0) {
 							$adb->pquery('INSERT INTO `berli_globalsearch_data` (`gscrmid`, `searchlabel`) VALUES (?,?)', array($id,''));
 					}
-					if ($search!='') {
-						$adb->pquery('UPDATE berli_globalsearch_data INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = berli_globalsearch_data.gscrmid SET searchlabel=? WHERE crmid=?', array($search, $id));
-					}
-					if ($label!='') {
-						$adb->pquery('UPDATE berli_globalsearch_data INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = berli_globalsearch_data.gscrmid SET label=? WHERE crmid=?', array($label, $id));
-					}
+					$adb->pquery('UPDATE berli_globalsearch_data SET searchlabel=? WHERE gscrmid=?', array($search, $id));
 				}
             }
 		}

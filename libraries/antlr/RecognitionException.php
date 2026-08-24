@@ -59,6 +59,9 @@
  */
 class RecognitionException extends Exception {
 
+	//public $line=0; // removed as of php 8.x
+
+
 	public function __construct($input) {
 		/** What input stream did the error occur in? */
 		$this->input = $input;

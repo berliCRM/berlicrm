@@ -10,6 +10,8 @@
  *
  *********************************************************************************/
 
+require_once __DIR__ . '/session_security_manager.php';
+SessionSecurityManager::init();
 include_once'libraries/csrf-magic/csrf-magic.php';
 $GLOBALS['csrf']['rewrite-js'] = 'libraries/csrf-magic/csrf-magic.js';
 

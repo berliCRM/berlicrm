@@ -54,6 +54,7 @@ class Settings_Vtiger_ConfigEditorEditTicketEmailAddress_View extends Settings_V
 		$viewer->assign('MODEL', $moduleModel);
 		$viewer->assign('TICKETMAIL_MODEL', $ticketMailModel);
 		$viewer->assign('TICKETMAIL_DATA', $ticketMailModel->getData());
+        $viewer->assign('DOCUMENT_FOLDERS', $ticketMailModel->getAttachmentFolders());
 
 		$viewer->assign('QUALIFIED_MODULE', $qualifiedName);
 		$viewer->assign('CURRENT_USER_MODEL', Users_Record_Model::getCurrentUserModel());

@@ -44,7 +44,10 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
             $isMailConverterType = $this->get('from_mailconverter');
             if (!empty($customer) && isRecordExists($customer) && $isMailConverterType != 1) {
                 $recordModel = Vtiger_Record_Model::getInstanceById($customer);
+				// could also be Account
+				if (method_exists($recordModel, 'getImageDetails')) {
                 $imageDetails = $recordModel->getImageDetails();
+				}
                 if(!empty($imageDetails)) {
                     return $imageDetails[0]['path'].'_'.$imageDetails[0]['name'];
                 }
@@ -56,7 +59,10 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
                 return vimage_path('MailConverterComment.png');
             }
             else {
+				// could also be Account
+				if (method_exists($commentor, 'getImageDetails')) {
                 $imagePath = $commentor->getImageDetails();
+				}
                 if (!empty($imagePath[0]['name'])) {
                     return $imagePath[0]['path'];
                 }
@@ -119,7 +125,7 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
         $customer = $this->get('customer');
         if(!empty($customer)) {
             if (isRecordExists($customer)) {
-                return Vtiger_Record_Model::getInstanceById($customer, 'Contacts');
+                return Vtiger_Record_Model::getInstanceById($customer);
             }
             else {
                 return false;
@@ -137,6 +143,19 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
             }
         }
         return false;
+    }
+
+    /**
+     * Return the display name of the person who wrote the comment.
+     */
+    public function getCommentedByName() {
+        $commentedByModel = $this->getCommentedByModel();
+        if ($commentedByModel) {
+            return $commentedByModel->getName();
+        }
+
+        $mailFrom = trim((string) $this->get('mailfrom'));
+        return $mailFrom !== '' ? $mailFrom : vtranslate('LBL_DELETED');
     }
 
     /**
@@ -169,20 +188,17 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 
         $listView = Vtiger_ListView_Model::getInstance('ModComments');
         $queryGenerator = $listView->get('query_generator');
-        $queryGenerator->setFields(
-            array('parent_comments', 'createdtime', 'modifiedtime', 'related_to',
-                'assigned_user_id', 'commentcontent', 'creator', 'id', 'customer', 'reasontoedit', 'userid', 'from_mailconverter',
-                'timeneeded', 'external', 'carboncopy', 'blindcarboncopy', 'mailto'
-            )
-        );
+        $queryGenerator->setFields(self::getCommentListFields(array('from_mailconverter')));
 
         $query = $queryGenerator->getQuery();
         $query = $query ." AND related_to = ? 
+        AND (parent_comments = '' OR parent_comments IS NULL OR parent_comments = 'undefined')
 		ORDER BY vtiger_crmentity.createdtime DESC
 		LIMIT $startIndex, $limit";
 
         $result = $db->pquery($query, array($parentRecordId));
         $rows = $db->num_rows($result);
+        $recordInstances = array();
 
         for ($i=0; $i<$rows; $i++) {
             $row = $db->query_result_rowdata($result, $i);
@@ -203,12 +219,7 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 
         $listView = Vtiger_ListView_Model::getInstance('ModComments');
         $queryGenerator = $listView->get('query_generator');
-        $queryGenerator->setFields(
-            array('parent_comments', 'createdtime', 'modifiedtime', 'related_to', 'id',
-                'assigned_user_id', 'commentcontent', 'creator', 'customer', 'reasontoedit', 'userid',
-                'timeneeded', 'external', 'carboncopy', 'blindcarboncopy', 'mailto'
-            )
-        );
+        $queryGenerator->setFields(self::getCommentListFields());
         $query = $queryGenerator->getQuery();
 
         //Condition are directly added as query_generator transforms the
@@ -264,9 +275,7 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 
         $listView = Vtiger_ListView_Model::getInstance('ModComments');
         $queryGenerator = $listView->get('query_generator');
-        $queryGenerator->setFields(array('parent_comments', 'createdtime', 'modifiedtime', 'related_to', 'id',
-            'timeneeded', 'external', 'carboncopy', 'blindcarboncopy', 'mailto',
-            'assigned_user_id', 'commentcontent', 'creator', 'reasontoedit', 'userid'));
+        $queryGenerator->setFields(self::getCommentListFields());
         $query = $queryGenerator->getQuery();
 
         //Condition are directly added as query_generator transforms the
@@ -321,6 +330,31 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
         }
     }
 
+    /**
+     * crm-now Extension
+     * Function returns portal-compatible comment numbers by comment id.
+     * @return <Array>
+     */
+    public static function getCommentNumbersByParentRecord($parentRecordId) {
+        $db = PearDatabase::getInstance();
+        $query = 'SELECT vtiger_modcomments.modcommentsid
+            FROM vtiger_modcomments
+            INNER JOIN vtiger_crmentity ON vtiger_modcomments.modcommentsid = vtiger_crmentity.crmid
+                AND vtiger_crmentity.deleted = 0
+            WHERE vtiger_modcomments.related_to = ?
+            ORDER BY vtiger_crmentity.createdtime ASC, vtiger_modcomments.modcommentsid ASC';
+        $result = $db->pquery($query, array($parentRecordId));
+        $rows = $db->num_rows($result);
+        $commentNumbers = array();
+
+        for ($i = 0; $i < $rows; $i++) {
+            $commentId = $db->query_result($result, $i, 'modcommentsid');
+            $commentNumbers[$commentId] = $i + 1;
+        }
+
+        return $commentNumbers;
+    }
+
     public function getCommentType() {
         $type = 'unknown';
         $customerId = $this->get('customer');
@@ -332,7 +366,46 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
             $type = 'outgoing';
         } elseif (!empty($userId)) {
             $type = 'internal';
+        } else {
+            // comment created by Webservices?
+            $type = 'internal';
         }
         return $type;
+    }
+
+    protected static function getCommentListFields(array $additionalFields = array()) {
+        $fields = array(
+            'parent_comments',
+            'createdtime',
+            'modifiedtime',
+            'related_to',
+            'assigned_user_id',
+            'commentcontent',
+            'creator',
+            'id',
+            'customer',
+            'reasontoedit',
+            'userid',
+            'timeneeded',
+            'external',
+            'carboncopy',
+            'blindcarboncopy',
+            'mailto',
+        );
+
+        $moduleModel = Vtiger_Module_Model::getInstance('ModComments');
+        foreach (array('mailfrom', 'emailid') as $fieldName) {
+            if ($moduleModel && $moduleModel->getField($fieldName)) {
+                $fields[] = $fieldName;
+            }
+        }
+
+        foreach ($additionalFields as $fieldName) {
+            if ($moduleModel && $moduleModel->getField($fieldName) && !in_array($fieldName, $fields)) {
+                $fields[] = $fieldName;
+            }
+        }
+
+        return $fields;
     }
 }
