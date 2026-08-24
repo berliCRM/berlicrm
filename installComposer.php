@@ -19,16 +19,21 @@ function installComposer()
     exec($cmd, $output, $returnCode);
 
     file_put_contents('logs/installLog.txt', implode(PHP_EOL, $output), FILE_APPEND);
+	
+	if (file_exists('vendor/autoload.php')) {
 
-    //
-    // Try to load the autoload file again after installation to verify it worked
-    //
-    try {
-        require_once 'vendor/autoload.php';
-    } catch (\Throwable $th) {
-        $returnCode = 1;
-    }
-    file_put_contents('logs/installLog.txt', 'Composer installed via: ' . $composerCmd . PHP_EOL, FILE_APPEND);
+		//
+		// Try to load the autoload file again after installation to verify it worked
+		//
+		try {
+			require_once 'vendor/autoload.php';
+		} catch (\Throwable $th) {
+			$returnCode = 1;
+		}
+		file_put_contents('logs/installLog.txt', 'Composer installed via: ' . $composerCmd . PHP_EOL, FILE_APPEND);
+	} else {
+		file_put_contents('logs/installLog.txt', 'vendor/autoload.php still not present' . PHP_EOL, FILE_APPEND);
+	}
     return ('Composer installed via: ' . $composerCmd);
 }
 

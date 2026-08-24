@@ -4,13 +4,15 @@ require_once("language/$default_language.lang.php");
 include("version.php");
 include_once('include/utils/utils.php');
 
-@session_start();
-if(isset($_SESSION['customer_id']) && isset($_SESSION['customer_name']))
+require_once('session_security_manager.php');
+SessionSecurityManager::init();
+if (isset($_SESSION['customer_id']) && isset($_SESSION['customer_name']))
 {
-	header("Location: index.php?action=index&module=.'$module'");
+	header('Location: index.php');
 	exit;
 }
-if($_REQUEST['close_window'] == 'true')
+$csrfToken = htmlspecialchars(SessionSecurityManager::getCsrfToken(), ENT_QUOTES, 'UTF-8');
+if(($_REQUEST['close_window'] ?? '') == 'true')
 {
    ?>
 	<script language="javascript">
@@ -67,12 +69,15 @@ header('Content-Type: text/html; charset='.$default_charset);
 		<td>
 		<div  id="login-box">
       		<form name="login" action="CustomerAuthenticate.php" method="post">
+				<input type="hidden" name="__csrf_token" value="<?php echo $csrfToken; ?>">
 				<div class="body bg-gray">
                 	<div class="form-group">
 						<?php
 
+							if(isset($_REQUEST['session_invalid']))
+								echo "<font color=red size=1px;>Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.</font><br>";
 							if(isset($_REQUEST['login_error']) && in_array(base64_decode($_REQUEST['login_error']),  array('LBL_VERSION_INCOMPATIBLE', 'LBL_ENTER_VALID_USER', 'MORE_THAN_ONE_USER', 'LBL_CANNOT_CONNECT_SERVER')))
-								echo "<font color=red size=1px;>" . getTranslatedString(base64_decode($_REQUEST['login_error'])) . "</font>"; 
+								echo "<font color=red size=1px;>" . portal_purify(getTranslatedString(base64_decode($_REQUEST['login_error']))) . "</font>"; 
 						?>
 						<input type="text" id="username" name="username" class="form-control" placeholder="<?php echo getTranslatedString('LBL_EMAILID');?>">
 					</div>

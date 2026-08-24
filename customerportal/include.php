@@ -10,6 +10,8 @@
  ********************************************************************************/
 
 require_once("PortalConfig.php");
+require_once('session_security_manager.php');
+SessionSecurityManager::init();
 require_once('nusoap/lib/nusoap.php');
 
 global $Server_Path;

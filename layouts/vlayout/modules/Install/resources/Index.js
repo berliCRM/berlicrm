@@ -109,15 +109,16 @@ jQuery.Class('Install_Index_Js', {}, {
 			} 
 
                         var emailField = jQuery('input[name="admin_email"]'); 
-                        var regex = /^[_/a-zA-Z0-9*]+([!"#$%&'()*+,./:;<=>?\^_`{|}~-]?[a-zA-Z0-9/_/-])*@[a-zA-Z0-9]+([\_\-\.]?[a-zA-Z0-9]+)*\.([\-\_]?[a-zA-Z0-9])+(\.?[a-zA-Z0-9]+)?$/;
-                        if(!regex.test(emailField.val()) && emailField.val()!=''){ 
-                            var invalidEmailAddress=true; 
-                            emailField.addClass('error').focus();  
-                            error = true; 
-                         }else{ 
-                             emailField.removeClass('error'); 
-                         } 
-                         
+                        var regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+						var invalidEmailAddress = false;
+						if(!regex.test(emailField.val()) && emailField.val()!=''){ 
+							invalidEmailAddress = true; 
+							emailField.addClass('error').focus();  
+							error = true; 
+						}
+						else{ 
+							emailField.removeClass('error'); 
+						}                        
 			if(error) {
                             var content;
 				if(invalidEmailAddress){ 

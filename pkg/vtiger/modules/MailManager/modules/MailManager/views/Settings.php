@@ -8,6 +8,12 @@
  * All Rights Reserved.
  ************************************************************************************/
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\OAuth;
+use PHPMailer\PHPMailer\SMTP;
+use TheNetworg\OAuth2\Client\Provider\Azure;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+
 class MailManager_Settings_View extends MailManager_MainUI_View {
 
 	/**
@@ -27,15 +33,25 @@ class MailManager_Settings_View extends MailManager_MainUI_View {
             if ($connector->isConnected()) {
                 $folders = $connector->folders();
             }
+
 			$viewer = $this->getViewer($request);
 			$viewer->assign('MODULE', $module);
 			$viewer->assign('MAILBOX', $model);
 			$viewer->assign('SERVERNAME', $serverName);
             $viewer->assign('FOLDERS', $folders);
+			// oAuth Support
+			// requires vendor/autoload.php
+			$includePath = 'vendor/autoload.php';
+			if (file_exists($includePath)) {
+				require_once($includePath);
+				require_once 'modules/Settings/Vtiger/models/ConfigoAuth.php';
+				$settingsoAuth = Settings_Vtiger_oAuth::getInstance('mailmanager');
+				$oAuthDetails = $settingsoAuth->getData();
+				$viewer->assign('OAUTH_DETAILS', $oAuthDetails);
+			}
 			$response->setResult($viewer->view('SettingsEdit.tpl', $module, true));
 
 		} else if ('save' == $this->getOperationArg($request)) {
-
 			$model = $this->getMailBoxModel();
 			$model->setServer($request->get('_mbox_server'));
 			$model->setUsername($request->get('_mbox_user'));
@@ -44,6 +60,7 @@ class MailManager_Settings_View extends MailManager_MainUI_View {
 			$model->setSSLType($request->get('_mbox_ssltype', 'ssl'));
 			$model->setCertValidate($request->get('_mbox_certvalidate', 'novalidate-cert'));
 			$model->setRefreshTimeOut($request->get('_mbox_refresh_timeout'));
+			$model->setMailId($request->get('_mbox_helper'));
 			$connector = $this->getConnector();
             $sentFolder = $request->get('_mbox_sent_folder');
             if($connector->isConnected() && empty($sentFolder)) {
@@ -58,9 +75,18 @@ class MailManager_Settings_View extends MailManager_MainUI_View {
 			if ($connector->isConnected()) {
 				$model->save();
 				$request->set('_operation', 'mainui');
+				// oAuth Support
+				// requires vendor/autoload.php
+				$includePath = 'vendor/autoload.php';
+				if (file_exists($includePath)) {
+					require_once($includePath);
+					require_once 'modules/Settings/Vtiger/models/ConfigoAuth.php';
+					$settingsoAuth = Settings_Vtiger_oAuth::getInstance('mailmanager');
+					$settingsoAuth->save($request);
+				}
 				parent::process($request);
 				return;
-			} elseif(!function_exists('mb_convert_encoding')) { 
+			} elseif(!function_exists('mb_convert_encoding')) {
                 $error = "PHP mbstring extension needed!";
                 $response->isJSON(true);
 				$response->setError(101, $error);
@@ -92,7 +118,7 @@ class MailManager_Settings_View extends MailManager_MainUI_View {
 		$response->emit();
 	}
         
-        public function validateRequest(Vtiger_Request $request):bool { 
+        public function validateRequest(Vtiger_Request $request):bool {
             return $request->validateWriteAccess(); 
         } 
 }

@@ -105,7 +105,14 @@ abstract class MailManager_Abstract_View extends Vtiger_Index_View {
 				if ($this->mConnector) $this->mConnector->close();
 
 				$model = $this->getMailboxModel();
-				$this->mConnector = MailManager_Connector_Connector::connectorWithModel($model, $folder);
+				$type = $model->MailId();
+				$includePath = 'vendor/autoload.php';
+				if (file_exists($includePath)) {
+					require_once('modules/MailManager/connectors/IMAP_Connector.php');
+					$this->mConnector = MailManager_Connector_IMAPConnector::connectorWithModel($model, $folder);
+				} else {
+					$this->mConnector = MailManager_Connector_Connector::connectorWithModel($model, $folder);
+				}
 			}
 			$this->mFolder = $folder;
 		}

@@ -13,4 +13,8 @@ class Vtiger_UserPicklist_UIType extends Vtiger_Owner_UIType {
 	public function getTemplateName() {
 		return 'uitypes/UserPicklist.tpl';
 	}
+	
+	public function getListSearchTemplateName() {
+        return 'uitypes/UserPicklistFieldSearchView.tpl';
+    }
 }

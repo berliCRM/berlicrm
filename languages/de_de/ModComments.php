@@ -9,24 +9,30 @@
  * Reviewed by crm-now GmbH
  *************************************************************************************/
 $languageStrings = array(
-	// Basic Strings
-	'SINGLE_ModComments' => 'Kommentar',
-	'LBL_RECORDS_LIST' => 'Kommentarliste',
+    // Basic Strings
+    'SINGLE_ModComments' => 'Kommentar',
+    'LBL_RECORDS_LIST' => 'Kommentarliste',
 
-	// Blocks
-	'LBL_MODCOMMENTS_INFORMATION' => 'Kommentare',
-	'LBL_OTHER_INFORMATION' => 'andere Informationen',
+    // Blocks
+    'LBL_MODCOMMENTS_INFORMATION' => 'Kommentare',
+    'LBL_OTHER_INFORMATION' => 'andere Informationen',
 
-	'LBL_ADDING_COMMENT' => 'Kommentar hinzufügen',
-	'LBL_WRITE_YOUR_COMMENT_HERE' => 'hier Kommentar eingeben',
-	
-	//Field Labels
-	'Comment' => 'Kommentar',
-	'Creator' => 'Ersteller',
-	'Related To Comments' => 'bezogen auf',
-	'ReasonToEdit' => 'Grund für Bearbeitung',
+    'LBL_ADDING_COMMENT' => 'Kommentar hinzufügen',
+    'LBL_WRITE_YOUR_COMMENT_HERE' => 'hier Kommentar eingeben',
+
+    //Field Labels
+    'Comment' => 'Kommentar',
+    'Creator' => 'Ersteller',
+    'Related To Comments' => 'bezogen auf',
+    'ReasonToEdit' => 'Grund für Bearbeitung',
     'LBL_MAIL_TO' => 'Mail gesendet an',
+    'LBL_MAIL_FROM' => 'Mail gesendet von',
+    'LBL_EMAIL_RECORD' => 'E-Mail',
+    'LBL_OPEN_EMAIL_RECORD' => 'E-Mail öffnen',
     'LBL_EXTERNAL' => 'Externer Kommentar',
+    'LBL_TIME_NEEDED' => 'Aufgewendete Zeit',
+    'LBL_CC' => 'CC',
+    'LBL_BCC' => 'BCC',
 
     'LBL_SHOW_REPLY' => 'Antwort einblenden',
     'LBL_SHOW_REPLIES' => '%d Antworten einblenden',
@@ -35,7 +41,7 @@ $languageStrings = array(
 );
 
 $jsLanguageStrings = array(
-	'of' => 'von',
-	'to' => 'bis',
+    'of' => 'von',
+    'to' => 'bis',
 );
 ?>

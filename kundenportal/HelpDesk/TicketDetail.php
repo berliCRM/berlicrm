@@ -28,22 +28,38 @@
 		</form>
 	</section>
 	<?PHP
+		if (!function_exists('portalTicketEscape')) {
+			function portalTicketEscape($value) {
+				return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+			}
+		}
+
 		global $result;
 		global $client;		
 		global $Server_Path;
 		
 		$customerid = $_SESSION['customer_id'];	
 		$sessionid = $_SESSION['customer_sessionid'];
+		$ticketid = is_scalar($ticketid) ? (string) $ticketid : '';
+		$ticketIdHtml = portalTicketEscape($ticketid);
+		$list = '';
+		$ticket_close_link = '';
+		$upload_status = isset($upload_status) ? (string) $upload_status : '';
 		
 		if($ticketid != ''){
 			$params = array('id' => "$ticketid", 'block'=>"$block",'contactid'=>$customerid,'sessionid'=>"$sessionid");
 			$result = $client->call('get_details', $params, $Server_Path, $Server_Path);	
 			
 			// Check for Authorization
-			if (count($result) == 1 && $result[0] == "#NOT AUTHORIZED#") {
+			if (is_array($result) && count($result) == 1 && isset($result[0]) && $result[0] == "#NOT AUTHORIZED#") {
 				echo 	'<div class = "alert"><b>'.getTranslatedString('LBL_NOT_AUTHORISED').'</b></div>';
 				include("footer.html");
 				die();
+			}
+
+			if (!is_array($result) || !isset($result[0][$block]) || !is_array($result[0][$block])) {
+				echo portalTicketEscape(getTranslatedString('LBL_NONE_SUBMITTED'));
+				return;
 			}
 			
 			$ticketinfo = $result[0][$block];
@@ -52,8 +68,7 @@
 			
 			$commentresult = $client->call('get_ticket_comments', $params, $Server_Path, $Server_Path);
 			
-			$ticketscount = count($result);
-			
+			$commentresult = is_array($commentresult) ? $commentresult : array();
 			$commentscount = count($commentresult);
 			
 			$params = Array(Array('id'=>"$customerid", 'sessionid'=>"$sessionid", 'ticketid' => "$ticketid"));
@@ -63,8 +78,8 @@
 
 			$ticket_status = '';
 			foreach($ticketinfo as $key=>$value) {
-				$fieldlabel = $value['fieldlabel'];
-				$fieldvalue = $value['fieldvalue'];
+				$fieldlabel = isset($value['fieldlabel']) ? $value['fieldlabel'] : '';
+				$fieldvalue = isset($value['fieldvalue']) ? $value['fieldvalue'] : '';
 				if ($fieldlabel == 'Status') {
 					$ticket_status = $fieldvalue;
 					break;
@@ -85,8 +100,8 @@
 							<input type="hidden" name="module" value="HelpDesk">
 							<input type="hidden" name="action" value="index">
 							<input type="hidden" name="fun" value="close_ticket">
-							<input type="hidden" name="ticketid" value="'.$ticketid.'">
-                                                        <input class="btn btn-primary" name="closed" type="submit" value="'.$ticket_close_link.'">
+							<input type="hidden" name="ticketid" value="'.$ticketIdHtml.'">
+										<input class="btn btn-primary" name="closed" type="submit" value="'.portalTicketEscape($ticket_close_link).'">
                                                 </form> ';
                                
 			} 
@@ -106,18 +121,23 @@
 			if($field_count != 0){
 			
 				for($i=0;$i<$field_count;$i++,$z++){
-					$blockname = $ticketinfo[$i]['blockname'];
+					$blockname = isset($ticketinfo[$i]['blockname']) ? (string) $ticketinfo[$i]['blockname'] : '';
 					
-					$data = $ticketinfo[$i]['fieldvalue'];
+					$data = isset($ticketinfo[$i]['fieldvalue']) ? (string) $ticketinfo[$i]['fieldvalue'] : '';
 						
-					if($ticketinfo[$i]['fieldlabel'] == 'Note'){
-						$data = html_entity_decode($data);
+					if(isset($ticketinfo[$i]['fieldlabel']) && $ticketinfo[$i]['fieldlabel'] == 'Note'){
+						$data = portal_purify(html_entity_decode($data, ENT_QUOTES, 'UTF-8'));
+					} else {
+						$data = portalTicketEscape($data);
 					}
 					
 					if($data =='')
 						$data ='&nbsp;';
 						
-						if(strcmp($blockname,$ticketinfo[$i-1]['blockname'])){
+						$previousBlockname = ($i > 0 && isset($ticketinfo[$i-1]['blockname']))
+							? (string) $ticketinfo[$i-1]['blockname']
+							: '';
+						if(strcmp($blockname, $previousBlockname)){
 							
 							if($z > 0 && ($z % 2) == 1)
 								echo "</div>";
@@ -126,7 +146,7 @@
 								echo '</div></div></div></div>
 								<div class="widget-box">
 									<div class = "widget-header">
-										<h5 class = "widget-title">'. $blockname . '</h5>
+										<h5 class = "widget-title">'. portalTicketEscape($blockname) . '</h5>
 									</div>
 									<div class = "widget-body">
 										<div class="widget-main no-padding single-entity-view">
@@ -141,7 +161,7 @@
 							
 						echo '<div class="form-group col-sm-6">
 										<label class="col-sm-3 control-label no-padding-right">
-											'.getTranslatedString($ticketinfo[$i][fieldlabel]).
+											'.portalTicketEscape(getTranslatedString(isset($ticketinfo[$i]['fieldlabel']) ? $ticketinfo[$i]['fieldlabel'] : '')).
 										'</label>
 										<div class="col-sm-9 dvtCellInfo" align="left" valign="top">
 											&nbsp;
@@ -174,7 +194,7 @@
 								$list .= '
 									   <tr>
 											<td width="5%" valign="top">'.($commentscount-$j).'</td>
-											<td width="95%">'.$commentresult[$j]['comments'].'<br><span class="hdr">'.getTranslatedString('LBL_COMMENT_BY').' : '.$commentresult[$j]['owner'].' '.getTranslatedString('LBL_ON').' '.$commentresult[$j]['createdtime'].'</span></td>
+											<td width="95%">'.nl2br(portalTicketEscape(isset($commentresult[$j]['comments']) ? $commentresult[$j]['comments'] : '')).'<br><span class="hdr">'.getTranslatedString('LBL_COMMENT_BY').' : '.portalTicketEscape(isset($commentresult[$j]['owner']) ? $commentresult[$j]['owner'] : '').' '.getTranslatedString('LBL_ON').' '.portalTicketEscape(isset($commentresult[$j]['createdtime']) ? $commentresult[$j]['createdtime'] : '').'</span></td>
 									   </tr>';
 							}
 							$list .= '</table></div>';
@@ -187,7 +207,7 @@
 									<input type="hidden" name="module">
 									<input type="hidden" name="action">
 									<input type="hidden" name="fun">
-									<input type="hidden" name="ticketid" value="'.$ticketid.'">
+									<input type="hidden" name="ticketid" value="'.$ticketIdHtml.'">
 									<div class="form-group col-sm-12 no-padding">
 										<label class="col-sm-2 control-label no-padding-right">
 											'.getTranslatedString('LBL_ADD_COMMENT').'
@@ -204,8 +224,18 @@
 				$list .= '</div></div></div></div>';
 				
 				$files_array = getTicketAttachmentsList($ticketid);
+				$attachmentsEnabled = is_array($files_array)
+					&& (!isset($files_array[0]) || $files_array[0] != "#MODULE INACTIVE#");
+				$attachmentRecords = array();
+				if ($attachmentsEnabled) {
+					foreach ($files_array as $attachmentRecord) {
+						if (is_array($attachmentRecord)) {
+							$attachmentRecords[] = $attachmentRecord;
+						}
+					}
+				}
 				
-				if($files_array[0] != "#MODULE INACTIVE#"){
+				if($attachmentsEnabled){
 					
 					$list .= '<div class="widget-box">
 								<div class = "widget-header">
@@ -215,24 +245,37 @@
 									<div class="widget-main no-padding single-entity-view">
 										<div style="width:auto;padding:12px;display:block;" id="tblLeadInformation">';
 				
-					$attachments_count = count($files_array);
+					$attachments_count = count($attachmentRecords);
 					$z = 0;
 				
-					if(is_array($files_array)){
+					if($attachments_count > 0){
 						
 						for($j=0;$j<$attachments_count;$j++,$z++){
 							
-							$filename = $files_array[$j]['filename'];
-							$filetype = $files_array[$j]['filetype'];
-							$filesize = $files_array[$j]['filesize'];
-							$fileid = $files_array[$j]['fileid'];
-							$filelocationtype = $files_array[$j]['filelocationtype'];
+							$filename = isset($attachmentRecords[$j]['filename']) ? (string) $attachmentRecords[$j]['filename'] : '';
+							$filetype = isset($attachmentRecords[$j]['filetype']) ? (string) $attachmentRecords[$j]['filetype'] : 'application/octet-stream';
+							$filesize = isset($attachmentRecords[$j]['filesize']) ? (int) $attachmentRecords[$j]['filesize'] : 0;
+							$fileid = isset($attachmentRecords[$j]['fileid']) ? (string) $attachmentRecords[$j]['fileid'] : '';
+							$filelocationtype = isset($attachmentRecords[$j]['filelocationtype']) ? (string) $attachmentRecords[$j]['filelocationtype'] : '';
 							$attachments_title = '';
 							
 							if($j == 0)
 								$attachments_title = getTranslatedString('LBL_ATTACHMENTS');
 							
 							if($filelocationtype == 'I'){
+								$downloadQuery = http_build_query(array(
+									'downloadfile' => 'true',
+									'fileid' => $fileid,
+									'filename' => $filename,
+									'filetype' => $filetype,
+									'filesize' => $filesize,
+									'ticketid' => $ticketid,
+								), '', '&', PHP_QUERY_RFC3986);
+								$displayFilename = basename(str_replace('\\', '/', $filename));
+								$ticketPrefix = $ticketid . '_';
+								if ($ticketPrefix !== '_' && strpos($displayFilename, $ticketPrefix) === 0) {
+									$displayFilename = substr($displayFilename, strlen($ticketPrefix));
+								}
 								if($z==0 || $z%2==0) {
 									$list .= '<div class = "row">';
 								}
@@ -242,7 +285,7 @@
 												'.$attachments_title.
 											'</label>
 											<div class="col-sm-9 dvtCellInfo" align="left" valign="top">
-												<a href="index.php?downloadfile=true&fileid='.$fileid.'&filename='.$filename.'&filetype='.$filetype.'&filesize='.$filesize.'&ticketid='.$ticketid.'">'.ltrim($filename,$ticketid.'_').'</a>
+											<a href="index.php?'.portalTicketEscape($downloadQuery).'">'.portalTicketEscape($displayFilename).'</a>
 											</div>
 										</div>';
 								
@@ -250,6 +293,12 @@
 									$list .= '</div>';
 									
 								} else {
+									$externalUrl = filter_var($filename, FILTER_VALIDATE_URL);
+									$externalScheme = $externalUrl ? strtolower((string) parse_url($externalUrl, PHP_URL_SCHEME)) : '';
+									$externalLink = portalTicketEscape($filename);
+									if ($externalUrl && in_array($externalScheme, array('http', 'https'), true)) {
+										$externalLink = '<a target="_blank" rel="noopener noreferrer" href="'.portalTicketEscape($externalUrl).'">'.portalTicketEscape($filename).'</a>';
+									}
 									$list .= '<div class = "row">
 										<div class="form-group col-sm-6">
 											<label class="col-sm-3 control-label no-padding-right">
@@ -257,7 +306,7 @@
 											'</label>
 											<div class="col-sm-9 dvtCellInfo" align="left" valign="top">
 											&nbsp;
-												<a target="blank" href='.$filename.'>'.$filename.'</a>
+											'.$externalLink.'
 											</div>
 										</div>
 									</div>';
@@ -272,19 +321,19 @@
 				if($upload_status != ''){
 					$list .= '<div class = "row">
 							<b>'.getTranslatedString('LBL_FILE_UPLOADERROR').'</b>
-							<font color="red">'.$upload_status.'</font>
+							<font color="red">'.portalTicketEscape($upload_status).'</font>
 						   </div>';
 				}
 
 				//Provide the Add Comment option if the ticket is not Closed
-				if($ticket_status != 'Closed' && $files_array[0] != "#MODULE INACTIVE#"){
+				if($ticket_status != 'Closed' && $attachmentsEnabled){
 					
 					$list .= '<div class="row">
 							<form name="fileattachment" method="post" enctype="multipart/form-data" action="index.php">
 							<input type="hidden" name="module" value="HelpDesk">
 							<input type="hidden" name="action" value="index">
 							<input type="hidden" name="fun" value="uploadfile">
-							<input type="hidden" name="ticketid" value="'.$ticketid.'">
+							<input type="hidden" name="ticketid" value="'.$ticketIdHtml.'">
 						
 									<div class="form-group col-sm-6">
 											<label class="col-sm-3 control-label no-padding-right">

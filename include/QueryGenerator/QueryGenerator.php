@@ -1001,12 +1001,15 @@ class QueryGenerator {
 				$fieldObject = $fields[$fieldName];
 				$columnName = $fieldObject->getColumnName();
 				$tableName = $fieldObject->getTableName();
+				// fix for aliasnames
+				$tableName .= $conditionInfo['referenceField'];
+				$fieldObject->setTableName($tableName);
 				$valueSQL = $this->getConditionValue($conditionInfo['value'], $conditionInfo['SQLOperator'], $fieldObject);
 
                 $fieldSql = "(";
                 if ($conditionInfo['SQLOperator'] == "n") $fieldSql .= "NOT "; // NULL-safe nonequality fix
 
-				$fieldSql .= $tableName.$conditionInfo['referenceField'].'.'.$columnName.' '.$valueSQL[0].")";
+				$fieldSql .= $tableName.'.'.$columnName.' '.$valueSQL[0].")";
 				$fieldSqlList[$index] = $fieldSql;
 			}
 		}
@@ -1038,7 +1041,7 @@ class QueryGenerator {
         $inEqualityFieldTypes = array('currency','percentage','double','integer','number');
         
 		if(is_string($value) && $this->ignoreComma == false) {
-            $commaSeparatedFieldTypes = array('picklist', 'multipicklist', 'owner', 'date', 'datetime', 'time');
+            $commaSeparatedFieldTypes = array('picklist', 'multipicklist', 'owner', 'date', 'datetime', 'time', 'UserPicklist');
             if(in_array($field->getFieldDataType(), $commaSeparatedFieldTypes)) {
                 $valueArray = explode(',' , $value);
                 if ($field->getFieldDataType() == 'multipicklist' && in_array($operator, array('e', 'n'))) {

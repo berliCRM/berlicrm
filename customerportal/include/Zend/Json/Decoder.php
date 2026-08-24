@@ -83,6 +83,13 @@ class Zend_Json_Decoder
     protected $_token;
 
     /**
+     * Value of the current token.
+     *
+     * @var mixed
+     */
+    protected $_tokenValue;
+
+    /**
      * Flag indicating how objects should be decoded
      *
      * @var int
@@ -454,4 +461,3 @@ class Zend_Json_Decoder
         return($this->_token);
     }
 }
-
