@@ -11,4 +11,8 @@
 $vtiger_current_version = '6.5.0';
 $_SESSION['vtiger_version'] = $vtiger_current_version;
 
+<<<<<<< HEAD
 $current_release_tag = 'berlicrm-1.0.49';
+=======
+$current_release_tag = 'berlicrm-1.1.0.1';
+>>>>>>> 9b562552 (new version)
