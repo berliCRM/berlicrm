@@ -3,6 +3,7 @@
     "description": "berlicrm project",
     "type": "project",
     "require": {
+	"php": "^8.2",
         "horstoeko/zugferd": "^1.0",
         "symfony/intl": "^5.4",
         "league/oauth2-client": "*",

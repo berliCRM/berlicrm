@@ -57,7 +57,7 @@ class VtigerLineItemOperation  extends VtigerActorOperation {
 			$row = $this->pearDB->query_result($result, $i, 'maxvalue_lineitem_id');
 		}
 
-		$id = $row + 1;
+		$id = (int) $row + 1;
 		return $id;
 	}
 
