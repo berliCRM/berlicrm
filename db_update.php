@@ -7,6 +7,8 @@
 
 <head><title>BerliCRM updater</title><style>body { font-family: Open sans,sans-serif;}</style>
 <?php
+unlink("logs/composerDone.txt");
+require_once 'installComposer.php';
 require_once 'includes/main/WebUI.php';
 require_once 'include/utils/utils.php';
 include_once 'vtlib/Vtiger/Module.php';
