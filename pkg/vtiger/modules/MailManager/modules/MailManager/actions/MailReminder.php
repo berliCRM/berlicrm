@@ -30,6 +30,13 @@ class MailManager_MailReminder_Action extends Vtiger_Action_Controller{
 		//disable session writes as IMAP connections could have a very long timeout and this would block ALL further request through index.php
 		session_write_close();
 		$mailBox = MailManager_Mailbox_Model::activeInstance();
+		if (!$mailBox->exists()) {
+			$response = new Vtiger_Response();
+			$response->setResult(0);
+			$response->emit();
+			return;
+		}
+
 		$connector = MailManager_Connector_Connector::connectorWithModel($mailBox);
 		if (!$connector->isConnected() || $connector->hasError()) {
 			throw new AppException('No Box');
