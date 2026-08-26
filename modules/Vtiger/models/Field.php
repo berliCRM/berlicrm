@@ -16,6 +16,7 @@ class Vtiger_Field_Model extends Vtiger_Field {
 
     protected $fieldDataType;
     protected $uitype_instance;
+	protected $fieldInfo = array();
 	var $webserviceField = false;
 
     const REFERENCE_TYPE = 'reference';
