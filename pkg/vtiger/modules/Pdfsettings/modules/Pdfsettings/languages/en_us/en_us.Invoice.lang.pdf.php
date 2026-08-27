@@ -7,7 +7,7 @@
  ************************************************************************************/
 //this defindes the language strings for the PDF settings for Invoices
 $pdf_setting_strings = Array(
-'LBL_PDF_CONFIGURATOR'=>'PDF Konfigurator für Rechungen',
+'LBL_PDF_CONFIGURATOR'=>'PDF Settings for Invoices',
 'LBL_PDF_CONFIGURATOR_DESC'=>'Here you may change the PDF output for your invoices.',
 'LBL_PDF_CONFIGURATOR_FONTS'=>'The following fonts are available. The standard font is "Dajavu Sans".',
 'LBL_PDF_CONFIGURATOR_FONTSSIZE'=>'Here you may change the font sizes for each section in pixel (px).',

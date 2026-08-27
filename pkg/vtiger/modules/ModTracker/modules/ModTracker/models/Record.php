@@ -18,13 +18,39 @@ class ModTracker_Record_Model extends Vtiger_Record_Model {
 	const LINK = 4;
 	const UNLINK = 5;
 
+	protected $parent = null;
+
+	/**
+	 * Build the optional detail-row filter shared by the list and count queries.
+	 *
+	 * @return array
+	 */
+	private static function buildDetailFilter($filterField, $searchTerm) {
+		$filterField = is_scalar($filterField) ? trim((string) $filterField) : '';
+		$searchTerm = is_scalar($searchTerm) ? trim((string) $searchTerm) : '';
+		$conditions = array();
+		$params = array();
+
+		if ($filterField !== '') {
+			$conditions[] = 'd.fieldname = ?';
+			$params[] = $filterField;
+		}
+		if ($searchTerm !== '') {
+			$conditions[] = '(d.prevalue LIKE ? OR d.postvalue LIKE ?)';
+			$params[] = '%' . $searchTerm . '%';
+			$params[] = '%' . $searchTerm . '%';
+		}
+
+		return array(implode(' AND ', $conditions), $params);
+	}
+
     /**
 	 * Function to get the history of updates on a record
 	 * @param <type> $record - Record model
 	 * @param <type> $limit - number of latest changes that need to retrieved
 	 * @return <array> - list of  ModTracker_Record_Model
 	 */
-    public static function getUpdatesUnified($recordId, $pagingModel, $filterField = null, $searchTerm = null, $sortOrder = 'DESC') {
+    public static function getUpdatesUnified($recordId, $pagingModel, $filterField = '', $searchTerm = '', $sortOrder = 'DESC', $includeTotal = true) {
         $db = PearDatabase::getInstance();
 
         // SortOrder absichern
