@@ -210,6 +210,44 @@ Vtiger_WholeNumberGreaterThanZero_Validator_Js("Vtiger_NumberRange5_Validator_Js
 	}
 });
 
+Vtiger_WholeNumberGreaterThanZero_Validator_Js("Vtiger_NumberRange500_Validator_Js",{
+
+	/**
+	 * Function which invokes field validation
+	 * @param accepts field element as parameter
+	 * @return error if validation fails true on success
+	 */
+	invokeValidation: function(field, rules, i, options){
+		var rangeInstance = new Vtiger_NumberRange500_Validator_Js();
+		rangeInstance.setElement(field);
+		var response = rangeInstance.validate();
+		if(response != true){
+			return rangeInstance.getError();
+		}
+	}
+
+},{
+	/**
+	 * Function to validate the maximum upload size in MB
+	 * @return true if validation is successful
+	 * @return false if validation fails
+	 */
+	validate: function(){
+		var response = this._super();
+		if(response != true){
+			return response;
+		}else{
+			var fieldValue = this.getFieldValue();
+			if (fieldValue < 1 || fieldValue > 500) {
+				var errorInfo = app.vtranslate('JS_PLEASE_ENTER_NUMBER_IN_RANGE_1TO500');
+				this.setError(errorInfo);
+				return false;
+			}
+			return true;
+		}
+	}
+});
+
 Vtiger_WholeNumberGreaterThanZero_Validator_Js("Vtiger_NumberRange100_Validator_Js",{
 
 	/**

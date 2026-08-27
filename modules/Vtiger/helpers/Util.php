@@ -374,11 +374,15 @@ class Vtiger_Util_Helper {
 		return ceil(self::getMaxUploadSizeInBytes() / (1024 * 1024)); 
 	}
 	
-	// returns upload size limit in bytes, imposed by php.ini or config.inc.php, depending on which is lower
+	// returns upload size limit in bytes, imposed by PHP or config.inc.php, depending on which is lower
 	public static function getMaxUploadSizeInBytes() {
-		$s = ini_get('upload_max_filesize');
-		$phpLimit = self::phpIniStringToBytes($s);
-		return $phpLimit < vglobal('upload_maxsize') ? $phpLimit : vglobal('upload_maxsize');
+		$uploadLimit = self::phpIniStringToBytes(ini_get('upload_max_filesize'));
+		$postLimit = self::phpIniStringToBytes(ini_get('post_max_size'));
+		$limits = array($uploadLimit, vglobal('upload_maxsize'));
+		if ($postLimit > 0) {
+			$limits[] = $postLimit;
+		}
+		return min($limits);
 	}
 
 	// convert PHP.INI string ("3M", "1G") to bytes

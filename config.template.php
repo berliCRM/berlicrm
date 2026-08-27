@@ -104,8 +104,8 @@ $import_dir = 'cache/import/';
 $upload_dir = '_VT_UPLOADDIR_';
 
 // maximum file size for uploaded files in bytes also used when uploading import files
-// upload_maxsize default value = 5000000
-$upload_maxsize = 5000000;
+// upload_maxsize default value = 524288000 (500 MiB)
+$upload_maxsize = 524288000;
 
 // flag to allow export functionality
 // 'all' to allow anyone to use exports 
