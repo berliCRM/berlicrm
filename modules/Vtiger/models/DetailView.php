@@ -158,6 +158,10 @@ class Vtiger_DetailView_Model extends Vtiger_Base_Model {
 		$moduleName = $recordModel->getModuleName();
 		$parentModuleModel = $this->getModule();
 		$relatedLinks = array();
+		// Defer the expensive badge queries until after the detail view has
+		// rendered. Enabling the preference retains the synchronous legacy path.
+		$computeRelatedRecordCount = PerformancePrefs::getBoolean(
+				'LISTVIEW_COMPUTE_PAGE_COUNT', false);
 
 		if($parentModuleModel->isSummaryViewSupported()) {
 			$relatedLinks = array(array(
@@ -179,14 +183,19 @@ class Vtiger_DetailView_Model extends Vtiger_Base_Model {
 
 		$modCommentsModel = Vtiger_Module_Model::getInstance('ModComments');
 		if($parentModuleModel->isCommentEnabled() && $modCommentsModel->isPermitted('DetailView')) {
-			$relatedLinks[] = array(
+			$commentLink = array(
 					'linktype' => 'DETAILVIEWTAB',
 					'linklabel' => 'ModComments',
 					'linkurl' => $recordModel->getDetailViewUrl().'&mode=showAllComments',
 					'linkicon' => '',
 					'relatedModuleName' => $modCommentsModel->get('name'),
-					'recordcount' => ModComments_Record_Model::getAllCommentRecordsCount($recordModel->get('id'))
+					'countKind' => 'comments',
+					'countDeferred' => !$computeRelatedRecordCount
 			);
+			if ($computeRelatedRecordCount) {
+				$commentLink['recordcount'] = ModComments_Record_Model::getAllCommentRecordsCount($recordModel->get('id'));
+			}
+			$relatedLinks[] = $commentLink;
 		}
 
 		if($parentModuleModel->isTrackingEnabled()) {
@@ -200,32 +209,37 @@ class Vtiger_DetailView_Model extends Vtiger_Base_Model {
 
 
 		$relationModels = $parentModuleModel->getRelations();
-		
-		// The current record model is already fully loaded and is exactly the
-		// parent model required by the relation list. Reusing it avoids another
-		// complete record query while building the detail-view tabs.
-		$parentRecordModel = $recordModel;
-		$relationListViewClassName = Vtiger_Loader::getComponentClassName(
-				'Model', 'RelationListView', $parentModuleModel->get('name'));
+
+		if ($computeRelatedRecordCount) {
+			// The current record model is already fully loaded and is exactly the
+			// parent model required by the relation list. Reusing it avoids another
+			// complete record query while building the detail-view tabs.
+			$parentRecordModel = $recordModel;
+			$relationListViewClassName = Vtiger_Loader::getComponentClassName(
+					'Model', 'RelationListView', $parentModuleModel->get('name'));
+		}
 
 		foreach($relationModels as $relation) {
-			//TODO : Way to get limited information than getting all the information
-			//crm-now: added the display of record count
-			// getRelations() already returned the exact relation model. Passing its
-			// module and relation directly avoids looking it up again for every tab.
-			$relationListView = new $relationListViewClassName();
-			$relationListView->setRelatedModuleModel($relation->getRelationModuleModel())
-					->setParentRecordModel($parentRecordModel)
-					->setRelationModel($relation);
 			$link = array(
 					'linktype' => 'DETAILVIEWRELATED',
 					'linklabel' => $relation->get('label'),
 					'linkurl' => $relation->getListUrl($recordModel),
 					'linkicon' => '',
 					'relatedModuleName' => $relation->get('relatedModuleName'),
-					'recordcount' => $relationListView->getRelatedEntriesCount()
-
+					'relationId' => (int) $relation->getId(),
+					'countKind' => 'relation',
+					'countDeferred' => !$computeRelatedRecordCount
 			);
+
+			if ($computeRelatedRecordCount) {
+				// getRelations() already returned the exact relation model. Passing its
+				// module and relation directly avoids looking it up again for every tab.
+				$relationListView = new $relationListViewClassName();
+				$relationListView->setRelatedModuleModel($relation->getRelationModuleModel())
+						->setParentRecordModel($parentRecordModel)
+						->setRelationModel($relation);
+				$link['recordcount'] = $relationListView->getRelatedEntriesCount();
+			}
 
             // crm-now: default sort order "newest first" for related emails and activities
             if ($relation->get('relatedModuleName') == "Emails" || $relation->get('relatedModuleName') == "Calendar") {
@@ -236,6 +250,92 @@ class Vtiger_DetailView_Model extends Vtiger_Base_Model {
 		}
 
 		return $relatedLinks;
+	}
+
+	/**
+	 * Compute the requested detail-view badge counts for the asynchronous
+	 * follow-up request. Relation ids are used as stable keys because module
+	 * names and labels are not guaranteed to be unique.
+	 *
+	 * @param array $relationIds ids of related tabs rendered for this request
+	 * @param bool $includeComments whether the comments badge was rendered
+	 * @return array
+	 */
+	public function getDeferredRelatedRecordCounts($relationIds = array(), $includeComments = false) {
+		$recordModel = $this->getRecord();
+		$parentModuleModel = $this->getModule();
+		$result = array(
+				'module' => $parentModuleModel->get('name'),
+				'record' => (int) $recordModel->getId(),
+				'comments' => null,
+				'relations' => array()
+		);
+
+		if ($includeComments) {
+			$modCommentsModel = Vtiger_Module_Model::getInstance('ModComments');
+			if ($modCommentsModel && $parentModuleModel->isCommentEnabled() &&
+					$modCommentsModel->isPermitted('DetailView')) {
+				try {
+					$result['comments'] = (int) ModComments_Record_Model::getAllCommentRecordsCount(
+							$recordModel->getId());
+				} catch (Throwable $error) {
+					// A failed optional badge must not prevent the relation counts.
+				}
+			}
+		}
+
+		if (!is_array($relationIds)) {
+			$relationIds = array($relationIds);
+		}
+		$requestedRelationIds = array();
+		foreach ($relationIds as $relationId) {
+			if (!is_scalar($relationId)) {
+				continue;
+			}
+			$relationId = (int) $relationId;
+			if ($relationId > 0) {
+				$requestedRelationIds[$relationId] = true;
+			}
+		}
+
+		if (empty($requestedRelationIds)) {
+			return $result;
+		}
+
+		try {
+			$relationListViewClassName = Vtiger_Loader::getComponentClassName(
+					'Model', 'RelationListView', $parentModuleModel->get('name'));
+		} catch (Throwable $error) {
+			return $result;
+		}
+
+		// getRelations() is the authoritative, permission-filtered list. Client
+		// ids are only used to select the links that were actually rendered.
+		foreach ($parentModuleModel->getRelations() as $relation) {
+			$relationId = (int) $relation->getId();
+			if (!$relationId || !isset($requestedRelationIds[$relationId])) {
+				continue;
+			}
+
+			try {
+				$relationListView = new $relationListViewClassName();
+				$relationListView->setRelatedModuleModel($relation->getRelationModuleModel())
+						->setParentRecordModel($recordModel)
+						->setRelationModel($relation);
+				$count = $relationListView->getRelatedEntriesCount();
+
+				if (is_numeric($count)) {
+					$result['relations'][] = array(
+							'relationId' => $relationId,
+							'count' => (int) $count
+					);
+				}
+			} catch (Throwable $error) {
+				// Keep delivering other badges if one custom relation query fails.
+			}
+		}
+
+		return $result;
 	}
 
 	/**
