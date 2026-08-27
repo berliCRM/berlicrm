@@ -52,9 +52,20 @@ class Vtiger_DetailViewCounts_Action extends Vtiger_Action_Controller {
 			return;
 		}
 
-		$detailViewModel = Vtiger_DetailView_Model::getInstance($moduleName, $recordId);
-		$result = $detailViewModel->getDeferredRelatedRecordCounts(
-				$relationIds, $includeComments);
+		try {
+			$detailViewModel = Vtiger_DetailView_Model::getInstance($moduleName, $recordId);
+			$result = $detailViewModel->getDeferredRelatedRecordCounts(
+					$relationIds, $includeComments);
+		} catch (Throwable $error) {
+			// Badge counts are optional. A stale or invalid follow-up request must
+			// never turn an otherwise valid detail view into an HTTP 500 response.
+			$result = array(
+					'module' => $moduleName,
+					'record' => $recordId,
+					'comments' => null,
+					'relations' => array()
+			);
+		}
 
 		$response = new Vtiger_Response();
 		$response->setResult($result);

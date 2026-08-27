@@ -43,11 +43,13 @@ class PriceBooks_RelationListView_Model extends Vtiger_RelationListView_Model {
 			$query = "$query ORDER BY $orderBy $sortOrder";
 		}
 
-		$limitQuery = $query .' LIMIT '.$startIndex.','.$pageLimit;
+		$limitQuery = $query .' LIMIT '.$startIndex.','.($pageLimit + 1);
 		$result = $db->pquery($limitQuery, array());
+		$numberOfRows = $db->num_rows($result);
+		$numberOfRowsToRender = min($numberOfRows, $pageLimit);
 		$relatedRecordList = array();
 
-		for($i=0; $i< $db->num_rows($result); $i++ ) {
+		for($i=0; $i < $numberOfRowsToRender; $i++ ) {
 			$row = $db->fetch_row($result,$i);
 			$newRow = array();
 			foreach($row as $col=>$val){
@@ -64,14 +66,7 @@ class PriceBooks_RelationListView_Model extends Vtiger_RelationListView_Model {
 			$relatedRecordList[$recordId] = $record->setData($newRow)->setModuleFromInstance($relationModule);
 		}
 		$pagingModel->calculatePageRange($relatedRecordList);
-
-		$nextLimitQuery = $query. ' LIMIT '.($startIndex+$pageLimit).' , 1';
-		$nextPageLimitResult = $db->pquery($nextLimitQuery, array());
-		if($db->num_rows($nextPageLimitResult) > 0){
-			$pagingModel->set('nextPageExists', true);
-		}else{
-			$pagingModel->set('nextPageExists', false);
-		}
+		$pagingModel->set('nextPageExists', $numberOfRows > $pageLimit);
 		return $relatedRecordList;
 	}
 }

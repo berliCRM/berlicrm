@@ -145,6 +145,53 @@ class ListViewController {
 
 		$db = PearDatabase::getInstance();
 		$rowCount = $db->num_rows($result);
+
+		// Validate all referenced CRM records in one query. The previous per-cell
+		// isRecordExists() call caused one additional query for every reference
+		// value displayed in a list view.
+		$referenceRecordIds = array();
+		foreach ($referenceFieldList as $fieldName) {
+			if (!in_array($fieldName, $listViewFields)
+					|| empty($this->nameList[$fieldName])
+					|| ($module == 'Documents' && $fieldName == 'folderid')
+					|| $fieldName == 'smcreatorid') {
+				continue;
+			}
+
+			$field = $moduleFields[$fieldName];
+			$referenceColumnName = $field->getColumnName();
+			if (strpos($fieldName, '.') > 0) {
+				$referenceColumnName = strtolower(str_replace('.', '', $fieldName));
+			}
+			for ($i = 0; $i < $rowCount; $i++) {
+				$referenceId = $db->query_result($result, $i, $referenceColumnName);
+				if (!empty($referenceId)) {
+					$referenceRecordIds[(int) $referenceId] = (int) $referenceId;
+				}
+			}
+		}
+
+		$existingReferenceRecordIds = array();
+		if (!empty($referenceRecordIds)) {
+			$referenceRecordIds = array_values($referenceRecordIds);
+			$referenceResult = $db->pquery(
+				'SELECT crmid FROM vtiger_crmentity WHERE deleted = 0 AND crmid IN (' .
+					generateQuestionMarks($referenceRecordIds) . ')',
+				$referenceRecordIds
+			);
+			for ($i = 0; $i < $db->num_rows($referenceResult); $i++) {
+				$referenceId = (int) $db->query_result($referenceResult, $i, 'crmid');
+				$existingReferenceRecordIds[$referenceId] = true;
+			}
+		}
+
+		$baseTableIndex = 'id';
+		if ($module != 'Users') {
+			$baseTable = $meta->getEntityBaseTable();
+			$moduleTableIndexList = $meta->getEntityTableIndexList();
+			$baseTableIndex = $moduleTableIndexList[$baseTable];
+		}
+
 		$ownerFieldList = $this->queryGenerator->getOwnerFieldList();
 		if ($module == 'Contacts') {
 			$ownerFieldList[] = 'Accounts.assigned_user_id';
@@ -188,13 +235,11 @@ class ListViewController {
 		}
 
 		$data = array();
+		$softphonePrefix = '';
+		$softphonePrefixLoaded = false;
 		for ($i = 0; $i < $rowCount; ++$i) {
 			//Getting the recordId
 			if($module != 'Users') {
-				$baseTable = $meta->getEntityBaseTable();
-				$moduleTableIndexList = $meta->getEntityTableIndexList();
-				$baseTableIndex = $moduleTableIndexList[$baseTable];
-
 				$recordId = $db->query_result($result,$i,$baseTableIndex);
 			}else {
 				$recordId = $db->query_result($result,$i,"id");
@@ -226,19 +271,15 @@ class ListViewController {
 				}
 
 				if($module == 'Documents' && $fieldName == 'filename') {
-					$downloadtype = $db->query_result($result,$i,'filelocationtype');
 					$fileName = $db->query_result($result,$i,'filename');
 
 					$downloadType = $db->query_result($result,$i,'filelocationtype');
 					$status = $db->query_result($result,$i,'filestatus');
-					$fileIdQuery = "select attachmentsid from vtiger_seattachmentsrel where crmid=?";
-					$fileIdRes = $db->pquery($fileIdQuery,array($recordId));
-					$fileId = $db->query_result($fileIdRes,0,'attachmentsid');
 					if ($fileName != '' && $status == 1) {
 						if ($downloadType == 'I') {
 							$value = '<a onclick="Javascript:Documents_Index_Js.updateDownloadCount(\'index.php?module=Documents&action=UpdateDownloadCount&record=' . $recordId . '\');"' .
-								' href="index.php?module=Documents&action=DownloadFile&record=' . $recordId . '&fileid=' . $fileId . '"' .
-								' title="' . getTranslatedString('LBL_DOWNLOAD_FILE', $module) . '" class="pdf-link" data-pdf-preview="index.php?module=Documents&action=DownloadFile&record=' . $recordId . '&fileid=' . $fileId . '">' .
+								' href="index.php?module=Documents&action=DownloadFile&record=' . $recordId . '"' .
+								' title="' . getTranslatedString('LBL_DOWNLOAD_FILE', $module) . '" class="pdf-link" data-pdf-preview="index.php?module=Documents&action=DownloadFile&record=' . $recordId . '">' .
 								textlength_check($value) .
 								'</a>';
 						} elseif ($downloadType == 'E') {
@@ -251,7 +292,6 @@ class ListViewController {
 							$value = ' --';
 						}
 					}										
-					$value = $fileicon.$value;
 				} elseif($module == 'Documents' && $fieldName == 'filesize') {
 					$downloadType = $db->query_result($result,$i,'filelocationtype');
 					if($downloadType == 'I') {
@@ -436,10 +476,13 @@ class ListViewController {
 				} elseif ($field->getFieldDataType() == 'skype') {
 					$value = ($value != "") ? "<a href='skype:$value?call'>".textlength_check($value)."</a>" : "";
 				} elseif ($field->getUIType() == 11) {
-					$SoftphonePrefix = berliSoftphones_Record_Model:: getSoftphonePrefix();
-					if($SoftphonePrefix && !empty($value)) {
+					if (!$softphonePrefixLoaded) {
+						$softphonePrefix = berliSoftphones_Record_Model::getSoftphonePrefix();
+						$softphonePrefixLoaded = true;
+					}
+					if($softphonePrefix && !empty($value)) {
 						$replaced = preg_replace('/[-()\s]/', '', $value);
-						$value = '<a class="phoneField" data-value="'.$replaced.'" record="'.$recordId.'" href="'.$SoftphonePrefix.($replaced).'">'.textlength_check($value).'</a>';
+						$value = '<a class="phoneField" data-value="'.$replaced.'" record="'.$recordId.'" href="'.$softphonePrefix.($replaced).'">'.textlength_check($value).'</a>';
 					} else {
                         $value = textlength_check($value);
                     }
@@ -451,7 +494,10 @@ class ListViewController {
 					} else {
 						$parentModule = $this->typeList[$value];
 					}
-					if(!empty($value) && !empty($this->nameList[$fieldName]) && !empty($parentModule) && (isRecordExists($value) || ($module == 'Documents' && $fieldName == 'folderid') || $fieldName == 'smcreatorid')) {
+					$referenceRecordExists = ($module == 'Documents' && $fieldName == 'folderid')
+							|| $fieldName == 'smcreatorid'
+							|| isset($existingReferenceRecordIds[(int) $value]);
+					if(!empty($value) && !empty($this->nameList[$fieldName]) && !empty($parentModule) && $referenceRecordExists) {
 						$parentMeta = $this->queryGenerator->getMeta($parentModule);
 						$value = textlength_check($this->nameList[$fieldName][$value]);
 						if ($module == 'Documents' && $fieldName == 'folderid') {

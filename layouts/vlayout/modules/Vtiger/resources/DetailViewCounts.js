@@ -10,14 +10,14 @@
 (function($) {
 	'use strict';
 
-	function getRecordId(detailViewContainer) {
-		return detailViewContainer.prevAll('input#recordId').first().val();
+	function getRecordId(sidebar) {
+		return sidebar.attr('data-record-id');
 	}
 
 	function isCurrentDetailView(detailViewContainer, sidebar, moduleName, recordId) {
 		return sidebar.length && $.contains(document.documentElement, sidebar[0]) &&
 				String(sidebar.attr('data-module-name')) === String(moduleName) &&
-				String(getRecordId(detailViewContainer)) === String(recordId);
+				String(getRecordId(sidebar)) === String(recordId);
 	}
 
 	function updateCount(sidebar, countKind, relationId, count) {
@@ -62,7 +62,7 @@
 		var sidebar = detailViewContainer.find('.detailViewInfo > .related').first();
 		var pendingCounts = sidebar.find(
 				'.detailViewRelatedCount[data-count-pending="1"]');
-		var recordId = getRecordId(detailViewContainer);
+		var recordId = getRecordId(sidebar);
 		var moduleName = sidebar.attr('data-module-name');
 
 		if (!sidebar.length || !pendingCounts.length || !recordId || !moduleName ||

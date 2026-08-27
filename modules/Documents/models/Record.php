@@ -10,6 +10,10 @@
 
 class Documents_Record_Model extends Vtiger_Record_Model {
 
+	protected $fileDetails = array();
+	protected $fileDetailsLoaded = false;
+	protected $internalFileAvailable = null;
+
 	/**
 	 * Function to get the Display Name for the record
 	 * @return <String> - Entity Display Name for the record
@@ -19,6 +23,10 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 	}
 
 	function getDownloadFileURL() {
+		if (!$this->isDownloadAvailable()) {
+			return '';
+		}
+
 		if ($this->get('filelocationtype') == 'I') {
 			$fileDetails = $this->getFileDetails();
 			return 'index.php?module='. $this->getModuleName() .'&action=DownloadFile&record='. $this->getId() .'&fileid='. $fileDetails['attachmentsid'];
@@ -31,174 +39,215 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 		return "javascript:Documents_Detail_Js.checkFileIntegrity('index.php?module=".$this->getModuleName()."&action=CheckFileIntegrity&record=".$this->getId()."')";
 	}
 
-	function checkFileIntegrity() {
-		$recordId = $this->get('id');
-		$downloadType = $this->get('filelocationtype');
-		$returnValue = false;
-
-		if ($downloadType == 'I') {
-			$fileDetails = $this->getFileDetails();
-			if (!empty ($fileDetails)) {
-				$filePath = $fileDetails['path'];
-
-				$savedFile = $fileDetails['attachmentsid']."_".$fileDetails['name'];
-
-				if(fopen($filePath.$savedFile, "r")) {
-					$returnValue = true;
-				}
-			}
+	/**
+	 * Return the complete path of the internally stored attachment.
+	 *
+	 * The attachment name can contain HTML entities in the database, while the
+	 * stored file name contains the decoded value.
+	 *
+	 * @return string|false
+	 */
+	function getInternalFilePath() {
+		$fileDetails = $this->getFileDetails();
+		if (empty($fileDetails)
+				|| empty($fileDetails['path'])
+				|| empty($fileDetails['attachmentsid'])
+				|| empty($fileDetails['name'])) {
+			return false;
 		}
-		return $returnValue;
+
+		$fileName = html_entity_decode($fileDetails['name'], ENT_QUOTES, vglobal('default_charset'));
+		$filePath = rtrim($fileDetails['path'], '/\\');
+		return $filePath . DIRECTORY_SEPARATOR . $fileDetails['attachmentsid'] . '_' . $fileName;
+	}
+
+	/**
+	 * Check the actual storage file, independently of the persisted file status.
+	 * The result is cached for the lifetime of this record model/request.
+	 *
+	 * @return bool
+	 */
+	function isInternalFileAvailable() {
+		if ($this->internalFileAvailable !== null) {
+			return $this->internalFileAvailable;
+		}
+
+		$filePath = $this->getInternalFilePath();
+		$this->internalFileAvailable = $filePath !== false && is_file($filePath) && is_readable($filePath);
+		return $this->internalFileAvailable;
+	}
+
+	/**
+	 * Check whether the document may currently be offered as a download.
+	 *
+	 * @return bool
+	 */
+	function isDownloadAvailable() {
+		if (!$this->get('filestatus') || !$this->get('filename')) {
+			return false;
+		}
+
+		$fileLocationType = $this->get('filelocationtype');
+		if ($fileLocationType === 'I') {
+			return $this->isInternalFileAvailable();
+		}
+
+		return $fileLocationType === 'E';
+	}
+
+	function checkFileIntegrity() {
+		return $this->get('filelocationtype') === 'I' && $this->isInternalFileAvailable();
 	}
 
 	function getFileDetails() {
+		if ($this->fileDetailsLoaded) {
+			return $this->fileDetails;
+		}
+
 		$db = PearDatabase::getInstance();
-		$fileDetails = array();
+		$this->fileDetailsLoaded = true;
 
 		$result = $db->pquery("SELECT * FROM vtiger_attachments
 							INNER JOIN vtiger_seattachmentsrel ON vtiger_seattachmentsrel.attachmentsid = vtiger_attachments.attachmentsid
 							WHERE crmid = ?", array($this->get('id')));
 
 		if($db->num_rows($result)) {
-			$fileDetails = $db->query_result_rowdata($result);
+			$this->fileDetails = $db->query_result_rowdata($result);
 		}
-		return $fileDetails;
+		return $this->fileDetails;
 	}
 
 	function downloadFile() {
 		$fileDetails = $this->getFileDetails();
-		$fileContent = false;
+		if (empty($fileDetails)
+				|| $this->get('filelocationtype') !== 'I'
+				|| !$this->isDownloadAvailable()) {
+			return false;
+		}
 
-		if (!empty ($fileDetails)) {
-			$filePath = $fileDetails['path'];
-			$fileName = $fileDetails['name'];
-
-			if ($this->get('filelocationtype') == 'I') {
-				$fileName = html_entity_decode($fileName, ENT_QUOTES, vglobal('default_charset'));
-				// Include the attachmentsid in the saved file name
-				$savedFileName = $fileDetails['attachmentsid'] . "_" . $fileName; 
-				// Use only $fileName for the download name
-				$downloadFileName = $fileName; 
-
-				$FN = $filePath . $savedFileName;
-				if (!file_exists($FN)) {
-					throw new Exception('Attachment not present!');
-				}
-				$size=filesize($FN);
-				//Begin writing headers
-				header("Cache-Control:");
-				header("Cache-Control: public");
-				header("Accept-Ranges: bytes");
-				header('Content-Disposition: attachment; filename="'.basename($downloadFileName).'"');
-				header("Content-type: application/octet-stream");
-				header("Connection: close");
-
-				//check if http_range is sent by browser (or download manager)
-				if(isset($_SERVER['HTTP_RANGE'])) {
-					list($a, $range)=explode("=",$_SERVER['HTTP_RANGE']);
-					//if yes, download missing part
-					str_replace($range, "-", $range);
-					$size2=$size-1;
-					$new_length=$size2-$range;
-					header("HTTP/1.1 206 Partial Content");
-					header("Content-Length: $new_length");
-					header("Content-Range: bytes $range$size2/$size");
-				} 
-				else {
-					$range=0;
-					$size2=$size-1;
-					header("Content-Range: bytes 0-$size2/$size");
-					header("Content-Length: ".$size);
-				}
-
-				$fd=fopen($FN,"rb");
-				fseek($fd,$range);
-
-				$bytes=0;
-				while(!feof($fd)) {
-					$fileContent=fread($fd, 4096);
-					$bytes+=strlen($fileContent);
-					print $fileContent;
-					flush();
-				}
+		$fileName = html_entity_decode($fileDetails['name'], ENT_QUOTES, vglobal('default_charset'));
+		$filePath = $this->getInternalFilePath();
+		$size = @filesize($filePath);
+		$fd = @fopen($filePath, 'rb');
+		if ($size === false || $fd === false) {
+			if (is_resource($fd)) {
 				fclose($fd);
 			}
+			$this->internalFileAvailable = false;
+			return false;
 		}
+
+		//Begin writing headers
+		header("Cache-Control:");
+		header("Cache-Control: public");
+		header("Accept-Ranges: bytes");
+		header('Content-Disposition: attachment; filename="'.basename($fileName).'"');
+		header("Content-type: application/octet-stream");
+		header("Connection: close");
+
+		//check if http_range is sent by browser (or download manager)
+		if(isset($_SERVER['HTTP_RANGE'])) {
+			list($a, $range)=explode("=",$_SERVER['HTTP_RANGE']);
+			//if yes, download missing part
+			str_replace($range, "-", $range);
+			$size2=$size-1;
+			$new_length=$size2-$range;
+			header("HTTP/1.1 206 Partial Content");
+			header("Content-Length: $new_length");
+			header("Content-Range: bytes $range$size2/$size");
+		}
+		else {
+			$range=0;
+			$size2=$size-1;
+			header("Content-Range: bytes 0-$size2/$size");
+			header("Content-Length: ".$size);
+		}
+
+		fseek($fd,$range);
+
+		$bytes=0;
+		while(!feof($fd)) {
+			$fileContent = fread($fd, 4096);
+			$bytes+=strlen($fileContent);
+			print $fileContent;
+			flush();
+		}
+		fclose($fd);
+		return true;
 	}
 
 	function previewFile() {
 		$fileDetails = $this->getFileDetails();
-
-		if (!empty($fileDetails)) {
-			$filePath = $fileDetails['path'];
-			$fileName = $fileDetails['name'];
-
-			$contentType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-
-			if ($this->get('filelocationtype') == 'I') {
-				$fileName = html_entity_decode($fileName, ENT_QUOTES, vglobal('default_charset'));
-				// Include the attachmentsid in the saved file name
-				$savedFileName = $fileDetails['attachmentsid'] . "_" . $fileName; 
-				// Use only $fileName for the download name
-				$downloadFileName = $fileName; 
-
-				$FN = $filePath . $savedFileName;
-				if (!file_exists($FN)) {
-					throw new Exception('Attachment not present!');
-				}
-				$size = filesize($FN);
-				//Begin writing headers
-				header("Cache-Control:");
-				header("Cache-Control: public");
-				header("Accept-Ranges: bytes");
-
-					switch ($contentType) {
-						case 'pdf':
-							header('Content-Type: application/pdf');
-							header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
-							break;
-						case 'txt':
-						case 'csv':
-							header('Content-Type: text/plain; charset=UTF-8');
-							header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
-							break;
-						case 'jpg':
-						case 'jpeg':
-							header('Content-Type: image/jpeg');
-							header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
-							break;
-						case 'png':
-							header('Content-Type: image/png');
-							header('Content-Disposition: inline; filename="' . basename($downloadFileName) . '"');
-							break;
-						default:
-							header("HTTP/1.1 204 No Content");
-							header("Content-Length: 0");
-							break;
-					}
-					
-				header('Content-Description: File Transfer');
-				header('Content-Transfer-Encoding: binary');
-				header('Accept-Ranges: bytes');
-				header('Connection: close');
-
-				$fd = fopen($FN, 'rb');
-				$start = 0;
-				$length = $size;
-	
-				fseek($fd, $start);
-				$bufferSize = 8192;
-				$bytesSent = 0;
-	
-				while (!feof($fd) && $bytesSent < $length) {
-					$buffer = fread($fd, min($bufferSize, $length - $bytesSent));
-					echo $buffer;
-					flush();
-				}
-				fclose($fd);
-				exit;
-			}
+		if (empty($fileDetails)
+				|| $this->get('filelocationtype') !== 'I'
+				|| !$this->isDownloadAvailable()) {
+			return false;
 		}
+
+		$fileName = html_entity_decode($fileDetails['name'], ENT_QUOTES, vglobal('default_charset'));
+		$contentType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+		$filePath = $this->getInternalFilePath();
+		$size = @filesize($filePath);
+		$fd = @fopen($filePath, 'rb');
+		if ($size === false || $fd === false) {
+			if (is_resource($fd)) {
+				fclose($fd);
+			}
+			$this->internalFileAvailable = false;
+			return false;
+		}
+
+		//Begin writing headers
+		header("Cache-Control:");
+		header("Cache-Control: public");
+		header("Accept-Ranges: bytes");
+
+		switch ($contentType) {
+			case 'pdf':
+				header('Content-Type: application/pdf');
+				header('Content-Disposition: inline; filename="' . basename($fileName) . '"');
+				break;
+			case 'txt':
+			case 'csv':
+				header('Content-Type: text/plain; charset=UTF-8');
+				header('Content-Disposition: inline; filename="' . basename($fileName) . '"');
+				break;
+			case 'jpg':
+			case 'jpeg':
+				header('Content-Type: image/jpeg');
+				header('Content-Disposition: inline; filename="' . basename($fileName) . '"');
+				break;
+			case 'png':
+				header('Content-Type: image/png');
+				header('Content-Disposition: inline; filename="' . basename($fileName) . '"');
+				break;
+			default:
+				header("HTTP/1.1 204 No Content");
+				header("Content-Length: 0");
+				fclose($fd);
+				return true;
+		}
+
+		header('Content-Description: File Transfer');
+		header('Content-Transfer-Encoding: binary');
+		header('Accept-Ranges: bytes');
+		header('Connection: close');
+
+		$start = 0;
+		$length = $size;
+
+		fseek($fd, $start);
+		$bufferSize = 8192;
+		$bytesSent = 0;
+
+		while (!feof($fd) && $bytesSent < $length) {
+			$buffer = fread($fd, min($bufferSize, $length - $bytesSent));
+			echo $buffer;
+			$bytesSent += strlen($buffer);
+			flush();
+		}
+		fclose($fd);
+		return true;
 	}
 
 	function updateFileStatus($status) {

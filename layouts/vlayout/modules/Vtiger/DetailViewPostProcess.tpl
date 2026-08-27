@@ -15,7 +15,7 @@
 					</div>
 				</form>
 			</div>
-			<div class="noprint related span2 marginLeftZero" data-module-name="{$MODULE_NAME}">
+			<div class="noprint related span2 marginLeftZero" data-module-name="{$MODULE_NAME}" data-record-id="{$RECORD->getId()}">
 				<div class="">
 					<ul class="nav nav-stacked nav-pills">
 						{foreach item=RELATED_LINK from=$DETAILVIEW_LINKS['DETAILVIEWTAB']}

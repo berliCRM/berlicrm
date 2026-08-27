@@ -36,11 +36,32 @@ class Documents_Module_Model extends Vtiger_Module_Model {
 
 	/**
 	 * Function returns list of folders
+	 * @param bool $includeDocumentStatus Include the precomputed folder usage flag
 	 * @return <Array> folder list
 	 */
-	public static function getAllFolders() {
+	public static function getAllFolders($includeDocumentStatus = false) {
 		$db = PearDatabase::getInstance();
-		$result = $db->pquery('SELECT * FROM vtiger_attachmentsfolder ORDER BY sequence', array());
+		if ($includeDocumentStatus) {
+			$query = 'SELECT vtiger_attachmentsfolder.*,
+				CASE
+					WHEN vtiger_attachmentsfolder.foldername = ? THEN 0
+					ELSE EXISTS (
+						SELECT 1
+						FROM vtiger_notes
+						INNER JOIN vtiger_crmentity
+							ON vtiger_crmentity.crmid = vtiger_notes.notesid
+							AND vtiger_crmentity.deleted = 0
+						WHERE vtiger_notes.folderid = vtiger_attachmentsfolder.folderid
+					)
+				END AS has_documents
+			FROM vtiger_attachmentsfolder
+			ORDER BY vtiger_attachmentsfolder.sequence';
+			$params = array('Default');
+		} else {
+			$query = 'SELECT * FROM vtiger_attachmentsfolder ORDER BY sequence';
+			$params = array();
+		}
+		$result = $db->pquery($query, $params);
 
 		$folderList = array();
 		for($i=0; $i<$db->num_rows($result); $i++) {

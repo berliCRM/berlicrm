@@ -152,16 +152,31 @@ class Vtiger_ListView_Model extends Vtiger_Base_Model {
         $module = $this->getModule();
 		$headerFieldModels = array();
 		$headerFields = $listViewContoller->getListViewHeaderFields();
+
+		// Populate the existing field cache once per involved module. Without
+		// this, getInstance() checks the field-table size for every list column.
+		$module->getFields();
+		$secondaryModuleInstances = array();
+		foreach ($headerFields as $fieldName => $webserviceField) {
+			if (($webserviceField && !in_array($webserviceField->getPresence(), array(0,2)))
+					|| strpos($fieldName, '.') <= 0) {
+				continue;
+			}
+			list($secondaryModuleName) = explode('.', $fieldName, 2);
+			if (!isset($secondaryModuleInstances[$secondaryModuleName])) {
+				$secondaryModule = Vtiger_Module_Model::getInstance($secondaryModuleName);
+				$secondaryModule->getFields();
+				$secondaryModuleInstances[$secondaryModuleName] = $secondaryModule;
+			}
+		}
+
 		foreach($headerFields as $fieldName => $webserviceField) {
 			if($webserviceField && !in_array($webserviceField->getPresence(), array(0,2))) continue;
             // crm-now: fieldname prepended by (secondary) module name? create an instance of that module...
             if (strpos($fieldName,".")>0) {
-                list($modname,$fname) = explode(".",$fieldName);
+                list($modname,$fname) = explode(".",$fieldName, 2);
 
-                if (!isset($modinst[$modname])) {
-                    $modinst[$modname] = Vtiger_Module_Model::getInstance($modname);
-                }
-                $headerFieldModels[$fieldName] = Vtiger_Field_Model::getInstance($fname,$modinst[$modname]);
+				$headerFieldModels[$fieldName] = Vtiger_Field_Model::getInstance($fname,$secondaryModuleInstances[$modname]);
                 $headerFieldModels[$fieldName]->name = $fieldName;
             }
             else {

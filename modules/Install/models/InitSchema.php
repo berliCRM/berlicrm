@@ -1431,7 +1431,7 @@ class Install_InitSchema_Model
 
     public static function alterTables() {
         global $adb;
-        $ret = true;
+        $ret = array();
 
         $alterStatements = array("ALTER TABLE `vtiger_mailer_queue` MODIFY body MEDIUMTEXT;" // base64 inline images can be saved there
         );
@@ -1442,6 +1442,92 @@ class Install_InitSchema_Model
             }
         }
 
-        return $ret;
+        return empty($ret) ? true : $ret;
+    }
+
+    /**
+     * Keep the list-view indexes in a state that works with module joins.
+     *
+     * @return bool|array True on success or the database errors by index.
+     */
+    public static function updateListViewIndexes() {
+        global $adb;
+        $ret = array();
+        $listViewIndexes = array(
+            array(
+                'table' => 'vtiger_notes',
+                'name' => 'notes_folderid_idx',
+                'columns' => array('folderid'),
+            ),
+            array(
+                'table' => 'berli_listview_colors',
+                'name' => 'listview_colors_fieldid_idx',
+                'columns' => array('listfieldid'),
+            ),
+        );
+        foreach ($listViewIndexes as $index => $indexInfo) {
+            $indexResult = $adb->pquery('SHOW INDEX FROM `' . $indexInfo['table'] . '`', array());
+            if (!$indexResult) {
+                $ret['listViewIndexCheck' . $index] = $adb->database->errorMsg();
+                continue;
+            }
+
+            $existingIndexes = array();
+            for ($row = 0; $row < $adb->num_rows($indexResult); $row++) {
+                $keyName = $adb->query_result($indexResult, $row, 'key_name');
+                $sequence = (int) $adb->query_result($indexResult, $row, 'seq_in_index');
+                $columnName = $adb->query_result($indexResult, $row, 'column_name');
+                $existingIndexes[$keyName][$sequence] = $columnName;
+            }
+
+            $matchingIndexExists = false;
+            foreach ($existingIndexes as $existingColumns) {
+                ksort($existingColumns);
+                $existingColumns = array_values($existingColumns);
+                if (array_slice($existingColumns, 0, count($indexInfo['columns'])) === $indexInfo['columns']) {
+                    $matchingIndexExists = true;
+                    break;
+                }
+            }
+            if ($matchingIndexExists) {
+                continue;
+            }
+
+            $quotedColumns = array();
+            foreach ($indexInfo['columns'] as $columnName) {
+                $quotedColumns[] = '`' . $columnName . '`';
+            }
+            $query = 'ALTER TABLE `' . $indexInfo['table'] . '` ADD INDEX `' .
+                $indexInfo['name'] . '` (' . implode(', ', $quotedColumns) . ')';
+            if (!$adb->pquery($query, array())) {
+                $ret['listViewIndex' . $index] = $adb->database->errorMsg();
+            }
+        }
+
+        // This index looks suitable for the default list sort, but its leading
+        // deleted column is not selective. MySQL can choose it before the
+        // module table joins and then walk nearly all active CRM records in
+        // modified-time order. That makes list views of every module slower,
+        // especially modules containing only a small part of vtiger_crmentity.
+        $crmentityIndexes = $adb->pquery('SHOW INDEX FROM `vtiger_crmentity`', array());
+        if (!$crmentityIndexes) {
+            $ret['listViewIndexCleanupCheck'] = $adb->database->errorMsg();
+        } else {
+            $removeIndex = false;
+            for ($row = 0; $row < $adb->num_rows($crmentityIndexes); $row++) {
+                if ($adb->query_result($crmentityIndexes, $row, 'key_name') === 'crmentity_deleted_modifiedtime_idx') {
+                    $removeIndex = true;
+                    break;
+                }
+            }
+            if ($removeIndex && !$adb->pquery(
+                    'ALTER TABLE `vtiger_crmentity` DROP INDEX `crmentity_deleted_modifiedtime_idx`',
+                    array()
+                )) {
+                $ret['listViewIndexCleanup'] = $adb->database->errorMsg();
+            }
+        }
+
+        return empty($ret) ? true : $ret;
     }
 }

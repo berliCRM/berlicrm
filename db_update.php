@@ -1627,7 +1627,14 @@ if ($status !== true) {
 }
 echo "Install_InitSchema_Model::alterTables() END<br>";
 
-
+echo "Update ListView performance indexes START<br>";
+$status = Install_InitSchema_Model::updateListViewIndexes();
+if ($status !== true) {
+	echo "Errors while updating ListView indexes:<pre>";
+	var_dump($status);
+	echo "</pre>";
+}
+echo "Update ListView performance indexes END<br>";
 
 
 // ---------------------------------------------------------

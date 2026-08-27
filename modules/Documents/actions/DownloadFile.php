@@ -24,19 +24,38 @@ class Documents_DownloadFile_Action extends Vtiger_Action_Controller {
 		$documentRecordModel = Vtiger_Record_Model::getInstanceById($request->get('record'), $moduleName);
 
 		$mode = $request->get('mode');
+		if ($documentRecordModel->get('filelocationtype') !== 'I'
+				|| !$documentRecordModel->isDownloadAvailable()) {
+			$this->emitFileNotAvailable($moduleName);
+			return;
+		}
 
 		if ($mode === 'preview') {
 			//Preview the File
-			$documentRecordModel->previewFile();
-			//Update the Download Count
-			$documentRecordModel->updateDownloadCount();
-		}
-		else {
+			$fileServed = $documentRecordModel->previewFile();
+			if (!$fileServed) {
+				$this->emitFileNotAvailable($moduleName);
+			}
+			return;
+		} else {
 			//Download the file
-			$documentRecordModel->downloadFile();
-			//Update the Download Count
-			$documentRecordModel->updateDownloadCount();
+			$fileServed = $documentRecordModel->downloadFile();
 		}
+
+		if ($fileServed) {
+			//Update the Download Count only after the file was opened successfully.
+			$documentRecordModel->updateDownloadCount();
+		} else {
+			$this->emitFileNotAvailable($moduleName);
+		}
+	}
+
+	protected function emitFileNotAvailable($moduleName) {
+		if (!headers_sent()) {
+			http_response_code(404);
+			header('Content-Type: text/plain; charset=UTF-8');
+		}
+		echo vtranslate('LBL_FILE_NOT_AVAILABLE', $moduleName);
 	}
 }
 ?>

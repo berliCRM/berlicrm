@@ -21,8 +21,10 @@ class Documents_DetailView_Model extends Vtiger_DetailView_Model {
 
 		$linkModelList = parent::getDetailViewLinks($linkParams);
 		$recordModel = $this->getRecord();
+		$internalFileAvailable = $recordModel->get('filelocationtype') === 'I'
+				&& $recordModel->isDownloadAvailable();
 
-		if ($recordModel->get('filestatus') && $recordModel->get('filename') && $recordModel->get('filelocationtype') === 'I') {
+		if ($internalFileAvailable) {
 			$basicActionLink = array(
 					'linktype' => 'DETAILVIEW',
 					'linklabel' => 'LBL_DOWNLOAD_FILE',
@@ -39,7 +41,7 @@ class Documents_DetailView_Model extends Vtiger_DetailView_Model {
 		);
 		$linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($basicActionLink);
 
-		if ($recordModel->get('filestatus') && $recordModel->get('filename') && $recordModel->get('filelocationtype') === 'I') {
+		if ($internalFileAvailable) {
 			$emailModuleModel = Vtiger_Module_Model::getInstance('Emails');
 
 			if($currentUserModel->hasModulePermission($emailModuleModel->getId())) {

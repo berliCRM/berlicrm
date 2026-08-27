@@ -34,7 +34,7 @@ foreach ($moduleFolders as $moduleFolder) {
             }
             array_pop($packageNameParts);
             $packageName = implode("", $packageNameParts);
-            if ($packageName == 'ModComments' || $packageName == 'Projects' || $packageName == 'MailManager' || $packageName == 'Search') {
+            if ($packageName == 'ModComments' || $packageName == 'Projects' || $packageName == 'MailManager' || $packageName == 'Search' || $packageName == 'ListViewColors') {
                 echo "&nbsp;Update package $packageName START<br>";
                 $packagepath = "$moduleFolder/$file";
                 $package = new Vtiger_Package();
@@ -60,7 +60,14 @@ echo "Add ModComments email metadata fields END...<br>";
 
 echo "Update Packages DONE<br><br>";
 
-
+echo "Update ListView performance indexes START<br>";
+$status = Install_InitSchema_Model::updateListViewIndexes();
+if ($status !== true) {
+    echo "Errors while updating ListView indexes:<pre>";
+    var_dump($status);
+    echo "</pre>";
+}
+echo "Update ListView performance indexes END<br>";
 
 // ---------------------------------------------------------
 // EmailConfigurator installation into Settings

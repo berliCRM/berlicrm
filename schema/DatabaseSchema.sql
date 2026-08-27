@@ -6187,7 +6187,8 @@ CREATE TABLE IF NOT EXISTS `vtiger_notes` (
   `fileversion` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`notesid`),
   KEY `notes_title_idx` (`title`),
-  KEY `notes_notesid_idx` (`notesid`)
+  KEY `notes_notesid_idx` (`notesid`),
+  KEY `notes_folderid_idx` (`folderid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
