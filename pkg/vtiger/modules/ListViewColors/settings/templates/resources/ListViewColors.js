@@ -82,32 +82,29 @@ var Settings_ListViewColors_Js = {
 				progressIndicatorElement.progressIndicator({'mode':'hide'});
 				//register event after DOM is created
 				Settings_ListViewColors_Js.registerRecyclingBinClickEvent();
-				Settings_ListViewColors_Js.initializeColorpickerForFields();
+				Settings_ListViewColors_Js.registerChangeColorEvent();
 			})
 		})
 	},
 	
-	initializeColorpickerForFields : function() {
-		var fieldids = [];
-		 $('[id^=colorSelectorValueid_]').each(function () {
-			fieldids.push('#'+$(this).attr('id'));
-		  });
-		var fields = fieldids.toString(); 
-
-		$(fields).ColorPicker({
-			onSubmit: function(hsb, hex, rgb, el) {
-				var pickListModules = app.getModuleName();
+	registerChangeColorEvent : function() {
+		var container = jQuery('#colorFieldsValuesContainer');
+		var colorFieldSelector = '[id^=colorSelectorValueid_]';
+		container.off('change.listViewColors', colorFieldSelector);
+		container.on('change.listViewColors', colorFieldSelector, function(e) {
+				var colorField = jQuery(e.currentTarget);
+				var selectedColor = colorField.val().toUpperCase();
 				var params = {
 					module : app.getModuleName(),
 					parent : app.getParentModuleName(),
 					source_module : jQuery('#pickListModules').val(),
 					view : 'IndexAjax',
 					mode : 'saveColorValuesForField',
-					selectedColor : '#'+hex,
-					selectedField : $(el).attr('name'),
-					selectedValue : $(el).attr('id'),
-					recordValue : $(el).attr('data-recordvalue')
-				}
+					selectedColor : selectedColor,
+					selectedField : colorField.attr('name'),
+					selectedValue : colorField.attr('id'),
+					recordValue : colorField.attr('data-recordvalue')
+				};
 				var progressIndicatorElement = jQuery.progressIndicator({
 					'position' : 'html',
 					'blockInfo' : {
@@ -116,17 +113,10 @@ var Settings_ListViewColors_Js = {
 				});
 				AppConnector.request(params).then(function(data){
 					progressIndicatorElement.progressIndicator({'mode':'hide'});
-				})
-				$(el).val('#'+hex);
-				$(el).css('backgroundColor', '#'+hex);
-				$(el).ColorPickerHide();
-			},
-			onBeforeShow: function () {
-				$(this).ColorPickerSetColor(this.value);
-			}
-		})
-		.bind('keyup', function(){
-			$(this).ColorPickerSetColor(this.value);
+				}, function() {
+					progressIndicatorElement.progressIndicator({'mode':'hide'});
+			});
+			colorField.css('backgroundColor', selectedColor);
 		});
 	},
 	
@@ -154,7 +144,7 @@ var Settings_ListViewColors_Js = {
 			AppConnector.request(params).then(function(data){
 				progressIndicatorElement.progressIndicator({'mode':'hide'});
 				$('#colorSelectorValueid_'+num).css('background','#FFFFFF');
-				$('#colorSelectorValueid_'+num).val('');
+				$('#colorSelectorValueid_'+num).val('#FFFFFF');
 				$('#colorSelectorValueid_'+num).html('');
 			})
         });
