@@ -201,12 +201,22 @@ class Vtiger_DetailView_Model extends Vtiger_Base_Model {
 
 		$relationModels = $parentModuleModel->getRelations();
 		
-		$parentRecordModel = Vtiger_Record_Model::getInstanceById($recordModel->get('id') ,$parentModuleModel->get('name'));
+		// The current record model is already fully loaded and is exactly the
+		// parent model required by the relation list. Reusing it avoids another
+		// complete record query while building the detail-view tabs.
+		$parentRecordModel = $recordModel;
+		$relationListViewClassName = Vtiger_Loader::getComponentClassName(
+				'Model', 'RelationListView', $parentModuleModel->get('name'));
 
 		foreach($relationModels as $relation) {
 			//TODO : Way to get limited information than getting all the information
 			//crm-now: added the display of record count
-			$relationListView = Vtiger_RelationListView_Model::getInstance($parentRecordModel, $relation->valueMap['modulename'], $relation->valueMap['label']);
+			// getRelations() already returned the exact relation model. Passing its
+			// module and relation directly avoids looking it up again for every tab.
+			$relationListView = new $relationListViewClassName();
+			$relationListView->setRelatedModuleModel($relation->getRelationModuleModel())
+					->setParentRecordModel($parentRecordModel)
+					->setRelationModel($relation);
 			$link = array(
 					'linktype' => 'DETAILVIEWRELATED',
 					'linklabel' => $relation->get('label'),

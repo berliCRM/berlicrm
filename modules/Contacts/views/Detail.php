@@ -19,11 +19,44 @@ class Contacts_Detail_View extends Accounts_Detail_View {
 		$recordId = $request->get('record');
 		$moduleName = $request->getModule();
 
-		$recordModel = Vtiger_Record_Model::getInstanceById($recordId, $moduleName);
+		// preProcess() normally initializes the detail-view model already. Reuse it
+		// here so the complete contact record is not loaded a second time merely
+		// for retrieving its image.
+		if (!$this->record) {
+			$this->record = Vtiger_DetailView_Model::getInstance($moduleName, $recordId);
+		}
+		$recordModel = $this->record->getRecord();
 
 		$viewer = $this->getViewer($request);
 		$viewer->assign('IMAGE_DETAILS', $recordModel->getImageDetails());
 
 		return parent::showModuleDetailView($request);
+	}
+
+	/**
+	 * Render the Contacts summary without building the unused full-detail
+	 * record structure. DetailViewSummaryContents.tpl only consumes the module
+	 * summary and widget/link data assigned below.
+	 */
+	public function showModuleBasicView(Vtiger_Request $request) {
+		$recordId = $request->get('record');
+		$moduleName = $request->getModule();
+
+		if (!$this->record) {
+			$this->record = Vtiger_DetailView_Model::getInstance($moduleName, $recordId);
+		}
+		$recordModel = $this->record->getRecord();
+		$detailViewLinkParams = array('MODULE' => $moduleName, 'RECORD' => $recordId);
+		$detailViewLinks = $this->record->getDetailViewLinks($detailViewLinkParams);
+
+		$viewer = $this->getViewer($request);
+		$viewer->assign('RECORD', $recordModel);
+		$viewer->assign('MODULE_SUMMARY', $this->showModuleSummaryView($request));
+		$viewer->assign('DETAILVIEW_LINKS', $detailViewLinks);
+		$viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
+		$viewer->assign('IS_AJAX_ENABLED', $this->isAjaxEnabled($recordModel));
+		$viewer->assign('MODULE_NAME', $moduleName);
+
+		echo $viewer->view('DetailViewSummaryContents.tpl', $moduleName, true);
 	}
 }
