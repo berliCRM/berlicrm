@@ -13,7 +13,7 @@
 <div class="listViewPageDiv">
     <div class="listViewTopMenuDiv noprint">
         <div class="listViewActionsDiv row-fluid">
-            <span class="btn-toolbar col-md-4">
+            <span class="btn-toolbar span4">
                 <span class="btn-group listViewMassActions">
                     {if count($LISTVIEW_MASSACTIONS) gt 0 || $LISTVIEW_LINKS['LISTVIEW']|@count gt 0}
                         <button class="btn btn-light dropdown-toggle" data-toggle="dropdown"><strong>{vtranslate('LBL_ACTIONS', $MODULE)}</strong>&nbsp;&nbsp;<i class="bi bi-caret-down-fill"></i></button>
@@ -48,8 +48,8 @@
                     </span>
                 {/foreach}
             </span>
-            <span class="btn-toolbar col-md-4">
-                <span class="customFilterMainSpan btn-group">
+            <span class="btn-toolbar span4">
+                <span class="customFilterMainSpan btn-group" style="width:350px;max-width:100%;">
                     {if $CUSTOM_VIEWS|@count gt 0}
                         <select id="customFilter" class="form-select" style="width:350px;">
                             {foreach key=GROUP_LABEL item=GROUP_CUSTOM_VIEWS from=$CUSTOM_VIEWS}
@@ -88,7 +88,7 @@
                 <i title="{vtranslate('LBL_DELETE', $MODULE)}" data-value="delete" class="bi bi-trash-fill align-middle deleteFilter filterActionImage"></i>
                 <i title="{vtranslate('LBL_EDIT', $MODULE)}" data-value="edit" class="bi bi-pencil-fill align-middle editFilter filterActionImage"></i>
             </span>
-            <span class="col-md-4 btn-toolbar">
+            <span class="span4 btn-toolbar">
                 {include file='ListViewActions.tpl'|@vtemplate_path}
             </span>
         </div>
