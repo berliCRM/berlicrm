@@ -120,8 +120,11 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     $sql = "select accountname, buyerreference, account_no, siccode, email1 from  vtiger_account where accountid= ?";
     $acc_result = $adb->pquery($sql, [$focus->column_fields['account_id']]);
     $account_name = decode_html($adb->query_result($acc_result, 0, 'accountname'));
-    $buyer_reference = decode_html($adb->query_result($acc_result, 0, 'buyerreference'));
     $account_no = decode_html($adb->query_result($acc_result, 0, 'account_no'));
+    $buyer_reference = trim(decode_html($adb->query_result($acc_result, 0, 'buyerreference')));
+    if ($buyer_reference == '') {
+        $buyer_reference = $account_no;
+    }    
     $account_email = decode_html($adb->query_result($acc_result, 0, 'email1'));
     $siccode = decode_html($adb->query_result($acc_result, 0, 'siccode'));
 
@@ -655,9 +658,11 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
             $unitPriceNetBT146 = $signMultiplier * (float) sprintf('%.2f', (float)$associated_products[$i]['listPrice' . $i] - $unitDiscountBT147);
 
             $catCode = 'S'; // standard rate
-            if ($thisItemTaxPercent == 0.00) {
+            if ($thisItemTaxPercent == 0.00 && $final_details['taxtype'] != 'group') {
                 $catCode = 'E'; // exempt
-            }
+            } else {
+                $thisItemTaxPercent = $group_total_tax_percent;
+            }            
             // Add position/lineitem to e-invoice
 
             $eInvoiceDocument
