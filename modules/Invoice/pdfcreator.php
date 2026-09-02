@@ -17,6 +17,7 @@ use Symfony\Component\Intl\Countries;
 function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current_id = '')
 {
     global $qr_feature; // hast to be set in config.inc.php
+    global $upload_badext;
 
     // needed for e-invoice extension
     $eInvoice = false;
