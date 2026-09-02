@@ -3,7 +3,7 @@
     "description": "berlicrm project",
     "type": "project",
     "require": {
-	"php": "^8.2",
+	    "php": "^8.2",
         "horstoeko/zugferd": "^1.0",
         "symfony/intl": "^5.4",
         "league/oauth2-client": "*",
@@ -13,6 +13,7 @@
         "phpunit/phpunit": "8.5.52",
         "webklex/php-imap": "*",
         "adodb/adodb-php": "^5.22",
-        "smarty/smarty": "^5.8"
+        "smarty/smarty": "^5.8",
+        "tecnickcom/tcpdf": "^6.8"
     }
 }
