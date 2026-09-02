@@ -105,7 +105,7 @@
 		{/if}
 	</td>
 	<td>
-		<input id="{$qty}" name="{$qty}" type="text" class="qty smallInputBox" data-validation-engine="validate[required,funcCall[Vtiger_GreaterThanZero_Validator_Js.invokeValidation]]" value="{if !empty($data.$qty)}{$data.$qty}{else}1{/if}"/>
+		<input id="{$qty}" name="{$qty}" type="text" class="qty smallInputBox" data-validation-engine="validate[required,funcCall[Inventory_Quantity_Validator_Js.invokeValidation]]" value="{if !empty($data.$qty)}{$data.$qty}{else}1{/if}"/>
 		{if $MODULE neq 'PurchaseOrder' && $entityType neq 'Services'}
 		<br>
 		<span class="stockAlert redColor {if intval($currentStock) > 0}hide{/if}">

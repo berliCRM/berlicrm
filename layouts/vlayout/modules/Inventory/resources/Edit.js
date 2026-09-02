@@ -7,6 +7,27 @@
  * All Rights Reserved.
  *************************************************************************************/
 
+Vtiger_Base_Validator_Js("Inventory_Quantity_Validator_Js", {
+
+	invokeValidation: function(field) {
+		var form = field.closest('form');
+		var invoiceStatus = form.find('[name="invoicestatus"]').val();
+
+		if (app.getModuleName() !== 'Invoice' || invoiceStatus !== 'Credit Invoice') {
+			return Vtiger_GreaterThanZero_Validator_Js.invokeValidation(field);
+		}
+
+		var value = jQuery.trim(field.val());
+		if (isNaN(value)) {
+			return app.vtranslate('JS_CONTAINS_ILLEGAL_CHARACTERS');
+		}
+		if (parseFloat(value) === 0) {
+			return app.vtranslate('JS_VALUE_SHOULD_NOT_BE_ZERO');
+		}
+	}
+
+}, {});
+
 Vtiger_Edit_Js("Inventory_Edit_Js",{
 
 	zeroDiscountType : 'zero' ,

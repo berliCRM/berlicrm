@@ -1013,6 +1013,7 @@ $jsLanguageStrings = array(
     'JS_UPLOADED_FILE_SIZE_SHOULD_BE_LESS_THAN' => 'Die Größe der Datei sollte kleiner sein als',
     'JS_USER_EXISTS' => 'diesen Nutzer gibt es bereit',
     'JS_VALUE_SHOULD_BE_GREATER_THAN_ZERO' => 'Wert sollte größer als Null sein',
+    'JS_VALUE_SHOULD_NOT_BE_ZERO' => 'Wert darf nicht Null sein',
     'JS_VALUE_SHOULD_NOT_BE_LESS_THAN' => 'Die Frequenz eines Cron Jobs sollte immer weniger sein als',
     'JS_YOU_ARE_IN_PAGE_NUMBER' => 'Sie sind auf Seite',
     'JS_YOU_CAN_SELECT_ONLY' => 'Auswahl ist nur für',

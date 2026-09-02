@@ -1013,6 +1013,7 @@ $jsLanguageStrings = array(
     'JS_UPLOADED_FILE_SIZE_SHOULD_BE_LESS_THAN' => 'Upload file size should be fewer than',
     'JS_USER_EXISTS' => 'User Already Exists',
     'JS_VALUE_SHOULD_BE_GREATER_THAN_ZERO' => 'value should be greater than zero',
+    'JS_VALUE_SHOULD_NOT_BE_ZERO' => 'value should not be zero',
     'JS_VALUE_SHOULD_NOT_BE_LESS_THAN' => 'Frequency of any cron job configured should not be fewer than',
     'JS_YOU_ARE_IN_PAGE_NUMBER' => 'You are in page number',
     'JS_YOU_CAN_SELECT_ONLY' => 'You can select only',
