@@ -5,7 +5,7 @@
 	<label>ModTracker</label>
 	<parent></parent>
 	<type>extension</type>
-	<version>1.5</version>
+	<version>1.6</version>
 	<dependencies>
 		<vtiger_version>6.0.0rc</vtiger_version>
 	</dependencies>
@@ -19,7 +19,9 @@
   `whodid` int(20) default NULL,
   `changedon` datetime default NULL,
   `status` int(1) default '0',
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `modtracker_module_id_idx` (`module`,`id`),
+  KEY `modtracker_crmid_id_idx` (`crmid`,`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 <table>
@@ -36,7 +38,8 @@
   `id` int(11) default NULL,
   `fieldname` varchar(100) default NULL,
   `prevalue` text,
-  `postvalue` text
+  `postvalue` text,
+  KEY `modtracker_detail_id_idx` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
 		</table>
 		<table>

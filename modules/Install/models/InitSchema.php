@@ -1530,4 +1530,52 @@ class Install_InitSchema_Model
 
         return empty($ret) ? true : $ret;
     }
+
+	/**
+	 * Add the indexes used by dashboard history queries without relying on a
+	 * specific package installation path. The method is safe to run repeatedly.
+	 *
+	 * @return bool|array
+	 */
+	public static function updateDashboardWidgetIndexes() {
+		global $adb;
+		$errors = array();
+		$indexes = array(
+			array('vtiger_modtracker_basic', 'modtracker_module_id_idx', array('module', 'id')),
+			array('vtiger_modtracker_basic', 'modtracker_crmid_id_idx', array('crmid', 'id')),
+			array('vtiger_modtracker_detail', 'modtracker_detail_id_idx', array('id')),
+			array('vtiger_modcomments', 'modcomments_related_id_idx', array('related_to', 'modcommentsid')),
+		);
+
+		foreach ($indexes as $position => $indexInfo) {
+			list($table, $name, $columns) = $indexInfo;
+			$result = $adb->pquery('SHOW INDEX FROM `' . $table . '`', array());
+			if (!$result) {
+				$errors[$position] = $adb->database->errorMsg();
+				continue;
+			}
+			$existing = array();
+			for ($row = 0; $row < $adb->num_rows($result); $row++) {
+				$key = $adb->query_result($result, $row, 'key_name');
+				$sequence = (int) $adb->query_result($result, $row, 'seq_in_index');
+				$existing[$key][$sequence] = $adb->query_result($result, $row, 'column_name');
+			}
+			$found = false;
+			foreach ($existing as $existingColumns) {
+				ksort($existingColumns);
+				if (array_slice(array_values($existingColumns), 0, count($columns)) === $columns) {
+					$found = true;
+					break;
+				}
+			}
+			if (!$found) {
+				$quotedColumns = array_map(function ($column) { return '`' . $column . '`'; }, $columns);
+				if (!$adb->pquery('ALTER TABLE `' . $table . '` ADD INDEX `' . $name . '` (' . implode(', ', $quotedColumns) . ')', array())) {
+					$errors[$position] = $adb->database->errorMsg();
+				}
+			}
+		}
+
+		return empty($errors) ? true : $errors;
+	}
 }

@@ -18,6 +18,7 @@ class Vtiger_MiniList_Model extends Vtiger_Widget_Model {
 	protected $listviewHeaders;
 	protected $listviewRecords;
 	protected $targetModuleModel;
+	protected static $recordCache = array();
 
 	public function setWidgetModel($widgetModel) {
 		$this->widgetModel = $widgetModel;
@@ -108,13 +109,17 @@ class Vtiger_MiniList_Model extends Vtiger_Widget_Model {
 
 		$this->initListViewController();
 
+		$cacheKey = $this->getTargetModule() . ':' . $this->widgetModel->get('filterid') . ':' . implode(',', $this->getTargetFields());
+		if (isset(self::$recordCache[$cacheKey])) {
+			return self::$recordCache[$cacheKey];
+		}
+
 		if (!$this->listviewRecords) {
 			$db = PearDatabase::getInstance();
 
 			$query = $this->queryGenerator->getQuery();
-			$query .= ' ORDER BY vtiger_crmentity.modifiedtime DESC ';
+			$query .= ' ORDER BY vtiger_crmentity.modifiedtime DESC, vtiger_crmentity.crmid DESC ';
 			$query .= ' LIMIT 0,' . $this->getRecordLimit();
-			$query = str_replace(" FROM ", ",vtiger_crmentity.crmid as id FROM ", $query);
 
 			$result = $db->pquery($query, array());
 
@@ -131,6 +136,7 @@ class Vtiger_MiniList_Model extends Vtiger_Widget_Model {
 				$this->listviewRecords[$id] = $this->getTargetModuleModel()->getRecordFromArray($record, $rawData);
 			}
 		}
+		self::$recordCache[$cacheKey] = $this->listviewRecords;
 
 		return $this->listviewRecords;
 	}

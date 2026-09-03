@@ -965,7 +965,7 @@ class Vtiger_Module_Model extends Vtiger_Module {
 						INNER JOIN vtiger_crmentity crmentity2 ON vtiger_modcomments.related_to = crmentity2.crmid
 							AND crmentity2.deleted = 0 AND crmentity2.setype = ?
 						 '.$nonAdminAccessQuery.'
-						ORDER BY vtiger_crmentity.createdtime DESC LIMIT ?, ?',
+						ORDER BY vtiger_modcomments.modcommentsid DESC LIMIT ?, ?',
 						array($this->getName(), $pagingModel->getStartIndex(), $pagingModel->getPageLimit()));
 
 		for($i=0; $i<$db->num_rows($result); $i++) {
@@ -985,7 +985,7 @@ class Vtiger_Module_Model extends Vtiger_Module {
 	 * @param <String> $type - comments, updates or all
 	 * @return <Array>
 	 */
-	public function getHistory($pagingModel, $type=false) {
+	public function getHistory($pagingModel, $type=false, $beforeId = null) {
 		if(empty($type)) {
 			$type = 'all';
 		}
@@ -1002,23 +1002,36 @@ class Vtiger_Module_Model extends Vtiger_Module {
 		}
 
 		$db = PearDatabase::getInstance();
+		$params = array($this->getName());
+		$cursorCondition = '';
+		if ($type === 'updates' && (int) $beforeId > 0) {
+			$cursorCondition = ' AND vtiger_modtracker_basic.id < ?';
+			$params[] = (int) $beforeId;
+		}
+		$params[] = (int) (($type === 'updates' && (int) $beforeId > 0) ? 0 : $pagingModel->getStartIndex());
+		$params[] = (int) $pagingModel->getPageLimit() + 1;
 		$result = $db->pquery('SELECT vtiger_modtracker_basic.*
 								FROM vtiger_modtracker_basic
 								INNER JOIN vtiger_crmentity ON vtiger_modtracker_basic.crmid = vtiger_crmentity.crmid
 									AND deleted = 0 AND module = ?
-								ORDER BY vtiger_modtracker_basic.id DESC LIMIT ?, ?',
-								array($this->getName(), $pagingModel->getStartIndex(), $pagingModel->getPageLimit()));
+								' . $cursorCondition . '
+								ORDER BY vtiger_modtracker_basic.id DESC LIMIT ?, ?', $params);
 
 		$activites = array();
-		for($i=0; $i<$db->num_rows($result); $i++) {
+		$recordModels = array();
+		$activityRowCount = $db->num_rows($result);
+		$visibleActivityRows = min($activityRowCount, $pagingModel->getPageLimit());
+		for($i=0; $i<$visibleActivityRows; $i++) {
 			$row = $db->query_result_rowdata($result, $i);
 			if(Users_Privileges_Model::isPermitted($row['module'], 'DetailView', $row['crmid'])){
 				$modTrackerRecorModel = new ModTracker_Record_Model();
 				$modTrackerRecorModel->setData($row)->setParent($row['crmid'], $row['module']);
-				$time = $modTrackerRecorModel->get('changedon');
+				$recordModels[] = $modTrackerRecorModel;
+				$time = $modTrackerRecorModel->get('changedon') . '-' . $modTrackerRecorModel->get('id');
 				$activites[$time] = $modTrackerRecorModel;
 			}
 		}
+		ModTracker_Record_Model::preloadDetailsAndRelations($recordModels);
 
 		$history = array_merge($activites, $comments);
 
@@ -1029,8 +1042,15 @@ class Vtiger_Module_Model extends Vtiger_Module {
 
 		if(!empty($history)) {
 			array_multisort($dateTime,SORT_DESC,SORT_STRING,$history);
+			$hasMore = count($history) > $pagingModel->getPageLimit() || $activityRowCount > $pagingModel->getPageLimit();
+			$history = array_slice($history, 0, $pagingModel->getPageLimit());
+			$pagingModel->set('hasMore', $hasMore);
+			if ($type === 'updates' && $visibleActivityRows) {
+				$pagingModel->set('nextCursor', (int) $db->query_result($result, $visibleActivityRows - 1, 'id'));
+			}
 			return $history;
 		}
+		$pagingModel->set('hasMore', false);
 		return false;
 	}
 

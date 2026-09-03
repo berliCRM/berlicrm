@@ -9,6 +9,8 @@
  * *********************************************************************************** */
 
 class ModTracker_Relation_Model extends Vtiger_Record_Model {
+	protected static $linkedRecordCache = array();
+	protected $linkedRecord = null;
 
 	function setParent($parent) {
 		$this->parent = $parent;
@@ -19,10 +21,18 @@ class ModTracker_Relation_Model extends Vtiger_Record_Model {
 	}
 
 	function getLinkedRecord() {
+		if ($this->linkedRecord !== null) {
+			return $this->linkedRecord;
+		}
         $db = PearDatabase::getInstance();
         
 		$targetId = $this->get('targetid');
 		$targetModule = $this->get('targetmodule');
+		$cacheKey = $targetModule . ':' . $targetId;
+		if (array_key_exists($cacheKey, self::$linkedRecordCache)) {
+			$this->linkedRecord = self::$linkedRecordCache[$cacheKey];
+			return $this->linkedRecord;
+		}
         
         $query = 'SELECT * FROM vtiger_crmentity WHERE crmid = ?';
 		$params = array($targetId);
@@ -38,8 +48,12 @@ class ModTracker_Relation_Model extends Vtiger_Record_Model {
 			$recordInstance = new $modelClassName();
 			$recordInstance->setData($row)->setModuleFromInstance($moduleModel);
 			$recordInstance->set('id', $row['crmid']);
-			return $recordInstance;
+			self::$linkedRecordCache[$cacheKey] = $recordInstance;
+			$this->linkedRecord = $recordInstance;
+			return $this->linkedRecord;
 		}
-		return false;
+		self::$linkedRecordCache[$cacheKey] = false;
+		$this->linkedRecord = false;
+		return $this->linkedRecord;
 	}
 }

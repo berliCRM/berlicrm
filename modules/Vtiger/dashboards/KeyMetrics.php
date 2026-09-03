@@ -38,12 +38,18 @@ class Vtiger_KeyMetrics_Dashboard extends Vtiger_IndexAjax_View {
 	// NOTE: Move this function to appropriate model.
 	protected function getKeyMetricsWithCount() {
 		global $current_user, $adb;
+		static $countCache = array();
 		$current_user = Users_Record_Model::getCurrentUserModel();
 		
 		require_once 'modules/CustomView/ListViewTop.php';
 		$metriclists = getMetricList();
 		
 		foreach ($metriclists as $key => $metriclist) {
+			$cacheKey = $metriclist['module'] . ':' . $metriclist['id'];
+			if (isset($countCache[$cacheKey])) {
+				$metriclists[$key]['count'] = $countCache[$cacheKey];
+				continue;
+			}
 			
 			$metricresult = NULL;
 				$queryGenerator = new QueryGenerator($metriclist['module'], $current_user);
@@ -56,7 +62,8 @@ class Vtiger_KeyMetrics_Dashboard extends Vtiger_IndexAjax_View {
 				$metricresult = $adb->query(Vtiger_Functions::mkCountQuery($metricsql));
 			if($metricresult) {
 					$rowcount = $adb->fetch_array($metricresult);
-					$metriclists[$key]['count'] = $rowcount['count'];
+					$countCache[$cacheKey] = (int) $rowcount['count'];
+					$metriclists[$key]['count'] = $countCache[$cacheKey];
 				}
 		}
 		return $metriclists;
