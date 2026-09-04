@@ -979,6 +979,61 @@ class Vtiger_Module_Model extends Vtiger_Module {
 		return $comments;
 	}
 
+	protected function getRecentModuleTrackerRows($pagingModel, $beforeId = null) {
+		$db = PearDatabase::getInstance();
+		$limit = (int) $pagingModel->getPageLimit() + 1;
+		$batchSize = max(50, $limit * 5);
+		$offset = (int) (((int) $beforeId > 0) ? 0 : $pagingModel->getStartIndex());
+		$cursor = (int) $beforeId;
+		$historyRows = array();
+
+		while (count($historyRows) < $limit) {
+			$params = array($this->getName());
+			$cursorCondition = '';
+			if ($cursor > 0) {
+				$cursorCondition = ' AND id < ?';
+				$params[] = $cursor;
+			}
+			$params[] = $offset;
+			$params[] = $batchSize;
+			$result = $db->pquery(
+				'SELECT * FROM vtiger_modtracker_basic FORCE INDEX (modtracker_module_id_idx)' .
+				' WHERE module = ?' . $cursorCondition . ' ORDER BY id DESC LIMIT ?, ?',
+				$params
+			);
+			$rowCount = $db->num_rows($result);
+			if (!$rowCount) break;
+
+			$rows = array();
+			$recordIds = array();
+			for ($i = 0; $i < $rowCount; $i++) {
+				$row = $db->query_result_rowdata($result, $i);
+				$rows[] = $row;
+				$recordIds[(int) $row['crmid']] = (int) $row['crmid'];
+				$cursor = (int) $row['id'];
+			}
+			$activeIds = array();
+			if ($recordIds) {
+				$placeholders = implode(',', array_fill(0, count($recordIds), '?'));
+				$activeResult = $db->pquery('SELECT crmid FROM vtiger_crmentity WHERE deleted = 0 AND crmid IN (' . $placeholders . ')', array_values($recordIds));
+				for ($i = 0; $i < $db->num_rows($activeResult); $i++) {
+					$activeIds[(int) $db->query_result($activeResult, $i, 'crmid')] = true;
+				}
+			}
+			foreach ($rows as $row) {
+				$recordId = (int) $row['crmid'];
+				if (isset($activeIds[$recordId]) && Users_Privileges_Model::isPermitted($row['module'], 'DetailView', $recordId)) {
+					$historyRows[] = $row;
+					if (count($historyRows) >= $limit) break 2;
+				}
+			}
+			if ($rowCount < $batchSize) break;
+			$offset = 0;
+		}
+
+		return $historyRows;
+	}
+
 	/**
 	 * Function returns comments and recent activities across module
 	 * @param <Vtiger_Paging_Model> $pagingModel
@@ -1001,35 +1056,19 @@ class Vtiger_Module_Model extends Vtiger_Module {
 			}
 		}
 
-		$db = PearDatabase::getInstance();
-		$params = array($this->getName());
-		$cursorCondition = '';
-		if ($type === 'updates' && (int) $beforeId > 0) {
-			$cursorCondition = ' AND vtiger_modtracker_basic.id < ?';
-			$params[] = (int) $beforeId;
-		}
-		$params[] = (int) (($type === 'updates' && (int) $beforeId > 0) ? 0 : $pagingModel->getStartIndex());
-		$params[] = (int) $pagingModel->getPageLimit() + 1;
-		$result = $db->pquery('SELECT vtiger_modtracker_basic.*
-								FROM vtiger_modtracker_basic
-								INNER JOIN vtiger_crmentity ON vtiger_modtracker_basic.crmid = vtiger_crmentity.crmid
-									AND deleted = 0 AND module = ?
-								' . $cursorCondition . '
-								ORDER BY vtiger_modtracker_basic.id DESC LIMIT ?, ?', $params);
+		$rows = $this->getRecentModuleTrackerRows($pagingModel, $type === 'updates' ? $beforeId : null);
 
 		$activites = array();
 		$recordModels = array();
-		$activityRowCount = $db->num_rows($result);
+		$activityRowCount = count($rows);
 		$visibleActivityRows = min($activityRowCount, $pagingModel->getPageLimit());
 		for($i=0; $i<$visibleActivityRows; $i++) {
-			$row = $db->query_result_rowdata($result, $i);
-			if(Users_Privileges_Model::isPermitted($row['module'], 'DetailView', $row['crmid'])){
-				$modTrackerRecorModel = new ModTracker_Record_Model();
-				$modTrackerRecorModel->setData($row)->setParent($row['crmid'], $row['module']);
-				$recordModels[] = $modTrackerRecorModel;
-				$time = $modTrackerRecorModel->get('changedon') . '-' . $modTrackerRecorModel->get('id');
-				$activites[$time] = $modTrackerRecorModel;
-			}
+			$row = $rows[$i];
+			$modTrackerRecorModel = new ModTracker_Record_Model();
+			$modTrackerRecorModel->setData($row)->setParent($row['crmid'], $row['module']);
+			$recordModels[] = $modTrackerRecorModel;
+			$time = $modTrackerRecorModel->get('changedon') . '-' . $modTrackerRecorModel->get('id');
+			$activites[$time] = $modTrackerRecorModel;
 		}
 		ModTracker_Record_Model::preloadDetailsAndRelations($recordModels);
 
@@ -1046,7 +1085,7 @@ class Vtiger_Module_Model extends Vtiger_Module {
 			$history = array_slice($history, 0, $pagingModel->getPageLimit());
 			$pagingModel->set('hasMore', $hasMore);
 			if ($type === 'updates' && $visibleActivityRows) {
-				$pagingModel->set('nextCursor', (int) $db->query_result($result, $visibleActivityRows - 1, 'id'));
+				$pagingModel->set('nextCursor', (int) $rows[$visibleActivityRows - 1]['id']);
 			}
 			return $history;
 		}
