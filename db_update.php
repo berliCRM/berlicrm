@@ -235,6 +235,25 @@ function berli_addFields($arrFields) {
     }
 }
 
+// Function to see if primary key exist or not
+function hasPrimaryKey($tableName) {
+    global $adb;
+    $query = "
+        SELECT COUNT(*) AS cnt
+        FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = ?
+          AND CONSTRAINT_TYPE = 'PRIMARY KEY'
+    ";
+    $res = $adb->pquery($query, array($tableName));
+    if ($res && $adb->num_rows($res) > 0) {
+        $cnt = (int)$adb->query_result($res, 0, 'cnt');
+        return ($cnt > 0);
+    }
+    return false;
+}
+
+
 
 $res = $adb->query("SELECT tag_version FROM vtiger_version");
 $installedtag = $adb->query_result($res,0,'tag_version');
@@ -458,7 +477,7 @@ $adb->pquery($query, array());
 echo " set constraint done for vtiger_smsnotifier.<br>";
 
 
-$query = "delete vtiger_smsnotifiercf FROM vtiger_smsnotifiercf
+$query = "DELETE vtiger_smsnotifiercf FROM vtiger_smsnotifiercf
 	LEFT JOIN vtiger_crmentity ON ( vtiger_crmentity.crmid = vtiger_smsnotifiercf.smsnotifierid)
 	WHERE vtiger_smsnotifiercf.smsnotifierid IS NOT NULL
 	AND vtiger_crmentity.crmid IS NULL;";
@@ -468,9 +487,22 @@ $adb->pquery($query, array());
 echo " set constraint done for vtiger_smsnotifiercf.<br>";
 
 echo "add primary key to vtiger_smsnotifier<br>";
-$query = "ALTER TABLE vtiger_smsnotifier ADD PRIMARY KEY(smsnotifierid)";
-$adb->pquery($query, array());
-echo "add primary key done.<br>";
+{
+    if (!hasPrimaryKey('vtiger_smsnotifier')) {
+        $query = "ALTER TABLE vtiger_smsnotifier ADD PRIMARY KEY(smsnotifierid)";
+        $res = $adb->pquery($query, array());
+        if ($res) {
+            echo "add primary key done.<br>";
+        } else {
+            echo "add primary key failed: " . $adb->database->errorMsg() . "<br>";
+        }
+    } else {
+        echo "primary key already exists, skipping.<br>";
+    }
+}
+
+
+
 
 echo "<br>Delete files not needed for new CKeditor version... ";
 require_once('config.inc.php');
@@ -941,6 +973,7 @@ $arrFields = array(
 );
 berli_addFields($arrFields);
 
+
 $fieldName = 'invoicestatus';
 $tableName = 'vtiger_invoice';
 $newValues = ['Mahnstufe 1', 'Mahnstufe 2', 'Mahnstufe 3', 'Mahnstopp'];
@@ -951,19 +984,22 @@ $fieldId = $adb->query_result($result, 0, 'fieldid');
 
 // Get existing max sortorder
 $result = $adb->pquery("SELECT MAX(sortorderid) AS maxsort FROM vtiger_$fieldName", []);
-$sortId = (int) $adb->query_result($result, 0, 'maxsort');
+$sortId = (int)($adb->query_result($result, 0, 'maxsort'));
 
 foreach ($newValues as $value) {
     // Check if value already exists
-    $check = $adb->pquery("SELECT picklist_valueid FROM vtiger_$fieldName WHERE $fieldName = ?", [$value]);
+    $check = $adb->pquery("SELECT invoicestatusid, picklist_valueid FROM vtiger_$fieldName WHERE $fieldName = ?", [$value]);
     if ($adb->num_rows($check) > 0) {
-        echo "Value '$value' already exists, skipping.\n";
+        echo "Value '$value' already exists, skipping.<br>";
         continue;
     }
+
+    // Determine new IDs
     $sortId++;
+
     // get new picklist value ID
     $res = $adb->pquery("SELECT id FROM vtiger_picklistvalues_seq");
-    $picklistValueId = $adb->query_result($res, 0, 'id') + 1;
+    $picklistValueId = (int)($adb->query_result($res, 0, 'id')) + 1;
 
     // Get new invoicestatus ID (internal)
     $res = $adb->pquery("SELECT id FROM vtiger_invoicestatus_seq");
@@ -972,7 +1008,6 @@ foreach ($newValues as $value) {
     echo '<pre>';
     echo "INSERT INTO vtiger_$fieldName (invoicestatusid, $fieldName, sortorderid, presence, picklist_valueid) VALUES ($invoicestatusId, $value, $sortId, 1, $picklistValueId)" . PHP_EOL;
     echo '</pre>';
-
 
     $adb->pquery("INSERT INTO vtiger_$fieldName (invoicestatusid, $fieldName, sortorderid, presence, picklist_valueid) VALUES (?, ?, ?, 1, ?)", [$invoicestatusId, $value, $sortId, $picklistValueId]);
 
@@ -983,25 +1018,42 @@ foreach ($newValues as $value) {
     // $result = $adb->pquery("SELECT picklist_valueid FROM vtiger_$fieldName WHERE $fieldName = ?", [$value]);
     // $picklistValueId = $adb->query_result($result, 0, 'picklist_valueid');
 
-    // Assign to all roles
-    $picklistResult = $adb->pquery("SELECT * FROM vtiger_picklist WHERE name = ?", [$fieldName]);
-
-    // Check if picklist exists, get picklist ID
-    if ($adb->num_rows($picklistResult) > 0) {
-        $picklistid = $adb->query_result($picklistResult, 0, 'picklistid');
-        echo "Picklist '$fieldName' exists with ID '$picklistid'.\n";
-    } else {
-        echo "Picklist '$fieldName' does not exist, skipping assignment. num_rows=" . $adb->num_rows($picklistResult) . "\n";
-        continue; // Skip if picklist does not exist
+    // Get picklist ID
+    $picklistResult = $adb->pquery("SELECT picklistid FROM vtiger_picklist WHERE name = ?", [$fieldName]);
+    if ($adb->num_rows($picklistResult) == 0) {
+        echo "Picklist '$fieldName' does not exist, skipping assignment.<br>";
+        continue;
     }
 
+    $picklistid = $adb->query_result($picklistResult, 0, 'picklistid');
+    echo "Picklist '$fieldName' exists with ID '$picklistid'.<br>";
+
+    // Assign to all roles (idempotent)
     $roles = $adb->pquery("SELECT roleid FROM vtiger_role", []);
     for ($i = 0; $i < $adb->num_rows($roles); $i++) {
         $roleId = $adb->query_result($roles, $i, 'roleid');
-        $adb->pquery("INSERT INTO vtiger_role2picklist (roleid, picklistvalueid, picklistid) VALUES (?, ?, ?)", [$roleId, $picklistValueId, $picklistid]);
-        printf("Assigned picklist value '%s' to role '%s' for picklist wiht id '%s'.\n", $picklistValueId, $roleId, $picklistid);
+
+        // Check if assignment already exists
+        $checkRole = $adb->pquery(
+            "SELECT 1 FROM vtiger_role2picklist WHERE roleid = ? AND picklistvalueid = ? AND picklistid = ?",
+            [$roleId, $picklistValueId, $picklistid]
+        );
+
+        if ($adb->num_rows($checkRole) == 0) {
+            $adb->pquery(
+                "INSERT INTO vtiger_role2picklist (roleid, picklistvalueid, picklistid)
+                 VALUES (?, ?, ?)",
+                [$roleId, $picklistValueId, $picklistid]
+            );
+
+            echo "Assigned picklist value $picklistValueId to role $roleId for picklist id $picklistid.<br>";
+        } else {
+            echo "Role $roleId already assigned to picklist value $picklistValueId, skipping.<br>";
+        }
     }
+
 }
+
 
 function isComposerUsed(string $projectPath = __DIR__): bool
 {
@@ -1273,7 +1325,10 @@ echo "Install_InitSchema_Model::alterTables() END<br>";
 // EmailConfigurator installation into Settings
 // ---------------------------------------------------------
 echo "Install Email Configurator into Settings START<br>";
-{
+// Check if EmailConfigurator already exists
+$checked = $adb->pquery( "SELECT fieldid FROM vtiger_settings_field WHERE vtiger_settings_field.name = 'LBL_EMAILCONFIGURATOR'", [] );
+if ($adb->num_rows($checked) == 0) {
+
     // Retrieve the current maximum fieldid from vtiger_settings_field
     $sql0 = "SELECT MAX(fieldid) AS max_fieldid FROM vtiger_settings_field";
     $params0 = array();
@@ -1341,10 +1396,19 @@ echo "Install Email Configurator into Settings START<br>";
         // (005) Initialize sequence table with starting value
         // ---------------------------------------------------------
         echo "(005) Insert initial sequence value into crmnow_emailconfig_seq ...<br>";
+        // Check if sequence table already has a row
+        $seqCheck = $adb->pquery("SELECT COUNT(*) AS cnt FROM crmnow_emailconfig_seq", []);
+        $seqCount = (int)$adb->query_result($seqCheck, 0, 'cnt');
 
-        $sql5 = "INSERT INTO `crmnow_emailconfig_seq` (`id`) VALUES (?)";
-        $params5 = array(0);
-        $res5 = $adb->pquery($sql5, $params5);
+        if ($seqCount == 0) {
+            // Insert initial sequence value only once
+            $sql5 = "INSERT INTO crmnow_emailconfig_seq (id) VALUES (?)";
+            $params5 = array(0);
+            $res5 = $adb->pquery($sql5, $params5);
+            echo "Sequence initialized.<br>";
+        } else {
+            echo "Sequence already initialized, skipping.<br>";
+        }
 
     }
 }
@@ -1357,11 +1421,6 @@ berli_updateAllModules();
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
 $adb->pquery($query, array($current_release_tag));
 echo "<h2>Finished updating to $current_release_tag!</h2>";
-
-
-
-
-
 
 
 
