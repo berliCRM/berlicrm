@@ -116,15 +116,35 @@ class Vtiger_MiniList_Model extends Vtiger_Widget_Model {
 
 		if (!$this->listviewRecords) {
 			$db = PearDatabase::getInstance();
+			$targetModuleName = $this->getTargetModule();
+			$targetModuleFocus = CRMEntity::getInstance($targetModuleName);
 
 			$query = $this->queryGenerator->getQuery();
-			$query .= ' ORDER BY vtiger_crmentity.modifiedtime DESC, vtiger_crmentity.crmid DESC ';
+			$hasFilterConditions = count($this->queryGenerator->getWhereFields()) > 0;
+			$query = preg_replace('/^\s*SELECT\s+/i', 'SELECT STRAIGHT_JOIN ', $query, 1);
+			$query = preg_replace(
+				'/\b(INNER\s+JOIN|LEFT\s+JOIN)\s+vtiger_crmentity\b(?!\s+FORCE\s+INDEX)/i',
+				'$1 vtiger_crmentity FORCE INDEX (`PRIMARY`)',
+				$query,
+				1
+			);
+
+			if (!$hasFilterConditions && !empty($targetModuleFocus->table_name) && !empty($targetModuleFocus->table_index)) {
+				$baseTable = $targetModuleFocus->table_name;
+				$baseTableIndex = $targetModuleFocus->table_index;
+				$query = preg_replace(
+					'/\bFROM\s+' . preg_quote($baseTable, '/') . '\b/i',
+					'FROM ' . $baseTable . ' FORCE INDEX (`PRIMARY`)',
+					$query,
+					1
+				);
+				$query .= ' ORDER BY ' . $baseTable . '.' . $baseTableIndex . ' DESC ';
+			} else {
+				$query .= ' ORDER BY vtiger_crmentity.modifiedtime DESC, vtiger_crmentity.crmid DESC ';
+			}
 			$query .= ' LIMIT 0,' . $this->getRecordLimit();
 
 			$result = $db->pquery($query, array());
-
-			$targetModuleName = $this->getTargetModule();
-			$targetModuleFocus= CRMEntity::getInstance($targetModuleName);
 
 			$entries = $this->listviewController->getListViewRecords($targetModuleFocus,$targetModuleName,$result);
 
