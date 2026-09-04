@@ -16,6 +16,226 @@ require_once 'vtigerversion.php';
 ini_set('display_errors','on'); error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 global $adb;
 
+// Function to start updates of all Modules.
+function berli_updateAllModules() {
+    echo "<br>Updating all modules automatically...<br>";
+
+    $moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
+
+    foreach ($moduleFolders as $moduleFolder) {
+        if ($handle = opendir($moduleFolder)) {
+            while (false != ($file = readdir($handle))) {
+
+                // only zip files
+                $parts = explode('.', $file);
+                if (end($parts) !== 'zip') {
+                    continue;
+                }
+
+                array_pop($parts);
+                //$zipName = implode('', $parts);
+
+                $packagepath = "$moduleFolder/$file";
+                $package = new Vtiger_Package();
+                $moduleName = $package->getModuleNameFromZip($packagepath);
+
+                if ($moduleName) {
+                    echo "<br>Auto-update for module: {$moduleName}<br>";
+                    berli_updateModuleByName($moduleName);
+                }
+            }
+            closedir($handle);
+        }
+    }
+
+    echo "<br>Finished automatic module updates.<br>";
+}
+
+// Function to update a module
+function berli_updateModuleByName($moduleName) {
+    $moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
+    $found = false;
+
+    foreach ($moduleFolders as $moduleFolder) {
+        if ($handle = opendir($moduleFolder)) {
+            while (false != ($file = readdir($handle))) {
+
+                // only ZIP-file 
+                $parts = explode('.', $file);
+                if (end($parts) !== 'zip') {
+                    continue;
+                }
+
+                array_pop($parts);
+                $packageName = implode('', $parts);
+
+                // ZIP-filename must be Modulname
+                if ($packageName != $moduleName) {
+                    continue;
+                }
+
+                $found = true;
+
+                $packagepath = "$moduleFolder/$file";
+                $package = new Vtiger_Package();
+                $module = $package->getModuleNameFromZip($packagepath);
+
+                if ($module != null) {
+                    $moduleInstance = Vtiger_Module::getInstance($module);
+
+                    echo "<br>Updating module {$moduleName}... ";
+
+                    if ($moduleInstance) {
+                        updateVtlibModule($module, $packagepath);
+                    } else {
+                        installVtlibModule($module, $packagepath);
+                    }
+
+                    echo "done<br>";
+                }
+            }
+            closedir($handle);
+        }
+    }
+
+    if (!$found) {
+        echo "<br>No package found for module {$moduleName}<br>";
+    }
+}
+
+// Function to add normal fields (and blocks)
+function berli_addFields($arrFields) {
+    global $adb;
+
+    foreach ($arrFields as $moduleName => $blocks) {
+
+        echo "<br>Start adding fields for module: $moduleName<br>";
+
+        $moduleInstance = Vtiger_Module::getInstance($moduleName);
+        if (!$moduleInstance) {
+            echo "Module $moduleName not found, skipping.<br>";
+            continue;
+        }
+
+        foreach ($blocks as $blockName => $fieldInfos) {
+
+            echo "Processing block: $blockName<br>";
+
+            // Block create or find and update
+            $blockInstance = Vtiger_Block::getInstance($blockName, $moduleInstance);
+            if (!$blockInstance) {
+                $blockInstance = new Vtiger_Block();
+                $blockInstance->label = $blockName;
+                $moduleInstance->addBlock($blockInstance);
+                echo "Created new block: $blockName<br>";
+            }
+
+            foreach ($fieldInfos as $fieldInfo) {
+
+                // fieldInfo structure:
+                // [0] label
+                // [1] columnname
+                // [2] typeofdata
+                // [3] uitype
+                // [4] columntype
+                // [5] picklistValues OR related modules (array)
+                // [6] helpinfo (optional)
+
+                list($label, $name, $typeofdata, $uitype, $columntype) = $fieldInfo;
+                $extra = isset($fieldInfo[5]) ? $fieldInfo[5] : null;
+                $helpinfo = isset($fieldInfo[6]) ? $fieldInfo[6] : null;
+
+                $fieldObj = Vtiger_Field::getInstance($name, $moduleInstance);
+
+                if ($fieldObj) {
+                    echo "Field '$name' already exists in $moduleName, skipping.<br>";
+                    continue;
+                }
+
+                echo "Adding field '$name' ($label) to $moduleName...<br>";
+
+                // new fields create
+                $fieldObj = new Vtiger_Field();
+                $fieldObj->name = $name;
+                $fieldObj->label = $label;
+                $fieldObj->table = $moduleInstance->basetable;
+                $fieldObj->typeofdata = $typeofdata;
+                $fieldObj->uitype = $uitype;
+                $fieldObj->columntype = $columntype;
+                $fieldObj->info_type = 'BAS';
+                $fieldObj->displaytype = '1';
+                $fieldObj->generatedtype = '2';
+
+                if (!empty($helpinfo)) {
+                    $fieldObj->helpinfo = $helpinfo;
+                }
+
+                // Picklist values set
+                if (($uitype == 15 || $uitype == 16 || $uitype == 33) && is_array($extra)) {
+                    $fieldObj->setPicklistValues($extra);
+                }
+
+                // add field to Block 
+                $blockInstance->addField($fieldObj);
+
+                // -------------------------
+                // uitype 10 → Relation
+                // -------------------------
+                if ($uitype == 10 && is_array($extra)) {
+
+                    foreach ($extra as $relModuleName) {
+
+                        $query = "SELECT * FROM vtiger_fieldmodulerel WHERE fieldid = ? AND relmodule = ?";
+                        $res = $adb->pquery($query, array($fieldObj->id, $relModuleName));
+
+                        if ($adb->num_rows($res) == 0) {
+                            $adb->pquery(
+                                "INSERT INTO vtiger_fieldmodulerel VALUES(?, ?, ?, ?, ?)",
+                                array($fieldObj->id, $moduleName, $relModuleName, NULL, NULL)
+                            );
+
+                            $relInstance = Vtiger_Module::getInstance($relModuleName);
+                            if ($relInstance) {
+                                $relInstance->setRelatedList($moduleInstance, $moduleName, array('ADD'), 'get_dependents_list');
+                            }
+                        }
+                    }
+
+                    // Index für Relation-Feld
+                    $adb->pquery("ALTER TABLE `{$fieldObj->table}` ADD INDEX (`{$fieldObj->name}`)", array());
+                }
+
+                // -------------------------
+                // uitype 13 → Emails
+                // -------------------------
+                elseif ($uitype == 13) {
+
+                    $query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?";
+                    $res = $adb->pquery($query, array($moduleInstance->getId(), getTabId('Emails')));
+
+                    if ($adb->num_rows($res) == 0) {
+                        $relInstance = Vtiger_Module::getInstance('Emails');
+                        $moduleInstance->setRelatedList($relInstance, 'Emails', array('ADD'), 'get_emails');
+                    }
+                }
+
+                // -------------------------
+                // uitype 56 → Checkbox default
+                // -------------------------
+                elseif ($uitype == 56) {
+                    $adb->pquery(
+                        "UPDATE {$fieldObj->table} SET {$fieldObj->name} = 0 WHERE {$fieldObj->name} IS NULL",
+                        array()
+                    );
+                }
+
+                echo "Field '$name' added successfully.<br>";
+            }
+        }
+    }
+}
+
+
 $res = $adb->query("SELECT tag_version FROM vtiger_version");
 $installedtag = $adb->query_result($res,0,'tag_version');
 if ($installedtag == $current_release_tag) {
@@ -23,14 +243,15 @@ if ($installedtag == $current_release_tag) {
 }
 
 echo "<h1>Updating from $installedtag to $current_release_tag..</h1>";
-
-echo "Remove special UI types of salutation and name fields in leads and contacts...";
-$query = "UPDATE vtiger_field SET uitype = '15', displaytype = 1, summaryfield = 1 WHERE columnname = 'salutation'";
-$adb->pquery($query, array());
-$query = "UPDATE vtiger_field SET uitype = '1' WHERE columnname = 'firstname'";
-$adb->pquery($query, array());
-$query = "UPDATE vtiger_field SET uitype = '2' WHERE columnname = 'lastname'";
-$adb->pquery($query, array());
+{
+    echo "Remove special UI types of salutation and name fields in leads and contacts...";
+    $query = "UPDATE vtiger_field SET uitype = '15', displaytype = 1, summaryfield = 1 WHERE columnname = 'salutation'";
+    $adb->pquery($query, array());
+    $query = "UPDATE vtiger_field SET uitype = '1' WHERE columnname = 'firstname'";
+    $adb->pquery($query, array());
+    $query = "UPDATE vtiger_field SET uitype = '2' WHERE columnname = 'lastname'";
+    $adb->pquery($query, array());
+}
 echo " done<br>";
 
 
@@ -102,8 +323,6 @@ if ($adb->num_rows($res) > 0) {
 else {
 	echo "update_product_relations already exists<br>";
 }
-
-
 
 
 // check existance (for migrated clients)
@@ -305,49 +524,6 @@ $query = "DELETE FROM `vtiger_ws_entity` WHERE `vtiger_ws_entity`.`name` = 'berl
 $adb->pquery($query, array());
 echo "uitype change done.<br>";
 
-//Update modules
-echo 'Updating modules where applicable...<ul>';
-$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-foreach($moduleFolders as $moduleFolder) {
-	if ($handle = opendir($moduleFolder)) {
-		while (false !== ($file = readdir($handle))) {
-			$packageNameParts = explode(".",$file);
-			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-				continue;
-			}
-			array_pop($packageNameParts);
-			$packageName = implode("",$packageNameParts);
-			$packagepath = "$moduleFolder/$file";
-			$package = new Vtiger_Package();
-			$module = $package->getModuleNameFromZip($packagepath);
-			if($module != null) {
-				$moduleInstance = Vtiger_Module::getInstance($module);
-				$oldver = $moduleInstance->version;
-				if ($oldver) {
-					echo "<li>Found v{$moduleInstance->version} of $module... ";
-					if($moduleInstance) {
-						try {
-							updateVtlibModule($module, $packagepath);
-							$moduleInstance = Vtiger_Module::getInstance($module);
-							if ($moduleInstance->version != $oldver) {
-								echo "<b>successfully updated to v{$moduleInstance->version}</b>.";
-							}
-							else {
-								echo "no update required";
-							}
-						} catch (Exception $e) {
-							echo "Exception while updating: ",  $e->getMessage();
-						}
-					}
-					echo "</li>";
-				}
-			}
-		}
-		closedir($handle);
-	}
-}
-echo '</ul>Finished updating modules.<br>';
-
 
 $module = Vtiger_Module::getInstance('Vendors');
 if($module) {
@@ -388,37 +564,6 @@ for($i=0;$i<$num_rows;$i++) {
 create_tab_data_file();
 create_parenttab_data_file();
 
-echo 'module berliSoftphones update start<br>';
-//update berliSoftphones module
-$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-foreach($moduleFolders as $moduleFolder) {
-	if ($handle = opendir($moduleFolder)) {
-		while (false !== ($file = readdir($handle))) {
-			$packageNameParts = explode(".",$file);
-			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-				continue;
-			}
-			array_pop($packageNameParts);
-			$packageName = implode("",$packageNameParts);
-			if ($packageName =='berliSoftphones') {
-				$packagepath = "$moduleFolder/$file";
-				$package = new Vtiger_Package();
-				$module = $package->getModuleNameFromZip($packagepath);
-				if($module != null) {
-					$moduleInstance = Vtiger_Module::getInstance($module);
-					if($moduleInstance) {
-						updateVtlibModule($module, $packagepath);
-					} 
-					else {
-						installVtlibModule($module, $packagepath);
-					}
-				}
-			}
-		}
-		closedir($handle);
-	}
-}
-echo 'module update berliSoftphones done <br>';
 
 if (version_compare($installedtag, $current_release_tag) < 0) {
 	echo 'Add INDEX to vtiger_email_track<br>';
@@ -540,6 +685,7 @@ echo "increase done.<br>";
 
 // Module tabid update //get all tabids for module berliCleverReach, Mailchimp
 $arrModule = array('berliCleverReach', 'Mailchimp');
+
 foreach($arrModule as $ModuleName){
 	$moduleToUpdate = $ModuleName;
 	if( Vtiger_Module::getInstance($moduleToUpdate) ){
@@ -549,6 +695,7 @@ foreach($arrModule as $ModuleName){
 		$result = $adb->pquery($query, array($moduleToUpdate));
 		$numOfRows = $adb->num_rows($result);
 		
+        $tabidarr = [];
 		for ($i=0; $i<$numOfRows; $i++) {
 			$tabidarr[] = $adb->query_result($result, $i, "tabid");
 		}
@@ -601,48 +748,7 @@ else{
 	echo "Vendors to Services DB relation and increase allready exist. Done.<br>";
 }
 
-// module update standard if module exist.
-$moduleToUpdateArr = array('Pdfsettings', 'Projects', 'EmailTemplates', 'berlimap', 'MailManager', 
-	'Mailchimp', 'SMSNotifier', 'crmtogo', 'ServiceContracts', 'ModComments', 'berliWidgets', 'Search'
-);
-foreach($moduleToUpdateArr as $moduleToUpdate){
-	if( Vtiger_Module::getInstance($moduleToUpdate) ){
-		// if we are here, then the Module exist. And we can update.
-		echo '<br>module '.$moduleToUpdate.' update start<br>'; 
-		$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-		foreach($moduleFolders as $moduleFolder) {
-			if ($handle = opendir($moduleFolder)) {
-				while (false !== ($file = readdir($handle))) {
-					$packageNameParts = explode(".",$file);
-					if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-						continue;
-					}
-					array_pop($packageNameParts);
-					$packageName = implode("",$packageNameParts);
-					if ($packageName == $moduleToUpdate) { 
-						$packagepath = "$moduleFolder/$file";
-						$package = new Vtiger_Package();
-						$module = $package->getModuleNameFromZip($packagepath);
-						if($module != null) {
-							$moduleInstance = Vtiger_Module::getInstance($module);
-							if($moduleInstance) {
-								updateVtlibModule($module, $packagepath);
-							} 
-							else {
-								installVtlibModule($module, $packagepath);
-							}
-						}
-					}
-				}
-				closedir($handle);
-			}
-		}
-		echo '<br>module update '.$moduleToCheck.' done <br>';  
-	}else{
-		// This module does not exist.
 
-	}
-}
 
 //  for db create new table for email tracking   add email tracking to send function. Was last changed on 2025.03.24 tag 101
 echo "new table for email tracking<br>";
@@ -663,69 +769,6 @@ if(!$res) {
 }
 echo "done new table for email tracking <br>";
 
-// added Google module update
-echo '<br>module Google update start<br>';
-$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-foreach($moduleFolders as $moduleFolder) {
-	if ($handle = opendir($moduleFolder)) {
-		while (false !== ($file = readdir($handle))) {
-			$packageNameParts = explode(".",$file);
-			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-				continue;
-			}
-			array_pop($packageNameParts);
-			$packageName = implode("",$packageNameParts);
-			if ($packageName =='Google') {
-				$packagepath = "$moduleFolder/$file";
-				$package = new Vtiger_Package();
-				$module = $package->getModuleNameFromZip($packagepath);
-				if($module != null) {
-					$moduleInstance = Vtiger_Module::getInstance($module);
-					if($moduleInstance) {
-						updateVtlibModule($module, $packagepath);
-					} 
-					else {
-						installVtlibModule($module, $packagepath);
-					}
-				}
-			}
-		}
-		closedir($handle);
-	}
-}
-echo '<br>module Google done <br>';
-
-//update crmtogo module
-echo '<br>module crmtogo update start<br>';
-$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-foreach($moduleFolders as $moduleFolder) {
-	if ($handle = opendir($moduleFolder)) {
-		while (false !== ($file = readdir($handle))) {
-			$packageNameParts = explode(".",$file);
-			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-				continue;
-			}
-			array_pop($packageNameParts);
-			$packageName = implode("",$packageNameParts);
-			if ($packageName =='crmtogo') {
-				$packagepath = "$moduleFolder/$file";
-				$package = new Vtiger_Package();
-				$module = $package->getModuleNameFromZip($packagepath);
-				if($module != null) {
-					$moduleInstance = Vtiger_Module::getInstance($module);
-					if($moduleInstance) {
-						updateVtlibModule($module, $packagepath);
-					} 
-					else {
-						installVtlibModule($module, $packagepath);
-					}
-				}
-			}
-		}
-		closedir($handle);
-	}
-}
-echo '<br>module crmtogo done <br>';
 
 // add recurring frequency
 $queryCheck = "SELECT 1 FROM `vtiger_recurring_frequency` WHERE `recurring_frequency` = ?";
@@ -790,136 +833,8 @@ if ($adb->num_rows($checkRes) === 0) {
 echo "14 days payment interval done<br>";
 
 
-echo '<br>module Projects update start<br>';
-//update Projects module
-$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-foreach($moduleFolders as $moduleFolder) {
-	if ($handle = opendir($moduleFolder)) {
-		while (false !== ($file = readdir($handle))) {
-			$packageNameParts = explode(".",$file);
-			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-				continue;
-			}
-			array_pop($packageNameParts);
-			$packageName = implode("",$packageNameParts);
-			if ($packageName =='Projects') {
-				$packagepath = "$moduleFolder/$file";
-				$package = new Vtiger_Package();
-				$module = $package->getModuleNameFromZip($packagepath);
-				if($module != null) {
-					$moduleInstance = Vtiger_Module::getInstance($module);
-					if($moduleInstance) {
-						updateVtlibModule($module, $packagepath);
-					} 
-					else {
-						installVtlibModule($module, $packagepath);
-					}
-				}
-			}
-		}
-		closedir($handle);
-	}
-}
-echo '<br>module update Projects done <br>';
 
-
-echo '<br>module berlimap update start<br>';
-//update berlimap module
-$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-foreach($moduleFolders as $moduleFolder) {
-	if ($handle = opendir($moduleFolder)) {
-		while (false !== ($file = readdir($handle))) {
-			$packageNameParts = explode(".",$file);
-			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-				continue;
-			}
-			array_pop($packageNameParts);
-			$packageName = implode("",$packageNameParts);
-			if ($packageName =='berlimap') {
-				$packagepath = "$moduleFolder/$file";
-				$package = new Vtiger_Package();
-				$module = $package->getModuleNameFromZip($packagepath);
-				if($module != null) {
-					$moduleInstance = Vtiger_Module::getInstance($module);
-					if($moduleInstance) {
-						updateVtlibModule($module, $packagepath);
-					} 
-					else {
-						installVtlibModule($module, $packagepath);
-					}
-				}
-			}
-		}
-		closedir($handle);
-	}
-}
-echo '<br>module update berlimap done <br>';
-
-echo '<br>module Verteiler update start<br>';
-//update Verteiler module
-$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-foreach($moduleFolders as $moduleFolder) {
-	if ($handle = opendir($moduleFolder)) {
-		while (false !== ($file = readdir($handle))) {
-			$packageNameParts = explode(".",$file);
-			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-				continue;
-			}
-			array_pop($packageNameParts);
-			$packageName = implode("",$packageNameParts);
-			if ($packageName =='Verteiler') {
-				$packagepath = "$moduleFolder/$file";
-				$package = new Vtiger_Package();
-				$module = $package->getModuleNameFromZip($packagepath);
-				if($module != null) {
-					$moduleInstance = Vtiger_Module::getInstance($module);
-					if(false) {
-						updateVtlibModule($module, $packagepath);
-					} 
-					else {
-						installVtlibModule($module, $packagepath);
-					}
-				}
-			}
-		}
-		closedir($handle);
-	}
-}
-echo '<br>module update Verteiler done <br>';
-
-echo '<br>module Import update start<br>';
-//update Verteiler module
-$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-foreach($moduleFolders as $moduleFolder) {
-	if ($handle = opendir($moduleFolder)) {
-		while (false !== ($file = readdir($handle))) {
-			$packageNameParts = explode(".",$file);
-			if($packageNameParts[count($packageNameParts)-1] != 'zip'){
-				continue;
-			}
-			array_pop($packageNameParts);
-			$packageName = implode("",$packageNameParts);
-			if ($packageName =='Import') {
-				$packagepath = "$moduleFolder/$file";
-				$package = new Vtiger_Package();
-				$module = $package->getModuleNameFromZip($packagepath);
-				if($module != null) {
-					$moduleInstance = Vtiger_Module::getInstance($module);
-					if(false) {
-						updateVtlibModule($module, $packagepath);
-					} 
-					else {
-						installVtlibModule($module, $packagepath);
-					}
-				}
-			}
-		}
-		closedir($handle);
-	}
-}
-echo '<br>module update Import done <br>';
-
-echo '<br>module Toolwidget update start<br>';
+echo '<br>module Toolwidget update started<br>';
 
 function checkAndAddLink($moduleName, $label, $url) {
     global $adb;
@@ -967,34 +882,6 @@ function deleteOldLinks($moduleName, $correctUrlPattern) {
 $correctContactsUrl = 'module=ToolWidgets&view=showCopyPasteData&mode=showEntries&source_module=Contacts&viewtype=detail';
 $correctAccountsUrl = 'module=ToolWidgets&view=showCopyPasteData&mode=showEntries&source_module=Accounts&viewtype=detail';
 
-// Update Toolwidget module
-$moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-foreach ($moduleFolders as $moduleFolder) {
-    if ($handle = opendir($moduleFolder)) {
-        while (false !== ($file = readdir($handle))) {
-            $packageNameParts = explode(".", $file);
-            if ($packageNameParts[count($packageNameParts) - 1] != 'zip') {
-                continue;
-            }
-            array_pop($packageNameParts);
-            $packageName = implode("", $packageNameParts);
-            if ($packageName == 'ToolWidgets' || $packageName == 'RecycleBin') {
-                $packagepath = "$moduleFolder/$file";
-                $package = new Vtiger_Package();
-                $module = $package->getModuleNameFromZip($packagepath);
-                if ($module != null) {
-                    $moduleInstance = Vtiger_Module::getInstance($module);
-                    if (false) {
-                        updateVtlibModule($module, $packagepath);
-                    } else {
-                        installVtlibModule($module, $packagepath);
-                    }
-                }
-            }
-        }
-        closedir($handle);
-    }
-}
 
 // check and add links
 checkAndAddLink('Contacts', 'LBL_COPY_CONTACTDETAILS', 'module=ToolWidgets&view=showCopyPasteData&mode=showEntries&source_module=Contacts&viewtype=detail');
@@ -1037,9 +924,8 @@ $result = $adb->pquery($query, array());
 echo "<br>vtiger_schedulereports table updated successfully<br>";
 
 
-// ######################################################## Adding extra fields for eInvoice ... Rev.25134
-echo "start";
-
+// Adding extra fields for eInvoice ... Rev.25134
+echo "Start Adding extra fields for eInvoice";
 $arrFields = array(
     'Accounts' => array(
         'LBL_CUSTOM_INFORMATION' => array(
@@ -1051,105 +937,9 @@ $arrFields = array(
             // array('Statusdatum', 'statusdate', 'D~O', 5, 'DATE', '', 'Datum des letzten Status, nicht ändern, wird vom automatischen Mahnwesen verwendet.'), // Datum
             array('Lieferdatum', 'deliveryperiod', 'D~O', 5, 'DATE', '', 'Lieferdatum, wird für E-Rechnung verwendet'), // Datum
         )
-
-        //'27' => array(
-        //      array('Kunde', 'kundenid', 'V~O', 10, 'VARCHAR(100)', 'Kunden')//, // Bezugsfeld
-        //),
-
     )
 );
-
-foreach ($arrFields as $moduleName => $blocks) {
-    echo "Start $moduleName...<br>";
-    $moduleInstance = Vtiger_Module::getInstance($moduleName);
-    if (!$moduleInstance) {
-        die("$moduleName no instance");
-    }
-
-    echo "first step $moduleName...<br>";
-
-    foreach ($blocks as $blockName => $fieldInfos) {
-
-
-        echo "BLOCKs..<br>";
-
-        $blockInstance = Vtiger_Block::getInstance($blockName, $moduleInstance);
-
-        if (!$blockInstance) {
-            // die ("\"$blockName\" no block instance found");
-
-            //// to create new block
-            $blockInstance = new Vtiger_Block();
-            $blockInstance->label = $blockName;
-            $moduleInstance->addBlock($blockInstance);
-
-        } else {
-            // if we need to del the BLOCK:
-            //$blockInstance->delete();
-            //echo "The Block: \"$blockName\" is deleted! from Module \"$moduleName\" ..<br>";
-            // die ("The Block: \"$blockName\" is deleted! from Module \"$moduleName\" ");
-        }
-
-        echo "foreachs..<br>";
-
-        foreach ($fieldInfos as $fieldInfo) {
-            $fieldObj = Vtiger_Field::getInstance($fieldInfo[1], $moduleInstance);
-
-
-            if (!$fieldObj) {
-
-                echo "Adding $moduleName field {$fieldInfo[0]}...<br>";
-                $fieldObj = new Vtiger_Field();
-                $fieldObj->name = $fieldInfo[1];
-                $fieldObj->label = $fieldInfo[0];
-                $fieldObj->table = $moduleInstance->basetable;
-                $fieldObj->typeofdata = $fieldInfo[2];
-                $fieldObj->uitype = $fieldInfo[3];
-                $fieldObj->columntype = $fieldInfo[4];
-                $fieldObj->info_type = 'BAS';
-                $fieldObj->displaytype = '1';
-                if (!empty($fieldInfo[6])) {
-                    $fieldObj->helpinfo = $fieldInfo[6];
-                }
-
-                if (($fieldInfo[3] == 16 || $fieldInfo[3] == 33) && !empty($fieldInfo[5])) {
-                    $fieldObj->setPicklistValues($fieldInfo[5]);
-                }
-
-                $blockInstance->addField($fieldObj);
-
-                if ($fieldInfo[3] == 10 && isset($fieldInfo[5])) {
-                    $query = "SELECT * FROM vtiger_fieldmodulerel WHERE fieldid = ?;";
-                    $res = $adb->pquery($query, array($fieldObj->id));
-
-                    echo "fieldid " . ($fieldObj->id) . "...<br>";
-
-
-                    if ($adb->num_rows($res) == 0) {
-                        $query = "INSERT INTO vtiger_fieldmodulerel VALUES(?, ?, ?, ?, ?);";
-                        $adb->pquery($query, array($fieldObj->id, $moduleName, $fieldInfo[5], null, null));
-                        $relInstance = Vtiger_Module::getInstance($fieldInfo[5]);
-                        $relInstance->setRelatedList($moduleInstance, $moduleName, array('ADD'), 'get_dependents_list');
-                    }
-                } elseif ($fieldInfo[3] == 13) {
-                    $query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
-                    $res = $adb->pquery($query, array($moduleInstance->getId(), getTabId('Emails')));
-
-                    if ($adb->num_rows($res) == 0) {
-                        $relInstance = Vtiger_Module::getInstance('Emails');
-                        $moduleInstance->setRelatedList($relInstance, 'Emails', array('ADD'), 'get_emails');
-                    }
-                }
-
-            } else {
-                echo "fieldObj: \"$fieldInfo[0]\" exist !  ..<br>";
-                //$fieldObj->delete();
-                //echo "fieldObj delete   ..<br>";
-            }
-        }
-    }
-}
-
+berli_addFields($arrFields);
 
 $fieldName = 'invoicestatus';
 $tableName = 'vtiger_invoice';
@@ -1213,6 +1003,14 @@ foreach ($newValues as $value) {
     }
 }
 
+function isComposerUsed(string $projectPath = __DIR__): bool
+{
+    $composerJson = $projectPath . DIRECTORY_SEPARATOR . 'composer.json';
+    $composerLock = $projectPath . DIRECTORY_SEPARATOR . 'composer.lock';
+
+    return file_exists($composerJson) && file_exists($composerLock);
+}
+
 if (isComposerUsed('../..')) {
     echo '<pre>Composer config found, try to update project ...</pre>';
     putenv("COMPOSER_HOME=../..");
@@ -1250,7 +1048,6 @@ if (isComposerUsed('../..')) {
 
 
 $tagDir = basename(__DIR__);
-
 if (strpos($tagDir, '1.0') === 0) {
     $newTag = 'berlicrm-'. $tagDir;
 } elseif (strpos($tagDir, '25.4') === 0) {
@@ -1258,233 +1055,77 @@ if (strpos($tagDir, '1.0') === 0) {
 } else {
     $newTag = 'unknown-'. $tagDir;
 }
+echo "end basename";
 
-function isComposerUsed(string $projectPath = __DIR__): bool
-{
-    $composerJson = $projectPath . DIRECTORY_SEPARATOR . 'composer.json';
-    $composerLock = $projectPath . DIRECTORY_SEPARATOR . 'composer.lock';
-
-    return file_exists($composerJson) && file_exists($composerLock);
-}
-
-echo "end";
 
 echo 'Adding UITypes for new fields<br>';
 require_once('modules/Install/models/InitSchema.php');
 Install_InitSchema_Model::addUITypes();
 
 //// Rev 25666 von 2025.11.26
-echo 'Adding Fields...<br>';#
-$arrFields = array(
-    // for HelpDesk
-    'HelpDesk' => array(
-        'LBL_TICKET_INFORMATION' => array(
-            array('Owner', 'ticketowner', 'V~O', 'crmnow15', 'VARCHAR(100)', '', 'Der Prozessverantwortliche des Tickets.')
+echo 'Adding Fields for HelpDesk crmnow15 ...<br>';
+{
+    $arrFields = array(
+        // for HelpDesk
+        'HelpDesk' => array(
+            'LBL_TICKET_INFORMATION' => array(
+                array('Owner', 'ticketowner', 'V~O', 'crmnow15', 'VARCHAR(100)', '', 'Der Prozessverantwortliche des Tickets.')
+            )
         )
-    )
-);
+    );
 
-foreach ($arrFields as $moduleName => $blocks) {
-    echo "Start $moduleName...<br>";
-    $moduleInstance = Vtiger_Module::getInstance($moduleName);
-    if (!$moduleInstance) {
-        die("$moduleName no instance");
-    }
-
-    echo "first step $moduleName...<br>";
-
-    foreach ($blocks as $blockName => $fieldInfos) {
-
-
-        echo "BLOCKs..<br>";
-
-        $blockInstance = Vtiger_Block::getInstance($blockName, $moduleInstance);
-
-        if (!$blockInstance) {
-            // die ("\"$blockName\" no block instance found");
-
-            //// to create new block
-            $blockInstance = new Vtiger_Block();
-            $blockInstance->label = $blockName;
-            $moduleInstance->addBlock($blockInstance);
-
-        } else {
-            // if we need to del the BLOCK:
-            //$blockInstance->delete();
-            //echo "The Block: \"$blockName\" is deleted! from Module \"$moduleName\" ..<br>";
-            // die ("The Block: \"$blockName\" is deleted! from Module \"$moduleName\" ");
-        }
-
-        echo "foreachs..<br>";
-
-        foreach ($fieldInfos as $fieldInfo) {
-            $fieldObj = Vtiger_Field::getInstance($fieldInfo[1], $moduleInstance);
-
-
-            if (!$fieldObj) {
-
-                echo "Adding $moduleName field {$fieldInfo[0]}...<br>";
-                $fieldObj = new Vtiger_Field();
-                $fieldObj->name = $fieldInfo[1];
-                $fieldObj->label = $fieldInfo[0];
-                $fieldObj->table = $moduleInstance->basetable;
-                $fieldObj->typeofdata = $fieldInfo[2];
-                $fieldObj->uitype = $fieldInfo[3];
-                $fieldObj->columntype = $fieldInfo[4];
-                $fieldObj->info_type = 'BAS';
-                $fieldObj->displaytype = '1';
-                if (!empty($fieldInfo[6])) {
-                    $fieldObj->helpinfo = $fieldInfo[6];
-                }
-
-                if (($fieldInfo[3] == 16 || $fieldInfo[3] == 33) && !empty($fieldInfo[5])) {
-                    $fieldObj->setPicklistValues($fieldInfo[5]);
-                }
-
-                $blockInstance->addField($fieldObj);
-
-                if ($fieldInfo[3] == 10 && isset($fieldInfo[5])) {
-                    $query = "SELECT * FROM vtiger_fieldmodulerel WHERE fieldid = ?;";
-                    $res = $adb->pquery($query, array($fieldObj->id));
-
-                    echo "fieldid " . ($fieldObj->id) . "...<br>";
-
-
-                    if ($adb->num_rows($res) == 0) {
-                        $query = "INSERT INTO vtiger_fieldmodulerel VALUES(?, ?, ?, ?, ?);";
-                        $adb->pquery($query, array($fieldObj->id, $moduleName, $fieldInfo[5], null, null));
-                        $relInstance = Vtiger_Module::getInstance($fieldInfo[5]);
-                        $relInstance->setRelatedList($moduleInstance, $moduleName, array('ADD'), 'get_dependents_list');
-                    }
-                } elseif ($fieldInfo[3] == 13) {
-                    $query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
-                    $res = $adb->pquery($query, array($moduleInstance->getId(), getTabId('Emails')));
-
-                    if ($adb->num_rows($res) == 0) {
-                        $relInstance = Vtiger_Module::getInstance('Emails');
-                        $moduleInstance->setRelatedList($relInstance, 'Emails', array('ADD'), 'get_emails');
-                    }
-                }
-
-            } else {
-                echo "fieldObj: \"$fieldInfo[0]\" exist !  ..<br>";
-                //$fieldObj->delete();
-                //echo "fieldObj delete   ..<br>";
-            }
-        }
-    }
+    berli_addFields($arrFields);
 }
-echo "Fields added.<br><br>";
+echo "Fields for HelpDesk added.<br><br>";
 
-// ######################################################## Adding extra fields for eInvoice ... 
+//  Adding extra fields for eInvoice ... 
 echo 'Adding new RelatedLists... START<br>';
 Install_InitSchema_Model::addNewRelatedLists();
 echo 'Adding new RelatedLists... DONE<br>';
 
 echo "<br>Add new column to vtiger_modcommentsscope START...";
-//first check if the column already exists
-$query = "SELECT COUNT(*) AS cnt
-    FROM INFORMATION_SCHEMA.COLUMNS
-    WHERE TABLE_NAME = ?
-	AND COLUMN_NAME = ?;";
-$result = $adb->pquery($query, array("vtiger_modcommentsscope", "timeneeded"));
-try {
-    $cnt = (int)$adb->query_result($result, 0, 'cnt');
-    if ($cnt > 0) {
-        echo "<br>column already exists";
-    } else {
-        $query = "ALTER TABLE `vtiger_modcommentsscope`
-                    ADD COLUMN `timeneeded` time DEFAULT NULL";
-        $adb->pquery($query, array());
+{
+    //first check if the column already exists
+    $query = "SELECT COUNT(*) AS cnt
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = ?
+        AND COLUMN_NAME = ?;";
+    $result = $adb->pquery($query, array("vtiger_modcommentsscope", "timeneeded"));
+    try {
+        $cnt = (int)$adb->query_result($result, 0, 'cnt');
+        if ($cnt > 0) {
+            echo "<br>column already exists";
+        } else {
+            $query = "ALTER TABLE `vtiger_modcommentsscope`
+                        ADD COLUMN `timeneeded` time DEFAULT NULL";
+            $adb->pquery($query, array());
+        }
+    } catch (Exception $e) {
+        echo "<br>Failed adding new column to vtiger_modcommentsscope";
     }
-} catch (Exception $e) {
-    echo "<br>Failed adding new column to vtiger_modcommentsscope";
 }
 echo "<br>Add new column to vtiger_modcommentsscope DONE...";
 
-//  'LBL_USER_ADV_OPTIONS' => 'erweiterte Optionen',
+
 echo "Add new Field to Modul: Users, Block: ('LBL_USER_ADV_OPTIONS' ) 'erweiterte Optionen' ...<br>";
-$arrFields = array(
-    'Users' => array(
-        'LBL_USER_ADV_OPTIONS' => array( 
-            array('LBL_SSO_UNIQUE_ID' ,'sso_unique_id' ,'V~O' ,1 ,'VARCHAR(255)'   ),
+{
+    //  'LBL_USER_ADV_OPTIONS' => 'erweiterte Optionen',
+    $arrFields = array(
+        'Users' => array(
+            'LBL_USER_ADV_OPTIONS' => array( 
+                array('LBL_SSO_UNIQUE_ID' ,'sso_unique_id' ,'V~O' ,1 ,'VARCHAR(255)'   ),
+            )
         )
-    )
-);
+    );
 
-foreach ($arrFields as $moduleName => $blocks) {
-    $moduleInstance = Vtiger_Module::getInstance($moduleName);
-    if (!$moduleInstance) {
-        die("$moduleName no instance");
-    }
+    berli_addFields($arrFields);
 
-    foreach ($blocks as $blockName => $fieldInfos) {
-        $blockInstance = Vtiger_Block::getInstance($blockName, $moduleInstance);
-
-        if (!$blockInstance) {
-            // create new block
-            $blockInstance = new Vtiger_Block();
-            $blockInstance->label = $blockName;
-            $moduleInstance->addBlock($blockInstance);
-
-        } else {
-            // if need to del the BLOCK:
-            // $blockInstance->delete();
-        }
-
-        foreach ($fieldInfos as $fieldInfo) {
-            $fieldObj = Vtiger_Field::getInstance($fieldInfo[1], $moduleInstance);
-            if (!$fieldObj) {
-                $fieldObj = new Vtiger_Field();
-                $fieldObj->name = $fieldInfo[1];
-                $fieldObj->label = $fieldInfo[0];
-                $fieldObj->table = $moduleInstance->basetable;
-                $fieldObj->typeofdata = $fieldInfo[2];
-                $fieldObj->uitype = $fieldInfo[3];
-                $fieldObj->columntype = $fieldInfo[4];
-                $fieldObj->info_type = 'BAS';
-                $fieldObj->displaytype = '1';
-                if (!empty($fieldInfo[6])) {
-                    $fieldObj->helpinfo = $fieldInfo[6];
-                }
-
-                if (($fieldInfo[3] == 16 || $fieldInfo[3] == 33) && !empty($fieldInfo[5])) {
-                    $fieldObj->setPicklistValues($fieldInfo[5]);
-                }
-
-                $blockInstance->addField($fieldObj);
-
-                if ($fieldInfo[3] == 10 && isset($fieldInfo[5])) {
-                    $query = "SELECT * FROM vtiger_fieldmodulerel WHERE fieldid = ?;";
-                    $res = $adb->pquery($query, array($fieldObj->id));
-
-                    if ($adb->num_rows($res) == 0) {
-                        $query = "INSERT INTO vtiger_fieldmodulerel VALUES(?, ?, ?, ?, ?);";
-                        $adb->pquery($query, array($fieldObj->id, $moduleName, $fieldInfo[5], null, null));
-                        $relInstance = Vtiger_Module::getInstance($fieldInfo[5]);
-                        $relInstance->setRelatedList($moduleInstance, $moduleName, array('ADD'), 'get_dependents_list');
-                    }
-                } elseif ($fieldInfo[3] == 13) {
-                    $query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
-                    $res = $adb->pquery($query, array($moduleInstance->getId(), getTabId('Emails')));
-
-                    if ($adb->num_rows($res) == 0) {
-                        $relInstance = Vtiger_Module::getInstance('Emails');
-                        $moduleInstance->setRelatedList($relInstance, 'Emails', array('ADD'), 'get_emails');
-                    }
-                }
-
-            } else {
-                // $fieldObj->delete();
-            }
-        }
-    }
+    // need set the sequence to 2 to set it right from accesskey in the block. (But in Object we have no set sequence, no variable of it.)
+    echo "<br>set sequence of 'sso_unique_id'. ";
+    $query = "UPDATE `vtiger_field` SET `sequence` = '2' WHERE `vtiger_field`.`columnname` = 'sso_unique_id' ";
+    $adb->pquery($query, array());
+    echo " set sequence of 'sso_unique_id' to 2 done.<br>";
 }
-// need set the sequence to 2 to set it right from accesskey in the block. (But in Object we have no set sequence, no variable of it.)
-echo "<br>set sequence of 'sso_unique_id'. ";
-$query = "UPDATE `vtiger_field` SET `sequence` = '2' WHERE `vtiger_field`.`columnname` = 'sso_unique_id' ";
-$adb->pquery($query, array());
-echo " set sequence of 'sso_unique_id' to 2 done.<br>";
 echo "Add new Field to Modul: Users, Block: ('LBL_USER_ADV_OPTIONS' ) END ...<br>";
 
 
@@ -1709,9 +1350,21 @@ echo "Install Email Configurator into Settings START<br>";
 }
 echo "Install Email Configurator into Settings END<br>";
 
+///////////////////////////////////////////////////////////////////////////
+// on the End, we set update of Version Nummer and updates of all Modules:
+berli_updateAllModules();
 
 $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
 $adb->pquery($query, array($current_release_tag));
 echo "<h2>Finished updating to $current_release_tag!</h2>";
+
+
+
+
+
+
+
+
+
 
 
