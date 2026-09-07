@@ -34,7 +34,7 @@ foreach ($moduleFolders as $moduleFolder) {
             }
             array_pop($packageNameParts);
             $packageName = implode("", $packageNameParts);
-            if ($packageName == 'ModComments' || $packageName == 'Projects' || $packageName == 'MailManager' || $packageName == 'Search' || $packageName == 'ListViewColors') {
+            if ($packageName == 'ModComments' || $packageName == 'ModTracker' || $packageName == 'Projects' || $packageName == 'MailManager' || $packageName == 'Search' || $packageName == 'ListViewColors') {
                 echo "&nbsp;Update package $packageName START<br>";
                 $packagepath = "$moduleFolder/$file";
                 $package = new Vtiger_Package();
@@ -68,6 +68,15 @@ if ($status !== true) {
     echo "</pre>";
 }
 echo "Update ListView performance indexes END<br>";
+
+echo "Update dashboard performance indexes START<br>";
+$status = Install_InitSchema_Model::updateDashboardWidgetIndexes();
+if ($status !== true) {
+    echo "Errors while updating dashboard indexes:<pre>";
+    var_dump($status);
+    echo "</pre>";
+}
+echo "Update dashboard performance indexes END<br>";
 
 // ---------------------------------------------------------
 // EmailConfigurator installation into Settings

@@ -275,6 +275,10 @@ Vtiger_Widget_Js('Vtiger_History_Widget_Js', {}, {
 
 		var loadMoreHandler = contentContainer.find('.load-more');
 		loadMoreHandler.click(function(){
+			if (loadMoreHandler.data('loading')) {
+				return;
+			}
+			loadMoreHandler.data('loading', true);
 			var parent = thisInstance.getContainer();
 			var element = parent.find('a[name="drefresh"]');
 			var url = element.data('url');
@@ -300,7 +304,11 @@ Vtiger_Widget_Js('Vtiger_History_Widget_Js', {}, {
 			}
 
 			// Next page.
+			if(typeof params == 'string') {
+				params = { url: url, data: {}};
+			}
 			params.data['page'] = loadMoreHandler.data('nextpage');
+			params.data['cursor'] = loadMoreHandler.data('nextcursor');
 
 			var refreshContainer = parent.find('.refresh');
 			refreshContainer.progressIndicator({
@@ -312,6 +320,7 @@ Vtiger_Widget_Js('Vtiger_History_Widget_Js', {}, {
 				thisInstance.registerLoadMore();
 			}, function(){
 				refreshContainer.progressIndicator({'mode': 'hide'});
+				loadMoreHandler.data('loading', false);
 			});
 		});
 	}
