@@ -159,6 +159,11 @@ echo "Install Email Configurator into Settings START<br>";
 }
 echo "Install Email Configurator into Settings END<br>";
 
+echo "<br>Adding menu point for backup.";
+require_once 'modules/Settings/Vtiger/models/Backup.php';
+Settings_Vtiger_Backup_Model::install();
+echo "<br>Adding menu point for backup DONE.";
+
 echo "<br>update Tag version to 47.. ";
 $query = "UPDATE `vtiger_version` SET `tag_version` = 'berlicrm-1.1.0.1'";
 $adb->pquery($query, array());
