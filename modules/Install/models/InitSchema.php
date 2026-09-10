@@ -737,6 +737,8 @@ class Install_InitSchema_Model
     public static function setCRMNOWmodifications()
     {
         global $adb;
+        require_once 'modules/Settings/Vtiger/models/Backup.php';
+        Settings_Vtiger_Backup_Model::install();
         $path = Install_Utils_Model::INSTALL_LOG;
         file_put_contents($path, "[".date('Y-m-d h:i:s')."] Include Webservice Utils, get AdoDB instance\n", FILE_APPEND);
         vimport('~~include/Webservices/Utils.php');
