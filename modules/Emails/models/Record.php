@@ -132,6 +132,15 @@ class Emails_Record_Model extends Vtiger_Record_Model {
      */
     public function send() {
         $currentUserModel = Users_Record_Model::getCurrentUserModel();
+		// if there is no user (e.g. password reset) use admin and revert later
+		if (empty($currentUserModel->getId())) {
+			global $current_user;
+			$current_user = Users::getActiveAdminUser();
+			$currentUserModel = Users_Record_Model::getCurrentUserModel();
+			$changedUser = true;
+		} else {
+			$changedUser = false;
+		}
         $rootDirectory =  vglobal('root_directory');
         // add slash should it be missing
         if (substr($rootDirectory, -1) != '/') {
@@ -192,8 +201,16 @@ class Emails_Record_Model extends Vtiger_Record_Model {
         }
 
         // To eliminate the empty value of an array
-        $toEmailInfo = array_filter((array)$this->get('toemailinfo'));
-        $toMailNamesList = array_filter((array)$this->get('toMailNamesList'));
+        if (is_array($this->get('toemailinfo'))) {
+			$toEmailInfo = array_filter($this->get('toemailinfo'));
+		} else {
+			$toEmailInfo = [];
+		}
+		if (is_array($this->get('toMailNamesList'))) {
+			$toMailNamesList = array_filter($this->get('toMailNamesList'));
+		} else {
+			$toMailNamesList = [];
+		}
         foreach($toMailNamesList as $id => $emailData){
             foreach($emailData as $key => $email){
                 if($toEmailInfo[$id]){
@@ -377,6 +394,9 @@ class Emails_Record_Model extends Vtiger_Record_Model {
                 $db->pquery($mtQuery, array(NULL, $subject, $allReveivers, $cDT, $currentUserModel->getId(), $id, $errorMsg, $messageId));
             }
         }
+		if ($changedUser) {
+			unset($current_user);
+		}
         return $status;
     }
 
