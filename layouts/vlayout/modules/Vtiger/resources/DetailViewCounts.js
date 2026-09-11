@@ -10,6 +10,77 @@
 (function($) {
 	'use strict';
 
+	var countsCompleteEvent = 'vtigerDetailViewCountsComplete';
+	var deferredWidgetLoads = {};
+
+	function hasUnfinishedRelatedCounts() {
+		var unfinished = false;
+		$('.detailViewContainer .detailViewInfo > .related').each(function() {
+			var sidebar = $(this);
+			if (sidebar.attr('data-related-counts-complete') !== '1' &&
+					(sidebar.attr('data-related-counts-requested') === '1' ||
+					sidebar.find(
+							'.detailViewRelatedCount[data-count-pending="1"]').length)) {
+				unfinished = true;
+				return false;
+			}
+		});
+		return unfinished;
+	}
+
+	function runOrDeferWidgetLoad(loadKey, callback) {
+		if (!hasUnfinishedRelatedCounts()) {
+			return callback();
+		}
+
+		// Only the newest call of each loader is relevant if AJAX navigation
+		// replaces the detail contents before the count request has completed.
+		deferredWidgetLoads[loadKey] = callback;
+	}
+
+	function flushDeferredWidgetLoads() {
+		if (hasUnfinishedRelatedCounts()) {
+			return;
+		}
+
+		var widgetLoads = deferredWidgetLoads;
+		deferredWidgetLoads = {};
+		$.each(widgetLoads, function(loadKey, callback) {
+			callback();
+		});
+	}
+
+	function deferWidgetLoader(owner, methodName, loadKey) {
+		if (!owner || typeof owner[methodName] !== 'function' ||
+				owner[methodName].waitsForDetailViewCounts) {
+			return;
+		}
+
+		var originalMethod = owner[methodName];
+		var deferredMethod = function() {
+			var context = this;
+			var args = arguments;
+			return runOrDeferWidgetLoad(loadKey, function() {
+				return originalMethod.apply(context, args);
+			});
+		};
+		deferredMethod.waitsForDetailViewCounts = true;
+		owner[methodName] = deferredMethod;
+	}
+
+	function deferInitialWidgetLoads() {
+		// Sidebar widgets and summary/detail widgets have separate loaders. Gate
+		// both globally so every module gives the cheaper badge request priority.
+		if (typeof Vtiger_Index_Js !== 'undefined') {
+			deferWidgetLoader(
+					Vtiger_Index_Js, 'loadWidgetsOnLoad', 'sidebarWidgets');
+		}
+		if (typeof Vtiger_Detail_Js !== 'undefined') {
+			deferWidgetLoader(
+					Vtiger_Detail_Js.prototype, 'loadWidgets', 'detailWidgets');
+		}
+	}
+
 	function getRecordId(sidebar) {
 		return sidebar.attr('data-record-id');
 	}
@@ -58,15 +129,38 @@
 		}
 	}
 
+	function finishCounts(sidebar) {
+		if (sidebar && sidebar.length) {
+			sidebar.attr('data-related-counts-complete', '1');
+		}
+		$(document).trigger(countsCompleteEvent, [sidebar]);
+
+		// Let the freshly inserted badges become visible before the widget
+		// requests start competing for browser and server resources.
+		afterFirstPaint(flushDeferredWidgetLoads);
+	}
+
 	function scheduleCounts(detailViewContainer) {
 		var sidebar = detailViewContainer.find('.detailViewInfo > .related').first();
+		if (!sidebar.length) {
+			finishCounts(sidebar);
+			return;
+		}
+
 		var pendingCounts = sidebar.find(
 				'.detailViewRelatedCount[data-count-pending="1"]');
 		var recordId = getRecordId(sidebar);
 		var moduleName = sidebar.attr('data-module-name');
 
-		if (!sidebar.length || !pendingCounts.length || !recordId || !moduleName ||
-				sidebar.attr('data-related-counts-requested') === '1') {
+		if (!pendingCounts.length) {
+			finishCounts(sidebar);
+			return;
+		}
+		if (sidebar.attr('data-related-counts-requested') === '1') {
+			return;
+		}
+		if (!recordId || !moduleName) {
+			finishCounts(sidebar);
 			return;
 		}
 
@@ -83,43 +177,60 @@
 				'[data-count-kind="comments"]').length > 0;
 
 		if (!relationIds.length && !includeComments) {
+			finishCounts(sidebar);
 			return;
 		}
 
-		sidebar.attr('data-related-counts-requested', '1');
+		sidebar.attr({
+			'data-related-counts-requested': '1',
+			'data-related-counts-complete': '0'
+		});
 		afterFirstPaint(function() {
 			if (!isCurrentDetailView(
 					detailViewContainer, sidebar, moduleName, recordId)) {
+				finishCounts(sidebar);
 				return;
 			}
 
-			AppConnector.request({
-				module: moduleName,
-				action: 'DetailViewCounts',
-				record: recordId,
-				relation_ids: JSON.stringify(relationIds),
-				include_comments: includeComments ? 1 : 0
-			}).then(function(data) {
-				if (!data || !data.result ||
-						String(data.result.module) !== String(moduleName) ||
-						String(data.result.record) !== String(recordId) ||
-						!isCurrentDetailView(
-								detailViewContainer, sidebar, moduleName, recordId)) {
-					return;
-				}
+			try {
+				var countRequest = AppConnector.request({
+					module: moduleName,
+					action: 'DetailViewCounts',
+					record: recordId,
+					relation_ids: JSON.stringify(relationIds),
+					include_comments: includeComments ? 1 : 0
+				});
+				countRequest.then(function(data) {
+					try {
+						if (!data || !data.result ||
+								String(data.result.module) !== String(moduleName) ||
+								String(data.result.record) !== String(recordId) ||
+								!isCurrentDetailView(
+										detailViewContainer, sidebar, moduleName, recordId)) {
+							return;
+						}
 
-				if (data.result.comments !== null &&
-						typeof data.result.comments !== 'undefined') {
-					updateCount(sidebar, 'comments', null, data.result.comments);
-				}
+						if (data.result.comments !== null &&
+								typeof data.result.comments !== 'undefined') {
+							updateCount(sidebar, 'comments', null, data.result.comments);
+						}
 
-				if ($.isArray(data.result.relations)) {
-					$.each(data.result.relations, function(index, relationCount) {
-						updateCount(sidebar, 'relation', relationCount.relationId,
-								relationCount.count);
-					});
-				}
-			});
+						if ($.isArray(data.result.relations)) {
+							$.each(data.result.relations, function(index, relationCount) {
+								updateCount(sidebar, 'relation', relationCount.relationId,
+										relationCount.count);
+							});
+						}
+					} finally {
+						finishCounts(sidebar);
+					}
+				}, function() {
+					finishCounts(sidebar);
+				});
+			} catch (error) {
+				// A failed optional badge request must never keep widgets blocked.
+				finishCounts(sidebar);
+			}
 		});
 	}
 
@@ -128,6 +239,8 @@
 			scheduleCounts($(this));
 		});
 	}
+
+	deferInitialWidgetLoads();
 
 	$(function() {
 		scanDetailViews();
