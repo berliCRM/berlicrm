@@ -16,13 +16,15 @@ class RecycleBin_ListAjax_View extends RecycleBin_List_View {
 		$this->exposeMethod('getRecordsCount');
 	}
 
-	function preProcess(Vtiger_Request $request, $display = true):void {
+	public function preProcess (Vtiger_Request $request, bool $display=true): void {
+		return;
 	}
 
-	function postProcess(Vtiger_Request $request):void {
+	public function postProcess(Vtiger_Request $request): void {
+		return;
 	}
 
-	function process(Vtiger_Request $request):void {
+	function process(Vtiger_Request $request) {
 		$mode = $request->get('mode');
 		if(!empty($mode)) {
 			$this->invokeExposedMethod($mode, $request);
