@@ -201,16 +201,8 @@ class Emails_Record_Model extends Vtiger_Record_Model {
         }
 
         // To eliminate the empty value of an array
-        if (is_array($this->get('toemailinfo'))) {
-			$toEmailInfo = array_filter($this->get('toemailinfo'));
-		} else {
-			$toEmailInfo = [];
-		}
-		if (is_array($this->get('toMailNamesList'))) {
-			$toMailNamesList = array_filter($this->get('toMailNamesList'));
-		} else {
-			$toMailNamesList = [];
-		}
+        $toEmailInfo = array_filter((array)$this->get('toemailinfo'));
+        $toMailNamesList = array_filter((array)$this->get('toMailNamesList'));
         foreach($toMailNamesList as $id => $emailData){
             foreach($emailData as $key => $email){
                 if($toEmailInfo[$id]){
