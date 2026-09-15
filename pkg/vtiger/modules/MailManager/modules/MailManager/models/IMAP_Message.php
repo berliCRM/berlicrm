@@ -67,7 +67,7 @@ class MailManager_IMAPMessage_Model extends Vtiger_MailRecord  {
 	 * Parse header of the email.
 	 * @access private
 	 */
-	function __parseHeader($message) {
+	function __parseHeader($message, $messageid = '') {
 		$this->_from = Array();
 		$this->_to = Array();
 
@@ -96,7 +96,7 @@ class MailManager_IMAPMessage_Model extends Vtiger_MailRecord  {
 		}
 	}
 	
-	function __parseBody($message) {
+	function __parseBody($message, $messageid = '') {
 		$this->_plainmessage = '';
 		$this->_htmlmessage = '';
 		$this->_body = '';
