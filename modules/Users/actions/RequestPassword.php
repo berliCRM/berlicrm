@@ -24,8 +24,10 @@ require_once 'modules/Vtiger/helpers/ShortURL.php';
 
 class Users_RequestPassword_Action{
     public function process($request) {
-        global $adb;
+        global $adb, $default_language;
         $adb = PearDatabase::getInstance();
+		
+		$lang = $default_language;
 
         if (isset($request['user_name']) && isset($request['emailId'])) {
             $username = vtlib_purify($request['user_name']);
