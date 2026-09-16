@@ -189,7 +189,7 @@ class Reports_Detail_View extends Vtiger_Index_View {
         $viewer->assign('COUNT', $this->count);
 		$viewer->assign('MODULE', $moduleName);
         $viewer->assign('REPORT_RUN_INSTANCE', ReportRun::getInstance($record));
-		if (count($data) > self::REPORT_LIMIT) {
+		if (count((array) $data) > self::REPORT_LIMIT) {
 			$viewer->assign('LIMIT_EXCEEDED', true);
 		}
 
