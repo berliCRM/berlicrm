@@ -397,18 +397,22 @@ class Emails_Record_Model extends Vtiger_Record_Model {
      * @return <String> - from email address
      */
     function getFromEmailAddress() {
-        $db = PearDatabase::getInstance();
-        $currentUserModel = Users_Record_Model::getCurrentUserModel();
+		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'Save' && isset($_REQUEST['server'])) {
+			$fromEmail = $_REQUEST['from_email_field'];
+		} else {
+			$db = PearDatabase::getInstance();
+			$currentUserModel = Users_Record_Model::getCurrentUserModel();
 
-        $fromEmail = false;
-        $result = $db->pquery('SELECT from_email_field FROM vtiger_systems WHERE server_type=?', array('email'));
-        if ($db->num_rows($result)) {
-            $fromEmail = decode_html($db->query_result($result, 0, 'from_email_field'));
-        }
-        if (isset($this->fromAddress) && !empty($this->fromAddress) && empty($fromEmail)) {
-            $fromEmail = $this->fromAddress;
-        }
-        if (empty($fromEmail)) $fromEmail = $currentUserModel->get('email1');
+			$fromEmail = false;
+			$result = $db->pquery('SELECT from_email_field FROM vtiger_systems WHERE server_type=?', array('email'));
+			if ($db->num_rows($result)) {
+				$fromEmail = decode_html($db->query_result($result, 0, 'from_email_field'));
+			}
+			if (isset($this->fromAddress) && !empty($this->fromAddress) && empty($fromEmail)) {
+				$fromEmail = $this->fromAddress;
+			}
+			if (empty($fromEmail)) $fromEmail = $currentUserModel->get('email1');
+		}
         return $fromEmail;
     }
 
