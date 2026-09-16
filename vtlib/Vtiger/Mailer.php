@@ -84,6 +84,8 @@ class Vtiger_Mailer extends PHPMailer {
 			if($smtpsecure == 'tls'){
 				$this->SMTPSecure = $smtpsecure;
 				$this->Host = $hostinfo[1];
+			} else {
+				$this->SMTPAutoTLS = false;
 			}
 			// End
 			
