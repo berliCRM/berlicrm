@@ -15,6 +15,8 @@ ini_set('display_errors', 'on');
 $csrfState = $_REQUEST['state'];
 $code = $_REQUEST['code'];
 
+global $site_URL;
+
 // todo: check which provider sent this callback
 if (!empty($csrfState)) {
 	if (!empty($code)) {
@@ -32,7 +34,7 @@ if (!empty($csrfState)) {
 				'clientId'               => $oAuthDetails['client_id'],
 				'clientSecret'           => $oAuthDetails['client_secret'],
 				'tenant'                 => $oAuthDetails['tenant_id'],
-				'redirectUri'            => 'https://alexberli48.i1.crm-now.de/OAuth2-Mail/callback.php',
+				'redirectUri'            => $site_URL.'OAuth2-Mail/callback.php',
 				'defaultEndPointVersion' => Azure::ENDPOINT_VERSION_2_0,
 				'scopes'                 => $scopes
 			]);
