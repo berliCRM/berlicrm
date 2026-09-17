@@ -55,6 +55,7 @@ class Users_ForgotPassword_Handler {
 
         $viewer->assign('TRACKURL', $changePasswordTrackUrl);
         $viewer->assign('MODULE', $moduleName);
+		$viewer->registerPlugin('modifier', 'vtranslate', 'vtranslate');
         $viewer->view('ForgotPassword.tpl', $moduleName);
     }
 
