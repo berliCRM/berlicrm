@@ -1888,6 +1888,25 @@ function getCurrencyDecimalPlaces()
     }
 }
 
+/**
+ * Round a monetary value to the configured currency precision.
+ *
+ * Monetary components must be rounded before they are added to document totals;
+ * otherwise sub-cent values can make the displayed tax and grand total differ.
+ */
+function roundCurrencyValue($value, $decimalPlaces = null)
+{
+    if (!is_numeric($value)) {
+        return 0.0;
+    }
+
+    if ($decimalPlaces === null) {
+        $decimalPlaces = getCurrencyDecimalPlaces();
+    }
+
+    return round((float) $value, (int) $decimalPlaces, PHP_ROUND_HALF_UP);
+}
+
 function getInventoryModules()
 {
     $inventoryModules = array('Invoice','Quotes','PurchaseOrder','SalesOrder');
