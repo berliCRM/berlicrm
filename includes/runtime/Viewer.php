@@ -89,8 +89,6 @@ class Vtiger_Viewer extends Smarty {
 			
 			$this->log("URI: $debugViewerURI, TYPE: " . $_SERVER['REQUEST_METHOD']);
 		}
-		// we need to expose functions now
-		$this->registerSmartyPlugins();
 	}
 	
 	function safeHtmlFilter($content, $smarty) {
