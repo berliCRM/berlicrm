@@ -3,6 +3,20 @@
     <hr>
     <p>{vtranslate('LBL_BACKUP_DESCRIPTION', $QUALIFIED_MODULE)}</p>
     <p class="alert alert-info">{vtranslate('LBL_BACKUP_NOTICE', $QUALIFIED_MODULE)}</p>
+    <div class="well" id="backupSpace" data-unknown="{vtranslate('LBL_BACKUP_SPACE_UNKNOWN', $QUALIFIED_MODULE)|escape:'html'}">
+        <dl class="dl-horizontal">
+            <dt>{vtranslate('LBL_BACKUP_SPACE_FREE', $QUALIFIED_MODULE)}</dt>
+            <dd data-space="free">{vtranslate('LBL_BACKUP_SPACE_LOADING', $QUALIFIED_MODULE)}</dd>
+            <dt>{vtranslate('LBL_BACKUP_SPACE_ARCHIVE', $QUALIFIED_MODULE)}</dt>
+            <dd data-space="archive">{vtranslate('LBL_BACKUP_SPACE_LOADING', $QUALIFIED_MODULE)}</dd>
+            <dt>{vtranslate('LBL_BACKUP_SPACE_REQUIRED', $QUALIFIED_MODULE)}</dt>
+            <dd data-space="required">{vtranslate('LBL_BACKUP_SPACE_LOADING', $QUALIFIED_MODULE)}</dd>
+            <dt>{vtranslate('LBL_BACKUP_SPACE_RESERVE', $QUALIFIED_MODULE)}</dt>
+            <dd data-space="reserve">{vtranslate('LBL_BACKUP_SPACE_LOADING', $QUALIFIED_MODULE)}</dd>
+        </dl>
+        <p>{vtranslate('LBL_BACKUP_SPACE_NOTICE', $QUALIFIED_MODULE)}</p>
+        <p class="alert alert-warning hide" id="backupSpaceWarning">{vtranslate('LBL_BACKUP_SPACE_INSUFFICIENT', $QUALIFIED_MODULE)}</p>
+    </div>
     <p class="alert alert-error {if !$BACKUP_ERROR}hide{/if}" id="backupError">{$BACKUP_ERROR|escape:'html'}</p>
     <button type="button" class="btn btn-success" id="requestBackup" {if $BACKUP_ERROR}disabled{/if}>{vtranslate('LBL_BACKUP_CREATE', $QUALIFIED_MODULE)}</button>
     <a class="btn" href="index.php?module=Vtiger&amp;parent=Settings&amp;view=Backup">{vtranslate('LBL_BACKUP_REFRESH', $QUALIFIED_MODULE)}</a>

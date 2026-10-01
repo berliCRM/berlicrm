@@ -15,10 +15,10 @@ class Settings_Vtiger_BackupArchive_Model
 
     public function __construct($id)
     {
-        global $backup_rate_bytes, $backup_reserve_bytes, $backup_max_seconds, $backup_memory_mb;
+        global $backup_rate_bytes, $backup_max_seconds, $backup_memory_mb;
         if (PHP_INT_SIZE < 8) { throw new RuntimeException('LBL_BACKUP_RUNTIME'); }
         $this->rate = max(65536, (int) ($backup_rate_bytes ?? 5242880));
-        $this->reserve = max(67108864, (int) ($backup_reserve_bytes ?? 1073741824));
+        $this->reserve = Settings_Vtiger_Backup_Model::reserveBytes();
         $this->deadline = microtime(true) + max(1, (int) ($backup_max_seconds ?? 86400));
         $this->memory = memory_get_usage(true) + max(16, (int) ($backup_memory_mb ?? 128)) * 1048576;
         $this->directory = Settings_Vtiger_Backup_Model::directory();
@@ -94,25 +94,12 @@ class Settings_Vtiger_BackupArchive_Model
 
     public function tree($path, $name, array $ancestors = array())
     {
-        $this->check();
-        $real = realpath($path);
-        if ($real === false) { throw new RuntimeException('LBL_BACKUP_FAILED'); }
-        $directory = Settings_Vtiger_Backup_Model::directory();
-        // Never recursively include this instance's own archives, including aliases.
-        if ($real === $directory || strpos($real, $directory . '/') === 0) { return; }
-        if (is_dir($path)) {
-            if (in_array($real, $ancestors, true)) { throw new RuntimeException('LBL_BACKUP_RECURSION'); }
-            $ancestors[] = $real;
-            $this->add($name . '/', array(), fileperms($path), filemtime($path));
-            $entries = opendir($path);
-            if (!$entries) { throw new RuntimeException('LBL_BACKUP_FAILED'); }
-            try {
-                while (($entry = readdir($entries)) !== false) {
-                    if (in_array($entry, array('.', '..', '.git', '.idea'), true)) { continue; }
-                    $this->tree($path . '/' . $entry, $name . '/' . $entry, $ancestors);
-                }
-            } finally { closedir($entries); }
-        } elseif (is_file($path)) {
+        foreach (self::entries($path, $name, array($this, 'check'), $ancestors) as $entry) {
+            list($path, $name, $stat) = $entry;
+            if (substr($name, -1) === '/') {
+                $this->add($name, array(), $stat['mode'], $stat['mtime']);
+                continue;
+            }
             $file = fopen($path, 'rb');
             if (!$file) { throw new RuntimeException('LBL_BACKUP_FAILED'); }
             try {
@@ -123,6 +110,36 @@ class Settings_Vtiger_BackupArchive_Model
                     throw new RuntimeException('LBL_BACKUP_FILE_CHANGED');
                 }
             } finally { fclose($file); }
+        }
+    }
+
+    /** Shared traversal keeps the space estimate and archive exclusions identical. */
+    public static function entries($path, $name, callable $check, array $ancestors = array())
+    {
+        $check();
+        $real = realpath($path);
+        if ($real === false) { throw new RuntimeException('LBL_BACKUP_FAILED'); }
+        $directory = Settings_Vtiger_Backup_Model::directory();
+        // Never recursively include this instance's own archives, including aliases.
+        if ($real === $directory || strpos($real, $directory . '/') === 0) { return; }
+        if (is_dir($path)) {
+            if (in_array($real, $ancestors, true)) { throw new RuntimeException('LBL_BACKUP_RECURSION'); }
+            $ancestors[] = $real;
+            $stat = @stat($path);
+            if ($stat === false) { throw new RuntimeException('LBL_BACKUP_FAILED'); }
+            yield array($path, $name . '/', $stat);
+            $entries = @opendir($path);
+            if (!$entries) { throw new RuntimeException('LBL_BACKUP_FAILED'); }
+            try {
+                while (($entry = readdir($entries)) !== false) {
+                    if (in_array($entry, array('.', '..', '.git', '.idea'), true)) { continue; }
+                    yield from self::entries($path . '/' . $entry, $name . '/' . $entry, $check, $ancestors);
+                }
+            } finally { closedir($entries); }
+        } elseif (is_file($path)) {
+            $stat = @stat($path);
+            if ($stat === false || !is_readable($path)) { throw new RuntimeException('LBL_BACKUP_FAILED'); }
+            yield array($path, $name, $stat);
         } else { throw new RuntimeException('LBL_BACKUP_SPECIAL_FILE'); }
     }
 
