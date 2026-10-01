@@ -38,11 +38,7 @@
 					{/if}
 					data-fieldinfo='{$FIELD_INFO|@json_encode|replace:"'":"&#039;"}' 
                     {if !empty($SPECIAL_VALIDATOR)}data-validator='{$SPECIAL_VALIDATOR|@json_encode}'{/if}>
-					{if $SELECTED_MODULE_NAME neq $MODULE_MODEL->get('name')} 
-						({vtranslate($MODULE_MODEL->get('name'), $MODULE_MODEL->get('name'))})  {vtranslate($FIELD_MODEL->get('label'), $MODULE_MODEL->get('name'))}
-					{else}
-						{vtranslate($FIELD_MODEL->get('label'), $SELECTED_MODULE_NAME)}
-					{/if}
+					{$FIELD_MODEL->get('workflow_columnlabel')}
 				</option>
 				{/foreach}
 				</optgroup>
