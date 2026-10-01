@@ -6,6 +6,15 @@ class Settings_Vtiger_Backup_Action extends Settings_Vtiger_Basic_Action
     {
         $response = new Vtiger_Response();
         try {
+            if ($request->getMode() === 'space') {
+                $space = Settings_Vtiger_BackupSpace_Model::calculate();
+                foreach (array('free', 'archive', 'required', 'reserve') as $key) {
+                    $space[$key] = Settings_Vtiger_BackupSpace_Model::formatBytes($space[$key]);
+                }
+                $response->setResult($space);
+                $response->emit();
+                return;
+            }
             if ($request->getMode() === 'status') {
                 $response->setResult(array('version' => hash('sha256', json_encode(Settings_Vtiger_Backup_Model::jobs()))));
                 $response->emit();
