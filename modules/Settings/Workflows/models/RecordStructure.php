@@ -70,6 +70,10 @@ class Settings_Workflows_RecordStructure_Model extends Vtiger_RecordStructure_Mo
 		//All the reference fields should also be sent
 		$fields = $moduleModel->getFieldsByType(array('reference', 'owner', 'multireference'));
 		foreach($fields as $parentFieldName => $field) {
+			// Do not offer related fields through a disabled or inaccessible reference field.
+			if (!$field->isViewable()) {
+				continue;
+			}
 			$type = $field->getFieldDataType();
 			$referenceModules = $field->getReferenceList();
 			if($type == 'owner') $referenceModules = array('Users');
