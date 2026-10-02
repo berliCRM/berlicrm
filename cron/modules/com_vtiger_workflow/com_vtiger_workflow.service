@@ -41,31 +41,105 @@ require_once 'modules/com_vtiger_workflow/VTEntityCache.inc';
 require_once('modules/com_vtiger_workflow/VTWorkflowUtils.php');
 
 require_once 'modules/com_vtiger_workflow/include.inc';
+require_once 'modules/com_vtiger_workflow/ResilientWorkFlowScheduler.php';
 
+/**
+ * Runs every ready delayed workflow task with an individual error boundary.
+ *
+ * @param PearDatabase $adb Database connection.
+ * @return array<int,array<string,mixed>> Collected task error details.
+ */
 function vtRunTaskJob($adb){
 	$util = new VTWorkflowUtils();
 	$adminUser = $util->adminUser();
 	$tq = new VTTaskQueue($adb);
 	$readyTasks = $tq->getReadyTasks();
 	$tm = new VTTaskManager($adb);
+	$errors = array();
 	foreach($readyTasks as $taskDetails){
 		list($taskId, $entityId, $taskContents) = $taskDetails;
-		$task = $tm->retrieveTask($taskId);
-        //If task is not there then continue
-        if(empty($task)){
-            continue;
-        }
-		$task->setContents($taskContents);
-        $entity = VTEntityCache::getCachedEntity($entityId);
-        if(!$entity) {
-            $entity = new VTWorkflowEntity($adminUser, $entityId);
-        }
-
-		$task->doTask($entity, true);
+		$task = null;
+		try {
+			$task = $tm->retrieveTask($taskId);
+			if (empty($task)) {
+				throw new RuntimeException('The queued workflow task no longer exists.');
+			}
+			$task->setContents($taskContents);
+			$entity = VTEntityCache::getCachedEntity($entityId);
+			if (!$entity) {
+				$entity = new VTWorkflowEntity($adminUser, $entityId);
+			}
+			$task->doTask($entity, true);
+		} catch (Throwable $exception) {
+			$workflowId = ($task && isset($task->workflowId)) ? (int)$task->workflowId : null;
+			$workflowName = '';
+			$moduleName = '';
+			if ($workflowId) {
+				$workflowResult = $adb->pquery(
+					'SELECT summary, module_name FROM com_vtiger_workflows WHERE workflow_id = ?',
+					array($workflowId)
+				);
+				if ($workflowResult && $adb->num_rows($workflowResult)) {
+					$workflowName = decode_html($adb->query_result($workflowResult, 0, 'summary'));
+					$moduleName = $adb->query_result($workflowResult, 0, 'module_name');
+				}
+			}
+			$errors[] = array(
+				'phase' => 'queued_task',
+				'workflow_id' => $workflowId,
+				'workflow_name' => $workflowName,
+				'module' => $moduleName,
+				'task_id' => (int)$taskId,
+				'task_name' => ($task && isset($task->summary)) ? decode_html($task->summary) : '',
+				'entity_id' => $entityId,
+				'exception' => get_class($exception),
+				'message' => $exception->getMessage(),
+				'file' => $exception->getFile(),
+				'line' => $exception->getLine(),
+			);
+		}
 	}
+
+	return $errors;
 }
+
+/**
+ * Formats isolated workflow errors for the main cron error notification.
+ *
+ * @param array<int,array<string,mixed>> $errors Workflow and task errors.
+ * @return string Plain-text diagnostic summary.
+ */
+function vtFormatWorkflowCronErrors(array $errors) {
+	$lines = array('The workflow cron completed with '.count($errors).' isolated error(s).');
+	$maximumDetails = 100;
+	foreach (array_slice($errors, 0, $maximumDetails) as $index => $error) {
+		$lines[] = '';
+		$lines[] = sprintf('Error %d:', $index + 1);
+		$lines[] = 'Phase: '.$error['phase'];
+		$lines[] = 'Workflow: '.($error['workflow_name'] !== '' ? $error['workflow_name'] : '-');
+		$lines[] = 'Workflow ID: '.($error['workflow_id'] !== null ? $error['workflow_id'] : '-');
+		$lines[] = 'Module: '.($error['module'] !== '' ? $error['module'] : '-');
+		$lines[] = 'Task: '.($error['task_name'] !== '' ? $error['task_name'] : '-');
+		$lines[] = 'Task ID: '.($error['task_id'] !== null ? $error['task_id'] : '-');
+		$lines[] = 'Entity ID: '.($error['entity_id'] !== '' ? $error['entity_id'] : '-');
+		$lines[] = 'Exception: '.$error['exception'];
+		$lines[] = 'Message: '.$error['message'];
+		$lines[] = 'Source: '.$error['file'].':'.$error['line'];
+	}
+	if (count($errors) > $maximumDetails) {
+		$lines[] = '';
+		$lines[] = sprintf('%d additional error(s) were omitted from this notification.', count($errors) - $maximumDetails);
+	}
+
+	return implode("\n", $lines);
+}
+
 $adb = PearDatabase::getInstance();
-require_once 'modules/com_vtiger_workflow/WorkFlowScheduler.php';
-$workflowScheduler = new WorkFlowScheduler($adb);
-$workflowScheduler->queueScheduledWorkflowTasks();
-vtRunTaskJob($adb);
+$workflowCronErrors = array();
+$workflowScheduler = new ResilientWorkFlowScheduler($adb);
+$workflowCronErrors = array_merge($workflowCronErrors, $workflowScheduler->queueScheduledWorkflowTasksResilient());
+$workflowCronErrors = array_merge($workflowCronErrors, vtRunTaskJob($adb));
+
+if ($workflowCronErrors) {
+	throw new RuntimeException(vtFormatWorkflowCronErrors($workflowCronErrors));
+}
