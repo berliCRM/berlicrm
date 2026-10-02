@@ -105,7 +105,7 @@ class ResilientWorkFlowScheduler extends WorkFlowScheduler {
 			try {
 				$workflow = $workflowManager->retrieve($workflowId);
 				if (!$workflow) {
-					throw new RuntimeException('The scheduled workflow no longer exists.');
+					throw new RuntimeException(vtranslate('LBL_CRON_SCHEDULED_WORKFLOW_MISSING', 'Settings:CronTasks'));
 				}
 				$workflowContext = $workflow;
 				$this->queueWorkflowTasks($workflow, $taskQueue, $entityCache, $admin);
@@ -469,7 +469,7 @@ if ((PHP_SAPI === "cgi-fcgi" && empty($_SESSION)) || empty($_SERVER['REMOTE_ADDR
                     $cronExecutionErrors[] = array(
                         'task' => $cronTask->getName(),
                         'type' => get_class($finishError),
-                        'message' => 'Cron status could not be reset: '.$finishError->getMessage(),
+                        'message' => vtranslate('LBL_CRON_STATUS_RESET_FAILED', 'Settings:CronTasks').': '.$finishError->getMessage(),
                         'file' => $finishError->getFile(),
                         'line' => $finishError->getLine(),
                     );
@@ -484,19 +484,19 @@ if ((PHP_SAPI === "cgi-fcgi" && empty($_SESSION)) || empty($_SERVER['REMOTE_ADDR
         foreach ($cronExecutionErrors as $cronExecutionError) {
             $errorLocation = $cronExecutionError['file'].':'.$cronExecutionError['line'];
             $errorItems .= '<li>'
-                .'<strong>Cron task:</strong> '.htmlspecialchars($cronExecutionError['task'], ENT_QUOTES, 'UTF-8').'<br>'
-                .'<strong>Exception:</strong> '.htmlspecialchars($cronExecutionError['type'], ENT_QUOTES, 'UTF-8').'<br>'
-                .'<strong>Error:</strong><br>'.nl2br(htmlspecialchars($cronExecutionError['message'], ENT_QUOTES, 'UTF-8')).'<br>'
-                .'<strong>Source:</strong> '.htmlspecialchars($errorLocation, ENT_QUOTES, 'UTF-8')
+                .'<strong>'.vtranslate('LBL_CRON_ERROR_TASK', 'Settings:CronTasks').':</strong> '.htmlspecialchars($cronExecutionError['task'], ENT_QUOTES, 'UTF-8').'<br>'
+                .'<strong>'.vtranslate('LBL_CRON_ERROR_EXCEPTION', 'Settings:CronTasks').':</strong> '.htmlspecialchars($cronExecutionError['type'], ENT_QUOTES, 'UTF-8').'<br>'
+                .'<strong>'.vtranslate('LBL_CRON_ERROR_MESSAGE', 'Settings:CronTasks').':</strong><br>'.nl2br(htmlspecialchars($cronExecutionError['message'], ENT_QUOTES, 'UTF-8')).'<br>'
+                .'<strong>'.vtranslate('LBL_CRON_ERROR_SOURCE', 'Settings:CronTasks').':</strong> '.htmlspecialchars($errorLocation, ENT_QUOTES, 'UTF-8')
                 .'</li>';
         }
 
-        $subject = sprintf('[CRON-ERROR] %s - %d error(s)', $site_URL, count($cronExecutionErrors));
-        $content = '<p>Errors occurred while running cron on <strong>'
-            .htmlspecialchars($site_URL, ENT_QUOTES, 'UTF-8')
-            .'</strong>. The running state was reset for each affected cron task where possible.</p>'
-            .'<p><strong>Start:</strong> '.htmlspecialchars($cronStarts, ENT_QUOTES, 'UTF-8').'</p>'
-            .'<ol>'.$errorItems.'</ol>';
+        $subject = sprintf(vtranslate('LBL_CRON_ERROR_SUBJECT', 'Settings:CronTasks'), $site_URL, count($cronExecutionErrors));
+        $content = sprintf(
+            vtranslate('LBL_CRON_ERROR_CONTENT', 'Settings:CronTasks'),
+            htmlspecialchars($site_URL, ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars($cronStarts, ENT_QUOTES, 'UTF-8')
+        ).'<ol>'.$errorItems.'</ol>';
         vtigerCronSendNotification($cronMailRecipients, $cronMailSenderName, $cronMailSenderEmail, $subject, $content);
     }
 

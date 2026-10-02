@@ -64,7 +64,7 @@ function vtRunTaskJob($adb){
 		try {
 			$task = $tm->retrieveTask($taskId);
 			if (empty($task)) {
-				throw new RuntimeException('The queued workflow task no longer exists.');
+				throw new RuntimeException(vtranslate('LBL_CRON_QUEUED_TASK_MISSING', 'Settings:CronTasks'));
 			}
 			$task->setContents($taskContents);
 			$entity = VTEntityCache::getCachedEntity($entityId);
@@ -115,25 +115,25 @@ function vtRunTaskJob($adb){
  * @return string Plain-text diagnostic summary.
  */
 function vtFormatWorkflowCronErrors(array $errors) {
-	$lines = array('The workflow cron completed with '.count($errors).' isolated error(s).');
+	$lines = array(sprintf(vtranslate('LBL_CRON_WORKFLOW_ERROR_SUMMARY', 'Settings:CronTasks'), count($errors)));
 	$maximumDetails = 100;
 	foreach (array_slice($errors, 0, $maximumDetails) as $index => $error) {
 		$lines[] = '';
-		$lines[] = sprintf('Error %d:', $index + 1);
-		$lines[] = 'Phase: '.$error['phase'];
-		$lines[] = 'Workflow: '.($error['workflow_name'] !== '' ? $error['workflow_name'] : '-');
-		$lines[] = 'Workflow ID: '.($error['workflow_id'] !== null ? $error['workflow_id'] : '-');
-		$lines[] = 'Module: '.($error['module'] !== '' ? $error['module'] : '-');
-		$lines[] = 'Task: '.($error['task_name'] !== '' ? $error['task_name'] : '-');
-		$lines[] = 'Task ID: '.($error['task_id'] !== null ? $error['task_id'] : '-');
-		$lines[] = 'Entity ID: '.($error['entity_id'] !== '' ? $error['entity_id'] : '-');
-		$lines[] = 'Exception: '.$error['exception'];
-		$lines[] = 'Message: '.$error['message'];
-		$lines[] = 'Source: '.$error['file'].':'.$error['line'];
+		$lines[] = sprintf(vtranslate('LBL_CRON_ERROR_NUMBER', 'Settings:CronTasks'), $index + 1);
+		$lines[] = vtranslate('LBL_CRON_ERROR_PHASE', 'Settings:CronTasks').': '.$error['phase'];
+		$lines[] = vtranslate('LBL_CRON_ERROR_WORKFLOW', 'Settings:CronTasks').': '.($error['workflow_name'] !== '' ? $error['workflow_name'] : '-');
+		$lines[] = vtranslate('LBL_CRON_ERROR_WORKFLOW_ID', 'Settings:CronTasks').': '.($error['workflow_id'] !== null ? $error['workflow_id'] : '-');
+		$lines[] = vtranslate('LBL_CRON_ERROR_MODULE', 'Settings:CronTasks').': '.($error['module'] !== '' ? $error['module'] : '-');
+		$lines[] = vtranslate('LBL_CRON_ERROR_TASK', 'Settings:CronTasks').': '.($error['task_name'] !== '' ? $error['task_name'] : '-');
+		$lines[] = vtranslate('LBL_CRON_ERROR_TASK_ID', 'Settings:CronTasks').': '.($error['task_id'] !== null ? $error['task_id'] : '-');
+		$lines[] = vtranslate('LBL_CRON_ERROR_ENTITY_ID', 'Settings:CronTasks').': '.($error['entity_id'] !== '' ? $error['entity_id'] : '-');
+		$lines[] = vtranslate('LBL_CRON_ERROR_EXCEPTION', 'Settings:CronTasks').': '.$error['exception'];
+		$lines[] = vtranslate('LBL_CRON_ERROR_MESSAGE', 'Settings:CronTasks').': '.$error['message'];
+		$lines[] = vtranslate('LBL_CRON_ERROR_SOURCE', 'Settings:CronTasks').': '.$error['file'].':'.$error['line'];
 	}
 	if (count($errors) > $maximumDetails) {
 		$lines[] = '';
-		$lines[] = sprintf('%d additional error(s) were omitted from this notification.', count($errors) - $maximumDetails);
+		$lines[] = sprintf(vtranslate('LBL_CRON_ERROR_OMITTED', 'Settings:CronTasks'), count($errors) - $maximumDetails);
 	}
 
 	return implode("\n", $lines);
