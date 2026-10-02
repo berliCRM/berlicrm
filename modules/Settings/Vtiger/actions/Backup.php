@@ -2,6 +2,14 @@
 
 class Settings_Vtiger_Backup_Action extends Settings_Vtiger_Basic_Action
 {
+    public function checkPermission(Vtiger_Request $request)
+    {
+        parent::checkPermission($request);
+        if (!Settings_Vtiger_Backup_Model::isEnabled()) {
+            throw new AppException(vtranslate('LBL_BACKUP_DISABLED', 'Settings:Vtiger'));
+        }
+    }
+
     public function process(Vtiger_Request $request)
     {
         $response = new Vtiger_Response();

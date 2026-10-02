@@ -7,6 +7,14 @@ class Settings_Vtiger_BackupDownload_Action extends Settings_Vtiger_Basic_Action
         return $request->validateReadAccess();
     }
 
+    public function checkPermission(Vtiger_Request $request)
+    {
+        parent::checkPermission($request);
+        if (!Settings_Vtiger_Backup_Model::isEnabled()) {
+            throw new AppException(vtranslate('LBL_BACKUP_DISABLED', 'Settings:Vtiger'));
+        }
+    }
+
     public function process(Vtiger_Request $request)
     {
         // Permission is checked by the Settings controller, including direct URLs.

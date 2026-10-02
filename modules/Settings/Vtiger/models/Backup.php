@@ -6,6 +6,47 @@ class Settings_Vtiger_Backup_Model
     const URL = 'index.php?module=Vtiger&parent=Settings&view=Backup';
     const GUARD = "<?php http_response_code(404); exit; __halt_compiler();\n";
 
+    public static function isEnabled()
+    {
+        global $backup_enabled;
+        return (bool) ($backup_enabled ?? true);
+    }
+
+    public static function excludesSource()
+    {
+        global $backup_exclude_source;
+        return (bool) ($backup_exclude_source ?? false);
+    }
+
+    public static function requireEnabled()
+    {
+        if (!self::isEnabled()) {
+            throw new RuntimeException('LBL_BACKUP_DISABLED');
+        }
+    }
+
+    /** Shared selection for the archive and its space estimate. */
+    public static function sourcePaths()
+    {
+        global $backup_extra_paths;
+        $root = self::root();
+        if (self::excludesSource()) {
+            $paths = array(array($root . '/storage', 'crm/storage'));
+            if (!is_link($root . '/test') && is_dir($root . '/test/logo')) {
+                $paths[] = array($root . '/test/logo', 'crm/test/logo');
+            }
+            return $paths;
+        }
+        $paths = array(array($root, 'crm'));
+        foreach (($backup_extra_paths ?? array()) as $extra) {
+            if (!is_string($extra) || $extra === '' || $extra[0] !== '/') {
+                throw new RuntimeException('LBL_BACKUP_EXTRA_PATH');
+            }
+            $paths[] = array($extra, 'external/' . (count($paths) - 1));
+        }
+        return $paths;
+    }
+
     public static function reserveBytes()
     {
         global $backup_reserve_bytes;
@@ -20,6 +61,7 @@ class Settings_Vtiger_Backup_Model
 
     public static function directory()
     {
+        self::requireEnabled();
         $root = self::root();
         $directory = $root . '/storage/Backup';
         if (is_link($directory) || is_link($root . '/storage')) {

@@ -2,6 +2,14 @@
 
 class Settings_Vtiger_Backup_View extends Settings_Vtiger_Index_View
 {
+    public function checkPermission(Vtiger_Request $request)
+    {
+        parent::checkPermission($request);
+        if (!Settings_Vtiger_Backup_Model::isEnabled()) {
+            throw new AppException(vtranslate('LBL_BACKUP_DISABLED', 'Settings:Vtiger'));
+        }
+    }
+
     public function process(Vtiger_Request $request)
     {
         $viewer = $this->getViewer($request);
@@ -12,6 +20,7 @@ class Settings_Vtiger_Backup_View extends Settings_Vtiger_Index_View
         } catch (Throwable $e) {
             $error = vtranslate('LBL_BACKUP_DIRECTORY_ERROR', 'Settings:Vtiger');
         }
+        $viewer->assign('BACKUP_EXCLUDE_SOURCE', Settings_Vtiger_Backup_Model::excludesSource());
         $viewer->assign('BACKUP_JOBS', $jobs);
         $viewer->assign('BACKUP_VERSION', hash('sha256', json_encode($jobs)));
         $viewer->assign('BACKUP_ERROR', $error);

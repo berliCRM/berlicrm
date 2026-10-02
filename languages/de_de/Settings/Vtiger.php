@@ -10,7 +10,7 @@
  *************************************************************************************/
 $languageStrings = array(
     'LBL_BACKUP' => 'Backup',
-    'LBL_BACKUP_DESCRIPTION' => 'Das komplette CRM mit Datenbank, Konfigurationen, Dokumenten und Programmdateien als ZIP-Archiv sichern.',
+    'LBL_BACKUP_DISABLED' => 'Die Backup-Funktion ist in der Konfiguration deaktiviert.',
     'LBL_BACKUP_NOTICE' => 'Die Sicherung startet über den CRM-Zeitplaner (Backup in den geplanten Aufgaben). Sie können weiterarbeiten. Die Datenbank wird als InnoDB-Snapshot gesichert; Dateien werden im laufenden Betrieb kopiert und bilden keinen gemeinsamen Zeitpunkt mit der Datenbank ab. Währenddessen keine Updates oder Schemaänderungen durchführen. Das Archiv enthält auch Passwörter und personenbezogene Daten: sicher aufbewahren. Maximal drei Aufträge bleiben bis zum manuellen Löschen gespeichert. Die Benachrichtigung geht an den anfordernden Administrator.',
     'LBL_BACKUP_SPACE_FREE' => 'Frei am Backup-Ziel',
     'LBL_BACKUP_SPACE_ARCHIVE' => 'Archiv (geschätzt)',
