@@ -319,7 +319,8 @@ abstract class Base_Chart extends Vtiger_Base_Model{
 			}
 		}
 
-		$sql = explode(' from ', $this->reportRun->sGetSQLforReport($reportModel->getId(), $advFilterSql, 'PDF'));
+		// Keep FROM clauses in secondary-module subqueries intact.
+		$sql = explode(' from ', $this->reportRun->sGetSQLforReport($reportModel->getId(), $advFilterSql, 'PDF'), 2);
 
 		$columnLabels = array();
 
@@ -337,7 +338,7 @@ abstract class Base_Chart extends Vtiger_Base_Model{
 		$chartSQL .= " FROM $sql[1] ";
 
 		if($groupByColumns && is_array($groupByColumns)) {
-			$chartSQL .= " GROUP BY `" . implode(`,`, $groupByColumns)."`";
+			$chartSQL .= " GROUP BY `" . implode('`,`', $groupByColumns)."`";
 		}
 		return $chartSQL;
 	}

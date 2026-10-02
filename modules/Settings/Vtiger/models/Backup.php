@@ -6,6 +6,12 @@ class Settings_Vtiger_Backup_Model
     const URL = 'index.php?module=Vtiger&parent=Settings&view=Backup';
     const GUARD = "<?php http_response_code(404); exit; __halt_compiler();\n";
 
+    public static function reserveBytes()
+    {
+        global $backup_reserve_bytes;
+        return max(67108864, (int) ($backup_reserve_bytes ?? 1073741824));
+    }
+
     public static function root()
     {
         global $root_directory;

@@ -1,6 +1,20 @@
 jQuery.Class('Settings_Vtiger_Backup_Js', {}, {
     registerEvents: function () {
         var container = jQuery('#backupSettings');
+        var space = container.find('#backupSpace');
+        function spaceUnavailable() {
+            space.find('[data-space]').text(space.data('unknown'));
+        }
+        AppConnector.request({module: 'Vtiger', parent: 'Settings', action: 'Backup', mode: 'space'}).then(
+            function (response) {
+                if (!response.success) { spaceUnavailable(); return; }
+                space.find('[data-space]').each(function () {
+                    var field = jQuery(this);
+                    field.text(response.result[field.data('space')]);
+                });
+                container.find('#backupSpaceWarning').toggleClass('hide', !response.result.insufficient);
+            }, spaceUnavailable
+        );
         function submit(mode, id, button) {
             button.prop('disabled', true);
             AppConnector.request({module: 'Vtiger', parent: 'Settings', action: 'Backup', mode: mode, id: id}).then(

@@ -83,10 +83,14 @@
                 </span>
             </span>
             <span class="hide filterActionImages pull-right">
-                <i title="{vtranslate('LBL_DENY', $MODULE)}" data-value="deny" class="bi bi-x-circle-fill align-middle denyFilter filterActionImage"></i>
-                <i title="{vtranslate('LBL_APPROVE', $MODULE)}" data-value="approve" class="bi bi-check-circle-fill align-middle approveFilter filterActionImage"></i>
-                <i title="{vtranslate('LBL_DELETE', $MODULE)}" data-value="delete" class="bi bi-trash-fill align-middle deleteFilter filterActionImage"></i>
-                <i title="{vtranslate('LBL_EDIT', $MODULE)}" data-value="edit" class="bi bi-pencil-fill align-middle editFilter filterActionImage"></i>
+                <!-- <i title="{vtranslate('LBL_DENY', $MODULE)}" data-value="deny" class="bi bi-x-circle-fill align-middle denyFilter filterActionImage"></i> -->
+                <!-- <i title="{vtranslate('LBL_APPROVE', $MODULE)}" data-value="approve" class="bi bi-check-circle-fill align-middle approveFilter filterActionImage"></i> -->
+                <!-- <i title="{vtranslate('LBL_DELETE', $MODULE)}" data-value="delete" class="bi bi-trash-fill align-middle deleteFilter filterActionImage"></i> -->
+                <!-- <i title="{vtranslate('LBL_EDIT', $MODULE)}" data-value="edit" class="bi bi-pencil-fill align-middle editFilter filterActionImage"></i> -->
+                <i title="{vtranslate('LBL_DENY', $MODULE)}" data-value="deny" class="icon-ban-circle alignMiddle denyFilter filterActionImage pull-right"></i>
+                <i title="{vtranslate('LBL_APPROVE', $MODULE)}" data-value="approve" class="icon-ok alignMiddle approveFilter filterActionImage pull-right"></i>
+                <i title="{vtranslate('LBL_DELETE', $MODULE)}" data-value="delete" class="icon-trash alignMiddle deleteFilter filterActionImage pull-right"></i>
+                <i title="{vtranslate('LBL_EDIT', $MODULE)}" data-value="edit" class="icon-pencil alignMiddle editFilter filterActionImage pull-right"></i>                
             </span>
             <span class="span4 btn-toolbar">
                 {include file='ListViewActions.tpl'|@vtemplate_path}

@@ -125,7 +125,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     $buyer_reference = trim(decode_html($adb->query_result($acc_result, 0, 'buyerreference')));
     if ($buyer_reference == '') {
         $buyer_reference = $account_no;
-    }    
+    }
     $account_email = decode_html($adb->query_result($acc_result, 0, 'email1'));
     $siccode = decode_html($adb->query_result($acc_result, 0, 'siccode'));
 
@@ -654,16 +654,22 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         }
         $product_line[$j][$pdf_strings['LineTotal']] = $prod_total[$i];
 
+        $exemptionReason = '';
         if ($eInvoice) {
             $unitDiscountBT147 = (float)$associated_products[$i]['discountTotal' . $i];
             $unitPriceNetBT146 = $signMultiplier * (float) sprintf('%.2f', (float)$associated_products[$i]['listPrice' . $i] - $unitDiscountBT147);
 
-            $catCode = 'S'; // standard rate
-            if ($thisItemTaxPercent == 0.00 && $final_details['taxtype'] != 'group') {
-                $catCode = 'E'; // exempt
-            } else {
+            $vatCatCode = 'S'; // standard rate
+            if ($final_details['taxtype'] == 'group') {
                 $thisItemTaxPercent = $group_total_tax_percent;
-            }            
+            }
+            if ($thisItemTaxPercent == 0.00) {
+                $vatCatCode = 'E'; // exempt
+                $exemptionReason = 'VAT-exempt supply';
+            }
+
+
+
             // Add position/lineitem to e-invoice
 
             $eInvoiceDocument
@@ -676,7 +682,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
                 // ->setDocumentPositionQuantity((float) $qty_formated[$i] * $signMultiplier, "H87") // Quantity BT-129
                 ->setDocumentPositionQuantity((float) $associated_products[$i]['qty' . $i] * $signMultiplier, "H87") // Quantity BT-129
                 ->addDocumentPositionTax(
-                    $catCode,
+                    $vatCatCode,
                     'VAT',
                     number_format($thisItemTaxPercent, 0)
                 )
@@ -694,7 +700,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         if ($final_details['taxtype'] == 'group') {
             $totalTaxAmmount = $price_total - $price_subtotal;
             $eInvoiceDocument
-                ->addDocumentTax('S', "VAT", $price_subtotal, ($price_total - $price_subtotal), number_format($group_total_tax_percent, 0), null, null, $price_subtotal);
+                ->addDocumentTax($vatCatCode, "VAT", $price_subtotal, ($price_total - $price_subtotal), number_format($group_total_tax_percent, 0), $exemptionReason, null, $price_subtotal);
             // $eInvoiceDocument
             // ->addDocumentTax('E', "VAT", $price_subtotal, ($price_total - $price_subtotal), 0, null, null, $price_subtotal);
         } else {
