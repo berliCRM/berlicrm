@@ -386,15 +386,18 @@ if ((PHP_SAPI === "cgi-fcgi" && empty($_SESSION)) || empty($_SERVER['REMOTE_ADDR
         array_merge(array($cronMailRecipientEmail), $cronMailNotificationEmails, $cronConfiguredRecipients)
     );
     $cronAdminEmail = vtigerCronGetUserEmail($current_user);
-    $cronMailSenderEmail = !empty($HELPDESK_SUPPORT_EMAIL_ID)
-        ? trim((string)$HELPDESK_SUPPORT_EMAIL_ID)
-        : $cronMailRecipientEmail;
+    $cronMailSenderEmail = $cronMailRecipientEmail;
+    $cronMailSenderName = trim((string)$cronMailConfig['sender_name']);
+    if ($cronMailSenderEmail === '') {
+        $cronMailSenderEmail = isset($HELPDESK_SUPPORT_EMAIL_ID)
+            ? trim((string)$HELPDESK_SUPPORT_EMAIL_ID) : '';
+        $cronMailSenderName = isset($HELPDESK_SUPPORT_NAME)
+            ? trim((string)$HELPDESK_SUPPORT_NAME) : '';
+    }
     if ($cronMailSenderEmail === '') {
         $cronMailSenderEmail = $cronAdminEmail;
+        $cronMailSenderName = $current_user->user_name;
     }
-    $cronMailSenderName = !empty($HELPDESK_SUPPORT_NAME)
-        ? trim((string)$HELPDESK_SUPPORT_NAME)
-        : trim((string)$cronMailConfig['sender_name']);
     if ($cronMailSenderName === '') {
         $cronMailSenderName = $current_user->user_name;
     }
