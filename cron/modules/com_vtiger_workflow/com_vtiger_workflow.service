@@ -41,10 +41,12 @@ require_once 'modules/com_vtiger_workflow/VTEntityCache.inc';
 require_once('modules/com_vtiger_workflow/VTWorkflowUtils.php');
 
 require_once 'modules/com_vtiger_workflow/include.inc';
-require_once 'modules/com_vtiger_workflow/ResilientWorkFlowScheduler.php';
 
 /**
  * Runs every ready delayed workflow task with an individual error boundary.
+ *
+ * Task execution failures are collected so the remaining ready tasks can run.
+ * Each diagnostic includes workflow, task and entity details where available.
  *
  * @param PearDatabase $adb Database connection.
  * @return array<int,array<string,mixed>> Collected task error details.
@@ -105,6 +107,9 @@ function vtRunTaskJob($adb){
 
 /**
  * Formats isolated workflow errors for the main cron error notification.
+ *
+ * Includes at most 100 error details and reports the number omitted. Accepts
+ * diagnostics from both the scheduler in vtigercron.php and vtRunTaskJob().
  *
  * @param array<int,array<string,mixed>> $errors Workflow and task errors.
  * @return string Plain-text diagnostic summary.

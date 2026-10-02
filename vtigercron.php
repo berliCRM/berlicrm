@@ -9,7 +9,11 @@
  ********************************************************************************/
 
 /**
- * Start the cron services configured.
+ * Runs the configured cron services and reports collected execution errors.
+ *
+ * Defines the resilient scheduler used by the workflow cron service. Each started
+ * cron task has its running status reset in a finally block, and execution errors
+ * are collected for a notification after the remaining services have run.
  */
 include_once 'vtlib/Vtiger/Cron.php';
 require_once 'config.inc.php';
@@ -27,6 +31,229 @@ if (file_exists('config_override.php')) {
 require_once 'includes/Loader.php';
 vimport('includes.runtime.EntryPoint');
 require_once 'modules/Settings/CronTasks/models/Config.php';
+
+require_once 'modules/com_vtiger_workflow/WorkFlowScheduler.php';
+
+/**
+ * Executes scheduled workflows with an error boundary around every workflow.
+ *
+ * Defined in the cron entry point for use by com_vtiger_workflow.service.
+ * Workflow failures are returned as diagnostic data so later workflows can run
+ * and the service can include all collected errors in the cron notification.
+ */
+class ResilientWorkFlowScheduler extends WorkFlowScheduler {
+
+	/** @var PearDatabase Database connection used to retrieve workflows and tasks. */
+	protected $database;
+
+	/** @var Users Administrator used to load workflow entities. */
+	protected $workflowUser;
+
+	/**
+	 * Initializes the scheduler dependencies.
+	 *
+	 * @param PearDatabase $database Database connection.
+	 */
+	public function __construct($database) {
+		parent::__construct($database);
+		$this->database = $database;
+		$util = new VTWorkflowUtils();
+		$this->workflowUser = $util->adminUser();
+	}
+
+	/**
+	 * Queues all due workflows and continues after a workflow-specific failure.
+	 *
+	 * Due times are evaluated in the active administrator's time zone. A workflow's
+	 * next trigger advances only after its tasks have been processed successfully.
+	 * Failed workflows remain due; tasks already processed before a failure may be
+	 * processed again on a later run.
+	 *
+	 * @see ResilientWorkFlowScheduler::createErrorDetails()
+	 * @return array<int,array<string,mixed>> Workflow and trigger update errors; empty on success.
+	 */
+	public function queueScheduledWorkflowTasksResilient() {
+		global $default_timezone;
+
+		$workflowManager = new VTWorkflowManager($this->database);
+		$taskQueue = new VTTaskQueue($this->database);
+		$entityCache = new VTEntityCache($this->workflowUser);
+		$errors = array();
+
+		$admin = Users::getActiveAdminUser();
+		$adminTimeZone = $admin->time_zone;
+		@date_default_timezone_set($adminTimeZone);
+		$currentTimestamp = date('Y-m-d H:i:s');
+		@date_default_timezone_set($default_timezone);
+
+		$scheduledWorkflowResult = $this->database->pquery(
+			'SELECT workflow_id, summary, module_name FROM com_vtiger_workflows '
+			.'WHERE execution_condition = ? '
+			.'AND (nexttrigger_time = ? OR nexttrigger_time IS NULL OR nexttrigger_time <= ?)',
+			array(VTWorkflowManager::$ON_SCHEDULE, '', $currentTimestamp)
+		);
+		$scheduledWorkflowCount = $this->database->num_rows($scheduledWorkflowResult);
+		for ($workflowIndex = 0; $workflowIndex < $scheduledWorkflowCount; ++$workflowIndex) {
+			$workflowId = (int)$this->database->query_result($scheduledWorkflowResult, $workflowIndex, 'workflow_id');
+			$workflowContext = new stdClass();
+			$workflowContext->id = $workflowId;
+			$workflowContext->description = $this->database->query_result($scheduledWorkflowResult, $workflowIndex, 'summary');
+			$workflowContext->moduleName = $this->database->query_result($scheduledWorkflowResult, $workflowIndex, 'module_name');
+			$workflow = null;
+			$workflowCompleted = false;
+
+			try {
+				$workflow = $workflowManager->retrieve($workflowId);
+				if (!$workflow) {
+					throw new RuntimeException('The scheduled workflow no longer exists.');
+				}
+				$workflowContext = $workflow;
+				$this->queueWorkflowTasks($workflow, $taskQueue, $entityCache, $admin);
+				$workflowCompleted = true;
+			} catch (Throwable $exception) {
+				$errors[] = $this->createErrorDetails($workflowContext, $exception, 'scheduled_workflow');
+			}
+
+			if ($workflowCompleted) {
+				try {
+					$workflowManager->updateNexTriggerTime($workflow);
+				} catch (Throwable $exception) {
+					$errors[] = $this->createErrorDetails($workflowContext, $exception, 'next_trigger_time');
+				}
+			}
+		}
+
+		return $errors;
+	}
+
+	/**
+	 * Queues or immediately executes the active tasks of one scheduled workflow.
+	 *
+	 * Processes at most 5000 matching records and notifies the administrator when
+	 * that limit is exceeded. Inactive tasks are skipped. Task failures propagate
+	 * to the caller's workflow error boundary and stop processing this workflow.
+	 *
+	 * @param Workflow $workflow Workflow being processed.
+	 * @param VTTaskQueue $taskQueue Delayed task queue.
+	 * @param VTEntityCache $entityCache Workflow entity cache.
+	 * @param Users $admin Active administrator used for notifications.
+	 * @return void
+	 * @throws Throwable If record retrieval, notification or task processing fails.
+	 */
+	protected function queueWorkflowTasks($workflow, $taskQueue, $entityCache, $admin) {
+		$taskManager = new VTTaskManager($this->database);
+		$tasks = $taskManager->getTasksForWorkflow($workflow->id);
+		if (!$tasks) {
+			return;
+		}
+
+		$records = $this->getEligibleWorkflowRecords($workflow);
+		$recordCount = count($records);
+		$maximumRecords = 5000;
+		if ($recordCount > $maximumRecords) {
+			$this->sendRecordLimitNotification($workflow, $recordCount, $maximumRecords, $admin);
+			$recordCount = $maximumRecords;
+		}
+
+		for ($recordIndex = 0; $recordIndex < $recordCount; ++$recordIndex) {
+			$recordId = $records[$recordIndex];
+			$moduleName = ($workflow->moduleName === 'Calendar')
+				? vtws_getCalendarEntityType($recordId)
+				: $workflow->moduleName;
+			$webserviceEntityId = vtws_getWebserviceEntityId($moduleName, $recordId);
+			$entityData = $entityCache->forId($webserviceEntityId);
+			$data = $entityData->getData();
+			$hasActiveTask = false;
+
+			foreach ($tasks as $task) {
+				if (!$task->active) {
+					continue;
+				}
+				$hasActiveTask = true;
+				$delay = 0;
+				$trigger = $task->trigger;
+				if ($trigger !== null) {
+					$delay = strtotime($data[$trigger['field']]) + $trigger['days'] * 86400;
+				}
+				if ($task->executeImmediately == true) {
+					$task->doTask($entityData, true);
+				} else {
+					$taskQueue->queueTask($task->id, $entityData->getId(), $delay);
+				}
+			}
+
+			set_time_limit(0);
+			if (!$hasActiveTask) {
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Sends the existing warning when a scheduled workflow exceeds the record limit.
+	 *
+	 * @param Workflow $workflow Workflow exceeding the limit.
+	 * @param int $recordCount Number of matching records.
+	 * @param int $maximumRecords Maximum number processed in one run.
+	 * @param Users $admin Recipient administrator.
+	 * @return void
+	 * @throws Throwable If notification preparation or delivery throws an error.
+	 */
+	protected function sendRecordLimitNotification($workflow, $recordCount, $maximumRecords, $admin) {
+		global $site_URL, $HELPDESK_SUPPORT_NAME, $HELPDESK_SUPPORT_EMAIL_ID;
+
+		$subject = vtranslate('LBL_WORKFLOW_TOO_MANY_SUBJECT');
+		$content = vtranslate('LBL_WORKFLOW_TOO_MANY_CONTENT');
+		$workflowUrl = $site_URL.'index.php?module=Workflows&parent=Settings&view=Edit&record='.$workflow->id;
+		$content = sprintf($content, $workflowUrl, $recordCount, $maximumRecords, $maximumRecords);
+		if (!empty($admin->email1)) {
+			send_mail(
+				'com_vtiger_workflow',
+				$admin->email1,
+				$HELPDESK_SUPPORT_NAME,
+				$HELPDESK_SUPPORT_EMAIL_ID,
+				$subject,
+				$content
+			);
+		}
+	}
+
+	/**
+	 * Converts a workflow exception into serializable diagnostic information.
+	 *
+	 * @param Workflow|stdClass $workflow Failed workflow context.
+	 * @param Throwable $exception Caught error or exception.
+	 * @param string $phase Either scheduled_workflow or next_trigger_time.
+	 * @return array{
+	 *     phase: string,
+	 *     workflow_id: int|null,
+	 *     workflow_name: string,
+	 *     module: string,
+	 *     task_id: null,
+	 *     task_name: string,
+	 *     entity_id: string,
+	 *     exception: string,
+	 *     message: string,
+	 *     file: string,
+	 *     line: int
+	 * } Error details compatible with the workflow cron notification formatter.
+	 */
+	protected function createErrorDetails($workflow, Throwable $exception, $phase) {
+		return array(
+			'phase' => $phase,
+			'workflow_id' => isset($workflow->id) ? (int)$workflow->id : null,
+			'workflow_name' => isset($workflow->description) ? decode_html($workflow->description) : '',
+			'module' => isset($workflow->moduleName) ? $workflow->moduleName : '',
+			'task_id' => null,
+			'task_name' => '',
+			'entity_id' => '',
+			'exception' => get_class($exception),
+			'message' => $exception->getMessage(),
+			'file' => $exception->getFile(),
+			'line' => $exception->getLine(),
+		);
+	}
+}
 
 /**
  * Returns the primary email address of a CRM user.
