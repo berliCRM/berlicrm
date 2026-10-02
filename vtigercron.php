@@ -28,6 +28,81 @@ require_once 'includes/Loader.php';
 vimport('includes.runtime.EntryPoint');
 require_once 'modules/Settings/CronTasks/models/Config.php';
 
+/**
+ * Returns the primary email address of a CRM user.
+ *
+ * @param Users $user CRM user record.
+ * @return string Email address or an empty string.
+ */
+function vtigerCronGetUserEmail($user) {
+    if (!empty($user->email1)) {
+        return trim((string)$user->email1);
+    }
+    if (!empty($user->column_fields['email1'])) {
+        return trim((string)$user->column_fields['email1']);
+    }
+
+    return '';
+}
+
+/**
+ * Splits a configuration value containing one or more email addresses.
+ *
+ * @param string $value Comma- or semicolon-separated email addresses.
+ * @return array<int,string> Individual recipient values.
+ */
+function vtigerCronSplitRecipients($value) {
+    return preg_split('/[,;]+/', (string)$value, -1, PREG_SPLIT_NO_EMPTY);
+}
+
+/**
+ * Builds a validated, case-insensitively deduplicated notification list.
+ *
+ * @param Users $adminUser Active administrator who is always notified.
+ * @param array<int,string> $configuredRecipients Additional configured recipients.
+ * @return array<int,string> Valid email recipients.
+ */
+function vtigerCronGetNotificationRecipients($adminUser, array $configuredRecipients) {
+    $recipients = array_merge(array(vtigerCronGetUserEmail($adminUser)), $configuredRecipients);
+    $uniqueRecipients = array();
+    foreach ($recipients as $recipient) {
+        $recipient = trim((string)$recipient);
+        if ($recipient !== '' && filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
+            $uniqueRecipients[strtolower($recipient)] = $recipient;
+        }
+    }
+
+    return array_values($uniqueRecipients);
+}
+
+/**
+ * Sends a cron notification to all configured recipients without aborting the cron.
+ *
+ * @param array<int,string> $recipients Email recipients.
+ * @param string $senderName Sender display name.
+ * @param string $senderEmail Sender email address.
+ * @param string $subject Email subject.
+ * @param string $content HTML email content.
+ * @return void
+ */
+function vtigerCronSendNotification(array $recipients, $senderName, $senderEmail, $subject, $content) {
+    if ($senderEmail === '') {
+        echo "[ERROR] Cron notification could not be sent: sender email is not configured.\n";
+        return;
+    }
+
+    foreach ($recipients as $recipient) {
+        try {
+            $mailStatus = send_mail('Settings', $recipient, $senderName, $senderEmail, $subject, $content, '', '', '', '', '', true);
+            if ($mailStatus !== 1 && $mailStatus !== true) {
+                echo sprintf("[ERROR] Cron notification to %s failed: %s\n", $recipient, (string)$mailStatus);
+            }
+        } catch (Throwable $mailError) {
+            echo sprintf("[ERROR] Cron notification to %s failed: %s: %s\n", $recipient, get_class($mailError), $mailError->getMessage());
+        }
+    }
+}
+
 $version = explode('.', phpversion());
 
 $php = ($version[0] * 10000 + $version[1] * 100 + $version[2]);
@@ -70,18 +145,40 @@ if ((PHP_SAPI === "cgi-fcgi" && empty($_SESSION)) || empty($_SERVER['REMOTE_ADDR
     $current_user = Users::getActiveAdminUser();
     $cronMailConfig = Settings_CronTasks_Config_Model::getInstance()->getData();
     $cronMailRecipientEmail = trim((string)$cronMailConfig['sender_email']);
-    $cronMailNotificationEmail = 'mb@crm-now.de';
-    $cronMailSenderEmail = !empty($HELPDESK_SUPPORT_EMAIL_ID) ? trim((string)$HELPDESK_SUPPORT_EMAIL_ID) : '';
-    $cronMailSenderName = !empty($HELPDESK_SUPPORT_NAME) ? trim((string)$HELPDESK_SUPPORT_NAME) : '';
+    $cronMailNotificationEmails = vtigerCronSplitRecipients($cronMailConfig['notification_email']);
+    $cronConfiguration = file_exists('config.cron.php') ? require 'config.cron.php' : array();
+    if (!is_array($cronConfiguration)) {
+        $cronConfiguration = array();
+    }
+    $cronConfiguredRecipients = isset($cronConfiguration['error_notification_recipients'])
+        && is_array($cronConfiguration['error_notification_recipients'])
+        ? $cronConfiguration['error_notification_recipients']
+        : array();
+    $cronMailRecipients = vtigerCronGetNotificationRecipients(
+        $current_user,
+        array_merge(array($cronMailRecipientEmail), $cronMailNotificationEmails, $cronConfiguredRecipients)
+    );
+    $cronAdminEmail = vtigerCronGetUserEmail($current_user);
+    $cronMailSenderEmail = !empty($HELPDESK_SUPPORT_EMAIL_ID)
+        ? trim((string)$HELPDESK_SUPPORT_EMAIL_ID)
+        : $cronMailRecipientEmail;
+    if ($cronMailSenderEmail === '') {
+        $cronMailSenderEmail = $cronAdminEmail;
+    }
+    $cronMailSenderName = !empty($HELPDESK_SUPPORT_NAME)
+        ? trim((string)$HELPDESK_SUPPORT_NAME)
+        : trim((string)$cronMailConfig['sender_name']);
     if ($cronMailSenderName === '') {
         $cronMailSenderName = $current_user->user_name;
     }
 
     echo sprintf('[CRON PID: %s],"%s",%s,Instance,"%s","",[STARTS]', $pId, $cronRunId, $site_URL, $cronStarts) . "\n";
+    $cronExecutionErrors = array();
     foreach ($cronTasks as $cronTask) {
         if (!empty($service) && $cronTask->getName() != $service) {
             continue;
         }
+        $cronTaskMustBeFinished = false;
         try {
             $cronTask->setBulkMode(true);
 
@@ -97,16 +194,10 @@ if ((PHP_SAPI === "cgi-fcgi" && empty($_SESSION)) || empty($_SERVER['REMOTE_ADDR
                 $lastStart = $cronTask->getLastStart();
                 $now = time();
                 if ($lastStart == 0 || $now - $lastStart > 86400) {
+                    $cronTaskMustBeFinished = true;
                     $subject = sprintf(vtranslate('LBL_CRON_TIMEOUT_SUBJECT'), $cronTask->getName(), $site_URL);
                     $content = sprintf(vtranslate('LBL_CRON_TIMEOUT_CONTENT'), $site_URL, $cronTask->getName());
-                    if (!empty($cronMailSenderEmail)) {
-                        if (!empty($cronMailRecipientEmail)) {
-                            send_mail('Settings', $cronMailRecipientEmail, $cronMailSenderName, $cronMailSenderEmail, $subject, $content, '', '', '', '', '', true);
-                        }
-                        if (!empty($cronMailNotificationEmail) && strcasecmp($cronMailNotificationEmail, $cronMailRecipientEmail) !== 0) {
-                            send_mail('Settings', $cronMailNotificationEmail, $cronMailSenderName, $cronMailSenderEmail, $subject, $content, '', '', '', '', '', true);
-                        }
-                    }
+                    vtigerCronSendNotification($cronMailRecipients, $cronMailSenderName, $cronMailSenderEmail, $subject, $content);
                     echo sprintf("[INFO] %s - running for more than 24h, sent notification and restarted", $cronTask->getName());
                     // if time since last start < 24h just skip it
                 } else {
@@ -122,6 +213,7 @@ if ((PHP_SAPI === "cgi-fcgi" && empty($_SESSION)) || empty($_SERVER['REMOTE_ADDR
             // echo sprintf("[INFO] %s - cron task had timedout as it is not completed last time it run- restarting\n", $cronTask->getName());
             // }
 
+            $cronTaskMustBeFinished = true;
             // Mark the status - running
             $cronTask->markRunning();
             echo sprintf('[CRON PID: %s],"%s",%s,%s,"%s","",[STARTS]', $pId, $cronRunId, $site_URL, $cronTask->getName(), date('Y-m-d H:i:s', $cronTask->getLastStart())) . "\n";
@@ -129,15 +221,53 @@ if ((PHP_SAPI === "cgi-fcgi" && empty($_SESSION)) || empty($_SERVER['REMOTE_ADDR
             checkFileAccess($cronTask->getHandlerFile());
             require_once $cronTask->getHandlerFile();
 
-            // Mark the status - finished
-            $cronTask->markFinished();
-            echo "\n" . sprintf('[CRON PID: %s],"%s",%s,%s,"%s","%s",[ENDS]', $pId, $cronRunId, $site_URL, $cronTask->getName(), date('Y-m-d H:i:s', $cronTask->getLastStart()), date('Y-m-d H:i:s', $cronTask->getLastEnd())) . "\n";
-
-        } catch (Exception $e) {
-            echo sprintf("[ERROR]: %s - cron task execution throwed exception.\n", $cronTask->getName());
-            echo $e->getMessage();
-            echo "\n";
+        } catch (Throwable $e) {
+            $cronExecutionErrors[] = array(
+                'task' => $cronTask->getName(),
+                'type' => get_class($e),
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            );
+            echo sprintf("[ERROR] %s - cron task execution failed: %s: %s\n", $cronTask->getName(), get_class($e), $e->getMessage());
+        } finally {
+            if ($cronTaskMustBeFinished) {
+                try {
+                    $cronTask->markFinished();
+                    echo "\n" . sprintf('[CRON PID: %s],"%s",%s,%s,"%s","%s",[ENDS]', $pId, $cronRunId, $site_URL, $cronTask->getName(), date('Y-m-d H:i:s', $cronTask->getLastStart()), date('Y-m-d H:i:s', $cronTask->getLastEnd())) . "\n";
+                } catch (Throwable $finishError) {
+                    $cronExecutionErrors[] = array(
+                        'task' => $cronTask->getName(),
+                        'type' => get_class($finishError),
+                        'message' => 'Cron status could not be reset: '.$finishError->getMessage(),
+                        'file' => $finishError->getFile(),
+                        'line' => $finishError->getLine(),
+                    );
+                    echo sprintf("[ERROR] %s - cron status could not be reset: %s\n", $cronTask->getName(), $finishError->getMessage());
+                }
+            }
         }
+    }
+
+    if ($cronExecutionErrors) {
+        $errorItems = '';
+        foreach ($cronExecutionErrors as $cronExecutionError) {
+            $errorLocation = $cronExecutionError['file'].':'.$cronExecutionError['line'];
+            $errorItems .= '<li>'
+                .'<strong>Cron task:</strong> '.htmlspecialchars($cronExecutionError['task'], ENT_QUOTES, 'UTF-8').'<br>'
+                .'<strong>Exception:</strong> '.htmlspecialchars($cronExecutionError['type'], ENT_QUOTES, 'UTF-8').'<br>'
+                .'<strong>Error:</strong><br>'.nl2br(htmlspecialchars($cronExecutionError['message'], ENT_QUOTES, 'UTF-8')).'<br>'
+                .'<strong>Source:</strong> '.htmlspecialchars($errorLocation, ENT_QUOTES, 'UTF-8')
+                .'</li>';
+        }
+
+        $subject = sprintf('[CRON-ERROR] %s - %d error(s)', $site_URL, count($cronExecutionErrors));
+        $content = '<p>Errors occurred while running cron on <strong>'
+            .htmlspecialchars($site_URL, ENT_QUOTES, 'UTF-8')
+            .'</strong>. The running state was reset for each affected cron task where possible.</p>'
+            .'<p><strong>Start:</strong> '.htmlspecialchars($cronStarts, ENT_QUOTES, 'UTF-8').'</p>'
+            .'<ol>'.$errorItems.'</ol>';
+        vtigerCronSendNotification($cronMailRecipients, $cronMailSenderName, $cronMailSenderEmail, $subject, $content);
     }
 
     $cronEnds = date('Y-m-d H:i:s');

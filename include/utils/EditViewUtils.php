@@ -411,7 +411,10 @@ function getAssociatedProducts($module,$focus,$seid='') {
 		if($tax_percent == '' || $tax_percent == 'NULL') {
 			$tax_percent = '0';
         }
-		$taxamount = ($subTotal-$finalDiscount)*$tax_percent/100;
+		$taxamount = roundCurrencyValue(
+			($subTotal-$finalDiscount)*$tax_percent/100,
+			$no_of_decimal_places
+		);
 		$taxamount = safe_number_format($taxamount, $no_of_decimal_places,'.','');
 		$taxtotal = $taxtotal + $taxamount;
 		$product_Detail[1]['final_details']['taxes'][$tax_count]['taxname'] = $tax_name;
@@ -419,7 +422,12 @@ function getAssociatedProducts($module,$focus,$seid='') {
 		$product_Detail[1]['final_details']['taxes'][$tax_count]['percentage'] = $tax_percent;
 		$product_Detail[1]['final_details']['taxes'][$tax_count]['amount'] = $taxamount;
 	}
-	$product_Detail[1]['final_details']['tax_totalamount'] = $taxtotal;
+	$product_Detail[1]['final_details']['tax_totalamount'] = safe_number_format(
+		roundCurrencyValue($taxtotal, $no_of_decimal_places),
+		$no_of_decimal_places,
+		'.',
+		''
+	);
 
 	//To set the Shipping & Handling charge
 	$shCharge = ($focus->column_fields['hdnS_H_Amount'] != '')?$focus->column_fields['hdnS_H_Amount']:'0    ';
@@ -441,7 +449,10 @@ function getAssociatedProducts($module,$focus,$seid='') {
 		if($module == 'PurchaseOrder' || $module == 'SalesOrder' || $module == 'Quotes' || $module == 'Invoice'){
 			$shtax_percent = getInventorySHTaxPercent($focus->id,$shtax_name);
         }
-		$shtaxamount = $shCharge*$shtax_percent/100;
+		$shtaxamount = roundCurrencyValue(
+			$shCharge*$shtax_percent/100,
+			$no_of_decimal_places
+		);
 		$shtaxtotal = $shtaxtotal + $shtaxamount;
 		$product_Detail[1]['final_details']['sh_taxes'][$shtax_count]['taxname'] = $shtax_name;
 		$product_Detail[1]['final_details']['sh_taxes'][$shtax_count]['taxlabel'] = $shtax_label;
