@@ -6,6 +6,7 @@ class Settings_Vtiger_BackupWorker_Model
 {
     public static function run()
     {
+        if (!Settings_Vtiger_Backup_Model::isEnabled()) { return; }
         $worker = Settings_Vtiger_Backup_Model::lock('worker', false);
         if (!$worker) {
             return;
@@ -53,7 +54,7 @@ class Settings_Vtiger_BackupWorker_Model
 
     private static function build(array $job)
     {
-        global $dbconfig, $backup_extra_paths;
+        global $dbconfig;
         $archive = null;
         try {
             if (PHP_INT_SIZE < 8 || !extension_loaded('mysqli')) {
@@ -61,22 +62,20 @@ class Settings_Vtiger_BackupWorker_Model
             }
             $archive = new Settings_Vtiger_BackupArchive_Model($job['id']);
             $archive->add('database.sql', static::database()->export());
-            $archive->tree(Settings_Vtiger_Backup_Model::root(), 'crm');
             $external = array();
-            foreach (($backup_extra_paths ?? array()) as $index => $extra) {
-                if (!is_string($extra) || $extra === '' || $extra[0] !== '/') {
-                    throw new RuntimeException('LBL_BACKUP_EXTRA_PATH');
-                }
-                $name = 'external/' . count($external);
-                $archive->tree($extra, $name);
-                $external[$name] = $extra;
+            foreach (Settings_Vtiger_Backup_Model::sourcePaths() as $source) {
+                list($path, $name) = $source;
+                $archive->tree($path, $name);
+                if (strpos($name, 'external/') === 0) { $external[$name] = $path; }
             }
             $archive->add('manifest.json', array(json_encode(array('format' => 2,
+                'source_excluded' => Settings_Vtiger_Backup_Model::excludesSource(),
                 'created_utc' => gmdate('c'), 'database' => $dbconfig['db_name'],
                 'root' => Settings_Vtiger_Backup_Model::root(), 'external_paths' => $external,
                 'consistency' => 'InnoDB snapshot; live files, no atomic database/filesystem snapshot.',
                 'excluded' => array('storage/Backup (including symlink aliases)', '.git', '.idea'),
-                'symlinks' => 'Targets included as ordinary files/directories'), JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT)));
+                'symlinks' => Settings_Vtiger_Backup_Model::excludesSource()
+                    ? 'Excluded' : 'Targets included as ordinary files/directories'), JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT)));
             $job['size'] = $archive->finish();
             unset($archive);
             $path = Settings_Vtiger_Backup_Model::path($job['id'], '.zip');

@@ -1,7 +1,6 @@
 <div class="container-fluid" id="backupSettings" data-version="{$BACKUP_VERSION|escape:'html'}">
     <h3>{vtranslate('LBL_BACKUP', $QUALIFIED_MODULE)}</h3>
     <hr>
-    <p>{vtranslate('LBL_BACKUP_DESCRIPTION', $QUALIFIED_MODULE)}</p>
     <p class="alert alert-info">{vtranslate('LBL_BACKUP_NOTICE', $QUALIFIED_MODULE)}</p>
     <div class="well" id="backupSpace" data-unknown="{vtranslate('LBL_BACKUP_SPACE_UNKNOWN', $QUALIFIED_MODULE)|escape:'html'}">
         <dl class="dl-horizontal">

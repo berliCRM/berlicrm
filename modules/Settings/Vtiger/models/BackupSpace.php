@@ -6,7 +6,6 @@ class Settings_Vtiger_BackupSpace_Model
 {
     public static function calculate()
     {
-        global $backup_extra_paths;
         $result = array('free' => null, 'archive' => null, 'required' => null,
             'reserve' => Settings_Vtiger_Backup_Model::reserveBytes(), 'insufficient' => false);
         try {
@@ -19,13 +18,7 @@ class Settings_Vtiger_BackupSpace_Model
             $check = function () use ($deadline) {
                 if (microtime(true) > $deadline) { throw new RuntimeException('Estimate timeout'); }
             };
-            $paths = array(array(Settings_Vtiger_Backup_Model::root(), 'crm'));
-            foreach (($backup_extra_paths ?? array()) as $extra) {
-                if (!is_string($extra) || $extra === '' || $extra[0] !== '/') {
-                    throw new RuntimeException('LBL_BACKUP_EXTRA_PATH');
-                }
-                $paths[] = array($extra, 'external/' . (count($paths) - 1));
-            }
+            $paths = Settings_Vtiger_Backup_Model::sourcePaths();
             $archive = 98; // ZIP64 end records.
             $central = 0;
             $add = function ($name, $size) use (&$archive, &$central) {

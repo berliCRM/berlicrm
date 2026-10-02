@@ -9,7 +9,7 @@
  *************************************************************************************/
 $languageStrings = array(
     'LBL_BACKUP' => 'Backup',
-    'LBL_BACKUP_DESCRIPTION' => 'Back up the complete CRM database, configuration, documents and application files as a ZIP archive.',
+    'LBL_BACKUP_DISABLED' => 'The backup feature is disabled in the configuration.',
     'LBL_BACKUP_NOTICE' => 'The CRM scheduler starts the backup (Backup in scheduled tasks). You can continue working. The database uses an InnoDB snapshot; files are copied live and do not represent the same point in time as the database. Do not run upgrades or schema changes during backup. Archives include passwords and personal data: store securely. Up to three jobs are retained until manually deleted. The requesting administrator receives the notification.',
     'LBL_BACKUP_SPACE_FREE' => 'Free at backup location',
     'LBL_BACKUP_SPACE_ARCHIVE' => 'Archive (estimated)',

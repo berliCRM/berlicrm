@@ -117,6 +117,8 @@ class Settings_Vtiger_BackupArchive_Model
     public static function entries($path, $name, callable $check, array $ancestors = array())
     {
         $check();
+        // Data-only backups must not follow links into application code or other trees.
+        if (Settings_Vtiger_Backup_Model::excludesSource() && is_link($path)) { return; }
         $real = realpath($path);
         if ($real === false) { throw new RuntimeException('LBL_BACKUP_FAILED'); }
         $directory = Settings_Vtiger_Backup_Model::directory();
