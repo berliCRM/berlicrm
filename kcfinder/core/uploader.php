@@ -13,7 +13,35 @@
   */
 
 class uploader {
+    /** @var array Allowed extensions and MIME types detected from file contents. */
+    const ALLOWED_FILE_TYPES = array(
+        'jpg' => array('image/jpeg'), 'jpeg' => array('image/jpeg'), 'jpe' => array('image/jpeg'),
+        'png' => array('image/png'), 'gif' => array('image/gif'),
+        'bmp' => array('image/bmp', 'image/x-ms-bmp'), 'webp' => array('image/webp'),
+        'avif' => array('image/avif'), 'tif' => array('image/tiff'), 'tiff' => array('image/tiff'),
+        'ico' => array('image/vnd.microsoft.icon', 'image/x-icon'),
+        'heic' => array('image/heic', 'image/heic-sequence'),
+        'heif' => array('image/heif', 'image/heif-sequence'),
+        'jp2' => array('image/jp2'), 'psd' => array('image/vnd.adobe.photoshop', 'image/x-photoshop'),
+        'svg' => array('image/svg+xml', 'application/xml', 'text/xml', 'text/plain'),
+        'pdf' => array('application/pdf'),
+        'doc' => array('application/msword', 'application/vnd.ms-office', 'application/x-ole-storage', 'application/CDFV2'),
+        'xls' => array('application/vnd.ms-excel', 'application/vnd.ms-office', 'application/x-ole-storage', 'application/CDFV2'),
+        'ppt' => array('application/vnd.ms-powerpoint', 'application/vnd.ms-office', 'application/x-ole-storage', 'application/CDFV2'),
+        'docx' => array('application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/zip'),
+        'xlsx' => array('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/zip'),
+        'pptx' => array('application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/zip'),
+        'odt' => array('application/vnd.oasis.opendocument.text', 'application/zip'),
+        'ods' => array('application/vnd.oasis.opendocument.spreadsheet', 'application/zip'),
+        'odp' => array('application/vnd.oasis.opendocument.presentation', 'application/zip'),
+        'rtf' => array('application/rtf', 'text/rtf'),
+        'txt' => array('text/plain'), 'csv' => array('text/plain', 'text/csv', 'application/csv'),
+        'zip' => array('application/zip', 'application/x-zip', 'application/x-zip-compressed'),
+    );
+
     protected $config = array();
+    /** @var int Maximum accepted upload size in bytes from the CRM configuration. */
+    protected $maxUploadBytes = 0;
     protected $opener = array();
     protected $type;
     protected $typeDir;
@@ -81,6 +109,18 @@ class uploader {
             $this->session = &$this->config['_sessionVar']['self'];
         } else
             $this->session = &$_SESSION;
+
+        // A KCFinder configuration alone must not grant access without a CRM login.
+        if (empty($_SESSION['authenticated_user_id']) || empty($_SESSION['AUTHUSERID'])
+            || (string) $_SESSION['authenticated_user_id'] !== (string) $_SESSION['AUTHUSERID']
+            || empty($_SESSION['app_unique_key']) || $this->config['disabled']) {
+            http_response_code(403);
+            die('Access denied');
+        }
+
+        // Use the CRM upload limit rather than maintaining a separate KCFinder limit.
+        require dirname(__FILE__) . '/../../config.inc.php';
+        $this->maxUploadBytes = isset($upload_maxsize) ? max(0, (int) $upload_maxsize) : 0;
 
         // GET TYPE DIRECTORY
         $this->types = &$this->config['types'];
@@ -159,7 +199,9 @@ class uploader {
             } else {
                 if (false === ($data = @file_get_contents($htaccess)))
                     $this->backMsg("Cannot read .htaccess");
-                if (($data != $this->get_htaccess()) && !@file_put_contents($htaccess, $data))
+                // Preserve existing directives and add the current execution protection.
+                if (strpos($data, '# berliCRM upload protection') === false
+                    && !@file_put_contents($htaccess, $data."\n".$this->get_htaccess(), LOCK_EX))
                     $this->backMsg("Incorrect .htaccess file. Cannot rewrite it!");
             }
         }
@@ -204,10 +246,7 @@ class uploader {
 
                 $target = file::getInexistantFilename("$dir{$file['name']}");
 
-                if (!@move_uploaded_file($file['tmp_name'], $target) &&
-                    !@rename($file['tmp_name'], $target) &&
-                    !@copy($file['tmp_name'], $target)
-                )
+                if (!@move_uploaded_file($file['tmp_name'], $target))
                     $message = $this->label("Cannot move uploaded file to target folder.");
                 else {
                     if (function_exists('chmod'))
@@ -235,7 +274,8 @@ class uploader {
         $config = &$this->config;
         $file = &$this->file;
 
-        if (!is_array($file) || !isset($file['name']))
+        if (!is_array($file) || !isset($file['name'], $file['tmp_name'], $file['error'])
+            || !is_string($file['name']) || !is_string($file['tmp_name']))
             return $this->label("Unknown error");
 
         $extension = file::getExtension($file['name']);
@@ -262,15 +302,21 @@ class uploader {
             )))));
 
         // HIDDEN FILENAMES CHECK
-        elseif (substr($file['name'], 0, 1) == ".")
-            return $this->label("File name shouldn't begins with '.'");
+        elseif (!$this->validateFilename($file['name']))
+            return $this->label("Unallowable characters in file name.");
+
+        elseif (!is_uploaded_file($file['tmp_name']))
+            return $this->label("Unknown error.");
 
         // EXTENSION CHECK
         elseif (!$this->validateExtension($extension, $this->type))
             return $this->label("Denied file extension.");
 
+        elseif (!$this->validateFileContent($file['tmp_name'], $file['name'], $this->type))
+            return $this->label("Invalid file content or unsupported file format.");
+
         // SPECIAL DIRECTORY TYPES CHECK (e.g. *img)
-        elseif (preg_match('/^\*([^ ]+)(.*)?$/s', $typePatt, $patt)) {
+        elseif (substr($typePatt, 0, 4) !== '*img' && preg_match('/^\*([^ ]+)(.*)?$/s', $typePatt, $patt)) {
             list($typePatt, $type, $params) = $patt;
             if (class_exists("type_$type")) {
                 $class = "type_$type";
@@ -294,6 +340,11 @@ class uploader {
     }
 
     protected function checkInputDir($dir, $inclType=true, $existing=true) {
+        if (!is_string($dir) || preg_match('/[\x00-\x1f\x7f\\\\]/', $dir))
+            return false;
+        foreach (explode('/', $dir) as $component)
+            if ($component !== '' && $component[0] === '.')
+                return false;
         $dir = path::normalize($dir);
         if (substr($dir, 0, 1) == "/")
             $dir = substr($dir, 1);
@@ -316,12 +367,31 @@ class uploader {
             return $return;
 
         $path = "{$this->config['uploadDir']}/$dir";
-        return (is_dir($path) && is_readable($path)) ? $return : false;
+        return (is_dir($path) && is_readable($path) && $this->pathWithinUploadRoot($path)) ? $return : false;
+    }
+
+    /**
+     * Requires an existing path inside the canonical upload directory.
+     *
+     * @param string $path Existing file or directory to check.
+     * @return bool Whether the path stays within the upload root.
+     */
+    protected function pathWithinUploadRoot($path) {
+        $root = realpath($this->config['uploadDir']);
+        $resolved = realpath($path);
+        if ($root === false || $resolved === false || is_link($path)) {
+            return false;
+        }
+        $prefix = rtrim($root, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+        return strpos($resolved, $prefix) === 0;
     }
 
     protected function validateExtension($ext, $type) {
         $ext = trim(strtolower($ext));
-        if (!isset($this->types[$type]))
+        if (!isset($this->types[$type]) || !isset(self::ALLOWED_FILE_TYPES[$ext]))
+            return false;
+
+        if (in_array($type, array('images', 'image'), true) && !$this->isImageExtension($ext))
             return false;
 
         $exts = strtolower(text::clearWhitespaces($this->config['deniedExts']));
@@ -342,6 +412,130 @@ class uploader {
 
         $exts = explode(" ", trim(strtolower($exts)));
         return in_array($ext, $exts);
+    }
+
+    /**
+     * Rejects traversal, server configuration names, and embedded script extensions.
+     *
+     * @param string $name Original filename, without a directory component.
+     * @return bool Whether the filename is safe to store under the upload root.
+     */
+    protected function validateFilename($name) {
+        if (!is_string($name) || $name === '' || strlen($name) > 200
+            || $name[0] === '.' || trim($name, " .\t\r\n") !== $name
+            || preg_match('/[\x00-\x1f\x7f\/\\\\:;<>"|?*%]/', $name)) {
+            return false;
+        }
+        return !preg_match('/(?:^|\.)(?:php[0-9]*|pht(?:ml|m)?|phar|phps|cgi|pl|py|rb|sh|bash|asp[x]?|jsp[x]?|shtml|shtm|htaccess|user\.ini)(?:\.|$)/i', $name);
+    }
+
+    /** @param string $extension File extension. @return bool Whether it is an image. */
+    protected function isImageExtension($extension) {
+        return isset(self::ALLOWED_FILE_TYPES[$extension])
+            && substr(self::ALLOWED_FILE_TYPES[$extension][0], 0, 6) === 'image/';
+    }
+
+    /**
+     * Checks server-detected content against the extension, never the client MIME header.
+     * Office ZIP containers are inspected without extracting their contents.
+     *
+     * @param string $path Uploaded file or existing file being renamed/copied.
+     * @param string $name Proposed filename.
+     * @param string $type KCFinder directory type.
+     * @return bool Whether content and filename meet the upload policy.
+     */
+    protected function validateFileContent($path, $name, $type) {
+        if (!$this->validateFilename($name) || !is_file($path) || is_link($path)
+            || $this->maxUploadBytes <= 0 || filesize($path) > $this->maxUploadBytes || !class_exists('finfo')) {
+            return false;
+        }
+        $extension = file::getExtension($name);
+        if (!$this->validateExtension($extension, $type)) {
+            return false;
+        }
+        $info = new finfo(FILEINFO_MIME_TYPE);
+        $mime = $info->file($path);
+        if (!in_array($mime, self::ALLOWED_FILE_TYPES[$extension], true)) {
+            return false;
+        }
+        if ($extension === 'svg') {
+            return $this->validateSvg($path);
+        }
+        $officeEntries = array('docx' => 'word/document.xml', 'xlsx' => 'xl/workbook.xml',
+            'pptx' => 'ppt/presentation.xml', 'odt' => 'content.xml', 'ods' => 'content.xml', 'odp' => 'content.xml');
+        if (isset($officeEntries[$extension])) {
+            if (!class_exists('ZipArchive')) {
+                return false;
+            }
+            $zip = new ZipArchive();
+            if ($zip->open($path) !== true) {
+                return false;
+            }
+            $valid = $zip->locateName($officeEntries[$extension]) !== false;
+            if (in_array($extension, array('odt', 'ods', 'odp'), true)) {
+                $valid = $valid && $zip->getFromName('mimetype', 128) === self::ALLOWED_FILE_TYPES[$extension][0];
+            } else {
+                $valid = $valid && $zip->locateName('[Content_Types].xml') !== false;
+            }
+            $zip->close();
+            return $valid;
+        }
+        return true;
+    }
+
+    /**
+     * Accepts static SVG graphics only; rejects scripts, styles and external resources.
+     * XML is parsed without entity expansion or network access.
+     *
+     * @param string $path SVG file to inspect.
+     * @return bool Whether the SVG contains only approved elements and attributes.
+     */
+    protected function validateSvg($path) {
+        if (!class_exists('DOMDocument')) {
+            return false;
+        }
+        $xml = file_get_contents($path);
+        if ($xml === false || stripos($xml, '<!DOCTYPE') !== false || stripos($xml, '<!ENTITY') !== false) {
+            return false;
+        }
+        $previous = libxml_use_internal_errors(true);
+        $document = new DOMDocument();
+        $loaded = $document->loadXML($xml, LIBXML_NONET);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
+        if (!$loaded || $document->doctype || !$document->documentElement
+            || $document->documentElement->localName !== 'svg') {
+            return false;
+        }
+        $xpath = new DOMXPath($document);
+        if ($xpath->query('//processing-instruction()')->length) {
+            return false;
+        }
+        $elements = array('svg', 'g', 'path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon',
+            'defs', 'linearGradient', 'radialGradient', 'stop', 'clipPath', 'mask', 'pattern',
+            'text', 'tspan', 'title', 'desc', 'use', 'symbol');
+        $attributes = explode(' ', 'id x y x1 x2 y1 y2 cx cy r rx ry d points width height viewBox preserveAspectRatio transform fill fill-opacity fill-rule stroke stroke-width stroke-opacity stroke-linecap stroke-linejoin stroke-miterlimit stroke-dasharray stroke-dashoffset opacity clip-path clip-rule mask offset stop-color stop-opacity gradientUnits gradientTransform spreadMethod fx fy patternUnits patternContentUnits patternTransform font-family font-size font-weight font-style text-anchor dominant-baseline dx dy rotate href version');
+        foreach ($document->getElementsByTagName('*') as $element) {
+            if ($element->namespaceURI !== 'http://www.w3.org/2000/svg'
+                || !in_array($element->localName, $elements, true)) {
+                return false;
+            }
+            foreach ($element->attributes as $attribute) {
+                if (!in_array($attribute->localName, $attributes, true)
+                    || ($attribute->namespaceURI && !($attribute->namespaceURI === 'http://www.w3.org/1999/xlink' && $attribute->localName === 'href'))
+                    || strpos($attribute->value, '\\') !== false) {
+                    return false;
+                }
+                if ($attribute->localName === 'href' && !preg_match('/\A#[a-zA-Z_][a-zA-Z0-9_.-]*\z/', $attribute->value)) {
+                    return false;
+                }
+                if (stripos($attribute->value, 'url') !== false
+                    && !preg_match('/\Aurl\(#[a-zA-Z_][a-zA-Z0-9_.-]*\)\z/', $attribute->value)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     protected function getTypeFromPath($path) {
@@ -485,7 +679,18 @@ if (!kc_CKEditor && !kc_FCKeditor && !kc_Custom)
     }
 
     protected function get_htaccess() {
-        return "<IfModule mod_php4.c>
+        return "# berliCRM upload protection
+Options -Indexes -ExecCGI
+<FilesMatch \"(?i)(^\\.|\\.(php[0-9]*|pht|phtml|phar|phps|cgi|pl|py|asp|aspx|jsp|jspx|shtml)(\\.|$))\">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+<IfModule mod_php4.c>
   php_value engine off
 </IfModule>
 <IfModule mod_php5.c>
