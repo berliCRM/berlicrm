@@ -14,7 +14,8 @@
         "webklex/php-imap": "*",
         "adodb/adodb-php": "^5.22",
         "smarty/smarty": "^5.8",
-        "tecnickcom/tcpdf": "^6.8"
+        "tecnickcom/tcpdf": "^6.8",
+        "phpoffice/phpspreadsheet": "^5.10"
     },
     "config": {
         "platform": {
