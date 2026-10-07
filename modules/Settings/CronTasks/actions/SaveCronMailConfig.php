@@ -42,7 +42,8 @@ class Settings_CronTasks_SaveCronMailConfig_Action extends Settings_Vtiger_Index
 		exit;
 	}
 
-	public function validateRequest(Vtiger_Request $request) {
+	public function validateRequest(Vtiger_Request $request): bool {
 		$request->validateWriteAccess();
+        return true;        
 	}
 }
