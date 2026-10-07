@@ -1281,7 +1281,7 @@ class QueryGenerator {
 			}
 			elseif(!$this->isNumericType($field->getFieldDataType()) &&
 					($field->getFieldName() != 'birthday' || ($field->getFieldName() == 'birthday'
-							&& $this->isRelativeSearchOperators($operator))) && !$dontquote){
+							&& $this->isRelativeSearchOperators($operator))) && !$dontquote || (in_array($operator, ['s', 'ew', 'c', 'k']) && !$dontquote)){
 				$value = "'$value'";
 			}
 			elseif($this->isNumericType($field->getFieldDataType()) && empty($value)) {
