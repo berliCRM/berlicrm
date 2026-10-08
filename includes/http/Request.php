@@ -54,7 +54,8 @@ class Vtiger_Request {
 		}
 
 		// Try to decode JSON
-		if (is_string($value)) {
+		// prevent 'true' and 'false' values to be transformed to true and false and thus '1' and '0' on get()
+		if (is_string($value) && $value !== 'true' && $value !== 'false') {
 			$decodedValue = json_decode($value, true);
 			if ($decodedValue !== null || $value === 'null') {
 				$value = $decodedValue;
