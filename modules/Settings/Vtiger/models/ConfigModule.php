@@ -70,6 +70,14 @@ class Settings_Vtiger_ConfigModule_Model extends Settings_Vtiger_Module_Model {
 			$data = array();
 			$editableFileds = $this->getEditableFields();
 			foreach ($editableFileds as $fieldName => $fieldDetails) {
+				if ($fieldName === 'custom_logo_link') {
+					$data[$fieldName] = $GLOBALS['custom_logo_link'] ?? '';
+					continue;
+				}
+				if ($fieldName === 'custom_logo_link_target') {
+					$data[$fieldName] = Vtiger_CompanyDetails_Model::getLogoLinkTarget();
+					continue;
+				}
 				foreach ($configContents as $configContent) {
 					if (strpos($configContent, $fieldName)) {
 						$fieldValue = explode(' = ', $configContent);
@@ -94,6 +102,9 @@ class Settings_Vtiger_ConfigModule_Model extends Settings_Vtiger_Module_Model {
 	 * @return <Array> list of module names
 	 */
 	public function getPicklistValues($fieldName) {
+		if ($fieldName === 'custom_logo_link_target') {
+			return array('_self' => 'LBL_CUSTOM_LOGO_SAME_TAB', '_blank' => 'LBL_CUSTOM_LOGO_NEW_TAB');
+		}
 		if ($fieldName === 'default_module') {
 			$db = PearDatabase::getInstance();
 
@@ -137,6 +148,8 @@ class Settings_Vtiger_ConfigModule_Model extends Settings_Vtiger_Module_Model {
 	 */
 	public function getEditableFields() {
 		return array(
+			'custom_logo_link' => array('label' => 'LBL_CUSTOM_LOGO_LINK', 'fieldType' => 'input'),
+			'custom_logo_link_target' => array('label' => 'LBL_CUSTOM_LOGO_LINK_TARGET', 'fieldType' => 'picklist'),
 //			'CALENDAR_DISPLAY'				=> array('label' => 'LBL_MINI_CALENDAR_DISPLAY',			'fieldType' => 'checkbox'),
 //			'WORLD_CLOCK_DISPLAY'			=> array('label' => 'LBL_WORLD_CLOCK_DISPLAY',				'fieldType' => 'checkbox'),
 //			'CALCULATOR_DISPLAY'			=> array('label' => 'LBL_CALCULATOR_DISPLAY',				'fieldType' => 'checkbox'),
@@ -161,6 +174,23 @@ class Settings_Vtiger_ConfigModule_Model extends Settings_Vtiger_Module_Model {
 		$validationInfo = $this->validateFieldValues($updatedFields);
 		if ($validationInfo === true) {
 			foreach ($updatedFields as $fieldName => $fieldValue) {
+				if ($fieldName === 'custom_logo_link' || $fieldName === 'custom_logo_link_target') {
+					$replacement = '$' . $fieldName . ' = ' . var_export(trim($fieldValue), true) . ';';
+					// Match the entire PHP string, including escaped quotes and semicolons in URLs.
+					$pattern = <<<'REGEX'
+~\$custom_logo_link\s*=\s*'(?:\\.|[^'\\])*'\s*;~
+REGEX;
+					$pattern = str_replace('custom_logo_link', $fieldName, $pattern);
+					$fileContent = preg_replace_callback($pattern, function () use ($replacement) {
+						return $replacement;
+					}, $fileContent, -1, $count);
+					if (!$count) {
+						$fileContent = preg_replace_callback('/<\\?php/', function () use ($replacement) {
+							return "<?php\n" . $replacement;
+						}, $fileContent, 1);
+					}
+					continue;
+				}
 				$patternString = "\$%s = '%s';";
 				if ($fieldName === 'upload_maxsize') {
 					$fieldValue = $fieldValue * 1048576; //(1024 * 1024)
@@ -183,6 +213,14 @@ class Settings_Vtiger_ConfigModule_Model extends Settings_Vtiger_Module_Model {
 	 * @return <String> True/Error message
 	 */
 	public function validateFieldValues($updatedFields){
+		if (array_key_exists('custom_logo_link_target', $updatedFields)
+			&& !in_array($updatedFields['custom_logo_link_target'], array('_self', '_blank'), true)) {
+			return 'LBL_INVALID_CUSTOM_LOGO_LINK_TARGET';
+		}
+		if (array_key_exists('custom_logo_link', $updatedFields)
+			&& !Vtiger_CompanyDetails_Model::isValidLogoLink($updatedFields['custom_logo_link'])) {
+			return 'LBL_INVALID_CUSTOM_LOGO_LINK';
+		}
 		if (!filter_var($updatedFields['HELPDESK_SUPPORT_EMAIL_ID'], FILTER_VALIDATE_EMAIL)) {
 			return "LBL_INVALID_EMAILID";
 		} else if(preg_match ('/[\'";?><]/', $updatedFields['HELPDESK_SUPPORT_NAME'])) {

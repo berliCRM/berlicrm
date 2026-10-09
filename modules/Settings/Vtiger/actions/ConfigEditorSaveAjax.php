@@ -22,7 +22,12 @@ class Settings_Vtiger_ConfigEditorSaveAjax_Action extends Settings_Vtiger_Basic_
 			$status = $moduleModel->save();
 
 			if ($status === true) {
-				$response->setResult(array($status));
+				$companyDetails = new Vtiger_CompanyDetails_Model();
+				$response->setResult(array($status, 'logoLink' => array(
+					'url' => array_key_exists('custom_logo_link', $updatedFields)
+						? trim($updatedFields['custom_logo_link']) : $companyDetails->getLogoLink(),
+					'target' => $updatedFields['custom_logo_link_target'] ?? $companyDetails->getLogoLinkTarget()
+				)));
 			} else {
 				$response->setError(vtranslate($status, $qualifiedModuleName));
 			}
