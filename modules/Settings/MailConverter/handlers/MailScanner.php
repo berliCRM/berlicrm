@@ -69,9 +69,9 @@ class Vtiger_MailScanner {
 
 		/** Loop through all the folders. */
 		$folders = $mailbox->getFolders();
-                if(!is_array($folders)) {
-                    return $folders;
-                }
+		if(!is_array($folders)) {
+			return $folders;
+		}
 
 		// Build ignore folder list
 		$ignoreFolders = Array();
@@ -140,7 +140,7 @@ class Vtiger_MailScanner {
 		}
 		// Close the mailbox at end
 		$mailbox->close();
-                return true;
+		return true;
 	}
 
 	/**
@@ -249,7 +249,12 @@ class Vtiger_MailScanner {
 			return $this->_cachedContactIds[$email];
 		}
 		$contactid = false;
-		$contactres = $adb->pquery("SELECT contactid FROM vtiger_contactdetails INNER JOIN vtiger_crmentity ON crmid = contactid WHERE setype = ? AND email = ? AND deleted = ?", array('Contacts', $email, 0));
+		$contactres = $adb->pquery(
+			"SELECT contactid FROM vtiger_contactdetails
+			 INNER JOIN vtiger_crmentity ON crmid = contactid
+			 WHERE setype = ? AND (email = ? OR secondaryemail = ?) AND deleted = ?",
+			array('Contacts', $email, $email, 0)
+		);
 		if($adb->num_rows($contactres)) {
 			$deleted = $adb->query_result($contactres, 0, 'deleted');
 			if ($deleted != 1) {
@@ -366,7 +371,7 @@ class Vtiger_MailScanner {
 	function GetAccountRecord($email, $accountid = false) {
 		require_once('modules/Accounts/Accounts.php');
 		if(!$accountid)
-                    $accountid = $this->LookupAccount($email);
+			$accountid = $this->LookupAccount($email);
 		$account_focus = false;
 		if($accountid) {
 			if($this->_cachedAccounts[$accountid]) {
@@ -390,20 +395,20 @@ class Vtiger_MailScanner {
 	function GetContactRecord($email, $contactid = false) {
 		require_once('modules/Contacts/Contacts.php');
 		if(!$contactid)
-                    $contactid = $this->LookupContact($email);
+			$contactid = $this->LookupContact($email);
 		$contact_focus = false;
 		if($contactid) {
 			if($this->_cachedContacts[$contactid]) {
 				$contact_focus = $this->_cachedContacts[$contactid];
 				$this->log("Reusing Cached Contact [" . $contact_focus->column_fields[lastname] .
-				   	'-' . $contact_focus->column_fields[firstname] . "]");
+					'-' . $contact_focus->column_fields[firstname] . "]");
 			} else {
 				$contact_focus = new Contacts();
 				$contact_focus->retrieve_entity_info($contactid, 'Contacts');
 				$contact_focus->id = $contactid;
 
 				$this->log("Caching Contact [" . $contact_focus->column_fields[lastname] .
-				   	'-' . $contact_focus->column_fields[firstname] . "]");
+					'-' . $contact_focus->column_fields[firstname] . "]");
 				$this->_cachedContacts[$contactid] = $contact_focus;
 			}
 		}
@@ -421,14 +426,14 @@ class Vtiger_MailScanner {
 			if ($this->_cachedLeads[$leadid]) {
 				$lead_focus = $this->_cachedLeads[$leadid];
 				$this->log("Reusing Cached Lead [" . $lead_focus->column_fields[lastname] .
-						'-' . $lead_focus->column_fields[firstname] . "]");
+					'-' . $lead_focus->column_fields[firstname] . "]");
 			} else {
 				$lead_focus = new Leads();
 				$lead_focus->retrieve_entity_info($leadid, 'Leads');
 				$lead_focus->id = $leadid;
 
 				$this->log("Caching Lead [" . $lead_focus->column_fields[lastname] .
-						'-' . $lead_focus->column_fields[firstname] . "]");
+					'-' . $lead_focus->column_fields[firstname] . "]");
 				$this->_cachedLeads[$leadid] = $lead_focus;
 			}
 		}
@@ -439,13 +444,30 @@ class Vtiger_MailScanner {
 	 * Lookup Contact or Account based on from email and with respect to given CRMID
 	 */
 	function LookupContactOrAccount($fromemail, $checkWith) {
-		$recordid = $this->LookupContact($fromemail);
-		if ($checkWith['contact_id'] && $recordid != $checkWith['contact_id']) {
-			$recordid = $this->LookupAccount($fromemail);
-			if (($checkWith['parent_id'] && $recordid != $checkWith['parent_id']))
-				$recordid = false;
+		global $adb;
+
+		$contactid = $this->LookupContact($fromemail);
+		if (!empty($checkWith['contact_id']) && $contactid == $checkWith['contact_id']) {
+			return $contactid;
 		}
-		return $recordid;
+		if (!empty($checkWith['contact_id'])) {
+			$contactres = $adb->pquery(
+				"SELECT contactid FROM vtiger_contactdetails
+				 INNER JOIN vtiger_crmentity ON crmid = contactid
+				 WHERE contactid = ? AND (email = ? OR secondaryemail = ?) AND deleted = ?",
+				Array($checkWith['contact_id'], $fromemail, $fromemail, 0)
+			);
+			if ($adb->num_rows($contactres)) {
+				return $checkWith['contact_id'];
+			}
+		}
+
+		$accountid = $this->LookupAccount($fromemail);
+		if (!empty($checkWith['parent_id']) && $accountid == $checkWith['parent_id']) {
+			return $accountid;
+		}
+
+		return false;
 	}
 
 	/**
@@ -488,13 +510,13 @@ class Vtiger_MailScanner {
 		$accountId = $adb->query_result($result, 0, 'accountid');
 		return $accountId;
 	}
-    
-    function disableMailScanner(){
-        global $adb;
-        $scannerId = $this->_scannerinfo->scannerid;
+
+	function disableMailScanner(){
+		global $adb;
+		$scannerId = $this->_scannerinfo->scannerid;
 		$adb->pquery("UPDATE vtiger_mailscanner SET isvalid=? WHERE scannerid=?", array(0,$scannerId));
-    }
-    
+	}
+
 }
 
 ?>

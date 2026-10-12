@@ -452,3 +452,25 @@ Vtiger_Picklist_Field_Js('Workflows_Picklist_Field_Js',{},{
                 return selectContainer;
         }
 });
+
+Vtiger_Picklist_Field_Js('Workflows_Userpicklist_Field_Js',{},{
+
+	getUi : function() {
+		var selectedOption = app.htmlDecode(this.getValue());
+		var pickListValues = this.getPickListValues();
+		var html = '<select class="row-fluid chzn-select" name="' + this.getName() + '">';
+
+		for(var key in pickListValues) {
+			html += '<option value="' + key + '"';
+			if(key == selectedOption) {
+				html += ' selected';
+			}
+			html += '>' + pickListValues[key] + '</option>';
+		}
+
+		html += '</select>';
+		var selectContainer = jQuery(html);
+		this.addValidationToElement(selectContainer);
+		return selectContainer;
+	}
+});

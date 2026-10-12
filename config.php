@@ -31,3 +31,10 @@ $modCommentsColors = array(
 			'outgoing' => 'green',
 			'internal' => 'yellow'
 			);
+
+$HELPDESK_SUPPORT_EMAIL_TEMPLATE = 3;
+$PORTAL_EMAIL_TEMPLATE_DE = 1;
+$PORTAL_EMAIL_TEMPLATE_EN = 2;
+
+$mailerQueueTreshold = 5000;
+$mailerScheduleLimit = 10000;

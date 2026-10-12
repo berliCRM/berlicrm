@@ -691,16 +691,33 @@ class Vtiger_Module_Model extends Vtiger_Module {
         if(!$moduleModels){
             $moduleModels = array();
 
-            $query = 'SELECT * FROM vtiger_tab';
+            $query = 'SELECT * , berli_globalsearch_settings.sequence AS globalsequence FROM vtiger_tab 
+                LEFT JOIN berli_globalsearch_settings ON tabid = gstabid 
+            ';
             $params = array();
             if($presence) {
-                $query .= ' WHERE presence IN ('. generateQuestionMarks($presence) .')';
+                $query .= ' WHERE presence IN ('. generateQuestionMarks($presence) .') ';
                 array_push($params, $presence);
             }
 
             // sorting in equivalence of the GUI: configured menue entries first (by their tabsequences if > 0), rest by parent
             // appears to be used for module manager (and now DSVGO module) only
-            $query .= " ORDER BY -SIGN(tabsequence),tabsequence,parent";
+
+            // In Global Search (dropdown list), the values should be sorted as specified in the Global Search settings.
+            // First, sort all values with a positive sequence starting with 1, 2, 3, 4, 5, 6... ASC.
+            // Then sort all other values, and only after that, sort by tabsequence and parent, as before.
+            $query .= " ORDER BY 
+                CASE 
+                    WHEN globalsequence > 0 THEN 0 
+                    ELSE 1 
+                END ASC, 
+                CASE 
+                    WHEN globalsequence > 0 THEN globalsequence 
+                    ELSE NULL 
+                END ASC, 
+                
+                -SIGN(tabsequence),tabsequence,parent 
+            ";
 
             $result = $db->pquery($query, $params);
             $noOfModules = $db->num_rows($result);

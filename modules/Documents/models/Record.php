@@ -41,7 +41,7 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 			if (!empty ($fileDetails)) {
 				$filePath = $fileDetails['path'];
 
-				$savedFile = $fileDetails['attachmentsid']."_".$this->get('filename');
+				$savedFile = $fileDetails['attachmentsid']."_".$fileDetails['name'];
 
 				if(fopen($filePath.$savedFile, "r")) {
 					$returnValue = true;

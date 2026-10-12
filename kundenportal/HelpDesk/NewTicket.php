@@ -10,49 +10,59 @@ $result = $client->call('get_combo_values', $params, $Server_Path, $Server_Path)
 
 $_SESSION['combolist'] = $result;
 $combolist = $_SESSION['combolist'];
+$productslist = array(array(), array());
+$ticketpriorities = array();
+$ticketseverities = array();
+$ticketcategories = array();
+$servicename = array();
+$serviceid = array();
+
+if (!is_array($result)) {
+	$result = array();
+}
+
 for($i=0;$i<count($result);$i++)
 {
-	if($result[$i]['productid'] != '')
+	if(!empty($result[$i]['productid']))
 	{
 		$productslist[0] = $result[$i]['productid'];
 	}
-	if($result[$i]['productname'] != '')
+	if(!empty($result[$i]['productname']))
 	{
 		$productslist[1] = $result[$i]['productname'];
 	}
-	if($result[$i]['ticketpriorities'] != '')
+	if(!empty($result[$i]['ticketpriorities']))
 	{
 		$ticketpriorities = $result[$i]['ticketpriorities'];
 	}
-	if($result[$i]['ticketseverities'] != '')
+	if(!empty($result[$i]['ticketseverities']))
 	{
 		$ticketseverities = $result[$i]['ticketseverities'];
 	}
-	if($result[$i]['ticketcategories'] != '')
+	if(!empty($result[$i]['ticketcategories']))
 	{
 		$ticketcategories = $result[$i]['ticketcategories'];
 	}
-	if($result[$i]['servicename'] != ''){
+	if(!empty($result[$i]['servicename'])){
 		$servicename = $result[$i]['servicename'];
 	}
-	if($result[$i]['serviceid'] != ''){
+	if(!empty($result[$i]['serviceid'])){
 		$serviceid= $result[$i]['serviceid'];
 	}
 }
 
-if($productslist[0] != '#MODULE INACTIVE#'){
-	$noofrows = count($productslist[0]);
-	
-	for($i=0;$i<$noofrows;$i++)
-	{
-		if($i > 0)
-			$productarray .= ',';
-		$productarray .= "'".$productslist[1][$i]."'";
-	}
+if($productslist[0] == '#MODULE INACTIVE#'){
+	$productslist = array(array(), array());
 }
 if($servicename == '#MODULE INACTIVE#' || $serviceid == '#MODULE INACTIVE#'){
-	unset($servicename); 
-	unset($serviceid);
+	$servicename = array();
+	$serviceid = array();
+}
+
+$projectId = htmlspecialchars((string) ($_REQUEST['projectid'] ?? ''), ENT_QUOTES, 'UTF-8');
+$productsJson = json_encode(array_values((array) $productslist[1]), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+if ($productsJson === false) {
+	$productsJson = '[]';
 }
 
 ?>
@@ -64,37 +74,38 @@ if($servicename == '#MODULE INACTIVE#' || $serviceid == '#MODULE INACTIVE#'){
 	<section class="content">
 		<div class="row">
 			<form name="Save" method="post" action="index.php" role="form">
-	   			<input type="hidden" name="module" value="HelpDesk">
-	   			<input type="hidden" name="action" value="index">
-	   			<input type="hidden" name="fun" value="saveticket">
-	   			<input type="hidden" name="projectid" value="<?php echo $_REQUEST['projectid'] ?>" />
+	   		<input type="hidden" name="module" value="HelpDesk">
+	   		<input type="hidden" name="action" value="index">
+	   		<input type="hidden" name="fun" value="saveticket">
+	   		<input type="hidden" name="projectid" value="<?php echo $projectId; ?>" />
 	        	<div class="col-md-12">
 					<div class="box box-primary">
 						<div class="box-body">
-						
 							<div class="form-group">
-								<label><font color="red">*</font><?PHP echo getTranslatedString('TICKET_TITLE');?></label>								
-								<input type="text" name="title" class = "form-control" placeholder="<?PHP echo getTranslatedString('TICKET_TITLE');?>">
+								<label><font color="red">*</font><?PHP echo getTranslatedString('TICKET_TITLE');?></label>
+								<input type="text" name="title" class="form-control" placeholder="<?PHP echo getTranslatedString('TICKET_TITLE'); ?>">
 							</div>
-							
+
 							<div class="form-group">
 								<label><?PHP echo getTranslatedString('LBL_PRODUCT_NAME');?></label>
 								<style>@import url( css/dropdown.css );</style>
 								<script src="js/modomt.js"></script>
 								<script src="js/getobject2.js"></script>
 								<script src="js/acdropdown.js"></script>
-								<script language="javascript">
-									var products = new Array(<?php echo $productarray; ?>);
+								<script>
+									var products = <?php echo $productsJson; ?>;
 								</script>
-								<input class="form-control" autocomplete="off" name="productid" id="inputer2"  acdropdown="true" autocomplete_list="array:products" autocomplete_list_sort="false" autocomplete_matchsubstring="true" placeholder="<?PHP echo getTranslatedString('LBL_PRODUCT_NAME');?>">
+								<input class="form-control" autocomplete="off" name="productid" id="inputer2" acdropdown="true" autocomplete_list="array:products" autocomplete_list_sort="false" autocomplete_matchsubstring="true" placeholder="<?PHP echo getTranslatedString('LBL_PRODUCT_NAME'); ?>">
 							</div>
 							<div class="form-group">
 								<label><?PHP echo getTranslatedString('LBL_SERVICE_CONTRACTS');?></label>
 								<?php
-									$list = '<select name=servicename size="1" class="form-control">';
-									$list .= '<OPTION value="">'.getTranslatedString('NONE').'</OPTION>';
+									$list = '<select name="servicename" size="1" class="form-control">';
+									$list .= '<option value="">'.getTranslatedString('NONE').'</option>';
 									for($i=0;$i<count($servicename);$i++){
-									$list .= '<OPTION value="'.$serviceid[$i].'" >'.$servicename[$i].'</OPTION>';
+										$serviceValue = htmlspecialchars((string) ($serviceid[$i] ?? ''), ENT_QUOTES, 'UTF-8');
+										$serviceLabel = htmlspecialchars((string) $servicename[$i], ENT_QUOTES, 'UTF-8');
+										$list .= '<option value="'.$serviceValue.'">'.$serviceLabel.'</option>';
 									}
 									$list .= '</select>';
 									echo $list;
@@ -117,17 +128,16 @@ if($servicename == '#MODULE INACTIVE#' || $serviceid == '#MODULE INACTIVE#'){
 								<textarea name="description" cols="55" rows="5" class="form-control"></textarea>
 							</div>
 							<div class="box-footer">
-	                            <button title="<?PHP echo getTranslatedString('LBL_SAVE_ALT');?>" accessKey="S" class="btn btn-primary" value="<?PHP echo getTranslatedString('LBL_SAVE');?>" onclick="return formvalidate(this.form)" type="submit" name="button">
-	                            	<?PHP echo getTranslatedString('LBL_SAVE');?>
-	                            </button>
-	                            <button title="<?PHP echo getTranslatedString('LBL_CANCEL_ALT');?>" accessKey="X" class="btn btn-primary" onclick="window.history.back()" type="button" name="button"  value="<?PHP echo getTranslatedString('LBL_CANCEL');?>">
-	                            	<?PHP echo getTranslatedString('LBL_CANCEL');?>
-	                           	</button>
+		                            <button title="<?PHP echo getTranslatedString('LBL_SAVE_ALT');?>" accesskey="S" class="btn btn-primary" value="<?PHP echo getTranslatedString('LBL_SAVE');?>" onclick="return formvalidate(this.form)" type="submit" name="button">
+		                            	<?PHP echo getTranslatedString('LBL_SAVE');?>
+		                            </button>
+		                            <button title="<?PHP echo getTranslatedString('LBL_CANCEL_ALT');?>" accesskey="X" class="btn btn-primary" onclick="window.history.back()" type="button" name="button" value="<?PHP echo getTranslatedString('LBL_CANCEL');?>">
+		                            	<?PHP echo getTranslatedString('LBL_CANCEL');?>
+		                           	</button>
 							</div>
 						</div>
 	   				</div>
 	   			</div>
-	   		</div>
 		</form>
 		</div>
 	</section>
@@ -142,7 +152,7 @@ function formvalidate(form)
 	}
 	return true;
 }
-function trim(s) 
+function trim(s)
 {
 	while (s.substring(0,1) == " ")
 	{
@@ -156,6 +166,3 @@ function trim(s)
 	return s;
 }
 </script>
-<?php
-
-?>

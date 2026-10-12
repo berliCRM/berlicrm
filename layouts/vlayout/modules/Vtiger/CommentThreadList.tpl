@@ -9,7 +9,11 @@
 *
  ********************************************************************************/
 -->*}
-<div class="commentDiv cursorPointer">
+{assign var=COMMENT_TYPE value=$COMMENT->getCommentType()}
+{if !isset($COMMENTS_COLORS) || empty($COMMENTS_COLORS)}
+	{$COMMENTS_COLORS = ['customer' => 'red', 'outgoing' => 'green', 'internal' => 'yellow']}
+{/if}
+<div class="commentDiv cursorPointer" style="border: 1px solid {if isset($COMMENTS_COLORS[$COMMENT_TYPE])}{$COMMENTS_COLORS[$COMMENT_TYPE]}{/if};">
 	<div class="singleComment">
 		<div class="commentInfoHeader row-fluid"  data-commentid="{$COMMENT->getId()}" data-parentcommentid="{$COMMENT->get('parent_comments')}">
 			<div class="commentTitle" id="{$COMMENT->getId()}">
@@ -21,9 +25,8 @@
 						<img class="alignMiddle pull-left" src="{if !empty($IMAGE_PATH)}{$IMAGE_PATH}{else}{vimage_path('DefaultUserIcon.png')}{/if}">
 					</div>
 					<div class="span11 commentorInfo">
-						{assign var=COMMENTOR value=$COMMENT->getCommentedByModel()}
 						<div class="inner">
-							<span class="commentorName pull-left"><strong>{$COMMENTOR->getName()}</strong></span>
+							<span class="commentorName pull-left"><strong>{$COMMENT->getCommentedByName()|escape:'html'}</strong>{include file='CommentMailInfo.tpl'|@vtemplate_path COMMENT=$COMMENT}</span>
 							<span class="pull-right">
 								<p class="muted"><small title="{Vtiger_Util_Helper::formatDateTimeIntoDayString($COMMENT->getCommentedTime())}" class="commentModifiedTime">{Vtiger_Util_Helper::formatDateDiffInStrings($COMMENT->getCommentedTime())}&nbsp;&nbsp; ({Vtiger_Util_Helper::convertDateTimeIntoUsersDisplayFormat($COMMENT->getCommentedTime())})</small></p>
 							</span>
@@ -39,13 +42,13 @@
 		<div class="row-fluid commentActionsContainer">
 			{if $EDIT_PERMISSION}
 				{assign var="REASON_TO_EDIT" value=$COMMENT->get('reasontoedit')}
-				<div class="row-fluid editedStatus"  name="editStatus">
+				<div class="row-fluid editedStatus{if empty($REASON_TO_EDIT) and $COMMENT->getCommentedTime() eq $COMMENT->getModifiedTime()} hide{/if}"  name="editStatus">
 					<div class="row-fluid">
 						<p class="span6 marginLeftZero"><small>
 						<span class="{if empty($REASON_TO_EDIT)}hide{/if} span6 marginLeftZero editReason">
 							[ {vtranslate('LBL_EDIT_REASON',$MODULE_NAME)} ] : <span  name="editReason" class="textOverflowEllipsis">{nl2br($REASON_TO_EDIT)}</span>
 						</span>
-						</small></p>
+							</small></p>
 						{if $COMMENT->getCommentedTime() neq $COMMENT->getModifiedTime()}
 							<span class="{if empty($REASON_TO_EDIT)}row-fluid{else} span6{/if}">
 								<span class="pull-right">
@@ -55,6 +58,14 @@
 						{/if}
 
 					</div>
+				</div>
+			{/if}
+			{assign var=COMMENT_ID value=$COMMENT->getId()}
+			{if $MODULE_NAME == 'HelpDesk' && isset($COMMENT_NUMBERS[$COMMENT_ID])}
+				<div class="row-fluid">
+					<span class="pull-left helpDeskCommentNumber">
+						<small class="muted">#{$COMMENT_NUMBERS[$COMMENT_ID]}</small>
+					</span>
 				</div>
 			{/if}
 			<div class="row-fluid commentActionsDiv">
@@ -74,22 +85,28 @@
 							</a>
 						{/if}
 					</span>
-					{if $CHILD_COMMENTS_COUNT neq 0}
-						{if $CREATE_PERMISSION || $EDIT_PERMISSION}&nbsp;<span style="color:black">|</span>&nbsp;{/if}
-						<span class="hide viewThreadBlock" data-child-comments-count="{$COMMENT->getChildCommentsCount()}">
+						{if $CHILD_COMMENTS_COUNT neq 0}
+							{if $CREATE_PERMISSION || $EDIT_PERMISSION}&nbsp;<span style="color:black">|</span>&nbsp;{/if}
+							<span class="hide viewThreadBlock" data-child-comments-count="{$COMMENT->getChildCommentsCount()}">
 								<a class="cursorPointer viewThread">
 									<span class="childCommentsCount">{$COMMENT->getChildCommentsCount()}</span>&nbsp;{if $CHILD_COMMENTS_COUNT eq 1}{vtranslate('LBL_REPLY',$MODULE_NAME)}{else}{vtranslate('LBL_REPLIES',$MODULE_NAME)}{/if}&nbsp;
 									<img class="alignMiddle" src="{vimage_path('rightArrowSmall.png')}" />
 								</a>
 						</span>
-						<span class="hideThreadBlock" data-child-comments-count="{$COMMENT->getChildCommentsCount()}">
+							<span class="hideThreadBlock" data-child-comments-count="{$COMMENT->getChildCommentsCount()}">
 							<a class="cursorPointer hideThread">
 								<span class="childCommentsCount">{$COMMENT->getChildCommentsCount()}</span>&nbsp;{if $CHILD_COMMENTS_COUNT eq 1}{vtranslate('LBL_REPLY',$MODULE_NAME)}{else}{vtranslate('LBL_REPLIES',$MODULE_NAME)}{/if}&nbsp;
 								<img class="alignMiddle" src="{vimage_path('downArrowSmall.png')}" />
 							</a>
-						</span>
+							</span>
+						{/if}
+					{if $SHOW_DETAIL_VIEW_THREAD_LINK|default:false and ($PARENT_COMMENT_MODEL neq false or $CHILD_COMMENTS_COUNT neq 0)}
+						{if $CREATE_PERMISSION || $EDIT_PERMISSION || $CHILD_COMMENTS_COUNT neq 0}
+							&nbsp;<span style="color:black">|</span>&nbsp;
+						{/if}
+							<a href="javascript:void(0);" class="cursorPointer detailViewThread">{vtranslate('LBL_VIEW_THREAD',$MODULE_NAME)}</a>
 					{/if}
-				</span>
+					</span>
 			</div>
 		</div>
 	</div>

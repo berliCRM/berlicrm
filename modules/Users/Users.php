@@ -1643,35 +1643,6 @@ class Users extends CRMEntity {
 	}
 
 	/**
-	 * Function to set the Company Logo
-	 * @param- $_REQUEST array
-	 * @param- $_FILE array
-	 */
-	public function uploadOrgLogo($requestArray, $fileArray) {
-		global $adb;
-		$file = $fileArray['file'];
-		$logo_name = $file['name'];
-		$file_size = $file['size'];
-		$file_type = $file['type'];
-
-		$filetype_array = explode("/",$file_type);
-		$file_type_val = strtolower($filetype_array[1]);
-
-		$validFileFormats =  array('jpeg', 'png', 'jpg', 'pjpeg', 'x-png', 'gif');
-
-		if ($file_size != 0 && in_array($file_type_val, $validFileFormats)) {
-			//Uploading the selected Image
-			move_uploaded_file($file['tmp_name'], 'test/logo/'.$logo_name);
-
-			//Updating Database
-			$sql = 'UPDATE vtiger_organizationdetails SET logoname = ? WHERE organization_id = ?';
-			$params = array(decode_html($logo_name), '1');
-			$adb->pquery($sql, $params);
-			copy('test/logo/'.$logo_name, 'test/logo/application.ico');
-		}
-	}
-
-	/**
     * Function to update Base Currency of Product
     * @param- $_REQUEST array
     */

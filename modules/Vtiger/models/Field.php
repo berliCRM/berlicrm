@@ -164,7 +164,7 @@ class Vtiger_Field_Model extends Vtiger_Field {
 			} else if($uiType == '117') {
 				$fieldDataType = 'currencyList';
 			} else if($uiType == '54') {
-                $fieldDataType = 'multiowner';
+				$fieldDataType = 'multiowner';
 			} else {
 				$webserviceField = $this->getWebserviceFieldObject();
 				$fieldDataType = $webserviceField->getFieldDataType();
@@ -522,6 +522,10 @@ class Vtiger_Field_Model extends Vtiger_Field {
 			$pickListValues[vtranslate('LBL_USERS', $this->getModuleName())] = $userList;
 			$pickListValues[vtranslate('LBL_GROUPS', $this->getModuleName())] = $groupList;
 			$this->fieldInfo['picklistvalues'] = $pickListValues;
+		}
+
+		if($this->getFieldDataType() == 'UserPicklist') {
+			$this->fieldInfo['picklistvalues'] = $this->getUserPicklistValues();
 		}
 
 		if($this->getFieldDataType() == 'double' ) {

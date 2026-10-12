@@ -40,7 +40,7 @@ class Install_InitSchema_Model
                 $adb->pquery($query);
             }
         }
-		if ($adb->database->_failedQuery) {
+        if ($adb->database->_failedQuery) {
             return $adb->database->_failedQuery;
         } else {
             require 'vtigerversion.php';
@@ -424,9 +424,9 @@ class Install_InitSchema_Model
         $task->recepient = "\$(assigned_user_id : (Users) email1)";
         $task->subject = "Regarding Account Creation";
         $task->content = "An Account has been assigned to you on the CRM<br>Details of account are:<br><br>".
-                "Account Id: ".'<b>$account_no</b><br>'."Account Name: ".'<b>$accountname</b><br>'."Rating: ".'<b>$rating</b><br>'.
-                "Industry: ".'<b>$industry</b><br>'."Account Type: ".'<b>$accounttype</b><br>'.
-                "Description:".'<b>$description</b><br><br><br>'."Thank You";
+            "Account Id: ".'<b>$account_no</b><br>'."Account Name: ".'<b>$accountname</b><br>'."Rating: ".'<b>$rating</b><br>'.
+            "Industry: ".'<b>$industry</b><br>'."Account Type: ".'<b>$accounttype</b><br>'.
+            "Description:".'<b>$description</b><br><br><br>'."Thank You";
         $task->summary = "An account has been created ";
         $tm->saveTask($task);
         $adb->pquery("update com_vtiger_workflows set defaultworkflow=? where workflow_id=?", array(1,$id1));
@@ -449,10 +449,10 @@ class Install_InitSchema_Model
         $task->recepient = "\$(assigned_user_id : (Users) email1)";
         $task->subject = "Regarding Contact Creation";
         $task->content = "A Contact has been assigned to you on the CRM<br>Details of Contact are :<br><br>".
-                "Contact Id:".'<b>$contact_no</b><br>'."LastName:".'<b>$lastname</b><br>'."FirstName:".'<b>$firstname</b><br>'.
-                "Lead Source:".'<b>$leadsource</b><br>'.
-                "Department:".'<b>$department</b><br>'.
-                "Description:".'<b>$description</b><br><br><br>'."Thank You<br>Admin";
+            "Contact Id:".'<b>$contact_no</b><br>'."LastName:".'<b>$lastname</b><br>'."FirstName:".'<b>$firstname</b><br>'.
+            "Lead Source:".'<b>$leadsource</b><br>'.
+            "Department:".'<b>$department</b><br>'.
+            "Description:".'<b>$description</b><br><br><br>'."Thank You<br>Admin";
         $task->summary = "A contact has been created ";
         $tm->saveTask($task);
         $adb->pquery("update com_vtiger_workflows set defaultworkflow=? where workflow_id=?", array(1,$id1));
@@ -492,11 +492,11 @@ class Install_InitSchema_Model
         $task->recepient = "\$(assigned_user_id : (Users) email1)";
         $task->subject = "Regarding Potential Assignment";
         $task->content = "An Potential has been assigned to you on the CRM<br>Details of Potential are :<br><br>".
-                "Potential No:".'<b>$potential_no</b><br>'."Potential Name:".'<b>$potentialname</b><br>'.
-                "Amount:".'<b>$amount</b><br>'.
-                "Expected Close Date:".'<b>$closingdate</b><br>'.
-                "Type:".'<b>$opportunity_type</b><br><br><br>'.
-                "Description :".'$description<br>'."<br>Thank You<br>Admin";
+            "Potential No:".'<b>$potential_no</b><br>'."Potential Name:".'<b>$potentialname</b><br>'.
+            "Amount:".'<b>$amount</b><br>'.
+            "Expected Close Date:".'<b>$closingdate</b><br>'.
+            "Type:".'<b>$opportunity_type</b><br><br><br>'.
+            "Description :".'$description<br>'."<br>Thank You<br>Admin";
 
         $task->summary = "A Potential has been created ";
         $tm->saveTask($task);
@@ -519,10 +519,10 @@ class Install_InitSchema_Model
         $task->recepient = "\$(assigned_user_id : (Users) email1)";
         $task->subject = "Regarding Contact Assignment";
         $task->content = "A Contact has been assigned to you on the CRM<br>The Details of the Contact are:<br><br>".
-                "Contact Id:".'<b>$contact_no</b><br>'."LastName:".'<b>$lastname</b><br>'."FirstName:".'<b>$firstname</b><br>'.
-                "Lead Source:".'<b>$leadsource</b><br>'.
-                "Department:".'<b>$department</b><br>'.
-                "<br>Thank You<br>";
+            "Contact Id:".'<b>$contact_no</b><br>'."LastName:".'<b>$lastname</b><br>'."FirstName:".'<b>$firstname</b><br>'.
+            "Lead Source:".'<b>$leadsource</b><br>'.
+            "Department:".'<b>$department</b><br>'.
+            "<br>Thank You<br>";
 
         $task->summary = "A contact has been created ";
         $tm->saveTask($task);
@@ -590,17 +590,17 @@ class Install_InitSchema_Model
         $task->recepient = "\$(assigned_user_id : (Users) email1)";
         $task->subject = "Event :  \$subject";
         $task->content = '$(assigned_user_id : (Users) first_name) $(assigned_user_id : (Users) last_name) ,<br/>'
-                        .'<b>Activity Notification Details:</b><br/>'
-                        .'Subject             : $subject<br/>'
-                        .'Start date and time : $date_start  $time_start ( $(general : (__VtigerMeta__) dbtimezone) ) <br/>'
-                        .'End date and time   : $due_date  $time_end ( $(general : (__VtigerMeta__) dbtimezone) ) <br/>'
-                        .'Status              : $eventstatus <br/>'
-                        .'Priority            : $taskpriority <br/>'
-                        .'Related To          : $(parent_id : (Leads) lastname) $(parent_id : (Leads) firstname) $(parent_id : (Accounts) accountname) '
-                                                .'$(parent_id : (Potentials) potentialname) $(parent_id : (HelpDesk) ticket_title) <br/>'
-                        .'Contacts List       : $(contact_id : (Contacts) lastname) $(contact_id : (Contacts) firstname) <br/>'
-                        .'Location            : $location <br/>'
-                        .'Description         : $description';
+            .'<b>Activity Notification Details:</b><br/>'
+            .'Subject             : $subject<br/>'
+            .'Start date and time : $date_start  $time_start ( $(general : (__VtigerMeta__) dbtimezone) ) <br/>'
+            .'End date and time   : $due_date  $time_end ( $(general : (__VtigerMeta__) dbtimezone) ) <br/>'
+            .'Status              : $eventstatus <br/>'
+            .'Priority            : $taskpriority <br/>'
+            .'Related To          : $(parent_id : (Leads) lastname) $(parent_id : (Leads) firstname) $(parent_id : (Accounts) accountname) '
+            .'$(parent_id : (Potentials) potentialname) $(parent_id : (HelpDesk) ticket_title) <br/>'
+            .'Contacts List       : $(contact_id : (Contacts) lastname) $(contact_id : (Contacts) firstname) <br/>'
+            .'Location            : $location <br/>'
+            .'Description         : $description';
         $taskManager->saveTask($task);
 
         // Calendar workflow when Send Notification is checked
@@ -617,17 +617,17 @@ class Install_InitSchema_Model
         $task->recepient = "\$(assigned_user_id : (Users) email1)";
         $task->subject = "Task :  \$subject";
         $task->content = '$(assigned_user_id : (Users) first_name) $(assigned_user_id : (Users) last_name) ,<br/>'
-                        .'<b>Task Notification Details:</b><br/>'
-                        .'Subject : $subject<br/>'
-                        .'Start date and time : $date_start  $time_start ( $(general : (__VtigerMeta__) dbtimezone) ) <br/>'
-                        .'End date and time   : $due_date ( $(general : (__VtigerMeta__) dbtimezone) ) <br/>'
-                        .'Status              : $taskstatus <br/>'
-                        .'Priority            : $taskpriority <br/>'
-                        .'Related To          : $(parent_id : (Leads) lastname) $(parent_id : (Leads) firstname) $(parent_id : (Accounts) accountname) '
-                        .'$(parent_id         : (Potentials) potentialname) $(parent_id : (HelpDesk) ticket_title) <br/>'
-                        .'Contacts List       : $(contact_id : (Contacts) lastname) $(contact_id : (Contacts) firstname) <br/>'
-                        .'Location            : $location <br/>'
-                        .'Description         : $description';
+            .'<b>Task Notification Details:</b><br/>'
+            .'Subject : $subject<br/>'
+            .'Start date and time : $date_start  $time_start ( $(general : (__VtigerMeta__) dbtimezone) ) <br/>'
+            .'End date and time   : $due_date ( $(general : (__VtigerMeta__) dbtimezone) ) <br/>'
+            .'Status              : $taskstatus <br/>'
+            .'Priority            : $taskpriority <br/>'
+            .'Related To          : $(parent_id : (Leads) lastname) $(parent_id : (Leads) firstname) $(parent_id : (Accounts) accountname) '
+            .'$(parent_id         : (Potentials) potentialname) $(parent_id : (HelpDesk) ticket_title) <br/>'
+            .'Contacts List       : $(contact_id : (Contacts) lastname) $(contact_id : (Contacts) firstname) <br/>'
+            .'Location            : $location <br/>'
+            .'Description         : $description';
         $taskManager->saveTask($task);
     }
 
@@ -690,14 +690,14 @@ class Install_InitSchema_Model
         $field2 = Vtiger_Field::getInstance('days', $helpDeskModule);
 
         $field1->setHelpInfo('This gives the estimated hours for the Ticket.'.
-                    '<br>When the same ticket is added to a Service Contract,'.
-                    'based on the Tracking Unit of the Service Contract,'.
-                    'Used units is updated whenever a ticket is Closed.');
+            '<br>When the same ticket is added to a Service Contract,'.
+            'based on the Tracking Unit of the Service Contract,'.
+            'Used units is updated whenever a ticket is Closed.');
 
         $field2->setHelpInfo('This gives the estimated days for the Ticket.'.
-                    '<br>When the same ticket is added to a Service Contract,'.
-                    'based on the Tracking Unit of the Service Contract,'.
-                    'Used units is updated whenever a ticket is Closed.');
+            '<br>When the same ticket is added to a Service Contract,'.
+            'based on the Tracking Unit of the Service Contract,'.
+            'Used units is updated whenever a ticket is Closed.');
 
         $usersModuleInstance = Vtiger_Module::getInstance('Users');
         $field1 = Vtiger_Field::getInstance('currency_grouping_pattern', $usersModuleInstance);
@@ -706,31 +706,31 @@ class Install_InitSchema_Model
         $field4 = Vtiger_Field::getInstance('currency_symbol_placement', $usersModuleInstance);
 
         $field1->setHelpInfo("<b>Currency - Digit Grouping Pattern</b> <br/><br/>".
-                                    "This pattern specifies the format in which the currency separator will be placed.");
+            "This pattern specifies the format in which the currency separator will be placed.");
         $field2->setHelpInfo("<b>Currency - Decimal Separator</b> <br/><br/>".
-                                            "Decimal separator specifies the separator to be used to separate ".
-                                            "the fractional values from the whole number part. <br/>".
-                                            "<b>Eg:</b> <br/>".
-                                            ". => 123.45 <br/>".
-                                            ", => 123,45 <br/>".
-                                            "' => 123'45 <br/>".
-                                            "  => 123 45 <br/>".
-                                            "$ => 123$45 <br/>");
+            "Decimal separator specifies the separator to be used to separate ".
+            "the fractional values from the whole number part. <br/>".
+            "<b>Eg:</b> <br/>".
+            ". => 123.45 <br/>".
+            ", => 123,45 <br/>".
+            "' => 123'45 <br/>".
+            "  => 123 45 <br/>".
+            "$ => 123$45 <br/>");
         $field3->setHelpInfo("<b>Currency - Grouping Separator</b> <br/><br/>".
-                                            "Grouping separator specifies the separator to be used to group ".
-                                            "the whole number part into hundreds, thousands etc. <br/>".
-                                            "<b>Eg:</b> <br/>".
-                                            ". => 123.456.789 <br/>".
-                                            ", => 123,456,789 <br/>".
-                                            "' => 123'456'789 <br/>".
-                                            "  => 123 456 789 <br/>".
-                                            "$ => 123$456$789 <br/>");
+            "Grouping separator specifies the separator to be used to group ".
+            "the whole number part into hundreds, thousands etc. <br/>".
+            "<b>Eg:</b> <br/>".
+            ". => 123.456.789 <br/>".
+            ", => 123,456,789 <br/>".
+            "' => 123'456'789 <br/>".
+            "  => 123 456 789 <br/>".
+            "$ => 123$456$789 <br/>");
         $field4->setHelpInfo("<b>Currency - Symbol Placement</b> <br/><br/>".
-                                            "Symbol Placement allows you to configure the position of the ".
-                                            "currency symbol with respect to the currency value.<br/>".
-                                            "<b>Eg:</b> <br/>".
-                                            "$1.0 => $123,456,789.50 <br/>".
-                                            "1.0$ => 123,456,789.50$ <br/>");
+            "Symbol Placement allows you to configure the position of the ".
+            "currency symbol with respect to the currency value.<br/>".
+            "<b>Eg:</b> <br/>".
+            "$1.0 => $123,456,789.50 <br/>".
+            "1.0$ => 123,456,789.50$ <br/>");
     }
 
     //crm-now: modifications to DB during install
@@ -804,108 +804,12 @@ class Install_InitSchema_Model
         self::translateSettings();
         self::translateWorkflowstasks();
         self::removeGroups();
-
-        //
-        // Adding some fields *** START ***
-        //
-        $arrFields = array(
-            // needed for E-Rechnung
-            'Accounts' => array(
-                'LBL_CUSTOM_INFORMATION' => array(
-                    array('Leitweg-ID', 'buyerreference', 'V~O', 1, 'VARCHAR(50)', '', 'Die Leitweg-ID ist ein Kennzeichen einer elektronischen Rechnung zur eindeutigen Adressierung von öffentlichen Auftraggebern in Deutschland (Beispiele: Behörden, Kommunen, Ministerien).'),
-                )
-            ),
-            'Invoice' => array(
-                'LBL_INVOICE_INFORMATION' => array(
-                    // array('Statusdatum', 'statusdate', 'D~O', 5, 'DATE', '', 'Datum des letzten Status, nicht ändern, wird vom automatischen Mahnwesen verwendet.'), // Datum
-                    array('Lieferdatum', 'deliveryperiod', 'D~O', 5, 'DATE', '', 'Lieferdatum, wird für E-Rechnung verwendet'), // Datum
-                ),
-            ),
-
-            // for HelpDesk
-            'HelpDesk' => array(
-                'LBL_TICKET_INFORMATION' => array(
-                    array('Owner', 'ticketowner', 'V~O', 'crmnow15', 'VARCHAR(100)', '', 'Der Prozessverantwortliche des Tickets.')
-                )
-            )
-        );
-
-        foreach ($arrFields as $moduleName => $blocks) {
-            $moduleInstance = Vtiger_Module::getInstance($moduleName);
-            if (!$moduleInstance) {
-                die("$moduleName no instance");
-            }
-
-            foreach ($blocks as $blockName => $fieldInfos) {
-                $blockInstance = Vtiger_Block::getInstance($blockName, $moduleInstance);
-
-                if (!$blockInstance) {
-                    //// to create new block
-                    $blockInstance = new Vtiger_Block();
-                    $blockInstance->label = $blockName;
-                    $moduleInstance->addBlock($blockInstance);
-
-                } else {
-                    // if we need to del the BLOCK:
-                    //$blockInstance->delete();
-                }
-
-                foreach ($fieldInfos as $fieldInfo) {
-                    $fieldObj = Vtiger_Field::getInstance($fieldInfo[1], $moduleInstance);
-
-                    if (!$fieldObj) {
-                        $fieldObj = new Vtiger_Field();
-                        $fieldObj->name = $fieldInfo[1];
-                        $fieldObj->label = $fieldInfo[0];
-                        $fieldObj->table = $moduleInstance->basetable;
-                        $fieldObj->typeofdata = $fieldInfo[2];
-                        $fieldObj->uitype = $fieldInfo[3];
-                        $fieldObj->columntype = $fieldInfo[4];
-                        $fieldObj->info_type = 'BAS';
-                        $fieldObj->displaytype = '1';
-                        if (!empty($fieldInfo[6])) {
-                            $fieldObj->helpinfo = $fieldInfo[6];
-                        }
-
-                        if (($fieldInfo[3] == 16 || $fieldInfo[3] == 33) && !empty($fieldInfo[5])) {
-                            $fieldObj->setPicklistValues($fieldInfo[5]);
-                        }
-
-                        $blockInstance->addField($fieldObj);
-
-                        if ($fieldInfo[3] == 10 && isset($fieldInfo[5])) {
-                            $query = "SELECT * FROM vtiger_fieldmodulerel WHERE fieldid = ?;";
-                            $res = $adb->pquery($query, array($fieldObj->id));
-
-                            if ($adb->num_rows($res) == 0) {
-                                $query = "INSERT INTO vtiger_fieldmodulerel VALUES(?, ?, ?, ?, ?);";
-                                $adb->pquery($query, array($fieldObj->id, $moduleName, $fieldInfo[5], null, null));
-                                $relInstance = Vtiger_Module::getInstance($fieldInfo[5]);
-                                $relInstance->setRelatedList($moduleInstance, $moduleName, array('ADD'), 'get_dependents_list');
-                            }
-                        } elseif ($fieldInfo[3] == 13) {
-                            $query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
-                            $res = $adb->pquery($query, array($moduleInstance->getId(), getTabId('Emails')));
-
-                            if ($adb->num_rows($res) == 0) {
-                                $relInstance = Vtiger_Module::getInstance('Emails');
-                                $moduleInstance->setRelatedList($relInstance, 'Emails', array('ADD'), 'get_emails');
-                            }
-                        }
-
-                    } else {
-                        //$fieldObj->delete();
-                    }
-                }
-            }
-        }
-        //
-        // Adding some fields *** END ***
-        //
-        
-		self::addUITypes();
-		self::addNewWebservices();
-		self::addNewRelatedLists();
+        self::addNewFields();
+        self::addUITypes();
+        self::addNewWebservices();
+        self::addNewRelatedLists();
+        self::addNewConfigEditSettingTables();
+        self::alterTables();
 
         //last step, set info this system was installed
         $path = Install_Utils_Model::INSTALL_FINISHED;
@@ -982,23 +886,23 @@ class Install_InitSchema_Model
         if (vglobal('default_language') == 'de_de') {
             $sqlProfil = 'UPDATE `vtiger_profile` SET `profilename` = ?, `description` = ? WHERE `profileid` = ?;';
             $profiles = array(1 => array('Administrator','Admin Profil'),
-                              2 => array('Vertriebsprofil','Alle Vertrieb'),
-                              3 => array('Support Profil','Alle Support'),
-                              4 => array('Gastprofil','Nur gucken'),
-                              5 => array('Unternehmensleitung','Kann und darf alles'),
-                        );
+                2 => array('Vertriebsprofil','Alle Vertrieb'),
+                3 => array('Support Profil','Alle Support'),
+                4 => array('Gastprofil','Nur gucken'),
+                5 => array('Unternehmensleitung','Kann und darf alles'),
+            );
             foreach ($profiles as $profileId => $infos) {
                 $adb->pquery($sqlProfil, array($infos[0], $infos[1], $profileId));
             }
 
             $sqlRoles = 'UPDATE `vtiger_role` SET `rolename` = ? WHERE `roleid` = ?;';
             $users = array('H1' => array('Organization'),
-                           'H2' => array('Geschäftsführung'),
-                           'H3' => array('VP Marketing und Vertrieb'),
-                           'H4' => array('Vertiebsmanager'),
-                           'H5' => array('Vertriebsbeauftragte'),
-                           'H6' => array('CRM Administrator/in'),
-                     );
+                'H2' => array('Geschäftsführung'),
+                'H3' => array('VP Marketing und Vertrieb'),
+                'H4' => array('Vertiebsmanager'),
+                'H5' => array('Vertriebsbeauftragte'),
+                'H6' => array('CRM Administrator/in'),
+            );
             foreach ($users as $roleId => $infos) {
                 $adb->pquery($sqlRoles, array($infos[0], $roleId));
             }
@@ -1166,8 +1070,8 @@ class Install_InitSchema_Model
         $result = $adb->pquery($query, array());
 
         $translations = array('Email Customer Portal Login Details' => array('E-Mail Kundenportal Login Details'),
-                              'Update Inventory Products' => array('Aktualisierung vom Lagerbestand')
-                        );
+            'Update Inventory Products' => array('Aktualisierung vom Lagerbestand')
+        );
 
 
         while ($row = $adb->getNextRow($result, false)) {
@@ -1187,7 +1091,7 @@ class Install_InitSchema_Model
         $result = $adb->pquery($query, array());
 
         $translations = array('update forecast amount' => array('Aktualisierung vom Forecast Betrag'),
-                        );
+        );
 
 
         while ($row = $adb->getNextRow($result, false)) {
@@ -1212,10 +1116,12 @@ class Install_InitSchema_Model
         $query = 'SELECT * FROM vtiger_groups WHERE groupid > 2;';
         $res = $adb->pquery($query, array());
         $groupRecordModel = Settings_Groups_Record_Model::getInstance('2');
-        while ($row = $adb->fetch_row($res, false)) {
-            $groupId = $row['groupid'];
-            $recordModel = Settings_Groups_Record_Model::getInstance($groupId);
-            $recordModel->delete($groupRecordModel);
+        if ($groupRecordModel) {
+            while ($row = $adb->fetch_row($res, false)) {
+                $groupId = $row['groupid'];
+                $recordModel = Settings_Groups_Record_Model::getInstance($groupId);
+                $recordModel->delete($groupRecordModel);
+            }
         }
 
     }
@@ -1226,72 +1132,300 @@ class Install_InitSchema_Model
 
         $queryWidget = 'INSERT INTO `vtiger_module_dashboard_widgets` (id, linkid, userid, filterid, title, data, position) VALUES ( ?,  ?,  ?,  ?,  ?,  ?,  ?)';
         $standardWidgets = array('1' => array('66', '1', '0', 'CRM Administrator/in Notizen', '{"contents":"'.date('d.m.y').' CRM bereitgestellt","lastSavedOn":"'.date('Y-m-d h:i:s').'"}', '{"row":"1","col":"5"}'),
-                                   '2' => array('29', '1', '0', '0', 'false', '{"row":"1","col":"1"}'),
-                                   '3' => array('30', '5', '0', '0', false, null),
-                                   '4' => array('39', '5', '0', '0', false, null),
-                                   '5' => array('29',  '5', '0', '0', false, null),
-                                );
+            '2' => array('29', '1', '0', '0', 'false', '{"row":"1","col":"1"}'),
+            '3' => array('30', '5', '0', '0', false, null),
+            '4' => array('39', '5', '0', '0', false, null),
+            '5' => array('29',  '5', '0', '0', false, null),
+        );
         foreach ($standardWidgets as $widgetId => $infos) {
             $adb->pquery($queryWidget, array($widgetId, $infos[0], $infos[1], $infos[2], $infos[3], $infos[4], $infos[5]));
         }
     }
-	
-	public static function addUITypes() {
-		global $adb;
-		
-		$uiTypesToAdd = array('crmnow15' => 'UserPicklist');
-		$query = "SELECT * FROM vtiger_ws_fieldtype WHERE uitype = ?;";
-		$iQuery = "INSERT INTO vtiger_ws_fieldtype VALUES(?,?,?);";
-		$uQuery = "UPDATE vtiger_ws_fieldtype_seq SET id = ?;";
-		
-		foreach ($uiTypesToAdd AS $uitype => $fieldType) {
-			$res = $adb->pquery($query, array($uitype));
-			
-			if ($res && $adb->num_rows($res) == 0) {
-				$adb->pquery($iQuery, array(NULL, $uitype, $fieldType));
-				$lastId = $adb->getLastInsertID();
-				$adb->pquery($uQuery, array($lastId));
-			}
-		}
-	}
-	
-	private static function addNewWebservices() {
-		global $adb;
-		
-		$query = "SELECT * FROM vtiger_ws_operation WHERE name = ?;";
-		
-		$wsName = 'get_new_multi_relations';
-		$res = $adb->pquery($query, array($wsName));
-		if ($res && $adb->num_rows($res) == 0) {
-			// add new webservice operation get_new_multi_relations
-			$operationId = vtws_addWebserviceOperation($wsName, 'include/Webservices/Custom/getNewMultiRelations.php', 'berli_get_new_multi_relations', 'GET', '0');
-			vtws_addWebserviceOperationParam($operationId, 'id', 'string', '1');
-			vtws_addWebserviceOperationParam($operationId, 'relModule', 'string', '2');
-		}
-	}
-	
-	public static function addNewRelatedLists() {
-		global $adb;
-		
-		$query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
-		
-		$relations = array('Vendors' => array('Documents' => array(array('ADD', 'SELECT'), 'get_attachments')));
-		
-		foreach ($relations AS $moduleName => $relation) {
-			foreach ($relation AS $relModuleName => $details) {
-				$actions = $details[0];
-				$methodName = $details[1];
-				$tabId = getTabId($moduleName);
-				$relTabId = getTabId($relModuleName);
-				
-				$res = $adb->pquery($query, array($tabId, $relTabId));
 
-				if ($adb->num_rows($res) == 0) {
-					$moduleInstance = Vtiger_Module::getInstance($moduleName);
-					$relInstance = Vtiger_Module::getInstance($relModuleName);
-					$moduleInstance->setRelatedList($relInstance , $relModuleName, $actions, $methodName);
-				}
-			}
-		}
-	}
+    public static function addUITypes() {
+        global $adb;
+
+        $uiTypesToAdd = array('crmnow15' => 'UserPicklist');
+        $query = "SELECT * FROM vtiger_ws_fieldtype WHERE uitype = ?;";
+        $iQuery = "INSERT INTO vtiger_ws_fieldtype VALUES(?,?,?);";
+        $uQuery = "UPDATE vtiger_ws_fieldtype_seq SET id = ?;";
+
+        foreach ($uiTypesToAdd AS $uitype => $fieldType) {
+            $res = $adb->pquery($query, array($uitype));
+
+            if ($res && $adb->num_rows($res) == 0) {
+                $adb->pquery($iQuery, array(NULL, $uitype, $fieldType));
+                $lastId = $adb->getLastInsertID();
+                $adb->pquery($uQuery, array($lastId));
+            }
+        }
+    }
+
+    private static function addNewWebservices() {
+        global $adb;
+
+        $query = "SELECT * FROM vtiger_ws_operation WHERE name = ?;";
+
+        $wsName = 'get_new_multi_relations';
+        $res = $adb->pquery($query, array($wsName));
+        if ($res && $adb->num_rows($res) == 0) {
+            // add new webservice operation get_new_multi_relations
+            $operationId = vtws_addWebserviceOperation($wsName, 'include/Webservices/Custom/getNewMultiRelations.php', 'berli_get_new_multi_relations', 'GET', '0');
+            vtws_addWebserviceOperationParam($operationId, 'id', 'string', '1');
+            vtws_addWebserviceOperationParam($operationId, 'relModule', 'string', '2');
+        }
+    }
+
+    public static function addNewRelatedLists() {
+        global $adb;
+
+        $query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
+
+        $relations = array(
+            'Vendors' => array('Documents' => array(array('ADD', 'SELECT'), 'get_attachments')),
+            'HelpDesk' => array('Emails' => array(array(), 'get_emails'))
+        );
+
+        foreach ($relations AS $moduleName => $relation) {
+            foreach ($relation AS $relModuleName => $details) {
+                $actions = $details[0];
+                $methodName = $details[1];
+                $tabId = getTabId($moduleName);
+                $relTabId = getTabId($relModuleName);
+
+                $res = $adb->pquery($query, array($tabId, $relTabId));
+
+                if ($adb->num_rows($res) == 0) {
+                    $moduleInstance = Vtiger_Module::getInstance($moduleName);
+                    $relInstance = Vtiger_Module::getInstance($relModuleName);
+                    $moduleInstance->setRelatedList($relInstance , $relModuleName, $actions, $methodName);
+                }
+            }
+        }
+    }
+
+    public static function addNewConfigEditSettingTables() {
+        global $adb;
+
+        $errors = '';
+        // "New tables for config settings to set on email sending from ticket another email or name <br>";
+        $query = "CREATE TABLE IF NOT EXISTS `vtiger_settings_config` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `config_key` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+        `label` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+        `description` text COLLATE utf8_unicode_ci,
+        `is_active` tinyint(1) NOT NULL DEFAULT '1',
+        `updated_at` datetime DEFAULT NULL,
+        `updated_by_user_id` int(11) DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `uniq_config_key` (`config_key`),
+        KEY `idx_updated_by_user_id` (`updated_by_user_id`)
+        ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci  ";
+        $res = $adb->pquery($query, array());
+        if(!$res) {
+            $errors = $errors."Error creating table vtiger_settings_config. \n";
+        }
+        // Check if FK already exists
+        try {
+            $check = $adb->pquery("SELECT CONSTRAINT_NAME
+                FROM information_schema.REFERENTIAL_CONSTRAINTS
+                WHERE CONSTRAINT_NAME = 'fk_settings_config_updated_by_user'
+            ");
+            if ($adb->num_rows($check) == 0) {
+                // Try to add FK
+                try {
+                    $adb->pquery("ALTER TABLE `vtiger_settings_config`
+                        ADD CONSTRAINT `fk_settings_config_updated_by_user`
+                        FOREIGN KEY (`updated_by_user_id`)
+                        REFERENCES `vtiger_users` (`id`)
+                        ON DELETE SET NULL "
+                    );
+                } catch (Exception $e) {
+                    // FK creation failed (e.g., already exists or other issue)
+                    $errors = $errors. "Error adding foreign key. \n"  ;
+                }
+            }
+        } catch (Exception $e) {
+            // information_schema query failed (extremely rare)
+            $errors = $errors. "Error checking foreign key.\n";
+        }
+
+        $query2 = "CREATE TABLE IF NOT EXISTS `vtiger_settings_config_param` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `config_id` int(11) NOT NULL,
+        `param_key` varchar(191) COLLATE utf8_unicode_ci NOT NULL,
+        `param_value` longtext COLLATE utf8_unicode_ci,
+        `value_type` varchar(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'string',
+        `sort_order` int(11) NOT NULL DEFAULT '0',
+        `updated_at` datetime DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `uniq_config_param` (`config_id`,`param_key`),
+        KEY `idx_config_id` (`config_id`)
+        ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci  ";
+        $res2 = $adb->pquery($query2, array());
+        if(!$res2) {
+            $errors = $errors. "Error creating table vtiger_settings_config_param. \n" ;
+        }
+        // Check if FK already exists
+        try {
+            $check2 = $adb->pquery("SELECT CONSTRAINT_NAME
+                FROM information_schema.REFERENTIAL_CONSTRAINTS
+                WHERE CONSTRAINT_NAME = 'fk_settings_config_param_config'
+            ");
+            if ($adb->num_rows($check2) == 0) {
+                // Try to add FK
+                try {
+                    $adb->pquery("ALTER TABLE `vtiger_settings_config_param`
+                        ADD CONSTRAINT `fk_settings_config_param_config`
+                        FOREIGN KEY (`config_id`)
+                        REFERENCES `vtiger_settings_config` (`id`)
+                        ON DELETE CASCADE 
+                    ");
+                } catch (Exception $e) {
+                    $errors = $errors.  "Error adding foreign key fk_settings_config_param_config.\n"  ;
+                }
+            }
+        } catch (Exception $e) {
+            $errors = $errors.  "Error checking foreign key fk_settings_config_param_config.\n "  ;
+        }
+
+        return $errors;
+    }
+
+    public static function addNewFields() {
+        global $adb;
+
+        //
+        // Adding some fields *** START ***
+        //
+        $arrFields = array(
+            // needed for E-Rechnung
+            'Accounts' => array(
+                'LBL_CUSTOM_INFORMATION' => array(
+                    array('Leitweg-ID', 'buyerreference', 'V~O', 1, 'VARCHAR(50)', '', 'Die Leitweg-ID ist ein Kennzeichen einer elektronischen Rechnung zur eindeutigen Adressierung von öffentlichen Auftraggebern in Deutschland (Beispiele: Behörden, Kommunen, Ministerien).'),
+                )
+            ),
+            'Invoice' => array(
+                'LBL_INVOICE_INFORMATION' => array(
+                    // array('Statusdatum', 'statusdate', 'D~O', 5, 'DATE', '', 'Datum des letzten Status, nicht ändern, wird vom automatischen Mahnwesen verwendet.'), // Datum
+                    array('Lieferdatum', 'deliveryperiod', 'D~O', 5, 'DATE', '', 'Lieferdatum, wird für E-Rechnung verwendet'), // Datum
+                ),
+            ),
+
+            // for HelpDesk
+            'HelpDesk' => array(
+                'LBL_TICKET_INFORMATION' => array(
+                    array('Owner', 'ticketowner', 'V~O', 'crmnow15', 'VARCHAR(100)', '', 'Der Prozessverantwortliche des Tickets.')
+                )
+            ),
+
+            'ModComments' => array(
+                'LBL_OTHER_INFORMATION' => array(
+                    array('LBL_MAIL_TO', 'mailto', 'E~O', 13, 'VARCHAR(100)'),
+                    array('LBL_MAIL_FROM', 'mailfrom', 'E~O', 13, 'VARCHAR(255)'),
+                    array('LBL_EMAIL_RECORD', 'emailid', 'I~O', 1, 'INT(19)'),
+                    array('LBL_EXTERNAL', 'external', 'C~O', 56, 'VARCHAR(3)'),
+                    array('LBL_TIME_NEEDED', 'timeneeded', 'T~O', 2, 'varchar(50)'),
+                    array('LBL_CC', 'carboncopy', 'V~O', 1, 'VARCHAR(255)'),
+                    array('LBL_BCC', 'blindcarboncopy', 'V~O', 1, 'VARCHAR(255)'),
+                )
+            ),
+
+            'Users' => array(
+                'LBL_USER_ADV_OPTIONS' => array( // '83' is 'LBL_USER_ADV_OPTIONS' => 'erweiterte Optionen',
+                    array('LBL_SSO_UNIQUE_ID'	,'sso_unique_id'   		,'V~O'     	,1   	,'VARCHAR(255)'   ),
+                )
+            )
+
+        );
+
+        foreach ($arrFields as $moduleName => $blocks) {
+            $moduleInstance = Vtiger_Module::getInstance($moduleName);
+            if (!$moduleInstance) {
+                die("$moduleName no instance");
+            }
+
+            foreach ($blocks as $blockName => $fieldInfos) {
+                $blockInstance = Vtiger_Block::getInstance($blockName, $moduleInstance);
+
+                if (!$blockInstance) {
+                    //// to create new block
+                    $blockInstance = new Vtiger_Block();
+                    $blockInstance->label = $blockName;
+                    $moduleInstance->addBlock($blockInstance);
+
+                } else {
+                    // if we need to del the BLOCK:
+                    //$blockInstance->delete();
+                }
+
+                foreach ($fieldInfos as $fieldInfo) {
+                    $fieldObj = Vtiger_Field::getInstance($fieldInfo[1], $moduleInstance);
+
+                    if (!$fieldObj) {
+                        $fieldObj = new Vtiger_Field();
+                        $fieldObj->name = $fieldInfo[1];
+                        $fieldObj->label = $fieldInfo[0];
+                        $fieldObj->table = $moduleInstance->basetable;
+                        $fieldObj->typeofdata = $fieldInfo[2];
+                        $fieldObj->uitype = $fieldInfo[3];
+                        $fieldObj->columntype = $fieldInfo[4];
+                        $fieldObj->info_type = 'BAS';
+                        $fieldObj->displaytype = '1';
+                        if (!empty($fieldInfo[6])) {
+                            $fieldObj->helpinfo = $fieldInfo[6];
+                        }
+
+                        if (($fieldInfo[3] == 16 || $fieldInfo[3] == 33) && !empty($fieldInfo[5])) {
+                            $fieldObj->setPicklistValues($fieldInfo[5]);
+                        }
+
+                        $blockInstance->addField($fieldObj);
+
+                        if ($fieldInfo[3] == 10 && isset($fieldInfo[5])) {
+                            $query = "SELECT * FROM vtiger_fieldmodulerel WHERE fieldid = ?;";
+                            $res = $adb->pquery($query, array($fieldObj->id));
+
+                            if ($adb->num_rows($res) == 0) {
+                                $query = "INSERT INTO vtiger_fieldmodulerel VALUES(?, ?, ?, ?, ?);";
+                                $adb->pquery($query, array($fieldObj->id, $moduleName, $fieldInfo[5], null, null));
+                                $relInstance = Vtiger_Module::getInstance($fieldInfo[5]);
+                                $relInstance->setRelatedList($moduleInstance, $moduleName, array('ADD'), 'get_dependents_list');
+                            }
+                        } elseif ($fieldInfo[3] == 13) {
+                            $query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
+                            $res = $adb->pquery($query, array($moduleInstance->getId(), getTabId('Emails')));
+
+                            if ($adb->num_rows($res) == 0) {
+                                $relInstance = Vtiger_Module::getInstance('Emails');
+                                $moduleInstance->setRelatedList($relInstance, 'Emails', array('ADD'), 'get_emails');
+                            }
+                        }
+
+                    } else {
+                        //$fieldObj->delete();
+                    }
+                }
+            }
+        }
+        //
+        // Adding some fields *** END ***
+        //
+    }
+
+    public static function alterTables() {
+        global $adb;
+        $ret = true;
+
+        $alterStatements = array("ALTER TABLE `vtiger_mailer_queue` MODIFY body MEDIUMTEXT;" // base64 inline images can be saved there
+        );
+        foreach ($alterStatements AS $index => $query) {
+            $tmp = $adb->pquery($query, array());
+            if (!$tmp) {
+                $ret[$index] = $adb->database->errorMsg();
+            }
+        }
+
+        return $ret;
+    }
 }

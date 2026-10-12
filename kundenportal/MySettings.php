@@ -9,7 +9,8 @@
 *
  ********************************************************************************/
 
-session_start();
+require_once 'session_security_manager.php';
+SessionSecurityManager::init();
 require_once 'csrf-protect.php';
 $errormsg = '';
 require_once("PortalConfig.php");
@@ -116,23 +117,24 @@ elseif($_SESSION['support_end_date'] != '')
 								
 								<div class="form-group">
 									<h1><?php echo getTranslatedString('LBL_CHANGE_PASSWORD'); ?></h1>
+									<p><?php echo getTranslatedString('MSG_PASSWORD_POLICY'); ?></p>
 								</div>
 						   
 						   		<div class="form-group">
 									<label><?php echo getTranslatedString('LBL_OLD_PASSWORD'); ?></label>
 									<input type="password" name="old_password" class="form-control" 
-										value="" autocomplete="off">
+										value="" autocomplete="current-password">
 								</div>
 							
 								<div class="form-group">
 									<label><?php echo getTranslatedString('LBL_NEW_PASSWORD'); ?></label>
 									<input type="password" name="new_password" class="form-control" 
-										value="" autocomplete="off">
+										value="" autocomplete="new-password">
 								</div>
 						   	
 						   		<div class="form-group">
 									<label><?php echo getTranslatedString('LBL_CONFIRM_PASSWORD'); ?></label>
-									<input type="password" name="confirm_password" class="form-control"  value="" autocomplete="off">
+									<input type="password" name="confirm_password" class="form-control" value="" autocomplete="new-password">
 								</div>
 							
 							
@@ -165,9 +167,9 @@ elseif($_SESSION['support_end_date'] != '')
 	<script>
 		function verify_data(form)
 		{
-		        oldpw = trim(form.old_password.value);
-		        newpw = trim(form.new_password.value);
-		        confirmpw = trim(form.confirm_password.value);
+		        oldpw = form.old_password.value;
+		        newpw = form.new_password.value;
+		        confirmpw = form.confirm_password.value;
 		        if(oldpw == '')
 		        {
 				alert("Enter Old Password");
@@ -181,6 +183,21 @@ elseif($_SESSION['support_end_date'] != '')
 		        else if(confirmpw == '')
 		        {
 				alert("Confirm the New Password");
+		                return false;
+		        }
+		        else if(newpw.length < 10 || !/[A-Z]/.test(newpw) || !/[0-9]/.test(newpw) || !/[^A-Za-z0-9\s]/.test(newpw))
+		        {
+				alert(<?php echo json_encode(getTranslatedString('MSG_PASSWORD_POLICY')); ?>);
+		                return false;
+		        }
+		        else if(newpw === oldpw)
+		        {
+				alert(<?php echo json_encode(getTranslatedString('MSG_PASSWORD_MUST_DIFFER')); ?>);
+		                return false;
+		        }
+		        else if(newpw !== confirmpw)
+		        {
+				alert(<?php echo json_encode(getTranslatedString('MSG_ENTER_NEW_PASSWORDS_SAME')); ?>);
 		                return false;
 		        }
 		        else
@@ -206,5 +223,3 @@ elseif($_SESSION['support_end_date'] != '')
 <?php
 	include("footer.html");
 ?>
-
-

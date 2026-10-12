@@ -67,7 +67,7 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 				thisInstance.updateBlockSequence();
 			}
 		});
-	
+
 		contents.find('.blockSortable .no-drag').on('mousedown', function(event) {
 			event.stopPropagation();
 		});
@@ -479,8 +479,8 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 								}
 							}
 							var lowerCasedpickListValuesArray = jQuery.map(pickListValuesArray, function(item, index) {
-																	return item.toLowerCase();
-																});
+								return item.toLowerCase();
+							});
 							var uniqueLowerCasedpickListValuesArray = jQuery.unique(lowerCasedpickListValuesArray);
 							var uniqueLowerCasedpickListValuesArraySize = uniqueLowerCasedpickListValuesArray.length;
 							var arrayDiffSize = pickListValuesArraySize-uniqueLowerCasedpickListValuesArraySize;
@@ -622,10 +622,10 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 				var pickListUi = form.find('.preDefinedValueExists');
 				pickListUi.removeClass('hide');
 			}
-            if(selectedOption.data('picklistoption')) {
-                var pickListOption = form.find('.picklistOption');
+			if(selectedOption.data('picklistoption')) {
+				var pickListOption = form.find('.picklistOption');
 				pickListOption.removeClass('hide');
-            }
+			}
 		})
 	},
 
@@ -831,7 +831,7 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 			}
 		});
 		var params = form.serializeFormData();
-		
+
 		params['module'] = app.getModuleName();
 		params['parent'] = app.getParentModuleName();
 		params['sourceModule'] = jQuery('#selectedModuleName').val();
@@ -889,9 +889,9 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 		var hiddenAddBlockModel = contents.find('.addBlockModal');
 		var blocksListSelect = hiddenAddBlockModel.find('[name="beforeBlockId"]');
 		var option = jQuery("<option>",{
-                  		value: result['id'],
-                  		text: result['label']
-            		})
+			value: result['id'],
+			text: result['label']
+		})
 		blocksListSelect.append(option.attr('data-label', result['label']));
 	},
 
@@ -1279,7 +1279,7 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 			function(error, err) {
 
 			}
-			);
+		);
 	},
 
 	/**
@@ -1290,8 +1290,8 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 		var aDeferred = jQuery.Deferred();
 		var form = currentTarget.closest('form.fieldDetailsForm');
 		var fieldId = currentTarget.data('fieldId');
-                var defaultValueField = form.find('[name=fieldDefaultValue]');
-                var defaultValue = defaultValueField.val();
+		var defaultValueField = form.find('[name=fieldDefaultValue]');
+		var defaultValue = defaultValueField.val();
 		var progressIndicatorElement = jQuery.progressIndicator({
 			'position' : 'html',
 			'blockInfo' : {
@@ -1319,16 +1319,16 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 				else {
 					if (data.newlabel !="") {
 						// reload if label has changed
-						location.reload(); 
+						location.reload();
 					}
 					else {
 						progressIndicatorElement.progressIndicator({'mode' : 'hide'});
 						var params = {};
 						params['text'] = app.vtranslate('JS_FIELD_DETAILS_SAVED');
 						Settings_Vtiger_Index_Js.showMessage(params);
-										if(defaultValueField.prop("tagName") == 'TEXTAREA') {
-												defaultValueField.text(defaultValue);
-										}
+						if(defaultValueField.prop("tagName") == 'TEXTAREA') {
+							defaultValueField.text(defaultValue);
+						}
 						aDeferred.resolve(data);
 					}
 				}
@@ -1377,7 +1377,7 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 				}
 			} else {
 				defaultField.attr('disabled', 'disabled');
-			//	defaultField.val('');
+				//	defaultField.val('');
 				defaultValueUi.addClass('zeroOpacity');
 				defaultValueUi.hide();
 			}
@@ -1386,13 +1386,16 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 		contents.on('change', '[name="changelabel"]', function(e) {
 			var currentTarget = jQuery(e.currentTarget);
 			var newlabelUI=currentTarget.closest('span').find('.newlabelUI');
+			var newlabelValue = newlabelUI.find('[name="newlabelValue"]');
 			if(currentTarget.is(':checked')) {
 				newlabelUI.removeClass('zeroOpacity');
+				newlabelValue.removeAttr('disabled');
 				// newlabelUI.show();
-				// newlabelUI.removeAttr('disabled');
 			}
 			else {
 				newlabelUI.addClass('zeroOpacity');
+				newlabelValue.attr('disabled', 'disabled');
+				newlabelValue.validationEngine('hide');
 				// newlabelUI.hide();
 
 			}
@@ -1505,7 +1508,7 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 			e.stopPropagation();
 		});
 	},
-        
+
 	registerEditFieldDetailsClick : function(contents) {
 		var thisInstance = this;
 		if(typeof contents == 'undefined') {
@@ -1523,14 +1526,14 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 			var dropDownMenu  = dropDownContainer.find('.dropdown-menu');
 			var params = app.getvalidationEngineOptions(true);
 			params.binded = false,
-			params.onValidationComplete = function(form,valid){
-            if(valid) {
-					 if(form.hasClass('fieldDetailsForm')){
-                        thisInstance.registerSaveFieldDetailsEvent(form);
-                    }
+				params.onValidationComplete = function(form,valid){
+					if(valid) {
+						if(form.hasClass('fieldDetailsForm')){
+							thisInstance.registerSaveFieldDetailsEvent(form);
+						}
+					}
+					return false;
 				}
-				return false;
-			}
 			dropDownMenu.find('form').validationEngine(params);
 			var defaultValueUiContainer = basicDropDown.find('.defaultValueUi');
 
@@ -1550,11 +1553,11 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 			}
 
 			//handled registration for date fields
-			 var dateField = defaultValueUiContainer.find('[data-toregister="date"]');
-			 if(dateField.length > 0) {
-				 dropDownMenu.find('[data-toregister="date"]').addClass('dateField');
-				 app.registerEventForDatePickerFields(dropDownMenu);
-			 }
+			var dateField = defaultValueUiContainer.find('[data-toregister="date"]');
+			if(dateField.length > 0) {
+				dropDownMenu.find('[data-toregister="date"]').addClass('dateField');
+				app.registerEventForDatePickerFields(dropDownMenu);
+			}
 			thisInstance.avoidDropDownClick(dropDownContainer);
 
 			dropDownMenu.on('change', ':checkbox', function(e) {
@@ -1572,37 +1575,37 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 
 			//added for drop down position change
 			var offset = currentTarget.offset(),
-                height = currentTarget.outerHeight(),
-                dropHeight = dropDown.outerHeight(),
-                viewportBottom = $(window).scrollTop() + document.documentElement.clientHeight,
-                dropTop = offset.top + height,
-                enoughRoomBelow = dropTop + dropHeight <= viewportBottom;
-			   if(!enoughRoomBelow) {
-				   dropDown.addClass('bottom-up');
-			   } else {
-				   dropDown.removeClass('bottom-up');
-			   }
+				height = currentTarget.outerHeight(),
+				dropHeight = dropDown.outerHeight(),
+				viewportBottom = $(window).scrollTop() + document.documentElement.clientHeight,
+				dropTop = offset.top + height,
+				enoughRoomBelow = dropTop + dropHeight <= viewportBottom;
+			if(!enoughRoomBelow) {
+				dropDown.addClass('bottom-up');
+			} else {
+				dropDown.removeClass('bottom-up');
+			}
 
 			var callbackFunction = function() {
 				fieldRow.addClass('opacity');
 				dropDown.remove();
-                jQuery('body').off('click.dropdown.data-api.layouteditor');
+				jQuery('body').off('click.dropdown.data-api.layouteditor');
 			}
 			thisInstance.addClickOutSideEvent(dropDown, callbackFunction);
-            
-            jQuery('.cancel').click(function(){
-                callbackFunction();
-            });
+
+			jQuery('.cancel').click(function(){
+				callbackFunction();
+			});
 			jQuery('body').on('click.dropdown.data-api.layouteditor',function(e){
-                var target = jQuery(e.target);
-                //user clicked on time picker
-                if(target.closest('.ui-timepicker-list').length > 0) {
-                    e.stopPropagation();
-                }
-            })
+				var target = jQuery(e.target);
+				//user clicked on time picker
+				if(target.closest('.ui-timepicker-list').length > 0) {
+					e.stopPropagation();
+				}
+			})
 		});
 	},
-    registerRenameBlockEvent : function() {
+	registerRenameBlockEvent : function() {
 		var thisInstance = this;
 		var contents = jQuery('#layoutEditorContainer').find('.contents');
 		var table = contents.find('.editFieldsTable');
@@ -1611,19 +1614,19 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 			var currentTarget = jQuery(e.currentTarget);
 			var table = currentTarget.closest('div.editFieldsTable');
 			var blockId = table.data('blockId');
-			
+
 			contents.find('.renameBlockModal input[name=blockid]').val(blockId);
-			
+
 			var renameBlockContainer = contents.find('.renameBlockModal').clone(true, true);
 
 			var callBackFunction = function(data) {
-				
+
 				data.find('.renameBlockModal').removeClass('hide');
 
 				var form = data.find('.renameBlockForm');
 				thisInstance.setBlocksListArray(form);
 				var fieldLabel = form.find('[name="label"]');
-				
+
 				var params = app.validationEngineOptions;
 				params.onValidationComplete = function(form, valid){
 
@@ -1713,15 +1716,15 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 		});
 	},
 
-    /*
-	 * Function to add clickoutside event on the element - By using outside events plugin
-	 * @params element---On which element you want to apply the click outside event
-	 * @params callbackFunction---This function will contain the actions triggered after clickoutside event
-	 */
+	/*
+     * Function to add clickoutside event on the element - By using outside events plugin
+     * @params element---On which element you want to apply the click outside event
+     * @params callbackFunction---This function will contain the actions triggered after clickoutside event
+     */
 	addClickOutSideEvent : function(element, callbackFunction) {
 		element.one('clickoutside',callbackFunction);
 	},
-    
+
 	/**
 	 * register events for layout editor
 	 */
@@ -1746,7 +1749,7 @@ jQuery(document).ready(function() {
 })
 
 Vtiger_WholeNumberGreaterThanZero_Validator_Js("Vtiger_FloatingDigits_Validator_Js",{
-	
+
 	/**
 	 *Function which invokes field validation
 	 *@param accepts field element as parameter
@@ -1760,7 +1763,7 @@ Vtiger_WholeNumberGreaterThanZero_Validator_Js("Vtiger_FloatingDigits_Validator_
 			return rangeInstance.getError();
 		}
 	}
-	
+
 },{
 	/**
 	 * Function to validate the decimals length
@@ -1778,7 +1781,7 @@ Vtiger_WholeNumberGreaterThanZero_Validator_Js("Vtiger_FloatingDigits_Validator_
 				this.setError(errorInfo);
 				return false;
 			}
-			
+
 			var specialChars = /^[+]/ ;
 			if (specialChars.test(fieldValue)) {
 				var error = app.vtranslate('JS_CONTAINS_ILLEGAL_CHARACTERS');
@@ -1791,7 +1794,7 @@ Vtiger_WholeNumberGreaterThanZero_Validator_Js("Vtiger_FloatingDigits_Validator_
 });
 
 Vtiger_WholeNumberGreaterThanZero_Validator_Js("Vtiger_DecimalMaxLength_Validator_Js",{
-	
+
 	/**
 	 *Function which invokes field validation
 	 *@param accepts field element as parameter
@@ -1805,7 +1808,7 @@ Vtiger_WholeNumberGreaterThanZero_Validator_Js("Vtiger_DecimalMaxLength_Validato
 			return rangeInstance.getError();
 		}
 	}
-	
+
 },{
 	/**
 	 * Function to validate the fieldLength
@@ -1825,7 +1828,7 @@ Vtiger_WholeNumberGreaterThanZero_Validator_Js("Vtiger_DecimalMaxLength_Validato
 				this.setError(errorInfo);
 				return false;
 			}
-			
+
 			var specialChars = /^[+]/ ;
 			if (specialChars.test(fieldValue)) {
 				var error = app.vtranslate('JS_CONTAINS_ILLEGAL_CHARACTERS');
@@ -1838,7 +1841,7 @@ Vtiger_WholeNumberGreaterThanZero_Validator_Js("Vtiger_DecimalMaxLength_Validato
 });
 
 Vtiger_WholeNumberGreaterThanZero_Validator_Js("Vtiger_MaxLength_Validator_Js",{
-	
+
 	/**
 	 *Function which invokes field validation
 	 *@param accepts field element as parameter
@@ -1852,7 +1855,7 @@ Vtiger_WholeNumberGreaterThanZero_Validator_Js("Vtiger_MaxLength_Validator_Js",{
 			return rangeInstance.getError();
 		}
 	}
-	
+
 },{
 	/**
 	 * Function to validate the fieldLength
@@ -1870,7 +1873,7 @@ Vtiger_WholeNumberGreaterThanZero_Validator_Js("Vtiger_MaxLength_Validator_Js",{
 				this.setError(errorInfo);
 				return false;
 			}
-			
+
 			var specialChars = /^[+]/ ;
 			if (specialChars.test(fieldValue)) {
 				var error = app.vtranslate('JS_CONTAINS_ILLEGAL_CHARACTERS');
@@ -1883,7 +1886,7 @@ Vtiger_WholeNumberGreaterThanZero_Validator_Js("Vtiger_MaxLength_Validator_Js",{
 });
 
 Vtiger_Base_Validator_Js("Vtiger_FieldLabel_Validator_Js",{
-	
+
 	/**
 	 *Function which invokes field validation
 	 *@param accepts field element as parameter
@@ -1897,7 +1900,7 @@ Vtiger_Base_Validator_Js("Vtiger_FieldLabel_Validator_Js",{
 			return instance.getError();
 		}
 	}
-	
+
 },{
 	/**
 	 * Function to validate the field label
@@ -1908,7 +1911,7 @@ Vtiger_Base_Validator_Js("Vtiger_FieldLabel_Validator_Js",{
 		var fieldValue = this.getFieldValue();
 		return this.validateValue(fieldValue);
 	},
-	
+
 	validateValue : function(fieldValue){
 		var specialChars = /[&\<\>\:\'\"\,\_]/ ;
 
@@ -1916,13 +1919,13 @@ Vtiger_Base_Validator_Js("Vtiger_FieldLabel_Validator_Js",{
 			var errorInfo = app.vtranslate('JS_SPECIAL_CHARACTERS')+" & < > ' \" : , _ "+app.vtranslate('JS_NOT_ALLOWED');
 			this.setError(errorInfo);
 			return false;
-		} 
-        return true;
+		}
+		return true;
 	}
 });
 
 Vtiger_Base_Validator_Js("Vtiger_PicklistFieldValues_Validator_Js",{
-	
+
 	/**
 	 *Function which invokes field validation
 	 *@param accepts field element as parameter
@@ -1936,7 +1939,7 @@ Vtiger_Base_Validator_Js("Vtiger_PicklistFieldValues_Validator_Js",{
 			return instance.getError();
 		}
 	}
-	
+
 },{
 	/**
 	 * Function to validate the field label
@@ -1947,14 +1950,14 @@ Vtiger_Base_Validator_Js("Vtiger_PicklistFieldValues_Validator_Js",{
 		var fieldValue = this.getFieldValue();
 		return this.validateValue(fieldValue);
 	},
-	
+
 	validateValue : function(fieldValue){
 		var specialChars = /(\<|\>)/gi ;
 		if (specialChars.test(fieldValue)) {
 			var errorInfo = app.vtranslate('JS_SPECIAL_CHARACTERS')+" < >"+app.vtranslate('JS_NOT_ALLOWED');
 			this.setError(errorInfo);
 			return false;
-		} 
-        return true;
+		}
+		return true;
 	}
 });

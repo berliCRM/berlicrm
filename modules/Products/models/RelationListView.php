@@ -51,4 +51,25 @@ class Products_RelationListView_Model extends Vtiger_RelationListView_Model {
 		return $headerFields;
 	}
 	
+	public function getEntries($pagingModel) {
+		$relatedRecordList = parent::getEntries($pagingModel);
+		
+		$parentRecordId = $this->getParentRecordModel()->getId();
+		$relationModule = $this->getRelationModel()->getRelationModuleModel();
+		$relationModuleName = $relationModule->get('name');
+		
+		if ($relationModuleName == 'PriceBooks') {
+			$parentModuleModel = $this->getParentRecordModel()->getModule();
+			$productIdsList = array();
+			foreach ($relatedRecordList AS $recordId => $recordModel) {
+				$productIdsList[$parentRecordId] = $parentRecordId;
+				$relatedRecordCurrencyId = $recordModel->get('currency_id');
+				$unitPricesList = $parentModuleModel->getPricesForProducts($relatedRecordCurrencyId, $productIdsList);
+				$recordModel->set('unit_price', $unitPricesList[$parentRecordId]);
+			}
+		}
+		
+		return $relatedRecordList;
+	}
+	
 }

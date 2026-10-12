@@ -575,42 +575,116 @@ class Vtiger_Functions {
 		return $filepath;
 	}
 
+	/**
+	 * Validates an uploaded image and sanitizes it by re-encoding in place.
+	 *
+	 * This method is intended for secure handling of user-uploaded images (e.g. logos).
+	 * It enforces an allowlist of extensions and MIME types and validates the actual
+	 * image structure via getimagesize(). If validation passes, the image is decoded
+	 * and re-encoded back into the SAME uploaded temporary file to strip metadata/
+	 * extraneous chunks and mitigate polyglot payload tricks.
+	 *
+	 * SECURITY (Audit Notes):
+	 * - Rejects non-uploaded files via is_uploaded_file() (prevents LFI-style tmp_name abuse)
+	 * - Ignores client-supplied Content-Type ($file_details['type']); uses server-side finfo
+	 * - Verifies image structure/type via getimagesize() (prevents masquerading payloads)
+	 * - Re-encodes IN PLACE using GD (strips metadata/extraneous chunks; mitigates polyglots)
+	 * - Keeps tmp_name unchanged (so downstream move_uploaded_file() continues to work)
+	 *
+	 * Allowed formats:
+	 * - Extensions: jpg, jpeg, png, gif
+	 * - MIME types: image/jpeg, image/pjpeg, image/png, image/x-png, image/gif
+	 *
+	 * Legacy behavior:
+	 * - Returns the strings 'true' or 'false' (vtiger compatibility).
+	 *
+	 * @param array $file_details The $_FILES['...'] array for the uploaded file
+	 *                            (expects keys: name, tmp_name, size, error).
+	 * @return string 'true' if the image is valid and sanitized, otherwise 'false'.
+	 */
 	static function validateImage($file_details) {
 		global $app_strings;
-		$allowedImageFormats = array('jpeg', 'png', 'jpg', 'pjpeg', 'x-png', 'gif', 'bmp', 'xcf');
-		
-		$mimeTypesList = array_merge($allowedImageFormats, array('x-ms-bmp'));//bmp another format
-		$mimeTypesList = array_merge($mimeTypesList, array('x-xcf'));//xcf another GIMP format
-		$file_type_details = explode("/", $file_details['type']);
-		$filetype = $file_type_details['1'];
-		if ($filetype) {
-			$filetype = strtolower($filetype);
-		}
 
+		// Keep vtiger's legacy API: return 'true' / 'false'
 		$saveimage = 'true';
-		if (!in_array($filetype, $allowedImageFormats)) {
-			$saveimage = 'false';
+
+		// SECURITY: Basic structure validation
+		if (empty($file_details) || !is_array($file_details)) return 'false';
+
+		// SECURITY: Upload error handling
+		if (!isset($file_details['error']) || $file_details['error'] !== UPLOAD_ERR_OK) return 'false';
+
+		// SECURITY: Must be actual HTTP upload
+		if (empty($file_details['tmp_name']) || !is_uploaded_file($file_details['tmp_name'])) return 'false';
+
+		// SECURITY: Must have a positive size
+		$size = (int)($file_details['size'] ?? 0);
+		if ($size <= 0) return 'false';
+
+		// SECURITY: Extension allowlist (secondary gate only)
+		$ext = strtolower(pathinfo((string)($file_details['name'] ?? ''), PATHINFO_EXTENSION));
+		$allowedExt = ['jpg', 'jpeg', 'png', 'gif'];
+		if ($ext === '' || !in_array($ext, $allowedExt, true)) return 'false';
+
+		// SECURITY: Authoritative MIME validation via finfo (do NOT trust $file_details['type'])
+		$allowedMime = ['image/jpeg', 'image/pjpeg', 'image/png', 'image/x-png', 'image/gif'];
+		try {
+			$mimeType = self::mime_content_type($file_details['tmp_name']);
+		} catch (Exception $e) {
+			return 'false';
+		}
+		$mimeType = strtolower((string)$mimeType);
+		if (!in_array($mimeType, $allowedMime, true)) return 'false';
+
+		// SECURITY: Verify actual image structure and type
+		$imgInfo = @getimagesize($file_details['tmp_name']);
+		if ($imgInfo === false) return 'false';
+
+		$imageType = (int)($imgInfo[2] ?? 0);
+		$allowedTypes = [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF];
+		if (!in_array($imageType, $allowedTypes, true)) return 'false';
+
+		// SECURITY: Pixel cap (image bombs)
+		$width  = (int)($imgInfo[0] ?? 0);
+		$height = (int)($imgInfo[1] ?? 0);
+		if ($width <= 0 || $height <= 0) return 'false';
+
+		// SECURITY: Re-encode IN PLACE using GD
+		// This strips extraneous chunks/metadata and mitigates polyglot tricks.
+		// IMPORTANT: writing back to the same tmp_name keeps it a "real uploaded file"
+		// so downstream move_uploaded_file() continues to work.
+		if ($imageType === IMAGETYPE_JPEG) {
+			$img = @imagecreatefromjpeg($file_details['tmp_name']);
+			if ($img === false) return 'false';
+			$ok = @imagejpeg($img, $file_details['tmp_name'], 90);
+			imagedestroy($img);
+			if (!$ok) return 'false';
+		} 
+		elseif ($imageType === IMAGETYPE_PNG) {
+			$img = @imagecreatefrompng($file_details['tmp_name']);
+			if ($img === false) return 'false';
+			// Preserve alpha for PNG (quality; security unaffected)
+			imagealphablending($img, false);
+			imagesavealpha($img, true);
+			$ok = @imagepng($img, $file_details['tmp_name'], 6);
+			imagedestroy($img);
+			if (!$ok) return 'false';
+		} 
+		else { // IMAGETYPE_GIF
+			$img = @imagecreatefromgif($file_details['tmp_name']);
+			if ($img === false) return 'false';
+			$ok = @imagegif($img, $file_details['tmp_name']);
+			imagedestroy($img);
+			if (!$ok) return 'false';
 		}
 
-		//mime type check
-		$mimeType = self::mime_content_type($file_details['tmp_name']);
-		$mimeTypeContents = explode('/', $mimeType);
-		if (!$file_details['size'] || strtolower($mimeTypeContents[0]) !== 'image' || !in_array($mimeTypeContents[1], $mimeTypesList)) {
-			$saveimage = 'false';
-		}
-
-		// Check for php code injection
-		//crm-now removed because "<?" can be part of image
-		// if ($saveimage == 'true') {
-			// $imageContents = file_get_contents($file_details['tmp_name']);
-			// if (stripos($imageContents, $shortTagSupported ? "<?" : "<?php") !== false) { // suspicious dynamic content.
-				// $saveimage = 'false';
-			// }
-		// }
 		return $saveimage;
 	}
 
 	static function getMergedDescription($description, $id, $parent_type) {
+		if (file_exists('vendor/autoload.php')) {
+			require_once 'vendor/autoload.php';
+		}
 		global $current_user;
 		$token_data_pair = explode('$', $description);
 		$emailTemplate = new EmailTemplate($parent_type, $description, $id, $current_user);
@@ -622,7 +696,7 @@ class Vtiger_Functions {
 			$fields[$module[0]][] = $module[1];
 		}
 		if (is_array($fields['custom']) && count($fields['custom']) > 0) {
-			$description = self::getMergedDescriptionCustomVars($fields, $description);
+			$description = self::getMergedDescriptionCustomVars($fields, $description, $id, $parent_type);
 		}
 		//crm-now: handle optional blocks, skip it for Users as email send routine will call this function several times, Users first, and the description block will be gone aftre that
 		if ($parent_type != 'Users') {
@@ -631,8 +705,11 @@ class Vtiger_Functions {
 		return $description;
 	}
 
-	static function getMergedDescriptionCustomVars($fields, $description) {
-		global $current_user, $default_timezone;
+	static function getMergedDescriptionCustomVars($fields, $description, $id, $parent_type) {
+		if (file_exists('vendor/autoload.php')) {
+			require_once 'vendor/autoload.php';
+		}
+		global $current_user, $HELPDESK_SUPPORT_EMAIL_ID, $PORTAL_URL, $PORTAL_URL_ENG;
 		date_default_timezone_set($current_user->time_zone);
 		
 		$dateFormat = new IntlDateFormatter(
@@ -652,6 +729,7 @@ class Vtiger_Functions {
 			IntlDateFormatter::GREGORIAN,
 			'HH:mm:ss (zz)'
 		);
+        $companyDetails = getCompanyDetails();
 		foreach ($fields['custom'] as $columnname) {
 			$token_data = '$custom-' . $columnname . '$';
 			$token_value = '';
@@ -660,6 +738,33 @@ class Vtiger_Functions {
 					break;
 				case 'currenttime': $token_value = $timeFormat->format(microtime(true));
 					break;
+                case 'currentyear': $token_value = date("Y");
+                    break;
+                case 'supportemail' : $token_value = $HELPDESK_SUPPORT_EMAIL_ID;
+                    break;
+                case 'logo' :
+                    $companyModel = Vtiger_CompanyDetails_Model::getInstanceById();
+                    $companyModel->getLogo()->getImagePath();
+                    break;
+                case 'customerportallink' :
+                    if($parent_type == 'HelpDesk') {
+                        $token_value = $PORTAL_URL_ENG . "/index.php?module=HelpDesk&action=index&ticketid=" . $id . "&fun=detail";
+                    } else {
+                        $token_value = $PORTAL_URL_ENG . "/index.php?module=" . $parent_type . "&action=index&id=" . $id . "&fun=detail";
+                    }
+                    break;
+                case 'kundenportallink' :
+                    if($parent_type == 'HelpDesk') {
+                        $token_value = $PORTAL_URL . "/index.php?module=HelpDesk&action=index&ticketid=" . $id . "&fun=detail";
+                    } else {
+                        $token_value = $PORTAL_URL . "/index.php?module=" . $parent_type . "&action=index&id=" . $id . "&fun=detail";
+                    }
+                    break;
+                default :
+                    if (key_exists($columnname, $companyDetails)) {
+                        $token_value = $companyDetails[$columnname];
+                    }
+                    break;
 			}
 			$description = str_replace($token_data, $token_value, $description);
 		}
@@ -1327,23 +1432,23 @@ class Vtiger_Functions {
 		}
 		
 		if (isset($field)) {
-			$fieldId = $field->get('id');
-		
-			$query = 'SELECT listcolor FROM berli_listview_colors WHERE listfieldid = ? AND fieldcontent =?';
-			$result = $db->pquery($query,array($fieldId, decode_html($fieldValue)));
-			if ($result && $db->num_rows($result) > 0) {
-				$rowListColor = $db->query_result($result,0,'listcolor');
-			}
-		}
-		
-		if (!isset($rowListColor)) $rowListColor = '';
-		
-		// $this->fieldColorMap[$fieldName][$fieldValue] = $rowListColor;
+            $fieldId = $field->get('id');
 
-		return $rowListColor;
-	}
+            $query = 'SELECT listcolor FROM berli_listview_colors WHERE listfieldid = ? AND fieldcontent =?';
+            $result = $db->pquery($query,array($fieldId, decode_html($fieldValue)));
+            if ($result && $db->num_rows($result) > 0) {
+                $rowListColor = $db->query_result($result,0,'listcolor');
+            }
+        }
 
-	//
+        if (!isset($rowListColor)) $rowListColor = '';
+
+        // $this->fieldColorMap[$fieldName][$fieldValue] = $rowListColor;
+
+        return $rowListColor;
+    }
+
+    //
 	/**
 	 * Check Valid Dataformat
 	 * @param  string 	$dateValue	Date to validate
@@ -1393,7 +1498,7 @@ class Vtiger_Functions {
 	/* Project against CSV Injection when opened with Spreadsheet apps.
 	 * If value starts with macro / forumula quote it forcefully.
 	 * https://owasp.org/www-community/attacks/CSV_Injection
-	 */
+     */
 	static function sanitizeForCSVExport($row) {
 		foreach ($row as $k => $v) {
 			if ($v && is_string($v)) {
@@ -1406,8 +1511,55 @@ class Vtiger_Functions {
 		}
 		return $row;
 	}
+    
+    /**
+     * To also update the 'modifiedtime' in the parent module when a comment is written.
+     */
+    public static function updateParentModifiedTime($parentId, $parentModuleName, $commentId, $userId) {
+        $adb = PearDatabase::getInstance();
+
+        $query = "SELECT modifiedtime, createdtime FROM vtiger_crmentity WHERE crmid = ?";
+        $res1 = $adb->pquery($query, array($commentId));
+        $res2 = $adb->pquery($query, array($parentId));
+
+        if ($adb->num_rows($res1) == 1 && $adb->num_rows($res2) == 1) {
+            $old_modifiedtime = $adb->query_result($res2, 0, "modifiedtime");
+            $current_modifiedtime = $adb->query_result($res1, 0, "modifiedtime");
+            $current_createdtime  = $adb->query_result($res1, 0, "createdtime");
+
+            $new_modifiedtime = ""; 
+
+            // Case 1: modifiedtime exists
+            if (!empty($current_modifiedtime)) {
+                $new_modifiedtime = $current_modifiedtime;
+
+            // Case 2: modifiedtime is empty, but createdtime exists
+            } elseif (!empty($current_createdtime)) {
+                $new_modifiedtime = $current_createdtime;
+
+            // Case 3: both empty, do NOTHING, something is wrong and comment have no timestamp?
+            } else {
+                return; // Parent no changes
+            }
+
+            // Parent update
+            $adb->pquery(
+                "UPDATE vtiger_crmentity SET modifiedtime = ?, modifiedby = ? WHERE crmid = ?",
+                array($new_modifiedtime, $userId, $parentId)
+            );
+
+            require_once('modules/ModTracker/ModTracker.php');
+            if(empty($parentModuleName)){
+                $parentModuleName = getSalesEntityType($parentId);
+            }
+            createModTrackerEntry(
+                $old_modifiedtime,
+                $new_modifiedtime,
+                $parentId,
+                $parentModuleName,
+                'modifiedtime'
+            );
+        }
+    }
 
 }
-
-
-

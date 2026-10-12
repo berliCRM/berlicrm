@@ -7,6 +7,8 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
+require_once 'modules/Settings/Vtiger/models/ConfigSignature.php';
+require_once 'modules/Settings/Vtiger/models/ConfigTicketEmailAddress.php';
 
 class Settings_Vtiger_ConfigEditorDetail_View extends Settings_Vtiger_Index_View {
 
@@ -14,7 +16,12 @@ class Settings_Vtiger_ConfigEditorDetail_View extends Settings_Vtiger_Index_View
 		$qualifiedName = $request->getModule(false);
 		$moduleModel = Settings_Vtiger_ConfigModule_Model::getInstance();
 
+		$signatureModel = Settings_Vtiger_ConfigSignature::getInstance();
+		$emailForTicketModel = Settings_Vtiger_ConfigTicketEmailAddress::getInstance();
+
 		$viewer = $this->getViewer($request);
+		$viewer->assign('SIGNATURE_DATA', $signatureModel->getData());
+		$viewer->assign('TICKETEMAIL_DATA', $emailForTicketModel->getData());
 		$viewer->assign('MODEL', $moduleModel);
 		$viewer->assign('QUALIFIED_MODULE', $qualifiedName);
 		$viewer->assign('CURRENT_USER_MODEL', Users_Record_Model::getCurrentUserModel());

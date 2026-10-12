@@ -96,6 +96,8 @@ $app_strings = Array(
 'MSG_PASSWORD_CHANGED'=>'Password has been changed successfully.',
 'MSG_ENTER_NEW_PASSWORDS_SAME'=>'New & Confirm passwords did not match',
 'MSG_YOUR_PASSWORD_WRONG'=>'Incorrect old password.',
+'MSG_PASSWORD_POLICY'=>'The new password must contain at least 10 characters, one uppercase letter, one number and one special character.',
+'MSG_PASSWORD_MUST_DIFFER'=>'The new password must differ from the old password.',
 
 //Added fields for Knowledge Base details
 'LBL_KNOWLEDGE_BASE'=>'Knowledge Base',

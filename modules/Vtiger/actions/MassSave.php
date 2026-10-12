@@ -81,7 +81,7 @@ class Vtiger_MassSave_Action extends Vtiger_Mass_Action {
 						//date field
 						$recordModel->set($fieldName, Null);
 					}
-					else if ($uiType == 56 OR $uiType == 51 OR $uiType == 7 OR $uiType == 9) {
+					else if ($uiType == 56 OR $uiType == 51 OR $uiType == 7 OR $uiType == 9 || $uiType == 10) {
 						//checkbox field, integer field
 						$recordModel->set($fieldName, '0');
 					}

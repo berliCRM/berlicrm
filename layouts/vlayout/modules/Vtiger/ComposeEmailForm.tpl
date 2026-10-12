@@ -42,10 +42,47 @@
 		<input type="hidden" name="search_value" value="{$ALPHABET_VALUE}" />
 		<input type="hidden" name="search_params" value='{json_encode($SEARCH_PARAMS)}' />
 		<input type="hidden" name="cc" value='{if !empty($CC)}{json_encode($CC)}{/if}' />
-		<div class="row-fluid toEmailField padding10">
+		
+        <div class="row-fluid padding10">
+            <span class="span8">
+                <span class="row-fluid">
+                    <span class="span2">
+                        Von
+                    </span>
+
+                    <span class="span9">
+                        <select id="fromAddress" name="fromAddress" class="chzn-select chzn-done" style="width: 400px;">
+                            <option value="{$USER_MODEL->get('email1')}">
+                                {$USER_MODEL->get('first_name')|cat:" "}{$USER_MODEL->get('last_name')}&lt;{$USER_MODEL->get('email1')}&gt;
+                            </option>
+
+                            {if !empty($FROMADDRESSES)}
+                            {foreach from=$FROMADDRESSES item=addr}
+                            <option value="{$addr.email_address}">
+                                {$addr.email_firstname|cat:" "|cat:$addr.email_lastname|trim|escape:"html"}&lt;{$addr.email_address}&gt;
+                            </option>
+                            {/foreach}
+                            {/if}
+
+                        </select>
+                    </span>
+
+                </span>
+            </span>
+            <span class="span4">
+
+            </span>
+        </div>
+         
+        <div class="row-fluid toEmailField padding10">
 			<span class="span8">
 				<span class="row-fluid">
-					<span class="span2">{vtranslate('LBL_TO',$MODULE)}<span class="redColor">*</span></span>
+					<span class="span2">
+                        {vtranslate('LBL_TO',$MODULE)}
+                        <span class="redColor">*
+                        </span>
+                    </span>
+
 					{if !empty($TO)}
 						{assign var=TO_EMAILS value=","|implode:$TO}
                     {/if}
@@ -69,15 +106,19 @@
 						</div>
                     {/if}
 
-				</span>
+				    </span>
+			    </span>
 			</span>
-			</span>
+
 			<span class="span4">
 				<span class="row-fluid">
 					<span class="span10">
 						<div class="input-prepend">
 							<span class="pull-right">
-								<span class="add-on cursorPointer" name="clearToEmailField"><i class="icon-remove-sign" title="{vtranslate('LBL_CLEAR', $MODULE)}"></i></span>
+								<span class="add-on cursorPointer" name="clearToEmailField">
+                                    <i class="icon-remove-sign" title="{vtranslate('LBL_CLEAR', $MODULE)}"></i>
+                                </span>
+
 								<select class="chzn-select emailModulesList" style="width:150px;">
 									<optgroup>
 										{foreach item=MODULE_NAME from=$RELATED_MODULES}
@@ -85,6 +126,7 @@
 										{/foreach}
 									</optgroup>
 								</select>
+
 							</span>
 						</div>
 					</span>
@@ -94,6 +136,7 @@
 				</span>
 			</span>
 		</div>
+        
 		<div class="{if empty($CC)}hide {/if} padding10 row-fluid" id="ccContainer">
 			<div class="span8">
 				<div class="row-fluid">

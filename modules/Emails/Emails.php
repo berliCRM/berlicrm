@@ -88,11 +88,10 @@ class Emails extends CRMEntity {
 			}
 			$parentid = $_REQUEST['parent_id'];
 			if ($_REQUEST['module'] != 'Emails' && $_REQUEST['module'] != 'Webmails') {
-				if (!$parentid) {
-					$parentid = $adb->getUniqueID('vtiger_seactivityrel');
+				if (!empty($parentid) && !empty($actid)) {
+					$mysql = 'insert into vtiger_seactivityrel values(?,?)';
+					$adb->pquery($mysql, array($parentid, $actid));
 				}
-				$mysql = 'insert into vtiger_seactivityrel values(?,?)';
-				$adb->pquery($mysql, array($parentid, $actid));
 			} else {
 				$myids = explode("|", $parentid);  //2@71|
 				
@@ -109,10 +108,19 @@ class Emails extends CRMEntity {
 						$adb->pquery($del_q, array($mycrmid, $actid));
 						$mysql = 'insert into vtiger_seactivityrel values(?,?)';
 					}
-					$params = array($mycrmid, $actid);
-					$adb->pquery($mysql, $params);
+					if (!empty($mycrmid) && !empty($actid)) {
+						$params = array($mycrmid, $actid);
+						$adb->pquery($mysql, $params);
+					}
 				}
 			}
+            
+            // EmailConfigurator //crm-now: added for modified FROM address 
+			if (isset($_REQUEST['fromAddress']) && trim($_REQUEST['fromAddress']) != '') {
+				$update_q = 'UPDATE vtiger_emaildetails SET from_email = ? where emailid = ? ';
+				$adb->pquery($update_q, array(trim($_REQUEST['fromAddress']), $actid));
+			}
+
 		} else {
 			if (isset($this->column_fields['parent_id']) && $this->column_fields['parent_id'] != '') {
 				$adb->pquery("DELETE FROM vtiger_seactivityrel WHERE crmid = ? AND activityid = ? ",

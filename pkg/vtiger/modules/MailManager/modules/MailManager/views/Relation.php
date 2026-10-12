@@ -103,7 +103,7 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 			$memory_limit = MailManager_Config_Model::get('MEMORY_LIMIT');
 			ini_set('memory_limit', $memory_limit);
 
-			$mail = $connector->openMail($request->get('_msgno'));
+			$mail = $connector->openMail($request->get('_msgno'), $foldername);
 			$mail->attachments(); // Initialize attachments
 
 			$linkedto = MailManager_Relate_Action::associate($mail, $linkto);
@@ -122,7 +122,7 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 			$foldername = $request->get('_folder');
 
 			$connector = $this->getConnector($foldername);
-			$mail = $connector->openMail($request->get('_msgno'));
+			$mail = $connector->openMail($request->get('_msgno'), $foldername);
 
 			$formData = $this->processFormData($mail);
 			foreach ($formData as $key => $value) {
@@ -154,7 +154,7 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 				ini_set('memory_limit', $memory_limit);
 
 				$connector = $this->getConnector($foldername);
-				$mail = $connector->openMail($request->get('_msgno'));
+				$mail = $connector->openMail($request->get('_msgno'), $foldername);
 				$attachments = $mail->attachments(); // Initialize attachments
 			}
 
@@ -402,7 +402,11 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 	public function ws_describe($module) {
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		if (!isset($this->wsDescribeCache[$module])) {
-			$this->wsDescribeCache[$module] = vtws_describe( $module, $currentUserModel);
+			try {
+				$this->wsDescribeCache[$module] = vtws_describe( $module, $currentUserModel);
+			} catch (Exception $e) {
+				// if module is blocked
+			}
 		}
 		return $this->wsDescribeCache[$module];
 	}

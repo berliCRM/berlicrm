@@ -1,5 +1,5 @@
 <?php
-/*+***********************************************************************************
+/*+************************************************************************************
  * The contents of this file are subject to the vtiger CRM Public License Version 1.0
  * ("License"); You may not use this file except in compliance with the License
  * The Original Code is:  vtiger CRM Open Source
@@ -117,6 +117,7 @@ $languageStrings = array(
 	'User Image' => 'Upload Photograph',
 	'User Name' => 'User Name',
 	'Webservice Access Key' => 'Access Key',
+    'LBL_SSO_UNIQUE_ID' => 'SSO unique ID',
 	'Yahoo id' => 'additional Email',
     
          //Patch provided by http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7884

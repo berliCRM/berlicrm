@@ -206,4 +206,23 @@ class Settings_Vtiger_ConfigModule_Model extends Settings_Vtiger_Module_Model {
 		$moduleModel->getViewableData();
 		return $moduleModel;
 	}
+	
+	/**
+	 * Function to get Edit view Url for signature
+	 * @return <String> Url
+	 */
+	public function getEditViewUrlSignature() {
+		$menuItem = $this->getMenuItem();
+		return '?module=Vtiger&parent=Settings&view=ConfigEditorEditSignature&block='.$menuItem->get('blockid').'&fieldid='.$menuItem->get('fieldid');
+	}
+	
+	/**
+	 * Function to get Edit view Url for emal addresses tickets
+	 * @return <String> Url
+	 */
+	public function getEditViewUrlTicketMail() {
+		$menuItem = $this->getMenuItem();
+		return '?module=Vtiger&parent=Settings&view=ConfigEditorEditTicketEmailAddress&block='.$menuItem->get('blockid').'&fieldid='.$menuItem->get('fieldid');
+	}
+
 }

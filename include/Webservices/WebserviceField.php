@@ -442,5 +442,10 @@ class WebserviceField{
 		}
 		return $this->maxlength;
 	}
+	
+	// used in QueryGenerator for alias names
+	public function setTableName($newName) {
+		$this->tableName = $newName;
+	}
 
 }

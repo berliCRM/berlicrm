@@ -1,6 +1,6 @@
 <?php
 
-/* +**********************************************************************************
+/* +***********************************************************************************
  * The contents of this file are subject to the vtiger CRM Public License Version 1.1
  * ("License"); You may not use this file except in compliance with the License
  * The Original Code is:  vtiger CRM Open Source
@@ -63,7 +63,10 @@ class Users_RequestPassword_Action{
                 $params = array('email');
                 $result = $adb->pquery($query,$params);
                 $from = $adb->query_result($result,0,'from_email_field');
-                if($from == '') {$from =$adb->query_result($result,0,'server_username'); }
+                if ($from == '') {
+					global $HELPDESK_SUPPORT_EMAIL_ID;
+					$from = $HELPDESK_SUPPORT_EMAIL_ID;
+				}
                 $subject=$languageStrings['LBL_PASSWORD_RESET_REQUEST_SUBJECT'];
                 
                 $status = send_mail('', $email, $username, $from, $subject, $content);

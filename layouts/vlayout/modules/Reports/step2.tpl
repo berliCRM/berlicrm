@@ -15,9 +15,9 @@
 		<input type="hidden" name="view" value="Edit" />
 		<input type="hidden" name="mode" value="step3" />
 		<input type="hidden" name="record" value="{$RECORD_ID}" />
-		<input type="hidden" name="reportname" value="{$REPORT_MODEL->get('reportname')}" />
+        <input type="hidden" name="reportname" value="{$REPORT_MODEL->get('reportname')|escape:'htmlall'}" />
+        <input type="hidden" name="description" value="{$REPORT_MODEL->get('description')|escape:'htmlall'}" />
 		<input type="hidden" name="reportfolderid" value="{$REPORT_MODEL->get('reportfolderid')}" />
-		<input type="hidden" name="description" value="{$REPORT_MODEL->get('description')}" />
 		<input type="hidden" name="primary_module" value="{$PRIMARY_MODULE}" />
 		<input type="hidden" name="secondary_modules" value={ZEND_JSON::encode($SECONDARY_MODULES)} />
 		<input type="hidden" name="selected_fields" id="seleted_fields" value='{ZEND_JSON::encode($SELECTED_FIELDS)}' />

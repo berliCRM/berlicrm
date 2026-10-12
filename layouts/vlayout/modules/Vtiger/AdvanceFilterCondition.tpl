@@ -61,6 +61,13 @@
 								{$FIELD_INFO['type'] = 'picklist'}
 						{/if}
 					{/if}
+					{if $FIELD_MODEL->getFieldDataType() == 'UserPicklist'}
+						{assign var=PICKLIST_VALUES value=$FIELD_MODEL->getUserPicklistValues()}
+						{if !empty($PICKLIST_VALUES)}
+							{$FIELD_INFO['picklistvalues'] = $PICKLIST_VALUES}
+							{$FIELD_INFO['type'] = 'picklist'}
+						{/if}
+					{/if}
 					data-fieldinfo='{ZEND_JSON::encode($FIELD_INFO)|replace:"'":"&#039;"}' 
                     {if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if}>
 					{if $SOURCE_MODULE neq $MODULE_MODEL->get('name')}

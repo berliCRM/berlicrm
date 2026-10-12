@@ -51,7 +51,7 @@ $app_strings = Array(
 'LBL_NEW_INFORMATION'=>'Bitte dieses Formular vollständig ausfüllen.',
 'LBL_TICKET_ID'=>'Ticketnr.',
 'LBL_STATUS'=>'Status',
-'LBL_ON'=>'von',
+'LBL_ON'=>'am',
 'LBL_NOTSET_UPLOAD_DIR'=>'BITTE DAS UPLOAD VERZEICHNIS EINRICHTEN',
 'LBL_GIVE_VALID_FILE'=>'Bitte eine Datei für den Upload auswählen!',
 'LBL_UPLOAD_FILE_LARGE'=>'Leider ist die Datei zu groß. Bitte eine kleinere Datei auswählen',
@@ -96,6 +96,8 @@ $app_strings = Array(
 'MSG_PASSWORD_CHANGED'=>'Passwort wurde erfolgreich geändert.',
 'MSG_ENTER_NEW_PASSWORDS_SAME'=>'Ihr neues Passwort und die Bestätigung stimmen nicht überein',
 'MSG_YOUR_PASSWORD_WRONG'=>'falsches altes Passwort.',
+'MSG_PASSWORD_POLICY'=>'Das neue Passwort muss mindestens 10 Zeichen, einen Großbuchstaben, eine Zahl und ein Sonderzeichen enthalten.',
+'MSG_PASSWORD_MUST_DIFFER'=>'Das neue Passwort muss sich vom alten Passwort unterscheiden.',
 
 //Added fields for Knowledge Base details
 'LBL_KNOWLEDGE_BASE'=>'Wissensbasis',

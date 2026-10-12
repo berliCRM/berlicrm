@@ -32,7 +32,7 @@
 
 								{foreach item=REPORT_FOLDER from=$REPORT_FOLDERS}
 									<option value="{$REPORT_FOLDER->getId()}"
-											{if $REPORT_FOLDER->getId() eq $REPORT_MODEL->get('reportfolderid')}
+											{if $REPORT_FOLDER->getId() eq $REPORT_MODEL->get('folderid')}
 												selected=""
 											{/if}
 											>{vtranslate($REPORT_FOLDER->getName(), $MODULE)}</option>
