@@ -37,6 +37,19 @@ function vtws_create($elementType, $element, $user) {
         throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, "Permission to write is denied");
     }
 
+    // Internal comments belong to their authenticated author, independently of the owner.
+    // Portal/customer and mail-converter comments retain their existing attribution.
+    if ($elementType === 'ModComments' && empty($element['customer']) &&
+            empty($element['from_portal']) && empty($element['from_mailconverter'])) {
+        $authorId = vtws_getWebserviceEntityId('Users', $user->id);
+        if (isset($element['userid']) && $element['userid'] !== '' &&
+                $element['userid'] !== $authorId) {
+            throw new WebServiceException(WebServiceErrorCode::$REFERENCEINVALID,
+                    'userid must identify the authenticated user when creating an internal comment');
+        }
+        $element['userid'] = $authorId;
+    }
+
     $referenceFields = $meta->getReferenceFieldDetails();
     foreach ($referenceFields as $fieldName => $details) {
         if (isset($element[$fieldName]) && strlen($element[$fieldName]) > 0) {
