@@ -132,7 +132,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     $invoice_no = $focus->column_fields['invoice_no'];
     $deliveryperiod = $focus->column_fields['deliveryperiod'];
     $deliveryperiod = getValidDisplayDate($deliveryperiod);
-    $deliveryperiod = str_replace("-", ".", $deliveryperiod);
+    $deliveryperiod = str_replace("-", ".", (string) $deliveryperiod);
     $invoice_buyer_purchaseorder_no = $focus->column_fields['vtiger_purchaseorder']; // buyer purchase order number
     //file_put_contents('logs/ep4812.log', sprintf('%s %s %s', __LINE__, $invoice_no, $invoice_buyer_purchaseorder_no) . PHP_EOL, FILE_APPEND);
     //set currency format
