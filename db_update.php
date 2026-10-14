@@ -30,7 +30,9 @@ global $adb;
 function berli_updateAllModules() {
     echo "<br>\n Updating all modules automatically... ";
 
-    $moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
+    // $moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
+    // Es sollten nur mandatory Module automatisch installiert werden. Andere können später manuell dazu installiert werden
+    $moduleFolders = array('packages/vtiger/mandatory' );
 
     foreach ($moduleFolders as $moduleFolder) {
         if ($handle = opendir($moduleFolder)) {
@@ -682,10 +684,13 @@ if (version_compare($installedtag, $current_release_tag) < 0) {
 
 }
 
+/* 
+// unnötig da mandatory Module automatisch hier updated werden und die optionale sollten eher manuell installiert werden bei bedarf.
+// übernommen aus den db_script 35 oder von früheren.
 echo '<br>\n module update berliWidgets start ';
 $moduleInstance = Vtiger_Module::getInstance("berliWidgets");
 if($moduleInstance) {
-	updateVtlibModule("berliWidgets", "packages/vtiger/mandatory/berliCleverReach.zip");
+	updateVtlibModule("berliWidgets", "packages/vtiger/mandatory/berliWidgets.zip");
 }
 echo '<br>\n module update berliWidgets done ';
 
@@ -694,7 +699,8 @@ $moduleInstance = Vtiger_Module::getInstance("berliCleverReach");
 if($moduleInstance) {
 	updateVtlibModule("berliCleverReach", "packages/vtiger/optional/berliCleverReach.zip");
 }
-echo '<br>\n module update berliCleverReach done ';
+echo '<br>\n module update berliCleverReach done '; 
+*/
 
 $moduleName = 'Users';
 $moduleInstance = Vtiger_Module::getInstance($moduleName);
@@ -1256,7 +1262,8 @@ try {
 }
 echo '<br>\n Adding new RelatedLists... DONE ';
 
-
+// Die Table 'vtiger_modcommentsscope' gibt es nicht mehr/wird nicht mehr benutzt
+/*
 echo "<br>\n Add new column to vtiger_modcommentsscope START...";
 {
     //first check if the column already exists
@@ -1279,6 +1286,7 @@ echo "<br>\n Add new column to vtiger_modcommentsscope START...";
     }
 }
 echo "<br>\n Add new column to vtiger_modcommentsscope DONE...";
+*/
 
 
 echo "<br>\n Add new Field to Modul: Users, Block: ('LBL_USER_ADV_OPTIONS' ) 'erweiterte Optionen' ... ";
@@ -1378,7 +1386,7 @@ function relatedListExists($tabid, $relatedTabid, $name) {
 
 
 // ------------------------------------------------------------
-// Migration from vtiger_modcommentsscope to vtiger_modcomments
+// Migration from vtiger_modcommentsscope to vtiger_modcomments // von db_script48
 // ------------------------------------------------------------
 echo "<br>\n Migrate ModComments fields from vtiger_modcommentsscope START... ";
 
