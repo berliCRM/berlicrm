@@ -51,6 +51,7 @@ function send_mail($module, $to_email, $from_name, $from_email, $subject, $conte
 		$recordModel->set('bccmail', $bcc);
 		if (!empty($from_email)) {
 			$recordModel->set('fromAddress', $from_email);
+			$recordModel->fromAddress = $from_email;
 		}
 		$recordModel->sendWithoutRelation = true;
 
