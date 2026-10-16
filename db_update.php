@@ -1513,6 +1513,9 @@ if ($adb->num_rows($checked) == 0) {
 }
 echo "<br>\n Install Email Configurator into Settings END ";
 
+require_once('modules/Install/models/InitSchema.php');
+Install_InitSchema_Model::registerCreateInvoicePdf();
+
 ///////////////////////////////////////////////////////////////////////////
 // on the End, we set update of Version Nummer and updates of all Modules:
 berli_updateAllModules();

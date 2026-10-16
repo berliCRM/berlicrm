@@ -737,6 +737,7 @@ class Install_InitSchema_Model
     public static function setCRMNOWmodifications()
     {
         global $adb;
+        self::registerCreateInvoicePdf();
         require_once 'modules/Settings/Vtiger/models/Backup.php';
         Settings_Vtiger_Backup_Model::install();
         $path = Install_Utils_Model::INSTALL_LOG;
@@ -1580,4 +1581,85 @@ class Install_InitSchema_Model
 
 		return empty($errors) ? true : $errors;
 	}
+
+    /** Register/repair the authenticated Core Invoice export operation.
+     * No renderer bootstrap: registration only writes webservice metadata.
+     * Throws on failure so installation/update cannot report success.
+     * ADODB completion is checked directly; PearDatabase discards its return.
+     * The mysqli driver still cannot guarantee COMMIT SQL durability.
+     * @return int operation ID
+     */
+    public static function registerCreateInvoicePdf()
+    {
+        require_once 'include/Webservices/Utils.php';
+        $adb = PearDatabase::getInstance();
+        $handlerPath = 'include/Webservices/Custom/CreateInvoicePdf.php';
+        $handlerMethod = 'berli_createInvoicePdf';
+        $entryDepth = (int)$adb->database->transOff;
+        $adb->startTransaction();
+        try {
+            $result = $adb->pquery('SELECT operationid FROM vtiger_ws_operation WHERE name = ?', array('createinvoicepdf'));
+            if ($result === false) {
+                throw new RuntimeException('Could not read the webservice registration.');
+            }
+            $count = $adb->num_rows($result);
+            if ($count > 1) {
+                throw new RuntimeException('Multiple createinvoicepdf registrations exist. Resolve them before installing.');
+            }
+            if ($count === 0) {
+                $operationId = vtws_addWebserviceOperation('createinvoicepdf', $handlerPath, $handlerMethod, 'POST', 0);
+                if (empty($operationId)) {
+                    throw new RuntimeException('Could not register createinvoicepdf.');
+                }
+            } else {
+                $operationId = $adb->query_result($result, 0, 'operationid');
+                $updated = $adb->pquery(
+                    'UPDATE vtiger_ws_operation SET handler_path = ?, handler_method = ?, type = ?, prelogin = ? WHERE operationid = ?',
+                    array($handlerPath, $handlerMethod, 'POST', 0, $operationId)
+                );
+                if ($updated === false) {
+                    throw new RuntimeException('Could not update createinvoicepdf.');
+                }
+            }
+            // Replace the parameter definition so repeated runs repair the registration.
+            if ($adb->pquery('DELETE FROM vtiger_ws_operation_parameters WHERE operationid = ?', array($operationId)) === false
+                || !vtws_addWebserviceOperationParam($operationId, 'id', 'string', 1)
+                || !vtws_addWebserviceOperationParam($operationId, 'output_format', 'string', 2)) {
+                throw new RuntimeException('Could not register the Invoice export parameters.');
+            }
+            if ($adb->hasFailedTransaction()) {
+                throw new RuntimeException('The webservice installation transaction failed.');
+            }
+            if ($adb->database->CompleteTrans() !== true) {
+                throw new RuntimeException('Webservice installation did not complete successfully.');
+            }
+            return (int)$operationId;
+        } catch (Throwable $e) {
+            $connection = $adb->database;
+            try {
+                if ((int)$connection->transOff === 0 && $entryDepth === 0) {
+                    // Completion can close smart bookkeeping before failing.
+                    if ($connection->RollbackTrans() !== true) {
+                        throw new RuntimeException('Webservice registration rollback failed.');
+                    }
+                } else {
+                    $connection->FailTrans();
+                    while ((int)$connection->transOff > $entryDepth) {
+                        $before = (int)$connection->transOff;
+                        try {
+                            $connection->CompleteTrans();
+                        } catch (Throwable $cleanupError) {
+                            if ((int)$connection->transOff >= $before) throw $cleanupError;
+                        }
+                        if ((int)$connection->transOff >= $before) {
+                            throw new RuntimeException('Webservice registration rollback made no progress.');
+                        }
+                    }
+                }
+            } catch (Throwable $cleanupError) {
+                throw new RuntimeException($e->getMessage() . ' Rollback failed: ' . $cleanupError->getMessage(), 0, $e);
+            }
+            throw $e;
+        }
+    }
 }
