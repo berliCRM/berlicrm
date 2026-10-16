@@ -8,20 +8,13 @@
 <head><title>BerliCRM updater</title><style>body { font-family: Open sans,sans-serif;}</style>
 <?php
 
-//echo "<br>\n Updating beginnt .. ";
-
 require_once 'includes/main/WebUI.php';
-//echo "<br>\n 1) require_once   includes/main/WebUI.php done ..  ";
 require_once 'include/utils/utils.php';
-//echo "<br>\n 2)require_once    utils done .. ";
 include_once 'vtlib/Vtiger/Module.php';
-//echo "<br>\n 3)include_once    vtlib/Vtiger/Module.php done .. ";
 include_once 'include/Webservices/Utils.php';
-//echo "<br>\n 4)include_once    include/Webservices/Utils.php done .. ";
 require_once 'vtlib/Vtiger/Package.php';
-//echo "<br>\n 5)require_once    vtlib/Vtiger/Package.php done .. ";
 require_once 'vtigerversion.php';
-//echo "<br>\n 6)require_once    vtigerversion.php done .. ";
+
 
 ini_set('display_errors','on'); error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 global $adb;
@@ -29,10 +22,7 @@ global $adb;
 // Function to start updates of all Modules.
 function berli_updateAllModules() {
     echo "<br>\n Updating all modules automatically... ";
-
-    // $moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-    // Es sollten nur mandatory Module automatisch installiert werden. Andere können später manuell dazu installiert werden
-    $moduleFolders = array('packages/vtiger/mandatory' );
+    $moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
 
     foreach ($moduleFolders as $moduleFolder) {
         if ($handle = opendir($moduleFolder)) {
@@ -43,7 +33,6 @@ function berli_updateAllModules() {
                 if (end($parts) !== 'zip') {
                     continue;
                 }
-
                 array_pop($parts);
                 //$zipName = implode('', $parts);
 
@@ -53,67 +42,33 @@ function berli_updateAllModules() {
 
                 if ($moduleName) {
                     echo "<br>\n Auto-update for module: {$moduleName} ";
-                    berli_updateModuleByName($moduleName);
+                    berli_updateModuleByName($moduleName, $moduleFolder, $file);
                 }
             }
             closedir($handle);
         }
     }
-
     echo "<br>\n Finished automatic module updates. ";
 }
-
 // Function to update a module
-function berli_updateModuleByName($moduleName) {
-    $moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
-    $found = false;
+function berli_updateModuleByName($moduleName, $moduleFolder, $file) {
+    $packagepath = "$moduleFolder/$file";
+    $package = new Vtiger_Package();
+    $module = $package->getModuleNameFromZip($packagepath);
+    if ($module != null) {
+        $moduleInstance = Vtiger_Module::getInstance($module);
 
-    foreach ($moduleFolders as $moduleFolder) {
-        if ($handle = opendir($moduleFolder)) {
-            while (false != ($file = readdir($handle))) {
-
-                // only ZIP-file 
-                $parts = explode('.', $file);
-                if (end($parts) !== 'zip') {
-                    continue;
-                }
-
-                array_pop($parts);
-                $packageName = implode('', $parts);
-
-                // ZIP-filename must be Modulname
-                if ($packageName != $moduleName) {
-                    continue;
-                }
-
-                $found = true;
-
-                $packagepath = "$moduleFolder/$file";
-                $package = new Vtiger_Package();
-                $module = $package->getModuleNameFromZip($packagepath);
-
-                if ($module != null) {
-                    $moduleInstance = Vtiger_Module::getInstance($module);
-
-                    echo "<br>\n Updating module {$moduleName}... ";
-
-                    if ($moduleInstance) {
-                        updateVtlibModule($module, $packagepath);
-                    } else {
-                        installVtlibModule($module, $packagepath);
-                    }
-
-                    echo "<br>\n  done ";
-                }
-            }
-            closedir($handle);
+        if (!$moduleInstance) {
+            echo "<br>\n Module {$moduleName} is not installed. Skipping update.";
+            return; // installVtlibModule($module, $packagepath);
+        }
+        else{
+            echo "<br>\n Updating module {$moduleName}... ";
+            updateVtlibModule($module, $packagepath);
         }
     }
-
-    if (!$found) {
-        echo "<br>\n No package found for module {$moduleName} ";
-    }
 }
+
 
 // Function to add normal fields (and blocks)
 function berli_addFields($arrFields) {
@@ -1262,31 +1217,7 @@ try {
 }
 echo '<br>\n Adding new RelatedLists... DONE ';
 
-// Die Table 'vtiger_modcommentsscope' gibt es nicht mehr/wird nicht mehr benutzt
-/*
-echo "<br>\n Add new column to vtiger_modcommentsscope START...";
-{
-    //first check if the column already exists
-    $query = "SELECT COUNT(*) AS cnt
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = ?
-        AND COLUMN_NAME = ?;";
-    $result = $adb->pquery($query, array("vtiger_modcommentsscope", "timeneeded"));
-    try {
-        $cnt = (int)$adb->query_result($result, 0, 'cnt');
-        if ($cnt > 0) {
-            echo "<br>\n column already exists";
-        } else {
-            $query = "ALTER TABLE `vtiger_modcommentsscope`
-                        ADD COLUMN `timeneeded` time DEFAULT NULL";
-            $adb->pquery($query, array());
-        }
-    } catch (Exception $e) {
-        echo "<br>\n Failed adding new column to vtiger_modcommentsscope";
-    }
-}
-echo "<br>\n Add new column to vtiger_modcommentsscope DONE...";
-*/
+
 
 
 echo "<br>\n Add new Field to Modul: Users, Block: ('LBL_USER_ADV_OPTIONS' ) 'erweiterte Optionen' ... ";
@@ -1421,13 +1352,25 @@ if (!empty($missingColumns)) {
     $canMigrate = false;
 }
 
+// Check if target table already contains data (do not overwrite newer values)
+$checkQuery = "SELECT COUNT(*) AS cnt FROM $targetTable
+    WHERE (mailto IS NOT NULL AND mailto <> '')
+    OR (external IS NOT NULL AND external <> '')
+    OR (timeneeded IS NOT NULL AND timeneeded <> '')
+";
+$checkRes = $adb->pquery($checkQuery, array());
+$hasData = $adb->query_result($checkRes, 0, 'cnt');
+
+if ($hasData > 0) {
+    echo "<br>\n Target table already contains data, migration skipped. ";
+    $canMigrate = false;
+}
 
 // ------------------------------------------------------------
 // Execute migration
 // ------------------------------------------------------------
 if ($canMigrate) {
     echo "<br>\n Running migration... ";
-
     $query = " UPDATE vtiger_modcomments mc
         INNER JOIN vtiger_modcommentsscope ms ON mc.modcommentsid = ms.modcommentsid
         SET mc.mailto = COALESCE(NULLIF(mc.mailto,''), ms.mailto),
@@ -1446,35 +1389,6 @@ if ($canMigrate) {
 }
 
 echo "<br>\n Migrate ModComments fields from vtiger_modcommentsscope END....";
-
-
-// ------------------------------------------------------------
-// Optional table deletion 
-// ------------------------------------------------------------
-
-// NOTE:
-// This code is intentionally commented out.
-// If you want to delete the table in a future release,
-// simply remove the comment markers.
-
-/*
-echo "<br>\n Deleting table '$sourceTable' ... ";
-
-if (tableExists($sourceTable)) {
-    $query = "DROP TABLE `$sourceTable`";
-    $res = $adb->pquery($query, array());
-
-    if (!$res) {
-        echo "<br>\n Error deleting table '$sourceTable': " . $adb->database->errorMsg() . " ";
-    } else {
-        echo "Table '$sourceTable' deleted successfully. ";
-    }
-} else {
-    echo "<br>\n Table '$sourceTable' does not exist, nothing to delete. ";
-}
-
-echo "<br>\n Delete operation for '$sourceTable' END. "; //// see TAG 48 db_script END ////
-*/
 
 
 echo "<br>\n New tables for config settings to set on email sending from ticket another email or name  ";
@@ -1531,10 +1445,11 @@ if ($adb->num_rows($checked) == 0) {
         echo "<br>\n (001) Insert new entry into vtiger_settings_field ... ";
 
         $sql1 = "INSERT INTO `vtiger_settings_field`
-                (`fieldid`, `blockid`, `name`, `iconpath`, `description`, `linkto`, `sequence`, `active`, `pinned`)
-                VALUES
-                (?, 5, 'LBL_EMAILCONFIGURATOR', NULL, 'LBL_EMAILCONFIGURATOR_DESCRIPTION',
-                'index.php?module=EmailConfigurator&view=Index&parent=Settings', 14, 0, 0)";
+            (`fieldid`, `blockid`, `name`, `iconpath`, `description`, `linkto`, `sequence`, `active`, `pinned`)
+            VALUES
+            (?, 5, 'LBL_EMAILCONFIGURATOR', NULL, 'LBL_EMAILCONFIGURATOR_DESCRIPTION',
+            'index.php?module=EmailConfigurator&view=Index&parent=Settings', 14, 0, 0)
+        ";
         $params1 = array($max_fieldid + 1);
         $res1 = $adb->pquery($sql1, $params1);
 
