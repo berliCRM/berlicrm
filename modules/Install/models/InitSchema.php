@@ -1180,7 +1180,7 @@ class Install_InitSchema_Model
 		}
 	}
 
-	private static function addNewWebservices() {
+	public static function addNewWebservices() {
 		global $adb;
 
 		$query = "SELECT * FROM vtiger_ws_operation WHERE name = ?;";
@@ -1192,6 +1192,35 @@ class Install_InitSchema_Model
 			$operationId = vtws_addWebserviceOperation($wsName, 'include/Webservices/Custom/getNewMultiRelations.php', 'berli_get_new_multi_relations', 'GET', '0');
 			vtws_addWebserviceOperationParam($operationId, 'id', 'string', '1');
 			vtws_addWebserviceOperationParam($operationId, 'relModule', 'string', '2');
+		}
+		
+		$wsName = 'get_deleted_entities';
+		$res = $adb->pquery($query, array($wsName));
+		if ($res && $adb->num_rows($res) == 0) {
+			// add new webservice operation get_deleted_entities
+			$operationId = vtws_addWebserviceOperation($wsName, 'include/Webservices/Custom/GetDeletedEntities.php', 'berli_getDeletedEntities', 'GET', '0');
+			vtws_addWebserviceOperationParam($operationId, 'modules', 'encoded', '1');
+			vtws_addWebserviceOperationParam($operationId, 'searchDate', 'String', '2');
+		}
+		
+		$wsName = 'bulkUpdate';
+		$res = $adb->pquery($query, array($wsName));
+		if ($res && $adb->num_rows($res) == 0) {
+			$operationId = vtws_addWebserviceOperation($wsName, 'include/Webservices/Custom/BulkUpdate.php', 'berli_bulkUpdate', 'POST', '0');
+			vtws_addWebserviceOperationParam($operationId, 'elements', 'encoded', '1');
+			vtws_addWebserviceOperationParam($operationId, 'skipHandlers', 'Boolean', '2');
+		}
+		
+		$wsName = 'send_mail_with_attachments';
+		$res = $adb->pquery($query, array($wsName));
+		if ($res && $adb->num_rows($res) == 0) {
+			$operationId = vtws_addWebserviceOperation($wsName, 'include/Webservices/Custom/SendMailWithAttachments.php', 'berli_sendMailWithAttachments', 'POST', '0');
+			vtws_addWebserviceOperationParam($operationId, 'receiverIds', 'encoded', '1');
+			vtws_addWebserviceOperationParam($operationId, 'templateId', 'String', '2');
+			vtws_addWebserviceOperationParam($operationId, 'documentIds', 'encoded', '3');
+			vtws_addWebserviceOperationParam($operationId, 'mailFieldToUse', 'String', '4');
+			vtws_addWebserviceOperationParam($operationId, 'fromId', 'String', '5');
+			vtws_addWebserviceOperationParam($operationId, 'fromName', 'String', '6');
 		}
 	}
 
