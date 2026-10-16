@@ -19,6 +19,16 @@ require_once 'vtigerversion.php';
 ini_set('display_errors','on'); error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 global $adb;
 
+// This metadata repair also applies to installations already on the current release.
+require_once 'include/utils/ModCommentsUserReference.php';
+echo "Checking ModComments.userid user reference... ";
+try {
+    $installed = berli_updateModCommentsUserReference($adb);
+    echo $installed ? "done<br>" : "module not installed<br>";
+} catch (Exception $e) {
+    die(htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
+}
+
 // Function to start updates of all Modules.
 function berli_updateAllModules() {
     echo "<br>\n Updating all modules automatically... ";
