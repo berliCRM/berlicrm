@@ -12,7 +12,11 @@
 require_once 'include/Webservices/Retrieve.php';
 
 /**
- * Retrieve inventory record with LineItems
+ * Retrieve inventory record with LineItems.
+ *
+ * @berli-openapi-begin
+ * {"summary":"Retrieve an inventory record with line items","description":"Returns an accessible inventory record together with its product and service line items.","tags":["Inventory"],"parameters":{"id":{"required":true,"description":"Inventory record webservice ID.","example":"7x144420"}},"result":{"schema":{"allOf":[{"$ref":"#/components/schemas/Entity"},{"type":"object","required":["LineItems"],"properties":{"LineItems":{"type":"array","items":{"type":"object","additionalProperties":true}}}}]},"example":{"id":"7x144420","LineItems":[]}}}
+ * @berli-openapi-end
  */
 function vtws_retrieve_inventory($id){
 	global $current_user;

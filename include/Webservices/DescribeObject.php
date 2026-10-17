@@ -24,6 +24,10 @@
  *                              only for administrators.
  *
  * @throws WebServiceException If the user may not access the entity type.
+ *
+ * @berli-openapi-begin
+ * {"summary":"Describe an entity type","description":"Returns field and capability metadata for an entity type as visible to the authenticated user.","tags":["Metadata"],"parameters":{"elementType":{"required":true,"description":"Webservice entity name.","example":"Contacts"}},"result":{"schema":{"type":"object","required":["label","name","fields"],"properties":{"label":{"type":"string"},"name":{"type":"string"},"fields":{"type":"array","items":{"type":"object","additionalProperties":true}},"inactiveFields":{"type":"array","items":{"type":"object","additionalProperties":true}}},"additionalProperties":true},"example":{"label":"Contacts","name":"Contacts","fields":[]}}}
+ * @berli-openapi-end
  */
 function vtws_describe($elementType, $user) {
 

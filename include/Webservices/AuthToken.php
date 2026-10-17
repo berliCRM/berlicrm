@@ -8,6 +8,11 @@
  * All Rights Reserved.
  *************************************************************************************/
 	
+	/**
+	 * @berli-openapi-begin
+	 * {"summary":"Request an authentication challenge","description":"Creates a short-lived challenge token for the named CRM user.","tags":["Authentication"],"parameters":{"username":{"required":true,"description":"CRM user name.","example":"admin"}},"result":{"schema":{"type":"object","required":["token","serverTime","expireTime"],"properties":{"token":{"type":"string"},"serverTime":{"type":"integer"},"expireTime":{"type":"integer"}}},"example":{"token":"65fa12ab34cd5","serverTime":1710000000,"expireTime":1710000300}}}
+	 * @berli-openapi-end
+	 */
 	function vtws_getchallenge($username){
 		
 		global $adb;

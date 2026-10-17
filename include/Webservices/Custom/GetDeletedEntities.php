@@ -1,11 +1,14 @@
 <?php
-/************************************************************************************************************************************************************ 
+/**
 Description: Get Relations of an entity
   Parameters:
     - string modules: optional filter for modules (JSON)
 	- string (date) searchSinceDate: optional filter for modifiedtime
   Returns:
     - array($moduleName => list of ids and modifiedtimes)
+  @berli-openapi-begin
+  {"summary":"List deleted or converted records","description":"Returns deleted records, and converted Leads, optionally filtered by module and modification date.","tags":["Synchronization"],"parameters":{"modules":{"required":false,"description":"JSON module name or array of module names.","example":"[\"Contacts\",\"Leads\"]","decodedSchema":{"oneOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}]}},"searchDate":{"required":false,"description":"Minimum modification timestamp in database datetime format.","example":"2026-01-01 00:00:00"}},"result":{"schema":{"type":"object","additionalProperties":{"type":"array","items":{"type":"array","items":{"type":"string"},"minItems":2,"maxItems":2}}},"example":{"Contacts":[["12x345","2026-01-02 12:00:00"]]}}}
+  @berli-openapi-end
 Copyright (C) crm-now GmbH
 All Rights Reserved.
 ************************************************************************************************************************************************************ */

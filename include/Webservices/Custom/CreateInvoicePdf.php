@@ -35,6 +35,10 @@ require_once 'modules/Documents/Documents.php';
  * @throws WebServiceException If an ID or Contact reference is invalid, a record
  *                            is missing or deleted, access is denied, the due date
  *                            is missing, or PDF generation or persistence fails.
+ *
+ * @berli-openapi-begin
+ * {"summary":"Create an invoice export document","description":"Generates a PDF, ZUGFeRD PDF or XRechnung XML and stores it as a Document linked to the Invoice.","tags":["Inventory"],"parameters":{"id":{"required":true,"description":"Invoice webservice ID or numeric CRM ID.","example":"7x144420"},"output_format":{"required":false,"description":"Export format.","example":"pdf","default":"pdf","schema":{"type":"string","enum":["pdf","zugferd","xrechnung"]}}},"result":{"schema":{"type":"object","required":["invoice_id","document_id","document_crmid","filename","format","mime_type"],"properties":{"invoice_id":{"type":"string"},"contact_id":{"type":"string","nullable":true},"document_id":{"type":"string"},"document_crmid":{"type":"integer"},"filename":{"type":"string"},"format":{"type":"string"},"mime_type":{"type":"string"}}},"example":{"invoice_id":"7x144420","contact_id":"12x345","document_id":"15x900","document_crmid":900,"filename":"INV-100.pdf","format":"pdf","mime_type":"application/pdf"}}}
+ * @berli-openapi-end
  */
 function berli_createInvoicePdf($id, $output_format = null, $user = null) {
     global $adb, $current_user, $log;

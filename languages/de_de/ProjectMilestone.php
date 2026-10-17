@@ -16,7 +16,7 @@ $languageStrings = array(
 	'LBL_TASKS_LIST'	=>	"Aufgabenliste",
 	'LBL_MILESTONES_LIST'	=>	"Meilensteinliste",
 	'LBL_PROJECT_MILESTONE_INFORMATION'	=>	"Meilensteininformationen",
-	'Project Milestone Name'	=>	"Meilensteinnamen",
+	'Project Milestone Name'	=>	"Meilensteinname",
 	'Milestone Date'	=>	"Meilensteindatum",
 	'Project Milestone No'	=>	"Meilensteinnummer",
 	//picklist values

@@ -12,6 +12,11 @@
 // This file has been formatted with PHP CS Fixer
 // https://github.com/FriendsOfPHP/PHP-CS-Fixer
 
+/**
+ * @berli-openapi-begin
+ * {"summary":"Create a CRM record","description":"Creates a record of the requested entity type. Use describe to discover writable and mandatory fields.","tags":["Records"],"parameters":{"elementType":{"required":true,"description":"Webservice entity name.","example":"Contacts"},"element":{"required":true,"description":"JSON object containing field values.","example":"{\"lastname\":\"Doe\",\"assigned_user_id\":\"19x1\"}","decodedSchema":{"type":"object","additionalProperties":true}}},"result":{"schema":{"$ref":"#/components/schemas/Entity"},"example":{"id":"12x345","lastname":"Doe","assigned_user_id":"19x1"}}}
+ * @berli-openapi-end
+ */
 function vtws_create($elementType, $element, $user)
 {
     $types = vtws_listtypes(null, $user);

@@ -1,5 +1,5 @@
 <?php
-/************************************************************************************************************************************************************ 
+/**
 Description: send mail, body from template, attachments from Documents
   Parameters:
     - encoded receiverIds: list of Webservices IDs that will receive the mail (JSON)
@@ -11,6 +11,9 @@ Description: send mail, body from template, attachments from Documents
 	
   Returns:
     - array($receiverId => status)
+  @berli-openapi-begin
+  {"summary":"Send template email with documents","description":"Sends an email template to CRM records and optionally attaches accessible Documents.","tags":["Email"],"parameters":{"receiverIds":{"required":true,"description":"JSON array of recipient record webservice IDs.","example":"[\"12x345\"]","decodedSchema":{"type":"array","items":{"type":"string"}}},"templateId":{"required":true,"description":"Numeric Email Template ID.","example":"4"},"documentIds":{"required":false,"description":"JSON array of Document webservice IDs.","example":"[\"15x900\"]","decodedSchema":{"type":"array","items":{"type":"string"}}},"mailFieldToUse":{"required":false,"description":"Preferred recipient email field name.","example":"email"},"fromId":{"required":false,"description":"Reserved sender User webservice ID.","example":"19x1"},"fromName":{"required":false,"description":"Reserved sender display name.","example":"CRM Team"}},"result":{"schema":{"type":"object","additionalProperties":{"type":"string"}},"example":{"12x345":"success"}}}
+  @berli-openapi-end
 Copyright (C) crm-now GmbH
 All Rights Reserved.
 ************************************************************************************************************************************************************ */

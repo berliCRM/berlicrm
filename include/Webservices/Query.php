@@ -10,6 +10,11 @@
 
 	require_once("include/Webservices/Custom/NewParser.php");
 	
+	/**
+	 * @berli-openapi-begin
+	 * {"summary":"Query CRM records","description":"Executes a VTQL SELECT query for one accessible entity type and returns matching records.","tags":["Records"],"parameters":{"query":{"required":true,"description":"VTQL query terminated by a semicolon.","example":"SELECT * FROM Contacts LIMIT 0, 20;"}},"result":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/Entity"}},"example":[{"id":"12x345","lastname":"Doe"}]}}
+	 * @berli-openapi-end
+	 */
 	function vtws_query($q,$user){
 		
 		static $vtws_query_cache = array();	

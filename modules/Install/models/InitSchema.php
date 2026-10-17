@@ -1185,6 +1185,41 @@ class Install_InitSchema_Model
 
 		$query = "SELECT * FROM vtiger_ws_operation WHERE name = ?;";
 
+		// Public, machine-readable documentation for every registered REST operation.
+		$wsName = 'describeapi';
+		$res = $adb->pquery($query, array($wsName));
+		if ($res === false) {
+			throw new RuntimeException('Could not read the describeapi webservice registration.');
+		}
+		$count = $adb->num_rows($res);
+		if ($count > 1) {
+			throw new RuntimeException('Multiple describeapi registrations exist. Resolve them before installing.');
+		}
+		if ($count === 0) {
+			$operationId = vtws_addWebserviceOperation(
+				$wsName,
+				'include/Webservices/DescribeApi.php',
+				'vtws_describeapi',
+				'GET',
+				1
+			);
+			if (empty($operationId)) {
+				throw new RuntimeException('Could not register describeapi.');
+			}
+		} else {
+			$operationId = $adb->query_result($res, 0, 'operationid');
+			$updated = $adb->pquery(
+				'UPDATE vtiger_ws_operation SET handler_path = ?, handler_method = ?, type = ?, prelogin = ? WHERE operationid = ?',
+				array('include/Webservices/DescribeApi.php', 'vtws_describeapi', 'GET', 1, $operationId)
+			);
+			if ($updated === false) {
+				throw new RuntimeException('Could not repair describeapi.');
+			}
+		}
+		if ($adb->pquery('DELETE FROM vtiger_ws_operation_parameters WHERE operationid = ?', array($operationId)) === false) {
+			throw new RuntimeException('Could not clear describeapi parameters.');
+		}
+
 		$wsName = 'get_new_multi_relations';
 		$res = $adb->pquery($query, array($wsName));
 		if ($res && $adb->num_rows($res) == 0) {

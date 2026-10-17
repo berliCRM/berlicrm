@@ -1,5 +1,5 @@
 <?php
-/************************************************************************************************************************************************************ 
+/**
 Description: update multiple elements with one WS call, optional to disable EventHandlers // Workflows
   Parameters:
     - encoded elements: array containing WS elements
@@ -8,6 +8,9 @@ Description: update multiple elements with one WS call, optional to disable Even
     - array('SUCCESS' => array($id => $element, ...), 'FAILED' => array($id//$key => $errorMsg))
   Comments:
     - this function respects the vtiger CRM profile privilege system and returns only entities accessible by the user accessing the REST functionality
+  @berli-openapi-begin
+  {"summary":"Update multiple CRM records","description":"Updates several complete entity payloads in one request and reports individual successes and failures.","tags":["Records"],"parameters":{"elements":{"required":true,"description":"JSON array or object of complete entity payloads.","example":"[{\"id\":\"12x345\",\"lastname\":\"Doe\"}]","decodedSchema":{"type":"array","items":{"$ref":"#/components/schemas/Entity"}}},"skipHandlers":{"required":false,"description":"Disable event handlers and workflows for this bulk request.","example":false,"default":false}},"result":{"schema":{"type":"object","properties":{"SUCCESS":{"type":"object","additionalProperties":{"$ref":"#/components/schemas/Entity"}},"FAILED":{"type":"object","additionalProperties":{"type":"string"}}}},"example":{"SUCCESS":{"12x345":{"id":"12x345","lastname":"Doe"}},"FAILED":{}}}}
+  @berli-openapi-end
 Copyright (C) crm-now GmbH
 All Rights Reserved.
 ************************************************************************************************************************************************************ */

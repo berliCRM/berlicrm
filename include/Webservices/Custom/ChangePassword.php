@@ -21,7 +21,10 @@
  * @param String $newPassword
  * @param String $confirmPassword
  * @param Users $user 
- * 
+ *
+ * @berli-openapi-begin
+ * {"summary":"Change a user password","description":"Changes the password of the authenticated user or, for administrators, another CRM user.","tags":["Users"],"parameters":{"id":{"required":true,"description":"User webservice ID.","example":"19x1"},"oldPassword":{"required":false,"description":"Current password; required unless an administrator changes another user.","example":"old-secret"},"newPassword":{"required":true,"description":"New password.","example":"new-secret"},"confirmPassword":{"required":true,"description":"New password repeated exactly.","example":"new-secret"}},"result":{"schema":{"type":"object","required":["message"],"properties":{"message":{"type":"string"}}},"example":{"message":"JS_PASSWORD_OK"}}}
+ * @berli-openapi-end
  */
 function vtws_changePassword($id, $oldPassword, $newPassword, $confirmPassword, $user) {
 	vtws_preserveGlobal('current_user',$user);

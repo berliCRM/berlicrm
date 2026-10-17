@@ -8,6 +8,11 @@
  * All Rights Reserved.
  *************************************************************************************/
 	
+	/**
+	 * @berli-openapi-begin
+	 * {"summary":"Log in to the REST API","description":"Authenticates a user with the MD5 hash of the current challenge token followed by the user's webservice access key.","tags":["Authentication"],"parameters":{"username":{"required":true,"description":"CRM user name.","example":"admin"},"accessKey":{"required":true,"description":"MD5 hash of challenge token plus the user's access key.","example":"d41d8cd98f00b204e9800998ecf8427e"}},"result":{"schema":{"type":"object","required":["sessionName","userId","version","vtigerVersion"],"properties":{"sessionName":{"type":"string"},"userId":{"type":"string"},"version":{"type":"string"},"vtigerVersion":{"type":"string"},"tagVersion":{"type":"string"}}},"example":{"sessionName":"abcdef123456","userId":"19x1","version":"0.22","vtigerVersion":"6.5.0","tagVersion":""}}}
+	 * @berli-openapi-end
+	 */
 	function vtws_login($username, $accessKey){
 		$username = trim($username);
 		$user = new Users();
