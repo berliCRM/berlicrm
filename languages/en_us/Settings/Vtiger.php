@@ -352,7 +352,7 @@ $languageStrings = array(
 
 	//added for default values in Tax Index
 	'LBL_VAT' => 'VAT',
-	'LBL_SALES_TAX' => 'Sales',
+	'LBL_SALES_TAX' => 'Sales Tax',
 	'LBL_SERVICE_TAX' => 'Service',
 
     //ADDED FOR BACKUP DOWNLOAD

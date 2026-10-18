@@ -22,7 +22,7 @@ class Inventory_GetTaxes_Action extends Vtiger_Action_Controller {
 
 		if(empty($idList)) {
 			$recordModel = Vtiger_Record_Model::getInstanceById($recordId);
-			$taxes = $recordModel->getTaxes();
+			$taxes = $this->translateTaxLabels($recordModel->getTaxes());
             $listPriceValues = $recordModel->getListPriceValues($recordModel->getId());
 
 			$priceDetails = $recordModel->getPriceDetails();
@@ -44,7 +44,7 @@ class Inventory_GetTaxes_Action extends Vtiger_Action_Controller {
 		} else {
 			foreach($idList as $id) {
 				$recordModel = Vtiger_Record_Model::getInstanceById($id);
-				$taxes = $recordModel->getTaxes();
+				$taxes = $this->translateTaxLabels($recordModel->getTaxes());
                 $listPriceValues = $recordModel->getListPriceValues($recordModel->getId());
 
 				$priceDetails = $recordModel->getPriceDetails();
@@ -67,6 +67,14 @@ class Inventory_GetTaxes_Action extends Vtiger_Action_Controller {
 			$response->setResult($info);
 		}
 		$response->emit();
+	}
+
+	private function translateTaxLabels($taxes) {
+		foreach ($taxes as &$taxDetails) {
+			$taxDetails['label'] = vtranslate($taxDetails['label'], 'Settings:Vtiger');
+		}
+		unset($taxDetails);
+		return $taxes;
 	}
 }
 ?>
