@@ -834,12 +834,12 @@ class Install_InitSchema_Model
         $actionModels = Vtiger_Action_Model::getAll(true);
         $permissions = array();
         foreach ($allModuleModules as $tabId => $moduleModel) {
-            $permissions[$tabId]['is_permitted'] = Settings_Profiles_Module_Model::IS_PERMITTED_VALUE;
+            $permissions[$tabId]['is_permitted'] = 'on';
             if ($moduleModel->isEntityModule()) {
                 $permissions[$tabId]['actions'] = array();
                 foreach ($actionModels as $actionModel) {
                     if ($actionModel->isModuleEnabled($moduleModel)) {
-                        $permissions[$tabId]['actions'][$actionModel->getId()] = Settings_Profiles_Module_Model::IS_PERMITTED_VALUE;
+                        $permissions[$tabId]['actions'][$actionModel->getId()] = 'on';
                     }
                 }
                 $permissions[$tabId]['fields'] = array();
