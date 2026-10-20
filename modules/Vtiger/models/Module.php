@@ -785,37 +785,41 @@ class Vtiger_Module_Model extends Vtiger_Module {
 	 */
 	public static function getSearchableModules() {
 		$userPrivModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
-
-		$entityModules = self::getEntityModules(); 
-
-		$db = PearDatabase::getInstance();
-		$notDisplayModuleNames_arr = array("Users","Emails","Events");// not display, or it is turn_off = 0
-		$query = 'SELECT DISTINCT modulename FROM vtiger_entityname LEFT JOIN berli_globalsearch_settings ON tabid=gstabid WHERE turn_off = 0';
-		$result = $db->pquery($query, array());
-		$rows = $db->num_rows($result);
-		for($a = 0; $a < $rows ; ++$a){
-			$row = $db->query_result_rowdata($result, $a);
-			$hit = $row['modulename'];
-			$notDisplayModuleNames_arr[] = $hit;
+		$entityModules = self::getEntityModules();
+		$searchDisabledModules = ['Users', 'Events'];
+		$searchableModules = [];
+		
+		// block disabled modules
+		// sort by sequence if present
+		$adb = PearDatabase::getInstance();
+		$query = "SELECT * FROM berli_globalsearch_settings
+				  INNER JOIN vtiger_tab ON vtiger_tab.tabid = berli_globalsearch_settings.gstabid
+				  ORDER BY sequence;";
+		$res = $adb->pquery($query, []);
+		if ($res) {
+			while ($row = $adb->getNextRow($res, false)) {
+				$active = $row['turn_off'];
+				$moduleName = $row['name'];
+				$sequence = (int) $row['sequence'];
+				if (empty($active)) {
+					$searchDisabledModules[] = $moduleName;
+				} elseif ($sequence > 0) {
+					$searchableModules[$moduleName] = NULL;
+				}
+			}
 		}
-		$notDisplayModuleNames_arr = array_unique($notDisplayModuleNames_arr);// because it can be double 
-
-		$searchableModules = array();
+		
 		foreach ($entityModules as $tabid => $moduleModel) {
 			$moduleName = $moduleModel->getName();
-			$showIt = true;
-			for($b = 0; $b < count($notDisplayModuleNames_arr) ; ++$b){
-				if(array_key_exists($b, $notDisplayModuleNames_arr) && $moduleName == $notDisplayModuleNames_arr[$b]){
-					$showIt = false;
-					break;
-				}
+			if (in_array($moduleName, $searchableModules)) {
+				continue;
 			}
-			if($showIt){
-				if($userPrivModel->hasModuleActionPermission($moduleModel->getId(), 'DetailView')) {
-					$searchableModules[$moduleName] = $moduleModel;
-				}
+			if($userPrivModel->hasModuleActionPermission($moduleModel->getId(), 'DetailView')) {
+				$searchableModules[$moduleName] = $moduleModel;
 			}
 		}
+		// remove empty references
+		$searchableModules = array_filter($searchableModules);
 		return $searchableModules;
 	}
 
