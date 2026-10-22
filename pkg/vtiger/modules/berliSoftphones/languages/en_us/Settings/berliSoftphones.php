@@ -10,7 +10,7 @@
 $languageStrings = array(
     'LBL_SOFTPHONE_SETTINGS' => 'Softphone Settings',
     'LBL_SOFTPHONE_SELECTION' => 'Softphone Selection',
-	'LBL_SOFTPHONE_SERVER_SETTINGS_DESCRIPTION'=>'wählen Sie hier die Parameter für Ihr Softphone',
+	'LBL_SOFTPHONE_SERVER_SETTINGS_DESCRIPTION'=>'Select the parameters for your softphone here',
 	'LBL_PHONE_CONFIGURATION' => 'Softphone Configuration',
 	'LBL_PHONE_INSTRUCTIONS' => 'A softphone is a software program for making telephone calls over the Internet using a general purpose computer and a headset.Your computer must be able to make IP calls which may generate additional costs. If you want to use a softphone you may make your selection here. The CRM supports only softphones which provide an API for the browser. Depending on your API you may use this for Inbound and Outbound calls.',
 	'LBL_PHONE_ID' => 'No.',
@@ -34,6 +34,8 @@ $languageStrings = array(
 	'LBL_PHONE_HINT2' => 'Please consult the manual for a proper softphone setup. For the softphone Phoner (not Phoner light) you may enter %CALLERID%  at the Options->external application menu as a phone number substitute.',
 	'LBL_PHONE_HINT3' => 'The CRM identifies phone numbers which are entered in the same format as the format used by your softphone. They must have at least 4 digits. You may consult the CRM Journal for general hints: <a href="https://blog.crm-now.de/2009/07/22/format-von-telefonnummern/?lang=en" target=_blank>phone number formats</a>',
 	'LBL_CONFIG_SAVED'=>'Your settings has been saved.',
+
+	'LBL_SOFTPHONES_SETUP_DESCRIPTION' => 'Select and configure a softphone for internet telephony',
 
 );
 

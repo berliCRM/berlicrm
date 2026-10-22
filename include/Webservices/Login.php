@@ -8,7 +8,12 @@
  * All Rights Reserved.
  *************************************************************************************/
 	
-	function vtws_login($username,$pwd){
+	/**
+	 * @berli-openapi-begin
+	 * {"summary":"Log in to the REST API","description":"Authenticates a user with the MD5 hash of the current challenge token followed by the user's webservice access key.","tags":["Authentication"],"parameters":{"username":{"required":true,"description":"CRM user name.","example":"admin"},"accessKey":{"required":true,"description":"MD5 hash of challenge token plus the user's access key.","example":"d41d8cd98f00b204e9800998ecf8427e"}},"result":{"schema":{"type":"object","required":["sessionName","userId","version","vtigerVersion"],"properties":{"sessionName":{"type":"string"},"userId":{"type":"string"},"version":{"type":"string"},"vtigerVersion":{"type":"string"},"tagVersion":{"type":"string"}}},"example":{"sessionName":"abcdef123456","userId":"19x1","version":"0.22","vtigerVersion":"6.5.0","tagVersion":""}}}
+	 * @berli-openapi-end
+	 */
+	function vtws_login($username, $accessKey){
 		$username = trim($username);
 		$user = new Users();
 		$userId = $user->retrieve_user_id($username);
@@ -18,13 +23,13 @@
 			throw new WebServiceException(WebServiceErrorCode::$INVALIDTOKEN,"Specified token is invalid or expired");
 		}
 		
-		$accessKey = vtws_getUserAccessKey($userId);
-		if($accessKey == null){
+		$userAccessKey = vtws_getUserAccessKey($userId);
+		if($userAccessKey == null){
 			throw new WebServiceException(WebServiceErrorCode::$ACCESSKEYUNDEFINED,"Access key for the user is undefined");
 		}
 		
-		$accessCrypt = md5($token.$accessKey);
-		if(strcmp($accessCrypt,$pwd)!==0){
+		$accessCrypt = md5($token.$userAccessKey);
+		if(strcmp($accessCrypt,$accessKey)!==0){
 			crmnow_login_protection($username, 5);
 			throw new WebServiceException(WebServiceErrorCode::$INVALIDUSERPWD,"Invalid username or password");
 		}

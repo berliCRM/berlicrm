@@ -81,3 +81,4 @@ class Vtiger_TagCloud_Action extends Vtiger_Action_Controller {
 		$response->emit($tags);
 	}
 }
+?>

@@ -224,7 +224,7 @@ class Calendar_RepeatEvents {
 	}
 
 	static function repeatFromRequest($focus) {
-		global $log, $default_charset, $current_user;
+		global $default_charset, $current_user;
 		$recurObj = getrecurringObjValue();
 		self::repeat($focus, $recurObj);
 	}

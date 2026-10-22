@@ -19,6 +19,7 @@
  */
 
 include('config.inc.php');
+$HELPDESK_SUPPORT_EMAIL_TEMPLATE = 3;
 
 // if 'true' then description field will be saved without smiles or another spezial symbols, only normal text. Default is false.
 global $set_utf8_special_chars_to_empty_string;
@@ -38,3 +39,10 @@ $PORTAL_EMAIL_TEMPLATE_EN = 2;
 
 $mailerQueueTreshold = 5000;
 $mailerScheduleLimit = 10000;
+
+// CRM backup feature: false disables the UI, downloads and scheduled processing.
+$backup_enabled = true;
+// true: database + storage/ + test/logo/ only, without application/configuration files.
+// Existing storage/Backup archives and symbolic links are excluded in this mode.
+// backup_extra_paths is used only for full backups (backup_exclude_source = false).
+$backup_exclude_source = false;

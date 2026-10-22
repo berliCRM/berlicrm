@@ -53,7 +53,7 @@
 									</td>
 									<td 
 										{if $INFO.2 eq false} class="no" >
-											{if $CONFIG_NAME = 'LBL_PHP_VERSION'}
+											{if $CONFIG_NAME eq 'LBL_PHP_VERSION'}
 												{$INFO.0}
 											{else}
 												{vtranslate('LBL_NO', 'Install')}

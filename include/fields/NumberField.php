@@ -146,7 +146,7 @@ class NumberField {
         if(empty($currencySeparator)) $currencySeparator = ' ';
         if(empty($decimalSeparator)) $decimalSeparator = ' ';
         
-        if ($value < 0) { 
+        if ($value < 0 && !($value == '')) {
             $sign = "-"; 
             $value = substr($value, 1); 
         } 
@@ -309,7 +309,7 @@ class NumberField {
 		if(empty($decimalSeparator)) {
 			$decimalSeparator = ' ';
 		}
-        
+
 		// Problem: $currencySeparator can be '.' or',' ... and if we have here number 2.000 so it will convert to 2000 if we only delete the point.
 		// But if we have a currency, we have allways two places after the decimal point, not three. (example 3,456.15 or 4.567,05)
 		// So we do it only if both of them are present, and the first will be deleted, and the second will be convert to '.' point.
@@ -319,11 +319,11 @@ class NumberField {
 		$valueLength = strlen($value);
 
 		if($pos1 !== false && $pos2 !== false){
-			if($pos1 < $pos2 ){	
+			if($pos1 < $pos2 ){
 				// example 3,456.15
 				$value = str_replace(",", "", $value);
 			}
-			elseif($pos1 > $pos2){ 
+			elseif($pos1 > $pos2){
 				// example 4.567,05
 				$value = str_replace(".", "", $value);
 				$value = str_replace(",", ".", $value);

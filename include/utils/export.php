@@ -82,10 +82,7 @@ if ($allow_exports=='none' || ( $allow_exports=='admin' && ! is_admin($current_u
 */
 function br2nl_vt($str)
 {
-	global $log;
-	$log->debug("Entering br2nl_vt(".$str.") method ...");
 	$str = preg_replace("/(\r\n)/", " ", $str);
-	$log->debug("Exiting br2nl_vt method ...");
 	return $str;
 }
 
@@ -95,8 +92,7 @@ function br2nl_vt($str)
  * Return type text
  */
 function export($type){
-    global $log,$list_max_entries_per_page;
-    $log->debug("Entering export(".$type.") method ...");
+    global $list_max_entries_per_page;
     global $adb;
 
     $focus = 0;
@@ -107,7 +103,6 @@ function export($type){
 		// Refer to the logic in setting $currentModule in index.php
 		$focus = CRMEntity::getInstance($type);
     }
-    $log = LoggerManager::getLogger('export_'.$type);
     $db = PearDatabase::getInstance();
 
 	$oCustomView = new CustomView("$type");
@@ -250,7 +245,6 @@ function export($type){
 		/** Output each row information */
 		echo $line;
 	}
-	$log->debug("Exiting export method ...");
 	return true;
 }
 

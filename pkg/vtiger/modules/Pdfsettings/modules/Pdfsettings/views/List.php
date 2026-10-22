@@ -25,11 +25,11 @@ class Pdfsettings_List_View extends Vtiger_Index_View {
 		}
 	}
 	//do nothing as preProcess
-	function preProcess(Vtiger_Request $request, $display=true) {
+	function preProcess(Vtiger_Request $request, $display=true):void {
 		parent::preProcess($request);
 	}
     
-    function preProcessTplName(Vtiger_Request $request) {
+    function preProcessTplName(Vtiger_Request $request):string {
 		return 'ListViewPreProcess.tpl';
 	}
     
@@ -50,7 +50,7 @@ class Pdfsettings_List_View extends Vtiger_Index_View {
 		$viewer->view('ListViewContents.tpl', $moduleName);
 	}
 
-    function postProcess(Vtiger_Request $request) {
+    function postProcess(Vtiger_Request $request):void {
         $viewer = $this->getViewer ($request);
 		$moduleName = $request->getModule();
 
@@ -329,7 +329,7 @@ class Pdfsettings_List_View extends Vtiger_Index_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

@@ -3,6 +3,7 @@
     "description": "berlicrm project",
     "type": "project",
     "require": {
+        "php": ">=8.2 <8.6",
         "horstoeko/zugferd": "^1.0",
         "symfony/intl": "^5.4",
         "league/oauth2-client": "*",
@@ -10,6 +11,15 @@
         "phpmailer/phpmailer": "*",
         "thenetworg/oauth2-azure": "*",
         "phpunit/phpunit": "8.5.52",
-		"webklex/php-imap": "*"
+        "webklex/php-imap": "*",
+        "adodb/adodb-php": "^5.22",
+        "smarty/smarty": "^5.8",
+        "tecnickcom/tcpdf": "^6.8",
+        "phpoffice/phpspreadsheet": "^5.10"
+    },
+    "config": {
+        "platform": {
+            "php": "8.2.0"
+        }
     }
 }

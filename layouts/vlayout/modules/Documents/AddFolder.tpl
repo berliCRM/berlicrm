@@ -27,7 +27,7 @@
                             {vtranslate('LBL_FOLDER_NAME', $MODULE)}
                         </label>
                         <div class="controls">
-                            <input class="span3" data-validator='{Zend_Json::encode([['name'=>'FolderName']])}' data-validation-engine="validate[required, funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" id="documentsFolderName" name="foldername" class="span12" type="text" value=""/>
+                            <input class="span3" data-validator='{json_encode([['name'=>'FolderName']])}' data-validation-engine="validate[required, funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" id="documentsFolderName" name="foldername" class="span12" type="text" value=""/>
                         </div>
                     </div>
                     <div class="control-group">

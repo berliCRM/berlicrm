@@ -12,7 +12,7 @@ require_once('data/Tracker.php');
 require_once 'vtlib/Vtiger/Module.php';
 
 class ModCommentsCore extends CRMEntity {
-	var $db, $log; // Used in class functions of CRMEntity
+	var $db; // Used in class functions of CRMEntity
 
 	var $table_name = 'vtiger_modcomments';
 	var $table_index= 'modcommentsid';
@@ -93,10 +93,9 @@ class ModCommentsCore extends CRMEntity {
 	var $mandatory_fields = Array('createdtime', 'modifiedtime', 'commentcontent');
 
 	function __construct() {
-		global $log, $currentModule;
+		global $currentModule;
 		$this->column_fields = getColumnFields('ModComments');
 		$this->db = PearDatabase::getInstance();
-		$this->log = $log;
 	}
 
 	function getSortOrder() {
@@ -123,6 +122,22 @@ class ModCommentsCore extends CRMEntity {
 		else if($_SESSION[$currentModule.'_Order_By'])
 			$orderby = $_SESSION[$currentModule.'_Order_By'];
 		return $orderby;
+	}
+
+	public function save($module_name, $fileid = '') {
+		global $current_user;
+
+		// The author is independent of the assigned owner. Portal comments belong
+		// to the customer, not to the CRM account used by the portal.
+		if (empty($this->mode) && empty($this->id)
+				&& empty($this->column_fields['userid'])
+				&& empty($this->column_fields['customer'])
+				&& empty($this->column_fields['from_portal'])
+				&& !empty($current_user->id)) {
+			$this->column_fields['userid'] = $current_user->id;
+		}
+
+		return parent::save($module_name, $fileid);
 	}
 
 	function save_module($module) {

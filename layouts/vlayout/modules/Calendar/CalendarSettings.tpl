@@ -47,12 +47,12 @@
                                     <div class="controls">
                                         {if $FIELD_NAME == 'hour_format' || $FIELD_NAME == 'activity_view'}
                                             {foreach key=ID item=LABEL from=$FIELD_MODEL->getPicklistValues()}
-                                                {if $LABEL neq 'This Year' }
+                                                {if $ID neq 'This Year' }
                                                     <input type="radio" value="{$ID}" {if $FIELD_VALUE eq $ID}checked=""{/if} name="{$FIELD_NAME}" class="alignTop" />&nbsp;{vtranslate($LABEL,$MODULE)}&nbsp;{if $FIELD_NAME eq 'hour_format'}{vtranslate('LBL_HOURS',$MODULE)}{/if}&nbsp;&nbsp;&nbsp;
                                                 {/if}
                                             {/foreach}	
                                         {elseif $FIELD_NAME eq 'start_hour'}
-                                            {assign var=DECODED_DAYS_STARTS value=ZEND_JSON::decode($DAY_STARTS)}
+                                            {assign var=DECODED_DAYS_STARTS value=json_decode($DAY_STARTS, true)}
                                             {assign var=PICKLIST_VALUES value=$DECODED_DAYS_STARTS['hour_format'][$HOUR_FORMAT_VALUE][$FIELD_NAME]}
                                             <select class="select2" style="min-width: 150px;" name="{$FIELD_NAME}">
                                                 {foreach key=ID item=LABEL from=$PICKLIST_VALUES}

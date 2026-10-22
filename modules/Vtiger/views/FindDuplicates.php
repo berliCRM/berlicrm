@@ -10,13 +10,13 @@
 
 class Vtiger_FindDuplicates_View extends Vtiger_List_View {
 
-	function preProcess(Vtiger_Request $request, $display = true) {
+	function preProcess(Vtiger_Request $request, $display = true):void {
 		$viewer = $this->getViewer ($request);
 		$this->initializeListViewContents($request, $viewer);
 		parent::preProcess($request, $display);
 	}
 
-	public function preProcessTplName(Vtiger_Request $request) {
+	public function preProcessTplName(Vtiger_Request $request):string {
 		return 'FindDuplicatePreProcess.tpl';
 	}
 
@@ -37,7 +37,7 @@ class Vtiger_FindDuplicates_View extends Vtiger_List_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

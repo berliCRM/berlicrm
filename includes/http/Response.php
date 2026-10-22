@@ -203,7 +203,7 @@ class Vtiger_Response {
 			else {
 				echo json_decode($this->prepareResponse(), true);
 			}
-		} 
+		}
 		else {
 			if (is_string($this->result)) {
 				echo $this->result;

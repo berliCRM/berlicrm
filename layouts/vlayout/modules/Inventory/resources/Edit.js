@@ -7,6 +7,27 @@
  * All Rights Reserved.
  *************************************************************************************/
 
+Vtiger_Base_Validator_Js("Inventory_Quantity_Validator_Js", {
+
+	invokeValidation: function(field) {
+		var form = field.closest('form');
+		var invoiceStatus = form.find('[name="invoicestatus"]').val();
+
+		if (app.getModuleName() !== 'Invoice' || invoiceStatus !== 'Credit Invoice') {
+			return Vtiger_GreaterThanZero_Validator_Js.invokeValidation(field);
+		}
+
+		var value = jQuery.trim(field.val());
+		if (isNaN(value)) {
+			return app.vtranslate('JS_CONTAINS_ILLEGAL_CHARACTERS');
+		}
+		if (parseFloat(value) === 0) {
+			return app.vtranslate('JS_VALUE_SHOULD_NOT_BE_ZERO');
+		}
+	}
+
+}, {});
+
 Vtiger_Edit_Js("Inventory_Edit_Js",{
 
 	zeroDiscountType : 'zero' ,
@@ -227,6 +248,35 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 	},
 
 	/**
+	 * Round monetary values commercially before using them in another calculation.
+	 * The small correction compensates for binary floating-point values such as
+	 * 39.995 being represented just below the half-cent boundary in JavaScript.
+	 */
+	roundToCurrencyPrecision : function(value, numberOfDecimal) {
+		var numericValue = parseFloat(value);
+		numberOfDecimal = parseInt(numberOfDecimal, 10);
+
+		if(!isFinite(numericValue)) {
+			return 0;
+		}
+		if(isNaN(numberOfDecimal)) {
+			numberOfDecimal = 2;
+		}
+
+		var factor = Math.pow(10, numberOfDecimal);
+		var sign = numericValue < 0 ? -1 : 1;
+		return sign * (Math.round(Math.abs(numericValue) * factor + 1e-8) / factor);
+	},
+
+	formatCurrencyValue : function(value, numberOfDecimal) {
+		numberOfDecimal = parseInt(numberOfDecimal, 10);
+		if(isNaN(numberOfDecimal)) {
+			numberOfDecimal = 2;
+		}
+		return this.roundToCurrencyPrecision(value, numberOfDecimal).toFixed(numberOfDecimal);
+	},
+
+	/**
 	 * Function which gives quantity value
 	 * @params : lineItemRow - row which represents the line item
 	 * @return : string
@@ -246,7 +296,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 
 	setListPriceValue : function(lineItemRow, listPriceValue) {
         var numberOfDecimal = parseInt(jQuery('.numberOfCurrencyDecimal').val());
-		var listPrice = parseFloat(listPriceValue).toFixed(numberOfDecimal);
+		var listPrice = this.formatCurrencyValue(listPriceValue, numberOfDecimal);
 		lineItemRow.find('.listPrice').val(listPrice);
 		return this;
 	},
@@ -260,7 +310,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 	 */
 	setLineItemTotal : function(lineItemRow, lineItemTotalValue) {
         var numberOfDecimal = parseInt(jQuery('.numberOfCurrencyDecimal').val());
-		jQuery('.productTotal', lineItemRow).text(parseFloat(lineItemTotalValue).toFixed(numberOfDecimal));
+		jQuery('.productTotal', lineItemRow).text(this.formatCurrencyValue(lineItemTotalValue, numberOfDecimal));
 		return this;
 	},
 
@@ -290,7 +340,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 	 */
 	setDiscountTotal : function(lineItemRow, discountValue) {
         var numberOfDecimal = parseInt(jQuery('.numberOfCurrencyDecimal').val());
-		jQuery('.discountTotal',lineItemRow).text(parseFloat(discountValue).toFixed(numberOfDecimal));
+		jQuery('.discountTotal',lineItemRow).text(this.formatCurrencyValue(discountValue, numberOfDecimal));
 		return this;
 	},
 
@@ -311,7 +361,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 	 */
 	setTotalAfterDiscount : function(lineItemRow, totalAfterDiscountValue){
         var numberOfDecimal = parseInt(jQuery('.numberOfCurrencyDecimal').val());
-		jQuery('.totalAfterDiscount',lineItemRow).text(parseFloat(totalAfterDiscountValue).toFixed(numberOfDecimal));
+		jQuery('.totalAfterDiscount',lineItemRow).text(this.formatCurrencyValue(totalAfterDiscountValue, numberOfDecimal));
 		return this;
 	},
 
@@ -331,7 +381,8 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 	 * @return : current instance;
 	 */
 	setLineItemTaxTotal : function(lineItemRow, taxTotal) {
-		jQuery('.productTaxTotal', lineItemRow).text(taxTotal);
+		var numberOfDecimal = parseInt(jQuery('.numberOfCurrencyDecimal').val());
+		jQuery('.productTaxTotal', lineItemRow).text(this.formatCurrencyValue(taxTotal, numberOfDecimal));
 		return this;
 	},
 
@@ -351,7 +402,8 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 	 * @return : current instance;
 	 */
 	setLineItemNetPrice : function(lineItemRow, lineItemNetPriceValue){
-		jQuery('.netPrice',lineItemRow).text(lineItemNetPriceValue);
+		var numberOfDecimal = parseInt(jQuery('.numberOfCurrencyDecimal').val());
+		jQuery('.netPrice',lineItemRow).text(this.formatCurrencyValue(lineItemNetPriceValue, numberOfDecimal));
 		return this;
 	},
 
@@ -366,7 +418,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 
 	setNetTotal : function(netTotalValue){
         var numberOfDecimal = parseInt(jQuery('.numberOfCurrencyDecimal').val());
-		jQuery('#netTotal').text(parseFloat(netTotalValue).toFixed(numberOfDecimal));
+		jQuery('#netTotal').text(this.formatCurrencyValue(netTotalValue, numberOfDecimal));
 		return this;
 	},
 
@@ -388,7 +440,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 
 	setGroupTaxTotal : function(groupTaxTotalValue) {
         var numberOfDecimal = parseInt(jQuery('.numberOfCurrencyDecimal').val());
-		jQuery('#tax_final').text(parseFloat(groupTaxTotalValue).toFixed(numberOfDecimal));
+		jQuery('#tax_final').text(this.formatCurrencyValue(groupTaxTotalValue, numberOfDecimal));
 	},
 
 	getGroupTaxTotal : function() {
@@ -400,6 +452,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 	},
 
 	setShippingAndHandlingTaxTotal : function() {
+		var thisInstance = this;
 		var shippingTotal = jQuery('.shippingTaxTotal');
         var numberOfDecimal = parseInt(jQuery('.numberOfCurrencyDecimal').val());
 		var shippingFinalTaxTotal = 0;
@@ -407,7 +460,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 			var totalVal = parseFloat(jQuery(domElement).val());
 			shippingFinalTaxTotal += totalVal;
 		});
-		shippingFinalTaxTotal = shippingFinalTaxTotal.toFixed(numberOfDecimal);
+		shippingFinalTaxTotal = thisInstance.formatCurrencyValue(shippingFinalTaxTotal, numberOfDecimal);
 		jQuery('#shipping_handling_tax').text(shippingFinalTaxTotal);
 		return this;
 	},
@@ -453,7 +506,8 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 	},
 
 	setGrandTotal : function(grandTotalValue) {
-		jQuery('#grandTotal').text(grandTotalValue);
+		var numberOfDecimal = parseInt(jQuery('.numberOfCurrencyDecimal').val());
+		jQuery('#grandTotal').text(this.formatCurrencyValue(grandTotalValue, numberOfDecimal));
 		return this;
 	},
 
@@ -771,7 +825,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 		var productTotal = this.getLineItemTotal(lineItemRow);
 		var discountTotal = this.getDiscountTotal(lineItemRow);
 		var totalAfterDiscount = productTotal - discountTotal;
-		totalAfterDiscount = totalAfterDiscount.toFixed(numberOfDecimal);
+		totalAfterDiscount = this.formatCurrencyValue(totalAfterDiscount, numberOfDecimal);
 		this.setTotalAfterDiscount(lineItemRow,totalAfterDiscount);
     },
 
@@ -779,6 +833,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 	 * Function which will calculate tax for the line item total after discount
 	 */
 	calculateTaxForLineItem : function(lineItemRow) {
+		var thisInstance = this;
         var numberOfDecimal = parseInt(jQuery('.numberOfCurrencyDecimal').val());
 		var totalAfterDiscount = this.getTotalAfterDiscount(lineItemRow);
 		var taxPercentages = jQuery('.taxPercentage',lineItemRow);
@@ -796,12 +851,12 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
             } else {
                 var individualTaxPercentage = parseFloat(individualTaxPercentage);
                 var individualTaxTotal = Math.abs(individualTaxPercentage * totalAfterDiscount)/100;
-                individualTaxTotal = individualTaxTotal.toFixed(numberOfDecimal);
+                individualTaxTotal = thisInstance.formatCurrencyValue(individualTaxTotal, numberOfDecimal);
             }
 			jQuery('.taxTotal',individualTaxRow).val(individualTaxTotal);
 			taxTotal += parseFloat(individualTaxTotal);
 		});
-		taxTotal = parseFloat(taxTotal.toFixed(numberOfDecimal));
+		taxTotal = this.roundToCurrencyPrecision(taxTotal, numberOfDecimal);
 		this.setLineItemTaxTotal(lineItemRow, taxTotal);
 	},
 
@@ -816,7 +871,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 			var productTaxTotal = this.getLineItemTaxTotal(lineItemRow);
 			netPrice +=  parseFloat(productTaxTotal)
 		}
-		netPrice = netPrice.toFixed(numberOfDecimal);
+		netPrice = this.formatCurrencyValue(netPrice, numberOfDecimal);
 		this.setLineItemNetPrice(lineItemRow,netPrice);
 	},
 
@@ -871,17 +926,18 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
             }
             rowAmountField.removeClass('hide').focus();
 		}
-		discountValue = parseFloat(discountValue).toFixed(numberOfDecimal);
+		discountValue = this.formatCurrencyValue(discountValue, numberOfDecimal);
 		this.setFinalDiscountTotal(discountValue);
 		this.calculatePreTaxTotal();
     },
 
 	calculateGroupTax : function() {
+		var thisInstance = this;
         var numberOfDecimal = parseInt(jQuery('.numberOfCurrencyDecimal').val());
 		var netTotal = this.getNetTotal();
 		var finalDiscountValue = this.getFinalDiscountTotal();
 		var amount = netTotal - finalDiscountValue;
-		amount = parseFloat(amount).toFixed(numberOfDecimal);
+		amount = this.formatCurrencyValue(amount, numberOfDecimal);
 		var groupTaxContainer = jQuery('#group_tax_div');
 		var groupTaxTotal = 0;
 		groupTaxContainer.find('.groupTaxPercentage').each(function(index,domElement){
@@ -892,7 +948,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
             } else {
                 var groupTaxValue = amount * groupTaxPercentageElement.val()/100;
             }
-			groupTaxValue = (Math.round( parseFloat(groupTaxValue) * 100 ) / 100).toFixed(numberOfDecimal);
+			groupTaxValue = thisInstance.formatCurrencyValue(groupTaxValue, numberOfDecimal);
 			groupTaxRow.find('.groupTaxTotal').val(groupTaxValue);
 			groupTaxTotal += parseFloat(groupTaxValue);
 		});
@@ -900,6 +956,8 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 	},
 
 	calculateShippingAndHandlingTaxCharges : function() {
+		var thisInstance = this;
+		var numberOfDecimal = parseInt(jQuery('.numberOfCurrencyDecimal').val());
 		var shippingHandlingCharge = this.getShippingAndHandling();
 		var shippingTaxDiv = jQuery('#shipping_handling_div');
 		var shippingTaxPercentage = shippingTaxDiv.find('.shippingTaxPercentage');
@@ -918,6 +976,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 				currentTaxPerValue = parseFloat(currentTaxPerValue);
                 var currentTaxTotal = Math.abs(currentTaxPerValue * shippingHandlingCharge)/100;
             }
+			currentTaxTotal = thisInstance.formatCurrencyValue(currentTaxTotal, numberOfDecimal);
 			jQuery('.shippingTaxTotal',currentParentRow).val(currentTaxTotal);
 		});
 	},
@@ -941,7 +1000,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 			grandTotal -=  parseFloat(adjustment);
 		}
 
-		grandTotal = grandTotal.toFixed(numberOfDecimal);
+		grandTotal = this.formatCurrencyValue(grandTotal, numberOfDecimal);
 		this.setGrandTotal(grandTotal);
 	},
 
@@ -949,6 +1008,58 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
            shippingAndHandlingValue= this.getShippingAndHandling();
            jQuery('#shAmountForTax').text(shippingAndHandlingValue);
            return this;
+	},
+
+	updateStockAlerts: function() {
+		var thisInstance = this;
+		var lineItemTable = this.getLineItemContentsContainer();
+		var productTotals = {};
+
+		lineItemTable.find('tr.' + thisInstance.rowClass).each(function(index, row) {
+			var $row = jQuery(row);
+			var lineItemType = $row.find('input.lineItemType').val();
+			
+			if(lineItemType !== 'Products') {
+				return;
+			}
+			var productId = $row.find('.selectedModuleId').val();
+			if(!productId) {
+				return;
+			}
+
+			var qty = parseFloat($row.find('.qty').val());
+			var stock = parseFloat($row.find('.qtyInStock').val())
+			var originalStock = parseFloat($row.find('.originalStock').val());
+
+			if(!productTotals[productId]) {
+				productTotals[productId] = {
+					totalQty: 0,
+					totalStock: 0,
+					totaloriginalStock: 0,
+					rows: []
+				};
+			}
+
+			productTotals[productId].totalQty += qty;
+			productTotals[productId].totalStock = stock;
+			productTotals[productId].totaloriginalStock = originalStock;
+			productTotals[productId].rows.push($row);
+		});
+
+		jQuery.each(productTotals, function(productId, data) {
+			var showAlert = data.totalQty > data.totaloriginalStock;
+
+			jQuery.each(data.rows, function(i, $row) {
+				var $alert = $row.find('.stockAlert');
+				if(showAlert) {
+					var remainingStock = data.totaloriginalStock - data.totalQty;
+					$alert.removeClass('hide');
+					$alert.find('.maxQuantity').text(remainingStock);
+				} else {
+					$alert.addClass('hide');
+				}
+			});
+		});
 	},
     
 	registerFinalDiscountShowEvent : function(){
@@ -1256,7 +1367,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 	 /*
 	  * Function which will register event for quantity change (focusout event)
 	  */
-	 registerQuantityChangeEventHandler : function() {
+	registerQuantityChangeEventHandler : function() {
 		var thisInstance = this;
 		var lineItemTable = this.getLineItemContentsContainer();
 
@@ -1264,16 +1375,29 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 			var element = jQuery(e.currentTarget);
 			var lineItemRow = element.closest('tr.'+thisInstance.rowClass);
 			var quantityInStock = lineItemRow.data('quantityInStock');
-			if(typeof quantityInStock  != 'undefined') {
+			var lineItemType = lineItemRow.find('input.lineItemType').val();
+
+			if(lineItemType === 'Products' && typeof quantityInStock  != 'undefined') {
 				if(parseFloat(element.val()) > parseFloat(quantityInStock)) {
 					lineItemRow.find('.stockAlert').removeClass('hide').find('.maxQuantity').text(quantityInStock);
 				}else{
 					lineItemRow.find('.stockAlert').addClass('hide');
 				}
+			} else {
+				lineItemRow.find('.stockAlert').addClass('hide');
 			}
 			thisInstance.quantityChangeActions(lineItemRow);
+			thisInstance.updateStockAlerts();
 		});
-	 },
+
+		lineItemTable.find('tr.'+thisInstance.rowClass).each(function(index, domElement){
+			var lineItemRow = jQuery(domElement);
+			var lineItemType = lineItemRow.find('input.lineItemType').val();
+			if(lineItemType !== 'Products') {
+				lineItemRow.find('.stockAlert').addClass('hide');
+			}
+		});
+	},
 
 	 /**
 	  * Function which will register event for list price event change
@@ -1792,12 +1916,33 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 
 	showLineItemsDeleteIcon : function(){
 		var lineItemTable = this.getLineItemContentsContainer();
+		relationModule = this.getRealtionOperationBlock(lineItemTable);
 		lineItemTable.find('.deleteRow').show();
+		if(relationModule) {
+			lineItemTable.find('#'+relationModule).find('.deleteRow').hide();
+		}
 	},
 
 	hideLineItemsDeleteIcon : function(){
 		var lineItemTable = this.getLineItemContentsContainer();
 		lineItemTable.find('.deleteRow').hide();
+	},
+
+	getRealtionOperationBlock : function(lineItemTable) {
+		let foundRowId = null;
+		let RelSourceRecord = jQuery('#EditView input[name="sourceRecord"]').val();
+		let RelSourceModule = jQuery('#EditView input[name="sourceModule"]').val();
+		let foundRow = null;
+		lineItemTable.find('.lineItemRow').each(function(index,domElement) {
+			var lineItemRow = jQuery(domElement);
+			let recordId = lineItemRow.find('.selectedModuleId').val();
+			let sourceModule = lineItemRow.find('.lineItemType').val();
+			if(RelSourceRecord == recordId && RelSourceModule == sourceModule) {
+				foundRowId = lineItemRow.attr("id");
+				return false;
+			}
+		});
+		return foundRowId;
 	},
 
 	/**
@@ -1990,7 +2135,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 		var shippingHandlingCharge = this.getShippingAndHandling();
 		var finalDiscountValue = this.getFinalDiscountTotal();
 		var preTaxTotal = netTotal+shippingHandlingCharge-finalDiscountValue;
-		var preTaxTotalValue = parseFloat(preTaxTotal).toFixed(numberOfDecimal);
+		var preTaxTotalValue = this.formatCurrencyValue(preTaxTotal, numberOfDecimal);
 		this.setPreTaxTotal(preTaxTotalValue);
 	},
 

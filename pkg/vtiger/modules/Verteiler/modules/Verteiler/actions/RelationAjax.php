@@ -91,7 +91,7 @@ class Verteiler_RelationAjax_Action extends Vtiger_RelationAjax_Action {
 	 * If the relation is tied to a specific user (added_by_user_id), it checks for that first.
 	 * If no specific user is found, it deletes the relation regardless of the user.
 	 * Also tracks the "unlink" action using ModTracker.
-	 * 
+	 *
 	 * @param Vtiger_Request $request The request object containing src_record, related_record_list, and added_by_user_id.
 	 */
     function deleteRelation($request) {
@@ -116,15 +116,15 @@ class Verteiler_RelationAjax_Action extends Vtiger_RelationAjax_Action {
 	 * It checks for each relation if it was added by a specific user.
 	 * If no user is found, it deletes the relation regardless of the user.
 	 * Tracks each "unlink" action using ModTracker.
-	 * 
+	 *
 	 * @param Vtiger_Request $request The request object containing src_record and related_records.
 	 */
 	function massDeleteRelation($request) {
 		$adb = PearDatabase::getInstance();
-		
+
 		// Get the source record (Verteiler) ID
 		$src_record = $request->get("src_record");
-		
+
 		// Get the list of related records to be deleted
 		$related_records = $request->get("related_records");
 

@@ -8,8 +8,6 @@
  *
  ********************************************************************************/
 function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
-	require_once('libraries/tcpdf/tcpdf.php');
-	require_once('libraries/tcpdf/config/tcpdf_config.php');
 	require_once('modules/PurchaseOrder/PurchaseOrder.php');
 	require_once('modules/PurchaseOrder/pdf_templates/footer.php');
 	require_once('include/database/PearDatabase.php');
@@ -506,7 +504,7 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	elseif ($purpose=='send'){
 		// send pdf with mail
 		$translatedName = vtranslate('SINGLE_PurchaseOrder', 'PurchaseOrder');
-		$pdf->Output('storage/'.$translatedName.'_'.$PurchaseOrder_no.'.pdf','F'); 
+		$pdf->Output(dirname(__DIR__, 2).'/storage/'.$translatedName.'_'.$PurchaseOrder_no.'.pdf','F'); 
 		return;
 	}
 	exit;

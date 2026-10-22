@@ -12,20 +12,21 @@ require_once('libraries/tcpdf/config/tcpdf_config.php');
 
 class gdpr_printgdpr_Action {
 	
-	public function validateRequest(Vtiger_Request $request) { 
-            $request->validateReadAccess(); 
+	public function validateRequest(Vtiger_Request $request):bool { 
+        return $request->validateReadAccess(); 
 	}
-	public function loginRequired() {
+	public function loginRequired():bool {
 		return true;
 	}
-	public function checkPermission() { }
+	public function checkPermission(Vtiger_Request $request) {
+	}
 	
-	function preProcess(Vtiger_Request $request) {
-		return true;
+	function preProcess(Vtiger_Request $request, bool $display = false):void {
+		return;
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return true;
+	function postProcess(Vtiger_Request $request):void {
+		return;
 	}
 	
 	function process(Vtiger_Request $request) {

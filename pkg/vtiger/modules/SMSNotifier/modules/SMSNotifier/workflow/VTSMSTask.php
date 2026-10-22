@@ -25,7 +25,7 @@ class VTSMSTask extends VTTask {
 		
 		if(SMSNotifier::checkServer()) {
 			
-			global $adb, $current_user,$log;
+			global $adb, $current_user;
 			
 			$util = new VTWorkflowUtils();
 			$admin = $util->adminUser();

@@ -22,13 +22,13 @@ class browser extends uploader {
 
         if (isset($this->post['dir'])) {
             $dir = $this->checkInputDir($this->post['dir'], true, false);
-            if ($dir === false) unset($this->post['dir']);
+            if ($dir === false) $this->errorMsg("Invalid file location access.");
             $this->post['dir'] = $dir;
         }
 
         if (isset($this->get['dir'])) {
             $dir = $this->checkInputDir($this->get['dir'], true, false);
-            if ($dir === false) unset($this->get['dir']);
+            if ($dir === false) $this->errorMsg("Invalid file location access.");
             $this->get['dir'] = $dir;
         }
 
@@ -195,6 +195,8 @@ class browser extends uploader {
             $this->errorMsg("Unallowable characters in folder name.");
         if (substr($newDir, 0, 1) == ".")
             $this->errorMsg("Folder name shouldn't begins with '.'");
+        if (!$this->validateFilename($newDir))
+            $this->errorMsg("Unallowable characters in folder name.");
         if (file_exists("$dir/$newDir"))
             $this->errorMsg("A file or folder with that name already exists.");
         if (!@mkdir("$dir/$newDir", $this->config['dirPerms']))
@@ -217,6 +219,8 @@ class browser extends uploader {
             $this->errorMsg("Unallowable characters in folder name.");
         if (substr($newName, 0, 1) == ".")
             $this->errorMsg("Folder name shouldn't begins with '.'");
+        if (!$this->validateFilename($newName))
+            $this->errorMsg("Unallowable characters in folder name.");
         if (!@rename($dir, dirname($dir) . "/$newName"))
             $this->errorMsg("Cannot rename the folder.");
         $thumbDir = "$this->thumbsTypeDir/{$this->post['dir']}";
@@ -264,10 +268,7 @@ class browser extends uploader {
 
         $target = "$dir/" . file::getInexistantFilename($this->file['name'], $dir);
 
-        if (!@move_uploaded_file($this->file['tmp_name'], $target) &&
-            !@rename($this->file['tmp_name'], $target) &&
-            !@copy($this->file['tmp_name'], $target)
-        ) {
+        if (!@move_uploaded_file($this->file['tmp_name'], $target)) {
             @unlink($this->file['tmp_name']);
             $this->errorMsg("Cannot move uploaded file to target folder.");
         } elseif (function_exists('chmod'))
@@ -324,6 +325,10 @@ class browser extends uploader {
             $this->errorMsg("Unallowable characters in file name.");
         if (substr($newName, 0, 1) == ".")
             $this->errorMsg("File name shouldn't begins with '.'");
+        if (!$this->validateFilename($newName))
+            $this->errorMsg("Unallowable characters in file name.");
+        if (!$this->validateFileContent($file, $newName, $this->type))
+            $this->errorMsg("Invalid file content or unsupported file format.");
         $newName = "$dir/$newName";
         if (file_exists($newName))
             $this->errorMsg("A file or folder with that name already exists.");
@@ -390,6 +395,8 @@ class browser extends uploader {
                 $error[] = "$base: " . $this->label("File name shouldn't begins with '.'");
             elseif (!$this->validateExtension($ext, $type))
                 $error[] = "$base: " . $this->label("Denied file extension.");
+            elseif (!$this->pathWithinUploadRoot($path) || !$this->validateFileContent($path, $base, $type))
+                $error[] = "$base: " . $this->label("Invalid file content or unsupported file format.");
             elseif (file_exists("$dir/$base"))
                 $error[] = "$base: " . $this->label("A file or folder with that name already exists.");
             elseif (!is_readable($path) || !is_file($path))
@@ -441,6 +448,8 @@ class browser extends uploader {
                 $error[] = "$base: " . $this->label("File name shouldn't begins with '.'");
             elseif (!$this->validateExtension($ext, $type))
                 $error[] = "$base: " . $this->label("Denied file extension.");
+            elseif (!$this->pathWithinUploadRoot($path) || !$this->validateFileContent($path, $base, $type))
+                $error[] = "$base: " . $this->label("Invalid file content or unsupported file format.");
             elseif (file_exists("$dir/$base"))
                 $error[] = "$base: " . $this->label("A file or folder with that name already exists.");
             elseif (!is_readable($path) || !is_file($path))
@@ -699,6 +708,8 @@ class browser extends uploader {
             $dir .= "/" . $this->post['dir'];
         if ($existent && (!is_dir($dir) || !is_readable($dir)))
             $this->errorMsg("Inexistant or inaccessible folder.");
+        if ($existent && !$this->pathWithinUploadRoot($dir))
+            $this->errorMsg("Invalid file location access.");
         return $dir;
     }
 
@@ -708,6 +719,8 @@ class browser extends uploader {
             $dir .= "/" . $this->get['dir'];
         if ($existent && (!is_dir($dir) || !is_readable($dir)))
             $this->errorMsg("Inexistant or inaccessible folder.");
+        if ($existent && !$this->pathWithinUploadRoot($dir))
+            $this->errorMsg("Invalid file location access.");
         return $dir;
     }
 
@@ -785,13 +798,7 @@ class browser extends uploader {
     }
 
 	protected function filePathAccessible($file) {
-		// Ensure the file operation is constrained to the uploadDir configured.
-		$uploadDirPath = realpath($this->config['uploadDir']);
-		$filePath = realpath($file);
-		if (strpos($filePath, $uploadDirPath) !== 0) {
-			return false;
-		}
-		return true;
+		return $this->pathWithinUploadRoot($file);
 	}
 }
 

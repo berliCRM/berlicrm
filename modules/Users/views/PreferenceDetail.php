@@ -26,7 +26,7 @@ class Users_PreferenceDetail_View extends Vtiger_Detail_View {
 	 * @param <type> $request
 	 * @return <String>
 	 */
-	public function preProcessTplName(Vtiger_Request $request) {
+	public function preProcessTplName(Vtiger_Request $request):string {
 		return 'PreferenceDetailViewPreProcess.tpl';
 	}
 
@@ -38,7 +38,7 @@ class Users_PreferenceDetail_View extends Vtiger_Detail_View {
 		return $this->showModuleDetailView($request);
 	}
 
-	public function preProcess(Vtiger_Request $request, $display=true) {
+	public function preProcess(Vtiger_Request $request, bool $display=true):void {
 		if($this->checkPermission($request)) {
 			$currentUser = Users_Record_Model::getCurrentUserModel();
 			$recordId = $request->get('record');
@@ -102,7 +102,7 @@ class Users_PreferenceDetail_View extends Vtiger_Detail_View {
 		}
 	}
 
-	protected function preProcessDisplay(Vtiger_Request $request) {
+	protected function preProcessDisplay(Vtiger_Request $request):void {
 		$viewer = $this->getViewer($request);
 		$viewer->view($this->preProcessTplName($request), $request->getModule());
 	}
@@ -118,13 +118,13 @@ class Users_PreferenceDetail_View extends Vtiger_Detail_View {
 		$dayStartPicklistValues = Users_Record_Model::getDayStartsPicklistValues($recordStructureInstance->getStructure());
 
 		$viewer = $this->getViewer($request);
-		$viewer->assign("DAY_STARTS", Zend_Json::encode($dayStartPicklistValues));
+		$viewer->assign("DAY_STARTS", json_encode($dayStartPicklistValues));
 		$viewer->assign('IMAGE_DETAILS', $recordModel->getImageDetails());
 
 		return parent::process($request);
 	}
 
-    public function getHeaderScripts(Vtiger_Request $request) {
+    public function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
         $moduleDetailFile = 'modules.'.$moduleName.'.resources.PreferenceDetail';

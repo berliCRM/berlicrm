@@ -208,8 +208,8 @@ if ($summaryradio == 'true') {
         //************** populate VAT listing for individual tax only **************************************************
         $line_y_tax = $line_y_location;
         for ($tax_count = 0;$tax_count < count($tax_details);$tax_count++) {
-            $VATLISTING = number_format($taxtype_listings [percentage.$tax_count], $decimal_precision, $decimals_separator, $thousands_separator).' '.$pdf_strings['Tax_NAME'].' '.number_format($taxtype_listings [value.$tax_count], $decimal_precision, $decimals_separator, $thousands_separator).' '.$currency_symbol.' '.$pdf_strings['INCLUDE_NAME'];
-            if ($taxtype_listings [value.$tax_count] != "0.00") {
+            $VATLISTING = number_format($taxtype_listings ['percentage'.$tax_count], $decimal_precision, $decimals_separator, $thousands_separator).' '.$pdf_strings['Tax_NAME'].' '.number_format($taxtype_listings ['value'.$tax_count], $decimal_precision, $decimals_separator, $thousands_separator).' '.$currency_symbol.' '.$pdf_strings['INCLUDE_NAME'];
+            if ($taxtype_listings ['value'.$tax_count] != "0.00") {
                 $pdf->SetXY(PDF_MARGIN_LEFT, $line_y_tax);
                 $pdf->SetFont($default_font, "", $font_size_body);
                 $pdf->Cell($pdf->GetStringWidth($VATLISTING), $pdf->getFontSize(), decode_html($VATLISTING), 0, 0, 'L');

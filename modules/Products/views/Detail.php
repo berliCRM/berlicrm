@@ -30,7 +30,7 @@ class Products_Detail_View extends Vtiger_Detail_View {
 		return $this->showModuleDetailView($request);
 	}
 
-	public function getHeaderScripts(Vtiger_Request $request) {
+	public function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 		$moduleDetailFile = 'modules.'.$moduleName.'.resources.Detail';

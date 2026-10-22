@@ -80,6 +80,10 @@ $languageStrings = array(
     //post import email
     'LBL_POST_IMPORT_MAIL_SUBJECT' => 'CRM Import-Ergebnis für ',
     'LBL_POST_IMPORT_MAIL_INTRO' => 'Das CRM hat den Importvorgang mit folgendem Ergebnis abgeschlossen:',
+	
+	//reject whole import if any mandatory field is missing
+	'LBL_REJECT_WHOLE_IMPORT' => 'kompletten Import ablehnen, falls ein Pflichtfeld fehlt',
+	'LBL_IMPORT_MISSING_MANDATORY' => 'Fehlendes Pflichtfeld in Zeile',
     
 );
 ?>

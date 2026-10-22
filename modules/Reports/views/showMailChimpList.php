@@ -2,7 +2,7 @@
 class Reports_showMailChimpList_View extends Vtiger_View_Controller {
 	public $log_text = array();
 	
-	function loginRequired() {
+	function loginRequired():bool {
 		return true;
 	}
 
@@ -20,7 +20,7 @@ class Reports_showMailChimpList_View extends Vtiger_View_Controller {
 		}
 	}
  
-	function preProcess(Vtiger_Request $request, $display = true) {
+	function preProcess(Vtiger_Request $request, bool $display = true): void {
 	}
 
 	public function process(Vtiger_Request $request) {
@@ -32,6 +32,7 @@ class Reports_showMailChimpList_View extends Vtiger_View_Controller {
 			return;
 		}
 		$viewer = new Vtiger_Viewer();
+		$viewer->registerSmartyPlugins();
 		$module = $request->getModule();
 		$moduleName = $request->get('modulename');
 		$reportid = $request->get('reportid');

@@ -42,22 +42,18 @@ class Settings_Google_Module_Model extends Vtiger_Module_Model {
 	 * Function to get the google api key for google geo data
 	 */
 	public static function checkGoogleGeoApikey() {
-		global $log;
 		$Apikey = self::getGoogleGeoApikey();
 		$address = self::getDefaultAddress();
 		$baseUrl = 'https://maps.google.com/maps/api/geocode/xml?sensor=false';
 		$request_url = $baseUrl."&address=".urlencode($address) . "&key=" .$Apikey;
 		$xml = simplexml_load_file($request_url);
 		if(!$xml) {
-			$log->debug("Can't retrieve ".$address." whith url=".$request_url." ");
 			$status = array ('success' => false, 'error' =>'undefined');
 		}
 		else if ($xml->status != 'OK') {
-			$log->debug("Google API Error with status: ".$xml->status.". Can't retrieve geo data for ".$address." whith url=".$request_url." ");
 			$status = array ('success' => false, 'error' =>$xml->status);
 		}
 		else {
-			$log->debug("Successfully retrieved geo data for ".$address." whith url=".$request_url." ");
 			$status = array ('success' => true);
 		}
 		return $status;

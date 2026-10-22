@@ -12,6 +12,9 @@
  * ModComments Record Model
  */
 class ModComments_Record_Model extends Vtiger_Record_Model {
+	protected static $recordModelCache = array();
+	protected $parentRecordModel = null;
+	protected $commentedByModel = null;
 
     /**
      * Functions gets the comment id
@@ -110,9 +113,17 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
      * @return <Vtiger_Record_Model>
      */
     public function getParentRecordModel() {
+		if ($this->parentRecordModel !== null) {
+			return $this->parentRecordModel;
+		}
         $parentRecordId = $this->get('related_to');
         if(!empty($parentRecordId)){
-            return Vtiger_Record_Model::getInstanceById($parentRecordId);
+			$cacheKey = 'record:' . $parentRecordId;
+			if (!array_key_exists($cacheKey, self::$recordModelCache)) {
+				self::$recordModelCache[$cacheKey] = Vtiger_Record_Model::getInstanceById($parentRecordId);
+			}
+			$this->parentRecordModel = self::$recordModelCache[$cacheKey];
+			return $this->parentRecordModel;
         }
         return false;
     }
@@ -122,10 +133,18 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
      * @return <Vtiger_Record_Model>
      */
     public function getCommentedByModel() {
+		if ($this->commentedByModel !== null) {
+			return $this->commentedByModel;
+		}
         $customer = $this->get('customer');
         if(!empty($customer)) {
             if (isRecordExists($customer)) {
-                return Vtiger_Record_Model::getInstanceById($customer);
+				$cacheKey = 'record:' . $customer;
+				if (!array_key_exists($cacheKey, self::$recordModelCache)) {
+					self::$recordModelCache[$cacheKey] = Vtiger_Record_Model::getInstanceById($customer);
+				}
+				$this->commentedByModel = self::$recordModelCache[$cacheKey];
+				return $this->commentedByModel;
             }
             else {
                 return false;
@@ -134,12 +153,21 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
         else {
             $commentedBy = $this->get('smownerid');
             if($commentedBy) {
-                $commentedByModel = Vtiger_Record_Model::getInstanceById($commentedBy, 'Users');
+				$cacheKey = 'Users:' . $commentedBy;
+				if (!array_key_exists($cacheKey, self::$recordModelCache)) {
+					self::$recordModelCache[$cacheKey] = Vtiger_Record_Model::getInstanceById($commentedBy, 'Users');
+				}
+				$commentedByModel = self::$recordModelCache[$cacheKey];
                 if(empty($commentedByModel->entity->column_fields['user_name'])) {
                     $activeAdmin = Users::getActiveAdminUser();
-                    $commentedByModel = Vtiger_Record_Model::getInstanceById($activeAdmin->id, 'Users');
+					$adminCacheKey = 'Users:' . $activeAdmin->id;
+					if (!array_key_exists($adminCacheKey, self::$recordModelCache)) {
+						self::$recordModelCache[$adminCacheKey] = Vtiger_Record_Model::getInstanceById($activeAdmin->id, 'Users');
+					}
+					$commentedByModel = self::$recordModelCache[$adminCacheKey];
                 }
-                return $commentedByModel;
+				$this->commentedByModel = $commentedByModel;
+				return $this->commentedByModel;
             }
         }
         return false;

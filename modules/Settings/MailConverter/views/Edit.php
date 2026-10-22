@@ -24,7 +24,7 @@ class Settings_MailConverter_Edit_View extends Settings_Vtiger_Index_View {
 		    return;
 		}
     }
-	public function preProcess(Vtiger_Request $request, $display = true) {
+	public function preProcess(Vtiger_Request $request, bool $display = true):void {
 		parent::preProcess($request);
 		$recordId = $request->get('record');
 		$mode = $request->get('mode');
@@ -101,7 +101,7 @@ class Settings_MailConverter_Edit_View extends Settings_Vtiger_Index_View {
 		$viewer->view('Step3.tpl', $qualifiedModuleName);
     }
 
-    public function getHeaderScripts(Vtiger_Request $request) {
+    public function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 	
 		$jsFileNames = array(

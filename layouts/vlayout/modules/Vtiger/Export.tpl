@@ -19,13 +19,13 @@
 		<input type="hidden" name="source_module" value="{$SOURCE_MODULE}" />
 		<input type="hidden" name="action" value="ExportData" />
 		<input type="hidden" name="viewname" value="{$VIEWID}" />
-		<input type="hidden" name="selected_ids" value={ZEND_JSON::encode($SELECTED_IDS)}>
-		<input type="hidden" name="excluded_ids" value={ZEND_JSON::encode($EXCLUDED_IDS)}>
+		<input type="hidden" name="selected_ids" value={json_encode($SELECTED_IDS)}>
+		<input type="hidden" name="excluded_ids" value={json_encode($EXCLUDED_IDS)}>
 		<input type="hidden" id="page" name="page" value="{$PAGE}" />
 		<input type="hidden" name="search_key" value= "{$SEARCH_KEY}" />
 		<input type="hidden" name="operator" value="{$OPERATOR}" />
 		<input type="hidden" name="search_value" value="{$ALPHABET_VALUE}" />
-		<input type="hidden" name="search_params" value='{ZEND_JSON::encode($SEARCH_PARAMS)}' />
+		<input type="hidden" name="search_params" value='{json_encode($SEARCH_PARAMS)}' />
 		<input type="hidden" name="orderby" value="{$ORDER_BY}" />
 		<input type="hidden" name="sortorder" value="{$SORT_ORDER}" />
 		

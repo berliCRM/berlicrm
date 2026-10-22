@@ -20,6 +20,7 @@
  * All Rights Reserved.
  * Contributor(s): ______________________________________..
  ********************************************************************************/
+include_once 'vendor/autoload.php';
 require_once('include/database/PearDatabase.php');
 require_once('include/ComboUtil.php'); //new
 require_once('include/utils/ListViewUtils.php');
@@ -70,8 +71,6 @@ define("RB_RECORD_UPDATED", 'update');
 */
 function return_name(&$row, $first_column, $last_column)
 {
-    global $log;
-    $log->debug("Entering return_name(".$row.",".$first_column.",".$last_column.") method ...");
     $first_name = "";
     $last_name = "";
     $full_name = "";
@@ -97,7 +96,6 @@ function return_name(&$row, $first_column, $last_column)
         $full_name .= $last_name;
     }
 
-    $log->debug("Exiting return_name method ...");
     return $full_name;
 }
 
@@ -113,8 +111,6 @@ function return_name(&$row, $first_column, $last_column)
 //used in module file
 function get_user_array($add_blank = true, $status = "Active", $assigned_user = "", $private = "", $module = false)
 {
-    global $log;
-    $log->debug("Entering get_user_array(".$add_blank.",". $status.",".$assigned_user.",".$private.") method ...");
     global $current_user;
     if (isset($current_user) && $current_user->id != '') {
         require('user_privileges/sharing_privileges_'.$current_user->id.'.php');
@@ -136,7 +132,6 @@ function get_user_array($add_blank = true, $status = "Active", $assigned_user = 
             $params = array();
         } else {
             if ($private == 'private') {
-                $log->debug("Sharing is Private. Only the current user should be listed");
                 $query = "select id as id,user_name as user_name,first_name,last_name from vtiger_users where id=? and status='Active' union select vtiger_user2role.userid as id,vtiger_users.user_name as user_name ,
 							  vtiger_users.first_name as first_name ,vtiger_users.last_name as last_name
 							  from vtiger_user2role inner join vtiger_users on vtiger_users.id=vtiger_user2role.userid inner join vtiger_role on vtiger_role.roleid=vtiger_user2role.roleid where vtiger_role.parentrole like ? and status='Active' union
@@ -144,7 +139,6 @@ function get_user_array($add_blank = true, $status = "Active", $assigned_user = 
 							  vtiger_users.first_name as first_name ,vtiger_users.last_name as last_name  from vtiger_tmp_write_user_sharing_per inner join vtiger_users on vtiger_users.id=vtiger_tmp_write_user_sharing_per.shareduserid where status='Active' and vtiger_tmp_write_user_sharing_per.userid=? and vtiger_tmp_write_user_sharing_per.tabid=?";
                 $params = array($current_user->id, $current_user_parent_role_seq."::%", $current_user->id, getTabid($module));
             } else {
-                $log->debug("Sharing is Public. All vtiger_users should be listed");
                 $query = "SELECT id, user_name,first_name,last_name from vtiger_users WHERE status=?";
                 $params = array($status);
             }
@@ -171,14 +165,11 @@ function get_user_array($add_blank = true, $status = "Active", $assigned_user = 
         $user_array = &$temp_result;
     }
 
-    $log->debug("Exiting get_user_array method ...");
     return $user_array;
 }
 
 function get_group_array($add_blank = true, $status = "Active", $assigned_user = "", $private = "", $module = false)
 {
-    global $log;
-    $log->debug("Entering get_user_array(".$add_blank.",". $status.",".$assigned_user.",".$private.") method ...");
     global $current_user;
     if (isset($current_user) && $current_user->id != '') {
         require('user_privileges/sharing_privileges_'.$current_user->id.'.php');
@@ -194,7 +185,6 @@ function get_group_array($add_blank = true, $status = "Active", $assigned_user =
         $db = PearDatabase::getInstance();
         $temp_result = array();
         // Including deleted vtiger_users for now.
-        $log->debug("Sharing is Public. All vtiger_users should be listed");
         $query = "SELECT groupid, groupname from vtiger_groups";
         $params = array();
 
@@ -207,7 +197,6 @@ function get_group_array($add_blank = true, $status = "Active", $assigned_user =
                 $query .= " OR vtiger_groups.groupid in (".generateQuestionMarks($current_user_groups).")";
                 array_push($params, $current_user_groups);
             }
-            $log->debug("Sharing is Private. Only the current user should be listed");
             $query .= " union select vtiger_group2role.groupid as groupid,vtiger_groups.groupname as groupname from vtiger_group2role inner join vtiger_groups on vtiger_groups.groupid=vtiger_group2role.groupid inner join vtiger_role on vtiger_role.roleid=vtiger_group2role.roleid where vtiger_role.parentrole like ?";
             array_push($params, $current_user_parent_role_seq."::%");
 
@@ -239,7 +228,6 @@ function get_group_array($add_blank = true, $status = "Active", $assigned_user =
         $group_array = &$temp_result;
     }
 
-    $log->debug("Exiting get_user_array method ...");
     return $group_array;
 }
 
@@ -307,15 +295,11 @@ function get_themes()
        */
 function set_default_config(&$defaults)
 {
-    global $log;
-    $log->debug("Entering set_default_config(".$defaults.") method ...");
-
     foreach ($defaults as $name => $value) {
         if (! isset($GLOBALS[$name])) {
             $GLOBALS[$name] = $value;
         }
     }
-    $log->debug("Exiting set_default_config method ...");
 }
 
 $toHtml = array(
@@ -343,8 +327,7 @@ function to_html($string, $encode = true)
         return $cachedresult;
     }
 
-    global $log,$default_charset;
-    //$log->debug("Entering to_html(".$string.",".$encode.") method ...");
+    global $default_charset;
     $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : null;
     $search = isset($_REQUEST['search']) ? $_REQUEST['search'] : null;
 
@@ -380,7 +363,6 @@ function to_html($string, $encode = true)
         }
     }
 
-    //$log->debug("Exiting to_html method ...");
     Vtiger_Cache::set('to_html', $startstring, $string);
     return $string;
 }
@@ -392,9 +374,6 @@ function to_html($string, $encode = true)
 
 function getTabname($tabid)
 {
-    global $log;
-    $log->debug("Entering getTabname(".$tabid.") method ...");
-    $log->info("tab id is ".$tabid);
     global $adb;
 
     static $cache = array();
@@ -406,9 +385,7 @@ function getTabname($tabid)
         $cache[$tabid] = $tabname;
     }
 
-    $log->debug("Exiting getTabname method ...");
     return $cache[$tabid];
-
 }
 
 /** Function to get the tab module name for a given id
@@ -430,10 +407,6 @@ function getTabModuleName($tabid)
 
 function getColumnFields($module)
 {
-    global $log;
-    $log->debug("Entering getColumnFields(".$module.") method ...");
-    $log->debug("in getColumnFields ".$module);
-
     // Lookup in cache for information
     $cachedModuleFields = VTCacheUtils::lookupFieldInfo_Module($module);
 
@@ -499,7 +472,6 @@ function getColumnFields($module)
         }
     }
 
-    $log->debug("Exiting getColumnFields method ...");
     return $column_fld;
 }
 
@@ -511,17 +483,12 @@ function getColumnFields($module)
 
 function getUserEmail($userid)
 {
-    global $log;
-    $log->debug("Entering getUserEmail(".$userid.") method ...");
-    $log->info("in getUserEmail ".$userid);
-
     global $adb;
     if ($userid != '') {
         $sql = "select email1 from vtiger_users where id=?";
         $result = $adb->pquery($sql, array($userid));
         $email = $adb->query_result($result, 0, "email1");
     }
-    $log->debug("Exiting getUserEmail method ...");
     return $email;
 }
 
@@ -533,9 +500,6 @@ function getUserEmail($userid)
 //outlook security
 function getUserId_Ol($username)
 {
-    global $log;
-    $log->debug("Entering getUserId_Ol(".$username.") method ...");
-    $log->info("in getUserId_Ol ".$username);
     $cache = Vtiger_Cache::getInstance();
     if ($cache->getUserId($username) || $cache->getUserId($username) === 0) {
         return $cache->getUserId($username);
@@ -549,7 +513,6 @@ function getUserId_Ol($username)
         } else {
             $user_id = 0;
         }
-        $log->debug("Exiting getUserId_Ol method ...");
         $cache->setUserId($username, $user_id);
         return $user_id;
     }
@@ -565,10 +528,7 @@ function getUserId_Ol($username)
 
 function getActionid($action)
 {
-    global $log;
-    $log->debug("Entering getActionid(".$action.") method ...");
     global $adb;
-    $log->info("get Actionid ".$action);
     $actionid = '';
     if (file_exists('tabdata.php') && (filesize('tabdata.php') != 0)) {
         include('tabdata.php');
@@ -582,8 +542,6 @@ function getActionid($action)
         $actionid = $adb->query_result($result, 0, 'actionid');
 
     }
-    $log->info("action id selected is ".$actionid);
-    $log->debug("Exiting getActionid method ...");
     return $actionid;
 }
 
@@ -595,8 +553,6 @@ function getActionid($action)
 
 function getActionname($actionid)
 {
-    global $log;
-    $log->debug("Entering getActionname(".$actionid.") method ...");
     global $adb;
 
     $actionname = '';
@@ -610,7 +566,6 @@ function getActionname($actionid)
         $result = $adb->pquery($query, array($actionid));
         $actionname = $adb->query_result($result, 0, "actionname");
     }
-    $log->debug("Exiting getActionname method ...");
     return $actionname;
 }
 
@@ -621,8 +576,6 @@ function getActionname($actionid)
 
 function getRecordOwnerId($record)
 {
-    global $log;
-    $log->debug("Entering getRecordOwnerId(".$record.") method ...");
     global $adb;
     $ownerArr = array();
 
@@ -655,7 +608,6 @@ function getRecordOwnerId($record)
             $ownerArr['Groups'] = $ownerId;
         }
     }
-    $log->debug("Exiting getRecordOwnerId method ...");
     return $ownerArr;
 
 }
@@ -667,10 +619,6 @@ function getRecordOwnerId($record)
 
 function insertProfile2field($profileid)
 {
-    global $log;
-    $log->debug("Entering insertProfile2field(".$profileid.") method ...");
-    $log->info("in insertProfile2field ".$profileid);
-
     global $adb;
     $adb->database->SetFetchMode(ADODB_FETCH_ASSOC);
     $fld_result = $adb->pquery("select * from vtiger_field where generatedtype=1 and displaytype in (1,2,3) and vtiger_field.presence in (0,2) and tabid != 29", array());
@@ -681,7 +629,6 @@ function insertProfile2field($profileid)
         $params = array($profileid, $tab_id, $field_id, 0, 0);
         $adb->pquery("insert into vtiger_profile2field values (?,?,?,?,?)", $params);
     }
-    $log->debug("Exiting insertProfile2field method ...");
 }
 
 /** Function to insert into default org field
@@ -689,8 +636,6 @@ function insertProfile2field($profileid)
 
 function insert_def_org_field()
 {
-    global $log;
-    $log->debug("Entering insert_def_org_field() method ...");
     global $adb;
     $adb->database->SetFetchMode(ADODB_FETCH_ASSOC);
     $fld_result = $adb->pquery("select * from vtiger_field where generatedtype=1 and displaytype in (1,2,3) and vtiger_field.presence in (0,2) and tabid != 29", array());
@@ -701,7 +646,6 @@ function insert_def_org_field()
         $params = array($tab_id, $field_id, 0, 0);
         $adb->pquery("insert into vtiger_def_org_field values (?,?,?,?)", $params);
     }
-    $log->debug("Exiting insert_def_org_field() method ...");
 }
 
 /** Function to update product quantity
@@ -711,13 +655,9 @@ function insert_def_org_field()
 
 function updateProductQty($product_id, $upd_qty)
 {
-    global $log;
-    $log->debug("Entering updateProductQty(".$product_id.",". $upd_qty.") method ...");
     global $adb;
     $query = "update vtiger_products set qtyinstock=? where productid=?";
     $adb->pquery($query, array($upd_qty, $product_id));
-    $log->debug("Exiting updateProductQty method ...");
-
 }
 
 /** This Function adds the specified product quantity to the Product Quantity in Stock in the Warehouse
@@ -727,15 +667,11 @@ function updateProductQty($product_id, $upd_qty)
   */
 function addToProductStock($productId, $qty)
 {
-    global $log;
-    $log->debug("Entering addToProductStock(".$productId.",".$qty.") method ...");
     global $adb;
     $qtyInStck = getProductQtyInStock($productId);
     $updQty = $qtyInStck + $qty;
     $sql = "UPDATE vtiger_products set qtyinstock=? where productid=?";
     $adb->pquery($sql, array($updQty, $productId));
-    $log->debug("Exiting addToProductStock method ...");
-
 }
 
 /**	This Function adds the specified product quantity to the Product Quantity in Demand in the Warehouse
@@ -744,15 +680,11 @@ function addToProductStock($productId, $qty)
   */
 function addToProductDemand($productId, $qty)
 {
-    global $log;
-    $log->debug("Entering addToProductDemand(".$productId.",".$qty.") method ...");
     global $adb;
     $qtyInStck = getProductQtyInDemand($productId);
     $updQty = $qtyInStck + $qty;
     $sql = "UPDATE vtiger_products set qtyindemand=? where productid=?";
     $adb->pquery($sql, array($updQty, $productId));
-    $log->debug("Exiting addToProductDemand method ...");
-
 }
 
 /**	This Function subtract the specified product quantity to the Product Quantity in Stock in the Warehouse
@@ -761,15 +693,11 @@ function addToProductDemand($productId, $qty)
   */
 function deductFromProductStock($productId, $qty)
 {
-    global $log;
-    $log->debug("Entering deductFromProductStock(".$productId.",".$qty.") method ...");
     global $adb;
     $qtyInStck = getProductQtyInStock($productId);
     $updQty = $qtyInStck - $qty;
     $sql = "UPDATE vtiger_products set qtyinstock=? where productid=?";
     $adb->pquery($sql, array($updQty, $productId));
-    $log->debug("Exiting deductFromProductStock method ...");
-
 }
 
 /**	This Function subtract the specified product quantity to the Product Quantity in Demand in the Warehouse
@@ -778,15 +706,11 @@ function deductFromProductStock($productId, $qty)
   */
 function deductFromProductDemand($productId, $qty)
 {
-    global $log;
-    $log->debug("Entering deductFromProductDemand(".$productId.",".$qty.") method ...");
     global $adb;
     $qtyInStck = getProductQtyInDemand($productId);
     $updQty = $qtyInStck - $qty;
     $sql = "UPDATE vtiger_products set qtyindemand=? where productid=?";
     $adb->pquery($sql, array($updQty, $productId));
-    $log->debug("Exiting deductFromProductDemand method ...");
-
 }
 
 
@@ -796,16 +720,11 @@ function deductFromProductDemand($productId, $qty)
   */
 function getProductQtyInStock($product_id)
 {
-    global $log;
-    $log->debug("Entering getProductQtyInStock(".$product_id.") method ...");
     global $adb;
     $query1 = "select qtyinstock from vtiger_products where productid=?";
     $result = $adb->pquery($query1, array($product_id));
     $qtyinstck = $adb->query_result($result, 0, "qtyinstock");
-    $log->debug("Exiting getProductQtyInStock method ...");
     return $qtyinstck;
-
-
 }
 
 /**	This Function returns the current product quantity in demand.
@@ -814,13 +733,10 @@ function getProductQtyInStock($product_id)
   */
 function getProductQtyInDemand($product_id)
 {
-    global $log;
-    $log->debug("Entering getProductQtyInDemand(".$product_id.") method ...");
     global $adb;
     $query1 = "select qtyindemand from vtiger_products where productid=?";
     $result = $adb->pquery($query1, array($product_id));
     $qtyInDemand = $adb->query_result($result, 0, "qtyindemand");
-    $log->debug("Exiting getProductQtyInDemand method ...");
     return $qtyInDemand;
 }
 
@@ -831,8 +747,6 @@ function getProductQtyInDemand($product_id)
   */
 function getTableNameForField($module, $fieldname)
 {
-    global $log;
-    $log->debug("Entering getTableNameForField(".$module.",".$fieldname.") method ...");
     global $adb;
     $tabid = getTabid($module);
     //Asha
@@ -847,7 +761,6 @@ function getTableNameForField($module, $fieldname)
         $tablename = $adb->query_result($res, 0, 'tablename');
     }
 
-    $log->debug("Exiting getTableNameForField method ...");
     return $tablename;
 }
 
@@ -860,8 +773,6 @@ function getTableNameForField($module, $fieldname)
 
 function getParentRecordOwner($tabid, $parModId, $record_id)
 {
-    global $log;
-    $log->debug("Entering getParentRecordOwner(".$tabid.",".$parModId.",".$record_id.") method ...");
     $parentRecOwner = array();
     $parentTabName = getTabname($parModId);
     $relTabName = getTabname($tabid);
@@ -870,7 +781,6 @@ function getParentRecordOwner($tabid, $parModId, $record_id)
     if ($ent_id != '') {
         $parentRecOwner = getRecordOwnerId($ent_id);
     }
-    $log->debug("Exiting getParentRecordOwner method ...");
     return $parentRecOwner;
 }
 
@@ -881,13 +791,10 @@ function getParentRecordOwner($tabid, $parModId, $record_id)
 
 function getPotentialsRelatedAccounts($record_id)
 {
-    global $log;
-    $log->debug("Entering getPotentialsRelatedAccounts(".$record_id.") method ...");
     global $adb;
     $query = "select related_to from vtiger_potential where potentialid=?";
     $result = $adb->pquery($query, array($record_id));
     $accountid = $adb->query_result($result, 0, 'related_to');
-    $log->debug("Exiting getPotentialsRelatedAccounts method ...");
     return $accountid;
 }
 
@@ -897,13 +804,10 @@ function getPotentialsRelatedAccounts($record_id)
   */
 function getEmailsRelatedAccounts($record_id)
 {
-    global $log;
-    $log->debug("Entering getEmailsRelatedAccounts(".$record_id.") method ...");
     global $adb;
     $query = "select vtiger_seactivityrel.crmid from vtiger_seactivityrel inner join vtiger_crmentity on vtiger_crmentity.crmid=vtiger_seactivityrel.crmid where vtiger_crmentity.setype='Accounts' and activityid=?";
     $result = $adb->pquery($query, array($record_id));
     $accountid = $adb->query_result($result, 0, 'crmid');
-    $log->debug("Exiting getEmailsRelatedAccounts method ...");
     return $accountid;
 }
 /** Function to get email related Leads
@@ -913,13 +817,10 @@ function getEmailsRelatedAccounts($record_id)
 
 function getEmailsRelatedLeads($record_id)
 {
-    global $log;
-    $log->debug("Entering getEmailsRelatedLeads(".$record_id.") method ...");
     global $adb;
     $query = "select vtiger_seactivityrel.crmid from vtiger_seactivityrel inner join vtiger_crmentity on vtiger_crmentity.crmid=vtiger_seactivityrel.crmid where vtiger_crmentity.setype='Leads' and activityid=?";
     $result = $adb->pquery($query, array($record_id));
     $leadid = $adb->query_result($result, 0, 'crmid');
-    $log->debug("Exiting getEmailsRelatedLeads method ...");
     return $leadid;
 }
 
@@ -930,13 +831,10 @@ function getEmailsRelatedLeads($record_id)
 
 function getHelpDeskRelatedAccounts($record_id)
 {
-    global $log;
-    $log->debug("Entering getHelpDeskRelatedAccounts(".$record_id.") method ...");
     global $adb;
     $query = "select parent_id from vtiger_troubletickets inner join vtiger_crmentity on vtiger_crmentity.crmid=vtiger_troubletickets.parent_id where ticketid=? and vtiger_crmentity.setype='Accounts'";
     $result = $adb->pquery($query, array($record_id));
     $accountid = $adb->query_result($result, 0, 'parent_id');
-    $log->debug("Exiting getHelpDeskRelatedAccounts method ...");
     return $accountid;
 }
 
@@ -947,13 +845,10 @@ function getHelpDeskRelatedAccounts($record_id)
 
 function getQuotesRelatedAccounts($record_id)
 {
-    global $log;
-    $log->debug("Entering getQuotesRelatedAccounts(".$record_id.") method ...");
     global $adb;
     $query = "select accountid from vtiger_quotes where quoteid=?";
     $result = $adb->pquery($query, array($record_id));
     $accountid = $adb->query_result($result, 0, 'accountid');
-    $log->debug("Exiting getQuotesRelatedAccounts method ...");
     return $accountid;
 }
 
@@ -964,13 +859,10 @@ function getQuotesRelatedAccounts($record_id)
 
 function getQuotesRelatedPotentials($record_id)
 {
-    global $log;
-    $log->debug("Entering getQuotesRelatedPotentials(".$record_id.") method ...");
     global $adb;
     $query = "select potentialid from vtiger_quotes where quoteid=?";
     $result = $adb->pquery($query, array($record_id));
     $potid = $adb->query_result($result, 0, 'potentialid');
-    $log->debug("Exiting getQuotesRelatedPotentials method ...");
     return $potid;
 }
 
@@ -981,13 +873,10 @@ function getQuotesRelatedPotentials($record_id)
 
 function getSalesOrderRelatedAccounts($record_id)
 {
-    global $log;
-    $log->debug("Entering getSalesOrderRelatedAccounts(".$record_id.") method ...");
     global $adb;
     $query = "select accountid from vtiger_salesorder where salesorderid=?";
     $result = $adb->pquery($query, array($record_id));
     $accountid = $adb->query_result($result, 0, 'accountid');
-    $log->debug("Exiting getSalesOrderRelatedAccounts method ...");
     return $accountid;
 }
 
@@ -998,13 +887,10 @@ function getSalesOrderRelatedAccounts($record_id)
 
 function getSalesOrderRelatedPotentials($record_id)
 {
-    global $log;
-    $log->debug("Entering getSalesOrderRelatedPotentials(".$record_id.") method ...");
     global $adb;
     $query = "select potentialid from vtiger_salesorder where salesorderid=?";
     $result = $adb->pquery($query, array($record_id));
     $potid = $adb->query_result($result, 0, 'potentialid');
-    $log->debug("Exiting getSalesOrderRelatedPotentials method ...");
     return $potid;
 }
 /** Function to get SalesOrder related Quotes
@@ -1014,13 +900,10 @@ function getSalesOrderRelatedPotentials($record_id)
 
 function getSalesOrderRelatedQuotes($record_id)
 {
-    global $log;
-    $log->debug("Entering getSalesOrderRelatedQuotes(".$record_id.") method ...");
     global $adb;
     $query = "select quoteid from vtiger_salesorder where salesorderid=?";
     $result = $adb->pquery($query, array($record_id));
     $qtid = $adb->query_result($result, 0, 'quoteid');
-    $log->debug("Exiting getSalesOrderRelatedQuotes method ...");
     return $qtid;
 }
 
@@ -1031,13 +914,10 @@ function getSalesOrderRelatedQuotes($record_id)
 
 function getInvoiceRelatedAccounts($record_id)
 {
-    global $log;
-    $log->debug("Entering getInvoiceRelatedAccounts(".$record_id.") method ...");
     global $adb;
     $query = "select accountid from vtiger_invoice where invoiceid=?";
     $result = $adb->pquery($query, array($record_id));
     $accountid = $adb->query_result($result, 0, 'accountid');
-    $log->debug("Exiting getInvoiceRelatedAccounts method ...");
     return $accountid;
 }
 /** Function to get Invoice related SalesOrder
@@ -1047,13 +927,10 @@ function getInvoiceRelatedAccounts($record_id)
 
 function getInvoiceRelatedSalesOrder($record_id)
 {
-    global $log;
-    $log->debug("Entering getInvoiceRelatedSalesOrder(".$record_id.") method ...");
     global $adb;
     $query = "select salesorderid from vtiger_invoice where invoiceid=?";
     $result = $adb->pquery($query, array($record_id));
     $soid = $adb->query_result($result, 0, 'salesorderid');
-    $log->debug("Exiting getInvoiceRelatedSalesOrder method ...");
     return $soid;
 }
 
@@ -1223,9 +1100,8 @@ function formatForSqlLike($str, $flag = 0, $is_field = false)
 **/
 function getAccessPickListValues($module)
 {
-    global $adb, $log;
+    global $adb;
     global $current_user;
-    $log->debug("Entering into function getAccessPickListValues($module)");
 
     $id = getTabid($module);
     $query = "select fieldname,columnname,fieldid,fieldlabel,tabid,uitype from vtiger_field where tabid = ? and uitype in ('15','33','55') and vtiger_field.presence in (0,2)";
@@ -1280,7 +1156,6 @@ function getAccessPickListValues($module)
             $fieldlists[$keyvalue] = $fieldvalues;
         }
     }
-    $log->debug("Exit from function getAccessPickListValues($module)");
 
     return $fieldlists;
 }
@@ -1360,21 +1235,18 @@ function transferCurrency($old_cur, $new_cur)
 // Function to transfer the users with currency $old_cur to $new_cur as currency
 function transferUserCurrency($old_cur, $new_cur)
 {
-    global $log, $adb, $current_user;
-    $log->debug("Entering function transferUserCurrency...");
+    global $adb, $current_user;
 
     $sql = "update vtiger_users set currency_id=? where currency_id=?";
     $adb->pquery($sql, array($new_cur, $old_cur));
 
     $current_user->retrieve_entity_info($current_user->id, "Users");
-    $log->debug("Exiting function transferUserCurrency...");
 }
 
 // Function to transfer the products with currency $old_cur to $new_cur as currency
 function transferProductCurrency($old_cur, $new_cur)
 {
-    global $log, $adb;
-    $log->debug("Entering function updateProductCurrency...");
+    global $adb;
     $prod_res = $adb->pquery("select productid from vtiger_products where currency_id = ?", array($old_cur));
     $numRows = $adb->num_rows($prod_res);
     $prod_ids = array();
@@ -1392,15 +1264,13 @@ function transferProductCurrency($old_cur, $new_cur)
             $adb->pquery($query, $params);
         }
     }
-    $log->debug("Exiting function updateProductCurrency...");
 }
 
 // Function to transfer the pricebooks with currency $old_cur to $new_cur as currency
 // and to update the associated products with list price in $new_cur currency
 function transferPriceBookCurrency($old_cur, $new_cur)
 {
-    global $log, $adb;
-    $log->debug("Entering function updatePriceBookCurrency...");
+    global $adb;
     $pb_res = $adb->pquery("select pricebookid from vtiger_pricebook where currency_id = ?", array($old_cur));
     $numRows = $adb->num_rows($pb_res);
     $pb_ids = array();
@@ -1421,8 +1291,6 @@ function transferPriceBookCurrency($old_cur, $new_cur)
             $focus->save("PriceBooks");
         }
     }
-
-    $log->debug("Exiting function updatePriceBookCurrency...");
 }
 
 /**
@@ -1434,7 +1302,7 @@ function transferPriceBookCurrency($old_cur, $new_cur)
   */
 function getCallerInfo($number)
 {
-    global $adb, $log;
+    global $adb;
     if (empty($number)) {
         return false;
     }
@@ -1459,101 +1327,6 @@ function getCallerInfo($number)
     }
     return false;
 }
-
-/**
- * this function returns the value of use_asterisk from the database for the current user
- * @param string $id - the id of the current user
- */
-function get_use_asterisk($id)
-{
-    global $adb;
-    if (!vtlib_isModuleActive('PBXManager') || isPermitted('PBXManager', 'index') == 'no') {
-        return false;
-    }
-    $sql = "select * from vtiger_asteriskextensions where userid = ?";
-    $result = $adb->pquery($sql, array($id));
-    if ($adb->num_rows($result) > 0) {
-        $use_asterisk = $adb->query_result($result, 0, "use_asterisk");
-        $asterisk_extension = $adb->query_result($result, 0, "asterisk_extension");
-        if ($use_asterisk == 0 || empty($asterisk_extension)) {
-            return 'false';
-        } else {
-            return 'true';
-        }
-    } else {
-        return 'false';
-    }
-}
-
-/**
- * this function adds a record to the callhistory module
- *
- * @param string $userExtension - the extension of the current user
- * @param string $callfrom - the caller number
- * @param string $callto - the called number
- * @param string $status - the status of the call (outgoing/incoming/missed)
- * @param object $adb - the peardatabase object
-  */
-function addToCallHistory($userExtension, $callfrom, $callto, $status, $adb, $useCallerInfo)
-{
-    $sql = "select * from vtiger_asteriskextensions where asterisk_extension=?";
-    $result = $adb->pquery($sql, array($userExtension));
-    $userID = $adb->query_result($result, 0, "userid");
-    if (empty($userID)) {
-        // we have observed call to extension not configured in Vtiger will returns NULL
-        return;
-    }
-    if (empty($callfrom)) {
-        $callfrom = "Unknown";
-    }
-    if (empty($callto)) {
-        $callto = "Unknown";
-    }
-
-    if ($status == 'outgoing') {
-        //call is from user to record
-        $sql = "select * from vtiger_asteriskextensions where asterisk_extension=?";
-        $result = $adb->pquery($sql, array($callfrom));
-        if ($adb->num_rows($result) > 0) {
-            $userid = $adb->query_result($result, 0, "userid");
-            $callerName = getUserFullName($userid);
-        }
-
-        $receiver = $useCallerInfo;
-        if (empty($receiver)) {
-            $receiver = "Unknown";
-        } else {
-            $receiver = "<a href='index.php?module=".$receiver['module']."&action=DetailView&record=".$receiver['id']."'>".$receiver['name']."</a>";
-        }
-    } else {
-        //call is from record to user
-        $sql = "select * from vtiger_asteriskextensions where asterisk_extension=?";
-        $result = $adb->pquery($sql, array($callto));
-        if ($adb->num_rows($result) > 0) {
-            $userid = $adb->query_result($result, 0, "userid");
-            $receiver = getUserFullName($userid);
-        }
-        $callerName = $useCallerInfo;
-        if (empty($callerName)) {
-            $callerName = "Unknown $callfrom";
-        } else {
-            $callerName = "<a href='index.php?module=".$callerName['module']."&action=DetailView&record=".$callerName['id']."'>".decode_html($callerName['name'])."</a>";
-        }
-    }
-
-    $crmID = $adb->getUniqueID('vtiger_crmentity');
-    $timeOfCall = date('Y-m-d H:i:s');
-
-    $query = "INSERT INTO vtiger_crmentity (crmid,smcreatorid,smownerid,modifiedby,setype,description,createdtime,
-			modifiedtime,viewedtime,status,version,presence,deleted,label) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-    $adb->pquery($query, array($crmID, $userID, $userID, 0, "PBXManager", "", $timeOfCall, $timeOfCall, null, null, 0, 1, 0, $callerName));
-
-    $sql = "insert into vtiger_pbxmanager (pbxmanagerid,callfrom,callto,timeofcall,status)values (?,?,?,?,?)";
-    $params = array($crmID, $callerName, $receiver, $timeOfCall, $status);
-    $adb->pquery($sql, $params);
-    return $crmID;
-}
-//functions for asterisk integration end
 
 /* Function to get the related tables data
  * @param - $module - Primary module name
@@ -1606,8 +1379,6 @@ function getRelationTables($module, $secmodule)
   */
 function DeleteEntity($module, $return_module, $focus, $record, $return_id)
 {
-    global $log;
-    $log->debug("Entering DeleteEntity method ($module, $return_module, $record, $return_id)");
 
     if ($module != $return_module && !empty($return_module) && !empty($return_id)) {
         $focus->unlinkRelationship($record, $return_module, $return_id);
@@ -1615,7 +1386,6 @@ function DeleteEntity($module, $return_module, $focus, $record, $return_id)
     } else {
         $focus->trash($module, $record);
     }
-    $log->debug("Exiting DeleteEntity method ...");
 }
 
 /**
@@ -1643,7 +1413,7 @@ $_installOrUpdateVtlibModule = array();
   */
 function installVtlibModule($packagename, $packagepath, $customized = false)
 {
-    global $log, $Vtiger_Utils_Log, $_installOrUpdateVtlibModule;
+    global $Vtiger_Utils_Log, $_installOrUpdateVtlibModule;
     if (!file_exists($packagepath)) {
         return;
     }
@@ -1676,19 +1446,11 @@ function installVtlibModule($packagename, $packagepath, $customized = false)
 
     $module_exists = false;
     $module_dir_exists = false;
-    if ($module == null) {
-        $log->fatal("$packagename Module zipfile is not valid!");
-    } elseif (Vtiger_Module::getInstance($module)) {
-        $log->fatal("$module already exists!");
+    if (Vtiger_Module::getInstance($module)) {
         $module_exists = true;
     }
     if ($module_exists == false) {
-        $log->debug("$module - Installation starts here");
         $package->import($packagepath, true);
-        $moduleInstance = Vtiger_Module::getInstance($module);
-        if (empty($moduleInstance)) {
-            $log->fatal("$module module installation failed!");
-        }
     }
 }
 
@@ -1698,7 +1460,7 @@ function installVtlibModule($packagename, $packagepath, $customized = false)
  */
 function updateVtlibModule($module, $packagepath)
 {
-    global $log, $_installOrUpdateVtlibModule;
+    global $_installOrUpdateVtlibModule;
     if (!file_exists($packagepath)) {
         return;
     }
@@ -1720,16 +1482,12 @@ function updateVtlibModule($module, $packagepath)
         return;
     }
 
-    if ($module == null) {
-        $log->fatal("Module name is invalid");
-    } else {
+    if ($module != null) {
         $moduleInstance = Vtiger_Module::getInstance($module);
         if ($moduleInstance || $package->isModuleBundle($packagepath)) {
-            $log->debug("$module - Module instance found - Update starts here");
             $package->update($moduleInstance, $packagepath);
         } else {
             //crm-now: try fallback method and install module instead
-            $log->debug("$module didn't exist!");
             unset($_installOrUpdateVtlibModule[$module.$packagepath]);
             installVtlibModule($module, $packagepath);
         }
@@ -1797,8 +1555,6 @@ function isRecordExists($recordId)
   */
 function getValidDBInsertDateValue($value)
 {
-    global $log;
-    $log->debug("Entering getValidDBInsertDateValue(".$value.") method ...");
     $value = trim($value);
     $delim = array('/','.');
     foreach ($delim as $delimiter) {
@@ -1832,7 +1588,6 @@ function getValidDBInsertDateValue($value)
         return '';
     }
 
-    $log->debug("Exiting getValidDBInsertDateValue method ...");
     return $insert_date;
 }
 
@@ -1955,37 +1710,37 @@ function sanitizeFilename($filename) {
 
     // List of invalid characters to be replaced or removed
     $invalidChars = ['\\', '/', ':', '*', '?', '"', '<', '>', '|', "\0"];
-    
+
     // Replace invalid characters with an underscore
     $filename = str_replace($invalidChars, '_', $filename);
-    
+
     // Replace multiple spaces with a single underscore
     $filename = preg_replace('/\s+/', '_', $filename);
-    
+
     // Remove non-printable control characters
     $filename = preg_replace('/[[:cntrl:]]/', '', $filename);
-    
+
     // Trim leading and trailing dots
     $filename = trim($filename, '.');
-    
+
     // Reduce multiple underscores to a single underscore
     $filename = preg_replace('/_+/', '_', $filename);
-    
+
     // Ensure the filename is not empty
     if (empty($filename)) {
         // default_filename
         $filename = 'org';
     }
-    
+
     // Limit filename length to 255 characters
     $filename = substr($filename, 0, 255);
-    
+
     // Check for reserved names (Windows-specific)
     $reservedNames = ['CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'];
     if (in_array(strtoupper($filename), $reservedNames)) {
         $filename = 'file_' . $filename;
     }
-    
+
     return $filename;
 }
 
@@ -2133,6 +1888,25 @@ function getCurrencyDecimalPlaces()
     }
 }
 
+/**
+ * Round a monetary value to the configured currency precision.
+ *
+ * Monetary components must be rounded before they are added to document totals;
+ * otherwise sub-cent values can make the displayed tax and grand total differ.
+ */
+function roundCurrencyValue($value, $decimalPlaces = null)
+{
+    if (!is_numeric($value)) {
+        return 0.0;
+    }
+
+    if ($decimalPlaces === null) {
+        $decimalPlaces = getCurrencyDecimalPlaces();
+    }
+
+    return round((float) $value, (int) $decimalPlaces, PHP_ROUND_HALF_UP);
+}
+
 function getInventoryModules()
 {
     $inventoryModules = array('Invoice','Quotes','PurchaseOrder','SalesOrder');
@@ -2145,21 +1919,15 @@ function getInventoryModules()
  */
 function initUpdateVtlibModule($module, $packagepath)
 {
-    global $log;
     require_once('vtlib/Vtiger/Package.php');
     require_once('vtlib/Vtiger/Module.php');
     $Vtiger_Utils_Log = true;
     $package = new Vtiger_Package();
 
-    if ($module == null) {
-        $log->fatal("Module name is invalid");
-    } else {
+    if ($module != null) {
         $moduleInstance = Vtiger_Module::getInstance($module);
         if ($moduleInstance) {
-            $log->debug("$module - Module instance found - Init Update starts here");
             $package->initUpdate($moduleInstance, $packagepath, true);
-        } else {
-            $log->fatal("$module doesn't exists!");
         }
     }
 }
@@ -2520,7 +2288,7 @@ if (!function_exists('set_magic_quotes_runtime')) {
 
 function crmnow_login_protection($usr_name, $login_tries)
 {
-    global $adb, $log;
+    global $adb;
     $usr_name = trim($usr_name);
 
     /* added for brute force protection */
@@ -2534,7 +2302,6 @@ function crmnow_login_protection($usr_name, $login_tries)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;';
     $result = $adb->pquery($query, array());
     if (!$result) {
-        $log->warn("MySQL error: creating berli_failed_logins");
         return false;
     }
 
@@ -2555,14 +2322,12 @@ function crmnow_login_protection($usr_name, $login_tries)
     $ip_addr = (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'];
     $result = $adb->pquery($query, array($usr_name, $ip_addr, $ip_addr));
     if (!$result) {
-        $log->warn("MySQL error: (".$query.")");
         return false;
     }
 
     $query = "SELECT `failed_count` FROM `berli_failed_logins` WHERE `user_name`=?;";
     $result = $adb->pquery($query, array($usr_name));
     if (!$result) {
-        $log->warn("MySQL error: (".$query.")");
         return false;
     }
 
@@ -2572,7 +2337,6 @@ function crmnow_login_protection($usr_name, $login_tries)
         $query = "UPDATE vtiger_users SET status = ?, date_modified=? WHERE user_name = ?;";
         $result = $adb->pquery($query, array('Inactive',$adb->formatDate($date_var, true), $usr_name));
         if (!$result) {
-            $log->warn("MySQL error: (".$query.")");
             return false;
         }
         return false;

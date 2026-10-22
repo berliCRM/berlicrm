@@ -22,10 +22,10 @@ abstract class Vtiger_Basic_View extends Vtiger_Footer_View {
 		parent::__construct();
 	}
 
-	function preProcess (Vtiger_Request $request, $display=true) {
-		parent::preProcess($request, false);
+	public function preProcess(Vtiger_Request $request, bool $display = true): void {
+	parent::preProcess($request, false);
 
-                $viewer = $this->getViewer($request);
+        $viewer = $this->getViewer($request);
 
 		$menuModelsList = Vtiger_Menu_Model::getAll(true);
 		$selectedModule = $request->getModule();
@@ -49,6 +49,8 @@ abstract class Vtiger_Basic_View extends Vtiger_Footer_View {
 		$viewer->assign('MENU_SELECTED_MODULENAME', $selectedModule);
 		$viewer->assign('MENU_TOPITEMS_LIMIT', $menuStructure->getLimit());
 		$viewer->assign('COMPANY_LOGO',$companyLogo);
+		$viewer->assign('CUSTOM_LOGO_LINK', $companyDetails->getLogoLink());
+		$viewer->assign('CUSTOM_LOGO_LINK_TARGET', $companyDetails->getLogoLinkTarget());
 		$viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
 
 		$homeModuleModel = Vtiger_Module_Model::getInstance('Home');
@@ -62,7 +64,7 @@ abstract class Vtiger_Basic_View extends Vtiger_Footer_View {
 		}
 	}
 
-	protected function preProcessTplName(Vtiger_Request $request) {
+	protected function preProcessTplName(Vtiger_Request $request): string {
 		return 'BasicHeader.tpl';
 	}
 
@@ -72,8 +74,8 @@ abstract class Vtiger_Basic_View extends Vtiger_Footer_View {
 		return parent::preProcessTplName($request);
 	}*/
 
-	function postProcess(Vtiger_Request $request){
-		$viewer = $this->getViewer($request);
+	public function postProcess(Vtiger_Request $request): void {
+	$viewer = $this->getViewer($request);
 		//$viewer->assign('GUIDERSJSON', Vtiger_Guider_Model::toJsonList($this->getGuiderModels($request)));
 		parent::postProcess($request);
 	}
@@ -83,7 +85,7 @@ abstract class Vtiger_Basic_View extends Vtiger_Footer_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request): array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 
@@ -117,7 +119,7 @@ abstract class Vtiger_Basic_View extends Vtiger_Footer_View {
 		return $headerScriptInstances;
 	}
 
-	public function getHeaderCss(Vtiger_Request $request) {
+	public function getHeaderCss(Vtiger_Request $request): array {
 		$headerCssInstances = parent::getHeaderCss($request);
 
 		$cssFileNames = array(

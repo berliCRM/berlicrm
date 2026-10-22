@@ -33,8 +33,6 @@ class DateTimeField {
 	 * @returns $insert_date -- insert_date :: Type string
 	 */
 	function getDBInsertDateValue($user = null) {
-		global $log;
-		$log->debug("Entering getDBInsertDateValue(" . $this->datetime . ") method ...");
 		$value = explode(' ', $this->datetime);
 		if (count($value) == 2) {
 			$value[0] = self::convertToUserFormat($value[0]);
@@ -47,7 +45,6 @@ class DateTimeField {
 		} else {
 			$insert_date = self::convertToDBFormat($value[0]);
 		}
-		$log->debug("Exiting getDBInsertDateValue method ...");
 		return $insert_date;
 	}
 
@@ -236,23 +233,16 @@ class DateTimeField {
 	 * @returns $insert_date -- insert_date :: Type string
 	 */
 	function getDBInsertTimeValue($user = null) {
-		global $log;
-		$log->debug("Entering getDBInsertTimeValue(" . $this->datetime . ") method ...");
 		$date = self::convertToDBTimeZone($this->datetime, $user);
-		$log->debug("Exiting getDBInsertTimeValue method ...");
 		return $date->format("H:i:s");
 	}
 
 	/**
 	 * This function returns the date in user specified format.
-	 * @global type $log
 	 * @global Users $current_user
 	 * @return string
 	 */
 	function getDisplayDate( $user = null ) {
-		global $log;
-		$log->debug("Entering getDisplayDate(" . $this->datetime . ") method ...");
-
 		$date_value = explode(' ',$this->datetime);
 		if (isset ($date_value[1]) && $date_value[1] != '') {
 			$date = self::convertToUserTimeZone($this->datetime, $user);
@@ -260,16 +250,12 @@ class DateTimeField {
 		}
 
 		$display_date = self::convertToUserFormat($date_value, $user);
-		$log->debug("Exiting getDisplayDate method ...");
 		return $display_date;
 	}
 
 	function getDisplayTime( $user = null ) {
-		global $log;
-		$log->debug("Entering getDisplayTime(" . $this->datetime . ") method ...");
 		$date = self::convertToUserTimeZone($this->datetime, $user);
 		$time = $date->format("H:i:s");
-		$log->debug("Exiting getDisplayTime method ...");
         
         //Convert time to user preferred value
                 $userModel = Users_Privileges_Model::getCurrentUserModel();
@@ -280,11 +266,8 @@ class DateTimeField {
 	}
     
      function getFullcalenderTime( $user = null ) {
-		global $log;
-		$log->debug("Entering getDisplayTime(" . $this->datetime . ") method ...");
 		$date = self::convertToUserTimeZone($this->datetime, $user);
 		$time = $date->format("H:i:s");
-		$log->debug("Exiting getDisplayTime method ...");
         return $time;
 	}
 

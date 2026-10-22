@@ -26,6 +26,7 @@ $languageStrings = array(
 	'Target Budget' => 'Target budget',
 	'Project Url' => 'Project URL',
 	'Progress' => 'Progress',
+	'Add Project Task' => 'Add Project Task',
         'LBL_MILESTONES_LIST'          => 'Milestones List'             , 
         'LBL_TASKS_HIGH'               => 'High Priority'               , 
         'LBL_TASKS_NORMAL'             => 'Normal Priority'             , 

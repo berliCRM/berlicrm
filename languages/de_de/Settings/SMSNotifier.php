@@ -13,12 +13,14 @@ $languageStrings = array(
 	'LBL_ADD_CONFIGURATION' => 'Neue Konfiguration',
 	'LBL_EDIT_CONFIGURATION' => 'Konfiguration bearbeiten',
 	'LBL_SELECT_ONE' => 'einen auswählen',
+	'LBL_SERVER_CONFIG' => 'Server Konfiguration', 
 	
 	//Fields
 	'providertype' => 'Lieferant',
 	'isactive' => 'aktiv',
 	'username' => 'Nutzername',
 	'password' => 'Passwort',
+	'countryprefix' => 'Ländervorwahl',
 	
 	//List View
 	'Provider' => 'Lieferant',
@@ -29,5 +31,5 @@ $languageStrings = array(
 $jsLanguageStrings = array(
 	'LBL_DELETE_CONFIRMATION' => 'Sind Sie sicher?',
 	'JS_RECORD_DELETED_SUCCESSFULLY' => 'SMS Lieferant erfolgreich gelöscht',
-	'JS_CONFIGURATION_SAVED' => 'SMS Provider Konfigurations gespeichert',
+	'JS_CONFIGURATION_SAVED' => 'SMS Provider Konfigurationen gespeichert',
 );	

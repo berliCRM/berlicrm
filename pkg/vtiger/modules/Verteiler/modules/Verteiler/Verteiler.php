@@ -89,8 +89,7 @@ class Verteiler extends Vtiger_CRMEntity {
     * returns related Contacts record in array format
     */
 	function get_contacts($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule;
-		$log->debug("Entering get_contacts(".$id.") method ...");
+		global $singlepane_view,$currentModule;
 		$this_module = $currentModule;
         
         
@@ -116,7 +115,6 @@ class Verteiler extends Vtiger_CRMEntity {
 				WHERE vtiger_verteilercontrel.verteilerid = ".$id." AND vtiger_crmentity.deleted=0";
 
 		$return_value = GetRelatedList($this_module, $related_module, $other, $query, $button, $returnset);
-		$log->debug("Exiting get_contacts method ...");
 		return $return_value;
     }
     

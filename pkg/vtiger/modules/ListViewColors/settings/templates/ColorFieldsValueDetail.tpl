@@ -11,6 +11,27 @@
  * *********************************************************************************************************************************** */
 -->*}
 {strip}
+<style>
+	.listViewColorInput {
+		width: 185px;
+		height: 20px;
+		padding: 0;
+		border: 1px solid #b8b8b8;
+		border-radius: 0;
+		box-shadow: none;
+		background: transparent;
+		cursor: pointer;
+	}
+	.listViewColorInput::-webkit-color-swatch-wrapper {
+		padding: 0;
+	}
+	.listViewColorInput::-webkit-color-swatch {
+		border: 0;
+	}
+	.listViewColorInput::-moz-color-swatch {
+		border: 0;
+	}
+</style>
 {assign var = defaultListViewColor value = $FIELDMODEL->getDefaulListViewColor()}
 {assign var = picklistcontents value = $FIELDMODEL->get('coloredlistfields')}
 <br>
@@ -35,9 +56,9 @@
 			<td class="fieldValue medium">
 				<div class="colordisplay" style="display: inline-block;">
 					{if $CONTENT['listcolor'] neq ''}
-					<input id="colorSelectorValueid_{$CONTENT['picklistvalueid']}" data-recordvalue="{$CONTENT['fieldcontent']}" name="picklistid_{$FIELDMODEL->get('id')}" style="background-color:{$CONTENT['listcolor']};" type="text" value="{$CONTENT['listcolor']}" size="6" maxlength="6">
+					<input class="listViewColorInput" id="colorSelectorValueid_{$CONTENT['picklistvalueid']}" data-recordvalue="{$CONTENT['fieldcontent']}" name="picklistid_{$FIELDMODEL->get('id')}" type="color" value="{$CONTENT['listcolor']}">
 					{else}
-					<input id="colorSelectorValueid_{$CONTENT['picklistvalueid']}" data-recordvalue="{$CONTENT['fieldcontent']}" name="picklistid_{$FIELDMODEL->get('id')}" style="background-color:{$defaultListViewColor};" type="text" value="{$CONTENT['listcolor']}" size="6" maxlength="6">
+					<input class="listViewColorInput" id="colorSelectorValueid_{$CONTENT['picklistvalueid']}" data-recordvalue="{$CONTENT['fieldcontent']}" name="picklistid_{$FIELDMODEL->get('id')}" type="color" value="{$defaultListViewColor}">
 					{/if}
 				</div>
 				<div class="" id="removecolor" style="display: inline-block;">

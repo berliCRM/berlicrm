@@ -1,5 +1,5 @@
 <?php
-/************************************************************************************************************************************************************ 
+/**
 Description: Set Product Relation
 Update Document Relations for given Document id and related ids
   Parameters:
@@ -10,12 +10,15 @@ Update Document Relations for given Document id and related ids
     - array('relids'=>list of relids as provided)
   Comments:
     - this function respects the vtiger CRM profile privilege system and returns only entities accessible by the user accessing the REST functionality
+  @berli-openapi-begin
+  {"summary":"Update product relations","description":"Adds the supplied relations to a Product and optionally removes existing accessible relations not present in the request.","tags":["Relations"],"parameters":{"productid":{"required":true,"description":"Product webservice ID.","example":"6x100"},"relids":{"required":true,"description":"JSON array of related record webservice IDs.","example":"[\"12x345\",\"3x100\"]"},"preserve":{"required":false,"description":"Keep existing relations not supplied by this request.","example":"true","default":"true"}},"result":{"schema":{"type":"object","required":["relids"],"properties":{"relids":{"type":"array","items":{"type":"string"}}}},"example":{"relids":["12x345","3x100"]}}}
+  @berli-openapi-end
 Copyright (C) crm-now GmbH
 All Rights Reserved.
 ************************************************************************************************************************************************************ */
 
 function vtws_update_product_relations($productid, $relids, $preserve='true') {
-	global $log, $adb, $current_user;
+	global $adb, $current_user;
 	if (!isset($preserve) || $preserve == "" || strtolower($preserve) == "true") {
 		$preserve=true;
 	}
@@ -29,7 +32,7 @@ function vtws_update_product_relations($productid, $relids, $preserve='true') {
 
 	require_once $handlerPath;
   
-	$handler = new $handlerClass($webserviceObject, $current_user, $adb, $log);
+	$handler = new $handlerClass($webserviceObject, $current_user, $adb);
 	$meta = $handler->getMeta();
 	$entityName = $meta->getObjectEntityName($productid);
 	//crm-now: careful, 5.2.1 doesn't have the argument up front

@@ -11,7 +11,7 @@
 
 class Users_ChangePassword_View extends Vtiger_Basic_View {
     
-    public function preProcess (Vtiger_Request $request, $display=true) {
+    public function preProcess (Vtiger_Request $request, $display=true):void {
 		parent::preProcess($request, false);
         
 		$viewer = $this->getViewer($request);
@@ -39,7 +39,8 @@ class Users_ChangePassword_View extends Vtiger_Basic_View {
 	}
     
     
-    protected function preProcessDisplay(Vtiger_Request $request) {}
+    protected function preProcessDisplay(Vtiger_Request $request):void {
+	}
 	
 	public function process(Vtiger_Request $request) {
 		$viewer = $this->getViewer($request);

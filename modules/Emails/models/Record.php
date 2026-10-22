@@ -132,6 +132,15 @@ class Emails_Record_Model extends Vtiger_Record_Model {
      */
     public function send() {
         $currentUserModel = Users_Record_Model::getCurrentUserModel();
+		// if there is no user (e.g. password reset) use admin and revert later
+		if (empty($currentUserModel->getId())) {
+			global $current_user;
+			$current_user = Users::getActiveAdminUser();
+			$currentUserModel = Users_Record_Model::getCurrentUserModel();
+			$changedUser = true;
+		} else {
+			$changedUser = false;
+		}
         $rootDirectory =  vglobal('root_directory');
         // add slash should it be missing
         if (substr($rootDirectory, -1) != '/') {
@@ -156,7 +165,7 @@ class Emails_Record_Model extends Vtiger_Record_Model {
         $mailer = Emails_Mailer_Model::getInstance();
         $mailer->IsHTML(true);
 
-        // EmailConfigurator //crm-now: added to support FROM selection 
+        // EmailConfigurator //crm-now: added to support FROM selection
         $fromEmail = '';
         $replyTo = '';
         $userName = '';
@@ -165,11 +174,11 @@ class Emails_Record_Model extends Vtiger_Record_Model {
             $fromEmail = $this->getFromEmailAddress();
             if (empty($fromEmail)) {
                 $replyTo = $currentUserModel->get('email1');
+				$userName = $currentUserModel->getName();
             }
             else {
                 $replyTo = $fromEmail;
             }
-            $userName = $currentUserModel->getName();
         }
         else {
             $fromEmail = $fromMailAddress;
@@ -192,8 +201,8 @@ class Emails_Record_Model extends Vtiger_Record_Model {
         }
 
         // To eliminate the empty value of an array
-        $toEmailInfo = array_filter($this->get('toemailinfo'));
-        $toMailNamesList = array_filter($this->get('toMailNamesList'));
+        $toEmailInfo = array_filter((array)$this->get('toemailinfo'));
+        $toMailNamesList = array_filter((array)$this->get('toMailNamesList'));
         foreach($toMailNamesList as $id => $emailData){
             foreach($emailData as $key => $email){
                 if($toEmailInfo[$id]){
@@ -377,6 +386,9 @@ class Emails_Record_Model extends Vtiger_Record_Model {
                 $db->pquery($mtQuery, array(NULL, $subject, $allReveivers, $cDT, $currentUserModel->getId(), $id, $errorMsg, $messageId));
             }
         }
+		if ($changedUser) {
+			unset($current_user);
+		}
         return $status;
     }
 
@@ -385,18 +397,22 @@ class Emails_Record_Model extends Vtiger_Record_Model {
      * @return <String> - from email address
      */
     function getFromEmailAddress() {
-        $db = PearDatabase::getInstance();
-        $currentUserModel = Users_Record_Model::getCurrentUserModel();
+		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'Save' && isset($_REQUEST['server'])) {
+			$fromEmail = $_REQUEST['from_email_field'];
+		} else {
+			$db = PearDatabase::getInstance();
+			$currentUserModel = Users_Record_Model::getCurrentUserModel();
 
-        $fromEmail = false;
-        $result = $db->pquery('SELECT from_email_field FROM vtiger_systems WHERE server_type=?', array('email'));
-        if ($db->num_rows($result)) {
-            $fromEmail = decode_html($db->query_result($result, 0, 'from_email_field'));
-        }
-        if (isset($this->fromAddress) && !empty($this->fromAddress) && empty($fromEmail)) {
-            $fromEmail = $this->fromAddress;
-        }
-        if (empty($fromEmail)) $fromEmail = $currentUserModel->get('email1');
+			$fromEmail = false;
+			$result = $db->pquery('SELECT from_email_field FROM vtiger_systems WHERE server_type=?', array('email'));
+			if ($db->num_rows($result)) {
+				$fromEmail = decode_html($db->query_result($result, 0, 'from_email_field'));
+			}
+			if (isset($this->fromAddress) && !empty($this->fromAddress) && empty($fromEmail)) {
+				$fromEmail = $this->fromAddress;
+			}
+			if (empty($fromEmail)) $fromEmail = $currentUserModel->get('email1');
+		}
         return $fromEmail;
     }
 

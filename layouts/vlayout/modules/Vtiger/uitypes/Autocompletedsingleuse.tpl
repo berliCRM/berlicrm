@@ -10,10 +10,10 @@
  ********************************************************************************/
 -->*}
 {strip}
-{assign var="FIELD_INFO" value=Vtiger_Util_Helper::toSafeHTML(Zend_Json::encode($FIELD_MODEL->getFieldInfo()))}
+{assign var="FIELD_INFO" value=Vtiger_Util_Helper::toSafeHTML(json_encode($FIELD_MODEL->getFieldInfo()))}
 {assign var="SPECIAL_VALIDATOR" value=$FIELD_MODEL->getValidator()}
 {assign var="FIELD_NAME" value=$FIELD_MODEL->get('name')}
 <input name="popupReferenceModule" type="hidden" value="Picklist">
 <input id="{$MODULE}_editView_fieldName_{$FIELD_NAME}" type="text" placeholder="{vtranslate('LBL_TYPE_SEARCH')}" class="input-large {if $FIELD_MODEL->isNameField()}nameField{/if} autoComplete ui-autocomplete-input" data-validation-engine="validate[{if $FIELD_MODEL->isMandatory() eq true}required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" name="{$FIELD_MODEL->getFieldName()}" value="{$FIELD_MODEL->get('fieldvalue')}" data-fieldname="{$FIELD_NAME}" data-fielduitype="{$FIELD_MODEL->get('uitype')}" data-recordid="{$smarty.get.record}"
-{if $FIELD_MODEL->isReadOnly()} readonly {/if} data-fieldinfo='{$FIELD_INFO}' {if !empty($SPECIAL_VALIDATOR)}data-validator={Zend_Json::encode($SPECIAL_VALIDATOR)}{/if}>
+{if $FIELD_MODEL->isReadOnly()} readonly {/if} data-fieldinfo='{$FIELD_INFO}' {if !empty($SPECIAL_VALIDATOR)}data-validator={json_encode($SPECIAL_VALIDATOR)}{/if}>
 {/strip}

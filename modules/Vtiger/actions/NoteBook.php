@@ -37,7 +37,7 @@ class Vtiger_NoteBook_Action extends Vtiger_Action_Controller {
 		$dataValue['contents'] = $noteBookContent;
 		$dataValue['lastSavedOn'] = $date;
 		
-		$data = Zend_Json::encode((object) $dataValue);
+		$data = json_encode((object) $dataValue);
 
 		$query="INSERT INTO vtiger_module_dashboard_widgets(linkid, userid, filterid, title, data) VALUES(?,?,?,?,?)";
 		$params= array($linkId,$userModel->getId(),0,$noteBookName,$data);
@@ -53,7 +53,8 @@ class Vtiger_NoteBook_Action extends Vtiger_Action_Controller {
 		
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
-            $request->validateWriteAccess(); 
-        }
+	public function validateRequest(Vtiger_Request $request):bool { 
+		return $request->validateWriteAccess(); 
+	}
 }
+?>

@@ -125,7 +125,8 @@ class Emails_Module_Model extends Vtiger_Module_Model{
 							$recordLabel = implode(" ", $arr_recordLabel);
 							$emailsResult[vtranslate($moduleName, $moduleName)][$row[$moduleInstance->table_index]][]
 								= array('value'	=> $emailFieldValue,
-										'label'	=> $recordLabel . ' <b>('.$emailFieldValue.')</b>');
+										'label'	=> $recordLabel . ' <b>('.$emailFieldValue.')</b>',
+										'relModule' => $moduleName);
 							//found one matching instance, no need to check other fields
 							break;
 						}

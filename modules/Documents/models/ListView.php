@@ -135,6 +135,18 @@ class Documents_ListView_Model extends Vtiger_ListView_Model {
         if(empty($searchParams)) {
             $searchParams = array();
         }
+
+		// The unfiltered default list can use the existing notes primary key to
+		// return the newest documents without sorting the complete notes table.
+		// Keep the regular query plan for folder filters, searches, custom-view
+		// conditions and explicitly requested sorting.
+		$usePrimaryDocumentOrder = empty($folderValue)
+				&& empty($searchParams)
+				&& count($queryGenerator->getWhereFields()) === 0
+				&& empty($this->get('src_module'))
+				&& empty($this->get('search_key'))
+				&& empty($this->getForSql('orderby'))
+				&& empty($this->getForSql('sortorder'));
         
         $glue = "";
         if(count($queryGenerator->getWhereFields()) > 0 && (count($searchParams)) > 0) {
@@ -151,14 +163,15 @@ class Documents_ListView_Model extends Vtiger_ListView_Model {
         
         $orderBy = $this->getForSql('orderby');
 		$sortOrder = $this->getForSql('sortorder');
+		$orderByFieldModel = false;
 
 		//List view will be displayed on recently created/modified records
 		if(empty($orderBy) && empty($sortOrder) && $moduleName != "Users"){
-			$orderBy = 'modifiedtime';
+			$orderBy = $usePrimaryDocumentOrder ? 'vtiger_notes.notesid' : 'modifiedtime';
 			$sortOrder = 'DESC';
 		}
 
-        if(!empty($orderBy)){
+        if(!empty($orderBy) && !$usePrimaryDocumentOrder){
             $columnFieldMapping = $moduleModel->getColumnFieldMapping();
             $orderByFieldName = $columnFieldMapping[$orderBy];
             $orderByFieldModel = $moduleModel->getField($orderByFieldName);
@@ -176,6 +189,15 @@ class Documents_ListView_Model extends Vtiger_ListView_Model {
 			} 
 		} 
 		$listQuery = $this->getQuery();
+		if ($usePrimaryDocumentOrder) {
+			$listQuery = preg_replace('/^\s*SELECT\s+/i', 'SELECT STRAIGHT_JOIN ', $listQuery, 1);
+			$listQuery = preg_replace(
+				'/\bFROM\s+vtiger_notes\b/i',
+				'FROM vtiger_notes FORCE INDEX (`PRIMARY`)',
+				$listQuery,
+				1
+			);
+		}
 
 		$sourceModule = $this->get('src_module');
 		if(!empty($sourceModule)) {

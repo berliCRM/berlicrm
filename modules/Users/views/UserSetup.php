@@ -10,8 +10,7 @@
 
 class Users_UserSetup_View extends Vtiger_Index_View {
 
-	public function preProcess(Vtiger_Request $request, $display=false) {
-		return true;
+	public function preProcess(Vtiger_Request $request, $display=false):void {
 	}
 
 	public function process(Vtiger_Request $request) {
@@ -53,8 +52,7 @@ class Users_UserSetup_View extends Vtiger_Index_View {
 		}
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return true;
+	function postProcess(Vtiger_Request $request):void {
 	}
 
 }

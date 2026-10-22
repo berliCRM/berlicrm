@@ -66,8 +66,8 @@
                         </div>
                         </li>
                     </ul>
-                    <input type="hidden" class="ModulesListArray" value='{ZEND_JSON::encode($ModulesList)}' />
-                    <input type="hidden" class="RemovedModulesListArray" value='{ZEND_JSON::encode($removedModuleIds)}' />
+                    <input type="hidden" class="ModulesListArray" value='{json_encode($ModulesList)}' />
+                    <input type="hidden" class="RemovedModulesListArray" value='{json_encode($removedModuleIds)}' />
                 </div>
                 <div class="span6">
                     <button class="btn btn-success saveRelatedList fontBold" type="button" disabled="disabled">{vtranslate('LBL_SAVE', $QUALIFIED_MODULE)}</button>

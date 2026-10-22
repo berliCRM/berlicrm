@@ -59,8 +59,10 @@ class Search {
 		$blockid = getSettingsBlockId('LBL_OTHER_SETTINGS');
 		$seq_res = $db->pquery("SELECT max(sequence) AS max_seq FROM vtiger_settings_field WHERE blockid = ?", array($blockid));
 		if ($db->num_rows($seq_res) > 0) {
-			$cur_seq = $db->query_result($seq_res, 0, 'max_seq');
-			if ($cur_seq != null)	$seq = $cur_seq + 1;
+			$cur_seq = (int)$db->query_result($seq_res, 0, 'max_seq');
+			if ($cur_seq != null){
+				$seq = $cur_seq + 1;
+			}
 		}
 
 		$result=$db->pquery('SELECT 1 FROM vtiger_settings_field WHERE name=?',array($this->LBL_SEARCH));
@@ -83,24 +85,18 @@ class Search {
      * To delete Settings link
     */
     function removeSettingsLinks(){
-		global $log;
 		$db = PearDatabase::getInstance();
         $db->pquery('DELETE FROM vtiger_settings_field WHERE name=?', array($this->LBL_SEARCH));
-        $log->fatal('Settings Field Removed');
-        
     }
     function disableSearchHandler(){
-		global $log;
 		$db = PearDatabase::getInstance();
         $db->pquery('Update vtiger_eventhandlers set is_active = 0 WHERE handler_class=?', array('Settings_Search_RecordSearchLabelUpdater_Handler'));
     }
     function activateSearchHandler(){
-		global $log;
 		$db = PearDatabase::getInstance();
         $db->pquery('Update vtiger_eventhandlers set is_active = 1 WHERE handler_class=?', array('Settings_Search_RecordSearchLabelUpdater_Handler'));
     }
     function removeSearchHandler(){
-		global $log;
 		$db = PearDatabase::getInstance();
         $db->pquery('Delete from vtiger_eventhandlers WHERE handler_class=?', array('Settings_Search_RecordSearchLabelUpdater_Handler'));
     }

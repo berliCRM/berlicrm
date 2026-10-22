@@ -8,6 +8,11 @@
  * All Rights Reserved.
  *************************************************************************************/
 
+/**
+ * @berli-openapi-begin
+ * {"summary":"Log out of the REST API","description":"Destroys the supplied authenticated webservice session.","tags":["Authentication"],"parameters":{"sessionName":{"required":true,"description":"Session identifier returned by login; send the same value used for authentication.","example":"abcdef123456"}},"result":{"schema":{"type":"object","required":["message"],"properties":{"message":{"type":"string","enum":["successful"]}}},"example":{"message":"successful"}}}
+ * @berli-openapi-end
+ */
 function vtws_logout($sessionId,$user){
         global $adb;
         $sql = "select type from vtiger_ws_operation where name=?";

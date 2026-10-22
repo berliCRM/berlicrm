@@ -13,12 +13,13 @@ include_once 'includes/runtime/Viewer.php';
 class Mobile_UI_Viewer extends Vtiger_Viewer{
 
 	private $parameters = array();
-	function assign($key, $value) {
+	function assign($key, $value = null, $nocache = false, $scope = null) {
 		$this->parameters[$key] = $value;
 	}
 
 	function viewController() {
 		$smarty = new Vtiger_Viewer();
+		$smarty->registerSmartyPlugins();
 
 		foreach($this->parameters as $k => $v) {
 			$smarty->assign($k, $v);

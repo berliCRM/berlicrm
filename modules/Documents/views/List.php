@@ -13,13 +13,13 @@ class Documents_List_View extends Vtiger_List_View {
 		parent::__construct();
 	}
 	
-	function preProcess (Vtiger_Request $request, $display=false) {
+	function preProcess (Vtiger_Request $request, bool $display=false): void {
 		$viewer = $this->getViewer ($request);
 		$moduleName = $request->getModule();
 
 		$documentModuleModel = Vtiger_Module_Model::getInstance($moduleName);
 		$defaultCustomFilter = $documentModuleModel->getDefaultCustomFilter();
-		$folderList = Documents_Module_Model::getAllFolders();
+		$folderList = Documents_Module_Model::getAllFolders(true);
 
 		$viewer->assign('DEFAULT_CUSTOM_FILTER_ID', $defaultCustomFilter);
 		$viewer->assign('FOLDERS', $folderList);

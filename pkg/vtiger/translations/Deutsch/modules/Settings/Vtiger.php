@@ -122,7 +122,6 @@ $languageStrings = array(
     'LBL_OUTGOING_SERVER_NOTE' => 'Hinweis: Der Mail Server sollte das SSL oder TLS Protokoll unterstützen. Wenn das  "von E-Mail" Feld leer bleibt, wird die E-Mail Adresse als Absender genutzt, welche bei dem jeweiligen CRM Nutzer eingetragen wurde.',
 	'LBL_OUTGOING_SERVER' => 'E-Mail Server Einstellungen',
 	'LBL_PASSWORD' => 'Passwort',
-	'LBL_PBXMANAGER' => 'PBX Manager',
 	'LBL_PICKLIST_DEPENDENCY_DESCRIPTION' => 'Einstellungen von Auswahllistenabhängigkeiten für jedes Modul vornehmen',
 	'LBL_PICKLIST_DEPENDENCY_SETUP' => 'verkettete Auswahllisten',
 	'LBL_PICKLIST_DESCRIPTION' => 'Einstellung der Abhängigkeiten für verkettete Auswahllisten für jedes Modul',

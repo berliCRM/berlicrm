@@ -25,26 +25,31 @@ class Settings_Vtiger_CreateoAuthLink_Action extends Settings_Vtiger_Basic_Actio
 			$type = $request->get('type');
 			if ($provider == 'AZURE') {
 				if (class_exists('TheNetworg\OAuth2\Client\Provider\Azure')) {
-					require_once 'modules/Settings/Vtiger/models/ConfigoAuth.php';
-					$settingsoAuth = Settings_Vtiger_oAuth::getInstance($type);
-					$oAuthDetails = $settingsoAuth->getData();
-					$scopes = ['offline_access',
-					   'https://outlook.office.com/SMTP.Send'
-					];
-					$provider = new Azure([
-					'clientId'               => $oAuthDetails['client_id'],
-					'clientSecret'           => $oAuthDetails['client_secret'],
-					'tenant'                 => $oAuthDetails['tenant_id'],
-					'redirectUri'            => $site_URL.'OAuth2-Mail/callback.php',
-					'defaultEndPointVersion' => Azure::ENDPOINT_VERSION_2_0,
-					'scopes'                 => $scopes
-					]);
-					$authUrl = $provider->getAuthorizationUrl([
-						'scope' => $scopes
-					]);
-					$request->set('hidden_csrf_state', $provider->getState());
-					$settingsoAuth->save($request);
-					$response->setResult($authUrl);
+					try {
+						require_once 'modules/Settings/Vtiger/models/ConfigoAuth.php';
+						$settingsoAuth = Settings_Vtiger_oAuth::getInstance($type);
+						$settingsoAuth->save($request);
+						$oAuthDetails = $settingsoAuth->getData();
+						$scopes = ['offline_access',
+						   'https://outlook.office.com/SMTP.Send'
+						];
+						$provider = new Azure([
+						'clientId'               => $oAuthDetails['client_id'],
+						'clientSecret'           => $oAuthDetails['client_secret'],
+						'tenant'                 => $oAuthDetails['tenant_id'],
+						'redirectUri'            => $site_URL.'OAuth2-Mail/callback.php',
+						'defaultEndPointVersion' => Azure::ENDPOINT_VERSION_2_0,
+						'scopes'                 => $scopes
+						]);
+						$authUrl = $provider->getAuthorizationUrl([
+							'scope' => $scopes
+						]);
+						$request->set('hidden_csrf_state', $provider->getState());
+						$settingsoAuth->save($request);
+						$response->setResult($authUrl);
+					} catch (Exception $e) {
+						$response->setError($e->getMessage());
+					}
 				}
 			} else {
 				$response->setError("Unknown provider '$provider'");

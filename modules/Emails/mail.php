@@ -43,7 +43,7 @@ function send_mail($module, $to_email, $from_name, $from_email, $subject, $conte
 		foreach($to_email AS $toMail) {
 			$toMails[] = array($toMail);
 		}
-		
+
 		$recordModel->set('subject', $subject);
 		$recordModel->set('description', $contents);
 		$recordModel->set('toemailinfo', $toMails);
@@ -51,9 +51,10 @@ function send_mail($module, $to_email, $from_name, $from_email, $subject, $conte
 		$recordModel->set('bccmail', $bcc);
 		if (!empty($from_email)) {
 			$recordModel->set('fromAddress', $from_email);
+			$recordModel->fromAddress = $from_email;
 		}
 		$recordModel->sendWithoutRelation = true;
-		
+
 		$mail_status = $recordModel->send();
 	
 	} catch (Exception $e) {
@@ -70,7 +71,6 @@ function send_mail($module, $to_email, $from_name, $from_email, $subject, $conte
 function getUserEmailId($name, $val)
 {
 	global $adb;
-	$adb->println("Inside the function getUserEmailId. --- ".$name." = '".$val."'");
 	if($val != '')
 	{
 		//done to resolve the PHP5 specific behaviour
@@ -85,12 +85,10 @@ function getUserEmailId($name, $val)
 				$email = $adb->query_result($res,0,'secondaryemail ');
 			}
 		}
-		$adb->println("Email id is selected  => '".$email."'");
 		return $email;
 	}
 	else
 	{
-		$adb->println("User id is empty. so return value is ''");
 		return '';
 	}
 }
@@ -124,10 +122,8 @@ function getDefaultAssigneeEmailIds($groupId) {
 			}
 			array_push($emails,$email);
 		}
-		$adb->println("Email ids are selected  => '".$emails."'");
 		return $emails;
 	} else {
-		$adb->println("User id is empty. so return value is ''");
 		return array();
 	}
 }

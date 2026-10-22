@@ -28,12 +28,9 @@
 		</div>
 	</div>
 </div>
-<div class="alert ui-pnotify-container alert-info ui-pnotify-shadow" style="min-height: 16px;" id="copied">
-    <div class="ui-pnotify-closer" style="cursor: pointer; visibility: hidden;">
-        <span class="icon-remove"></span>
-    </div>
-    <div class="ui-pnotify-sticker" style="cursor: pointer; visibility: hidden; display: none;">
-        <span class="icon-pause"></span>
+<div class="alert ui-pnotify-container alert-info ui-pnotify-shadow" style="min-height: 16px; display: none;" id="copied">
+    <div class="ui-pnotify-closer" style="cursor: pointer">
+        <span class="icon-remove" id="close-copied"></span>
     </div>
     <div class="ui-pnotify-text">{vtranslate('LBL_TEXT_COPIED', $MODULE)}</div>
 </div>

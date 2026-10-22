@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  *************************************************************************************/
-require_once('libraries/magpierss/rss_fetch.inc');
+require_once('modules/Rss/models/RssHandler.php');
 
 class Rss_Save_Action extends Vtiger_Save_Action {
 
@@ -16,9 +16,13 @@ class Rss_Save_Action extends Vtiger_Save_Action {
 		$moduleName = $request->getModule();
         $url = $request->get('feedurl');
         $recordModel = Rss_Record_Model::getCleanInstance($moduleName);
-        $result = $recordModel->validateRssUrl($url);
-        
-        if($result) {
+
+        // $result = $recordModel->validateRssUrl($url);
+
+        $rssModel = new Rss_RssHandler_Model();
+        $result = $rssModel->handleRss($url);
+
+        if($rssModel->isSuccess($result)) {
             $recordModel->save($url);
             $response->setResult(array('success' => true, 'message' => vtranslate('JS_RSS_SUCCESSFULLY_SAVED', $moduleName), 'id' => $recordModel->getId()));
         } else {

@@ -29,13 +29,8 @@
 	require_once("include/Webservices/OperationManager.php");
 	require_once("include/Webservices/SessionManager.php");
 	require_once("include/Zend/Json.php");
-	require_once('include/logging.php');
 
 	$API_VERSION = "0.22";
-
-	global $seclog,$log;
-	$seclog =& LoggerManager::getLogger('SECURITY');
-	$log =& LoggerManager::getLogger('webservice');
 
 	function getRequestParamsArrayForOperation($operation){
 		global $operationInput;
@@ -62,6 +57,13 @@
             case WebServiceErrorCode::$ACCESSDENIED:
                 header("HTTP/1.0 403 Forbidden");
                 break;
+			case WebServiceErrorCode::$RECORDNOTFOUND:
+                header("HTTP/1.0 404 Not Found");
+                break;
+			case WebServiceErrorCode::$METHODNOTALLOWED:
+				header("Allow: ".$operationManager->type);
+                header("HTTP/1.0 405 Method Not Allowed");
+                break;
             default:
                 header("HTTP/1.0 400 Bad Request");
         }
@@ -78,6 +80,11 @@
 	function writeOutput($operationManager, $data){
 
 		setResponseHeaders();
+		// OpenAPI tooling expects the specification object at the document root.
+		if (strcasecmp($operationManager->operationName, 'describeapi') === 0) {
+			echo $operationManager->encode($data);
+			return;
+		}
 		$state = new State();
 		$state->success = true;
 		$state->result = $data;

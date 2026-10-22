@@ -24,23 +24,26 @@ class Vtiger_DocumentsFileUpload_UIType extends Vtiger_Base_UIType {
 	 * @return <String>
 	 */
 	public function getDisplayValue($value, $recordId=false, $recordModel=false) {
-		if($recordModel) {
+		$displayValue = parent::getDisplayValue($value, $recordId, $recordModel);
+		if($recordModel && !empty($value)) {
 			$fileLocationType = $recordModel->get('filelocationtype');
 			$fileStatus = $recordModel->get('filestatus');
-			if(!empty($value) && $fileStatus) {
+			if($fileStatus) {
 				if($fileLocationType == 'I') {
-					$db = PearDatabase::getInstance();
-					$fileIdRes = $db->pquery('SELECT attachmentsid FROM vtiger_seattachmentsrel WHERE crmid = ?', array($recordId));
-					$fileId = $db->query_result($fileIdRes, 0, 'attachmentsid');
-					if($fileId){
-						$value = '<a href="index.php?module=Documents&action=DownloadFile&record='.$recordId.'&fileid='.$fileId.'"'.
-									' title="'.	vtranslate('LBL_DOWNLOAD_FILE', 'Documents').'" >'.$value.'</a>';
+					if($recordModel->isDownloadAvailable()) {
+						$downloadUrl = parent::getDisplayValue($recordModel->getDownloadFileURL());
+						$downloadTitle = parent::getDisplayValue(vtranslate('LBL_DOWNLOAD_FILE', 'Documents'));
+						return '<a href="'.$downloadUrl.'" title="'.$downloadTitle.'">'.$displayValue.'</a>';
 					}
-				} else {
-					$value = '<a href="'.$value.'" target="_blank" title="'. vtranslate('LBL_DOWNLOAD_FILE', 'Documents').'" >'.$value.'</a>';
+
+					$notAvailableTitle = parent::getDisplayValue(vtranslate('LBL_FILE_NOT_AVAILABLE', 'Documents'));
+					return '<span title="'.$notAvailableTitle.'">'.$displayValue.'</span>';
+				} elseif($fileLocationType == 'E' && $recordModel->isDownloadAvailable()) {
+					$downloadTitle = parent::getDisplayValue(vtranslate('LBL_DOWNLOAD_FILE', 'Documents'));
+					return '<a href="'.$displayValue.'" target="_blank" title="'.$downloadTitle.'">'.$displayValue.'</a>';
 				}
 			}
 		}
-		return $value;
+		return $displayValue;
 	}
 }

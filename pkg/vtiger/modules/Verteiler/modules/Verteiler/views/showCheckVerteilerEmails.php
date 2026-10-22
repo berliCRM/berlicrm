@@ -12,7 +12,7 @@ require_once('include/utils/utils.php');
 
 class Verteiler_showCheckVerteilerEmails_View extends Vtiger_View_Controller {
 
-	function loginRequired() {
+	function loginRequired(): bool {
 		return true;
 	}
 
@@ -30,7 +30,7 @@ class Verteiler_showCheckVerteilerEmails_View extends Vtiger_View_Controller {
 		}
 	}
 
-	function preProcess(Vtiger_Request $request, $display = true) {
+	function preProcess(Vtiger_Request $request, bool $display = true): void {
 	}
 
 	public function process(Vtiger_Request $request) {

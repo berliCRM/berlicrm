@@ -20,4 +20,4 @@ $jsLanguageStrings = array(
 	'JS_SIGN_OUT' => 'Abmeldezeit',
 	'JS_STATUS' => 'Status',
 	'JS_ROLE' => 'Rolle',
-);	
+);

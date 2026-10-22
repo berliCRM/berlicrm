@@ -185,6 +185,8 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
 		$parentModule = $this->getParentRecordModel()->getModule();
 		$relationModule = $this->getRelationModel()->getRelationModuleModel();
 		$relationModuleName = $relationModule->get('name');
+		$this->moduleFieldInstances = $relationModule->getFields();
+		$supportedColorUITypes = Settings_ListViewColors_IndexAjax_View::getSupportedUITypes();
 		$relatedColumnFields = $relationModule->getConfigureRelatedListFields();
 		if(count($relatedColumnFields) <= 0){
 			$relatedColumnFields = $relationModule->getRelatedListFields();
@@ -251,7 +253,7 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
 						$pos = stripos($query,' WHERE ');
 						$selectAndFromClause = substr($query, 0, $pos);
 						$whereCondition = substr($query, $pos);
-						
+
 						$relTableName = 'vtiger_attachmentsfolder';
 						$selectAndFromClause .= " LEFT JOIN {$relTableName} AS {$relTableName}{$fieldName} ON {$relTableName}{$fieldName}.{$fieldName} = {$filterFieldModel->get('table')}.{$fieldName}";
 						$query = $selectAndFromClause.$whereCondition;
@@ -305,40 +307,38 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
 				}
 		}
 
-		$limitQuery = $query .' LIMIT '.$startIndex.','.$pageLimit;
+		$limitQuery = $query .' LIMIT '.$startIndex.','.($pageLimit + 1);
 		$result = $db->pquery($limitQuery, array());
+		$numberOfRows = $db->num_rows($result);
+		$numberOfRowsToRender = min($numberOfRows, $pageLimit);
 		$relatedRecordList = array();
 		$currentUser = Users_Record_Model::getCurrentUserModel();
 		$groupsIds = Vtiger_Util_Helper::getGroupsIdsForUsers($currentUser->getId());
-		for($i=0; $i< $db->num_rows($result); $i++ ) {
+		for($i=0; $i < $numberOfRowsToRender; $i++ ) {
 			$row = $db->fetch_row($result,$i);
             $recordId = $db->query_result($result,$i,'crmid');
 			$newRow = array();
 			foreach($row as $col=>$val){
 				if(array_key_exists($col,$relatedColumnFields)){
+					$rawValue = $val;
                    if ($relationModuleName == 'Documents' && $col == 'filename') {
                         $fileName = $db->query_result($result, $i, 'filename');
                         $downloadType = $db->query_result($result, $i, 'filelocationtype');
                         $status = $db->query_result($result, $i, 'filestatus');
-                        $fileIdQuery = "select attachmentsid from vtiger_seattachmentsrel where crmid=?";
-
-                        $fileIdRes = $db->pquery($fileIdQuery, array($recordId));
-
-                        $fileId = $db->query_result($fileIdRes, 0, 'attachmentsid');
 
                         if ($fileName != '' && $status == 1) {
                             if ($downloadType == 'I') {
 
                                 $val = '<a onclick="Javascript:Documents_Index_Js.updateDownloadCount(\'index.php?module=Documents&action=UpdateDownloadCount&record=' . $recordId . '\');"' .
-								' href="index.php?module=Documents&action=DownloadFile&record=' . $recordId . '&fileid=' . $fileId . '"' .
-								' title="' . getTranslatedString('LBL_DOWNLOAD_FILE', $relationModuleName) . '" class="pdf-link" data-pdf-preview="index.php?module=Documents&action=DownloadFile&record=' . $recordId . '&fileid=' . $fileId . '">' .
+								' href="index.php?module=Documents&action=DownloadFile&record=' . $recordId . '"' .
+								' title="' . getTranslatedString('LBL_DOWNLOAD_FILE', $relationModuleName) . '" class="pdf-link" data-pdf-preview="index.php?module=Documents&action=DownloadFile&record=' . $recordId . '">' .
 								textlength_check($val) .
                                         '</a>';
                             } elseif ($downloadType == 'E') {
                                 $val = '<a onclick="Javascript:Documents_Index_Js.updateDownloadCount(\'index.php?module=Documents&action=UpdateDownloadCount&record=' . $recordId . '\');"' .
-                                        ' href="' . $fileName . '" target="_blank"' .
-                                        ' title="' . getTranslatedString('LBL_DOWNLOAD_FILE', $relationModuleName) .
-                                        '" >' . textlength_check($val) .
+								' href="index.php?module=Documents&action=DownloadFile&record=' . $recordId . '"' .
+								' title="' . getTranslatedString('LBL_DOWNLOAD_FILE', $relationModuleName) . $recordId . '">' .
+								textlength_check($val) .
                                         '</a>';
                             } else {
                                 $val = ' --';
@@ -348,14 +348,14 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
                     $newRow[$relatedColumnFields[$col]] = $val;
 
 					$fieldName = $relatedColumnFields[$col];
-					$rawValue = $val;
-					$module = $relationModuleName;
-
-					if (!isset($this->fieldColorMap[$fieldName]) || !isset($this->fieldColorMap[$fieldName][$rawValue])) {
-						$rowListColor = Vtiger_Functions::getListViewColor($fieldName,$rawValue,$module, $this->moduleFieldInstances);
-						$this->fieldColorMap[$fieldName][$rawValue] = $rowListColor;
+					$fieldModel = isset($this->moduleFieldInstances[$fieldName]) ? $this->moduleFieldInstances[$fieldName] : null;
+					if ($fieldModel && in_array($fieldModel->get('uitype'), $supportedColorUITypes)) {
+						if (!isset($this->fieldColorMap[$fieldName]) || !isset($this->fieldColorMap[$fieldName][$rawValue])) {
+							$rowListColor = Vtiger_Functions::getListViewColor($fieldName, $rawValue, $relationModuleName, $this->moduleFieldInstances);
+							$this->fieldColorMap[$fieldName][$rawValue] = $rowListColor;
+						}
+						$newRow['fieldcolor'][] = $this->fieldColorMap[$fieldName][$rawValue];
 					}
-					$newRow['fieldcolor'][] = $this->fieldColorMap[$fieldName][$rawValue];
 
                 }
             }
@@ -390,14 +390,7 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
 			$relatedRecordList[$row['crmid']] = $record;
 		}
 		$pagingModel->calculatePageRange($relatedRecordList);
-
-		$nextLimitQuery = $query. ' LIMIT '.($startIndex+$pageLimit).' , 1';
-		$nextPageLimitResult = $db->pquery($nextLimitQuery, array());
-		if($db->num_rows($nextPageLimitResult) > 0){
-			$pagingModel->set('nextPageExists', true);
-		}else{
-			$pagingModel->set('nextPageExists', false);
-		}
+		$pagingModel->set('nextPageExists', $numberOfRows > $pageLimit);
 		return $relatedRecordList;
 	}
 
@@ -543,7 +536,7 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
 						$pos = stripos($relationQuery,' WHERE ');
 						$selectAndFromClause = substr($relationQuery, 0, $pos);
 						$whereCondition = substr($relationQuery, $pos);
-						
+
 						$relTableName = 'vtiger_attachmentsfolder';
 						$selectAndFromClause .= " LEFT JOIN {$relTableName} AS {$relTableName}{$fieldName} ON {$relTableName}{$fieldName}.{$fieldName} = {$filterFieldModel->get('table')}.{$fieldName}";
 						$relationQuery = $selectAndFromClause.$whereCondition;

@@ -7,8 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-
-vimport ('~/libraries/Smarty/libs/Smarty.class.php');
+use Smarty\Smarty;
 
 class Vtiger_Viewer extends Smarty {
 
@@ -202,6 +201,29 @@ class Vtiger_Viewer extends Smarty {
 	static function getInstance($media='') {
 		$instance = new self($media);
 		return $instance;
+	}
+
+	/**
+	 * Registers the "vtranslate" modifier plugin (if not already registered) and optionally
+	 * additional Smarty plugins (e.g. modifiers, functions) in the current instance.
+	 *
+	 * @param array $plugins  List of plugins to register:
+	 *                        Each item should be an array with keys:
+	 *                        ['type' => 'modifier', 'name' => 'xyz', 'callback' => 'func']
+	 *                        Note: 'vtranslate' will not be overwritten if already present.
+	 */
+	public function registerSmartyPlugins(array $plugins = []) {
+		if (!isset($this->registered_plugins['modifier']['vtranslate'])) {
+			$this->registerPlugin('modifier', 'vtranslate', 'vtranslate');
+		}
+		if(!empty($plugins)) {
+			foreach ($plugins as $plugin) {
+				if($plugin['type'] === 'modifier' && $plugin['name'] === 'vtranslate') {
+					continue;
+				}
+				$this->registerPlugin($plugin['type'], $plugin['name'], $plugin['callback']);
+			}
+		}
 	}
 
 }

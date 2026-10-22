@@ -13,7 +13,7 @@
 {assign var=FIELD_NAME value=$FIELD_MODEL->get('name')}
 {assign var="REFERENCE_LIST" value=$FIELD_MODEL->getReferenceList()}
 {assign var="REFERENCE_LIST_COUNT" value=count($REFERENCE_LIST)}
-{assign var="FIELD_INFO" value=Zend_Json::encode($FIELD_MODEL->getFieldInfo())}
+{assign var="FIELD_INFO" value=json_encode($FIELD_MODEL->getFieldInfo())}
 {assign var="SPECIAL_VALIDATOR" value=$FIELD_MODEL->getValidator()}
 {if {$REFERENCE_LIST_COUNT} eq 1}
 	<input name="popupReferenceModule" type="hidden" value="{$REFERENCE_LIST[0]}" />
@@ -30,7 +30,7 @@
 		<input name="popupReferenceModule" type="hidden" value="{$REFERENCE_LIST[0]}" />
 	{/if}
 {/if}
-<input name="{$FIELD_NAME}" type="hidden" value="{$FIELD_MODEL->get('fieldvalue')}" class="sourceField" data-displayvalue='{$FIELD_MODEL->getEditViewDisplayValue($FIELD_MODEL->get('fieldvalue'))}' data-fieldinfo='{$FIELD_INFO}' data-multiple='true' data-validation-engine="validate[{if $FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !empty($SPECIAL_VALIDATOR)}data-validator={Zend_Json::encode($SPECIAL_VALIDATOR)}{/if}>
+<input name="{$FIELD_NAME}" type="hidden" value="{$FIELD_MODEL->get('fieldvalue')}" class="sourceField" data-displayvalue='{$FIELD_MODEL->getEditViewDisplayValue($FIELD_MODEL->get('fieldvalue'))}' data-fieldinfo='{$FIELD_INFO}' data-multiple='true' data-validation-engine="validate[{if $FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if !empty($SPECIAL_VALIDATOR)}data-validator={json_encode($SPECIAL_VALIDATOR)}{/if}>
 {assign var="displayId" value=$FIELD_MODEL->get('fieldvalue')}
 <div class="row-fluid input-prepend input-append">
 <span class="add-on clearReferenceSelection cursorPointer">
@@ -40,7 +40,7 @@
 <input id="{$FIELD_NAME}_display" name="{$FIELD_NAME}_display" type="text" class="{if $VIEW_NAME eq 'Edit'} span7 {else} span8 {/if}	marginLeftZero autoComplete" {if !empty($displayId)}readonly="true"{/if}
  value="{$FIELD_MODEL->getEditViewDisplayValue($displayId)}" data-validation-engine="validate[{if $FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]"
  data-fieldinfo='{$FIELD_INFO}' placeholder="{vtranslate('LBL_TYPE_SEARCH',$MODULE)}"
- {if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if}/>
+ {if !empty($SPECIAL_VALIDATOR)}data-validator='{json_encode($SPECIAL_VALIDATOR)}'{/if}/>
 <span class="add-on relatedPopup cursorPointer">
 	<i class="icon-search relatedPopup" title="{vtranslate('LBL_SELECT', $MODULE)}" ></i>
 </span>
@@ -50,6 +50,6 @@
 	<i class='icon-plus' title="{vtranslate('LBL_CREATE', $MODULE)}"></i>
 </span>
 {/if}
-<input type="hidden" name="relatedContactInfo" data-value='{ZEND_JSON::encode($RELATED_CONTACTS)}' />
+<input type="hidden" name="relatedContactInfo" data-value='{json_encode($RELATED_CONTACTS)}' />
 </div>
 {/strip}

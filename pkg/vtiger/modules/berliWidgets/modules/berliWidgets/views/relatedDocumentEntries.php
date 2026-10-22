@@ -16,8 +16,8 @@ class berliWidgets_relatedDocumentEntries_View extends Vtiger_Detail_View {
      * @param Vtiger_Request $request
      * @return boolean 
      */
-    public function preProcess(Vtiger_Request $request, $display= true) {
-        return true;
+    public function preProcess(Vtiger_Request $request, $display= true):void {
+        return;
     }
 
     /**
@@ -25,8 +25,8 @@ class berliWidgets_relatedDocumentEntries_View extends Vtiger_Detail_View {
      * @param Vtiger_Request $request
      * @return boolean 
      */
-    public function postProcess(Vtiger_Request $request) {
-        return true;
+    public function postProcess(Vtiger_Request $request):void {
+        return;
     }
 
     /**

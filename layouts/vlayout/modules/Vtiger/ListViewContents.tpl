@@ -121,7 +121,7 @@
 						{elseif $LISTVIEW_HEADER->getFieldDataType() eq 'percentage'}
 							{decimalFormat($LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME))}%
 						{else}
-							{$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)} 
+							{$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)}
 							{if $LISTVIEW_HEADER->get('uitype') eq '19' or $LISTVIEW_HEADER->get('uitype') eq '21'  }
 								{if $LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME) && {$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)|trim} neq '' }
 									{assign var=RAWDATA value=$LISTVIEW_ENTRY->getRawData()}

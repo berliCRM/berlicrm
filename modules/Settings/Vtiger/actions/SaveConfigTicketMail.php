@@ -53,8 +53,9 @@ class Settings_Vtiger_SaveConfigTicketMail_Action extends Settings_Vtiger_Index_
         exit;
     }
 
-    public function validateRequest(Vtiger_Request $request) {
+	public function validateRequest(Vtiger_Request $request): bool
+    {
         // If your berliCRM doesn’t have validateWriteAccess(), remove this method.
-        $request->validateWriteAccess();
+		return $request->validateWriteAccess();
     }
 }

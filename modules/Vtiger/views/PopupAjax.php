@@ -17,12 +17,12 @@ class Vtiger_PopupAjax_View extends Vtiger_Popup_View {
 		$this->exposeMethod('getPageCount');
 	}
 
-	function preProcess(Vtiger_Request $request, $display = false) {
-		return true;
+	function preProcess(Vtiger_Request $request, $display = false):void {
+		return;
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return true;
+	function postProcess(Vtiger_Request $request):void {
+		return;
 	}
 
 	function process (Vtiger_Request $request) {

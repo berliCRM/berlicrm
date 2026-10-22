@@ -21,7 +21,6 @@
  * Contributor(s): ______________________________________..
  ********************************************************************************/
 class PurchaseOrder extends CRMEntity {
-	var $log;
 	var $db;
 
 	var $table_name = "vtiger_purchaseorder";
@@ -94,11 +93,9 @@ class PurchaseOrder extends CRMEntity {
 
 	//var $groupTable = Array('vtiger_pogrouprelation','purchaseorderid');
 	/** Constructor Function for Order class
-	 *  This function creates an instance of LoggerManager class using getLogger method
-	 *  creates an instance for PearDatabase class and get values for column_fields array of Order class.
+	 *  This function creates an instance for PearDatabase class and get values for column_fields array of Order class.
 	 */
 	function __construct() {
-		$this->log =LoggerManager::getLogger('PurchaseOrder');
 		$this->db = PearDatabase::getInstance();
 		$this->column_fields = getColumnFields('PurchaseOrder');
 	}
@@ -193,8 +190,7 @@ class PurchaseOrder extends CRMEntity {
 	 *  and sends the query and the id as arguments to renderRelatedActivities() method
 	 */
 	function get_activities($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_activities(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -234,7 +230,6 @@ class PurchaseOrder extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_activities method ...");
 		return $return_value;
 	}
 
@@ -244,8 +239,6 @@ class PurchaseOrder extends CRMEntity {
 	 */
 	function get_history($id)
 	{
-		global $log;
-		$log->debug("Entering get_history(".$id.") method ...");
 		$userNameSql = getSqlForNameInDisplayFormat(array('first_name'=>
 							'vtiger_users.first_name', 'last_name' => 'vtiger_users.last_name'), 'Users');
 		$query = "SELECT vtiger_contactdetails.lastname, vtiger_contactdetails.firstname,
@@ -267,7 +260,6 @@ class PurchaseOrder extends CRMEntity {
 		//Don't add order by, because, for security, one more condition will be added with this query in include/RelatedListView.php
 
         $returnValue = getHistory('PurchaseOrder',$query,$id);
-		$log->debug("Exiting get_history method ...");
 		return $returnValue;
 	}
 
@@ -278,9 +270,6 @@ class PurchaseOrder extends CRMEntity {
 	 */
 	function get_postatushistory($id)
 	{
-		global $log;
-		$log->debug("Entering get_postatushistory(".$id.") method ...");
-
 		global $adb;
 		global $mod_strings;
 		global $app_strings;
@@ -326,8 +315,6 @@ class PurchaseOrder extends CRMEntity {
 		}
 
 		$return_data = Array('header'=>$header,'entries'=>$entries_list);
-
-	 	$log->debug("Exiting get_postatushistory method ...");
 
 		return $return_data;
 	}
@@ -420,7 +407,6 @@ class PurchaseOrder extends CRMEntity {
 
 	// Function to unlink an entity with given Id from another entity
 	function unlinkRelationship($id, $return_module, $return_id) {
-		global $log;
 		if(empty($return_module) || empty($return_id)) return;
 
 		if($return_module == 'Vendors') {
@@ -475,9 +461,7 @@ class PurchaseOrder extends CRMEntity {
 	*/
 	function create_export_query($where)
 	{
-		global $log;
 		global $current_user;
-		$log->debug("Entering create_export_query(".$where.") method ...");
 
 		include("include/utils/ExportUtils.php");
 
@@ -510,7 +494,6 @@ class PurchaseOrder extends CRMEntity {
 			$query .= " where ".$where_auto;
 		}
 
-		$log->debug("Exiting create_export_query method ...");
 		return $query;
 	}
 

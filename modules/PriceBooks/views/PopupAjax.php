@@ -17,12 +17,12 @@ class PriceBooks_PopupAjax_View extends PriceBooks_Popup_View {
 		$this->exposeMethod('getPageCount');
 	}
 
-	function preProcess(Vtiger_Request $request) {
-		return true;
+	function preProcess(Vtiger_Request $request, bool $display=false):void {
+		return;
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return true;
+	function postProcess(Vtiger_Request $request):void {
+		return;
 	}
 
 	function process (Vtiger_Request $request) {

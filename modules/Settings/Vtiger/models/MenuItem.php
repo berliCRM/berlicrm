@@ -124,7 +124,11 @@ class Settings_Vtiger_MenuItem_Model extends Vtiger_Base_Model {
             return ("$query_params[parent]:$query_params[module]");
         }
 
-        return $query_params[module];
+		if($query_params['parenttab']) {
+			return ("$query_params[parenttab]:$query_params[module]");
+		}
+
+        return $query_params['module'];
     }
     /**
 	 *  Function to get the pin and unpin action url
@@ -252,6 +256,7 @@ class Settings_Vtiger_MenuItem_Model extends Vtiger_Base_Model {
 		$skipMenuItemList = array('LBL_AUDIT_TRAIL', 'LBL_SYSTEM_INFO', 'LBL_PROXY_SETTINGS', 'LBL_DEFAULT_MODULE_VIEW',
 								'LBL_FIELDFORMULAS', 'LBL_FIELDS_ACCESS', 'LBL_MAIL_MERGE', 'NOTIFICATIONSCHEDULERS',
 								'INVENTORYNOTIFICATION', 'ModTracker', 'LBL_WORKFLOW_LIST','LBL_TOOLTIP_MANAGEMENT','Webforms Configuration Editor');
+        if (!Settings_Vtiger_Backup_Model::isEnabled()) { $skipMenuItemList[] = 'LBL_BACKUP'; }
 
 		$db = PearDatabase::getInstance();
 		$sql = 'SELECT * FROM '.self::$itemsTable;
@@ -298,6 +303,7 @@ class Settings_Vtiger_MenuItem_Model extends Vtiger_Base_Model {
 		$skipMenuItemList = array('LBL_AUDIT_TRAIL', 'LBL_SYSTEM_INFO', 'LBL_PROXY_SETTINGS', 'LBL_DEFAULT_MODULE_VIEW',
 								'LBL_FIELDFORMULAS', 'LBL_FIELDS_ACCESS', 'LBL_MAIL_MERGE', 'NOTIFICATIONSCHEDULERS',
 								'INVENTORYNOTIFICATION', 'ModTracker', 'LBL_WORKFLOW_LIST','LBL_TOOLTIP_MANAGEMENT','Webforms Configuration Editor');
+        if (!Settings_Vtiger_Backup_Model::isEnabled()) { $skipMenuItemList[] = 'LBL_BACKUP'; }
 		
         $db = PearDatabase::getInstance();
         

@@ -10,7 +10,7 @@
 
 class Settings_Workflows_DeleteAjax_Action extends Settings_Vtiger_Index_Action {
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$qualifiedModule = $request->getModule(false);
 		$recordId = $request->get('record');
 
@@ -25,7 +25,7 @@ class Settings_Workflows_DeleteAjax_Action extends Settings_Vtiger_Index_Action 
 		$response->emit();
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
-            $request->validateWriteAccess(); 
+        public function validateRequest(Vtiger_Request $request):bool { 
+            return $request->validateWriteAccess(); 
         }
 }

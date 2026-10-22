@@ -13,6 +13,7 @@ jQuery.Class("Settings_Vtiger_ConfigEditor_Js",{},{
 	 * Function to save the Configuration Editor content
 	 */
 	saveConfigEditor : function(form) {
+		var thisInstance = this;
 		var aDeferred = jQuery.Deferred();
 		
 		var data = form.serializeFormData();
@@ -29,6 +30,9 @@ jQuery.Class("Settings_Vtiger_ConfigEditor_Js",{},{
 		}
 		AppConnector.request(params).then(
 			function(data) {
+				if (data.success && data.result && data.result.logoLink) {
+					thisInstance.updateLogoLink(data.result.logoLink);
+				}
 				aDeferred.resolve(data);
 			},
 			function(error,err){
@@ -36,6 +40,22 @@ jQuery.Class("Settings_Vtiger_ConfigEditor_Js",{},{
 			}
 		);
 		return aDeferred.promise();
+	},
+
+	updateLogoLink : function(logoLink) {
+		jQuery('.commonActionsContainer .companyLogo').each(function() {
+			var logo = jQuery(this).find('img');
+			if (logo.parent().is('a')) {
+				logo.unwrap();
+			}
+			if (logoLink.url) {
+				var link = jQuery('<a>').attr('href', logoLink.url);
+				if (logoLink.target === '_blank') {
+					link.attr({'target': '_blank', 'rel': 'noopener noreferrer'});
+				}
+				logo.wrap(link);
+			}
+		});
 	},
 	
 	/*
@@ -202,6 +222,44 @@ Vtiger_WholeNumberGreaterThanZero_Validator_Js("Vtiger_NumberRange5_Validator_Js
 			var fieldValue = this.getFieldValue();
 			if (fieldValue < 1 || fieldValue > 5) {
 				var errorInfo = app.vtranslate('JS_PLEASE_ENTER_NUMBER_IN_RANGE_1TO5');
+				this.setError(errorInfo);
+				return false;
+			}
+			return true;
+		}
+	}
+});
+
+Vtiger_WholeNumberGreaterThanZero_Validator_Js("Vtiger_NumberRange500_Validator_Js",{
+
+	/**
+	 * Function which invokes field validation
+	 * @param accepts field element as parameter
+	 * @return error if validation fails true on success
+	 */
+	invokeValidation: function(field, rules, i, options){
+		var rangeInstance = new Vtiger_NumberRange500_Validator_Js();
+		rangeInstance.setElement(field);
+		var response = rangeInstance.validate();
+		if(response != true){
+			return rangeInstance.getError();
+		}
+	}
+
+},{
+	/**
+	 * Function to validate the maximum upload size in MB
+	 * @return true if validation is successful
+	 * @return false if validation fails
+	 */
+	validate: function(){
+		var response = this._super();
+		if(response != true){
+			return response;
+		}else{
+			var fieldValue = this.getFieldValue();
+			if (fieldValue < 1 || fieldValue > 500) {
+				var errorInfo = app.vtranslate('JS_PLEASE_ENTER_NUMBER_IN_RANGE_1TO500');
 				this.setError(errorInfo);
 				return false;
 			}

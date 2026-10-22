@@ -10,7 +10,7 @@
  ********************************************************************************/
 -->*}
 {strip}
-    {assign var="FIELD_INFO" value=Zend_Json::encode($FIELD_MODEL->getFieldInfo())}
+    {assign var="FIELD_INFO" value=json_encode($FIELD_MODEL->getFieldInfo())}
     {assign var=SEARCH_VALUES value=$SEARCH_INFO['searchValue']}
     <div class="row-fluid">
     <select class="select2 listSearchContributor" name="{$FIELD_MODEL->get('name')}" style="width:90px;" data-fieldinfo='{$FIELD_INFO|escape}'>

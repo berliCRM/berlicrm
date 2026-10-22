@@ -19,7 +19,7 @@ include_once 'modules/Settings/MailConverter/handlers/MailAttachmentMIME.php';
 
 class MailManager_showContactSearchOverlay_View extends Vtiger_Edit_View {
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$db = PearDatabase::getInstance();
 		$viewer = $this->getViewer ($request);
 		//get all contacts

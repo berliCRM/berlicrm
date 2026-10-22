@@ -31,11 +31,11 @@ class Webforms {
 				$adb->pquery('UPDATE vtiger_tab SET customized=0 WHERE name=?', array($this->LBL_WEBFORMS));
 			} else if($eventType == 'module.disabled') {
 			// TODO Handle actions when this module is disabled.
-				global $log,$adb;
+				global $adb;
 				$adb->pquery('UPDATE vtiger_settings_field SET active= 1  WHERE  name= ?',array($this->LBL_WEBFORMS));
 			} else if($eventType == 'module.enabled') {
 			// TODO Handle actions when this module is enabled.
-				global $log,$adb;
+				global $adb;
 				$adb->pquery('UPDATE vtiger_settings_field SET active= 0  WHERE  name= ?',array($this->LBL_WEBFORMS));
 			} else if($eventType == 'module.preuninstall') {
 			// TODO Handle actions when this module is about to be deleted.
@@ -54,8 +54,10 @@ class Webforms {
 			$blockid = getSettingsBlockId('LBL_OTHER_SETTINGS');
 			$seq_res = $adb->pquery("SELECT max(sequence) AS max_seq FROM vtiger_settings_field WHERE blockid = ?", array($blockid));
 			if ($adb->num_rows($seq_res) > 0) {
-				$cur_seq = $adb->query_result($seq_res, 0, 'max_seq');
-				if ($cur_seq != null)	$seq = $cur_seq + 1;
+				$cur_seq = (int)$adb->query_result($seq_res, 0, 'max_seq');
+				if ($cur_seq != null) {
+					$seq = $cur_seq + 1;
+				}
 			}
 
 			$result=$adb->pquery('SELECT 1 FROM vtiger_settings_field WHERE name=?',array($this->LBL_WEBFORMS));
@@ -91,7 +93,7 @@ class Webforms {
 
 	static function getModuleDescribe($module) {
 		if (!isset(self::$moduleDescribeCache[$module])) {
-			global $adb, $log, $current_user;
+			global $adb, $current_user;
 			self::$moduleDescribeCache[$module] = vtws_describe($module, $current_user);
 		}
 		return self::$moduleDescribeCache[$module];

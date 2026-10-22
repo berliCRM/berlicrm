@@ -90,7 +90,7 @@
                                 <div class='row-fluid {if $WORKFLOW_MODEL_OBJ->schtypeid neq 3} hide {/if}' id='scheduledWeekDay' style='padding:5px 0px;'>
                                     <div class='span2' style='position:relative;top:5px;'>{vtranslate('LBL_ON_THESE_DAYS', $QUALIFIED_MODULE)}</div>
                                     <div class='span4'>
-                                        {assign var=dayOfWeek value=Zend_Json::decode($WORKFLOW_MODEL_OBJ->schdayofweek)}
+                                        {assign var=dayOfWeek value=json_decode($WORKFLOW_MODEL_OBJ->schdayofweek, true)}
                                         <select style='width:230px;' multiple class='chosen' data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" name='schdayofweek' id='schdayofweek'>
                                             <option value="7" {if is_array($dayOfWeek) && in_array('7', $dayOfWeek)} selected {/if}>{vtranslate('LBL_DAY0', 'Calendar')}</option>
                                             <option value="1" {if is_array($dayOfWeek) && in_array('1', $dayOfWeek)} selected {/if}>{vtranslate('LBL_DAY1', 'Calendar')}</option>
@@ -107,7 +107,7 @@
                                 <div class='row-fluid {if $WORKFLOW_MODEL_OBJ->schtypeid neq 5} hide {/if}' id='scheduleMonthByDates' style="padding:5px 0px;">
                                     <div class='span2' style='position:relative;top:5px;'>{vtranslate('LBL_ON_THESE_DAYS', $QUALIFIED_MODULE)}</div>
                                     <div class='span4'>
-                                        {assign var=DAYS value=Zend_Json::decode($WORKFLOW_MODEL_OBJ->schdayofmonth)}
+                                        {assign var=DAYS value=json_decode($WORKFLOW_MODEL_OBJ->schdayofmonth, true)}
                                         <select style='width:230px;' multiple class="chosen-select" data-validation-engine="validate[required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" name='schdayofmonth' id='schdayofmonth' >
                                             {section name=foo loop=31}
                                                 <option value={$smarty.section.foo.iteration} {if is_array($DAYS) && in_array($smarty.section.foo.iteration, $DAYS)}selected{/if}>{$smarty.section.foo.iteration}</option>
@@ -122,7 +122,7 @@
                                     <div class='span6'>
                                         <div class='input-append row-fluid'>
                                             <div class='row-fluid date'>
-                                                {assign var=specificDate value=Zend_Json::decode($WORKFLOW_MODEL_OBJ->schannualdates)}
+                                                {assign var=specificDate value=json_decode($WORKFLOW_MODEL_OBJ->schannualdates, true)}
                                             {if $specificDate[0] neq ''} {assign var=specificDate1 value=DateTimeField::convertToUserFormat($specificDate[0])} {/if}
                                             <input style='width: 185px;' type="text" class="dateField" name="schdate" value="{$specificDate1}" data-date-format="{$CURRENT_USER->date_format}" data-validation-engine="validate[ required,funcCall[Vtiger_Base_Validator_Js.invokeValidation]]"/>
                                             <span class="add-on"><i class="icon-calendar"></i></span>

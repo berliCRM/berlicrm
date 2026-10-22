@@ -42,30 +42,109 @@ require_once('modules/com_vtiger_workflow/VTWorkflowUtils.php');
 
 require_once 'modules/com_vtiger_workflow/include.inc';
 
+/**
+ * Runs every ready delayed workflow task with an individual error boundary.
+ *
+ * Task execution failures are collected so the remaining ready tasks can run.
+ * Each diagnostic includes workflow, task and entity details where available.
+ *
+ * @param PearDatabase $adb Database connection.
+ * @return array<int,array<string,mixed>> Collected task error details.
+ */
 function vtRunTaskJob($adb){
 	$util = new VTWorkflowUtils();
 	$adminUser = $util->adminUser();
 	$tq = new VTTaskQueue($adb);
 	$readyTasks = $tq->getReadyTasks();
 	$tm = new VTTaskManager($adb);
+	$errors = array();
 	foreach($readyTasks as $taskDetails){
 		list($taskId, $entityId, $taskContents) = $taskDetails;
-		$task = $tm->retrieveTask($taskId);
-        //If task is not there then continue
-        if(empty($task)){
-            continue;
-        }
-		$task->setContents($taskContents);
-        $entity = VTEntityCache::getCachedEntity($entityId);
-        if(!$entity) {
-            $entity = new VTWorkflowEntity($adminUser, $entityId);
-        }
-
-		$task->doTask($entity, true);
+		$task = null;
+		try {
+			$task = $tm->retrieveTask($taskId);
+			if (empty($task)) {
+				throw new RuntimeException(vtranslate('LBL_CRON_QUEUED_TASK_MISSING', 'Settings:CronTasks'));
+			}
+			$task->setContents($taskContents);
+			$entity = VTEntityCache::getCachedEntity($entityId);
+			if (!$entity) {
+				$entity = new VTWorkflowEntity($adminUser, $entityId);
+			}
+			$task->doTask($entity, true);
+		} catch (Throwable $exception) {
+			$workflowId = ($task && isset($task->workflowId)) ? (int)$task->workflowId : null;
+			$workflowName = '';
+			$moduleName = '';
+			if ($workflowId) {
+				$workflowResult = $adb->pquery(
+					'SELECT summary, module_name FROM com_vtiger_workflows WHERE workflow_id = ?',
+					array($workflowId)
+				);
+				if ($workflowResult && $adb->num_rows($workflowResult)) {
+					$workflowName = decode_html($adb->query_result($workflowResult, 0, 'summary'));
+					$moduleName = $adb->query_result($workflowResult, 0, 'module_name');
+				}
+			}
+			$errors[] = array(
+				'phase' => 'queued_task',
+				'workflow_id' => $workflowId,
+				'workflow_name' => $workflowName,
+				'module' => $moduleName,
+				'task_id' => (int)$taskId,
+				'task_name' => ($task && isset($task->summary)) ? decode_html($task->summary) : '',
+				'entity_id' => $entityId,
+				'exception' => get_class($exception),
+				'message' => $exception->getMessage(),
+				'file' => $exception->getFile(),
+				'line' => $exception->getLine(),
+			);
+		}
 	}
+
+	return $errors;
 }
+
+/**
+ * Formats isolated workflow errors for the main cron error notification.
+ *
+ * Includes at most 100 error details and reports the number omitted. Accepts
+ * diagnostics from both the scheduler in vtigercron.php and vtRunTaskJob().
+ *
+ * @param array<int,array<string,mixed>> $errors Workflow and task errors.
+ * @return string Plain-text diagnostic summary.
+ */
+function vtFormatWorkflowCronErrors(array $errors) {
+	$lines = array(sprintf(vtranslate('LBL_CRON_WORKFLOW_ERROR_SUMMARY', 'Settings:CronTasks'), count($errors)));
+	$maximumDetails = 100;
+	foreach (array_slice($errors, 0, $maximumDetails) as $index => $error) {
+		$lines[] = '';
+		$lines[] = sprintf(vtranslate('LBL_CRON_ERROR_NUMBER', 'Settings:CronTasks'), $index + 1);
+		$lines[] = vtranslate('LBL_CRON_ERROR_PHASE', 'Settings:CronTasks').': '.$error['phase'];
+		$lines[] = vtranslate('LBL_CRON_ERROR_WORKFLOW', 'Settings:CronTasks').': '.($error['workflow_name'] !== '' ? $error['workflow_name'] : '-');
+		$lines[] = vtranslate('LBL_CRON_ERROR_WORKFLOW_ID', 'Settings:CronTasks').': '.($error['workflow_id'] !== null ? $error['workflow_id'] : '-');
+		$lines[] = vtranslate('LBL_CRON_ERROR_MODULE', 'Settings:CronTasks').': '.($error['module'] !== '' ? $error['module'] : '-');
+		$lines[] = vtranslate('LBL_CRON_ERROR_TASK', 'Settings:CronTasks').': '.($error['task_name'] !== '' ? $error['task_name'] : '-');
+		$lines[] = vtranslate('LBL_CRON_ERROR_TASK_ID', 'Settings:CronTasks').': '.($error['task_id'] !== null ? $error['task_id'] : '-');
+		$lines[] = vtranslate('LBL_CRON_ERROR_ENTITY_ID', 'Settings:CronTasks').': '.($error['entity_id'] !== '' ? $error['entity_id'] : '-');
+		$lines[] = vtranslate('LBL_CRON_ERROR_EXCEPTION', 'Settings:CronTasks').': '.$error['exception'];
+		$lines[] = vtranslate('LBL_CRON_ERROR_MESSAGE', 'Settings:CronTasks').': '.$error['message'];
+		$lines[] = vtranslate('LBL_CRON_ERROR_SOURCE', 'Settings:CronTasks').': '.$error['file'].':'.$error['line'];
+	}
+	if (count($errors) > $maximumDetails) {
+		$lines[] = '';
+		$lines[] = sprintf(vtranslate('LBL_CRON_ERROR_OMITTED', 'Settings:CronTasks'), count($errors) - $maximumDetails);
+	}
+
+	return implode("\n", $lines);
+}
+
 $adb = PearDatabase::getInstance();
-require_once 'modules/com_vtiger_workflow/WorkFlowScheduler.php';
-$workflowScheduler = new WorkFlowScheduler($adb);
-$workflowScheduler->queueScheduledWorkflowTasks();
-vtRunTaskJob($adb);
+$workflowCronErrors = array();
+$workflowScheduler = new ResilientWorkFlowScheduler($adb);
+$workflowCronErrors = array_merge($workflowCronErrors, $workflowScheduler->queueScheduledWorkflowTasksResilient());
+$workflowCronErrors = array_merge($workflowCronErrors, vtRunTaskJob($adb));
+
+if ($workflowCronErrors) {
+	throw new RuntimeException(vtFormatWorkflowCronErrors($workflowCronErrors));
+}

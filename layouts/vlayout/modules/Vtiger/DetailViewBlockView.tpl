@@ -68,7 +68,7 @@
 						{assign var="COUNTER" value=$COUNTER+1}
 					{/if}
 					<td class="fieldLabel {$WIDTHTYPE}">
-					<label class='muted pull-right marginRight10px'>{vtranslate($tax.taxlabel, $MODULE)}(%)</label>
+					<label class='muted pull-right marginRight10px'>{vtranslate($tax.taxlabel, 'Settings:Vtiger')}(%)</label>
 					</td>
 					 <td class="fieldValue {$WIDTHTYPE}">
 						 <span class="value">

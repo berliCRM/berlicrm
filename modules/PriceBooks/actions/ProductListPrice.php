@@ -35,5 +35,4 @@ class PriceBooks_ProductListPrice_Action extends Vtiger_Action_Controller {
 		$response->emit();
 	}
 }
-
 ?>

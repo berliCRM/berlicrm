@@ -10,13 +10,13 @@
 return;
 ini_set("include_path", "../");
 
-require('send_mail.php');
 require_once('config.php');
 require_once('include/utils/utils.php');
 require_once('include/utils/CommonUtils.php');
 require_once 'includes/runtime/LanguageHandler.php';
 require_once 'includes/runtime/Globals.php';
 require_once('modules/Users/Users.php');
+require_once('modules/Emails/mail.php');
 
 // Email Setup
 global $adb;
@@ -86,7 +86,7 @@ if($activevalue[0] == 1)
 
 		$mail_body = $languageStrings['Dear_Admin_tasks_not_been_completed']." ".$languageStrings['LBL_SUBJECT'].": ".$subject."<br> ".$languageStrings['LBL_ASSIGNED_TO'].": ".$assigned_user."<br>Link: ".$linkurl."<br><br>".$languageStrings['Task_sign'];
 	 	$sub = $languageStrings['Task_Not_completed'].': '.html_entity_decode($subject_short, ENT_COMPAT, 'UTF-8');
-	 	sendmail($assigned_user_mail,$emailaddress,$sub,$mail_body,$mailserver,$mailuname,$mailpwd,"",$smtp_auth);
+		send_mail('', $assigned_user_mail, '',$emailaddress, $sub, $mail_body);
 	}
 }
 
@@ -104,7 +104,7 @@ if($activevalue[0] == 1)
 		$pot_name = $myrow['potentialname'];
 		$body_content = $languageStrings['Dear_Team'].$languageStrings['Dear_Team_Time_to_Party']."<br><br>".$languageStrings['Potential_Id']." ".$pot_id;
 		$body_content .= $languageStrings['Potential_Name']." ".$pot_name."<br><br>";
-		sendmail($emailaddress,$emailaddress,$languageStrings['Big_Deal_Closed_Successfully'],$body_content,$mailserver,$mailuname,$mailpwd,"",$smtp_auth);
+		send_mail('', $emailaddress, '', $emailaddress, $languageStrings['Big_Deal_Closed_Successfully'], $body_content);
 	}
 }
 //Pending tickets
@@ -119,7 +119,7 @@ if($activevalue[0] == 1)
 	while ($myrow = $adb->fetch_array($result))
 	{
 		$ticketid = $myrow['ticket_no'];
-		sendmail($emailaddress,$emailaddress,$languageStrings['Pending_Ticket_notification'],$languageStrings['Kind_Attention'].$ticketid .$languageStrings['Thank_You_HelpDesk'],$mailserver,$mailuname,$mailpwd,"",$smtp_auth);
+		send_mail('', $emailaddress, '', $emailaddress, $languageStrings['Pending_Ticket_notification'], $languageStrings['Kind_Attention'].$ticketid .$languageStrings['Thank_You_HelpDesk']);
 	}
 }
 
@@ -135,7 +135,7 @@ $count = $adb->query_result($result,0,'count');
 //changes made to get too many tickets notification only when tickets count is greater than or equal to 5
 	if($count >= 5)
 	{
-		sendmail($emailaddress,$emailaddress,$languageStrings['Too_many_pending_tickets'],$languageStrings['Dear_Admin_too_many_tickets_pending'],$mailserver,$mailuname,$mailpwd,"",$smtp_auth);
+		send_mail('', $emailaddress, '', $emailaddress, $languageStrings['Too_many_pending_tickets'], $languageStrings['Dear_Admin_too_many_tickets_pending']);
 	}
 }
 
@@ -150,7 +150,7 @@ if($activevalue[0] == 1)
 	while ($myrow = $adb->fetch_array($result))
 	{
 		$productname=$myrow[0];
-		sendmail($emailaddress,$emailaddress,$languageStrings['Support_starting'],$languageStrings['Hello_Support'].$productname ."\n ".$languageStrings['Congratulations'],$mailserver,$mailuname,$mailpwd,"",$smtp_auth);
+		send_mail('', $emailaddress, '', $emailaddress, $languageStrings['Support_starting'], $languageStrings['Hello_Support'].$productname ."\n ".$languageStrings['Congratulations']);
 	}
 }
 
@@ -165,7 +165,7 @@ if($activevalue[0] == 1)
 	while ($myrow = $adb->fetch_array($result))
 	{
 		$productname=$myrow[0];
-		sendmail($emailaddress,$emailaddress,$languageStrings['Support_Ending_Subject'],$languageStrings['Support_Ending_Content'].$productname.$languageStrings['kindly_renew'],$mailserver,$mailuname,$mailpwd,"",$smtp_auth);
+		send_mail('', $emailaddress, '', $emailaddress, $languageStrings['Support_Ending_Subject'], $languageStrings['Support_Ending_Content'].$productname.$languageStrings['kindly_renew']);
 	}
 }
 

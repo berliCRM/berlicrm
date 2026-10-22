@@ -45,8 +45,8 @@ $languageStrings = array(
         'Weekly'=>'wöchentlich', 
         'Monthly'=>'monatlich', 
         'Quarterly'=>'vierteljährlich', 
-        'every 4 months'=>'alle 4 Monate', 
-        'Yearly'=>'jährlich', 
+        'every 4 months'=>'alle 4 Monate',
+        'Yearly'=>'jährlich',
 
         'Net 14 days' => 'Net 14 Tage',
         'Net 30 days' => 'Net 30 Tage',

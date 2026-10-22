@@ -32,7 +32,7 @@ class Settings_Workflows_ListView_Model extends Settings_Vtiger_ListView_Model {
 
 		$listFields = $module->listFields;
 		unset ($listFields['tasktitles']);
-		// it are here deleted, because it was not in the table (com_vtiger_workflows).(need set it later) 
+		// it are here deleted, because it was not in the table (com_vtiger_workflows).(need set it later)
 
 		$listQuery = "SELECT ";
 		// we need "com_vtiger_workflowtasks.summary AS tasktitles", attention, fieeld "summary" are in both tables (but means another value)
@@ -50,7 +50,7 @@ class Settings_Workflows_ListView_Model extends Settings_Vtiger_ListView_Model {
 			// the same "com_vtiger_workflowtasks.workflow_id" can occur multiple time. (it was the first BUG). So we need  " GROUP BY ".
 			// But " GROUP BY " are always set after "WHERE .. " and before " ORDER BY ". So set it later.
 			$setGroupBy = true;
-		} 
+		}
 		else{
 			$listQuery .= $module->baseTable.".".$module->baseIndex . " FROM ". $module->baseTable;
 		}
@@ -63,8 +63,8 @@ class Settings_Workflows_ListView_Model extends Settings_Vtiger_ListView_Model {
 		}
 
 		if( $setGroupBy ){
-			// " GROUP BY " are always set after "WHERE .. " and before " ORDER BY ". 
-			$listQuery .= " GROUP BY  com_vtiger_workflows.workflow_id "; 
+			// " GROUP BY " are always set after "WHERE .. " and before " ORDER BY ".
+			$listQuery .= " GROUP BY  com_vtiger_workflows.workflow_id ";
 		}
 
 		$startIndex = $pagingModel->getStartIndex();
@@ -92,7 +92,7 @@ class Settings_Workflows_ListView_Model extends Settings_Vtiger_ListView_Model {
 			$record = new $recordModelClass();
 			$module_name = $row['module_name'];
 			$tasktitles = $row['tasktitles'];
-			
+
 			//To handle translation of calendar to To Do
 			if($module_name == 'Calendar'){
 				$module_name = vtranslate('LBL_TASK', $module_name);

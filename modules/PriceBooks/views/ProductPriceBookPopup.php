@@ -30,7 +30,7 @@ class PriceBooks_ProductPriceBookPopup_View extends Vtiger_Popup_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->get('src_module');
 		$jsFileNames = array(

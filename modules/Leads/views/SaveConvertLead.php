@@ -21,7 +21,7 @@ class Leads_SaveConvertLead_View extends Vtiger_View_Controller {
 		}
 	}
 
-	public function preProcess(Vtiger_Request $request, $display=true) {
+	public function preProcess(Vtiger_Request $request, bool $display=true): void {
 	}
 
 	public function process(Vtiger_Request $request) {
@@ -104,7 +104,8 @@ class Leads_SaveConvertLead_View extends Vtiger_View_Controller {
 		$viewer->view('ConvertLeadError.tpl', $moduleName);
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
-            $request->validateWriteAccess(); 
-        }
+	public function validateRequest(Vtiger_Request $request): bool { 
+		return $request->validateWriteAccess(); 
+	}
 }
+?>

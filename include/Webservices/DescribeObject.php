@@ -24,17 +24,21 @@
  *                              only for administrators.
  *
  * @throws WebServiceException If the user may not access the entity type.
+ *
+ * @berli-openapi-begin
+ * {"summary":"Describe an entity type","description":"Returns field and capability metadata for an entity type as visible to the authenticated user.","tags":["Metadata"],"parameters":{"elementType":{"required":true,"description":"Webservice entity name.","example":"Contacts"}},"result":{"schema":{"type":"object","required":["label","name","fields"],"properties":{"label":{"type":"string"},"name":{"type":"string"},"fields":{"type":"array","items":{"type":"object","additionalProperties":true}},"inactiveFields":{"type":"array","items":{"type":"object","additionalProperties":true}}},"additionalProperties":true},"example":{"label":"Contacts","name":"Contacts","fields":[]}}}
+ * @berli-openapi-end
  */
 function vtws_describe($elementType, $user) {
 
-	global $log, $adb;
+	global $adb;
 	$webserviceObject = VtigerWebserviceObject::fromName($adb, $elementType);
 	$handlerPath = $webserviceObject->getHandlerPath();
 	$handlerClass = $webserviceObject->getHandlerClass();
 
 	require_once $handlerPath;
 
-	$handler = new $handlerClass($webserviceObject, $user, $adb, $log);
+	$handler = new $handlerClass($webserviceObject, $user, $adb);
 	$meta = $handler->getMeta();
 
 	$types = vtws_listtypes(null, $user);
@@ -78,7 +82,7 @@ function vtws_describeInactiveFields($elementType, $meta) {
 
 	if (is_object($meta) && is_callable(array($meta, 'getEffectiveTabId'))) {
 		$tabId = $meta->getEffectiveTabId();
-	} 
+	}
 	elseif (is_object($meta) && is_callable(array($meta, 'getTabId'))) {
 		$tabId = $meta->getTabId();
 	}

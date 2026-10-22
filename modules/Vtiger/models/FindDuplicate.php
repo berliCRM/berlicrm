@@ -78,10 +78,14 @@ class Vtiger_FindDuplicate_Model extends Vtiger_Base_Model {
         }
 		$rows = count($entries);
 
-		for ($i=0; $i<$rows; $i++) {
-			$row = $entries[$i];
+        $temp = [];
+        if ($rows > 0) {
+            $temp = array_slice($entries[0], 2, null, true);
+        }
+        for ($i=0; $i<$rows; $i++) {
+            $row = $entries[$i];
             if($i != 0) {
-                $slicedArray = array_slice($row, 2);
+                $slicedArray = array_slice($row, 2, null, true);
                 array_walk($temp, 'lower_array');
                 array_walk($slicedArray, 'lower_array');
                 $arrDiff = array_diff($temp, $slicedArray);
@@ -91,10 +95,12 @@ class Vtiger_FindDuplicate_Model extends Vtiger_Base_Model {
                     $groupRecordCount = 0;
                 }
                 $group = "group".$groupCount;
+            } 
+            else {
+                $group = "group0";
             }
             $fieldValues[$group][$groupRecordCount]['recordid'] = $row['recordid'];
             foreach($row as $field => $value) {
-                if($i == 0 && $field != 'recordid') $temp[$field] = $value;
                 $fieldModel = $fieldModels[$field];
                 $resultRow[$field] = $value;
             }

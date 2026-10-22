@@ -15,7 +15,7 @@
 	</div>
     <div class="container-fluid">
         <div class="row-fluid reportsDetailHeader">
-            <input type="hidden" name="date_filters" data-value='{ZEND_JSON::encode($DATE_FILTERS)}' />
+            <input type="hidden" name="date_filters" data-value='{json_encode($DATE_FILTERS)}' />
             <div class="reportHeader row-fluid">
                 <div class='span8 btn-toolbar'>
                     <h3>{$REPORT_MODEL->getName()}</h3>
@@ -48,10 +48,10 @@
 					<input type="hidden" name="folderid" value="{$REPORT_MODEL->get('folderid')}" />
 					<input type="hidden" name="reports_description" value="{$REPORT_MODEL->get('reports_description')}" />
 					<input type="hidden" name="primary_module" value="{$PRIMARY_MODULE}" />
-					<input type="hidden" name="secondary_modules" value={ZEND_JSON::encode($SECONDARY_MODULES)} />
-					<input type="hidden" name="advanced_filter" id="advanced_filter" value={ZEND_JSON::encode($ADVANCED_FILTERS)} />
+					<input type="hidden" name="secondary_modules" value={json_encode($SECONDARY_MODULES)} />
+					<input type="hidden" name="advanced_filter" id="advanced_filter" value={json_encode($ADVANCED_FILTERS)} />
 					<input type="hidden" name='groupbyfield' value={$CHART_MODEL->getGroupByField()} />
-					<input type="hidden" name='datafields' value={Zend_JSON::encode($CHART_MODEL->getDataFields())} />
+					<input type="hidden" name='datafields' value={json_encode($CHART_MODEL->getDataFields())} />
 					<input type="hidden" name='charttype' value="{$CHART_MODEL->getChartType()}" />
 
 					{assign var=RECORD_STRUCTURE value=array()}

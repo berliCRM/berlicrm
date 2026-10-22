@@ -14,6 +14,7 @@ include_once 'vtlib/Vtiger/Module.php';
 include_once 'include/Webservices/Utils.php';
 require_once 'vtlib/Vtiger/Package.php';
 require_once 'vtigerversion.php';
+require_once('modules/Install/models/InitSchema.php');
 
 
 ini_set('display_errors','on'); error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
@@ -1187,7 +1188,6 @@ echo "end basename";
 
 
 echo '<br>\n Adding UITypes for new fields ';
-require_once('modules/Install/models/InitSchema.php');
 Install_InitSchema_Model::addUITypes();
 
 /* // InitSchema::addNewFields() macht bereits das selbe, siehe dazu modules\Install\models\InitSchema.php funktion ::addNewFields().
@@ -1512,6 +1512,14 @@ if ($adb->num_rows($checked) == 0) {
     }
 }
 echo "<br>\n Install Email Configurator into Settings END ";
+
+echo "<br>\n registerCreateInvoicePdf from InitSchema START ";
+Install_InitSchema_Model::registerCreateInvoicePdf();
+echo "<br>\n registerCreateInvoicePdf from InitSchema END ";
+
+echo "<br>\n Install Webservices from InitSchema if not present START ";
+Install_InitSchema_Model::addNewWebservices();
+echo "<br>\n Install Webservices from InitSchema if not present END ";
 
 ///////////////////////////////////////////////////////////////////////////
 // on the End, we set update of Version Nummer and updates of all Modules:

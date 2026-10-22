@@ -30,8 +30,6 @@ class PopulateComboValues
 	 */
 	function insertComboValues($values, $tableName,$picklistid)
 	{
-		global $log;
-		$log->debug("Entering insertComboValues(".$values.", ".$tableName.") method ...");
 		global $adb;
 		//inserting the value in the vtiger_picklistvalues_seq for the getting uniqueID for each picklist values...
 		$i=0;
@@ -64,9 +62,6 @@ class PopulateComboValues
 
 			$i++;
 		}
-	
-
-		$log->debug("Exiting insertComboValues method ...");
 	}
 
 
@@ -76,9 +71,6 @@ class PopulateComboValues
 
 	function create_tables () 
 	{
-		global $log;
-		$log->debug("Entering create_tables () method ...");
-				
 		global $app_list_strings,$adb;
 		global $combo_strings;
 		$comboRes = $adb->query("SELECT distinct fieldname FROM vtiger_field WHERE uitype IN ('15') OR fieldname = 'salutationtype' and vtiger_field.presence in (0,2)");
@@ -110,17 +102,11 @@ class PopulateComboValues
 		{
 			$adb->pquery("update vtiger_$value set PRESENCE=0 where $value=?", array($picklistname));
 		}
-
-		$log->debug("Exiting create_tables () method ...");
-
 	}
 
 
 	function create_nonpicklist_tables ()
 	{
-		global $log;
-		$log->debug("Entering create_nonpicklist_tables () method ...");
-				
 		global $app_list_strings,$adb;
 		global $combo_strings;
 		// uitype -> 16 - Non standard picklist, 115 - User status, 83 - Tax Class
@@ -131,12 +117,9 @@ class PopulateComboValues
 			$comTab = $adb->query_result($comboRes, $i, 'fieldname');
 			$this->insertNonPicklistValues($combo_strings[$comTab."_dom"],$comTab);
 		}
-		$log->debug("Exiting create_tables () method ...");
 	}
 	function insertNonPicklistValues($values, $tableName)
 	{
-		global $log;
-		$log->debug("Entering insertNonPicklistValues(".$values.", ".$tableName.") method ...");
 		global $adb;
 		$i=0;
 		foreach ($values as $val => $cal)
@@ -153,8 +136,6 @@ class PopulateComboValues
 				$adb->pquery("insert into vtiger_$tableName values(?,?,?,?)", $params);
 				$i++;
 		}
-		$log->debug("Exiting insertNonPicklistValues method ...");
 	}
-
 }
 ?>

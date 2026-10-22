@@ -7,7 +7,8 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  *************************************************************************************/
-require_once('libraries/magpierss/rss_fetch.inc');
+// require_once('libraries/magpierss/rss_fetch.inc');
+require_once('modules/Rss/models/RssHandler.php');
 require_once('include/simplehtmldom/simple_html_dom.php');
 
 // for rss caching 
@@ -136,10 +137,23 @@ class Rss_Record_Model extends Vtiger_Record_Model {
 			$recordModel = new self();
 			$recordModel->setData($rowData);
             $recordModel->setModule($qualifiedModuleName);
-            $rss = fetch_rss(decode_html($recordModel->get('rssurl')));
-            $rss->items = $recordModel->setSenderInfo($rss->items);
-            $recordModel->setRssValues($rss);
-            $recordModel->setRssObject($rss);
+
+            $rssUrl = decode_html($recordModel->get('rssurl'));
+            $rssHandler = new Rss_RssHandler_Model($rssUrl);
+            $rssHandler->lookRssUpToDate();
+            $response = $rssHandler->loadRss($rssUrl);
+
+            if ($rssHandler->isSuccess($response)) {
+                $rssData = $rssHandler->getResult($response);
+                $rssData['channel']['item'] = $recordModel->setSenderInfo($rssData['channel']['item']);
+                $recordModel->set('rsstitle', $rssData['channel']['title'] ?? '');
+                $recordModel->set('url', $rssData['channel']['link'] ?? '');
+                $recordModel->set('rss', $rssData['channel']['item'] ?? []);
+            } else {
+                $recordModel->set('rss', []);
+                $recordModel->set('rsstitle', '');
+                $recordModel->set('url', '');
+            }
 
 			return $recordModel;
 		}
@@ -212,7 +226,9 @@ class Rss_Record_Model extends Vtiger_Record_Model {
      * @return <string> html contents of url
      */
     public function getHtmlFromUrl($url) {
-        $html = file_get_html($url);
-        return $html->innertext;
+        $rssModel = new Rss_RssHandler_Model();
+        $html = $rssModel->showRssEntry($url);
+
+        return $html['content'];
     }
 }

@@ -198,14 +198,15 @@ class Google_List_View extends Vtiger_PopupAjax_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-    public function getHeaderScripts(Vtiger_Request $request) {
+    public function getHeaderScripts(Vtiger_Request $request):array {
         $moduleName = $request->getModule();
 		return $this->checkAndConvertJsScripts(array("~libraries/bootstrap/js/bootstrap-popover.js","modules.$moduleName.resources.List"));
         
     }
     
-    public function validateRequest(Vtiger_Request $request) {
+    public function validateRequest(Vtiger_Request $request):bool {
         //don't do validation because there is a redirection from google
+        return true;
     }
 }
 

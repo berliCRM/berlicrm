@@ -153,17 +153,17 @@ class RecycleBin_Module_Model extends Vtiger_Module_Model {
 		
 		// chunk over all given id's, so that the SQL statement does not get too long ...
 		$chunkedRecordIds= array_chunk($recordIds, 500);
-		
+
 		foreach($chunkedRecordIds as $singleChunk) {
 
 			// Delete entries of attachments from vtiger_attachments and vtiger_seattachmentsrel
 			$this->deleteFiles($singleChunk);
 			$this->logDeletions($singleChunk);
-	
+
 			//Delete the records in vtiger crmentity and relatedlists.
 			$query = 'DELETE FROM vtiger_crmentity WHERE deleted = ? and crmid in('.generateQuestionMarks($singleChunk).')';
 			$db->pquery($query, array(1, $singleChunk));
-			
+
 			$query = 'DELETE FROM vtiger_relatedlists_rb WHERE entityid in('.generateQuestionMarks($singleChunk).')';
 			$db->pquery($query, array($singleChunk));
 		}

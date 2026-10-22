@@ -15,7 +15,7 @@ Class Settings_SharingAccess_IndexAjax_View extends Settings_Vtiger_IndexAjax_Vi
 		$this->exposeMethod('editRule');
 	}
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request): void{
 		$mode = $request->get('mode');
 		if(!empty($mode)) {
 			$this->invokeExposedMethod($mode, $request);
@@ -23,7 +23,7 @@ Class Settings_SharingAccess_IndexAjax_View extends Settings_Vtiger_IndexAjax_Vi
 		}
 	}
 
-	public function showRules(Vtiger_Request $request) {
+	public function showRules(Vtiger_Request $request): void{
 
 		$viewer = $this->getViewer ($request);
 		$moduleName = $request->getModule();
@@ -43,7 +43,7 @@ Class Settings_SharingAccess_IndexAjax_View extends Settings_Vtiger_IndexAjax_Vi
 		echo $viewer->view('ListRules.tpl', $qualifiedModuleName, true);
 	}
 
-	public function editRule(Vtiger_Request $request) {
+	public function editRule(Vtiger_Request $request): void{
 
 		$viewer = $this->getViewer ($request);
 		$moduleName = $request->getModule();
@@ -75,7 +75,7 @@ Class Settings_SharingAccess_IndexAjax_View extends Settings_Vtiger_IndexAjax_Vi
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request): array{
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

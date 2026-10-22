@@ -37,7 +37,7 @@ if(isset($_REQUEST["record"]) && $_REQUEST['record']!='')
 	$report_std_filter->assign("FOPTION",$FILTER_OPTION);
 
 	$rel_fields = getRelatedFieldColumns();
-	$report_std_filter->assign("REL_FIELDS",Zend_Json::encode($rel_fields));
+	$report_std_filter->assign("REL_FIELDS",json_encode($rel_fields));
 	
 	$report_std_filter->assign("CRITERIA_GROUPS",$oReport->advft_criteria);
 } else {
@@ -53,7 +53,7 @@ if(isset($_REQUEST["record"]) && $_REQUEST['record']!='')
 	$report_std_filter->assign("COLUMNS_BLOCK", $COLUMNS_BLOCK);
 	
 	$rel_fields = getRelatedFieldColumns();	
-	$report_std_filter->assign("REL_FIELDS",Zend_Json::encode($rel_fields));
+	$report_std_filter->assign("REL_FIELDS",json_encode($rel_fields));
 }
 
 /** Function to get primary columns for an advanced filter

@@ -11,9 +11,9 @@
 class Install_Index_view extends Vtiger_View_Controller {
 
 	protected $debug = false;
-	protected $viewer = null;
+	protected ?Vtiger_Viewer $viewer = null;
 
-	function loginRequired() {
+	function loginRequired():bool {
 		return false;
 	}
 
@@ -27,7 +27,7 @@ class Install_Index_view extends Vtiger_View_Controller {
 		$this->exposeMethod('Step7');
 	}
 
-	public function preProcess(Vtiger_Request $request, $display = true) {
+	public function preProcess(Vtiger_Request $request, bool $display = true):void {
 		date_default_timezone_set('Europe/London'); // to overcome the pre configuration settings
 		// Added to redirect to default module if already installed
 		$configFileName = 'config.inc.php';
@@ -66,7 +66,7 @@ class Install_Index_view extends Vtiger_View_Controller {
 		$this->Step1($request);
 	}
 
-	public function postProcess(Vtiger_Request $request) {
+	public function postProcess(Vtiger_Request $request):void {
 		$viewer = $this->getViewer($request);
 		$moduleName = $request->getModule();
 		$viewer->view('InstallPostProcess.tpl', $moduleName);
@@ -232,7 +232,7 @@ class Install_Index_view extends Vtiger_View_Controller {
 		return $application_unique_key;
 	}
 
-	public function getHeaderCss(Vtiger_Request $request) {
+	public function getHeaderCss(Vtiger_Request $request):array {
 		$moduleName = $request->getModule();
 		$parentCSSScripts = parent::getHeaderCss($request);
 		$styleFileNames = array(
@@ -244,7 +244,7 @@ class Install_Index_view extends Vtiger_View_Controller {
 		return $headerCSSScriptInstances;
 	}
 
-	public function getHeaderScripts(Vtiger_Request $request) {
+	public function getHeaderScripts(Vtiger_Request $request):array {
 		$moduleName = $request->getModule();
 		$parentScripts = parent::getHeaderScripts($request);
 		$jsFileNames = array("modules.$moduleName.resources.Index");
@@ -253,7 +253,7 @@ class Install_Index_view extends Vtiger_View_Controller {
 		return $headerScriptInstances;
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
+        public function validateRequest(Vtiger_Request $request):bool {
             return $request->validateWriteAccess(true); 
         }
 }

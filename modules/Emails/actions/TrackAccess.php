@@ -40,7 +40,7 @@ class Emails_TrackAccess_Action extends Vtiger_Action_Controller {
 		}
 	}
 
-	function validateRequest(Vtiger_Request $request) {
+	function validateRequest(Vtiger_Request $request):bool {
 		// This is a callback entry point file.
 		return true;
 	}
@@ -48,3 +48,4 @@ class Emails_TrackAccess_Action extends Vtiger_Action_Controller {
 
 $track = new Emails_TrackAccess_Action();
 $track->process(new Vtiger_Request($_REQUEST));
+?>

@@ -29,7 +29,6 @@ require_once('include/logging.php');
 require_once('data/Tracker.php');
 require_once('include/utils/utils.php');
 require_once('include/utils/UserInfoUtil.php');
-require_once("include/Zend/Json.php");
 
 class CRMEntity
 {
@@ -82,8 +81,7 @@ class CRMEntity
             die("<center>" .getTranslatedString('LBL_MANDATORY_FIELD_MISSING')."</center>");
         }
 
-        $this->db->println("TRANS saveentity starts $module");
-        $this->db->startTransaction();
+		$this->db->startTransaction();
 
 
         foreach ($this->tab_name as $table_name) {
@@ -97,8 +95,7 @@ class CRMEntity
         //Calling the Module specific save code
         $this->save_module($module);
 
-        $this->db->completeTransaction();
-        $this->db->println("TRANS saveentity ends");
+		$this->db->completeTransaction();
 
         // vtlib customization: Hook provide to enable generic module relation.
         if ($_REQUEST['createmode'] == 'link') {
@@ -116,20 +113,16 @@ class CRMEntity
         // END
     }
 
-    /**
-     *      This function is used to upload the attachment in the server and save that attachment information in db.
-     *      @param int $id  - entity id to which the file to be uploaded
-     *      @param string $module  - the current module name
-     *      @param array $file_details  - array which contains the file information(name, type, size, tmp_name and error)
-     *      return void
-     */
-    public function uploadAndSaveFile($id, $module, $file_details, $attachmentType = 'Attachment', $internalFile = false)
-    {
-        global $log;
-        $log->debug("Entering into uploadAndSaveFile($id,$module,$file_details) method.");
-
-        global $adb, $current_user;
-        global $upload_badext;
+	/**
+	 *      This function is used to upload the attachment in the server and save that attachment information in db.
+	 *      @param int $id  - entity id to which the file to be uploaded
+	 *      @param string $module  - the current module name
+	 *      @param array $file_details  - array which contains the file information(name, type, size, tmp_name and error)
+	 *      return void
+	 */
+	function uploadAndSaveFile($id, $module, $file_details, $attachmentType='Attachment', $internalFile = false) {
+		global $adb, $current_user;
+		global $upload_badext;
 
         $date_var = date("Y-m-d H:i:s");
 
@@ -232,12 +225,11 @@ class CRMEntity
                 $adb->pquery($sql3, [$id, $current_id]);
             }
 
-            return true;
-        } else {
-            $log->debug("Skip the save attachment process.");
-            return false;
-        }
-    }
+			return true;
+		} else {
+			return false;
+		}
+	}
 
     /** Function to insert values in the vtiger_crmentity for the specified module
      * @param $module -- module:: Type varchar
@@ -246,7 +238,6 @@ class CRMEntity
     {
         global $adb;
         global $current_user;
-        global $log;
 
         if ($fileid != '') {
             $this->id = $fileid;
@@ -437,9 +428,7 @@ class CRMEntity
      */
     public function insertIntoEntityTable($table_name, $module, $fileid = '')
     {
-        global $log;
         global $current_user, $app_strings;
-        $log->info("function insertIntoEntityTable " . $module . ' vtiger_table name ' . $table_name);
         global $adb;
         $insertion_mode = $this->mode;
 
@@ -704,8 +693,7 @@ class CRMEntity
                 } elseif ($uitype == 8) {
                     $this->column_fields[$fieldname] = rtrim($this->column_fields[$fieldname], ',');
                     $ids = explode(',', $this->column_fields[$fieldname]);
-                    $json = new Zend_Json();
-                    $fldvalue = $json->encode($ids);
+					$fldvalue = json_encode($ids);
                 } elseif ($uitype == 12) {
                     // Bulk Sae Mode: Consider the FROM email address as specified, if not lookup
                     $fldvalue = $this->column_fields[$fieldname];
@@ -849,8 +837,6 @@ class CRMEntity
      */
     public function getOldFileName($notesid)
     {
-        global $log;
-        $log->info("in getOldFileName  " . $notesid);
         global $adb;
         $query1 = "select * from vtiger_seattachmentsrel where crmid=?";
         $result = $adb->pquery($query1, [$notesid]);
@@ -882,7 +868,7 @@ class CRMEntity
      */
     public function retrieve_entity_info($record, $module)
     {
-        global $adb, $log, $app_strings;
+        global $adb, $app_strings;
 
         // INNER JOIN is desirable if all dependent table has entries for the record.
         // LEFT JOIN is desired if the dependent tables does not have entry.
@@ -1029,9 +1015,6 @@ class CRMEntity
      */
     public function save($module_name, $fileid = '')
     {
-        global $log;
-        $log->debug("module name is " . $module_name);
-
         //Event triggering code
         require_once("include/events/include.inc");
         global $adb;
@@ -1070,7 +1053,6 @@ class CRMEntity
     public function process_list_query($query, $row_offset, $limit = -1, $max_per_page = -1)
     {
         global $list_max_entries_per_page;
-        $this->log->debug("process_list_query: " . $query);
         if (!empty($limit) && $limit != -1) {
             $result = & $this->db->limitQuery($query, $row_offset + 0, $limit, true, "Error retrieving $this->object_name list: ");
         } else {
@@ -1083,8 +1065,6 @@ class CRMEntity
         }
         $rows_found = $this->db->getRowCount($result);
 
-        $this->log->debug("Found $rows_found " . $this->object_name . "s");
-
         $previous_offset = $row_offset - $max_per_page;
         $next_offset = $row_offset + $max_per_page;
 
@@ -1096,9 +1076,6 @@ class CRMEntity
                     foreach ($entry as $key => $field) { // this will be cycled only once
                         if (isset($row[$field])) {
                             $this->column_fields[$this->list_fields_names[$key]] = $row[$field];
-
-
-                            $this->log->debug("$this->object_name({$row['id']}): " . $field . " = " . $this->$field);
                         } else {
                             $this->column_fields[$this->list_fields_names[$key]] = "";
                         }
@@ -1124,10 +1101,7 @@ class CRMEntity
 
     public function process_full_list_query($query)
     {
-        $this->log->debug("CRMEntity:process_full_list_query");
         $result = & $this->db->query($query, false);
-        //$this->log->debug("CRMEntity:process_full_list_query: result is ".$result);
-
 
         if ($this->db->getRowCount($result) > 0) {
             //	$this->db->println("process_full mid=".$this->table_index." mname=".$this->module_name);
@@ -1137,8 +1111,6 @@ class CRMEntity
 
                 if (isset($rowid)) {
                     $this->retrieve_entity_info($rowid, $this->module_name);
-                } else {
-                    $this->db->println("rowid not set unable to retrieve");
                 }
 
 
@@ -1178,7 +1150,6 @@ class CRMEntity
         $where_clause = $this->get_where($fields_array);
 
         $query = "SELECT * FROM $this->table_name $where_clause";
-        $this->log->debug("Retrieve $this->object_name: " . $query);
         $result = & $this->db->requireSingleResult($query, true, "Retrieving record $where_clause:");
         if (empty($result)) {
             return null;
@@ -1263,7 +1234,6 @@ class CRMEntity
      */
     public function get_full_list($order_by = "", $where = "")
     {
-        $this->log->debug("get_full_list:  order_by = '$order_by' and where = '$where'");
         $query = $this->create_list_query($order_by, $where);
         return $this->process_full_list_query($query);
     }
@@ -1277,8 +1247,6 @@ class CRMEntity
      */
     public function track_view($user_id, $current_module, $id = '')
     {
-        $this->log->debug("About to call vtiger_tracker (user_id, module_name, item_id)($user_id, $current_module, $this->id)");
-
         $tracker = new Tracker();
         $tracker->track_view($user_id, $current_module, $id, '');
     }
@@ -1293,9 +1261,6 @@ class CRMEntity
      */
     public function get_column_value($columnname, $fldvalue, $fieldname, $uitype, $datatype = '')
     {
-        global $log;
-        $log->debug("Entering function get_column_value ($columnname, $fldvalue, $fieldname, $uitype, $datatype='')");
-
         // Added for the fields of uitype '57' which has datatype mismatch in crmentity table and particular entity table
         if ($uitype == 57 && $fldvalue == '') {
             return 0;
@@ -1306,7 +1271,6 @@ class CRMEntity
         if ($datatype == 'I' || $datatype == 'N' || $datatype == 'NN') {
             return 0;
         }
-        $log->debug("Exiting function get_column_value");
         return $fldvalue;
     }
 
@@ -1407,7 +1371,7 @@ class CRMEntity
     /** Function to delete an entity with given Id */
     public function trash($module, $id)
     {
-        global $log, $current_user, $adb;
+        global $current_user, $adb;
 
         if (!self::isBulkSaveMode()) {
             require_once("include/events/include.inc");
@@ -1438,8 +1402,6 @@ class CRMEntity
     /** Function to unlink all the dependent entities of the given Entity by Id */
     public function unlinkDependencies($module, $id)
     {
-        global $log;
-
         $fieldRes = $this->db->pquery('SELECT tabid, tablename, columnname FROM vtiger_field WHERE fieldid IN (
 			SELECT fieldid FROM vtiger_fieldmodulerel WHERE relmodule=?)', [$module]);
         $numOfFields = $this->db->num_rows($fieldRes);
@@ -1475,7 +1437,7 @@ class CRMEntity
     /** Function to unlink an entity with given Id from another entity */
     public function unlinkRelationship($id, $return_module, $return_id)
     {
-        global $log, $currentModule;
+        global $currentModule;
 
         $query = 'DELETE FROM vtiger_crmentityrel WHERE (crmid=? AND relmodule=? AND relcrmid=?) OR (relcrmid=? AND module=? AND crmid=?)';
         $params = [$id, $return_module, $return_id, $id, $return_module, $return_id];
@@ -1506,7 +1468,6 @@ class CRMEntity
     {
         global $current_user, $adb;
 
-        $this->db->println("TRANS restore starts $module");
         $this->db->startTransaction();
 
         $date_var = date("Y-m-d H:i:s");
@@ -1530,7 +1491,6 @@ class CRMEntity
         //Event triggering code ends
 
         $this->db->completeTransaction();
-        $this->db->println("TRANS restore ends");
     }
 
     /** Function to restore all the related records of a given record by id */
@@ -1574,8 +1534,7 @@ class CRMEntity
      */
     public function initSortByField($module)
     {
-        global $adb, $log;
-        $log->debug("Entering function initSortByField ($module)");
+        global $adb;
         // Define the columnname's and uitype's which needs to be excluded
         $exclude_columns = ['parent_id', 'quoteid', 'vendorid', 'access_count'];
         $exclude_uitypes = [];
@@ -1609,7 +1568,6 @@ class CRMEntity
         if ($tabid == 21 or $tabid == 22) {
             $this->sortby_fields[] = 'crmid';
         }
-        $log->debug("Exiting initSortByField");
     }
 
     /* Function to set the Sequence string and sequence number starting value */
@@ -1701,8 +1659,7 @@ class CRMEntity
 
     public function updateMissingSeqNumber($module)
     {
-        global $log, $adb;
-        $log->debug("Entered updateMissingSeqNumber function");
+        global $adb;
 
         vtlib_setup_modulevars($module, $this);
 
@@ -1716,7 +1673,6 @@ class CRMEntity
         $returninfo = [];
 
         if ($fieldinfo && $adb->num_rows($fieldinfo)) {
-            $log->debug("TRANS updateMissingSeqNumber starts");
             $adb->startTransaction();
             // TODO: We assume the following for module sequencing field
             // 1. There will be only field per module
@@ -1748,10 +1704,8 @@ class CRMEntity
                     }
                 }
             } else {
-                $log->fatal("Updating Missing Sequence Number FAILED! REASON: Field table and module table mismatching.");
             }
             $adb->completeTransaction();
-            $log->debug("TRANS updateMissingSeqNumber ends");
         }
         return $returninfo;
     }
@@ -2158,8 +2112,7 @@ class CRMEntity
      */
     public function transferRelatedRecords($module, $transferEntityIds, $entityId)
     {
-        global $adb, $log;
-        $log->debug("Entering function transferRelatedRecords ($module, $transferEntityIds, $entityId)");
+        global $adb;
         foreach ($transferEntityIds as $transferId) {
             // Pick the records related to the entity to be transfered, but do not pick the once which are already related to the current entity.
             $relatedRecords = $adb->pquery("SELECT relcrmid, relmodule FROM vtiger_crmentityrel WHERE crmid=? AND module=?" .
@@ -2182,7 +2135,6 @@ class CRMEntity
             }
             $adb->pquery("UPDATE vtiger_modcomments SET related_to = ? WHERE related_to = ?", [$entityId, $transferId]);
         }
-        $log->debug("Exiting transferRelatedRecords...");
     }
 
     /*
@@ -2918,14 +2870,12 @@ class CRMEntity
      */
     public function getSortOrder()
     {
-        global $log,$currentModule;
-        $log->debug("Entering getSortOrder() method ...");
+        global $currentModule;
         if (isset($_REQUEST['sorder'])) {
             $sorder = $this->db->sql_escape_string($_REQUEST['sorder']);
         } else {
             $sorder = (($_SESSION[$currentModule . '_Sort_Order'] != '') ? ($_SESSION[$currentModule . '_Sort_Order']) : ($this->default_sort_order));
         }
-        $log->debug("Exiting getSortOrder() method ...");
         return $sorder;
     }
 
@@ -2935,8 +2885,7 @@ class CRMEntity
      */
     public function getOrderBy()
     {
-        global $log, $currentModule;
-        $log->debug("Entering getOrderBy() method ...");
+        global $currentModule;
 
         $use_default_order_by = '';
         if (PerformancePrefs::getBoolean('LISTVIEW_DEFAULT_SORTING', true)) {
@@ -2948,7 +2897,6 @@ class CRMEntity
         } else {
             $order_by = (($_SESSION[$currentModule.'_Order_By'] != '') ? ($_SESSION[$currentModule.'_Order_By']) : ($use_default_order_by));
         }
-        $log->debug("Exiting getOrderBy method ...");
         return $order_by;
     }
 

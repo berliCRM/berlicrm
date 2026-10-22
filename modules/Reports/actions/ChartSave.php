@@ -14,7 +14,7 @@ class Reports_ChartSave_Action extends Reports_Save_Action {
 		$moduleName = $request->getModule();
 
 		$record = $request->get('record');
-		$reportModel = new Reports_Record_Model();
+		$reportModel = Reports_Record_Model::getCleanInstance($record);
 		$reportModel->setModule('Reports');
 		if(!empty($record) && !$request->get('isDuplicate')) {
 			$reportModel->setId($record);
@@ -37,7 +37,7 @@ class Reports_ChartSave_Action extends Reports_Save_Action {
 		$dataFields = $request->get('datafields', 'count(*)');
 		if(is_string($dataFields)) $dataFields = array($dataFields);
 
-		$reportModel->set('reporttypedata', Zend_Json::encode(array(
+		$reportModel->set('reporttypedata', json_encode(array(
 																'type'=>$request->get('charttype', 'pieChart'),
 																'groupbyfield'=>$request->get('groupbyfield'),
 																'datafields'=>$dataFields)

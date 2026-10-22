@@ -306,7 +306,7 @@ Vtiger_List_Js('berlimap_List_Js', {
 			});
 			// Set the flag to true after registration
 			thisInstance.isClickListenerRegistered = true;
-			
+
 		}
 		
 		thisInstance.map.on('pointermove', function(evt) {

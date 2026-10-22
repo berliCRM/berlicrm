@@ -8,13 +8,18 @@
  * All Rights Reserved.
  *********************************************************************************/
 
+ /**
+  * @berli-openapi-begin
+  * {"summary":"Delete a CRM user","description":"Transfers ownership to another user and removes the requested user according to CRM permissions.","tags":["Users"],"parameters":{"id":{"required":true,"description":"User webservice ID to remove.","example":"19x7"},"newOwnerId":{"required":false,"description":"Replacement owner webservice ID; defaults to the active administrator.","example":"19x1"}},"result":{"schema":{"type":"object","required":["status"],"properties":{"status":{"type":"string","enum":["successful"]}}},"example":{"status":"successful"}}}
+  * @berli-openapi-end
+  */
  function vtws_deleteUser($id, $newOwnerId, $user) {
-	global $log, $adb;
+	global $adb;
 	$webserviceObject = VtigerWebserviceObject::fromId($adb, $id);
 	$handlerPath = $webserviceObject->getHandlerPath();
 	$handlerClass = $webserviceObject->getHandlerClass();
 	require_once $handlerPath;
-	$handler = new $handlerClass($webserviceObject, $user, $adb, $log);
+	$handler = new $handlerClass($webserviceObject, $user, $adb);
 	$meta = $handler->getMeta();
 	$entityName = $meta->getObjectEntityName($id);
 	$types = vtws_listtypes(null, $user);

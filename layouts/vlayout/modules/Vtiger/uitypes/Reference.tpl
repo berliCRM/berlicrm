@@ -13,7 +13,7 @@
 {assign var=FIELD_NAME value=$FIELD_MODEL->get('name')}
 {assign var="REFERENCE_LIST" value=$FIELD_MODEL->getReferenceList()}
 {assign var="REFERENCE_LIST_COUNT" value=count($REFERENCE_LIST)}
-{assign var="FIELD_INFO" value=Vtiger_Util_Helper::toSafeHTML(Zend_Json::encode($FIELD_MODEL->getFieldInfo()))}
+{assign var="FIELD_INFO" value=Vtiger_Util_Helper::toSafeHTML(json_encode($FIELD_MODEL->getFieldInfo()))}
 {assign var="SPECIAL_VALIDATOR" value=$FIELD_MODEL->getValidator()}
 
 {if {$REFERENCE_LIST_COUNT} eq 0}
@@ -42,20 +42,20 @@
 		</span>
 		{assign var=VIEW_NAME value={getPurifiedSmartyParameters('view')}}
 		{assign var=MODULE_NAME value={getPurifiedSmartyParameters('module')}}
-		<input id="{$FIELD_NAME}_display" name="{$FIELD_MODEL->getFieldName()}_display" type="text" 
-			class="{if (($VIEW_NAME eq 'Edit') or ($MODULE_NAME eq 'Webforms'))} span7 {else} span8 {/if} marginLeftZero autoComplete" 
+		<input id="{$FIELD_NAME}_display" name="{$FIELD_MODEL->getFieldName()}_display" type="text"
+			class="{if (($VIEW_NAME eq 'Edit') or ($MODULE_NAME eq 'Webforms'))} span7 {else} span8 {/if} marginLeftZero autoComplete"
 			{if !empty($displayId)}
-				readonly="true" 
+				readonly="true"
 			{/if}
 			{if isRecordExists($displayId) }
-				value="{$FIELD_MODEL->getEditViewDisplayValue($displayId)}" 
+				value="{$FIELD_MODEL->getEditViewDisplayValue($displayId)}"
 			{else}
-				value="" 
+				value=""
 			{/if}
-			data-validation-engine="validate[{if $FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" 
-			data-fieldinfo='{$FIELD_INFO}' placeholder="{vtranslate('LBL_TYPE_SEARCH',$MODULE)}" 
+			data-validation-engine="validate[{if $FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]"
+			data-fieldinfo='{$FIELD_INFO}' placeholder="{vtranslate('LBL_TYPE_SEARCH',$MODULE)}"
 			{if !empty($SPECIAL_VALIDATOR)}
-				data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}' 
+				data-validator='{json_encode($SPECIAL_VALIDATOR)}'
 			{/if}
 		/>
 		<span class="add-on relatedPopup cursorPointer">

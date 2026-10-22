@@ -23,4 +23,11 @@ $languageStrings = array(
 	
 	'LBL_EMAIL_TEMPLATE_DESCRIPTION'=>'Manage templates for E-Mail module',
 	
+    'Template Name' => 'Template name',
+    'Templatename' => 'Template name',
+    'Message' => 'Message',
+    'Email Template - Properties of ' => 'Email Template - Properties of ',
+
+	'Template ID' => 'Template ID',
+
 );

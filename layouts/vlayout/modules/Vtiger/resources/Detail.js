@@ -2022,7 +2022,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 
 					// Indicate the page content change
 					app.notifyPostAjaxReady();
-				}
+                }
 			);
 		});
 
@@ -2137,6 +2137,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 		previewBox.style.zIndex = '1000';
 		previewBox.style.overflow = 'auto';
 		previewBox.style.resize = 'both';
+
 		// Load saved preview size
 		const savedSize = loadPreviewSize();
 		previewBox.style.width = savedSize.width;

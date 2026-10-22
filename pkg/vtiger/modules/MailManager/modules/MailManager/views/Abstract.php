@@ -16,17 +16,17 @@ vimport('modules/Settings/MailConverter/handlers/MailRecord.php');
 
 abstract class MailManager_Abstract_View extends Vtiger_Index_View {
 
-	public function preProcess (Vtiger_Request $request, $display = true) {
+	public function preProcess (Vtiger_Request $request, $display = true):void {
 		if ($this->getOperationArg($request) === 'attachment_dld') {
-			return true;
+			return;
 		} else {
 			parent::preProcess($request, $display);
 		}
 	}
 
-	public function postProcess(Vtiger_Request $request) {
+	public function postProcess(Vtiger_Request $request):void {
 		if ($this->getOperationArg($request) === 'attachment_dld') {
-			return true;
+			return;
 		} else {
 			parent::postProcess($request);
 		}
@@ -37,7 +37,7 @@ abstract class MailManager_Abstract_View extends Vtiger_Index_View {
 	 * @global String $currentModule
 	 * @return MailManager_Viewer
 	 */
-	public function getViewer(Vtiger_Request $request) {
+	public function getViewer(Vtiger_Request $request):Vtiger_Viewer {
 		$viewer = parent::getViewer($request);
 		$viewer->assign('MAILBOX', $this->getMailboxModel());
 		$viewer->assign('QUALIFIED_MODULE', $request->get('module'));

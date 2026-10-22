@@ -1,0 +1,9 @@
+<?php
+// Registered in vtiger_cron_task; bootstrap, user and scheduling belong to vtigercron.
+if (!isset($cronTask) || $cronTask->getName() !== 'Backup') {
+    http_response_code(403);
+    exit;
+}
+require_once 'modules/Settings/Vtiger/models/Backup.php';
+require_once 'modules/Settings/Vtiger/models/BackupWorker.php';
+Settings_Vtiger_BackupWorker_Model::run();

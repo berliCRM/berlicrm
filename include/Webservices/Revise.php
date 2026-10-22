@@ -8,9 +8,14 @@
  * All Rights Reserved.
  *************************************************************************************/
 	
+/**
+ * @berli-openapi-begin
+ * {"summary":"Partially update a CRM record","description":"Updates the supplied fields of a record while retaining omitted values.","tags":["Records"],"parameters":{"element":{"required":true,"description":"JSON object containing the record ID and fields to change.","example":"{\"id\":\"12x345\",\"lastname\":\"Doe\"}","decodedSchema":{"allOf":[{"$ref":"#/components/schemas/Entity"}]}}},"result":{"schema":{"$ref":"#/components/schemas/Entity"},"example":{"id":"12x345","lastname":"Doe"}}}
+ * @berli-openapi-end
+ */
 function vtws_revise($element,$user){
     
-    global $log,$adb;
+    global $adb;
     $idList = vtws_getIdComponents($element['id']);
     
     $webserviceObject = VtigerWebserviceObject::fromId($adb,$idList[0]);
@@ -19,7 +24,7 @@ function vtws_revise($element,$user){
     
     require_once $handlerPath;
     
-    $handler = new $handlerClass($webserviceObject,$user,$adb,$log);
+    $handler = new $handlerClass($webserviceObject,$user,$adb);
     $meta = $handler->getMeta();
     $entityName = $meta->getObjectEntityName($element['id']);
 	

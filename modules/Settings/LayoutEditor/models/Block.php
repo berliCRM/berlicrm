@@ -119,7 +119,7 @@ class Settings_LayoutEditor_Block_Model extends Vtiger_Block_Model {
 		}
 		return $activeFields;
 	}
-	
+
     /**
 	 * Function to disable block label renaming for certain block names
 	 * @return <Boolean> true/false

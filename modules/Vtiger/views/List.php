@@ -17,7 +17,7 @@ class Vtiger_List_View extends Vtiger_Index_View {
 		parent::__construct();
 	}
 
-	function preProcess(Vtiger_Request $request, $display=true) {
+	function preProcess(Vtiger_Request $request, bool $display=true):void {
 		parent::preProcess($request, false);
 
 		$viewer = $this->getViewer ($request);
@@ -47,7 +47,7 @@ class Vtiger_List_View extends Vtiger_Index_View {
 		}
 	}
 
-	function preProcessTplName(Vtiger_Request $request) {
+	function preProcessTplName(Vtiger_Request $request): string {
 		return 'ListViewPreProcess.tpl';
 	}
 
@@ -57,7 +57,7 @@ class Vtiger_List_View extends Vtiger_Index_View {
 		return parent::preProcessTplName($request);
 	}*/
 
-	protected function preProcessDisplay(Vtiger_Request $request) {
+	protected function preProcessDisplay(Vtiger_Request $request): void {
 		parent::preProcessDisplay($request);
 	}
 
@@ -66,16 +66,20 @@ class Vtiger_List_View extends Vtiger_Index_View {
 		$viewer = $this->getViewer ($request);
 		$moduleName = $request->getModule();
 		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
-		$this->viewName = $request->get('viewname');
 
-		$this->initializeListViewContents($request, $viewer);
+		// Ajax requests skip preProcess(), while regular requests have already
+		// initialized the list contents there.
+		if ($this->listViewEntries === false) {
+			$this->viewName = $request->get('viewname');
+			$this->initializeListViewContents($request, $viewer);
+		}
 		$viewer->assign('VIEW', $request->get('view'));
 		$viewer->assign('MODULE_MODEL', $moduleModel);
 		$viewer->assign('CURRENT_USER_MODEL', Users_Record_Model::getCurrentUserModel());
 		$viewer->view('ListViewContents.tpl', $moduleName);
 	}
 
-	function postProcess(Vtiger_Request $request) {
+	function postProcess(Vtiger_Request $request): void {
 		$viewer = $this->getViewer ($request);
 		$moduleName = $request->getModule();
 
@@ -88,7 +92,7 @@ class Vtiger_List_View extends Vtiger_Index_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request): array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 
@@ -176,17 +180,17 @@ class Vtiger_List_View extends Vtiger_Index_View {
 		}
 
 
-		if(!$this->listViewHeaders){
+		if($this->listViewHeaders === false){
 			$this->listViewHeaders = $listViewModel->getListViewHeaders();
 		}
-		if(!$this->listViewEntries){
+		if($this->listViewEntries === false){
 			$this->listViewEntries = $listViewModel->getListViewEntries($pagingModel);
 		}
 		$noOfEntries = count($this->listViewEntries);
 
 		$viewer->assign('MODULE', $moduleName);
 
-		if(!$this->listViewLinks){
+		if($this->listViewLinks === false){
 			$this->listViewLinks = $listViewModel->getListViewLinks($linkParams);
 		}
 		$viewer->assign('LISTVIEW_LINKS', $this->listViewLinks);
@@ -207,7 +211,7 @@ class Vtiger_List_View extends Vtiger_Index_View {
 		$viewer->assign('LISTVIEW_ENTRIES', $this->listViewEntries);
 
 		if (PerformancePrefs::getBoolean('LISTVIEW_COMPUTE_PAGE_COUNT', false)) {
-			if(!$this->listViewCount){
+			if($this->listViewCount === false){
 				$this->listViewCount = $listViewModel->getListViewCount();
 			}
 			$totalCount = $this->listViewCount;

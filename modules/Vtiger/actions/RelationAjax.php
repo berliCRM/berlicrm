@@ -18,12 +18,12 @@ class Vtiger_RelationAjax_Action extends Vtiger_Action_Controller {
 
 	function checkPermission(Vtiger_Request $request) { }
 
-	function preProcess(Vtiger_Request $request) {
-		return true;
+	function preProcess(Vtiger_Request $request):void {
+		return;
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return true;
+	function postProcess(Vtiger_Request $request):void {
+		return;
 	}
 
 	function process(Vtiger_Request $request) {
@@ -121,7 +121,7 @@ class Vtiger_RelationAjax_Action extends Vtiger_Action_Controller {
 		$response->emit();
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
-            $request->validateWriteAccess(); 
-        } 
+	public function validateRequest(Vtiger_Request $request):bool { 
+		return $request->validateWriteAccess(); 
+	} 
 }

@@ -58,5 +58,4 @@ class Reports_addContactsfromReportstoVerteiler_Action extends Vtiger_Action_Con
 		$response->emit();
 	}
 }
-
 ?>

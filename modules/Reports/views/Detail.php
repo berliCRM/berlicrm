@@ -30,7 +30,7 @@ class Reports_Detail_View extends Vtiger_Index_View {
 
 	const REPORT_LIMIT = 10000;
 
-	function preProcess(Vtiger_Request $request, $display=false) {
+	function preProcess(Vtiger_Request $request, $display=false):void {
 		parent::preProcess($request);
 
 		$viewer = $this->getViewer($request);
@@ -189,7 +189,7 @@ class Reports_Detail_View extends Vtiger_Index_View {
         $viewer->assign('COUNT', $this->count);
 		$viewer->assign('MODULE', $moduleName);
         $viewer->assign('REPORT_RUN_INSTANCE', ReportRun::getInstance($record));
-		if (count($data) > self::REPORT_LIMIT) {
+		if (count((array) $data) > self::REPORT_LIMIT) {
 			$viewer->assign('LIMIT_EXCEEDED', true);
 		}
 
@@ -201,7 +201,7 @@ class Reports_Detail_View extends Vtiger_Index_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

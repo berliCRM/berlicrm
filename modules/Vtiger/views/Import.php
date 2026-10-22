@@ -60,7 +60,7 @@ class Vtiger_Import_View extends Vtiger_Index_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request): array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 
 		$jsFileNames = array(
@@ -123,7 +123,7 @@ class Vtiger_Import_View extends Vtiger_Index_View {
 				$request->set('merge_type', 0);
 				$request->set('merge_fields', '');
 			} else {
-				$viewer->assign('MERGE_FIELDS', Zend_Json::encode($request->get('merge_fields')));
+				$viewer->assign('MERGE_FIELDS', json_encode($request->get('merge_fields')));
 			}
 
 			$moduleName = $request->getModule();
@@ -140,7 +140,7 @@ class Vtiger_Import_View extends Vtiger_Index_View {
 			$viewer->assign('USER_INPUT', $request);
 
 			$viewer->assign('AVAILABLE_FIELDS', $moduleMeta->getImportableFields($moduleName));
-			$viewer->assign('ENCODED_MANDATORY_FIELDS', Zend_Json::encode($moduleMeta->getMandatoryFields($moduleName)));
+			$viewer->assign('ENCODED_MANDATORY_FIELDS', json_encode($moduleMeta->getMandatoryFields($moduleName)));
 			$viewer->assign('SAVED_MAPS', Import_Map_Model::getAllByModule($moduleName));
 			$viewer->assign('USERS_LIST', Import_Utils_Helper::getAssignedToUserList($moduleName));
 			$viewer->assign('GROUPS_LIST', Import_Utils_Helper::getAssignedToGroupList($moduleName));
@@ -157,7 +157,11 @@ class Vtiger_Import_View extends Vtiger_Index_View {
 	}
 
 	function undoImport(Vtiger_Request $request) {
+		$plugins = array(
+			array('type' => 'modifier', 'name' => 'vtemplate_path', 'callback' => 'vtemplate_path'),
+		);
 		$viewer = new Vtiger_Viewer();
+		$viewer->registerSmartyPlugins($plugins);
 		$db = PearDatabase::getInstance();
 
 		$moduleName = $request->getModule();
@@ -196,6 +200,7 @@ class Vtiger_Import_View extends Vtiger_Index_View {
 				$noOfRecordsDeleted++;
 			}
 		}
+		
         $entity = new VTEventsManager($db);        
         $entity->triggerEvent('vtiger.batchevent.delete',$entityData);
         $VTIGER_BULK_SAVE_MODE = $previousBulkSaveMode;

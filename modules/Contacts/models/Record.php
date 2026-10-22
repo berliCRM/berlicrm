@@ -9,6 +9,7 @@
  *************************************************************************************/
 
 class Contacts_Record_Model extends Vtiger_Record_Model {
+	protected $imageDetails = null;
 
 	/**
 	 * Function returns the url for create event
@@ -60,6 +61,13 @@ class Contacts_Record_Model extends Vtiger_Record_Model {
 	 * @return <array> Image Details List
 	 */
 	public function getImageDetails() {
+		// The image is requested by both the detail-view header and the image
+		// field. Keep the DB result and encoded file for the lifetime of this
+		// record model instead of doing the same work twice.
+		if ($this->imageDetails !== null) {
+			return $this->imageDetails;
+		}
+
 		$db = PearDatabase::getInstance();
 		$imageDetails = array();
 		$recordId = $this->getId();
@@ -93,7 +101,7 @@ class Contacts_Record_Model extends Vtiger_Record_Model {
 				);
 			}
 		}
-		return $imageDetails;
+		$this->imageDetails = $imageDetails;
+		return $this->imageDetails;
 	}
 }
-

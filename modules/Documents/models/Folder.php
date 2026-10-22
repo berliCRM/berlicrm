@@ -31,15 +31,21 @@ class Documents_Folder_Model extends Vtiger_Base_Model {
 	 * @return true if exists else false
 	 */
 	public function hasDocuments() {
+		if ($this->has('has_documents')) {
+			return (bool) $this->get('has_documents');
+		}
+		if (strcasecmp((string) $this->getName(), 'Default') === 0) {
+			return false;
+		}
+
 		$db = PearDatabase::getInstance();
 		$folderId = $this->getId();
 
 		$result = $db->pquery("SELECT 1 FROM vtiger_notes
-						INNER JOIN vtiger_attachmentsfolder ON vtiger_attachmentsfolder.folderid = vtiger_notes.folderid
 						INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_notes.notesid
-						WHERE vtiger_attachmentsfolder.folderid = ?
-						AND vtiger_attachmentsfolder.foldername != 'Default'
-						AND vtiger_crmentity.deleted = 0", array($folderId));
+						WHERE vtiger_notes.folderid = ?
+						AND vtiger_crmentity.deleted = 0
+						LIMIT 1", array($folderId));
 		$num_rows = $db->num_rows($result);
 		if ($num_rows>0) {
 			return true;

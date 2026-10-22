@@ -154,7 +154,7 @@ class Settings_LayoutEditor_Field_Action extends Settings_Vtiger_Index_Action {
 
     }
     
-    public function validateRequest(Vtiger_Request $request) { 
-        $request->validateWriteAccess(); 
+    public function validateRequest(Vtiger_Request $request):bool { 
+        return $request->validateWriteAccess(); 
     } 
 }

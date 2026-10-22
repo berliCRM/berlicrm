@@ -25,14 +25,14 @@ class Calendar_Import_View extends Vtiger_Import_View {
 		$this->exposeMethod('undoImport');
 	}
 
-	public function preprocess(Vtiger_Request $request, $display=false) {
+	public function preprocess(Vtiger_Request $request, $display=false):void {
 		$mode = $request->getMode();
 		if (!empty ($mode)) {
 			parent::preProcess($request);
 		}
 	}
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$mode = $request->getMode();
 		if(!empty($mode)) {
 			echo $this->invokeExposedMethod($mode, $request);
@@ -41,7 +41,7 @@ class Calendar_Import_View extends Vtiger_Import_View {
 		echo $this->import($request);
 	}
 
-	public function postprocess(Vtiger_Request $request) {
+	public function postprocess(Vtiger_Request $request):void {
 		$mode = $request->getMode();
 		if (!empty ($mode)) {
 			parent::postProcess($request);
@@ -96,7 +96,7 @@ class Calendar_Import_View extends Vtiger_Import_View {
 
 			$ical = new iCal();
 			$icalActivities = $ical->iCalReader("IMPORT_".$userId);
-			$noOfActivities = count($icalActivities);
+			$noOfActivities = is_countable($icalActivities) ? count($icalActivities) : 0;
 
 			for($i=0; $i<$noOfActivities; $i++) {
 				if($icalActivities[$i]['TYPE'] == 'VEVENT') {

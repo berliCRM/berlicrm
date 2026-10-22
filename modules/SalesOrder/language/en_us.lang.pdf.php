@@ -43,7 +43,5 @@ $pdf_strings = Array(
 	'DATE' => 'Date:',
 	'MISSING_IMAGE' => 'Logo not assigned',
     'FACTURE1' =>  'PO_Confirmation',
-	'MANAGEMENT' => 'CEO:',
-	'VAR_VATID'=>'IRS#:',
 	);
 ?>

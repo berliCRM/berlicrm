@@ -309,14 +309,13 @@ jQuery.Class("Calendar_CalendarView_Js",{
         }
     },
 
-
     registerEventDelete : function(targetElement,calEvent) {
         var thisInstance = this;
         var recordId = calEvent.id;
 		
 		var params = {
 			"module": "Calendar",
-			"action": "DeleteAjax",
+			"action": "DeleteAjax",  // -> /berlicrm/modules/Vtiger/actions/DeleteAjax.php
 			"record": recordId,
 			"operation" : "checkRecurr"
 		}
@@ -376,7 +375,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 										// delete all, not one (and not cancel)
 										var params = {
 											"module": "Calendar",
-											"action": "DeleteAjax", 
+											"action": "DeleteAjax",
 											"record": recordId,
 											"idsReferencesArray": idsReferencesArray,
 											"operation" : "deleteManyEvents"
@@ -400,7 +399,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 									}
 								}/*, 
 								{
-									"label" : "Just a button more..."
+									"label" : "Just a button more...if we need..."
 								}*/
 							]
 						);
@@ -414,7 +413,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 							//Confirmed to delete
 							var params = {
 								"module": "Calendar",
-								"action": "DeleteAjax", 
+								"action": "DeleteAjax",
 								"record": recordId,
 								"operation" : "deleteevent"
 							}
@@ -567,7 +566,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 				var recordId = event.id;
 				var params = {
 					"module": "Calendar",
-					"action": "DeleteAjax",
+					"action": "DeleteAjax",  // -> /berlicrm/modules/Vtiger/actions/DeleteAjax.php
 					"record": recordId,
 					"operation" : "checkRecurr"
 				}
@@ -629,7 +628,7 @@ jQuery.Class("Calendar_CalendarView_Js",{
 				var recordId = event.id;
 				var params = {
 					"module": "Calendar",
-					"action": "DeleteAjax",
+					"action": "DeleteAjax",  // -> /berlicrm/modules/Vtiger/actions/DeleteAjax.php
 					"record": recordId,
 					"operation" : "checkRecurr"
 				}

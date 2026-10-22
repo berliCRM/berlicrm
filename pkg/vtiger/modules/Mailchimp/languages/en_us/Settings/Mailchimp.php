@@ -9,6 +9,7 @@
  * Modified and improved by crm-now.de
  *************************************************************************************/
 $languageStrings = array(
+		'LBL_MAILCHIMP_DESCRIPTION' => 'Enter the Mailchimp API key to connect the module',
 	);
 	
 	

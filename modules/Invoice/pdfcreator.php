@@ -14,15 +14,53 @@
 use Sprain\SwissQrBill as QrBill;
 use Symfony\Component\Intl\Countries;
 
-function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current_id = '')
+/**
+ * Four arguments retain UI defaults. A fifth format selects non-streaming storage.
+ * The caller owns the returned file; intermediate e-invoice files are per call.
+ */
+function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current_id = '', $format = null)
+{
+    if ($format !== null && (!is_string($format) || !in_array($format, ['pdf', 'zugferd', 'xrechnung'], true) || $purpose !== 'save')) {
+        throw new InvalidArgumentException('Stored format requires save and pdf, zugferd or xrechnung.');
+    }
+    if ($format !== null && $format !== 'pdf' && !is_dir('vendor/horstoeko')) {
+        throw new RuntimeException('The installed horstoeko e-invoice library is required.');
+    }
+    if ($format !== null) {
+        $resolvedPath = realpath($path);
+        if ($resolvedPath === false || !is_dir($resolvedPath) || !is_writable($resolvedPath)) {
+            throw new RuntimeException('Stored invoice destination must be a writable directory.');
+        }
+        // TCPDF's file:// wrapper requires an absolute local path.
+        $path = rtrim($resolvedPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+    }
+    $xmlFile = null;
+    if ($format !== 'pdf' && is_dir('vendor/horstoeko')) {
+        $xmlFile = tempnam(sys_get_temp_dir(), 'berli-invoice-');
+        if ($xmlFile === false) {
+            throw new RuntimeException('Cannot allocate an e-invoice temporary file.');
+        }
+    }
+    try {
+        return berli_renderInvoiceFile($idnumber, $purpose, $path, $current_id, $format, $xmlFile);
+    } finally {
+        foreach ([$xmlFile, $xmlFile ? $xmlFile . '.pdf' : null, $xmlFile ? $xmlFile . '.watermark.pdf' : null] as $file) {
+            if ($file !== null && is_file($file)) {
+                unlink($file);
+            }
+        }
+    }
+}
+
+function berli_renderInvoiceFile($idnumber, $purpose, $path, $current_id, $format, $eInvoiceXmlFile)
 {
     global $qr_feature; // hast to be set in config.inc.php
+    global $upload_badext;
 
     // needed for e-invoice extension
     $eInvoice = false;
-    if (is_dir('vendor/horstoeko')) {
+    if ($format !== 'pdf' && is_dir('vendor/horstoeko')) {
         $eInvoice = true;
-        $eInvoiceXmlFile = "modules/Invoice/xrechnung.xml";
         require_once('vendor/autoload.php');
         // e-invoice settings from config.inc.php
         global $default_export_e_invoice, $e_invoice_watermark_pdf;
@@ -34,7 +72,9 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         require_once('libraries/tcpdf/tcpdf.php');
         require_once('libraries/tcpdf/config/tcpdf_config.php');
     } else {
-        define('PDF_MARGIN_FOOTER', 40);
+        if (!defined('PDF_MARGIN_FOOTER')) {
+            define('PDF_MARGIN_FOOTER', 40);
+        }
     }
     require_once('modules/Invoice/Invoice.php');
     require_once('modules/Invoice/pdf_templates/footer.php');
@@ -115,19 +155,23 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     //retreiving the Invoice  info
     $focus = new Invoice();
     $focus->retrieve_entity_info($id, "Invoice");
+
     // get several values from the account: account name, buyer reference, account number
     $sql = "select accountname, buyerreference, account_no, siccode, email1 from  vtiger_account where accountid= ?";
     $acc_result = $adb->pquery($sql, [$focus->column_fields['account_id']]);
     $account_name = decode_html($adb->query_result($acc_result, 0, 'accountname'));
-    $buyer_reference = decode_html($adb->query_result($acc_result, 0, 'buyerreference'));
     $account_no = decode_html($adb->query_result($acc_result, 0, 'account_no'));
+    $buyer_reference = trim(decode_html($adb->query_result($acc_result, 0, 'buyerreference')));
+    if ($buyer_reference == '') {
+        $buyer_reference = $account_no;
+    }
     $account_email = decode_html($adb->query_result($acc_result, 0, 'email1'));
     $siccode = decode_html($adb->query_result($acc_result, 0, 'siccode'));
 
     $invoice_no = $focus->column_fields['invoice_no'];
     $deliveryperiod = $focus->column_fields['deliveryperiod'];
     $deliveryperiod = getValidDisplayDate($deliveryperiod);
-    $deliveryperiod = str_replace("-", ".", $deliveryperiod);
+    $deliveryperiod = str_replace("-", ".", (string) $deliveryperiod);
     $invoice_buyer_purchaseorder_no = $focus->column_fields['vtiger_purchaseorder']; // buyer purchase order number
     //file_put_contents('logs/ep4812.log', sprintf('%s %s %s', __LINE__, $invoice_no, $invoice_buyer_purchaseorder_no) . PHP_EOL, FILE_APPEND);
     //set currency format
@@ -227,7 +271,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     }
 
     // get owner information
-    $recordOwnerArr = getRecordOwnerId($_REQUEST['record']);
+    $recordOwnerArr = getRecordOwnerId($idnumber);
     foreach ($recordOwnerArr as $type => $id) {
         $ownertype = $type;
         $ownerid = $id;
@@ -235,7 +279,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     if ($ownertype == 'Users') {
         // get owner information for user
         $sql = "SELECT * FROM vtiger_users,vtiger_crmentity WHERE vtiger_users.id = vtiger_crmentity.smownerid AND vtiger_crmentity.crmid = ? ";
-        $result = $adb->pquery($sql, [$_REQUEST['record']]);
+        $result = $adb->pquery($sql, [$idnumber]);
         $owner_lastname = $adb->query_result($result, 0, 'last_name');
         $owner_firstname = $adb->query_result($result, 0, 'first_name');
         $owner_id = $adb->query_result($result, 0, 'smownerid');
@@ -245,7 +289,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     } else {
         // get owner information for Groups
         $sql = "SELECT * FROM vtiger_groups,vtiger_crmentity WHERE vtiger_groups.groupid  = vtiger_crmentity.smownerid AND vtiger_crmentity.crmid = ? ";
-        $result = $adb->pquery($sql, [$_REQUEST['record']]);
+        $result = $adb->pquery($sql, [$idnumber]);
         $owner_lastname = '';
         $owner_firstname = $adb->query_result($result, 0, 'groupname');
         $owner_id = $adb->query_result($result, 0, 'smownerid');
@@ -439,14 +483,17 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     // ************************ END POPULATE DATA ***************************
 
     if ($eInvoice) {
+        if (trim((string)$bank_iban) === '') {
+            throw new RuntimeException('E-invoice SEPA payment requires the organization IBAN (bankiban).');
+        }
         // get country ISO code from country name
         $org_country_iso = getCountryISOCode($org_country);
         // get bill country ISO code from bill country name
         $bill_country_iso = getCountryISOCode($bill_country);
 
-        if ($purpose == 'ExportXML') {
+        if ($purpose == 'ExportXML' || $format === 'xrechnung') {
             $eInvoiceDocument = horstoeko\zugferd\ZugferdDocumentBuilder::CreateNew(horstoeko\zugferd\ZugferdProfiles::PROFILE_XRECHNUNG_3);
-        } elseif ($default_export_e_invoice == "zugferd") {
+        } elseif ($format === 'zugferd' || ($format === null && $default_export_e_invoice == "zugferd")) {
             $eInvoiceDocument = horstoeko\zugferd\ZugferdDocumentBuilder::CreateNew(horstoeko\zugferd\ZugferdProfiles::PROFILE_EXTENDED);
         } else {
             $eInvoiceDocument = horstoeko\zugferd\ZugferdDocumentBuilder::CreateNew(horstoeko\zugferd\ZugferdProfiles::PROFILE_XRECHNUNG_3);
@@ -469,7 +516,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
             ->setDocumentSeller($org_name, $org_taxid)
             ->addDocumentSellerGlobalId($org_taxid, "0088") // ! should be german HRB number instead of $org_taxid
             // ->addDocumentSellerGlobalId($HRB, "9930") // ! should be german HRB number instead of $org_taxid
-            ->addDocumentSellerTaxRegistration("VA", $org_taxid)
+            ->addDocumentSellerTaxRegistration("VA", $org_vatid)
             ->addDocumentPaymentTerm($description, \DateTime::createFromFormat('d.m.Y', $valid_till))
             ->setDocumentSellerAddress($org_address, "", "", $org_code, $org_city, $org_country_iso)
             // ->setDocumentSellerContact($owner_firstname . ' ' . $owner_lastname, "", $org_phone, $org_fax, $owner_mail) // CII-SR-236: FaxUniversalCommunication should not be present
@@ -499,6 +546,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     //
 
     $allItemsTaxTotal = 0.00;
+    $eVatBuckets = [];
     $allItemsBaseAmountTotalS = 0.00;
     $allItemsBaseAmountTotalE = 0.00;
     for ($i = 1, $j = $i - 1; $i <= $num_products; $i++, $j++) {
@@ -649,14 +697,31 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         }
         $product_line[$j][$pdf_strings['LineTotal']] = $prod_total[$i];
 
+        $exemptionReason = '';
         if ($eInvoice) {
-            $unitDiscountBT147 = (float)$associated_products[$i]['discountTotal' . $i];
-            $unitPriceNetBT146 = $signMultiplier * (float) sprintf('%.2f', (float)$associated_products[$i]['listPrice' . $i] - $unitDiscountBT147);
-
-            $catCode = 'S'; // standard rate
-            if ($thisItemTaxPercent == 0.00) {
-                $catCode = 'E'; // exempt
+            $eQuantity = (float)$associated_products[$i]['qty' . $i];
+            if ($invoiceTypeCode !== 381 && $eQuantity < 0) {
+                throw new RuntimeException('E-invoice generation does not support negative lines in a normal invoice. Use a credit note or normal PDF.');
             }
+            $unitDiscountBT147 = $eQuantity == 0 ? 0.0 : abs((float)$associated_products[$i]['discountTotal' . $i] / $eQuantity);
+            $unitPriceNetBT146 = (float)$associated_products[$i]['listPrice' . $i] - $unitDiscountBT147;
+            $eLineTotal = round(abs($eQuantity) * $unitPriceNetBT146, 2);
+
+            $vatCatCode = 'S'; // standard rate
+            if ($final_details['taxtype'] == 'group') {
+                $thisItemTaxPercent = $group_total_tax_percent;
+            }
+            if ($thisItemTaxPercent == 0.00) {
+                $vatCatCode = 'E'; // exempt
+                $exemptionReason = 'VAT-exempt supply';
+            }
+
+
+
+            $rateKey = $vatCatCode . ':' . (string)(float)$thisItemTaxPercent;
+            if (!isset($eVatBuckets[$rateKey])) $eVatBuckets[$rateKey] = ['category'=>$vatCatCode, 'rate'=>(float)$thisItemTaxPercent, 'basis'=>0.0];
+            $eVatBuckets[$rateKey]['basis'] += $eLineTotal;
+
             // Add position/lineitem to e-invoice
 
             $eInvoiceDocument
@@ -664,17 +729,17 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
                 ->setDocumentPositionNote($product_name_long[$i]) // Free text BT-127:
                 ->setDocumentPositionProductDetails($product_name[$i], "", (string)$product_code[$i]) // BT-153?
                 ->setDocumentPositionGrossPrice((float)$associated_products[$i]['listPrice' . $i])       // list price (gross) BT-148
-                ->setDocumentPositionNetPrice($unitPriceNetBT146 * $signMultiplier) // Unit price (net) BT-146
-                ->addDocumentPositionGrossPriceAllowanceCharge($signMultiplier * $unitDiscountBT147, false)    // Discount (net) BT-147:
+                ->setDocumentPositionNetPrice($unitPriceNetBT146) // Unit price (net) BT-146
+                ->addDocumentPositionGrossPriceAllowanceCharge($unitDiscountBT147, false)    // Discount (net) BT-147:
                 // ->setDocumentPositionQuantity((float) $qty_formated[$i] * $signMultiplier, "H87") // Quantity BT-129
-                ->setDocumentPositionQuantity((float) $associated_products[$i]['qty' . $i] * $signMultiplier, "H87") // Quantity BT-129
+                ->setDocumentPositionQuantity(abs($eQuantity), "H87") // Quantity BT-129
                 ->addDocumentPositionTax(
-                    $catCode,
+                    $vatCatCode,
                     'VAT',
-                    number_format($thisItemTaxPercent, 0)
+                    (float)$thisItemTaxPercent
                 )
                 // ->setDocumentPositionLineSummation((float) $qty_formated[$i] * $unitPriceNetBT146);
-                ->setDocumentPositionLineSummation((float) $associated_products[$i]['qty' . $i] * $unitPriceNetBT146);
+                ->setDocumentPositionLineSummation($eLineTotal);
             // ->setDocumentPositionLineSummation((float) $producttotal);
             // ->setDocumentPositionLineSummation((float) $prod_total[$i]);
         }
@@ -684,51 +749,54 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         //
         // * add document tax information and handle group or individual tax types
         //
-        if ($final_details['taxtype'] == 'group') {
-            $totalTaxAmmount = $price_total - $price_subtotal;
-            $eInvoiceDocument
-                ->addDocumentTax('S', "VAT", $price_subtotal, ($price_total - $price_subtotal), number_format($group_total_tax_percent, 0), null, null, $price_subtotal);
-            // $eInvoiceDocument
-            // ->addDocumentTax('E', "VAT", $price_subtotal, ($price_total - $price_subtotal), 0, null, null, $price_subtotal);
-        } else {
-            $totalTaxAmmount = $allItemsTaxTotal;
-            $eInvoiceDocument
-                ->addDocumentTax(
-                    'E',
-                    "VAT",
-                    // $price_subtotal - $allItemsBaseAmountTotalS,
-                    $allItemsBaseAmountTotalE,
-                    (($price_total - $price_subtotal) / 100 * $group_total_tax_percent) * $signMultiplier,
-                    number_format($group_total_tax_percent, 0),
-                    'umsatzsteuerfreie Leistung',
-                    null
-                    // $price_subtotal
-                )
-                ->addDocumentTax(
-                    'S',
-                    "VAT",
-                    // $price_subtotal,
-                    $allItemsBaseAmountTotalS,
-                    $allItemsTaxTotal * $signMultiplier, // VAT amount BT-117
-                    (abs($allItemsTaxTotal) != 0) ? $sh_tax_percent : 0,
-                    null,
-                    null
-                    // $price_subtotal
-                );
+        // Keep all electronic monetary amounts in document sign convention:
+        // credit notes (381) use positive amounts for either legacy storage sign.
+        $eLineSum = round(array_sum(array_column($eVatBuckets, 'basis')), 2);
+        $eAllowance = abs((float)$final_details['discountTotal_final']);
+        $eCharge = abs((float)$final_details['shipping_handling_charge']);
+        $remainingAllowance = $eAllowance;
+        $bucketKeys = array_keys($eVatBuckets);
+        foreach ($bucketKeys as $index => $key) {
+            $bucket = &$eVatBuckets[$key];
+            $share = $index === count($bucketKeys)-1 ? $remainingAllowance :
+                round($eLineSum == 0 ? 0 : $eAllowance * $bucket['basis'] / $eLineSum, 2);
+            $remainingAllowance = round($remainingAllowance - $share, 2);
+            if ($share != 0) $eInvoiceDocument->addDocumentAllowanceCharge($share, false, $bucket['category'], 'VAT', $bucket['rate'], null, null, null, null, null, null, 'Global discount');
+            $bucket['basis'] = round($bucket['basis'] - $share, 2);
+            unset($bucket);
         }
-
+        if ($eCharge != 0) {
+            $shippingRate = (float)$sh_tax_percent;
+            $shippingCategory = $shippingRate == 0 ? 'E' : 'S';
+            $key = $shippingCategory . ':' . (string)$shippingRate;
+            if (!isset($eVatBuckets[$key])) $eVatBuckets[$key] = ['category'=>$shippingCategory, 'rate'=>$shippingRate, 'basis'=>0.0];
+            $eVatBuckets[$key]['basis'] += $eCharge;
+            $eInvoiceDocument->addDocumentAllowanceCharge($eCharge, true, $shippingCategory, 'VAT', $shippingRate, null, null, null, null, null, null, 'Shipping and handling');
+        }
+        $totalTaxAmmount = 0.0;
+        foreach ($eVatBuckets as $bucket) {
+            $taxAmount = round($bucket['basis'] * $bucket['rate'] / 100, 2);
+            $totalTaxAmmount += $taxAmount;
+            $eInvoiceDocument->addDocumentTax($bucket['category'], 'VAT', round($bucket['basis'], 2), $taxAmount, $bucket['rate'], $bucket['category']==='E' ? 'VAT-exempt supply' : null);
+        }
+        $eTaxBasis = round($eLineSum - $eAllowance + $eCharge, 2);
+        $eGrandTotal = round($eTaxBasis + $totalTaxAmmount, 2);
+        $eStoredGrandTotal = round(abs((float)$price_total), 2);
+        if (!is_finite($eGrandTotal) || !is_finite($eStoredGrandTotal) || abs($eGrandTotal - $eStoredGrandTotal) > 0.005) {
+            throw new RuntimeException('E-invoice totals do not reconcile with the stored invoice total. Unrepresented adjustments or mixed-sign lines require correction or normal PDF output.');
+        }
+        $ePrepaid = round(abs((float)$invoice_received), 2);
+        $ePayable = round($eGrandTotal - $ePrepaid, 2);
         $eInvoiceDocument->setDocumentSummation(
-            $price_total * $signMultiplier, // BT-112 (grandTotalAmount)
-            $price_total * $signMultiplier - $invoice_received * $signMultiplier, // BT-115 (duePayableAmount)
-            // $allItemsBaseAmountTotalS + ($price_subtotal - $allItemsBaseAmountTotalS), // BT-106 (lineTotalAmount)
-            $allItemsBaseAmountTotalS + $allItemsBaseAmountTotalE, // BT-106 (lineTotalAmount)
-            0.0, // BT-108 (chargeTotalAmount)
-            0.0, // BT-107 (allowanceTotalAmount)
-            // $price_subtotal, // BT-109 (taxBasisTotalAmount)
-            $allItemsBaseAmountTotalS + $allItemsBaseAmountTotalE, // BT-109 (taxBasisTotalAmount)
-            $totalTaxAmmount * $signMultiplier, // BT-110 or BT-111 (taxTotalAmount)
-            null, // roundingAmount BT-114
-            $invoice_received * $signMultiplier // totalPrepaidAmount BT-113
+            $eGrandTotal,
+            $ePayable,
+            $eLineSum,
+            $eCharge,
+            $eAllowance,
+            $eTaxBasis,
+            round($totalTaxAmmount, 2),
+            null,
+            $ePrepaid
         );
     }
 
@@ -738,6 +806,15 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         // write xml
         $eInvoiceDocument
         ->writeFile($eInvoiceXmlFile);
+
+        if ($format === 'xrechnung') {
+            $filename = sanitizeUploadFileName($invoice_no . '.xml', []);
+            $target = $path . $current_id . '_' . $filename;
+            if (!copy($eInvoiceXmlFile, $target)) {
+                throw new RuntimeException('Cannot store the XRechnung XML file.');
+            }
+            return $filename;
+        }
 
         //e-invoice export requested?
         if ($purpose == 'ExportXML') {
@@ -750,12 +827,13 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
             // redirect (download) xml
             header('Content-Type: application/xml');
             header('Content-Disposition: attachment; filename="' . $filename . '"');
+            unlink($eInvoiceXmlFile);
             echo $xml_data;
             exit;
         }
 
         // which type? xrechnung = only xml ; zugferd = bundle
-        $export_type = $default_export_e_invoice;
+        $export_type = $format === null ? $default_export_e_invoice : $format;
 
         if ($export_type == "xrechnung") {
             // get xml
@@ -765,6 +843,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
             // redirect (download) xml
             header('Content-Type: application/xml');
             header('Content-Disposition: attachment; filename="' . $filename . '"');
+            unlink($eInvoiceXmlFile);
             echo $xml_data;
             exit;
         }
@@ -873,7 +952,7 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
     $page_num = '1';
     // create new PDF document
     //$pdf = new PDF( 'P', 'mm', 'A4' );
-    $pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true);
+    $pdf = berli_invoicePdfObject($format !== null);
     // set font
     $pdf->SetFont($default_font, " ", $font_size_body);
     $pdf->setPrintHeader(0); //header switched off permanently
@@ -1004,30 +1083,53 @@ function createpdffile($idnumber, $purpose = '', $path = __DIR__ . '/', $current
         // create watermark if configured
         //
         if (!empty($e_invoice_watermark_pdf) && file_exists($e_invoice_watermark_pdf)) {
-            $shellResult = shell_exec('/usr/bin/pdftk ' . $createdOutputPdfPath . ' background ' . $e_invoice_watermark_pdf . ' output modules/Invoice/watermarked.pdf');
+            $watermarked = $eInvoiceXmlFile . '.watermark.pdf';
+            $shellResult = shell_exec('/usr/bin/pdftk ' . escapeshellarg($createdOutputPdfPath) . ' background ' . escapeshellarg($e_invoice_watermark_pdf) . ' output ' . escapeshellarg($watermarked));
             // TODO: logging and/or validating of $shellResult ...
-            rename('modules/Invoice/watermarked.pdf', $createdOutputPdfPath);
+            if (!is_file($watermarked) || !rename($watermarked, $createdOutputPdfPath)) {
+                throw new RuntimeException('Cannot watermark the e-invoice PDF.');
+            }
             // $createdOutputPdfName = 'modules/Invoice/watermarked.pdf';
         }
 
-        $mergeToPdf = "modules/Invoice/full.pdf";
+        $mergeToPdf = $eInvoiceXmlFile . '.pdf';
         if (!file_exists($eInvoiceXmlFile) || !file_exists($createdOutputPdfPath)) {
             throw new \Exception("XML and/or PDF does not exist");
         }
         (new horstoeko\zugferd\ZugferdDocumentPdfMerger($eInvoiceXmlFile, $createdOutputPdfPath))->generateDocument()->saveDocument($mergeToPdf);
-        rename($mergeToPdf, $createdOutputPdfPath);
+        if (!rename($mergeToPdf, $createdOutputPdfPath)) {
+            throw new RuntimeException('Cannot store the merged e-invoice PDF.');
+        }
     }
 
     if ($purpose == 'print' || $purpose == 'printsn') {
         // push to browser
         header("Content-type:application/pdf");
         header("Content-Disposition:attachment;filename=\"" . basename($createdOutputPdfName) . "\"");
+        if ($eInvoiceXmlFile !== null && is_file($eInvoiceXmlFile)) {
+            unlink($eInvoiceXmlFile);
+        }
         readfile($createdOutputPdfPath);
         unlink($createdOutputPdfPath); // delete file after download
         exit;
     } elseif ($purpose == 'save' || $purpose == 'savesn') {
         return $createdOutputPdfName;
     }
+}
+
+/** Keep TCPDF's legacy UI error policy, but never terminate a stored API call. */
+function berli_invoicePdfObject($stored)
+{
+    $arguments = [PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true];
+    if (!$stored) {
+        return new MYPDF(...$arguments);
+    }
+    return new class(...$arguments) extends MYPDF {
+        public function Error($message)
+        {
+            throw new RuntimeException('TCPDF ERROR: ' . $message);
+        }
+    };
 }
 
 function getCountryISOCode(string $countryName): string

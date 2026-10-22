@@ -9,9 +9,9 @@
  *
  *********************************************************************************/
 
-require_once "include/Webservices/VtigerActorOperation.php";
-require_once "include/Webservices/LineItem/VtigerInventoryOperation.php";
-require_once("include/events/include.inc");
+require_once 'include/Webservices/VtigerActorOperation.php';
+require_once 'include/Webservices/LineItem/VtigerInventoryOperation.php';
+require_once 'include/events/include.inc';
 require_once 'modules/com_vtiger_workflow/VTEntityCache.inc';
 require_once 'data/CRMEntity.php';
 require_once 'include/events/SqlResultIterator.inc';
@@ -34,9 +34,8 @@ class VtigerLineItemOperation  extends VtigerActorOperation {
 	private $taxList = null;
     private static $parentCache = array();
 
-	public function __construct($webserviceObject,$user,$adb,$log) {
+	public function __construct($webserviceObject,$user,$adb) {
 		$this->user = $user;
-		$this->log = $log;
 		$this->webserviceObject = $webserviceObject;
 		$this->pearDB = $adb;
 		$this->entityTableName = $this->getActorTables();
@@ -58,7 +57,7 @@ class VtigerLineItemOperation  extends VtigerActorOperation {
 			$row = $this->pearDB->query_result($result, $i, 'maxvalue_lineitem_id');
 		}
 
-		$id = $row + 1;
+		$id = (int) $row + 1;
 		return $id;
 	}
 
@@ -391,6 +390,7 @@ class VtigerLineItemOperation  extends VtigerActorOperation {
 	}
 
 	public function updateParent($createdElement,$parent){
+		$currencyPrecision = getCurrencyDecimalPlaces();
 		$discount = 0;
 		$parentId = vtws_getIdComponents($parent['id']);
 		$parentId = $parentId[1];
@@ -399,46 +399,76 @@ class VtigerLineItemOperation  extends VtigerActorOperation {
 		$taxAmount = 0;
 		foreach ($lineItemList as $lineItem) {
 			$discount = 0;
-			$lineItemTotal = $lineItem['listprice'] * $lineItem['quantity'];
+			$lineItemTotal = roundCurrencyValue(
+				$lineItem['listprice'] * $lineItem['quantity'],
+				$currencyPrecision
+			);
 			$lineItem['discount_amount'] = (float)($lineItem['discount_amount']);
 			$lineItem['discount_percent'] = (float)($lineItem['discount_percent']);
 			if(!empty($lineItem['discount_amount'])){
-				$discount = ($lineItem['discount_amount']);
+				$discount = roundCurrencyValue($lineItem['discount_amount'], $currencyPrecision);
 			}elseif(!empty($lineItem['discount_percent'])) {
-				$discount = ($lineItem['discount_percent'])/100 * $lineItemTotal;
+				$discount = roundCurrencyValue(
+					($lineItem['discount_percent'])/100 * $lineItemTotal,
+					$currencyPrecision
+				);
 			}
 			$this->initTax($lineItem, $parent);
-			$lineItemTotal = $lineItemTotal - $discount;
-			$parent['hdnSubTotal'] = ($parent['hdnSubTotal'] ) + $lineItemTotal;
+			$lineItemTotal = roundCurrencyValue($lineItemTotal - $discount, $currencyPrecision);
+			$parent['hdnSubTotal'] = roundCurrencyValue(
+				$parent['hdnSubTotal'] + $lineItemTotal,
+				$currencyPrecision
+			);
 			if(strcasecmp($parent['hdnTaxType'], $this->Individual) ===0){
 				foreach ($this->taxList as $taxInfo) {
-					$lineItemTaxAmount = ($taxInfo['percentage'])/100*$lineItemTotal;
-					$parent['hdnSubTotal'] += $lineItemTaxAmount;
+					$lineItemTaxAmount = roundCurrencyValue(
+						($taxInfo['percentage'])/100*$lineItemTotal,
+						$currencyPrecision
+					);
+					$parent['hdnSubTotal'] = roundCurrencyValue(
+						$parent['hdnSubTotal'] + $lineItemTaxAmount,
+						$currencyPrecision
+					);
 				}
 			}
 		}
 
 		if(!empty($parent['hdnDiscountAmount']) && ((double)$parent['hdnDiscountAmount']) > 0){
-			$discount = ($parent['hdnDiscountAmount']);
+			$discount = roundCurrencyValue($parent['hdnDiscountAmount'], $currencyPrecision);
 		} elseif(!empty($parent['hdnDiscountPercent'])){
-			$discount = ($parent['hdnDiscountPercent']/100 * $parent['hdnSubTotal']);
+			$discount = roundCurrencyValue(
+				$parent['hdnDiscountPercent']/100 * $parent['hdnSubTotal'],
+				$currencyPrecision
+			);
 		}
-		$parent['pre_tax_total'] = $total = $parent['hdnSubTotal'] - $discount + $parent['hdnS_H_Amount'];
-		$taxTotal = $parent['hdnSubTotal'] - $discount;
+		$parent['pre_tax_total'] = $total = roundCurrencyValue(
+			$parent['hdnSubTotal'] - $discount + $parent['hdnS_H_Amount'],
+			$currencyPrecision
+		);
+		$taxTotal = roundCurrencyValue($parent['hdnSubTotal'] - $discount, $currencyPrecision);
 		if(strcasecmp($parent['hdnTaxType'], $this->Individual) !==0){
 			$this->initTax($createdElement, $parent);
 			foreach ($this->taxList as $taxInfo) {
-				$taxAmount += ($taxInfo['percentage'])/100*$taxTotal;
+				$taxAmount += roundCurrencyValue(
+					($taxInfo['percentage'])/100*$taxTotal,
+					$currencyPrecision
+				);
 			}
 		}
 		$shippingTax = getAllTaxes('all', 'sh','edit',$parentId);
 		$shippingTaxInfo = array();
 		foreach ($shippingTax as $taxInfo) {
-			$taxAmount += ($taxInfo['percentage'])/100*$parent['hdnS_H_Amount'];
+			$taxAmount += roundCurrencyValue(
+				($taxInfo['percentage'])/100*$parent['hdnS_H_Amount'],
+				$currencyPrecision
+			);
 			$shippingTaxInfo[$taxInfo['taxname']] = $taxInfo['percentage'];
 		}
 
-		$parent['hdnGrandTotal'] = $total + $taxAmount + $parent['txtAdjustment'];
+		$parent['hdnGrandTotal'] = roundCurrencyValue(
+			$total + $taxAmount + $parent['txtAdjustment'],
+			$currencyPrecision
+		);
 
 		$parentTypeHandler = vtws_getModuleHandlerFromId($parent['id'], $this->user);
 		$parentTypeMeta = $parentTypeHandler->getMeta();

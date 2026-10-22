@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
- 
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\OAuth;
 use PHPMailer\PHPMailer\SMTP;
@@ -21,7 +21,7 @@ class MailManager_Settings_View extends MailManager_MainUI_View {
 	 * @param Vtiger_Request $request
 	 * @return MailManager_Response
 	 */
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$response = new Vtiger_Response();
 		$module = $request->getModule();
 		if ('edit' == $this->getOperationArg($request)) {
@@ -33,7 +33,7 @@ class MailManager_Settings_View extends MailManager_MainUI_View {
             if ($connector->isConnected()) {
                 $folders = $connector->folders();
             }
-			
+
 			$viewer = $this->getViewer($request);
 			$viewer->assign('MODULE', $module);
 			$viewer->assign('MAILBOX', $model);
@@ -84,8 +84,9 @@ class MailManager_Settings_View extends MailManager_MainUI_View {
 					$settingsoAuth = Settings_Vtiger_oAuth::getInstance('mailmanager');
 					$settingsoAuth->save($request);
 				}
-				return parent::process($request);
-			} elseif(!function_exists('mb_convert_encoding')) { 
+				parent::process($request);
+				return;
+			} elseif(!function_exists('mb_convert_encoding')) {
                 $error = "PHP mbstring extension needed!";
                 $response->isJSON(true);
 				$response->setError(101, $error);
@@ -114,10 +115,10 @@ class MailManager_Settings_View extends MailManager_MainUI_View {
 			$response->setResult($viewer->view('SettingsDetail.tpl', $module, true));
 		}
 
-		return $response;
+		$response->emit();
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
+        public function validateRequest(Vtiger_Request $request):bool {
             return $request->validateWriteAccess(); 
         } 
 }

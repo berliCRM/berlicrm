@@ -98,5 +98,4 @@ class Reports_addContactsOrLeadsfromReportstoCleverReach_Action extends Vtiger_A
 		$response->emit();
 	}
 }
-
 ?>

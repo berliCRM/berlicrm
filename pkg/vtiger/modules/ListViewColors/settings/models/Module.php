@@ -13,8 +13,6 @@
 class Settings_ListViewColors_Module_Model extends Settings_Vtiger_Module_Model {
 
 	public function getModulesEntity($tabid = false) {
-		$log = vglobal('log');
-		$log->debug("Entering Settings_ListViewColors_Module_Model::getModulesEntity() method ...");
 		$adb = PearDatabase::getInstance();
 		$sql = "SELECT * from vtiger_entityname where modulename not in ('Emails','PriceBooks','PBXManager','Users')";
 		$params = array();
@@ -30,7 +28,6 @@ class Settings_ListViewColors_Module_Model extends Settings_Vtiger_Module_Model 
 				$moduleEntity[$row['tabid']] = $row;
 			}
 		}
-		$log->debug("Exiting Settings_ListViewColors_Module_Model::getModulesEntity() method ...");
 		return $moduleEntity;
 	}
 }

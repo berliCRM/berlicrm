@@ -24,8 +24,6 @@ require_once('include/utils/UserInfoUtil.php');
 	 */
 	function get_duration($time_start,$duration_hours,$duration_minutes)
 	{
-		global $log;
-                $log->debug("Entering get_duration(".$time_start.",".$duration_hours.",".$duration_minutes.") method ...");
 		$time=explode(":",$time_start);
                 $time_mins = $time[1];
                 $time_hrs = $time[0];
@@ -40,7 +38,6 @@ require_once('include/utils/UserInfoUtil.php');
 			$mins="0".$mins;	
 
 		$end_time = $hrs .$mins;
-		$log->debug("Exiting get_duration method ...");
 		return $end_time;
 	}	
 
@@ -51,8 +48,6 @@ require_once('include/utils/UserInfoUtil.php');
 	 */
 	function time_to_number($time_start)
 	{
-		global $log;
-                $log->debug("Entering time_to_number(".$time_start.") method ...");
 		$start_time_array = explode(":",$time_start);
 		if(preg_match("/^[0]/",$start_time_array[0]))
 		{
@@ -63,7 +58,6 @@ require_once('include/utils/UserInfoUtil.php');
 			$time_start_hrs=$start_time_array[0];
 		}
 		$start_time= $time_start_hrs .$start_time_array[1];
-		$log->debug("Exiting time_to_number method ...");
 		return $start_time;
 	}
 
@@ -79,8 +73,7 @@ require_once('include/utils/UserInfoUtil.php');
 	  */
 	function status_availability($owner,$userid,$activity_id,$avail_date,$activity_start_time,$activity_end_time)	
 	{
-		global $adb,$image_path,$log,$theme;
-		$log->debug("Entering status_availability(".$owner,$userid.",".$activity_id.",".$avail_date.",".$activity_start_time.",".$activity_end_time.") method ...");
+		global $adb,$image_path,$theme;
 		$avail_flag="false";
 		$avail_date=DateTimeField::convertToDBFormat($avail_date);
 		if( $owner != $userid)
@@ -112,9 +105,6 @@ require_once('include/utils/UserInfoUtil.php');
 				{
 					$availability= 'busy';
 					$avail_flag="true";
-	                                $log->info("user start time-- ".$user_start_time."user end time".$user_end_time);
-                                        $log->info("Availability ".$availability);
-
 				}
 			}
 		}
@@ -140,8 +130,6 @@ require_once('include/utils/UserInfoUtil.php');
 					{
 						$availability= 'busy';
 						$avail_flag="true";
-						$log->info("Recurring Events:: user start time-- ".$user_start_time."user end time".$user_end_time);
-        	                                $log->info("Recurring Events:: Availability ".$availability);
 					}
 				}
 			}
@@ -156,9 +144,7 @@ require_once('include/utils/UserInfoUtil.php');
                 {
                         $availability=' <IMG SRC="' . vtiger_imageurl('free.gif', $theme). '">';
                 }
-		$log->debug("Exiting status_availability method ...");
 		return $availability;
-		
 	}
 
 ?>

@@ -35,8 +35,11 @@
 					<tr><td width="30%" class="{$WIDTHTYPE}"><label class="muted marginRight10px pull-right">{vtranslate($FIELD_DETAILS['label'], $QUALIFIED_MODULE)}</label></td>
 						<td style="border-left: none;" class="{$WIDTHTYPE}">
 							<span>{if $FIELD_NAME == 'default_module'}{vtranslate($FIELD_DATA[$FIELD_NAME], $FIELD_DATA[$FIELD_NAME])}
+								{else if $FIELD_NAME == 'custom_logo_link_target'}
+									{assign var=LOGO_TARGET_OPTIONS value=$MODEL->getPicklistValues($FIELD_NAME)}
+									{vtranslate($LOGO_TARGET_OPTIONS[$FIELD_DATA[$FIELD_NAME]], $QUALIFIED_MODULE)}
 								{else if $FIELD_DETAILS['fieldType'] == 'checkbox'}{vtranslate($FIELD_DATA[$FIELD_NAME], $QUALIFIED_MODULE)}
-								{else}{$FIELD_DATA[$FIELD_NAME]}{/if}
+								{else}{$FIELD_DATA[$FIELD_NAME]|escape:'html'}{/if}
 								{if $FIELD_NAME == 'upload_maxsize'}&nbsp;{vtranslate('LBL_MB', $QUALIFIED_MODULE)}{/if}</span>
 						</td></tr>
 				{/foreach}

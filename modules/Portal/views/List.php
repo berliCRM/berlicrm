@@ -10,7 +10,7 @@
 
 class Portal_List_View extends Vtiger_Index_View {
 
-    function preProcess(Vtiger_Request $request, $display=true) {
+    function preProcess(Vtiger_Request $request, $display=true):void {
         parent::preProcess($request);
 
         $viewer = $this->getViewer($request);
@@ -18,7 +18,7 @@ class Portal_List_View extends Vtiger_Index_View {
         $viewer->view('ListViewHeader.tpl', $request->getModule(false));
     }
 
-    public function process(Vtiger_Request $request) {
+    public function process(Vtiger_Request $request):void {
         $moduleName = $request->getModule();
 
         $viewer = $this->getViewer($request);
@@ -29,7 +29,7 @@ class Portal_List_View extends Vtiger_Index_View {
         $viewer->view('ListViewContents.tpl', $moduleName);
     }
 
-    public function initializeListViewContents(Vtiger_Request $request, Vtiger_Viewer $viewer) {
+    public function initializeListViewContents(Vtiger_Request $request, Vtiger_Viewer $viewer):void {
         $moduleName = $request->getModule();
 		$pageNumber = $request->get('page');
 		$orderBy = $request->get('orderby');
@@ -87,7 +87,7 @@ class Portal_List_View extends Vtiger_Index_View {
         $viewer->assign('PAGING_INFO', $listViewModel->calculatePageRange($listviewEntries, $pagingModel));
     }
 
-    function getHeaderScripts(Vtiger_Request $request) {
+    function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 

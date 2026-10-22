@@ -311,7 +311,7 @@ $languageStrings = array(
     'LBL_LAST_WEEK' => 'vorhergehende Woche',
     'LBL_LESS_THAN' => 'weniger als',
     'LBL_LESS_THAN_OR_EQUAL' => 'weniger oder gleich', //Duplicated key-value pairs
-    'LBL_LISTVIEW_PAGE_JUMP' => 'Seitensprung',
+	'LBL_LISTVIEW_PAGE_JUMP' => 'Seiten blättern',
     'LBL_LIST_IN_METRICS' => 'auf Startseite anzeigen',
     'LBL_LIST_PRICE' => 'Listenpreis',
     'LBL_LOADING' => 'Lade',
@@ -326,7 +326,7 @@ $languageStrings = array(
     'LBL_EMPTY_FIELD' => 'Feld leeren',
     'LBL_MATCHED_THIS_CRITERIA' => 'entsprechen diesen Kriterien',
     'LBL_MAX_NUMBER_FILTER_COLUMNS' => 'Max. 12',
-    'LBL_MAX_QTY_SELECT' => 'der angegebene Wert ist',
+	'LBL_MAX_QTY_SELECT' => 'Lagermenge beträgt',
     'LBL_MAX_UPLOAD_SIZE' => 'die max. Upload Größe ist',
     'LBL_May' => 'Mai',
     'LBL_MERGE' => 'Zusammenführen',
@@ -468,7 +468,7 @@ $languageStrings = array(
     'LBL_SMS_MAX_CHARACTERS_ALLOWED' => 'Für eine Textnachricht sind max. 160 Zeichen erlaubt.',
     'LBL_SPECIAL_OPTIONS' => 'spezielle Optionen',
     'LBL_STARTS_WITH' => 'startet mit', //Duplicated key-value pairs
-    'LBL_STOCK_NOT_ENOUGH' => 'nicht genug im Lager',
+	'LBL_STOCK_NOT_ENOUGH' => 'Bestellmenge überschreitet Lagerbestand',
     'LBL_SUBJECT' => 'Betreff',
     'LBL_SUB_PRODUCTS' => 'Sub-Produkte',
     'LBL_SUMMARY' => 'Zusammenfassung',
@@ -618,6 +618,7 @@ $languageStrings = array(
     'Tax2' => 'Steuer2',
     'Tax3' => 'Steuer3',
     'Tax:' => 'Steuer:',
+	'LBL_VAT' => 'MwSt.', //Duplicated key-value pairs
     'Technology' => 'Technologie',
     'Telecommunications' => 'Telekommunikation',
     'Terms & Conditions' => 'Geschäftsbedingungen',
@@ -774,7 +775,6 @@ $languageStrings = array(
     'RecycleBin' => 'Papierkorb',
     'Pdfsettings' => 'PDF Einstellungen',
     'EmailTemplates' => 'E-Mail Vorlagen',
-    'PBXManager' => 'PBX Manager',
 
     // Clever Reach
     'LBL_CLEVERREACH' => 'Clever Reach',
@@ -847,10 +847,10 @@ $languageStrings = array(
     'LBL_CSV_FORMAT' => 'CSV-Format',
     'LBL_EXCEL_FORMAT' => 'Excel-Format',
 
-    'LBL_ENABLE_COMMENTS_FOR_MODULE' => 'Kommentare nach Modul de-/aktivieren',
-    'LBL_MODULE' => 'Modul',
-    'LBL_COMMENTS_ENABLED' => 'Kommentare erlaubt',
-    'LBL_SAVE_SUCCESS'=>'Einstellung erfolgreich gespeichert.',
+	'LBL_ENABLE_COMMENTS_FOR_MODULE' => 'Kommentare nach Modul de-/aktivieren',
+	'LBL_MODULE' => 'Modul',
+	'LBL_COMMENTS_ENABLED' => 'Kommentare erlaubt',
+	'LBL_SAVE_SUCCESS' => 'Einstellung erfolgreich gespeichert.',
 
     //Verteiler
     'Verteiler' => 'Verteiler',
@@ -876,9 +876,6 @@ $languageStrings = array(
     // Cron
     'LBL_CRON_TIMEOUT_SUBJECT' => 'CRON \'%s\' Timeout in %s',
     'LBL_CRON_TIMEOUT_CONTENT' => 'In Ihrem <a href="%s">CRM</a> konnte der Cron \'%s\' seit 24h nicht beendet werden.<br>Er wurde nun neugestartet, sollte aber trotzdem im Auge behalten werden.',
-
-    // SpecialWidgets
-    'LBL_COPY_CONTACTDETAILS' => 'Kopiere Kontaktdaten',
 
     // Send Mail from ModComment
     'LBL_SEND_MAIL_AND_POST' => 'Mail senden und veröffentlichen',
@@ -964,11 +961,6 @@ $jsLanguageStrings = array(
     'JS_NO_VIEW_PERMISSION_AFTER_SAVE' => 'Nach dem Speichern können Sie den Eintrag auf Grund der Rechteeinstellungen nicht mehr sehen. Wollen Sie das wirklich?',
     'JS_NUMBER_SHOULD_BE_LESS_THAN_32' => 'Zahl sollte weniger als 32 sein',
     'JS_PAGE_NOT_EXIST' => 'Seite existiert nicht!',
-    'JS_PBX_CALL_FROM' => 'Anrufen von',
-    'JS_PBX_FILL_ALL_FIELDS'=>'Bitte alle Felder ausfüllen',
-    'JS_PBX_INCOMING_CALL' => 'reinkommender Anruf',
-    'JS_PBX_OUTGOING_FAILURE'=>'Anruf nicht möglich',
-    'JS_PBX_OUTGOING_SUCCESS'=>'Bitte den Hörer abheben, um die Nummer zu wählen.',
     'JS_PERCENTAGE_VALUE_SHOULD_BE_LESS_THAN_100' => 'Prozentangabe sollte weniger als 100 sein',
     'JS_PHONE_NUMBER_LENGTH_EXCEEDED' => 'Telefonnummer zu lang',
     'JS_PLEASE_ENABLE_BASE_CURRENCY_FOR_PRODUCT' => 'Bitte die Basiswährung für das Produkt festlegen.',
@@ -1021,6 +1013,7 @@ $jsLanguageStrings = array(
     'JS_UPLOADED_FILE_SIZE_SHOULD_BE_LESS_THAN' => 'Die Größe der Datei sollte kleiner sein als',
     'JS_USER_EXISTS' => 'diesen Nutzer gibt es bereit',
     'JS_VALUE_SHOULD_BE_GREATER_THAN_ZERO' => 'Wert sollte größer als Null sein',
+    'JS_VALUE_SHOULD_NOT_BE_ZERO' => 'Wert darf nicht Null sein',
     'JS_VALUE_SHOULD_NOT_BE_LESS_THAN' => 'Die Frequenz eines Cron Jobs sollte immer weniger sein als',
     'JS_YOU_ARE_IN_PAGE_NUMBER' => 'Sie sind auf Seite',
     'JS_YOU_CAN_SELECT_ONLY' => 'Auswahl ist nur für',
@@ -1034,6 +1027,7 @@ $jsLanguageStrings = array(
     'LBL_MASS_DELETE_CONFIRMATION' => 'Sind Sie sicher, dass Sie die ausgewählten Daten löschen wollen?',
     'LBL_NO' => 'nein',
     'LBL_YES' => 'ja',
+	'LBL_NONE' => 'Ohne',	// Duplicated key-value pairs
     'NONE_OF_THE_FIELD_VALUES_ARE_CHANGED_IN_MASS_EDIT' => 'Die Massenbearbeitung hat nichts verändert',
     'OVERWRITE_EXISTING_MSG1' => 'Überschreibe die Adresse mit ',
     'OVERWRITE_EXISTING_MSG2' => 'Adressdetails?',
@@ -1053,13 +1047,13 @@ $jsLanguageStrings = array(
 
     'JS_RECORDS_TRANSFERRED_SUCCESSFULLY' => 'Die Zuständigkeit wurde erfolgreich geändert.',
 
-    //Edit view mode Translations
-    'JS_CHANGES_WILL_BE_LOST' => 'Ihre Änderungen werden verloren gehen!',
-    'SINGLE_Vendors' => 'Lieferantenname',
-
     //Document module for relatedlist translations
     'JS_Intern_FILE_NAME' => 'Dateiname',	// duplicated key-value pairs
     'JS_Extern_FILE_NAME' => 'Dateipfad',	// duplicated key-value pairs
+
+	//Edit view mode Translations
+	'JS_CHANGES_WILL_BE_LOST' => 'Ihre Änderungen werden verloren gehen!',
+    'SINGLE_Vendors' => 'Lieferantenname',
 
     //Mass edit failure
     'JS_MASS_EDIT_NOT_SUCCESSFULL' => 'Die Massenbearbeitung war für einige Datensätze nicht erfolgreich.',

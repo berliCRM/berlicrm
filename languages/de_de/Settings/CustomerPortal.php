@@ -10,7 +10,9 @@
  *************************************************************************************/
 $languageStrings = array(
 	'CustomerPortal' => 'Kundenportal',
+	'LBL_CUSTOMER_PORTAL' => 'Kundenportal',
 	'LBL_PORTAL_DESCRIPTION' => 'Rechte der Portalnutzer setzen',
+	'PORTAL_EXTENSION_DESCRIPTION' => 'Verwalten Sie Portaleinstellungen, Module und Datensätze für Kunden',
 
 	'LBL_PRIVILEGES' => 'Rechte',
 	'LBL_DEFAULT_ASSIGNEE' => 'Standardzuständigkeit',

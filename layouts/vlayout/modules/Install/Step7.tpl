@@ -150,7 +150,7 @@ function handleError(response) {
 	var errorMsg = 'Unknown error';
 	if (response.error && response.error.message) {
 		errorMsg = response.error.message;
-	} else if (response.result.message) {
+		} else if (response.result && response.result.message) {
         errorMsg = response.result.message;
     }
     else if (response) {

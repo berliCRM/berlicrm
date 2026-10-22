@@ -11,7 +11,7 @@
 -->*}
 {strip}
 <div name='calendarViewTypes'>
-	{assign var=SHARED_USER_INFO value= Zend_Json::encode($SHAREDUSERS_INFO)}
+	{assign var=SHARED_USER_INFO value= json_encode($SHAREDUSERS_INFO)}
 	{assign var=CURRENT_USER_ID value= $CURRENTUSER_MODEL->getId()}
 	<div id="calendarview-feeds" style="margin-left:10px;">
 		<!--Adding or Editing Users Modal in Shared Calendar-->
@@ -71,7 +71,7 @@
 			</label>
 		</div>
 		
-		<input type="hidden" class="sharedUsersInfo" value= {Zend_Json::encode($SHAREDUSERS_INFO)} />
+		<input type="hidden" class="sharedUsersInfo" value= {json_encode($SHAREDUSERS_INFO)} />
 		<label class="checkbox addedCalendars" style="text-shadow: none">
 			<input type="checkbox" data-calendar-sourcekey="Events33_{$CURRENT_USER_ID}" data-calendar-feed="Events" 
 				   data-calendar-userid="{$CURRENT_USER_ID}" data-calendar-feed-color="{$SHAREDUSERS_INFO[$CURRENT_USER_ID]['color']}" >

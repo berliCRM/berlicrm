@@ -1,4 +1,4 @@
-<?xml version='1.0'?>
+<?xml version='1.0' encoding='UTF-8'?>
 <schema>
 	<tables>
 		<table>
@@ -10,8 +10,10 @@
   `whodid` int(20) default NULL,
   `changedon` datetime default NULL,
   `status` int(1) default '0',
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+  PRIMARY KEY  (`id`),
+  KEY `modtracker_module_id_idx` (`module`,`id`),
+  KEY `modtracker_crmid_id_idx` (`crmid`,`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 		</table>
 		<table>
 			<name>vtiger_modtracker_tabs</name>
@@ -19,7 +21,7 @@
   `tabid` int(11) NOT NULL,
   `visible` int(11) default '0',
   PRIMARY KEY  (`tabid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 		</table>
 		<table>
 			<name>vtiger_modtracker_detail</name>
@@ -27,7 +29,8 @@
   `id` int(11) default NULL,
   `fieldname` varchar(100) default NULL,
   `prevalue` text,
-  `postvalue` text
+  `postvalue` text,
+  KEY `modtracker_detail_id_idx` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
 		</table>
 		<table>
@@ -37,7 +40,7 @@
 	targetmodule VARCHAR(100) NOT NULL,
     targetid INT(19) NOT NULL, 
 	changedon DATETIME
-) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 		</table>
 	</tables>
 </schema>

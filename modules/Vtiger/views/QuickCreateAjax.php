@@ -38,7 +38,7 @@ class Vtiger_QuickCreateAjax_View extends Vtiger_IndexAjax_View {
 		$picklistDependencyDatasource = Vtiger_DependencyPicklist::getPicklistDependencyDatasource($moduleName);
 
 		$viewer = $this->getViewer($request);
-		$viewer->assign('PICKIST_DEPENDENCY_DATASOURCE',Zend_Json::encode($picklistDependencyDatasource));
+		$viewer->assign('PICKIST_DEPENDENCY_DATASOURCE',json_encode($picklistDependencyDatasource));
 		$viewer->assign('CURRENTDATE', date('Y-n-j'));
 		$viewer->assign('MODULE', $moduleName);
 		$viewer->assign('SINGLE_MODULE', 'SINGLE_'.$moduleName);
@@ -56,7 +56,7 @@ class Vtiger_QuickCreateAjax_View extends Vtiger_IndexAjax_View {
 	}
 	
 	
-	public function getHeaderScripts(Vtiger_Request $request) {
+	public function getHeaderScripts(Vtiger_Request $request):array {
 		
 		$moduleName = $request->getModule();
 		
@@ -68,7 +68,7 @@ class Vtiger_QuickCreateAjax_View extends Vtiger_IndexAjax_View {
 		return $jsScriptInstances;
 	}
         
-        public function validateRequest(Vtiger_Request $request) { 
-            $request->validateWriteAccess(); 
+        public function validateRequest(Vtiger_Request $request):bool { 
+            return $request->validateWriteAccess(); 
         } 
 }

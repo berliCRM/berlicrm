@@ -53,7 +53,7 @@ class Users_QuickCreateAjax_View extends Vtiger_QuickCreateAjax_View {
 	}
 
 
-	public function getHeaderScripts(Vtiger_Request $request) {
+	public function getHeaderScripts(Vtiger_Request $request):array {
 
 		$moduleName = $request->getModule();
 

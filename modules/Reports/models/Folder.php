@@ -99,7 +99,7 @@ class Reports_Folder_Model extends Vtiger_Base_Model {
 				$reportsCount += count($reports);
 			}
 		}else{
-			$reportsCount = count($reportsList);
+			$reportsCount = count((array) $reportsList);
 		}
 		
 		$pageLimit = $pagingModel->getPageLimit();
@@ -122,7 +122,7 @@ class Reports_Folder_Model extends Vtiger_Base_Model {
 			return $this->getAllReportModels($reportsList, $reportModuleModel);
 		} else {
 			$reportModels = array();
-			for($i=0; $i < count($reportsList); $i++) {
+			for($i=0; $i < count((array) $reportsList); $i++) {
 				$reportModel = new Reports_Record_Model();
 
 				$reportModel->setData($reportsList[$i])->setModuleFromInstance($reportModuleModel);

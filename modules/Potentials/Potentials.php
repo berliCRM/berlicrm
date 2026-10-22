@@ -21,7 +21,6 @@
  ********************************************************************************/
 
 class Potentials extends CRMEntity {
-	var $log;
 	var $db;
 
 	var $module_name="Potentials";
@@ -88,7 +87,6 @@ class Potentials extends CRMEntity {
 
 	//var $groupTable = Array('vtiger_potentialgrouprelation','potentialid');
 	function __construct() {
-		$this->log = LoggerManager::getLogger('potential');
 		$this->db = PearDatabase::getInstance();
 		$this->column_fields = getColumnFields('Potentials');
 	}
@@ -103,11 +101,10 @@ class Potentials extends CRMEntity {
 	*/
 	function create_list_query($order_by, $where)
 	{
-		global $log,$current_user;
+		global $current_user;
 		require('user_privileges/user_privileges_'.$current_user->id.'.php');
 	        require('user_privileges/sharing_privileges_'.$current_user->id.'.php');
         	$tab_id = getTabid("Potentials");
-		$log->debug("Entering create_list_query(".$order_by.",". $where.") method ...");
 		// Determine if the vtiger_account name is present in the where clause.
 		$account_required = preg_match("/accounts\.name/", $where);
 
@@ -130,7 +127,6 @@ class Potentials extends CRMEntity {
 		if($order_by != "")
 			$query .= " ORDER BY $order_by";
 
-		$log->debug("Exiting create_list_query method ...");
 		return $query;
 	}
 
@@ -141,9 +137,7 @@ class Potentials extends CRMEntity {
 	*/
 	function create_export_query($where)
 	{
-		global $log;
 		global $current_user;
-		$log->debug("Entering create_export_query(". $where.") method ...");
 
 		include("include/utils/ExportUtils.php");
 
@@ -173,7 +167,6 @@ class Potentials extends CRMEntity {
                 else
                    $query .= "  WHERE ".$where_auto;
 
-		$log->debug("Exiting create_export_query method ...");
 		return $query;
 
 	}
@@ -186,8 +179,7 @@ class Potentials extends CRMEntity {
 	 * Contributor(s): ______________________________________..
 	 */
 	function get_contacts($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_contacts(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -244,7 +236,6 @@ class Potentials extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_contacts method ...");
 		return $return_value;
 	}
 
@@ -254,8 +245,7 @@ class Potentials extends CRMEntity {
 	 * Contributor(s): ______________________________________..
 	 */
 	function get_activities($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_activities(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -314,7 +304,6 @@ class Potentials extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_activities method ...");
 		return $return_value;
 	}
 
@@ -324,8 +313,7 @@ class Potentials extends CRMEntity {
 	 * returns related Products record in array format
 	 */
 	function get_products($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_products(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -375,7 +363,6 @@ class Potentials extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_products method ...");
 		return $return_value;
 	}
 
@@ -385,9 +372,6 @@ class Potentials extends CRMEntity {
 	 */
 	function get_stage_history($id)
 	{
-		global $log;
-		$log->debug("Entering get_stage_history(".$id.") method ...");
-
 		global $adb;
 		global $mod_strings;
 		global $app_strings;
@@ -432,8 +416,6 @@ class Potentials extends CRMEntity {
 
 		$return_data = Array('header'=>$header,'entries'=>$entries_list);
 
-	 	$log->debug("Exiting get_stage_history method ...");
-
 		return $return_data;
 	}
 
@@ -444,8 +426,6 @@ class Potentials extends CRMEntity {
 	*/
 	function get_history($id)
 	{
-			global $log;
-			$log->debug("Entering get_history(".$id.") method ...");
 			$userNameSql = getSqlForNameInDisplayFormat(array('first_name'=>
 							'vtiger_users.first_name', 'last_name' => 'vtiger_users.last_name'), 'Users');
 			$query = "SELECT vtiger_activity.activityid, vtiger_activity.subject, vtiger_activity.status,
@@ -464,7 +444,6 @@ class Potentials extends CRMEntity {
                                 and vtiger_crmentity.deleted = 0";
 		//Don't add order by, because, for security, one more condition will be added with this query in include/RelatedListView.php
 
-		$log->debug("Exiting get_history method ...");
 		return getHistory('Potentials',$query,$id);
 	}
 
@@ -475,8 +454,7 @@ class Potentials extends CRMEntity {
 	  * returns related Quotes record in array format
 	  */
 	function get_quotes($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_quotes(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -525,7 +503,6 @@ class Potentials extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_quotes method ...");
 		return $return_value;
 	}
 
@@ -535,8 +512,7 @@ class Potentials extends CRMEntity {
 	 * returns related SalesOrder record in array format
 	 */
 	function get_salesorder($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_salesorder(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -589,7 +565,6 @@ class Potentials extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_salesorder method ...");
 		return $return_value;
 	}
 
@@ -600,8 +575,7 @@ class Potentials extends CRMEntity {
 	 * @param Integer Id of the the Record to which the related records are to be moved
 	 */
 	function transferRelatedRecords($module, $transferEntityIds, $entityId) {
-		global $adb,$log;
-		$log->debug("Entering function transferRelatedRecords ($module, $transferEntityIds, $entityId)");
+		global $adb;
 
 		$rel_table_arr = Array("Activities"=>"vtiger_seactivityrel","Contacts"=>"vtiger_contpotentialrel","Products"=>"vtiger_seproductsrel",
 						"Attachments"=>"vtiger_seattachmentsrel","Quotes"=>"vtiger_quotes","SalesOrder"=>"vtiger_salesorder",
@@ -634,7 +608,6 @@ class Potentials extends CRMEntity {
 			}
 		}
 		parent::transferRelatedRecords($module, $transferEntityIds, $entityId);
-		$log->debug("Exiting transferRelatedRecords...");
 	}
 
 	/*
@@ -706,7 +679,6 @@ class Potentials extends CRMEntity {
 
 	// Function to unlink all the dependent entities of the given Entity by Id
 	function unlinkDependencies($module, $id) {
-		global $log;
 		/*//Backup Activity-Potentials Relation
 		$act_q = "select activityid from vtiger_seactivityrel where crmid = ?";
 		$act_res = $this->db->pquery($act_q, array($id));
@@ -726,7 +698,6 @@ class Potentials extends CRMEntity {
 
 	// Function to unlink an entity with given Id from another entity
 	function unlinkRelationship($id, $return_module, $return_id) {
-		global $log;
 		if(empty($return_module) || empty($return_id)) return;
 
 		if($return_module == 'Accounts') {

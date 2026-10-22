@@ -10,7 +10,7 @@
 
 class Calendar_Calendar_View extends Vtiger_Index_View {
 
-	public function preProcess(Vtiger_Request $request, $display = true) {
+	public function preProcess(Vtiger_Request $request, bool $display = true): void {
 		$viewer = $this->getViewer($request);
 		$moduleName = $request->getModule();
 		$viewer->assign('MODULE_NAME', $moduleName);
@@ -25,11 +25,11 @@ class Calendar_Calendar_View extends Vtiger_Index_View {
 		}
 	}
 
-	protected function preProcessTplName(Vtiger_Request $request) {
+	protected function preProcessTplName(Vtiger_Request $request): string {
 		return 'CalendarViewPreProcess.tpl';
 	}
 
-	public function getHeaderScripts(Vtiger_Request $request) {
+	public function getHeaderScripts(Vtiger_Request $request): array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$jsFileNames = array(
 			"modules.Calendar.resources.CalendarView",
@@ -44,7 +44,7 @@ class Calendar_Calendar_View extends Vtiger_Index_View {
 		return $headerScriptInstances;
 	}
 
-	public function getHeaderCss(Vtiger_Request $request) {
+	public function getHeaderCss(Vtiger_Request $request): array {
 		$headerCssInstances = parent::getHeaderCss($request);
 
 
@@ -94,7 +94,7 @@ class Calendar_Calendar_View extends Vtiger_Index_View {
         
 		$viewer->assign('CURRENTUSER_MODEL',$currentUserModel);
 		$viewer->assign('SHAREDUSERS', $sharedUsers);
-		$viewer->assign("DAY_STARTS", Zend_Json::encode($dayStartPicklistValues));
+		$viewer->assign("DAY_STARTS", json_encode($dayStartPicklistValues));
 		$viewer->assign('ALL_USERS',$allUsers);
 		$viewer->assign('RECORD_STRUCTURE', $recordStructure);
 		$viewer->assign('MODULE',$module);

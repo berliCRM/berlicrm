@@ -15,12 +15,12 @@ class Vtiger_IndexAjax_View extends Vtiger_Index_View {
 		$this->exposeMethod('showActiveRecords');
 	}
 
-	function preProcess(Vtiger_Request $request, $display=false) {
-		return true;
+	function preProcess(Vtiger_Request $request, bool $display=false): void {
+
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return true;
+	function postProcess(Vtiger_Request $request) : void {
+
 	}
 
 	function process(Vtiger_Request $request) {
@@ -37,6 +37,9 @@ class Vtiger_IndexAjax_View extends Vtiger_Index_View {
 	function showActiveRecords(Vtiger_Request $request) {
 		$viewer = $this->getViewer($request);
 		$moduleName = $request->getModule();
+		if($moduleName == 'Events') {
+			$moduleName = 'Calendar';
+		}
 
 		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
 		$recentRecords = $moduleModel->getRecentRecords();

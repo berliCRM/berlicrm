@@ -13,6 +13,24 @@
  */
 class Vtiger_CompanyDetails_Model extends Vtiger_Base_Model {
 
+	public static function isValidLogoLink($link) {
+		if (!is_string($link)) {
+			return false;
+		}
+		$link = trim($link);
+		return $link === '' || (filter_var($link, FILTER_VALIDATE_URL) !== false
+			&& in_array(strtolower(parse_url($link, PHP_URL_SCHEME)), array('http', 'https'), true));
+	}
+
+	public function getLogoLink() {
+		$link = $GLOBALS['custom_logo_link'] ?? '';
+		return self::isValidLogoLink($link) ? trim($link) : '';
+	}
+
+	public static function getLogoLinkTarget() {
+		return ($GLOBALS['custom_logo_link_target'] ?? '_self') === '_blank' ? '_blank' : '_self';
+	}
+
 	/**
 	 * Function to get the Company Logo
 	 * @return Vtiger_Image_Model instance

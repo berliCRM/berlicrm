@@ -52,7 +52,7 @@ class Vtiger_Functions {
 	}
 
 	static function currentUserDisplayDateNew() {
-		global $log, $current_user;
+		global $current_user;
 		$date = new DateTimeField(null);
 		return $date->getDisplayDate($current_user);
 	}
@@ -479,6 +479,9 @@ class Vtiger_Functions {
 
 	// Utility
 	static function formatDecimal($value){
+		if ($value === '' || $value === null) {
+			return '';
+		}
 		$fld_value = explode('.', $value);
 		if(isset ($fld_value[1]) && $fld_value[1] != ''){
 			$fld_value = rtrim($value, '0');
@@ -659,7 +662,7 @@ class Vtiger_Functions {
 			$ok = @imagejpeg($img, $file_details['tmp_name'], 90);
 			imagedestroy($img);
 			if (!$ok) return 'false';
-		} 
+		}
 		elseif ($imageType === IMAGETYPE_PNG) {
 			$img = @imagecreatefrompng($file_details['tmp_name']);
 			if ($img === false) return 'false';
@@ -669,7 +672,7 @@ class Vtiger_Functions {
 			$ok = @imagepng($img, $file_details['tmp_name'], 6);
 			imagedestroy($img);
 			if (!$ok) return 'false';
-		} 
+		}
 		else { // IMAGETYPE_GIF
 			$img = @imagecreatefromgif($file_details['tmp_name']);
 			if ($img === false) return 'false';
@@ -711,7 +714,7 @@ class Vtiger_Functions {
 		}
 		global $current_user, $HELPDESK_SUPPORT_EMAIL_ID, $PORTAL_URL, $PORTAL_URL_ENG;
 		date_default_timezone_set($current_user->time_zone);
-		
+
 		$dateFormat = new IntlDateFormatter(
 			$current_user->language,
 			IntlDateFormatter::FULL,
@@ -1506,12 +1509,12 @@ class Vtiger_Functions {
 					case "=": case "+": case "-": case "@": case "\t": case "\r":
 						$row[$k] = "'" . $v;
 						break;
-				}				
+				}
 			}
 		}
 		return $row;
 	}
-    
+
     /**
      * To also update the 'modifiedtime' in the parent module when a comment is written.
      */
@@ -1527,7 +1530,7 @@ class Vtiger_Functions {
             $current_modifiedtime = $adb->query_result($res1, 0, "modifiedtime");
             $current_createdtime  = $adb->query_result($res1, 0, "createdtime");
 
-            $new_modifiedtime = ""; 
+            $new_modifiedtime = "";
 
             // Case 1: modifiedtime exists
             if (!empty($current_modifiedtime)) {
@@ -1562,4 +1565,25 @@ class Vtiger_Functions {
         }
     }
 
+    /**
+     * Resolves the source module of a given record ID.
+     * Checks whether the ID belongs to a user or a CRM module record.
+     *
+     * @param int $recordId The record ID to resolve.
+     * @return string|null The module name (e.g. 'Users', 'Contacts'), or null if not found.
+     */
+    public static function resolveRecordSource($recordId) {
+        $adb = PearDatabase::getInstance();
+
+        $setype = self::getCRMRecordType($recordId);
+        if ($setype !== null) {
+            return $setype;
+        }
+        $queryUserId = "SELECT id FROM vtiger_users WHERE id = ?";
+        $result = $adb->pquery($queryUserId, array($recordId));
+        if ($result && $adb->num_rows($result) > 0) {
+            return 'Users';
+        }
+        return null;
+    }
 }

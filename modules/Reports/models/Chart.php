@@ -16,7 +16,7 @@ class Reports_Chart_Model extends Vtiger_Base_Model {
 		$result = $db->pquery('SELECT * FROM vtiger_reporttype WHERE reportid = ?', array($reportModel->getId()));
 		$data = $db->query_result($result, 0, 'data');
 		if(!empty($data)) {
-			$decodeData = Zend_Json::decode(decode_html($data));
+			$decodeData = json_decode(decode_html($data), true);
 			$self->setData($decodeData);
 			$self->setParent($reportModel);
 			$self->setId($reportModel->getId());
@@ -57,7 +57,8 @@ class Reports_Chart_Model extends Vtiger_Base_Model {
 	function getData() {
 		$type = ucfirst($this->getChartType());
 		$chartModel = new $type($this);
-		return $chartModel->generateData();
+		$data = $chartModel->generateData();
+		return $data;
 	}
 }
 
@@ -318,7 +319,8 @@ abstract class Base_Chart extends Vtiger_Base_Model{
 			}
 		}
 
-		$sql = explode(' from ', $this->reportRun->sGetSQLforReport($reportModel->getId(), $advFilterSql, 'PDF'));
+		// Keep FROM clauses in secondary-module subqueries intact.
+		$sql = explode(' from ', $this->reportRun->sGetSQLforReport($reportModel->getId(), $advFilterSql, 'PDF'), 2);
 
 		$columnLabels = array();
 
@@ -336,7 +338,7 @@ abstract class Base_Chart extends Vtiger_Base_Model{
 		$chartSQL .= " FROM $sql[1] ";
 
 		if($groupByColumns && is_array($groupByColumns)) {
-			$chartSQL .= " GROUP BY `" . implode(`,`, $groupByColumns)."`";
+			$chartSQL .= " GROUP BY `" . implode('`,`', $groupByColumns)."`";
 		}
 		return $chartSQL;
 	}
@@ -574,7 +576,7 @@ class VerticalbarChart extends Base_Chart {
 		$data = array(	'labels' => $labels,
 						'values' => $values,
 						'links' => $links,
-						'type' => (count($values[0]) == 1) ? 'singleBar' : 'multiBar',
+						'type' =>  (is_countable($values[0])) ? (count($values[0]) == 1) ? 'singleBar' : 'multiBar' : "",
 						'data_labels' => $this->getDataLabels(),
 						'graph_label' => $this->getGraphLabel()
 					);

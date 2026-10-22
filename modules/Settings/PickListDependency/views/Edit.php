@@ -10,7 +10,7 @@
 
 class Settings_PickListDependency_Edit_View extends Settings_Vtiger_Index_View {
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request): void{
 		$moduleName = $request->getModule();
 		$qualifiedModuleName = $request->getModule(false);
 
@@ -57,7 +57,6 @@ class Settings_PickListDependency_Edit_View extends Settings_Vtiger_Index_View {
         $viewer->assign('NON_MAPPED_SOURCE_VALUES', $nonMappedSourceValues);
 		$viewer->assign('QUALIFIED_MODULE', $qualifiedName);
 		$viewer->assign('RECORD_MODEL', $recordModel);
-		
         return $viewer->view('DependencyGraph.tpl',$qualifiedName, true);
     }
 	
@@ -66,7 +65,7 @@ class Settings_PickListDependency_Edit_View extends Settings_Vtiger_Index_View {
 	 * @param Vtiger_Request $request
 	 * @return <Array> - List of Vtiger_JsScript_Model instances
 	 */
-	function getHeaderScripts(Vtiger_Request $request) {
+	function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 
@@ -79,7 +78,7 @@ class Settings_PickListDependency_Edit_View extends Settings_Vtiger_Index_View {
 		return $headerScriptInstances;
 	}
 	
-	public function getHeaderCss(Vtiger_Request $request) {
+	public function getHeaderCss(Vtiger_Request $request):array {
 		$headerCssInstances = parent::getHeaderCss($request);
 
 		$cssFileNames = array(

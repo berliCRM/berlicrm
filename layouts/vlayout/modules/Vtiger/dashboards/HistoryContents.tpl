@@ -14,7 +14,7 @@
 <div style='padding:5px;'>
 	{/if}
 	{if $HISTORIES neq false}
-		{foreach key=$index item=HISTORY from=$HISTORIES}
+	{foreach key=INDEX item=HISTORY from=$HISTORIES}
 			{assign var=MODELNAME value=get_class($HISTORY)}
 			{if $MODELNAME == 'ModTracker_Record_Model'}
 				{assign var=USER value=$HISTORY->getModifiedBy()}
@@ -26,7 +26,8 @@
 				{assign var=PROCEED value= TRUE}
 				{if ($HISTORY->isRelationLink()) or ($HISTORY->isRelationUnLink())}
 					{assign var=RELATION value=$HISTORY->getRelationInstance()}
-					{if !($RELATION->getLinkedRecord())}
+					{assign var=LINKED_RECORD value=$RELATION->getLinkedRecord()}
+					{if !$LINKED_RECORD}
 						{assign var=PROCEED value= FALSE}
 					{/if}
 				{/if}
@@ -88,9 +89,9 @@
 
 
 
-								{assign var=RELATION value=$HISTORY->getRelationInstance()}
-								{assign var=LINKED_RECORD_DETAIL_URL value=$RELATION->getLinkedRecord()->getDetailViewUrl()}
-								{assign var=PARENT_DETAIL_URL value=$RELATION->getParent()->getParent()->getDetailViewUrl()}
+								{assign var=RELATION_PARENT value=$RELATION->getParent()->getParent()}
+								{assign var=LINKED_RECORD_DETAIL_URL value=$LINKED_RECORD->getDetailViewUrl()}
+								{assign var=PARENT_DETAIL_URL value=$RELATION_PARENT->getDetailViewUrl()}
 								<div class='' style='margin-top:5px'>
 									<b>{$USER->getName()}</b>
 									{if $HISTORY->isRelationLink()}
@@ -98,19 +99,19 @@
 									{else}
 										{vtranslate('LBL_REMOVED', $MODULE_NAME)}
 									{/if}
-									{if $RELATION->getLinkedRecord()->getModuleName() eq 'Calendar'}
-										{if isPermitted('Calendar', 'DetailView', $RELATION->getLinkedRecord()->getId()) eq 'yes'}
+									{if $LINKED_RECORD->getModuleName() eq 'Calendar'}
+										{if isPermitted('Calendar', 'DetailView', $LINKED_RECORD->getId()) eq 'yes'}
 											<a class="cursorPointer" {if stripos($LINKED_RECORD_DETAIL_URL, 'javascript:')===0} onclick='{$LINKED_RECORD_DETAIL_URL|substr:strlen("javascript:")}'
-													{else} onclick='window.location.href="{$LINKED_RECORD_DETAIL_URL}"' {/if}>{$RELATION->getLinkedRecord()->getName()}</a>
+													{else} onclick='window.location.href="{$LINKED_RECORD_DETAIL_URL}"' {/if}>{$LINKED_RECORD->getName()}</a>
 										{else}
-											{vtranslate($RELATION->getLinkedRecord()->getModuleName(), $RELATION->getLinkedRecord()->getModuleName())}
+											{vtranslate($LINKED_RECORD->getModuleName(), $LINKED_RECORD->getModuleName())}
 										{/if}
 									{else}
 										<a class="cursorPointer" {if stripos($LINKED_RECORD_DETAIL_URL, 'javascript:')===0} onclick='{$LINKED_RECORD_DETAIL_URL|substr:strlen("javascript:")}'
-												{else} onclick='window.location.href="{$LINKED_RECORD_DETAIL_URL}"' {/if}>{$RELATION->getLinkedRecord()->getName()}</a>
+												{else} onclick='window.location.href="{$LINKED_RECORD_DETAIL_URL}"' {/if}>{$LINKED_RECORD->getName()}</a>
 									{/if}{vtranslate('LBL_FOR')} <a class="cursorPointer" {if stripos($PARENT_DETAIL_URL, 'javascript:')===0}
 										onclick='{$PARENT_DETAIL_URL|substr:strlen("javascript:")}' {else} onclick='window.location.href="{$PARENT_DETAIL_URL}"' {/if}>
-										{$RELATION->getParent()->getParent()->getName()}</a>
+										{$RELATION_PARENT->getName()}</a>
 								</div>
 							{else if $HISTORY->isRestore()}
 								<div class=''  style='margin-top:5px'>
@@ -129,6 +130,7 @@
 					</div>
 				{/if}
 			{else if $MODELNAME == 'ModComments_Record_Model'}
+				{assign var=COMMENT_PARENT value=$HISTORY->getParentRecordModel()}
 				<div class="row-fluid">
 					<div class="span1">
 						<image width='24px' src="{vimage_path('Comments.png')}"/>&nbsp;&nbsp;
@@ -137,7 +139,7 @@
 						{assign var=COMMENT_TIME value=$HISTORY->getCommentedTime()}
 						<p class="pull-right muted" style="padding-right:5px;"><small title="{Vtiger_Util_Helper::formatDateTimeIntoDayString("$COMMENT_TIME")}">{Vtiger_Util_Helper::formatDateDiffInStrings("$COMMENT_TIME")}</small></p>
 						<div>
-							<b>{$HISTORY->getCommentedByName()|escape:'html'}</b> {vtranslate('LBL_COMMENTED')} {vtranslate('LBL_ON')} <a class="textOverflowEllipsis" href="{$HISTORY->getParentRecordModel()->getDetailViewUrl()}">{$HISTORY->getParentRecordModel()->getName()}</a>
+							<b>{$HISTORY->getCommentedByName()|escape:'html'}</b> {vtranslate('LBL_COMMENTED')} {vtranslate('LBL_ON')} <a class="textOverflowEllipsis" href="{$COMMENT_PARENT->getDetailViewUrl()}">{$COMMENT_PARENT->getName()}</a>
 						</div>
 						<div class='font-x-small'><i>"{nl2br($HISTORY->get('commentcontent'))}"</i></div>
 					</div>
@@ -148,7 +150,7 @@
 		{if $NEXTPAGE}
 			<div class="row-fluid">
 				<div class="span12">
-					<a href="javascript:;" class="load-more" data-page="{$PAGE}" data-nextpage="{$NEXTPAGE}">{vtranslate('LBL_MORE')}...</a>
+					<a href="javascript:;" class="load-more" data-page="{$PAGE}" data-nextpage="{$NEXTPAGE}" data-nextcursor="{$NEXTCURSOR}">{vtranslate('LBL_MORE')}...</a>
 				</div>
 			</div>
 		{/if}

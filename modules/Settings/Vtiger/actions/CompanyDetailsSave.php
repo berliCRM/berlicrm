@@ -93,7 +93,7 @@ class Settings_Vtiger_CompanyDetailsSave_Action extends Settings_Vtiger_Basic_Ac
                 $imgInfo = @getimagesize($logoDetails['tmp_name']);
                 if ($imgInfo === false) {
                     $saveLogo = false;
-                } 
+                }
 				else {
                     $imageType = (int)($imgInfo[2] ?? 0);
                     if (!in_array($imageType, $allowedImageTypes, true)) {
@@ -108,11 +108,11 @@ class Settings_Vtiger_CompanyDetailsSave_Action extends Settings_Vtiger_Basic_Ac
                 if ($imageType === IMAGETYPE_JPEG) {
                     $img = @imagecreatefromjpeg($logoDetails['tmp_name']);
                     $finalExt = 'jpg';
-                } 
+                }
 				elseif ($imageType === IMAGETYPE_PNG) {
                     $img = @imagecreatefrompng($logoDetails['tmp_name']);
                     $finalExt = 'png';
-                } 
+                }
 				else { // IMAGETYPE_GIF
                     $img = @imagecreatefromgif($logoDetails['tmp_name']);
                     $finalExt = 'gif';
@@ -120,21 +120,21 @@ class Settings_Vtiger_CompanyDetailsSave_Action extends Settings_Vtiger_Basic_Ac
 
                 if ($img === false) {
                     $saveLogo = false;
-                } 
+                }
 				else {
                     $tmpReencoded = tempnam(sys_get_temp_dir(), 'vtlogo_');
                     if ($tmpReencoded === false) {
                         imagedestroy($img);
                         $saveLogo = false;
-                    } 
+                    }
 					else {
 
                         if ($imageType === IMAGETYPE_JPEG) {
                             $success = imagejpeg($img, $tmpReencoded, 90);
-                        } 
+                        }
 						elseif ($imageType === IMAGETYPE_PNG) {
                             $success = imagepng($img, $tmpReencoded, 6);
-                        } 
+                        }
 						else {
                             $success = imagegif($img, $tmpReencoded);
                         }
@@ -144,7 +144,7 @@ class Settings_Vtiger_CompanyDetailsSave_Action extends Settings_Vtiger_Basic_Ac
                         if (!$success) {
                             @unlink($tmpReencoded);
                             $saveLogo = false;
-                        } 
+                        }
 						else {
                             // SECURITY: enforce safe filename (ignore user name)
                             $binFileName = 'companylogo.' . $finalExt;
@@ -194,5 +194,7 @@ class Settings_Vtiger_CompanyDetailsSave_Action extends Settings_Vtiger_Basic_Ac
         exit;
     }
 
-
+        public function validateRequest(Vtiger_Request $request):bool {
+            return $request->validateWriteAccess();
+        } 
 }

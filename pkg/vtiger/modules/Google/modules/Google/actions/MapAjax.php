@@ -30,8 +30,8 @@ class Google_MapAjax_Action extends Vtiger_BasicAjax_Action {
         return empty($address) ? array("mapapikey"=> $mapapikey, 'address' => '') : array("address" => join(",", $address),"mapapikey"=> $mapapikey);
     }
     
-    public function validateRequest(Vtiger_Request $request) { 
-        $request->validateReadAccess(); 
+    public function validateRequest(Vtiger_Request $request): bool { 
+        return $request->validateReadAccess();
     } 
 
 }

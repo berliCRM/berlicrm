@@ -22,7 +22,7 @@
 		<input type="hidden" name="action" value="SaveAjax" />
 		<input type="hidden" name="mode" value="add" />
 		<input type="hidden" name="picklistName" value="{$SELECTED_PICKLIST_FIELDMODEL->get('name')}" />
-		<input type="hidden" name="pickListValues" value='{Vtiger_Util_Helper::toSafeHTML(ZEND_JSON::encode($SELECTED_PICKLISTFIELD_ALL_VALUES))}' />
+		<input type="hidden" name="pickListValues" value='{Vtiger_Util_Helper::toSafeHTML(json_encode($SELECTED_PICKLISTFIELD_ALL_VALUES))}' />
 		<div class="modal-body tabbable">
 			<div class="control-group">
 				<div class="control-label"><span class="redColor">*</span>{vtranslate('LBL_ITEM_VALUE',$QUALIFIED_MODULE)}<br>
@@ -30,7 +30,7 @@
                 </div>
 				<div class="controls">
                     <div class='newSingle'>
-                        <input type="text" data-prompt-position="topLeft:70" data-validation-engine="validate[required, funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-validator='{Zend_Json::encode([['name'=>'FieldLabel']])}' name="newValue" id="newValue">
+                        <input type="text" data-prompt-position="topLeft:70" data-validation-engine="validate[required, funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-validator='{json_encode([['name'=>'FieldLabel']])}' name="newValue" id="newValue">
                     </div>
                     <div class='newMultiple' style="display:none">
                         <textarea id='newValues' name='newValues'></textarea>

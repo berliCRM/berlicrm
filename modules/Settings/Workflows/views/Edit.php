@@ -19,7 +19,7 @@ class Settings_Workflows_Edit_View extends Settings_Vtiger_Index_View {
 		}
 	}
 
-	public function preProcess(Vtiger_Request $request , $display=false) {
+	public function preProcess(Vtiger_Request $request , bool $display=false):void {
 		parent::preProcess($request);
 		$viewer = $this->getViewer($request);
 
@@ -170,7 +170,7 @@ class Settings_Workflows_Edit_View extends Settings_Vtiger_Index_View {
 		$viewer->view('Step3.tpl', $qualifiedModuleName);
 	}
 
-	public function getHeaderScripts(Vtiger_Request $request) {
+	public function getHeaderScripts(Vtiger_Request $request):array {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();
 
@@ -191,7 +191,7 @@ class Settings_Workflows_Edit_View extends Settings_Vtiger_Index_View {
 		return $headerScriptInstances;
 	}
         
-        function getHeaderCss(Vtiger_Request $request) {
+        function getHeaderCss(Vtiger_Request $request):array {
 		$headerCssInstances = parent::getHeaderCss($request);
 		$moduleName = $request->getModule();
 		$cssFileNames = array(

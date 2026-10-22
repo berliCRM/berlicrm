@@ -28,6 +28,9 @@ $languageStrings = array(
 	'LBL_TURN_OFF' => 'Ausschalten',
 	'LBL_SEARCH_ALL' => 'alles durchsuchen',
 	'LBL_SAVE_SETTINGS' => 'Einstellungen speichern',
+
+	'LBL_SEARCH_SETUP_DESCRIPTION' => 'Felder für Globale Suche und Suchergebnis festlegen',
+
 );
 
 $jsLanguageStrings = array(

@@ -22,8 +22,6 @@ include_once 'includes/main/WebUI.php';
 
 require_once('libraries/nusoap/nusoap.php');
 
-$log = &LoggerManager::getLogger('wordplugin');
-
 error_reporting(0);
 $NAMESPACE = 'http://www.vtiger.com/products/crm';
 $server = new soap_server;
@@ -223,7 +221,7 @@ function get_tickets_columns($user_name, $session)
 {
 	if(!validateSession($user_name,$session))
 	return null;
-	global $current_user,$log;
+	global $current_user;
 	require_once("modules/Users/Users.php");
 	$seed_user=new Users();
 	$user_id=$seed_user->retrieve_user_id($user_name);
@@ -233,7 +231,6 @@ function get_tickets_columns($user_name, $session)
 	{ 
 		require_once('modules/HelpDesk/HelpDesk.php');
 		$helpdesk = new HelpDesk();
-		$log->debug($helpdesk->getColumnNames_Hd());
 		return $helpdesk->getColumnNames_Hd();
 	}
 	else
@@ -247,7 +244,7 @@ function get_contacts_columns($user_name, $session)
 {
 	if(!validateSession($user_name,$session))
 	return null;
-	global $current_user,$log;
+	global $current_user;
 	require_once("modules/Users/Users.php");
 	$seed_user=new Users();
 	$user_id=$seed_user->retrieve_user_id($user_name);
@@ -257,7 +254,6 @@ function get_contacts_columns($user_name, $session)
 	{
 		require_once('modules/Contacts/Contacts.php');
 		$contact = new Contacts();
-		$log->debug($contact->getColumnNames());
 		return $contact->getColumnNames();	   
 	}
 	else
@@ -273,7 +269,7 @@ function get_accounts_columns($user_name, $session)
 {
 	if(!validateSession($user_name,$session))
 	return null;
-	global $current_user,$log;
+	global $current_user;
 	require_once("modules/Users/Users.php");
 	$seed_user=new Users();
 	$user_id=$seed_user->retrieve_user_id($user_name);
@@ -283,7 +279,6 @@ function get_accounts_columns($user_name, $session)
 	{
 		require_once('modules/Accounts/Accounts.php');
 		$account = new Accounts();
-		$log->debug($account->getColumnNames_Acnt());
 		return $account->getColumnNames_Acnt();
 	}
 	else
@@ -299,7 +294,7 @@ function get_leads_columns($user_name, $session)
 {	
 	if(!validateSession($user_name,$session))
 	return null;
-	global $current_user,$log;
+	global $current_user;
 	require_once("modules/Users/Users.php");
 	$seed_user=new Users();
 	$user_id=$seed_user->retrieve_user_id($user_name);
@@ -310,7 +305,6 @@ function get_leads_columns($user_name, $session)
 	{
 		require_once('modules/Leads/Leads.php');
 		$lead = new Leads();
-		$log->debug($lead->getColumnNames_Lead());
 		return $lead->getColumnNames_Lead();
 	}
 	else
@@ -339,7 +333,7 @@ function get_user_columns($user_name, $session)
 
 function create_session($user_name, $password,$version)
 {
-       	global $log,$adb;
+       	global $adb;
 	require_once('modules/Users/Users.php');
 	include('vtigerversion.php');
 
@@ -385,7 +379,6 @@ function end_session($user_name)
 function unsetServerSessionId($id)
 {
 	global $adb;
-	$adb->println("Inside the function unsetServerSessionId");
 
 	$id = (int) $id;
 
@@ -396,30 +389,24 @@ function unsetServerSessionId($id)
 function validateSession($username, $sessionid)
 {
 	global $adb,$current_user;
-	$adb->println("Inside function validateSession($username, $sessionid)");
 	require_once("modules/Users/Users.php");
 	$seed_user = new Users();
 	$id = $seed_user->retrieve_user_id($username);
 
 	$server_sessionid = getServerSessionId($id);
 
-	$adb->println("Checking Server session id and customer input session id ==> $server_sessionid == $sessionid");
-
 	if($server_sessionid == $sessionid)
 	{
-		$adb->println("Session id match. Authenticated to do the current operation.");
 		return true;
 	}
 	else
 	{
-		$adb->println("Session id does not match. Not authenticated to do the current operation.");
 		return false;
 	}
 }
 function getServerSessionId($id)
 {
 	global $adb;
-	$adb->println("Inside the function getServerSessionId($id)");
 
 	//To avoid SQL injection we are type casting as well as bound the id variable. In each and every function we will call this function
 	$id = (int) $id;

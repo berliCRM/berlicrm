@@ -8,9 +8,14 @@
  * All Rights Reserved.
  *************************************************************************************/
 	
+	/**
+	 * @berli-openapi-begin
+	 * {"summary":"Retrieve a CRM record","description":"Returns one accessible record by webservice ID. Use describe for the module-specific field contract.","tags":["Records"],"parameters":{"id":{"required":true,"description":"Webservice record ID in moduleIdxrecordId form.","example":"12x345","schema":{"type":"string","pattern":"^[0-9]+x[0-9]+$"}}},"result":{"schema":{"$ref":"#/components/schemas/Entity"},"example":{"id":"12x345","lastname":"Doe"}}}
+	 * @berli-openapi-end
+	 */
 	function vtws_retrieve($id, $user){
 		
-		global $log,$adb;
+		global $adb;
 		
 		$webserviceObject = VtigerWebserviceObject::fromId($adb,$id);
 		$handlerPath = $webserviceObject->getHandlerPath();
@@ -18,9 +23,14 @@
 		
 		require_once $handlerPath;
 		
-		$handler = new $handlerClass($webserviceObject,$user,$adb,$log);
+		$handler = new $handlerClass($webserviceObject,$user,$adb);
 		$meta = $handler->getMeta();
 		$entityName = $meta->getObjectEntityName($id);
+
+		if ($entityName == null){
+			throw new WebServiceException(WebServiceErrorCode::$RECORDNOTFOUND,"Record you are trying to access is not found");
+		}
+
 		$types = vtws_listtypes(null, $user);
 		if(!in_array($entityName,$types['types'])){
 			throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED,"Permission to perform the operation is denied");

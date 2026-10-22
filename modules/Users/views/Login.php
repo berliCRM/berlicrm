@@ -10,7 +10,7 @@
 
 class Users_Login_View extends Vtiger_View_Controller {
 
-	function loginRequired() {
+	function loginRequired(): bool  {
 		return false;
 	}
 	

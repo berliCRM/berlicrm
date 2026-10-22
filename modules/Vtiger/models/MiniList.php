@@ -18,6 +18,7 @@ class Vtiger_MiniList_Model extends Vtiger_Widget_Model {
 	protected $listviewHeaders;
 	protected $listviewRecords;
 	protected $targetModuleModel;
+	protected static $recordCache = array();
 
 	public function setWidgetModel($widgetModel) {
 		$this->widgetModel = $widgetModel;
@@ -25,7 +26,7 @@ class Vtiger_MiniList_Model extends Vtiger_Widget_Model {
 
 		// Decode data if not done already.
 		if (is_string($this->extraData)) {
-			$this->extraData = Zend_Json::decode(decode_html($this->extraData));
+			$this->extraData = json_decode(decode_html($this->extraData), true);
 		}
 		if ($this->extraData == NULL) {
 			throw new Exception("Invalid data");
@@ -108,18 +109,42 @@ class Vtiger_MiniList_Model extends Vtiger_Widget_Model {
 
 		$this->initListViewController();
 
+		$cacheKey = $this->getTargetModule() . ':' . $this->widgetModel->get('filterid') . ':' . implode(',', $this->getTargetFields());
+		if (isset(self::$recordCache[$cacheKey])) {
+			return self::$recordCache[$cacheKey];
+		}
+
 		if (!$this->listviewRecords) {
 			$db = PearDatabase::getInstance();
+			$targetModuleName = $this->getTargetModule();
+			$targetModuleFocus = CRMEntity::getInstance($targetModuleName);
 
 			$query = $this->queryGenerator->getQuery();
-			$query .= ' ORDER BY vtiger_crmentity.modifiedtime DESC ';
+			$hasFilterConditions = count($this->queryGenerator->getWhereFields()) > 0;
+			$query = preg_replace('/^\s*SELECT\s+/i', 'SELECT STRAIGHT_JOIN ', $query, 1);
+			$query = preg_replace(
+				'/\b(INNER\s+JOIN|LEFT\s+JOIN)\s+vtiger_crmentity\b(?!\s+FORCE\s+INDEX)/i',
+				'$1 vtiger_crmentity FORCE INDEX (`PRIMARY`)',
+				$query,
+				1
+			);
+
+			if (!$hasFilterConditions && !empty($targetModuleFocus->table_name) && !empty($targetModuleFocus->table_index)) {
+				$baseTable = $targetModuleFocus->table_name;
+				$baseTableIndex = $targetModuleFocus->table_index;
+				$query = preg_replace(
+					'/\bFROM\s+' . preg_quote($baseTable, '/') . '\b/i',
+					'FROM ' . $baseTable . ' FORCE INDEX (`PRIMARY`)',
+					$query,
+					1
+				);
+				$query .= ' ORDER BY ' . $baseTable . '.' . $baseTableIndex . ' DESC ';
+			} else {
+				$query .= ' ORDER BY vtiger_crmentity.modifiedtime DESC, vtiger_crmentity.crmid DESC ';
+			}
 			$query .= ' LIMIT 0,' . $this->getRecordLimit();
-			$query = str_replace(" FROM ", ",vtiger_crmentity.crmid as id FROM ", $query);
 
 			$result = $db->pquery($query, array());
-
-			$targetModuleName = $this->getTargetModule();
-			$targetModuleFocus= CRMEntity::getInstance($targetModuleName);
 
 			$entries = $this->listviewController->getListViewRecords($targetModuleFocus,$targetModuleName,$result);
 
@@ -131,6 +156,7 @@ class Vtiger_MiniList_Model extends Vtiger_Widget_Model {
 				$this->listviewRecords[$id] = $this->getTargetModuleModel()->getRecordFromArray($record, $rawData);
 			}
 		}
+		self::$recordCache[$cacheKey] = $this->listviewRecords;
 
 		return $this->listviewRecords;
 	}

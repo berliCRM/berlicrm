@@ -317,7 +317,7 @@ class Install_InitSchema_Model
 
         // Workflow manager
         $dependentEventHandlers = array('VTEntityDelta');
-        $dependentEventHandlersJson = Zend_Json::encode($dependentEventHandlers);
+        $dependentEventHandlersJson = json_encode($dependentEventHandlers);
         $em->registerHandler(
             'vtiger.entity.aftersave',
             'modules/com_vtiger_workflow/VTEventHandler.inc',
@@ -737,6 +737,9 @@ class Install_InitSchema_Model
     public static function setCRMNOWmodifications()
     {
         global $adb;
+        self::registerCreateInvoicePdf();
+        require_once 'modules/Settings/Vtiger/models/Backup.php';
+        Settings_Vtiger_Backup_Model::install();
         $path = Install_Utils_Model::INSTALL_LOG;
         file_put_contents($path, "[".date('Y-m-d h:i:s')."] Include Webservice Utils, get AdoDB instance\n", FILE_APPEND);
         vimport('~~include/Webservices/Utils.php');
@@ -804,11 +807,13 @@ class Install_InitSchema_Model
         self::translateSettings();
         self::translateWorkflowstasks();
         self::removeGroups();
+        self::addingSalutation();
         self::addNewFields();
         self::addUITypes();
         self::addNewWebservices();
         self::addNewRelatedLists();
         self::addNewConfigEditSettingTables();
+        self::addEmailConfigurator();
         self::alterTables();
 
         //last step, set info this system was installed
@@ -830,13 +835,13 @@ class Install_InitSchema_Model
         $actionModels = Vtiger_Action_Model::getAll(true);
         $permissions = array();
         foreach ($allModuleModules as $tabId => $moduleModel) {
-            $permissions[$tabId]['is_permitted'] = Settings_Profiles_Module_Model::IS_PERMITTED_VALUE;
+            $permissions[$tabId]['is_permitted'] = 'on';
             if ($moduleModel->isEntityModule()) {
                 $permissions[$tabId]['actions'] = array();
                 foreach ($actionModels as $actionModel) {
-                    if ($actionModel->isModuleEnabled($moduleModel)) {
-                        $permissions[$tabId]['actions'][$actionModel->getId()] = Settings_Profiles_Module_Model::IS_PERMITTED_VALUE;
-                    }
+                    // if ($actionModel->isModuleEnabled($moduleModel)) {
+                        $permissions[$tabId]['actions'][$actionModel->getId()] = 'on';
+                    // }
                 }
                 $permissions[$tabId]['fields'] = array();
                 $moduleFields = $moduleModel->getFields();
@@ -1142,58 +1147,137 @@ class Install_InitSchema_Model
         }
     }
 
-    public static function addUITypes() {
-        global $adb;
-
-        $uiTypesToAdd = array('crmnow15' => 'UserPicklist');
-        $query = "SELECT * FROM vtiger_ws_fieldtype WHERE uitype = ?;";
-        $iQuery = "INSERT INTO vtiger_ws_fieldtype VALUES(?,?,?);";
-        $uQuery = "UPDATE vtiger_ws_fieldtype_seq SET id = ?;";
-
-        foreach ($uiTypesToAdd AS $uitype => $fieldType) {
-            $res = $adb->pquery($query, array($uitype));
-
-            if ($res && $adb->num_rows($res) == 0) {
-                $adb->pquery($iQuery, array(NULL, $uitype, $fieldType));
-                $lastId = $adb->getLastInsertID();
-                $adb->pquery($uQuery, array($lastId));
-            }
+    // adding a missing salutetype
+    private static function addingSalutation():void {
+        $pickListFieldName = 'Sehr geehrte Frau Prof.';
+        $pickListName = 'salutationtype';
+        $moduleName = 'Contacts';
+        $moduleModel = Settings_Picklist_Module_Model::getInstance($moduleName);
+        $fieldModel = Settings_Picklist_Field_Model::getInstance($pickListName, $moduleModel);
+        $rolesSelected = array();
+        $roleRecordList = Settings_Roles_Record_Model::getAll(true);
+        foreach($roleRecordList AS $roleRecord) {
+            $rolesSelected[] = $roleRecord->getId();
         }
+        $moduleModel->addPickListValues($fieldModel, $pickListFieldName, $rolesSelected);
     }
 
-    private static function addNewWebservices() {
-        global $adb;
+	public static function addUITypes() {
+		global $adb;
 
-        $query = "SELECT * FROM vtiger_ws_operation WHERE name = ?;";
+		$uiTypesToAdd = array('crmnow15' => 'UserPicklist');
+		$query = "SELECT * FROM vtiger_ws_fieldtype WHERE uitype = ?;";
+		$iQuery = "INSERT INTO vtiger_ws_fieldtype VALUES(?,?,?);";
+		$uQuery = "UPDATE vtiger_ws_fieldtype_seq SET id = ?;";
 
-        $wsName = 'get_new_multi_relations';
-        $res = $adb->pquery($query, array($wsName));
-        if ($res && $adb->num_rows($res) == 0) {
-            // add new webservice operation get_new_multi_relations
-            $operationId = vtws_addWebserviceOperation($wsName, 'include/Webservices/Custom/getNewMultiRelations.php', 'berli_get_new_multi_relations', 'GET', '0');
-            vtws_addWebserviceOperationParam($operationId, 'id', 'string', '1');
-            vtws_addWebserviceOperationParam($operationId, 'relModule', 'string', '2');
-        }
-    }
+		foreach ($uiTypesToAdd AS $uitype => $fieldType) {
+			$res = $adb->pquery($query, array($uitype));
 
-    public static function addNewRelatedLists() {
-        global $adb;
+			if ($res && $adb->num_rows($res) == 0) {
+				$adb->pquery($iQuery, array(NULL, $uitype, $fieldType));
+				$lastId = $adb->getLastInsertID();
+				$adb->pquery($uQuery, array($lastId));
+			}
+		}
+	}
 
-        $query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
+	public static function addNewWebservices() {
+		global $adb;
 
-        $relations = array(
+		$query = "SELECT * FROM vtiger_ws_operation WHERE name = ?;";
+
+		// Public, machine-readable documentation for every registered REST operation.
+		$wsName = 'describeapi';
+		$res = $adb->pquery($query, array($wsName));
+		if ($res === false) {
+			throw new RuntimeException('Could not read the describeapi webservice registration.');
+		}
+		$count = $adb->num_rows($res);
+		if ($count > 1) {
+			throw new RuntimeException('Multiple describeapi registrations exist. Resolve them before installing.');
+		}
+		if ($count === 0) {
+			$operationId = vtws_addWebserviceOperation(
+				$wsName,
+				'include/Webservices/DescribeApi.php',
+				'vtws_describeapi',
+				'GET',
+				1
+			);
+			if (empty($operationId)) {
+				throw new RuntimeException('Could not register describeapi.');
+			}
+		} else {
+			$operationId = $adb->query_result($res, 0, 'operationid');
+			$updated = $adb->pquery(
+				'UPDATE vtiger_ws_operation SET handler_path = ?, handler_method = ?, type = ?, prelogin = ? WHERE operationid = ?',
+				array('include/Webservices/DescribeApi.php', 'vtws_describeapi', 'GET', 1, $operationId)
+			);
+			if ($updated === false) {
+				throw new RuntimeException('Could not repair describeapi.');
+			}
+		}
+		if ($adb->pquery('DELETE FROM vtiger_ws_operation_parameters WHERE operationid = ?', array($operationId)) === false) {
+			throw new RuntimeException('Could not clear describeapi parameters.');
+		}
+
+		$wsName = 'get_new_multi_relations';
+		$res = $adb->pquery($query, array($wsName));
+		if ($res && $adb->num_rows($res) == 0) {
+			// add new webservice operation get_new_multi_relations
+			$operationId = vtws_addWebserviceOperation($wsName, 'include/Webservices/Custom/getNewMultiRelations.php', 'berli_get_new_multi_relations', 'GET', '0');
+			vtws_addWebserviceOperationParam($operationId, 'id', 'string', '1');
+			vtws_addWebserviceOperationParam($operationId, 'relModule', 'string', '2');
+		}
+		
+		$wsName = 'get_deleted_entities';
+		$res = $adb->pquery($query, array($wsName));
+		if ($res && $adb->num_rows($res) == 0) {
+			// add new webservice operation get_deleted_entities
+			$operationId = vtws_addWebserviceOperation($wsName, 'include/Webservices/Custom/GetDeletedEntities.php', 'berli_getDeletedEntities', 'GET', '0');
+			vtws_addWebserviceOperationParam($operationId, 'modules', 'encoded', '1');
+			vtws_addWebserviceOperationParam($operationId, 'searchDate', 'String', '2');
+		}
+		
+		$wsName = 'bulkUpdate';
+		$res = $adb->pquery($query, array($wsName));
+		if ($res && $adb->num_rows($res) == 0) {
+			$operationId = vtws_addWebserviceOperation($wsName, 'include/Webservices/Custom/BulkUpdate.php', 'berli_bulkUpdate', 'POST', '0');
+			vtws_addWebserviceOperationParam($operationId, 'elements', 'encoded', '1');
+			vtws_addWebserviceOperationParam($operationId, 'skipHandlers', 'Boolean', '2');
+		}
+		
+		$wsName = 'send_mail_with_attachments';
+		$res = $adb->pquery($query, array($wsName));
+		if ($res && $adb->num_rows($res) == 0) {
+			$operationId = vtws_addWebserviceOperation($wsName, 'include/Webservices/Custom/SendMailWithAttachments.php', 'berli_sendMailWithAttachments', 'POST', '0');
+			vtws_addWebserviceOperationParam($operationId, 'receiverIds', 'encoded', '1');
+			vtws_addWebserviceOperationParam($operationId, 'templateId', 'String', '2');
+			vtws_addWebserviceOperationParam($operationId, 'documentIds', 'encoded', '3');
+			vtws_addWebserviceOperationParam($operationId, 'mailFieldToUse', 'String', '4');
+			vtws_addWebserviceOperationParam($operationId, 'fromId', 'String', '5');
+			vtws_addWebserviceOperationParam($operationId, 'fromName', 'String', '6');
+		}
+	}
+
+	public static function addNewRelatedLists() {
+		global $adb;
+
+		$query = "SELECT * FROM vtiger_relatedlists WHERE tabid = ? AND related_tabid = ?;";
+
+		$relations = array(
             'Vendors' => array('Documents' => array(array('ADD', 'SELECT'), 'get_attachments')),
             'HelpDesk' => array('Emails' => array(array(), 'get_emails'))
         );
 
-        foreach ($relations AS $moduleName => $relation) {
-            foreach ($relation AS $relModuleName => $details) {
-                $actions = $details[0];
-                $methodName = $details[1];
-                $tabId = getTabId($moduleName);
-                $relTabId = getTabId($relModuleName);
+		foreach ($relations AS $moduleName => $relation) {
+			foreach ($relation AS $relModuleName => $details) {
+				$actions = $details[0];
+				$methodName = $details[1];
+				$tabId = getTabId($moduleName);
+				$relTabId = getTabId($relModuleName);
 
-                $res = $adb->pquery($query, array($tabId, $relTabId));
+				$res = $adb->pquery($query, array($tabId, $relTabId));
 
                 if ($adb->num_rows($res) == 0) {
                     $moduleInstance = Vtiger_Module::getInstance($moduleName);
@@ -1415,7 +1499,7 @@ class Install_InitSchema_Model
 
     public static function alterTables() {
         global $adb;
-        $ret = true;
+        $ret = array();
 
         $alterStatements = array("ALTER TABLE `vtiger_mailer_queue` MODIFY body MEDIUMTEXT;" // base64 inline images can be saved there
         );
@@ -1426,6 +1510,327 @@ class Install_InitSchema_Model
             }
         }
 
-        return $ret;
+        return empty($ret) ? true : $ret;
     }
+
+    /**
+     * Keep the list-view indexes in a state that works with module joins.
+     *
+     * @return bool|array True on success or the database errors by index.
+     */
+    public static function updateListViewIndexes() {
+        global $adb;
+        $ret = array();
+        $listViewIndexes = array(
+            array(
+                'table' => 'vtiger_notes',
+                'name' => 'notes_folderid_idx',
+                'columns' => array('folderid'),
+            ),
+            array(
+                'table' => 'berli_listview_colors',
+                'name' => 'listview_colors_fieldid_idx',
+                'columns' => array('listfieldid'),
+            ),
+        );
+        foreach ($listViewIndexes as $index => $indexInfo) {
+            $indexResult = $adb->pquery('SHOW INDEX FROM `' . $indexInfo['table'] . '`', array());
+            if (!$indexResult) {
+                $ret['listViewIndexCheck' . $index] = $adb->database->errorMsg();
+                continue;
+            }
+
+            $existingIndexes = array();
+            for ($row = 0; $row < $adb->num_rows($indexResult); $row++) {
+                $keyName = $adb->query_result($indexResult, $row, 'key_name');
+                $sequence = (int) $adb->query_result($indexResult, $row, 'seq_in_index');
+                $columnName = $adb->query_result($indexResult, $row, 'column_name');
+                $existingIndexes[$keyName][$sequence] = $columnName;
+            }
+
+            $matchingIndexExists = false;
+            foreach ($existingIndexes as $existingColumns) {
+                ksort($existingColumns);
+                $existingColumns = array_values($existingColumns);
+                if (array_slice($existingColumns, 0, count($indexInfo['columns'])) === $indexInfo['columns']) {
+                    $matchingIndexExists = true;
+                    break;
+                }
+            }
+            if ($matchingIndexExists) {
+                continue;
+            }
+
+            $quotedColumns = array();
+            foreach ($indexInfo['columns'] as $columnName) {
+                $quotedColumns[] = '`' . $columnName . '`';
+            }
+            $query = 'ALTER TABLE `' . $indexInfo['table'] . '` ADD INDEX `' .
+                $indexInfo['name'] . '` (' . implode(', ', $quotedColumns) . ')';
+            if (!$adb->pquery($query, array())) {
+                $ret['listViewIndex' . $index] = $adb->database->errorMsg();
+            }
+        }
+
+        // This index looks suitable for the default list sort, but its leading
+        // deleted column is not selective. MySQL can choose it before the
+        // module table joins and then walk nearly all active CRM records in
+        // modified-time order. That makes list views of every module slower,
+        // especially modules containing only a small part of vtiger_crmentity.
+        $crmentityIndexes = $adb->pquery('SHOW INDEX FROM `vtiger_crmentity`', array());
+        if (!$crmentityIndexes) {
+            $ret['listViewIndexCleanupCheck'] = $adb->database->errorMsg();
+        } else {
+            $removeIndex = false;
+            for ($row = 0; $row < $adb->num_rows($crmentityIndexes); $row++) {
+                if ($adb->query_result($crmentityIndexes, $row, 'key_name') === 'crmentity_deleted_modifiedtime_idx') {
+                    $removeIndex = true;
+                    break;
+                }
+            }
+            if ($removeIndex && !$adb->pquery(
+                    'ALTER TABLE `vtiger_crmentity` DROP INDEX `crmentity_deleted_modifiedtime_idx`',
+                    array()
+                )) {
+                $ret['listViewIndexCleanup'] = $adb->database->errorMsg();
+            }
+        }
+
+        return empty($ret) ? true : $ret;
+    }
+
+	/**
+	 * Add the indexes used by dashboard history queries without relying on a
+	 * specific package installation path. The method is safe to run repeatedly.
+	 *
+	 * @return bool|array
+	 */
+	public static function updateDashboardWidgetIndexes() {
+		global $adb;
+		$errors = array();
+		$indexes = array(
+			array('vtiger_modtracker_basic', 'modtracker_module_id_idx', array('module', 'id')),
+			array('vtiger_modtracker_basic', 'modtracker_crmid_id_idx', array('crmid', 'id')),
+			array('vtiger_modtracker_detail', 'modtracker_detail_id_idx', array('id')),
+			array('vtiger_modcomments', 'modcomments_related_id_idx', array('related_to', 'modcommentsid')),
+		);
+
+		foreach ($indexes as $position => $indexInfo) {
+			list($table, $name, $columns) = $indexInfo;
+			$result = $adb->pquery('SHOW INDEX FROM `' . $table . '`', array());
+			if (!$result) {
+				$errors[$position] = $adb->database->errorMsg();
+				continue;
+			}
+			$existing = array();
+			for ($row = 0; $row < $adb->num_rows($result); $row++) {
+				$key = $adb->query_result($result, $row, 'key_name');
+				$sequence = (int) $adb->query_result($result, $row, 'seq_in_index');
+				$existing[$key][$sequence] = $adb->query_result($result, $row, 'column_name');
+			}
+			$found = false;
+			foreach ($existing as $existingColumns) {
+				ksort($existingColumns);
+				if (array_slice(array_values($existingColumns), 0, count($columns)) === $columns) {
+					$found = true;
+					break;
+				}
+			}
+			if (!$found) {
+				$quotedColumns = array_map(function ($column) { return '`' . $column . '`'; }, $columns);
+				if (!$adb->pquery('ALTER TABLE `' . $table . '` ADD INDEX `' . $name . '` (' . implode(', ', $quotedColumns) . ')', array())) {
+					$errors[$position] = $adb->database->errorMsg();
+				}
+			}
+		}
+
+		return empty($errors) ? true : $errors;
+	}
+
+    /** Register/repair the authenticated Core Invoice export operation.
+     * No renderer bootstrap: registration only writes webservice metadata.
+     * Throws on failure so installation/update cannot report success.
+     * ADODB completion is checked directly; PearDatabase discards its return.
+     * The mysqli driver still cannot guarantee COMMIT SQL durability.
+     * @return int operation ID
+     */
+    public static function registerCreateInvoicePdf()
+    {
+        require_once 'include/Webservices/Utils.php';
+        $adb = PearDatabase::getInstance();
+        $handlerPath = 'include/Webservices/Custom/CreateInvoicePdf.php';
+        $handlerMethod = 'berli_createInvoicePdf';
+        $entryDepth = (int)$adb->database->transOff;
+        $adb->startTransaction();
+        try {
+            $result = $adb->pquery('SELECT operationid FROM vtiger_ws_operation WHERE name = ?', array('createinvoicepdf'));
+            if ($result === false) {
+                throw new RuntimeException('Could not read the webservice registration.');
+            }
+            $count = $adb->num_rows($result);
+            if ($count > 1) {
+                throw new RuntimeException('Multiple createinvoicepdf registrations exist. Resolve them before installing.');
+            }
+            if ($count === 0) {
+                $operationId = vtws_addWebserviceOperation('createinvoicepdf', $handlerPath, $handlerMethod, 'POST', 0);
+                if (empty($operationId)) {
+                    throw new RuntimeException('Could not register createinvoicepdf.');
+                }
+            } else {
+                $operationId = $adb->query_result($result, 0, 'operationid');
+                $updated = $adb->pquery(
+                    'UPDATE vtiger_ws_operation SET handler_path = ?, handler_method = ?, type = ?, prelogin = ? WHERE operationid = ?',
+                    array($handlerPath, $handlerMethod, 'POST', 0, $operationId)
+                );
+                if ($updated === false) {
+                    throw new RuntimeException('Could not update createinvoicepdf.');
+                }
+            }
+            // Replace the parameter definition so repeated runs repair the registration.
+            if ($adb->pquery('DELETE FROM vtiger_ws_operation_parameters WHERE operationid = ?', array($operationId)) === false
+                || !vtws_addWebserviceOperationParam($operationId, 'id', 'string', 1)
+                || !vtws_addWebserviceOperationParam($operationId, 'output_format', 'string', 2)) {
+                throw new RuntimeException('Could not register the Invoice export parameters.');
+            }
+            if ($adb->hasFailedTransaction()) {
+                throw new RuntimeException('The webservice installation transaction failed.');
+            }
+            if ($adb->database->CompleteTrans() !== true) {
+                throw new RuntimeException('Webservice installation did not complete successfully.');
+            }
+            return (int)$operationId;
+        } catch (Throwable $e) {
+            $connection = $adb->database;
+            try {
+                if ((int)$connection->transOff === 0 && $entryDepth === 0) {
+                    // Completion can close smart bookkeeping before failing.
+                    if ($connection->RollbackTrans() !== true) {
+                        throw new RuntimeException('Webservice registration rollback failed.');
+                    }
+                } else {
+                    $connection->FailTrans();
+                    while ((int)$connection->transOff > $entryDepth) {
+                        $before = (int)$connection->transOff;
+                        try {
+                            $connection->CompleteTrans();
+                        } catch (Throwable $cleanupError) {
+                            if ((int)$connection->transOff >= $before) throw $cleanupError;
+                        }
+                        if ((int)$connection->transOff >= $before) {
+                            throw new RuntimeException('Webservice registration rollback made no progress.');
+                        }
+                    }
+                }
+            } catch (Throwable $cleanupError) {
+                throw new RuntimeException($e->getMessage() . ' Rollback failed: ' . $cleanupError->getMessage(), 0, $e);
+            }
+            throw $e;
+        }
+    }
+
+
+    public static function addEmailConfigurator() {
+        global $adb;
+
+        // ---------------------------------------------------------
+        // EmailConfigurator installation into Settings
+        // ---------------------------------------------------------
+        // Check if EmailConfigurator already exists
+        $checked = $adb->pquery( "SELECT fieldid FROM vtiger_settings_field WHERE vtiger_settings_field.name = 'LBL_EMAILCONFIGURATOR'", [] );
+        if ($adb->num_rows($checked) == 0) {
+
+            // Retrieve the current maximum fieldid from vtiger_settings_field
+            $sql0 = "SELECT MAX(fieldid) AS max_fieldid FROM vtiger_settings_field";
+            $params0 = array();
+            $res0 = $adb->pquery($sql0, $params0);
+            $max_fieldid = 0;
+
+            while ($rowSelect = $adb->getNextRow($res0, false)) {
+                $max_fieldid = $rowSelect['max_fieldid'];
+            }
+
+            if ($max_fieldid > 0) {
+
+                // ---------------------------------------------------------
+                // (001) Insert new Settings entry for EmailConfigurator
+                // Block ID 5 = "Integration" section in Settings
+                // ---------------------------------------------------------
+
+                $sql1 = "INSERT INTO `vtiger_settings_field`
+                    (`fieldid`, `blockid`, `name`, `iconpath`, `description`, `linkto`, `sequence`, `active`, `pinned`)
+                    VALUES
+                    (?, 5, 'LBL_EMAILCONFIGURATOR', NULL, 'LBL_EMAILCONFIGURATOR_DESCRIPTION',
+                    'index.php?module=EmailConfigurator&view=Index&parent=Settings', 14, 0, 0)
+                ";
+                $params1 = array($max_fieldid + 1);
+                $res1 = $adb->pquery($sql1, $params1);
+
+                // ---------------------------------------------------------
+                // (002) Update sequence table for vtiger_settings_field
+                // ---------------------------------------------------------
+
+                $sql2 = "UPDATE `vtiger_settings_field_seq` SET `id` = ?";
+                // Eigentlich sollte da immer der maxid sein. Aber ich habe schon gesehen, dass dort um eins hoher stehen konnte.
+                $params2 = array($max_fieldid + 1);
+                $res2 = $adb->pquery($sql2, $params2);
+
+                // ---------------------------------------------------------
+                // (003) Create EmailConfigurator data table
+                // Stores configured sender addresses
+                // ---------------------------------------------------------
+
+                $sql3 = "CREATE TABLE IF NOT EXISTS `crmnow_emailconfig` (
+                    `emailid` int(11) NOT NULL AUTO_INCREMENT,
+                    `email_firstname` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
+                    `email_lastname` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
+                    `email_address` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
+                    `email_desc` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
+                    PRIMARY KEY (`emailid`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=11;";
+                $params3 = array();
+                $res3 = $adb->pquery($sql3, $params3);
+
+                // ---------------------------------------------------------
+                // (004) Create sequence table for EmailConfigurator
+                // ---------------------------------------------------------
+
+                $sql4 = "CREATE TABLE IF NOT EXISTS `crmnow_emailconfig_seq` (
+                    `id` int(11) NOT NULL
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+                $params4 = array();
+                $res4 = $adb->pquery($sql4, $params4);
+
+                // ---------------------------------------------------------
+                // (005) Initialize sequence table with starting value
+                // ---------------------------------------------------------
+                // Check if sequence table already has a row
+                $seqCheck = $adb->pquery("SELECT COUNT(*) AS cnt FROM crmnow_emailconfig_seq", []);
+                $seqCount = (int)$adb->query_result($seqCheck, 0, 'cnt');
+
+                if ($seqCount == 0) {
+                    // Insert initial sequence value only once
+                    $sql5 = "INSERT INTO crmnow_emailconfig_seq (id) VALUES (?)";
+                    $params5 = array(0);
+                    $res5 = $adb->pquery($sql5, $params5);
+                } else {
+                }
+
+                // Default Values
+                // Insert default EmailConfigurator entry if table is empty
+                //$check = $adb->pquery("SELECT COUNT(*) AS cnt FROM crmnow_emailconfig", []);
+                //$count = (int)$adb->query_result($check, 0, 'cnt');
+                //if ($count == 0) {
+                //    $adb->pquery(
+                //        "INSERT INTO crmnow_emailconfig (email_firstname, email_lastname, email_address, email_desc)
+                //        VALUES (?, ?, ?, ?)",
+                //        ['Hanss', 'Geheimm', 'hg@example.com', 'Default sender address']
+                //    );
+                //}
+
+
+            }
+        }
+
+    }
+
 }

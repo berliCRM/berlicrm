@@ -22,7 +22,7 @@ class Emails_MassSaveAjax_View extends Vtiger_Footer_View {
 		}
 	}
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$mode = $request->getMode();
 		if(!empty($mode)) {
 			echo $this->invokeExposedMethod($mode, $request);
@@ -60,7 +60,6 @@ class Emails_MassSaveAjax_View extends Vtiger_Footer_View {
             $recordModel = Vtiger_Record_Model::getCleanInstance($moduleName);
             $recordModel->set('mode', '');
         }
-
 
         $parentEmailId = $request->get('parent_id',null);
         $attachmentsWithParentEmail = array();
@@ -267,7 +266,7 @@ class Emails_MassSaveAjax_View extends Vtiger_Footer_View {
         return array();
 	}
     
-    public function validateRequest(Vtiger_Request $request) {
-        $request->validateWriteAccess();
+    public function validateRequest(Vtiger_Request $request):bool {
+        return $request->validateWriteAccess();
     }
 }

@@ -24,7 +24,7 @@
 			<hr>
 			{assign var=WIDTHTYPE value=$CURRENT_USER_MODEL->get('rowheight')}
 			{assign var=FIELD_VALIDATION  value=['HELPDESK_SUPPORT_EMAIL_ID' => ['name'=>'Email'],
-												'upload_maxsize' => ['name' => 'NumberRange5'],
+											'upload_maxsize' => ['name' => 'NumberRange500'],
 												'history_max_viewed' => ['name' => 'NumberRange5'],
 												'listview_max_textlength' => ['name' => 'NumberRange100'],
 												'list_max_entries_per_page' => ['name' => 'NumberRange100']]}
@@ -41,7 +41,9 @@
 									<span class="span3">
 									<select class="select2 row-fluid" name="{$FIELD_NAME}">
 										{foreach key=optionName item=optionLabel from=$MODEL->getPicklistValues($FIELD_NAME)}
-											{if $FIELD_NAME != 'default_module' && $FIELD_NAME != 'default_layout' }
+											{if $FIELD_NAME == 'custom_logo_link_target'}
+												<option value="{$optionName}" {if $optionName == $FIELD_DATA[$FIELD_NAME]} selected {/if}>{vtranslate($optionLabel, $QUALIFIED_MODULE)}</option>
+											{else if $FIELD_NAME != 'default_module' && $FIELD_NAME != 'default_layout' }
 												<option {if $optionLabel == $FIELD_DATA[$FIELD_NAME]} selected {/if}>{vtranslate($optionLabel, $QUALIFIED_MODULE)}</option>
 											{else}
 												<option value="{$optionName}" {if $optionLabel == $FIELD_DATA[$FIELD_NAME]} selected {/if}>{vtranslate($optionLabel, $optionLabel)}</option>
@@ -52,8 +54,11 @@
 								{else if $FIELD_NAME == 'USE_RTE'}
 									<input type="hidden" name="{$FIELD_NAME}" value="false" />
 									<input type="checkbox" name="{$FIELD_NAME}" value="true" {if $FIELD_DATA[$FIELD_NAME] == 'true'} checked {/if} />
+								{else if $FIELD_NAME == 'custom_logo_link'}
+									<input type="url" name="{$FIELD_NAME}" value="{$FIELD_DATA[$FIELD_NAME]|escape:'html'}" placeholder="https://example.com" />
+									<span class="help-inline">{vtranslate('LBL_CUSTOM_LOGO_LINK_HELP', $QUALIFIED_MODULE)}</span>
 								{else}
-									<input type="text" name="{$FIELD_NAME}" data-validation-engine="validate[required, funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if $FIELD_VALIDATION[$FIELD_NAME]} data-validator={Zend_Json::encode([$FIELD_VALIDATION[$FIELD_NAME]])} {/if} value="{$FIELD_DATA[$FIELD_NAME]}" />
+									<input type="text" name="{$FIELD_NAME}" data-validation-engine="validate[required, funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" {if $FIELD_VALIDATION[$FIELD_NAME]} data-validator={json_encode([$FIELD_VALIDATION[$FIELD_NAME]])} {/if} value="{$FIELD_DATA[$FIELD_NAME]}" />
 									{if $FIELD_NAME == 'upload_maxsize'}&nbsp;{vtranslate('LBL_MB', $QUALIFIED_MODULE)}{/if}
 								{/if}</td></tr>
 					{/foreach}

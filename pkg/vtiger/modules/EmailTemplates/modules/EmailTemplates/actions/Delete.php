@@ -10,11 +10,11 @@
 
 class EmailTemplates_Delete_Action extends Vtiger_Delete_Action {
 	
-	function checkPermission(Vtiger_Request $request) {
+	function checkPermission(Vtiger_Request $request):bool {
 		return true;
 	}
 
-	public function process(Vtiger_Request $request) {
+	public function process(Vtiger_Request $request):void {
 		$moduleName = $request->getModule();
 		$recordId = $request->get('record');
 		$ajaxDelete = $request->get('ajaxDelete');
@@ -28,7 +28,7 @@ class EmailTemplates_Delete_Action extends Vtiger_Delete_Action {
 		if($ajaxDelete) {
 			$response = new Vtiger_Response();
 			$response->setResult($listViewUrl);
-			return $response;
+			$response->emit();
 		} else {
 			header("Location: $listViewUrl");
 		}

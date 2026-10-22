@@ -10,7 +10,7 @@
 
 class Users_Login_Action extends Vtiger_Action_Controller {
 
-	function loginRequired() {
+	function loginRequired():bool {
 		return false;
 	}
 
@@ -65,3 +65,4 @@ class Users_Login_Action extends Vtiger_Action_Controller {
         exit();
 	}
 }
+?>

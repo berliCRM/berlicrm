@@ -8,7 +8,7 @@
  * All Rights Reserved.
  ************************************************************************************/
 class ServiceContracts extends CRMEntity {
-	var $db, $log; // Used in class functions of CRMEntity
+	var $db; // Used in class functions of CRMEntity
 
 	var $table_name = 'vtiger_servicecontracts';
 	var $table_index= 'servicecontractsid';
@@ -104,10 +104,8 @@ class ServiceContracts extends CRMEntity {
 	var $default_sort_order='ASC';
 
 	function __construct() {
-		global $log;
 		$this->column_fields = getColumnFields(get_class($this));
 		$this->db = new PearDatabase();
-		$this->log = $log;
 	}
 
 	function save_module($module) {
@@ -597,7 +595,7 @@ class ServiceContracts extends CRMEntity {
 
 	/** Function to unlink an entity with given Id from another entity */
 	function unlinkRelationship($id, $return_module, $return_id) {
-		global $log, $currentModule;
+		global $currentModule;
 
 		if($return_module == 'Accounts') {
 			$focus = CRMEntity::getInstance($return_module);
@@ -636,8 +634,7 @@ class ServiceContracts extends CRMEntity {
 	 * @param Integer Id of the the Record to which the related records are to be moved
 	 */
 	function transferRelatedRecords($module, $transferEntityIds, $entityId) {
-		global $adb,$log;
-		$log->debug("Entering function transferRelatedRecords ($module, $transferEntityIds, $entityId)");
+		global $adb;
 
 		$rel_table_arr = Array("Documents"=>"vtiger_senotesrel","Attachments"=>"vtiger_seattachmentsrel");
 
@@ -664,7 +661,6 @@ class ServiceContracts extends CRMEntity {
 			}
 		}
 		parent::transferRelatedRecords($module, $transferEntityIds, $entityId);
-		$log->debug("Exiting transferRelatedRecords...");
 	}
 }
 ?>

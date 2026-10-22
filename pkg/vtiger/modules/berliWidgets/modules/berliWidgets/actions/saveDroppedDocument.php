@@ -159,5 +159,5 @@ class berliWidgets_saveDroppedDocument_Action extends Vtiger_Action_Controller {
 		}
 		return false;
 	}
-
 }
+?>

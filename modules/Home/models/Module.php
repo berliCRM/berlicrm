@@ -23,23 +23,33 @@ class Home_Module_Model extends Vtiger_Module_Model {
 	 * @param <Vtiger_Paging_Model> $pagingModel
 	 * @return <Array>
 	 */
-	public function getComments($pagingModel) {
+	public function getComments($pagingModel, $beforeId = null) {
 		$db = PearDatabase::getInstance();
 
 		$nonAdminAccessQuery = Users_Privileges_Model::getNonAdminAccessControlQuery('ModComments');
 
-		$result = $db->pquery('SELECT *, vtiger_crmentity.createdtime AS createdtime, vtiger_crmentity.smownerid AS smownerid,
+		$params = array();
+		$cursorCondition = '';
+		if ((int) $beforeId > 0) {
+			$cursorCondition = ' AND vtiger_modcomments.modcommentsid < ?';
+			$params[] = (int) $beforeId;
+		}
+		$params[] = (int) (((int) $beforeId > 0) ? 0 : $pagingModel->getStartIndex());
+		$params[] = (int) $pagingModel->getPageLimit() + 1;
+		$result = $db->pquery('SELECT vtiger_modcomments.*, vtiger_crmentity.createdtime AS createdtime, vtiger_crmentity.smownerid AS smownerid,
 						crmentity2.crmid AS parentId, crmentity2.setype AS parentModule FROM vtiger_modcomments
 						INNER JOIN vtiger_crmentity ON vtiger_modcomments.modcommentsid = vtiger_crmentity.crmid
 							AND vtiger_crmentity.deleted = 0
 						INNER JOIN vtiger_crmentity crmentity2 ON vtiger_modcomments.related_to = crmentity2.crmid
 							AND crmentity2.deleted = 0
-						 '.$nonAdminAccessQuery.'
-						ORDER BY vtiger_crmentity.crmid DESC LIMIT ?, ?',
-				array($pagingModel->getStartIndex(), $pagingModel->getPageLimit()));
+						 '.$nonAdminAccessQuery.$cursorCondition.'
+						ORDER BY vtiger_modcomments.modcommentsid DESC LIMIT ?, ?', $params);
 
 		$comments = array();
-		for($i=0; $i<$db->num_rows($result); $i++) {
+		$rowCount = $db->num_rows($result);
+		$hasMore = $rowCount > $pagingModel->getPageLimit();
+		$visibleRows = min($rowCount, $pagingModel->getPageLimit());
+		for($i=0; $i<$visibleRows; $i++) {
 			$row = $db->query_result_rowdata($result, $i);
 			if(Users_Privileges_Model::isPermitted($row['setype'], 'DetailView', $row['related_to'])){
 				$commentModel = Vtiger_Record_Model::getCleanInstance('ModComments');
@@ -47,6 +57,10 @@ class Home_Module_Model extends Vtiger_Module_Model {
 				$time = $commentModel->get('createdtime');
 				$comments[$time] = $commentModel;
 			}
+		}
+		$pagingModel->set('hasMore', $hasMore);
+		if ($visibleRows) {
+			$pagingModel->set('nextCursor', (int) $db->query_result($result, $visibleRows - 1, 'modcommentsid'));
 		}
 
 		return $comments;
@@ -66,6 +80,82 @@ class Home_Module_Model extends Vtiger_Module_Model {
             
         }
 
+	/**
+	 * Read recent tracker rows without letting MySQL reorder the query around
+	 * vtiger_crmentity.deleted. Joining that low-selectivity column before the
+	 * LIMIT causes a temporary table and filesort on large installations.
+	 */
+	protected function getRecentTrackerRows($pagingModel, $type, $beforeId = null) {
+		$db = PearDatabase::getInstance();
+		$limit = (int) $pagingModel->getPageLimit() + 1;
+		$batchSize = max(50, $limit * 5);
+		$offset = (int) (((int) $beforeId > 0) ? 0 : $pagingModel->getStartIndex());
+		$cursor = (int) $beforeId;
+		$historyRows = array();
+
+		while (count($historyRows) < $limit) {
+			$where = array();
+			$params = array();
+			if ($type === 'updates') {
+				$where[] = 'module != ?';
+				$params[] = 'ModComments';
+			}
+			if ($cursor > 0) {
+				$where[] = 'id < ?';
+				$params[] = $cursor;
+			}
+			$whereSql = $where ? ' WHERE ' . implode(' AND ', $where) : '';
+			$params[] = $offset;
+			$params[] = $batchSize;
+			$result = $db->pquery(
+				'SELECT * FROM vtiger_modtracker_basic FORCE INDEX (PRIMARY)' . $whereSql .
+				' ORDER BY id DESC LIMIT ?, ?',
+				$params
+			);
+			$rowCount = $db->num_rows($result);
+			if (!$rowCount) {
+				break;
+			}
+
+			$rows = array();
+			$recordIds = array();
+			for ($i = 0; $i < $rowCount; $i++) {
+				$row = $db->query_result_rowdata($result, $i);
+				$rows[] = $row;
+				$recordIds[(int) $row['crmid']] = (int) $row['crmid'];
+				$cursor = (int) $row['id'];
+			}
+
+			$activeIds = array();
+			if ($recordIds) {
+				$placeholders = implode(',', array_fill(0, count($recordIds), '?'));
+				$activeResult = $db->pquery(
+					'SELECT crmid FROM vtiger_crmentity WHERE deleted = 0 AND crmid IN (' . $placeholders . ')',
+					array_values($recordIds)
+				);
+				for ($i = 0; $i < $db->num_rows($activeResult); $i++) {
+					$activeIds[(int) $db->query_result($activeResult, $i, 'crmid')] = true;
+				}
+			}
+
+			foreach ($rows as $row) {
+				$recordId = (int) $row['crmid'];
+				if (isset($activeIds[$recordId]) && Users_Privileges_Model::isPermitted($row['module'], 'DetailView', $recordId)) {
+					$historyRows[] = $row;
+					if (count($historyRows) >= $limit) {
+						break 2;
+					}
+				}
+			}
+			if ($rowCount < $batchSize) {
+				break;
+			}
+			$offset = 0;
+		}
+
+		return $historyRows;
+	}
+
         
 	/**
 	 * Function returns comments and recent activities across CRM
@@ -73,7 +163,7 @@ class Home_Module_Model extends Vtiger_Module_Model {
 	 * @param <String> $type - comments, updates or all
 	 * @return <Array>
 	 */
-	public function getHistory($pagingModel, $type=false) {
+	public function getHistory($pagingModel, $type=false, $beforeId = null) {
 		if(empty($type)) {
 			$type = 'all';
 		}
@@ -82,7 +172,7 @@ class Home_Module_Model extends Vtiger_Module_Model {
 		if( $type == 'comments') {
 			$modCommentsModel = Vtiger_Module_Model::getInstance('ModComments'); 
 			if($modCommentsModel->isPermitted('DetailView')){
-				$comments = $this->getComments($pagingModel);
+				$comments = $this->getComments($pagingModel, $beforeId);
 			}
 			if($type == 'comments') {
 				return $comments;
@@ -93,28 +183,27 @@ class Home_Module_Model extends Vtiger_Module_Model {
                //updateActivityQuery api is used to update a query to fetch a only activity
 		
         else if($type == 'updates' || $type == 'all' ) {
-            $db = PearDatabase::getInstance();
-            $queryforActivity= $this->getActivityQuery($type);
-            $result = $db->pquery('SELECT vtiger_modtracker_basic.*
-								FROM vtiger_modtracker_basic
-								INNER JOIN vtiger_crmentity ON vtiger_modtracker_basic.crmid = vtiger_crmentity.crmid
-								AND deleted = 0 ' .  $queryforActivity .'
-								ORDER BY vtiger_modtracker_basic.id DESC LIMIT ?, ?',array($pagingModel->getStartIndex(), $pagingModel->getPageLimit()));
-
+			$rows = $this->getRecentTrackerRows($pagingModel, $type, $beforeId);
             $history = array();
-		    for($i=0; $i<$db->num_rows($result); $i++) {
-				$row = $db->query_result_rowdata($result, $i);
+			$recordModels = array();
+			$rowCount = count($rows);
+			$hasMore = $rowCount > $pagingModel->getPageLimit();
+			$visibleRows = min($rowCount, $pagingModel->getPageLimit());
+		    for($i=0; $i<$visibleRows; $i++) {
+				$row = $rows[$i];
 				$moduleName = $row['module'];
 				$recordId = $row['crmid'];
-				if(Users_Privileges_Model::isPermitted($moduleName, 'DetailView', $recordId)){
-					$modTrackerRecorModel = new ModTracker_Record_Model();
-					$modTrackerRecorModel->setData($row)->setParent($recordId, $moduleName);
-					$time = $modTrackerRecorModel->get('changedon');
-					//crm-now: added to have an unique time for each entry
-					$time = $time . "-" . $i;
-					$history[$time] = $modTrackerRecorModel;
-			    }
+				$modTrackerRecorModel = new ModTracker_Record_Model();
+				$modTrackerRecorModel->setData($row)->setParent($recordId, $moduleName);
+				$recordModels[] = $modTrackerRecorModel;
+				$time = $modTrackerRecorModel->get('changedon') . '-' . $modTrackerRecorModel->get('id');
+				$history[$time] = $modTrackerRecorModel;
 		    }  
+			ModTracker_Record_Model::preloadDetailsAndRelations($recordModels);
+			$pagingModel->set('hasMore', $hasMore);
+			if ($visibleRows) {
+				$pagingModel->set('nextCursor', (int) $rows[$visibleRows - 1]['id']);
+			}
 			return $history;
         }
 		return false;

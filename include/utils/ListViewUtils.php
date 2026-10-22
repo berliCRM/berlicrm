@@ -33,9 +33,6 @@ require_once('include/Zend/Json.php');
  * @returns $query -- query:: Type query
  */
 function getListQuery($module, $where = '') {
-	global $log;
-	$log->debug("Entering getListQuery(" . $module . "," . $where . ") method ...");
-
 	global $current_user;
 	require('user_privileges/user_privileges_' . $current_user->id . '.php');
 	require('user_privileges/sharing_privileges_' . $current_user->id . '.php');
@@ -513,7 +510,6 @@ function getListQuery($module, $where = '') {
 	if ($module != 'Users') {
 		$query = listQueryNonAdminChange($query, $module);
 	}
-	$log->debug("Exiting getListQuery method ...");
 	return $query;
 }
 
@@ -574,8 +570,7 @@ function setSessionVar($lv_array, $noofrows, $max_ent, $module = '', $related = 
  */
 
 function getRelatedTableHeaderNavigation($navigation_array, $url_qry, $module, $related_module, $recordid) {
-	global $log, $app_strings, $adb;
-	$log->debug("Entering getTableHeaderNavigation(" . $navigation_array . "," . $url_qry . "," . $module . "," . $action_val . "," . $viewid . ") method ...");
+	global $app_strings, $adb;
 	global $theme;
 	$relatedTabId = getTabid($related_module);
 	$tabid = getTabid($module);
@@ -632,7 +627,6 @@ function getRelatedTableHeaderNavigation($navigation_array, $url_qry, $module, $
 		$output .= '<img src="' . vtiger_imageurl('end_disabled.gif', $theme) . '" border="0" align="absmiddle">&nbsp;';
 	}
 	$output .= '</td>';
-	$log->debug("Exiting getTableHeaderNavigation method ...");
 	if ($navigation_array['first'] == '')
 		return;
 	else
@@ -642,8 +636,7 @@ function getRelatedTableHeaderNavigation($navigation_array, $url_qry, $module, $
 /* Function to get the Entity Id of a given Entity Name */
 
 function getEntityId($module, $entityName) {
-	global $log, $adb;
-	$log->info("in getEntityId " . $entityName);
+	global $adb;
 
 	$query = "select fieldname,tablename,entityidfield from vtiger_entityname where modulename = ?";
 	$result = $adb->pquery($query, array($module));
@@ -691,14 +684,14 @@ function popup_decode_html($str) {
 //function added to check the text length in the listview.
 function textlength_check($field_val) {
 	global $listview_max_textlength, $default_charset;
-	
+
 	// Ensure default charset is UTF-8
 	$charset = $default_charset ?: 'UTF-8';
-	
+
 	if ($listview_max_textlength && $listview_max_textlength > 0) {
 	// Decode HTML entities and strip tags
 	$processedValue = strip_tags(html_entity_decode($field_val, ENT_QUOTES, $charset));
-	
+
 	// Check length of string in terms of UTF-8 characters
 	$charArray = preg_split('//u', $processedValue, -1, PREG_SPLIT_NO_EMPTY);
 	if (count($charArray) > $listview_max_textlength) {
@@ -708,7 +701,7 @@ function textlength_check($field_val) {
 	} else {
 	$processedValue = $field_val;
 	}
-	
+
 	return $processedValue;
 }
 

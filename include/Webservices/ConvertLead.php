@@ -16,9 +16,14 @@ require_once 'includes/Loader.php';
 vimport ('includes.runtime.Globals');
 vimport ('includes.runtime.BaseModel');
 
+/**
+ * @berli-openapi-begin
+ * {"summary":"Convert a lead","description":"Converts a Lead into selected Account, Contact and Potential records and optionally transfers related data.","tags":["Records"],"parameters":{"element":{"required":true,"description":"JSON conversion configuration containing leadId, target entities and assignment options.","example":"{\"leadId\":\"2x100\",\"assignedTo\":\"19x1\",\"entities\":{\"Accounts\":{\"create\":true,\"name\":\"Accounts\"},\"Contacts\":{\"create\":true,\"name\":\"Contacts\"},\"Potentials\":{\"create\":false}}}","decodedSchema":{"type":"object","required":["leadId","entities"],"additionalProperties":true}}},"result":{"schema":{"type":"object","additionalProperties":{"type":"string"}},"example":{"Accounts":"3x200","Contacts":"12x201"}}}
+ * @berli-openapi-end
+ */
 function vtws_convertlead($entityvalues, $user) {
 
-	global $adb, $log;
+	global $adb;
 	if (empty($entityvalues['assignedTo'])) {
 		$entityvalues['assignedTo'] = vtws_getWebserviceEntityId('Users', $user->id);
 	}
@@ -33,7 +38,7 @@ function vtws_convertlead($entityvalues, $user) {
 
 	require_once $handlerPath;
 
-	$leadHandler = new $handlerClass($leadObject, $user, $adb, $log);
+	$leadHandler = new $handlerClass($leadObject, $user, $adb);
 
 
 	$leadInfo = vtws_retrieve($entityvalues['leadId'], $user);
@@ -68,7 +73,7 @@ function vtws_convertlead($entityvalues, $user) {
 
 			require_once $handlerPath;
 
-			$entityHandler = new $handlerClass($entityObject, $user, $adb, $log);
+			$entityHandler = new $handlerClass($entityObject, $user, $adb);
 
 			$entityObjectValues = array();
 			$entityObjectValues['assigned_user_id'] = $entityvalues['assignedTo'];
@@ -153,7 +158,7 @@ function vtws_convertlead($entityvalues, $user) {
  */
 
 function vtws_populateConvertLeadEntities($entityvalue, $entity, $entityHandler, $leadHandler, $leadinfo) {
-	global $adb, $log, $default_language;
+	global $adb, $default_language;
 	include 'languages/'.$default_language.'/Leads.php';
 	// now we have "$languageStrings" from Leads. To not mix up the values of another, set new variable name.
 	$languageStringsLeads = $languageStrings;
@@ -198,7 +203,7 @@ function vtws_populateConvertLeadEntities($entityvalue, $entity, $entityHandler,
 			$leadFieldName = $leadField->getFieldName();
 			$entityFieldName = trim($entityField->getFieldName());
 
-			// here we convert the names of uitype 15 (and 16) from translate if necessary 
+			// here we convert the names of uitype 15 (and 16) from translate if necessary
 			$uitype = $entityField->getUIType();
 			$valueLeadsToSet = trim($leadinfo[$leadFieldName]);
 			$valueToSet = $valueLeadsToSet;
@@ -206,13 +211,13 @@ function vtws_populateConvertLeadEntities($entityvalue, $entity, $entityHandler,
 			// we habe only two options it can be or it can be not present in target table.
 			// if not empty and have uitype 15 or 16
 			if( !empty($valueLeadsToSet) && ($uitype == "15" || $uitype == "16")  ){
-				
+
 				$sqlCheckTargetValue = "SELECT $entityFieldName FROM vtiger_$entityFieldName WHERE $entityFieldName = ?";
 				$resCheckTargetValue = $adb->pquery($sqlCheckTargetValue, array($valueLeadsToSet));
-				// if we habe a hit, so not need to change Value. 
+				// if we habe a hit, so not need to change Value.
 				// If not, so need to set another-language value:
 				if ($resCheckTargetValue && $adb->num_rows($resCheckTargetValue) == 0) {
-					
+
 					$newValueLanguage = $languageStringsLeads[$valueLeadsToSet];
 					if( !empty($newValueLanguage) ){
 						// (maybe this is not in target table to, but then all two values are not match. So it is a error-mistake because it was wrong written.)
@@ -256,7 +261,7 @@ function vtws_validateConvertLeadEntityMandatoryValues($entity, $entityHandler, 
 }
 
 function vtws_getConvertLeadFieldInfo($module, $fieldname) {
-	global $adb, $log, $current_user;
+	global $adb, $current_user;
 	$describe = vtws_describe($module, $current_user);
 	foreach ($describe['fields'] as $index => $fieldInfo) {
 		if ($fieldInfo['name'] == $fieldname) {
@@ -280,7 +285,7 @@ function vtws_convertLeadTransferHandler($leadIdComponents, $entityIds, $entityv
 }
 
 function vtws_updateConvertLeadStatus($entityIds, $leadId, $user) {
-	global $adb, $log;
+	global $adb;
 	$leadIdComponents = vtws_getIdComponents($leadId);
 	if ($entityIds['Accounts'] != '' || $entityIds['Contacts'] != '') {
 		$sql = "UPDATE vtiger_leaddetails SET converted = 1 where leadid=?";

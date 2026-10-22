@@ -10,12 +10,10 @@
 
 class Settings_Groups_DeleteAjax_View extends Settings_Vtiger_Index_View {
 
-	function preProcess(Vtiger_Request $request) {
-		return;
+	function preProcess(Vtiger_Request $request, bool $display=false):void {
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return;
+	function postProcess(Vtiger_Request $request): void {
 	}
 
 	public function process(Vtiger_Request $request) {

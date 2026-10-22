@@ -127,7 +127,9 @@ class RecycleBin_ListView_Model extends Vtiger_ListView_Model {
     // switch "modified by" label for "deleted by"
 	public function getListViewHeaders() {
         $headerFieldModels = parent::getListViewHeaders();
-        $headerFieldModels["modifiedby"]->label=vtranslate("LBL_DELETEDBY","RecycleBin");
+		if (isset($headerFieldModels['modifiedby']) && is_object($headerFieldModels['modifiedby'])) {
+			$headerFieldModels['modifiedby']->label = vtranslate('LBL_DELETEDBY', 'RecycleBin');
+		}
         return $headerFieldModels;
     }
 

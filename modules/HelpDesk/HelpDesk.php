@@ -14,7 +14,6 @@
  ********************************************************************************/
 
 class HelpDesk extends CRMEntity {
-	var $log;
 	var $db;
 	var $table_name = "vtiger_troubletickets";
 	var $table_index= 'ticketid';
@@ -101,11 +100,8 @@ class HelpDesk extends CRMEntity {
 	/**	Constructor which will set the column_fields in this object
 	 */
 	function __construct() {
-		$this->log =LoggerManager::getLogger('helpdesk');
-		$this->log->debug("Entering HelpDesk() method ...");
 		$this->db = PearDatabase::getInstance();
 		$this->column_fields = getColumnFields('HelpDesk');
-		$this->log->debug("Exiting HelpDesk method ...");
 	}
 
 	function save_module($module)
@@ -143,8 +139,6 @@ class HelpDesk extends CRMEntity {
  	 */
 	function insertIntoTicketCommentTable($table_name, $module)
 	{
-		global $log;
-		$log->info("in insertIntoTicketCommentTable  ".$table_name."    module is  ".$module);
 		global $adb;
 		global $current_user;
 
@@ -173,8 +167,7 @@ class HelpDesk extends CRMEntity {
 	*/
 	function insertIntoAttachment($id,$module)
 	{
-		global $log, $adb;
-		$log->debug("Entering into insertIntoAttachment($id,$module) method.");
+		global $adb;
 
 		$file_saved = false;
 
@@ -186,8 +179,6 @@ class HelpDesk extends CRMEntity {
 				$file_saved = $this->uploadAndSaveFile($id,$module,$files);
 			}
 		}
-
-		$log->debug("Exiting from insertIntoAttachment($id,$module) method.");
 	}
 
 	/** Function to form the query to get the list of activities
@@ -195,8 +186,7 @@ class HelpDesk extends CRMEntity {
 	 *	@return array - return an array which will be returned from the function GetRelatedList
      **/
 	function get_activities($id, $cur_tab_id, $rel_tab_id, $actions=false) {
-		global $log, $singlepane_view,$currentModule,$current_user;
-		$log->debug("Entering get_activities(".$id.") method ...");
+		global $singlepane_view,$currentModule,$current_user;
 		$this_module = $currentModule;
 
         $related_module = vtlib_getModuleNameById($rel_tab_id);
@@ -254,7 +244,6 @@ class HelpDesk extends CRMEntity {
 		if($return_value == null) $return_value = Array();
 		$return_value['CUSTOM_BUTTON'] = $button;
 
-		$log->debug("Exiting get_activities method ...");
 		return $return_value;
 	}
 
@@ -268,8 +257,7 @@ class HelpDesk extends CRMEntity {
 	 */
 	function get_ticket_history($ticketid)
 	{
-		global $log, $adb;
-		$log->debug("Entering into get_ticket_history($ticketid) method ...");
+		global $adb;
 
 		$query="select title,update_log from vtiger_troubletickets where ticketid=?";
 		$result=$adb->pquery($query, array($ticketid));
@@ -280,8 +268,6 @@ class HelpDesk extends CRMEntity {
 		$header[] = $adb->query_result($result,0,"title");
 
 		$return_value = Array('header'=>$header,'entries'=>$splitval);
-
-		$log->debug("Exiting from get_ticket_history($ticketid) method ...");
 
 		return $return_value;
 	}
@@ -298,8 +284,6 @@ class HelpDesk extends CRMEntity {
 		where $i=0,1,..n & key = ticketid, title, firstname, ..etc(range_fields) & val = value of the key from db retrieved row
 	**/
 	function process_list_query($query, $row_offset, $limit = -1, $max_per_page = -1) {
-		global $log;
-		$log->debug("Entering process_list_query(".$query.") method ...");
 
    		$result =& $this->db->query($query,true,"Error retrieving $this->object_name list: ");
 		$list = Array();
@@ -330,8 +314,7 @@ class HelpDesk extends CRMEntity {
 	        $response['next_offset'] = $next_offset;
         	$response['previous_offset'] = $previous_offset;
 
-		$log->debug("Exiting process_list_query method ...");
-	        return $response;
+		return $response;
 	}
 
 	/**	Function to get the HelpDesk field labels in caps letters without space
@@ -339,8 +322,7 @@ class HelpDesk extends CRMEntity {
 	**/
 	function getColumnNames_Hd()
 	{
-		global $log,$current_user;
-		$log->debug("Entering getColumnNames_Hd() method ...");
+		global $current_user;
 		require('user_privileges/user_privileges_'.$current_user->id.'.php');
 		if($is_admin == true || $profileGlobalPermission[1] == 0 || $profileGlobalPermission[2] == 0)
 		{
@@ -365,7 +347,6 @@ class HelpDesk extends CRMEntity {
 			$custom_fields[$i] = strtoupper($custom_fields[$i]);
 		}
 		$mergeflds = $custom_fields;
-		$log->debug("Exiting getColumnNames_Hd method ...");
 		return $mergeflds;
 	}
 
@@ -375,14 +356,11 @@ class HelpDesk extends CRMEntity {
 	**/
 	function getCustomerName($id)
 	{
-		global $log;
-		$log->debug("Entering getCustomerName(".$id.") method ...");
-        	global $adb;
-	        $sql = "select * from vtiger_portalinfo inner join vtiger_troubletickets on vtiger_troubletickets.contact_id = vtiger_portalinfo.id where vtiger_troubletickets.ticketid=?";
-        	$result = $adb->pquery($sql, array($id));
-	        $customername = $adb->query_result($result,0,'user_name');
-		$log->debug("Exiting getCustomerName method ...");
-        	return $customername;
+		global $adb;
+		$sql = "select * from vtiger_portalinfo inner join vtiger_troubletickets on vtiger_troubletickets.contact_id = vtiger_portalinfo.id where vtiger_troubletickets.ticketid=?";
+		$result = $adb->pquery($sql, array($id));
+		$customername = $adb->query_result($result,0,'user_name');
+		return $customername;
 	}
 	// Function to create, export query for helpdesk module
         /** Function to export the ticket records in CSV Format
@@ -391,9 +369,7 @@ class HelpDesk extends CRMEntity {
         */
         function create_export_query($where)
         {
-                global $log;
                 global $current_user;
-                $log->debug("Entering create_export_query(".$where.") method ...");
 
                 include("include/utils/ExportUtils.php");
 
@@ -426,13 +402,13 @@ class HelpDesk extends CRMEntity {
 			$query .= getNonAdminAccessControlQuery('HelpDesk',$current_user);
 			$where_auto=" vtiger_crmentity.deleted = 0 ";
 
-			if($where != "")
+			if($where != "") {
 				$query .= "  WHERE ($where) AND ".$where_auto;
-			else
+			}
+			else {
 				$query .= "  WHERE ".$where_auto;
-
-                $log->debug("Exiting create_export_query method ...");
-                return $query;
+			}
+			return $query;
         }
 
 
@@ -442,8 +418,6 @@ class HelpDesk extends CRMEntity {
 	 */
 	function get_history($id)
 	{
-		global $log;
-		$log->debug("Entering get_history(".$id.") method ...");
 		$userNameSql = getSqlForNameInDisplayFormat(array('first_name'=>
 							'vtiger_users.first_name', 'last_name' => 'vtiger_users.last_name'), 'Users');
 		$query = "SELECT vtiger_activity.activityid, vtiger_activity.subject, vtiger_activity.status, vtiger_activity.eventstatus, vtiger_activity.date_start, vtiger_activity.due_date,vtiger_activity.time_start,vtiger_activity.time_end,vtiger_activity.activitytype, vtiger_troubletickets.ticketid, vtiger_troubletickets.title, vtiger_crmentity.modifiedtime,vtiger_crmentity.createdtime, vtiger_crmentity.description,
@@ -459,7 +433,6 @@ case when (vtiger_users.user_name not like '') then $userNameSql else vtiger_gro
 				and vtiger_seactivityrel.crmid=".$id."
                                 and vtiger_crmentity.deleted = 0";
 		//Don't add order by, because, for security, one more condition will be added with this query in include/RelatedListView.php
-		$log->debug("Entering get_history method ...");
 		return getHistory('HelpDesk',$query,$id);
 	}
 
@@ -549,8 +522,7 @@ case when (vtiger_users.user_name not like '') then $userNameSql else vtiger_gro
 	 * @param Integer Id of the the Record to which the related records are to be moved
 	 */
 	function transferRelatedRecords($module, $transferEntityIds, $entityId) {
-		global $adb,$log;
-		$log->debug("Entering function transferRelatedRecords ($module, $transferEntityIds, $entityId)");
+		global $adb;
 
 		$rel_table_arr = Array("Activities"=>"vtiger_seactivityrel","Attachments"=>"vtiger_seattachmentsrel","Documents"=>"vtiger_senotesrel");
 
@@ -577,7 +549,6 @@ case when (vtiger_users.user_name not like '') then $userNameSql else vtiger_gro
 			}
 		}
 		parent::transferRelatedRecords($module, $transferEntityIds, $entityId);
-		$log->debug("Exiting transferRelatedRecords...");
 	}
 
 	/*
@@ -650,7 +621,6 @@ case when (vtiger_users.user_name not like '') then $userNameSql else vtiger_gro
 
 	// Function to unlink an entity with given Id from another entity
 	function unlinkRelationship($id, $return_module, $return_id) {
-		global $log;
 		if(empty($return_module) || empty($return_id)) return;
 
 		if($return_module == 'Accounts') {
