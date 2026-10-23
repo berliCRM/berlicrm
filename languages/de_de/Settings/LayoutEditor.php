@@ -9,6 +9,12 @@
  * Reviewed by crm-now GmbH
  ************************************************************************************/
 $languageStrings = array(
+	'LBL_FIELD_USAGE_CANNOT_DELETE' => 'Das Feld &quot;%s&quot; kann nicht gelöscht werden, weil es noch verwendet wird:',
+	'LBL_FIELD_USAGE_CANNOT_DEACTIVATE' => 'Das Feld &quot;%s&quot; kann nicht deaktiviert werden, weil es noch verwendet wird:',
+	'LBL_FIELD_USAGE_TYPE_WORKFLOW' => 'Workflow',
+	'LBL_FIELD_USAGE_TYPE_REPORT' => 'Bericht',
+	'LBL_FIELD_USAGE_TYPE_LIST_VIEW' => 'Listenansicht',
+	'LBL_FIELD_USAGE_TYPE_CRON' => 'Cron-Task',
 	'Calendar' => 'Kalender',
 	'Checkbox' => 'Checkbox',
 	'Currency'=>'Währung',

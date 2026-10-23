@@ -1174,6 +1174,17 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 		});
 	},
 
+	/** Show the server's escaped dependency list until the user closes it. */
+	showFieldActionError : function(response) {
+		var error = response && response.error ? response.error : response;
+		var message = error && error.message ? error.message : app.vtranslate('JS_ERROR');
+		Settings_Vtiger_Index_Js.showMessage({
+			text: message,
+			type: 'error',
+			hide: false
+		});
+	},
+
 	/**
 	 * Function to delete the custom field
 	 */
@@ -1197,11 +1208,17 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 		AppConnector.request(params).then(
 			function(data) {
 				progressIndicatorElement.progressIndicator({'mode' : 'hide'});
+				if (!data || data.success !== true) {
+					thisInstance.showFieldActionError(data);
+					aDeferred.reject(data);
+					return;
+				}
 				aDeferred.resolve(data);
 			},
 			function(error) {
 				progressIndicatorElement.progressIndicator({'mode' : 'hide'});
-				aDeferred.reject();
+				thisInstance.showFieldActionError(error);
+				aDeferred.reject(error);
 			}
 		);
 		return aDeferred.promise();
@@ -1309,15 +1326,14 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 
 		AppConnector.request(params).then(
 			function(data) {
-				if (data.success == false) {
-					var params = {};
-					params['text'] = app.vtranslate(data.error.message);
-					Settings_Vtiger_Index_Js.showMessage(params);
+				if (!data || data.success !== true) {
 					progressIndicatorElement.progressIndicator({'mode' : 'hide'});
-					aDeferred.reject();
+					thisInstance.showFieldActionError(data);
+					aDeferred.reject(data);
+					return;
 				}
 				else {
-					if (data.newlabel !="") {
+					if (data.result && data.result.newlabel) {
 						// reload if label has changed
 						location.reload();
 					}
@@ -1335,7 +1351,8 @@ jQuery.Class('Settings_LayoutEditor_Js', {
 			},
 			function(error) {
 				progressIndicatorElement.progressIndicator({'mode' : 'hide'});
-				aDeferred.reject();
+				thisInstance.showFieldActionError(error);
+				aDeferred.reject(error);
 			}
 		);
 		return aDeferred.promise();
