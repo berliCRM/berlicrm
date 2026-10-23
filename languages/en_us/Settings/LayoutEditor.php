@@ -8,6 +8,12 @@
  * All Rights Reserved.
  *************************************************************************************/
 $languageStrings = array(
+	'LBL_FIELD_USAGE_CANNOT_DELETE' => 'The field &quot;%s&quot; cannot be deleted because it is still in use:',
+	'LBL_FIELD_USAGE_CANNOT_DEACTIVATE' => 'The field &quot;%s&quot; cannot be deactivated because it is still in use:',
+	'LBL_FIELD_USAGE_TYPE_WORKFLOW' => 'Workflow',
+	'LBL_FIELD_USAGE_TYPE_REPORT' => 'Report',
+	'LBL_FIELD_USAGE_TYPE_LIST_VIEW' => 'List view',
+	'LBL_FIELD_USAGE_TYPE_CRON' => 'Cron task',
 	'Calendar' => 'To Do',
 	'Checkbox' => 'Checkbox',
 	'Currency'=>'Currency',

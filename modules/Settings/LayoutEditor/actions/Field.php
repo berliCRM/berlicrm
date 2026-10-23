@@ -9,6 +9,8 @@
  * All Rights Reserved.
  ************************************************************************************/
 
+require_once 'modules/Settings/LayoutEditor/models/FieldUsage.php';
+
 class Settings_LayoutEditor_Field_Action extends Settings_Vtiger_Index_Action {
 
     function __construct() {
@@ -41,6 +43,16 @@ class Settings_LayoutEditor_Field_Action extends Settings_Vtiger_Index_Action {
 		global $adb;
         $fieldId = $request->get('fieldid');
         $fieldInstance = Vtiger_Field_Model::getInstance($fieldId);
+        // Check dependencies before applying any changes to the field.
+        if ((string) $request->get('presence') === '1' && (string) $fieldInstance->get('presence') !== '1') {
+            $usage = Settings_LayoutEditor_FieldUsage_Model::getInstance($fieldInstance);
+            if ($usage->isUsed()) {
+                $response = new Vtiger_Response();
+                $response->setError(409, $usage->getBlockedMessage('deactivate'));
+                $response->emit();
+                return;
+            }
+        }
         $fieldInstance->updateTypeofDataFromMandatory($request->get('mandatory'))
 					  ->set('presence', $request->get('presence'))
                       ->set('quickcreate', $request->get('quickcreate'))
@@ -116,8 +128,13 @@ class Settings_LayoutEditor_Field_Action extends Settings_Vtiger_Index_Action {
         }
 
         try{
-            $fieldInstance->delete();
-            $response->setResult(array('success'=>true));
+            $usage = Settings_LayoutEditor_FieldUsage_Model::getInstance($fieldInstance);
+            if ($usage->isUsed()) {
+                $response->setError(409, $usage->getBlockedMessage('delete'));
+            } else {
+                $fieldInstance->delete();
+                $response->setResult(array('success'=>true));
+            }
         }catch(Exception $e) {
             $response->setError($e->getCode(), $e->getMessage());
         }
