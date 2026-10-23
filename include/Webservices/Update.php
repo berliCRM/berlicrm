@@ -8,6 +8,11 @@
  * All Rights Reserved.
  *************************************************************************************/
 	
+/**
+ * @berli-openapi-begin
+ * {"summary":"Replace a CRM record","description":"Updates a record using a complete entity payload including its webservice ID.","tags":["Records"],"parameters":{"element":{"required":true,"description":"JSON object containing the record ID and complete field set.","example":"{\"id\":\"12x345\",\"lastname\":\"Doe\"}","decodedSchema":{"allOf":[{"$ref":"#/components/schemas/Entity"}]}}},"result":{"schema":{"$ref":"#/components/schemas/Entity"},"example":{"id":"12x345","lastname":"Doe"}}}
+ * @berli-openapi-end
+ */
 function vtws_update($element,$user){
     
     global $adb;

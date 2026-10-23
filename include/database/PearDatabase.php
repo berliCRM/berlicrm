@@ -360,7 +360,7 @@ class PearDatabase{
     {
 	//if(dbType=="oci8") return 'empty_blob()';
 	//else return 'null';
-	if (is_string) return 'null';
+	if ($is_string) return 'null';
 	return null;
     }
 

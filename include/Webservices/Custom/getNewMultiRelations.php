@@ -1,5 +1,5 @@
 <?php
-/************************************************************************************************************************************************************ 
+/**
 Description: Get Relations of an entity
   Parameters:
     - string id: is the ws entity id
@@ -8,6 +8,9 @@ Description: Get Relations of an entity
     - array($moduleName => list of relids as provided)
   Comments:
     - this function respects the vtiger CRM profile privilege system and returns only entities accessible by the user accessing the REST functionality
+  @berli-openapi-begin
+  {"summary":"List module relations","description":"Returns accessible related records for one or more source record IDs, optionally filtered to one related module.","tags":["Relations"],"parameters":{"id":{"required":true,"description":"JSON record ID or array of webservice record IDs.","example":"[\"12x345\"]"},"relModule":{"required":false,"description":"Related module name or all.","example":"all","default":"all"}},"result":{"schema":{"type":"object","additionalProperties":{"type":"object","additionalProperties":{"type":"array","items":{"$ref":"#/components/schemas/Entity"}}}},"example":{"12x345":{"Documents":[]}}}}
+  @berli-openapi-end
 Copyright (C) crm-now GmbH
 All Rights Reserved.
 ************************************************************************************************************************************************************ */

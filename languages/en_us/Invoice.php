@@ -18,6 +18,7 @@ $languageStrings = array(
 	'LBL_ADD_RECORD' => 'Add Invoice',
 	'LBL_BALANCE' => 'Balance',
 	'LBL_EXPORT_TO_PDF' => 'Export to PDF',
+	'LBL_EXPORT_TO_XML' => 'Export to XML',
 	'LBL_INVOICE_INFORMATION' => 'Invoice Details',
 	'LBL_IS_DELETED_FROM_THE_SYSTEM_PLEASE_REMOVE_OR_REPLACE_THIS_ITEM' => 'is deleted from the system.please remove or replace this item',
 	'LBL_NOT_A_BUNDLE' => 'Not a Bundle',

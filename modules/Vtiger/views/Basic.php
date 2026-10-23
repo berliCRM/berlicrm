@@ -49,6 +49,8 @@ abstract class Vtiger_Basic_View extends Vtiger_Footer_View {
 		$viewer->assign('MENU_SELECTED_MODULENAME', $selectedModule);
 		$viewer->assign('MENU_TOPITEMS_LIMIT', $menuStructure->getLimit());
 		$viewer->assign('COMPANY_LOGO',$companyLogo);
+		$viewer->assign('CUSTOM_LOGO_LINK', $companyDetails->getLogoLink());
+		$viewer->assign('CUSTOM_LOGO_LINK_TARGET', $companyDetails->getLogoLinkTarget());
 		$viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
 
 		$homeModuleModel = Vtiger_Module_Model::getInstance('Home');

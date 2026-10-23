@@ -174,11 +174,11 @@ class Emails_Record_Model extends Vtiger_Record_Model {
             $fromEmail = $this->getFromEmailAddress();
             if (empty($fromEmail)) {
                 $replyTo = $currentUserModel->get('email1');
+				$userName = $currentUserModel->getName();
             }
             else {
                 $replyTo = $fromEmail;
             }
-            $userName = $currentUserModel->getName();
         }
         else {
             $fromEmail = $fromMailAddress;

@@ -124,6 +124,22 @@ class ModCommentsCore extends CRMEntity {
 		return $orderby;
 	}
 
+	public function save($module_name, $fileid = '') {
+		global $current_user;
+
+		// The author is independent of the assigned owner. Portal comments belong
+		// to the customer, not to the CRM account used by the portal.
+		if (empty($this->mode) && empty($this->id)
+				&& empty($this->column_fields['userid'])
+				&& empty($this->column_fields['customer'])
+				&& empty($this->column_fields['from_portal'])
+				&& !empty($current_user->id)) {
+			$this->column_fields['userid'] = $current_user->id;
+		}
+
+		return parent::save($module_name, $fileid);
+	}
+
 	function save_module($module) {
 	}
 

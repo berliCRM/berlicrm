@@ -13,6 +13,7 @@ jQuery.Class("Settings_Vtiger_ConfigEditor_Js",{},{
 	 * Function to save the Configuration Editor content
 	 */
 	saveConfigEditor : function(form) {
+		var thisInstance = this;
 		var aDeferred = jQuery.Deferred();
 		
 		var data = form.serializeFormData();
@@ -29,6 +30,9 @@ jQuery.Class("Settings_Vtiger_ConfigEditor_Js",{},{
 		}
 		AppConnector.request(params).then(
 			function(data) {
+				if (data.success && data.result && data.result.logoLink) {
+					thisInstance.updateLogoLink(data.result.logoLink);
+				}
 				aDeferred.resolve(data);
 			},
 			function(error,err){
@@ -36,6 +40,22 @@ jQuery.Class("Settings_Vtiger_ConfigEditor_Js",{},{
 			}
 		);
 		return aDeferred.promise();
+	},
+
+	updateLogoLink : function(logoLink) {
+		jQuery('.commonActionsContainer .companyLogo').each(function() {
+			var logo = jQuery(this).find('img');
+			if (logo.parent().is('a')) {
+				logo.unwrap();
+			}
+			if (logoLink.url) {
+				var link = jQuery('<a>').attr('href', logoLink.url);
+				if (logoLink.target === '_blank') {
+					link.attr({'target': '_blank', 'rel': 'noopener noreferrer'});
+				}
+				logo.wrap(link);
+			}
+		});
 	},
 	
 	/*

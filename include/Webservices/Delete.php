@@ -8,6 +8,11 @@
  * All Rights Reserved.
  *************************************************************************************/
 	
+	/**
+	 * @berli-openapi-begin
+	 * {"summary":"Delete a CRM record","description":"Marks the accessible record identified by its webservice ID as deleted.","tags":["Records"],"parameters":{"id":{"required":true,"description":"Webservice record ID.","example":"12x345","schema":{"type":"string","pattern":"^[0-9]+x[0-9]+$"}}},"result":{"schema":{"type":"object","additionalProperties":true},"example":{"id":"12x345"}}}
+	 * @berli-openapi-end
+	 */
 	function vtws_delete($id,$user){
 		global $adb;
 		$webserviceObject = VtigerWebserviceObject::fromId($adb,$id);

@@ -1281,7 +1281,7 @@ class QueryGenerator {
 			}
 			elseif(!$this->isNumericType($field->getFieldDataType()) &&
 					($field->getFieldName() != 'birthday' || ($field->getFieldName() == 'birthday'
-							&& $this->isRelativeSearchOperators($operator))) && !$dontquote){
+							&& $this->isRelativeSearchOperators($operator))) && !$dontquote || (in_array($operator, ['s', 'ew', 'c', 'k']) && !$dontquote)){
 				$value = "'$value'";
 			}
 			elseif($this->isNumericType($field->getFieldDataType()) && empty($value)) {
@@ -1341,6 +1341,18 @@ class QueryGenerator {
 
 	public function addCondition($fieldname,$value,$operator,$glue= null,$newGroup = false,
 		$newGroupType = null, $ignoreComma = false) {
+		// skip invalid fields
+		$moduleFields = $this->getModuleFields();
+		if (!isset($moduleFields[$fieldname])) {
+			return;
+		}
+		if (in_array($fieldname, $this->referenceFieldList)) {
+			$moduleList = $this->referenceFieldInfoList[$fieldname];
+			// skip reference fields where refered module is blocked
+			if (empty($moduleList)) {
+				return;
+			}
+		}
 		$conditionNumber = $this->conditionInstanceCount++;
 		if($glue != null && $conditionNumber > 0)
 			$this->addConditionGlue ($glue);

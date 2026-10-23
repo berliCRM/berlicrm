@@ -12,6 +12,11 @@ require_once 'include/Webservices/ModuleTypes.php';
 require_once 'include/utils/CommonUtils.php';
 require_once 'include/Webservices/DescribeObject.php';
 
+	/**
+	 * @berli-openapi-begin
+	 * {"summary":"Synchronize changed records","description":"Returns records updated or deleted since the supplied Unix timestamp, optionally limited to one entity type.","tags":["Synchronization"],"parameters":{"modifiedTime":{"required":true,"description":"Unix timestamp from which changes are requested.","example":1710000000,"schema":{"type":"integer"}},"elementType":{"required":false,"description":"Optional webservice entity name.","example":"Contacts"}},"result":{"schema":{"type":"object","required":["updated","deleted"],"properties":{"updated":{"type":"array","items":{"$ref":"#/components/schemas/Entity"}},"deleted":{"type":"array","items":{"type":"object","additionalProperties":true}}},"additionalProperties":true},"example":{"updated":[],"deleted":[]}}}
+	 * @berli-openapi-end
+	 */
 	function vtws_sync($mtime,$elementType,$syncType,$user){
 		global $adb, $recordString,$modifiedTimeString;
         

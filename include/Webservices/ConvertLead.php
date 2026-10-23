@@ -16,6 +16,11 @@ require_once 'includes/Loader.php';
 vimport ('includes.runtime.Globals');
 vimport ('includes.runtime.BaseModel');
 
+/**
+ * @berli-openapi-begin
+ * {"summary":"Convert a lead","description":"Converts a Lead into selected Account, Contact and Potential records and optionally transfers related data.","tags":["Records"],"parameters":{"element":{"required":true,"description":"JSON conversion configuration containing leadId, target entities and assignment options.","example":"{\"leadId\":\"2x100\",\"assignedTo\":\"19x1\",\"entities\":{\"Accounts\":{\"create\":true,\"name\":\"Accounts\"},\"Contacts\":{\"create\":true,\"name\":\"Contacts\"},\"Potentials\":{\"create\":false}}}","decodedSchema":{"type":"object","required":["leadId","entities"],"additionalProperties":true}}},"result":{"schema":{"type":"object","additionalProperties":{"type":"string"}},"example":{"Accounts":"3x200","Contacts":"12x201"}}}
+ * @berli-openapi-end
+ */
 function vtws_convertlead($entityvalues, $user) {
 
 	global $adb;

@@ -234,7 +234,7 @@
                                 <td align="left" class="lineOnTop">
                                     <input type="text" size="5" data-validation-engine="validate[funcCall[Vtiger_PositiveNumber_Validator_Js.invokeValidation]]" name="{$tax_detail.taxname}_group_percentage" id="group_tax_percentage{$smarty.foreach.group_tax_loop.iteration}" value="{$tax_detail.percentage}" class="smallInputBox groupTaxPercentage" />&nbsp;%
                                 </td>
-                                <td align="center" class="lineOnTop"><div class="textOverflowEllipsis">{$tax_detail.taxlabel}</div></td>
+                                <td align="center" class="lineOnTop"><div class="textOverflowEllipsis">{vtranslate($tax_detail.taxlabel, 'Settings:Vtiger')}</div></td>
                                 <td align="right" class="lineOnTop">
                                     <input type="text" size="6" name="{$tax_detail.taxname}_group_amount" id="group_tax_amount{$smarty.foreach.group_tax_loop.iteration}" style="cursor:pointer;" value="{$tax_detail.amount}" readonly class="cursorPointer smallInputBox groupTaxTotal" />
                                 </td>
@@ -272,7 +272,7 @@
                         <tbody>
                             {foreach item=tax_detail name=sh_loop key=loop_count from=$SHIPPING_TAXES}
                                 <tr>
-									<td><div class="textOverflowEllipsis">{vtranslate($tax_detail.taxlabel,$MODULE)}</div></td>
+									<td><div class="textOverflowEllipsis">{vtranslate($tax_detail.taxlabel, 'Settings:Vtiger')}</div></td>
                                     <td>
                                         <input type="text" data-validation-engine="validate[funcCall[Vtiger_PositiveNumber_Validator_Js.invokeValidation]]" name="{$tax_detail.taxname}_sh_percent" id="sh_tax_percentage{$smarty.foreach.sh_loop.iteration}" value="{$tax_detail.percentage}" class="smallInputBox shippingTaxPercentage" />&nbsp;%
                                     </td>

@@ -1,5 +1,5 @@
 <?php
-/*************************************************************************************************
+/**
  * Copyright 2012-2014 JPL TSolucio, S.L.  --  This file is a part of coreBOS.
 * You can copy, adapt and distribute the work under the "Attribution-NonCommercial-ShareAlike"
 * Vizsage Public License (the "License"). You may not use this file except in compliance with the
@@ -12,6 +12,9 @@
 * See the License for the specific language governing permissions and limitations under the
 * License terms of Creative Commons Attribution-NonCommercial-ShareAlike 3.0 (the License).
 * modified by crm-now
+* @berli-openapi-begin
+* {"summary":"Retrieve document attachments","description":"Returns attachment metadata and optionally Base64 content for one or more Documents.","tags":["Documents"],"parameters":{"id":{"required":true,"description":"Comma-separated Document webservice IDs.","example":"15x900"},"returnfile":{"required":false,"description":"Include Base64 attachment content.","example":"true","default":"true"}},"result":{"schema":{"type":"object","additionalProperties":{"type":"object","required":["recordid","filename","filesize","attachment"],"properties":{"recordid":{"type":"integer"},"filetype":{"type":"string"},"filename":{"type":"string"},"filesize":{"type":"integer"},"attachment":{"type":"string","format":"byte"}}}},"example":{"15x900":{"recordid":900,"filetype":"application/pdf","filename":"invoice.pdf","filesize":1234,"attachment":"JVBERi0xLjQ="}}}}
+* @berli-openapi-end
 *************************************************************************************************/
 
 function berli_retrievedocattachment($all_ids, $returnfile, $user) {

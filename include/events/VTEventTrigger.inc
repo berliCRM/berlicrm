@@ -83,6 +83,12 @@
 				$query .= " AND handler_class IN (" . generateQuestionMarks(self::$mandatoryEventClass) . ")";
 				array_push($params, self::$mandatoryEventClass);
 			}
+			
+			// ModTracker doesn't work without delta
+			global $BERLI_SKIP_EH;
+			if (isset($BERLI_SKIP_EH) && $BERLI_SKIP_EH) {
+				$query .= " AND (handler_class IN ('ModTrackerHandler') OR (handler_class = 'VTEntityDelta' AND event_name = 'vtiger.entity.beforesave'))";
+			}
 
 			$evtinfosbyname = array();
 

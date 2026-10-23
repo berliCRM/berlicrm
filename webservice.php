@@ -80,6 +80,11 @@
 	function writeOutput($operationManager, $data){
 
 		setResponseHeaders();
+		// OpenAPI tooling expects the specification object at the document root.
+		if (strcasecmp($operationManager->operationName, 'describeapi') === 0) {
+			echo $operationManager->encode($data);
+			return;
+		}
 		$state = new State();
 		$state->success = true;
 		$state->result = $data;

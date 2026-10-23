@@ -1,5 +1,5 @@
 <?php
-/************************************************************************************************************************************************************ 
+/**
 Description: Get Relations of an entity
 Update Document Relations for given Document id and related ids
   Parameters:
@@ -9,6 +9,9 @@ Update Document Relations for given Document id and related ids
   Comments:
 	- this function provides only relationships located in vtiger_crmentityrel table
     - this function respects the vtiger CRM profile privilege system and returns only entities accessible by the user accessing the REST functionality
+  @berli-openapi-begin
+  {"summary":"List direct CRM relations","description":"Returns accessible records related through the central CRM entity relation table.","tags":["Relations"],"parameters":{"id":{"required":true,"description":"Source record webservice ID.","example":"12x345"}},"result":{"schema":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}},"example":{"Accounts":["3x100"]}}}
+  @berli-openapi-end
 Copyright (C) crm-now GmbH
 All Rights Reserved.
 ************************************************************************************************************************************************************ */

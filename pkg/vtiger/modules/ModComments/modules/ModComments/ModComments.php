@@ -21,6 +21,15 @@ class ModComments extends ModCommentsCore {
 	 */
 	function vtlib_handler($modulename, $event_type) {
 		parent::vtlib_handler($modulename, $event_type);
+		if ($event_type == 'module.postinstall' || $event_type == 'module.postupdate') {
+			// Repair existing installations as well as newly imported metadata.
+			$module = Vtiger_Module::getInstance($modulename);
+			$authorField = Vtiger_Field::getInstance('userid', $module);
+			if ($authorField) {
+				$authorField->unsetRelatedModules(array('ModComments'));
+				$authorField->setRelatedModules(array('Users'));
+			}
+		}
 		if ($event_type == 'module.postinstall') {
 			self::addWidgetTo(array('Leads', 'Contacts', 'Accounts', 'Potentials', 'Project', 'ProjectTask', 'HelpDesk'));
 			global $adb;

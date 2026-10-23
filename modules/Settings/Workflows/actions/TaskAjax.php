@@ -41,7 +41,7 @@ class Settings_Workflows_TaskAjax_Action extends Settings_Vtiger_IndexAjax_View 
 		if(!empty($record)) {
 			$taskRecordModel = Settings_Workflows_TaskRecord_Model::getInstance($record);
 			$taskObject = $taskRecordModel->getTaskObject();
-			if($request->get('status') == 'true')
+			if($request->get('status') == 'true' || $request->get('status') == '1')
 				$taskObject->active = true;
 			else
 				$taskObject->active = false;

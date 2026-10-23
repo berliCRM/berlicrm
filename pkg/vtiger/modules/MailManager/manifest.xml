@@ -1,11 +1,11 @@
 <?xml version='1.0'?>
 <module>
-<exporttime>2026-08-26 15:43:23</exporttime>
+<exporttime>2026-10-08 15:43:23</exporttime>
 <name>MailManager</name>
 <label>MailManager</label>
 <parent>Tools</parent>
 <type>extension</type>
-<version>2.06</version>
+<version>2.07</version>
 <dependencies>
 <vtiger_version>6.0.0RC</vtiger_version>
 </dependencies>

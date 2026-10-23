@@ -8,6 +8,11 @@
  * All Rights Reserved.
  *************************************************************************************/
 	
+	/**
+	 * @berli-openapi-begin
+	 * {"summary":"List accessible entity types","description":"Lists entity types accessible to the authenticated user and optional information about them.","tags":["Metadata"],"parameters":{"fieldTypeList":{"required":false,"description":"JSON array of field types used to filter modules.","example":"[\"string\",\"email\"]","decodedSchema":{"type":"array","items":{"type":"string"}}}},"result":{"schema":{"type":"object","required":["types","information"],"properties":{"types":{"type":"array","items":{"type":"string"}},"information":{"type":"object","additionalProperties":{"type":"object"}}}},"example":{"types":["Contacts"],"information":{"Contacts":{"isEntity":true,"label":"Contacts","singular":"Contact"}}}}}
+	 * @berli-openapi-end
+	 */
 	function vtws_listtypes($fieldTypeList, $user){
 		// Bulk Save Mode: For re-using information
 		static $webserviceEntities = false;

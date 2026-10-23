@@ -17,7 +17,7 @@
     <div class="navbar commonActionsContainer noprint">
         <div class="actionsContainer row-fluid clearfix">
             <div class="span2">
-                <span class="companyLogo"><img src="{$COMPANY_LOGO->get('imagepath')}" title="{$COMPANY_LOGO->get('title')}" alt="{$COMPANY_LOGO->get('alt')}"/>&nbsp;</span>
+                <span class="companyLogo">{if !empty($CUSTOM_LOGO_LINK)}<a href="{$CUSTOM_LOGO_LINK|escape:'html'}"{if $CUSTOM_LOGO_LINK_TARGET == '_blank'} target="_blank" rel="noopener noreferrer"{/if}>{/if}<img src="{$COMPANY_LOGO->get('imagepath')}" title="{$COMPANY_LOGO->get('title')}" alt="{$COMPANY_LOGO->get('alt')}"/>{if !empty($CUSTOM_LOGO_LINK)}</a>{/if}&nbsp;</span>
             </div>
             <div class="span10">
                 <div class="row-fluid">

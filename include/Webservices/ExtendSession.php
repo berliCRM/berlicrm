@@ -8,6 +8,11 @@
  * All Rights Reserved.
  *************************************************************************************/
 
+	/**
+	 * @berli-openapi-begin
+	 * {"summary":"Adopt a CRM browser session","description":"Creates a webservice session from an authenticated CRM PHP session.","tags":["Authentication"],"parameters":{},"result":{"schema":{"type":"object","required":["sessionName","userId","version","vtigerVersion"],"properties":{"sessionName":{"type":"string"},"userId":{"type":"string"},"version":{"type":"string"},"vtigerVersion":{"type":"string"}}},"example":{"sessionName":"abcdef123456","userId":"19x1","version":"0.22","vtigerVersion":"6.5.0"}}}
+	 * @berli-openapi-end
+	 */
 	function vtws_extendSession(){
 		global $adb,$API_VERSION,$application_unique_key;
 		if(isset($_SESSION["authenticated_user_id"]) && $_SESSION["app_unique_key"] == $application_unique_key){

@@ -93,7 +93,7 @@ class Inventory_Detail_View extends Vtiger_Detail_View
 
             //Product tax details convertion started
             if ($taxtype == 'individual') {
-                $taxDetails = $product['taxes'];
+                $taxDetails = isset($product['taxes']) && is_array($product['taxes']) ? $product['taxes'] : array();
                 $taxCount = count($taxDetails);
                 for ($j = 0; $j < $taxCount; $j++) {
                     $taxDetails[$j]['amount'] = Vtiger_Currency_UIType::transformDisplayValue($taxDetails[$j]['amount'], null, true);

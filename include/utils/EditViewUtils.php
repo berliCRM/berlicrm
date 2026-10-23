@@ -314,6 +314,9 @@ function getAssociatedProducts($module,$focus,$seid='') {
 
 		//First we will get all associated taxes as array
 		$tax_details = getTaxDetailsForProduct($hdnProductId,'all');
+		// Keep the line item shape stable for tax-free products. Consumers expect
+		// an array in individual tax mode even when no tax is associated.
+		$product_Detail[$i]['taxes'] = array();
 		//Now retrieve the tax values from the current query with the name
 		if (is_array($tax_details)) {
 			for($tax_count=0;$tax_count<count($tax_details);$tax_count++) 			{

@@ -91,6 +91,10 @@ class Inventory_Record_Model extends Vtiger_Record_Model {
 
 			if ($taxtype == 'individual') {
 				$taxDetails = getTaxDetailsForProduct($productId, 'all');
+				if (!is_array($taxDetails)) {
+					$taxDetails = array();
+				}
+				$relatedProducts[$i]['taxes'] = array();
 				$taxCount = count($taxDetails);
 				$taxTotal = '0';
 

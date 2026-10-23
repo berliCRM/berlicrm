@@ -737,6 +737,7 @@ class Install_InitSchema_Model
     public static function setCRMNOWmodifications()
     {
         global $adb;
+        self::registerCreateInvoicePdf();
         require_once 'modules/Settings/Vtiger/models/Backup.php';
         Settings_Vtiger_Backup_Model::install();
         $path = Install_Utils_Model::INSTALL_LOG;
@@ -812,6 +813,7 @@ class Install_InitSchema_Model
         self::addNewWebservices();
         self::addNewRelatedLists();
         self::addNewConfigEditSettingTables();
+        self::addEmailConfigurator();
         self::alterTables();
 
         //last step, set info this system was installed
@@ -833,13 +835,13 @@ class Install_InitSchema_Model
         $actionModels = Vtiger_Action_Model::getAll(true);
         $permissions = array();
         foreach ($allModuleModules as $tabId => $moduleModel) {
-            $permissions[$tabId]['is_permitted'] = Settings_Profiles_Module_Model::IS_PERMITTED_VALUE;
+            $permissions[$tabId]['is_permitted'] = 'on';
             if ($moduleModel->isEntityModule()) {
                 $permissions[$tabId]['actions'] = array();
                 foreach ($actionModels as $actionModel) {
-                    if ($actionModel->isModuleEnabled($moduleModel)) {
-                        $permissions[$tabId]['actions'][$actionModel->getId()] = Settings_Profiles_Module_Model::IS_PERMITTED_VALUE;
-                    }
+                    // if ($actionModel->isModuleEnabled($moduleModel)) {
+                        $permissions[$tabId]['actions'][$actionModel->getId()] = 'on';
+                    // }
                 }
                 $permissions[$tabId]['fields'] = array();
                 $moduleFields = $moduleModel->getFields();
@@ -1179,10 +1181,45 @@ class Install_InitSchema_Model
 		}
 	}
 
-	private static function addNewWebservices() {
+	public static function addNewWebservices() {
 		global $adb;
 
 		$query = "SELECT * FROM vtiger_ws_operation WHERE name = ?;";
+
+		// Public, machine-readable documentation for every registered REST operation.
+		$wsName = 'describeapi';
+		$res = $adb->pquery($query, array($wsName));
+		if ($res === false) {
+			throw new RuntimeException('Could not read the describeapi webservice registration.');
+		}
+		$count = $adb->num_rows($res);
+		if ($count > 1) {
+			throw new RuntimeException('Multiple describeapi registrations exist. Resolve them before installing.');
+		}
+		if ($count === 0) {
+			$operationId = vtws_addWebserviceOperation(
+				$wsName,
+				'include/Webservices/DescribeApi.php',
+				'vtws_describeapi',
+				'GET',
+				1
+			);
+			if (empty($operationId)) {
+				throw new RuntimeException('Could not register describeapi.');
+			}
+		} else {
+			$operationId = $adb->query_result($res, 0, 'operationid');
+			$updated = $adb->pquery(
+				'UPDATE vtiger_ws_operation SET handler_path = ?, handler_method = ?, type = ?, prelogin = ? WHERE operationid = ?',
+				array('include/Webservices/DescribeApi.php', 'vtws_describeapi', 'GET', 1, $operationId)
+			);
+			if ($updated === false) {
+				throw new RuntimeException('Could not repair describeapi.');
+			}
+		}
+		if ($adb->pquery('DELETE FROM vtiger_ws_operation_parameters WHERE operationid = ?', array($operationId)) === false) {
+			throw new RuntimeException('Could not clear describeapi parameters.');
+		}
 
 		$wsName = 'get_new_multi_relations';
 		$res = $adb->pquery($query, array($wsName));
@@ -1191,6 +1228,35 @@ class Install_InitSchema_Model
 			$operationId = vtws_addWebserviceOperation($wsName, 'include/Webservices/Custom/getNewMultiRelations.php', 'berli_get_new_multi_relations', 'GET', '0');
 			vtws_addWebserviceOperationParam($operationId, 'id', 'string', '1');
 			vtws_addWebserviceOperationParam($operationId, 'relModule', 'string', '2');
+		}
+		
+		$wsName = 'get_deleted_entities';
+		$res = $adb->pquery($query, array($wsName));
+		if ($res && $adb->num_rows($res) == 0) {
+			// add new webservice operation get_deleted_entities
+			$operationId = vtws_addWebserviceOperation($wsName, 'include/Webservices/Custom/GetDeletedEntities.php', 'berli_getDeletedEntities', 'GET', '0');
+			vtws_addWebserviceOperationParam($operationId, 'modules', 'encoded', '1');
+			vtws_addWebserviceOperationParam($operationId, 'searchDate', 'String', '2');
+		}
+		
+		$wsName = 'bulkUpdate';
+		$res = $adb->pquery($query, array($wsName));
+		if ($res && $adb->num_rows($res) == 0) {
+			$operationId = vtws_addWebserviceOperation($wsName, 'include/Webservices/Custom/BulkUpdate.php', 'berli_bulkUpdate', 'POST', '0');
+			vtws_addWebserviceOperationParam($operationId, 'elements', 'encoded', '1');
+			vtws_addWebserviceOperationParam($operationId, 'skipHandlers', 'Boolean', '2');
+		}
+		
+		$wsName = 'send_mail_with_attachments';
+		$res = $adb->pquery($query, array($wsName));
+		if ($res && $adb->num_rows($res) == 0) {
+			$operationId = vtws_addWebserviceOperation($wsName, 'include/Webservices/Custom/SendMailWithAttachments.php', 'berli_sendMailWithAttachments', 'POST', '0');
+			vtws_addWebserviceOperationParam($operationId, 'receiverIds', 'encoded', '1');
+			vtws_addWebserviceOperationParam($operationId, 'templateId', 'String', '2');
+			vtws_addWebserviceOperationParam($operationId, 'documentIds', 'encoded', '3');
+			vtws_addWebserviceOperationParam($operationId, 'mailFieldToUse', 'String', '4');
+			vtws_addWebserviceOperationParam($operationId, 'fromId', 'String', '5');
+			vtws_addWebserviceOperationParam($operationId, 'fromName', 'String', '6');
 		}
 	}
 
@@ -1580,4 +1646,191 @@ class Install_InitSchema_Model
 
 		return empty($errors) ? true : $errors;
 	}
+
+    /** Register/repair the authenticated Core Invoice export operation.
+     * No renderer bootstrap: registration only writes webservice metadata.
+     * Throws on failure so installation/update cannot report success.
+     * ADODB completion is checked directly; PearDatabase discards its return.
+     * The mysqli driver still cannot guarantee COMMIT SQL durability.
+     * @return int operation ID
+     */
+    public static function registerCreateInvoicePdf()
+    {
+        require_once 'include/Webservices/Utils.php';
+        $adb = PearDatabase::getInstance();
+        $handlerPath = 'include/Webservices/Custom/CreateInvoicePdf.php';
+        $handlerMethod = 'berli_createInvoicePdf';
+        $entryDepth = (int)$adb->database->transOff;
+        $adb->startTransaction();
+        try {
+            $result = $adb->pquery('SELECT operationid FROM vtiger_ws_operation WHERE name = ?', array('createinvoicepdf'));
+            if ($result === false) {
+                throw new RuntimeException('Could not read the webservice registration.');
+            }
+            $count = $adb->num_rows($result);
+            if ($count > 1) {
+                throw new RuntimeException('Multiple createinvoicepdf registrations exist. Resolve them before installing.');
+            }
+            if ($count === 0) {
+                $operationId = vtws_addWebserviceOperation('createinvoicepdf', $handlerPath, $handlerMethod, 'POST', 0);
+                if (empty($operationId)) {
+                    throw new RuntimeException('Could not register createinvoicepdf.');
+                }
+            } else {
+                $operationId = $adb->query_result($result, 0, 'operationid');
+                $updated = $adb->pquery(
+                    'UPDATE vtiger_ws_operation SET handler_path = ?, handler_method = ?, type = ?, prelogin = ? WHERE operationid = ?',
+                    array($handlerPath, $handlerMethod, 'POST', 0, $operationId)
+                );
+                if ($updated === false) {
+                    throw new RuntimeException('Could not update createinvoicepdf.');
+                }
+            }
+            // Replace the parameter definition so repeated runs repair the registration.
+            if ($adb->pquery('DELETE FROM vtiger_ws_operation_parameters WHERE operationid = ?', array($operationId)) === false
+                || !vtws_addWebserviceOperationParam($operationId, 'id', 'string', 1)
+                || !vtws_addWebserviceOperationParam($operationId, 'output_format', 'string', 2)) {
+                throw new RuntimeException('Could not register the Invoice export parameters.');
+            }
+            if ($adb->hasFailedTransaction()) {
+                throw new RuntimeException('The webservice installation transaction failed.');
+            }
+            if ($adb->database->CompleteTrans() !== true) {
+                throw new RuntimeException('Webservice installation did not complete successfully.');
+            }
+            return (int)$operationId;
+        } catch (Throwable $e) {
+            $connection = $adb->database;
+            try {
+                if ((int)$connection->transOff === 0 && $entryDepth === 0) {
+                    // Completion can close smart bookkeeping before failing.
+                    if ($connection->RollbackTrans() !== true) {
+                        throw new RuntimeException('Webservice registration rollback failed.');
+                    }
+                } else {
+                    $connection->FailTrans();
+                    while ((int)$connection->transOff > $entryDepth) {
+                        $before = (int)$connection->transOff;
+                        try {
+                            $connection->CompleteTrans();
+                        } catch (Throwable $cleanupError) {
+                            if ((int)$connection->transOff >= $before) throw $cleanupError;
+                        }
+                        if ((int)$connection->transOff >= $before) {
+                            throw new RuntimeException('Webservice registration rollback made no progress.');
+                        }
+                    }
+                }
+            } catch (Throwable $cleanupError) {
+                throw new RuntimeException($e->getMessage() . ' Rollback failed: ' . $cleanupError->getMessage(), 0, $e);
+            }
+            throw $e;
+        }
+    }
+
+
+    public static function addEmailConfigurator() {
+        global $adb;
+
+        // ---------------------------------------------------------
+        // EmailConfigurator installation into Settings
+        // ---------------------------------------------------------
+        // Check if EmailConfigurator already exists
+        $checked = $adb->pquery( "SELECT fieldid FROM vtiger_settings_field WHERE vtiger_settings_field.name = 'LBL_EMAILCONFIGURATOR'", [] );
+        if ($adb->num_rows($checked) == 0) {
+
+            // Retrieve the current maximum fieldid from vtiger_settings_field
+            $sql0 = "SELECT MAX(fieldid) AS max_fieldid FROM vtiger_settings_field";
+            $params0 = array();
+            $res0 = $adb->pquery($sql0, $params0);
+            $max_fieldid = 0;
+
+            while ($rowSelect = $adb->getNextRow($res0, false)) {
+                $max_fieldid = $rowSelect['max_fieldid'];
+            }
+
+            if ($max_fieldid > 0) {
+
+                // ---------------------------------------------------------
+                // (001) Insert new Settings entry for EmailConfigurator
+                // Block ID 5 = "Integration" section in Settings
+                // ---------------------------------------------------------
+
+                $sql1 = "INSERT INTO `vtiger_settings_field`
+                    (`fieldid`, `blockid`, `name`, `iconpath`, `description`, `linkto`, `sequence`, `active`, `pinned`)
+                    VALUES
+                    (?, 5, 'LBL_EMAILCONFIGURATOR', NULL, 'LBL_EMAILCONFIGURATOR_DESCRIPTION',
+                    'index.php?module=EmailConfigurator&view=Index&parent=Settings', 14, 0, 0)
+                ";
+                $params1 = array($max_fieldid + 1);
+                $res1 = $adb->pquery($sql1, $params1);
+
+                // ---------------------------------------------------------
+                // (002) Update sequence table for vtiger_settings_field
+                // ---------------------------------------------------------
+
+                $sql2 = "UPDATE `vtiger_settings_field_seq` SET `id` = ?";
+                // Eigentlich sollte da immer der maxid sein. Aber ich habe schon gesehen, dass dort um eins hoher stehen konnte.
+                $params2 = array($max_fieldid + 1);
+                $res2 = $adb->pquery($sql2, $params2);
+
+                // ---------------------------------------------------------
+                // (003) Create EmailConfigurator data table
+                // Stores configured sender addresses
+                // ---------------------------------------------------------
+
+                $sql3 = "CREATE TABLE IF NOT EXISTS `crmnow_emailconfig` (
+                    `emailid` int(11) NOT NULL AUTO_INCREMENT,
+                    `email_firstname` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
+                    `email_lastname` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
+                    `email_address` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
+                    `email_desc` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL,
+                    PRIMARY KEY (`emailid`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=11;";
+                $params3 = array();
+                $res3 = $adb->pquery($sql3, $params3);
+
+                // ---------------------------------------------------------
+                // (004) Create sequence table for EmailConfigurator
+                // ---------------------------------------------------------
+
+                $sql4 = "CREATE TABLE IF NOT EXISTS `crmnow_emailconfig_seq` (
+                    `id` int(11) NOT NULL
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+                $params4 = array();
+                $res4 = $adb->pquery($sql4, $params4);
+
+                // ---------------------------------------------------------
+                // (005) Initialize sequence table with starting value
+                // ---------------------------------------------------------
+                // Check if sequence table already has a row
+                $seqCheck = $adb->pquery("SELECT COUNT(*) AS cnt FROM crmnow_emailconfig_seq", []);
+                $seqCount = (int)$adb->query_result($seqCheck, 0, 'cnt');
+
+                if ($seqCount == 0) {
+                    // Insert initial sequence value only once
+                    $sql5 = "INSERT INTO crmnow_emailconfig_seq (id) VALUES (?)";
+                    $params5 = array(0);
+                    $res5 = $adb->pquery($sql5, $params5);
+                } else {
+                }
+
+                // Default Values
+                // Insert default EmailConfigurator entry if table is empty
+                //$check = $adb->pquery("SELECT COUNT(*) AS cnt FROM crmnow_emailconfig", []);
+                //$count = (int)$adb->query_result($check, 0, 'cnt');
+                //if ($count == 0) {
+                //    $adb->pquery(
+                //        "INSERT INTO crmnow_emailconfig (email_firstname, email_lastname, email_address, email_desc)
+                //        VALUES (?, ?, ?, ?)",
+                //        ['Hanss', 'Geheimm', 'hg@example.com', 'Default sender address']
+                //    );
+                //}
+
+
+            }
+        }
+
+    }
+
 }
