@@ -225,11 +225,15 @@ class Emails_Record_Model extends Vtiger_Record_Model {
                 $toEmailInfo['to'.$i++] = array($value);
             }
         }
-        $attachments = $this->getAttachmentDetails();
+        require_once 'modules/Accounts/AccountDatasheet.php';
+        $includeAccountDatasheet = strpos((string)$this->get('description'), Accounts_AccountDatasheet_Service::PLACEHOLDER) !== false;
+        $rawDescription = str_replace(Accounts_AccountDatasheet_Service::PLACEHOLDER, '', (string)$this->get('description'));
+        $attachments = $this->getAttachmentDetails(true);
+        $accountDatasheets = array();
         $status = false;
 
         // Merge Users module merge tags based on current user.
-        $mergedDescription = getMergedDescription($this->get('description'), $currentUserModel->getId(), 'Users');
+        $mergedDescription = getMergedDescription($rawDescription, $currentUserModel->getId(), 'Users');
         $mergedSubject = getMergedDescription($this->get('subject'),$currentUserModel->getId(), 'Users');
 
         require_once 'modules/Settings/Vtiger/models/ConfigSignature.php';
@@ -254,7 +258,7 @@ class Emails_Record_Model extends Vtiger_Record_Model {
             $mailer->reinitialize();
             $mailer->ConfigSenderInfo($fromEmail, $userName, $replyTo);
             $old_mod_strings = vglobal('mod_strings');
-            $description = $this->get('description');
+            $description = $rawDescription;
             $subject = $this->get('subject');
             if (!$this->sendWithoutRelation) {
                 $parentModule = $this->getEntityType($id);
@@ -311,6 +315,31 @@ class Emails_Record_Model extends Vtiger_Record_Model {
                 $logo = true;
             }
 
+            $accountDatasheet = null;
+            if ($includeAccountDatasheet && !empty($parentModule)) {
+                $accountId = null;
+                try {
+                    $accountId = Accounts_AccountDatasheet_Service::resolveAccountId($parentModule, $id);
+                    if ($accountId) {
+                        if (!array_key_exists($accountId, $accountDatasheets)) {
+                            $accountDatasheets[$accountId] = Accounts_AccountDatasheet_Service::createDocument($accountId, $this->getId());
+                        }
+                        $accountDatasheet = $accountDatasheets[$accountId];
+                    } else {
+                        global $log;
+                        if (isset($log)) {
+                            $log->warn('Account datasheet: no readable Account found for ' . $parentModule . ' record ' . $id . '. Email will be sent without datasheet.');
+                        }
+                    }
+                } catch (Throwable $e) {
+                    $accountDatasheets[$accountId ?? ('record-' . $id)] = null;
+                    global $log;
+                    if (isset($log)) {
+                        $log->error('Account datasheet: email ' . $this->getId() . ', recipient record ' . $id . ': ' . $e->getMessage());
+                    }
+                }
+            }
+
             // add global signature if exists
             if ($globalSignatureHtml !== '') {
                 $description .= '<br><br>' . $globalSignatureHtml;
@@ -338,6 +367,16 @@ class Emails_Record_Model extends Vtiger_Record_Model {
                                 $mailer->AddAttachment($fileNameWithPath, $attachment['attachment']);
                             }
                         }
+                    }
+                    if (!empty($accountDatasheet['path']) && is_file($accountDatasheet['path'])) {
+                        $mailer->AddAttachment(
+                            $accountDatasheet['path'],
+                            $accountDatasheet['filename'],
+                            'base64',
+                            Accounts_AccountDatasheet_Service::MIME_TYPE
+                        );
+                        // One MIME attachment is sufficient for all addresses in this recipient group.
+                        $accountDatasheet = null;
                     }
                     if ($logo) {
                         //While sending email template and which has '$logo$' then it should replace with company logo
@@ -420,7 +459,7 @@ class Emails_Record_Model extends Vtiger_Record_Model {
      * Function returns the attachment details for a email
      * @return <Array> List of attachments
      */
-    function getAttachmentDetails() {
+    function getAttachmentDetails($excludeGeneratedDatasheets = false) {
         $db = PearDatabase::getInstance();
 
         $attachmentRes = $db->pquery("SELECT * FROM vtiger_attachments
@@ -439,7 +478,7 @@ class Emails_Record_Model extends Vtiger_Record_Model {
             }
         }
 
-        $documentsList = $this->getRelatedDocuments();
+        $documentsList = $this->getRelatedDocuments($excludeGeneratedDatasheets);
 
         //Attachments are getting duplicated when forwarding a mail in Mail Manager.
         if($documentsList) {
@@ -462,7 +501,7 @@ class Emails_Record_Model extends Vtiger_Record_Model {
      * Function returns the document details for a email
      * @return <Array> List of Documents
      */
-    public function getRelatedDocuments() {
+    public function getRelatedDocuments($excludeGeneratedDatasheets = false) {
         $db = PearDatabase::getInstance();
 
         $documentRes = $db->pquery("SELECT * FROM vtiger_senotesrel
@@ -470,11 +509,17 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 						INNER JOIN vtiger_notes ON vtiger_notes.notesid = vtiger_senotesrel.notesid
 						INNER JOIN vtiger_seattachmentsrel ON vtiger_seattachmentsrel.crmid = vtiger_notes.notesid
 						INNER JOIN vtiger_attachments ON vtiger_attachments.attachmentsid = vtiger_seattachmentsrel.attachmentsid
+						LEFT JOIN vtiger_attachmentsfolder ON vtiger_attachmentsfolder.folderid = vtiger_notes.folderid
 						WHERE vtiger_crmentity.deleted = 0", array($this->getId()));
         $numOfRows = $db->num_rows($documentRes);
 
         if($numOfRows) {
             for($i=0; $i<$numOfRows; $i++) {
+                if ($excludeGeneratedDatasheets
+                    && $db->query_result($documentRes, $i, 'foldername') === Accounts_AccountDatasheet_Service::FOLDER_NAME
+                    && strpos((string)$db->query_result($documentRes, $i, 'notes_title'), Accounts_AccountDatasheet_Service::TITLE_PREFIX) === 0) {
+                    continue;
+                }
                 $documentsList[$i]['name'] = $db->query_result($documentRes, $i, 'filename');
                 $filesize = $db->query_result($documentRes, $i, 'filesize');
                 $documentsList[$i]['size'] = $this->getFormattedFileSize($filesize);

@@ -18,6 +18,7 @@ $languageStrings = array(
 	'LBL_SUBJECT' => 'Betreff',
 	'LBL_GENERAL_FIELDS' => 'Allgemeine Felder',
 	'LBL_SELECT_FIELD_TYPE' => 'Feldtyp auswählen',
+	'LBL_ACCOUNT_DATASHEET_PDF' => 'Account-Datenblatt als PDF anhängen',
 	'EmailTemplates' => 'E-Mail Vorlagen',
 	'Email Templates' => 'E-Mail Vorlagen',
 
