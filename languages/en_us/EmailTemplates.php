@@ -18,16 +18,17 @@ $languageStrings = array(
 	'LBL_SUBJECT' => 'Subject',
 	'LBL_GENERAL_FIELDS' => 'General Fields',
 	'LBL_SELECT_FIELD_TYPE' => 'Select Field Type',
+	'LBL_ACCOUNT_DATASHEET_PDF' => 'Attach Account datasheet as PDF',
 	'EmailTemplates' => 'Email Templates',
 	'Email Templates' => 'Email Templates',
 	
 	'LBL_EMAIL_TEMPLATE_DESCRIPTION'=>'Manage templates for E-Mail module',
 	
-    'Template Name' => 'Template name', 
-    'Templatename' => 'Template name', 
-    'Message' => 'Message', 
-    'Email Template - Properties of ' => 'Email Template - Properties of ', 
-	
+    'Template Name' => 'Template name',
+    'Templatename' => 'Template name',
+    'Message' => 'Message',
+    'Email Template - Properties of ' => 'Email Template - Properties of ',
+
 	'Template ID' => 'Template ID',
-	
+
 );

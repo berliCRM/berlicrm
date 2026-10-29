@@ -208,7 +208,7 @@ class VtigerInventoryOperation extends VtigerModuleOperation {
 		
 
 		if (($element['txtAdjustment'])) {
-			$_REQUEST['adjustmentType'] = ((int) $element['txtAdjustment'] < 0) ? '-' : '+';
+			$_REQUEST['adjustmentType'] = ((float) $element['txtAdjustment'] < 0) ? '-' : '+';
 			$_REQUEST['adjustment'] = abs($element['txtAdjustment']);
 		}else {
 			$_REQUEST['adjustmentType'] = '';
