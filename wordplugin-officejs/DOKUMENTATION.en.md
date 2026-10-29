@@ -260,8 +260,10 @@ persistently. Disconnect (**Trennen**) ends the CRM session.
    positions in the letter.
 
 Insert fields using the button; do not type the visible field codes manually.
-The add-in inserts actual Word mail-merge fields. The fields selected when
-creating the document must match the fields in the template.
+The add-in inserts actual Word mail-merge fields. When creating documents, it
+detects the merge fields in the Word template and fills every field available
+for the selected CRM module. You do not need to select those fields in the
+Fields list.
 
 ### Step 3: Select a list view and recipients
 
@@ -282,6 +284,11 @@ berliCRM record IDs. Reference and owner fields are displayed as the name of
 the linked CRM record rather than its internal reference ID. An empty field
 in the preview does not necessarily mean that the record is missing; the
 corresponding CRM field value may be empty.
+
+The selection in the Fields list is used to insert fields into the template
+and to control the record preview. It does not limit which merge fields are
+filled when documents are created; all recognized fields in the template for
+the selected CRM module are processed.
 
 ### Step 4: Choose an output format and create documents
 

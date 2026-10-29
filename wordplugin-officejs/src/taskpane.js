@@ -504,6 +504,14 @@ function setUtf8HtmlEncoding(parsed) {
   }
 }
 
+function getTemplateFields(template, module) {
+  const parsed = new DOMParser().parseFromString(template, "text/html");
+  const templateText = parsed.body.textContent || "";
+  return module.fields.filter((field) =>
+    templateText.includes(`«${mergeFieldName(module, field)}»`),
+  );
+}
+
 function mergeDocumentHtml(html, module, record, selectedFields) {
   const parsed = new DOMParser().parseFromString(html, "text/html");
   setUtf8HtmlEncoding(parsed);
@@ -621,10 +629,6 @@ async function createMergeDocuments() {
   if (!currentRecordsModule || selectedRecords.size === 0 || !wordIsReady) {
     return;
   }
-  if (getSelectedFields().length === 0) {
-    setStatus("Bitte zuerst mindestens ein Mergefeld auswählen.", true);
-    return;
-  }
   const records = Array.from(selectedRecords.values());
   setBusy(true);
   setButtonLoading(elements.mergeButton, true, "Erstelle …");
@@ -638,8 +642,11 @@ async function createMergeDocuments() {
       await context.sync();
       return html.value;
     });
+    const templateFields = getTemplateFields(template, currentRecordsModule);
+    if (templateFields.length === 0) {
+      throw new Error("Die Word-Vorlage enthält keine erkennbaren Seriendruckfelder für das gewählte Modul.");
+    }
     clearDownloads();
-    const selectedFields = getSelectedFields();
     const mergedRecords = [];
     for (let offset = 0; offset < records.length; offset += MAX_RECORDS_PER_OPERATION) {
       const batch = records.slice(offset, offset + MAX_RECORDS_PER_OPERATION);
@@ -651,7 +658,7 @@ async function createMergeDocuments() {
         elements.viewSelect.value,
         currentPage,
         batch.map((record) => record.id),
-        selectedFields.map((field) => field.name),
+        templateFields.map((field) => field.name),
       );
       if (!Array.isArray(result?.records) || result.records.length !== batch.length) {
         throw new Error("Nicht alle ausgewählten CRM-Datensätze konnten geladen werden.");
@@ -668,7 +675,7 @@ async function createMergeDocuments() {
       }
       documents.push({
         record,
-        html: mergeDocumentHtml(template, currentRecordsModule, record, selectedFields),
+        html: mergeDocumentHtml(template, currentRecordsModule, record, templateFields),
       });
     }
     const outputMode = elements.outputMode.querySelector('input[name="output-mode"]:checked').value;
@@ -703,7 +710,7 @@ async function createMergeDocuments() {
             currentRecordsModule.apiName,
             elements.viewSelect.value,
             documentFile.record.id,
-            createMailMergeDocumentTitle(selectedFields, documentFile.record, savedAt),
+            createMailMergeDocumentTitle(templateFields, documentFile.record, savedAt),
             encodeBase64(documentFile.html),
           );
           if (typeof savedDocument?.documentId !== "string" || !savedDocument.documentId) {

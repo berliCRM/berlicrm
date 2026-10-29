@@ -4,35 +4,6 @@ Dieses Dokument beschreibt die Bereitstellung des Office.js-Add-ins auf dem
 berliCRM-Server, die Installation in Word ohne Exchange und die zentrale
 Bereitstellung über Microsoft 365/Exchange sowie die tägliche Nutzung.
 
-## Einrichtung über die berliCRM-v8x-Administration
-
-Die in v8x integrierte Installationshilfe ist unter **CRM-Einstellungen >
-Integration > Word Add-in** erreichbar. Nach dem Übertragen der
-Dateien registriert das reguläre `db_update.php` den Menüeintrag und beide
-Word-Webservices samt Parametern. Ein zusätzlicher CLI-Aufruf ist anschließend
-nicht erforderlich. Alternativ
-richtet `php wordplugin-officejs/build/registerWordMailMergeOperation.php`
-gezielt Menü und beide Webservices ein.
-
-1. Öffnen Sie die Admin-Seite und prüfen Sie die angezeigten Serverdateien.
-2. Prüfen Sie die Webservice-Registrierungen. Bei Bedarf wählen Sie
-   **Webservices einrichten / reparieren**. Dies registriert sowohl
-   `getWordMailMergeData` als auch `saveWordMailMergeDocument` mit ihren Parametern
-   erneut; das reguläre Datenbankupdate hat diesen Schritt bereits ausgeführt.
-3. Prüfen Sie die verlinkten Add-in- und Icon-Adressen auf einem Word-Arbeitsplatz.
-4. Laden Sie das Manifest über **Manifest herunterladen (.xml)** herunter.
-   Es übernimmt die konfigurierte HTTPS-Adresse `$site_URL` einschließlich
-   Unterverzeichnis und Port; manuelle URL-Ersetzungen sind damit unnötig.
-5. Folgen Sie der Installationshilfe auf der Admin-Seite für Ihre Word-Umgebung.
-
-Der direkte Upload eines eigenen Manifests ist ein Testweg für Word im Web und
-nicht in jeder Word-Desktop-Version verfügbar. Der Netzwerkfreigabekatalog ist
-laut Microsoft ein Testweg für Windows. Für die zentrale Bereitstellung verwenden
-Sie das Microsoft-365-Admin-Center. Die Admin-Seite verlinkt die aktuellen
-Microsoft-Anleitungen. Die folgenden manuellen Schritte beschreiben die
-Dateibereitstellung; in v8x ersetzt der Manifest-Download die manuelle Bearbeitung
-der Beispieladressen und die Admin-Schaltfläche die CLI-Webservice-Registrierung.
-
 ## 1. Installation auf dem berliCRM-Server
 
 Die Installation besteht aus zwei Teilen:
@@ -144,6 +115,17 @@ keine erneute Registrierung erforderlich.
 - Der Benutzer kann in berliCRM die vorgesehenen Module und gespeicherten
   Listenansichten sehen.
 
+Für einen gezielten Schreibtest liegt unter
+`tests/manual-save-document.php` ein PHP-Testformular, das die Klasse
+`WS_Curl_Class20.php` verwendet. Stellen Sie diese Klassendatei neben das
+Testformular, in den Ordner `wordplugin-officejs` oder in das Plugin-
+Hauptverzeichnis. Die Klasse sendet `format=json` und `sessionName` bei allen
+REST-Aufrufen mit (bei Challenge und Login zunächst leer). Das Formular legt
+ein echtes Dokument an; verwenden Sie daher nur einen geeigneten Testdatensatz.
+Wenn Sie es auf den Server kopieren, schützen Sie den Zugriff zusätzlich und
+löschen Sie die Testdatei direkt nach dem Test wieder. Zugangsdaten dürfen
+nicht fest in die Datei eingetragen werden.
+
 Das Add-in zeigt nur Module und Ansichten an, auf die der angemeldete
 CRM-Benutzer Zugriff hat. Die Seriendruck-Datensatzquelle unterstützt
 Kontakte, Firmen, Leads und Tickets. Benutzerfelder können als Felder in eine
@@ -172,14 +154,14 @@ kleinen Test die lokale Installation ohne Exchange. Für eine Organisation mit
 zentraler Microsoft-365-/Exchange-Verwaltung empfiehlt sich die zentrale
 Bereitstellung.
 
-### A. Einzeltests ohne Exchange
+### A. Ohne Exchange: eigenes Add-in in Word laden
 
-Für Word im Web kann das Manifest zum Testen direkt hochgeladen werden. Der
-genaue Wortlaut der Menüs hängt von Word-Version und Organisationsrichtlinien ab.
+Diese Variante installiert das Add-in für das jeweilige Word-Profil. Der genaue
+Wortlaut der Menüs kann je nach Word-Version abweichen.
 
 1. Stellen Sie sicher, dass die Serverinstallation aus Abschnitt 1 abgeschlossen
    ist und `manifest.xml` die richtigen URLs enthält.
-2. Öffnen Sie Word im Web und ein Dokument.
+2. Öffnen Sie Word und ein Dokument.
 3. Wählen Sie **Einfügen > Add-Ins** bzw. **Add-Ins abrufen**.
 4. Öffnen Sie **Meine Add-Ins**.
 5. Wählen Sie **Eigenes Add-In hochladen** (englische Oberfläche:
@@ -189,8 +171,9 @@ genaue Wortlaut der Menüs hängt von Word-Version und Organisationsrichtlinien 
 7. Öffnen Sie das Add-in über **Einfügen > Meine Add-Ins**. Es erscheint als
    **berliCRM Word Plugin**.
 
-Word unter Windows kann für Tests einen freigegebenen Netzwerkordner als
-Add-in-Katalog verwenden. Microsoft unterstützt diese Variante als Testweg:
+Wenn der Upload-Dialog in Ihrer Word-Version oder durch eine
+Organisationsrichtlinie nicht verfügbar ist, kann Word für Windows alternativ
+einen freigegebenen Netzwerkordner als Add-in-Katalog verwenden:
 
 1. Legen Sie die `manifest.xml` in einem für die Benutzer lesbaren
    Netzwerkordner ab.
@@ -230,8 +213,13 @@ selbst hochladen.
    **Einfügen > Meine Add-Ins** bzw. den Bereich für von der Organisation
    bereitgestellte Add-ins.
 
-Die Exchange-Verwaltung für Outlook-Add-ins ersetzt die Bereitstellung dieses
-Word-Add-ins nicht. Verwenden Sie hierfür das Microsoft-365-Admin-Center.
+Je nach Microsoft-365-Tenant und Exchange-Version kann außerdem im
+Exchange Admin Center noch ein Bereich für **Add-Ins** verfügbar sein. Falls
+Ihre Organisation diesen Weg verwendet, kann der Administrator dort ein
+benutzerdefiniertes Office-Add-in anhand des Manifests hinzufügen und Benutzern
+zuweisen. Die Menüführung und Verfügbarkeit unterscheiden sich nach
+Exchange-Version; wenn der Menüpunkt fehlt, verwenden Sie die zentrale
+Bereitstellung über **Integrierte Apps**.
 
 Bei zentraler Bereitstellung werden Updates des Manifests durch den
 Administrator im Verwaltungsportal ausgerollt. Änderungen an den Dateien am
@@ -301,6 +289,11 @@ der Vorlage passen.
    Listenansicht auszuwählen. Diese Schaltfläche ist nur verfügbar, wenn die
    Gesamtzahl höchstens 1.000 beträgt.
 5. Mit **Auswahl aufheben** entfernen Sie die komplette bisherige Auswahl.
+
+Für die Dokumenterstellung ist die aktuelle Auswahl im Feld **Felder zum
+Einfügen** nicht maßgeblich. Das Add-in ermittelt die Seriendruckfelder direkt
+aus der Word-Vorlage und füllt alle darin enthaltenen Felder aus, sofern sie
+zum ausgewählten CRM-Modul gehören.
 
 Die Vorschau zeigt Werte der ausgewählten Felder und nicht die internen
 berliCRM-Datensatz-IDs. Referenz- und Besitzerfelder werden als Name des
