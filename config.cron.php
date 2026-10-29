@@ -15,6 +15,6 @@
  */
 return array(
 	'error_notification_recipients' => array(
-		'servicedesk@crm-now.de',
+		'',
 	),
 );
