@@ -11,13 +11,39 @@
 
 class berliWidgets_relatedDocumentEntries_View extends Vtiger_Detail_View {
 
+	/**
+	 * Checks permissions for the actual document
+	 * instead of the technical widget module.
+	 */
+	public function checkPermission(Vtiger_Request $request) {
+		$moduleName = $request->get('source_module');
+		$recordId = $request->get('record');
+
+		if ($moduleName !== 'Documents'
+			|| !ctype_digit((string) $recordId)
+			|| (int) $recordId <= 0) {
+			throw new AppException('LBL_PERMISSION_DENIED');
+		}
+
+		$recordPermission = Users_Privileges_Model::isPermitted(
+			'Documents',
+			'DetailView',
+			(int) $recordId
+		);
+
+		if (!$recordPermission) {
+			throw new AppException('LBL_PERMISSION_DENIED');
+		}
+
+		return true;
+	}
     /**
      * must be overriden
      * @param Vtiger_Request $request
      * @return boolean 
      */
-    public function preProcess(Vtiger_Request $request, $display= true):void {
-        return;
+    public function preProcess(Vtiger_Request $request, $display= true) {
+        return true;
     }
 
     /**
@@ -25,8 +51,8 @@ class berliWidgets_relatedDocumentEntries_View extends Vtiger_Detail_View {
      * @param Vtiger_Request $request
      * @return boolean 
      */
-    public function postProcess(Vtiger_Request $request):void {
-        return;
+    public function postProcess(Vtiger_Request $request) {
+        return true;
     }
 
     /**
@@ -51,7 +77,7 @@ class berliWidgets_relatedDocumentEntries_View extends Vtiger_Detail_View {
 		$parentRecordId = $request->get('record');
 		$moduleName = $request->getModule();
 		$relatedEntriesObj = array ();
-		$relatedEntries = self::getRelatedEntries($parentRecordId, $pagingModel);
+		$relatedEntries = self::getRelatedEntries($parentRecordId);
 		foreach ($relatedEntries as $key => $relatedrecord) {
 			foreach ($relatedrecord as $relModuleName => $recordid) {
 				$moduleInstance  = Vtiger_Module::getInstance($relModuleName);
@@ -63,6 +89,7 @@ class berliWidgets_relatedDocumentEntries_View extends Vtiger_Detail_View {
 
 		$viewer = $this->getViewer($request);
 		$viewer->assign('RELATED_ENTRIES', $relatedEntriesObj);
+		$pagingModel = null;
 		$viewer->assign('PAGING', $pagingModel);
         $viewer->assign('RECORD', $parentRecordId);
         $viewer->assign('MODULE', $moduleName);
