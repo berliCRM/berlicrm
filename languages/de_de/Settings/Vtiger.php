@@ -391,6 +391,9 @@ $languageStrings = array(
 
 );
 
+$languageStrings['LBL_WORD_ADDIN'] = 'Word Add-in';
+$languageStrings['LBL_WORD_ADDIN_DESCRIPTION'] = 'Word Add-in einrichten und Installationsmanifest erstellen';
+
 $jsLanguageStrings = array(
 	'JS_ANNOUNCEMENT_SAVED' => 'Bekanntgabe gespeichert',
 	'JS_CONFIGURATION_DETAILS_SAVED' => 'Konfigurationsdetails gespeichert',

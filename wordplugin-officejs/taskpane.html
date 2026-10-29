@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>berliCRM Word Plugin</title>
+    <link rel="stylesheet" href="src/taskpane.css?v=1.3.6">
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    <script type="module" src="src/taskpane.js?v=1.3.9"></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>berliCRM Word Plugin</h1>
+        <p>Felder einfügen und aus CRM-Listenansichten Serienbriefe erstellen.</p>
+      </header>
+
+      <section id="connection-panel" aria-labelledby="connection-heading">
+        <h2 id="connection-heading">Mit berliCRM verbinden</h2>
+        <label for="crm-url">CRM-Adresse</label>
+        <input id="crm-url" type="url" autocomplete="url" required>
+        <label for="username">Benutzername</label>
+        <input id="username" type="text" autocomplete="username" required>
+        <label for="access-key">API-Schlüssel</label>
+        <input id="access-key" type="password" autocomplete="off" required>
+        <button id="connect-button" type="button">Verbinden</button>
+      </section>
+
+      <section id="fields-panel" aria-labelledby="fields-heading" hidden>
+        <div class="section-heading">
+          <h2 id="fields-heading">Seriendruckfelder</h2>
+          <button id="disconnect-button" class="secondary" type="button">Trennen</button>
+        </div>
+        <label for="module-select">Modul</label>
+        <select id="module-select"></select>
+        <label for="field-select">Felder (Mehrfachauswahl mit Strg)</label>
+        <select id="field-select" size="12" multiple></select>
+        <button id="insert-button" type="button" disabled>In Word einfügen</button>
+      </section>
+
+      <section id="records-panel" aria-labelledby="records-heading" hidden>
+        <h2 id="records-heading">Datensätze für den Seriendruck</h2>
+        <p>Die Vorschau zeigt die aktuell ausgewählten Felder. Wählen Sie eine gespeicherte Listenansicht und bis zu 1.000 Datensätze.</p>
+        <label for="view-select">Gespeicherte Listenansicht</label>
+        <select id="view-select"></select>
+        <label for="record-select">Datensätze (Mehrfachauswahl mit Strg)</label>
+        <select id="record-select" size="8" multiple></select>
+        <div class="section-heading">
+          <button id="select-all-records-button" class="secondary" type="button" disabled>Alle Datensätze auswählen</button>
+          <button id="clear-record-selection-button" class="secondary" type="button" disabled>Auswahl aufheben</button>
+        </div>
+        <div class="section-heading">
+          <button id="previous-page-button" class="secondary" type="button" disabled>Zurück</button>
+          <span id="page-label">Seite 1</span>
+          <button id="next-page-button" class="secondary" type="button" disabled>Weiter</button>
+        </div>
+        <p id="selection-count">0 Datensätze ausgewählt.</p>
+        <fieldset id="output-mode">
+          <legend>Ausgabe</legend>
+          <label><input type="radio" name="output-mode" value="combined" checked> Ein gemeinsamer Serienbrief (alle Datensätze in einem Dokument)</label>
+          <label><input type="radio" name="output-mode" value="individual-zip"> Einzelne Briefe als ZIP-Datei</label>
+        </fieldset>
+        <label class="option-checkbox" for="save-to-crm">
+          <input id="save-to-crm" type="checkbox">
+          Individuelle Briefe zusätzlich als Dokument beim jeweiligen CRM-Datensatz speichern
+        </label>
+        <button id="merge-button" type="button" disabled>Seriendruck-Dokumente erstellen</button>
+        <div id="merge-progress" aria-live="polite" hidden>
+          <span id="merge-spinner" class="spinner" role="img" aria-label="Seriendruck wird erstellt"></span>
+          <span id="merge-progress-text">Seriendruck wird erstellt …</span>
+        </div>
+        <ul id="download-list" aria-label="Erstellte Word-Dokumente"></ul>
+      </section>
+
+      <p id="status" role="status" aria-live="polite"></p>
+    </main>
+  </body>
+</html>
