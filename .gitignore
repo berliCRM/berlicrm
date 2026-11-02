@@ -12,6 +12,7 @@ config.csfr-secret.php
 /outlook-addin/build/*.zip
 /outlook-addin/build/outlook-update-*/
 /outlook-addin/build/contacts-auth-error-preview*.png
+/outlook-addin/build/outlook-settings-preview*
 /build/outlook-*-update*.zip
 /build/outlook-*-update*/
 logs/installLog.txt

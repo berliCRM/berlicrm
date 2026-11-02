@@ -94,6 +94,47 @@ choosing **Anders anmelden**. The Access Key is not saved with the session.
 
 ## Server installation
 
+### Administrator setup page
+
+After deploying the updated files, run the normal CRM `db_update.php` process,
+or use `php outlook-addin/build/registerOutlookAddinOperation.php` for a targeted
+Outlook setup. Both initialize the six services and the repeatable settings menu
+entry under **Settings → Integration → Outlook Add-in**. Direct route:
+`index.php?module=OutlookAddin&parent=Settings&view=Index`.
+
+The administrator page checks local files and service registrations, explains
+the Microsoft Entra setup and shows the exact SPA redirect URI for this CRM.
+Both **Application (client) ID / client_id** and **Directory (tenant) ID / tenant_id**
+are mandatory GUIDs, checked in the browser and on the server. Existing public IDs
+are prefilled if available; legacy CRM credentials are never displayed or exported.
+Without an existing configuration, both inputs remain empty and GUID-format
+examples appear only as placeholders.
+
+**Test Microsoft connection** opens the existing sign-in flow using the deployed
+server configuration, then makes one read-only Graph request for at most one
+personal contact ID. The result confirms sign-in and read access, including an
+empty contact folder; it does not claim to have tested writes. No contacts are
+modified and no contact IDs or access tokens are displayed or stored in the CRM.
+Changes entered in the download form must be uploaded as configuration before
+they can be tested. Deploy `outlook-addin/settings-connection.js` together with
+the settings template, model and translations.
+
+The page provides two downloads:
+
+- `outlook.config.php`: includes the entered IDs, the configured CRM webservice
+  URL and SPA redirect, a 30-second timeout and the 500-recipient limit. Upload it
+  to `outlook-addin/rest/outlook.config.php`. Compare any existing custom settings
+  before replacing that file. The page itself never overwrites the server file.
+- `berliCRM-Outlook-Addin-manifest.xml`: uses the installation's configured HTTPS
+  `site_URL`, preserving its subpath and port. The manifest template, identity and
+  version stay unchanged. Install the download in Outlook or deploy it centrally.
+
+The page is restricted to CRM administrators. Configuration downloads and service
+repairs require authenticated POST requests with the CRM's CSRF validation. The
+service repair uses the same initializer as the CRM updater. No client secret or
+additional CRM API user is required. Detailed setup instructions are also in
+[CONTACTS.md](CONTACTS.md).
+
 Deploy these files while preserving the directory structure:
 
 - `outlook-addin/`

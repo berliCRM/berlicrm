@@ -387,6 +387,8 @@ $languageStrings = array(
 
 $languageStrings['LBL_WORD_ADDIN'] = 'Word Add-in';
 $languageStrings['LBL_WORD_ADDIN_DESCRIPTION'] = 'Set up the Word Add-in and generate its installation manifest';
+$languageStrings['LBL_OUTLOOK_ADDIN'] = 'Outlook Add-in';
+$languageStrings['LBL_OUTLOOK_ADDIN_DESCRIPTION'] = 'Set up the Outlook Add-in and generate its manifest and server configuration';
 
 $jsLanguageStrings = array(
 	'JS_ANNOUNCEMENT_SAVED' => 'Announcement Saved',

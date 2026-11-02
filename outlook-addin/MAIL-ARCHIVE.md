@@ -49,7 +49,7 @@ vollständiger MIME-Export.
 
 ## Update
 
-Das Paket `outlook-addin/build/outlook-update-20261102.10.zip` im CRM-Hauptverzeichnis
+Das Paket `outlook-addin/build/outlook-update-20261102.12.zip` im CRM-Hauptverzeichnis
 entpacken. Es enthält die benötigten Laufzeitdateien für die vorhandene Mail-,
 Kalender- und Kontakteansicht. Der HTTP-Endpunkt liegt jetzt unter
 `outlook-addin/rest/outlook.php`. Die private Konfiguration wird nicht mitgeliefert:
@@ -68,6 +68,14 @@ Bei einem CRM-Versionsupdate ruft `db_update.php` die gemeinsame Routine
 Webservices sowie fehlende Verknüpfungstabellen vor dem Fortschreiben der
 CRM-Versionsnummer. Die fünf Outlook-Werkzeuge liegen jetzt unter
 `outlook-addin/build/`. Die alte Ablage unter `/build/` wird nicht mehr benötigt.
+Der Updateablauf registriert außerdem **Einstellungen → Integration → Outlook
+Add-in**. Dort können Administratoren das Manifest und eine Konfiguration mit
+verpflichtender Client-ID und Mandanten-ID herunterladen. Die neue Settings-Seite,
+ihre Vorlage und Sprachdateien müssen mit hochgeladen werden. Details stehen in
+[CONTACTS.md](CONTACTS.md#einrichtung-über-das-crm-settings-menü).
+Der zusätzliche Settings-Button **Microsoft-Verbindung prüfen** testet die
+gespeicherte Konfiguration mit einer Anmeldung und einem lesenden Kontaktzugriff.
+Die neue Datei `outlook-addin/settings-connection.js` gehört zu dieser Funktion.
 Für eine separate Einrichtung oder Reparatur im CRM-Hauptverzeichnis ausführen:
 
 ```sh

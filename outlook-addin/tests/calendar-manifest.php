@@ -2,6 +2,8 @@
 if (PHP_SAPI !== 'cli') { http_response_code(403); exit; }
 $root = dirname(__DIR__, 2);
 chdir($root);
+require 'includes/runtime/BaseModel.php';
+require 'modules/Settings/Vtiger/models/Module.php';
 foreach (array('manifest.xml', 'manifest.generated.xml') as $filename) {
     $document = new DOMDocument();
     if (!$document->load('outlook-addin/' . $filename, LIBXML_NONET)) throw new RuntimeException('Invalid XML');
@@ -40,7 +42,7 @@ echo "Manifest structural checks passed: version, calendar activation, both over
 
 class PearDatabase {
     private static $instance;
-    public $database, $operations = array(), $parameters = array(), $tables = array(), $failNextQuery = false;
+    public $database, $operations = array(), $parameters = array(), $tables = array(), $failNextQuery = false, $settings = array();
     public function __construct() { $this->database = $this; }
     public static function getInstance() { if (!self::$instance) self::$instance = new self(); return self::$instance; }
     public function startTransaction() {}
@@ -52,6 +54,12 @@ class PearDatabase {
     public function query_result($rows, $index, $column) { return $rows[$index][$column]; }
     public function pquery($sql, $params) {
         if ($this->failNextQuery) { $this->failNextQuery = false; throw new RuntimeException('Simulated registration failure'); }
+        if (strpos($sql, 'SELECT blockid FROM vtiger_settings_blocks') === 0) return array(array('blockid' => 12));
+        if (strpos($sql, 'SELECT fieldid, blockid FROM vtiger_settings_field') === 0) return $this->settings;
+        if (strpos($sql, 'SELECT MAX(sequence)') === 0) return array(array('sequence' => 0));
+        if (strpos($sql, 'SELECT MAX(fieldid)') === 0) return array(array('fieldid' => 0));
+        if (strpos($sql, 'INSERT INTO vtiger_settings_field ') === 0) { $this->settings[] = array('fieldid' => $params[0], 'blockid' => $params[1]); return array(); }
+        if (strpos($sql, 'UPDATE vtiger_settings_field SET') === 0) return array();
         if (strpos($sql, 'CREATE TABLE IF NOT EXISTS vtiger_outlook_calendar_link (') === 0) { $this->tables['calendar'] = true; return array(); }
         if (strpos($sql, 'CREATE TABLE IF NOT EXISTS vtiger_outlook_contact_link (') === 0) { $this->tables['contacts'] = true; return array(); }
         if (strpos($sql, 'CREATE TABLE IF NOT EXISTS vtiger_outlook_mail_link (') === 0) { $this->tables['mail'] = true; return array(); }

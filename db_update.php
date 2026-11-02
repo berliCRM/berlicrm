@@ -1616,10 +1616,10 @@ echo "<br>\n Install Word Add-in menu and webservices END ";
 // Word add-in update END
 
 // Outlook add-in update START
-echo "<br>\n Install Outlook Add-in webservice START ";
+echo "<br>\n Install Outlook Add-in menu and webservices START ";
 require_once __DIR__ . '/outlook-addin/update.php';
 berli_outlookAddinUpdate();
-echo "<br>\n Install Outlook Add-in webservice END ";
+echo "<br>\n Install Outlook Add-in menu and webservices END ";
 // Outlook add-in update END
 
 ///////////////////////////////////////////////////////////////////////////

@@ -393,6 +393,8 @@ $languageStrings = array(
 
 $languageStrings['LBL_WORD_ADDIN'] = 'Word Add-in';
 $languageStrings['LBL_WORD_ADDIN_DESCRIPTION'] = 'Word Add-in einrichten und Installationsmanifest erstellen';
+$languageStrings['LBL_OUTLOOK_ADDIN'] = 'Outlook Add-in';
+$languageStrings['LBL_OUTLOOK_ADDIN_DESCRIPTION'] = 'Outlook Add-in einrichten, Manifest und Serverkonfiguration erstellen';
 
 $jsLanguageStrings = array(
 	'JS_ANNOUNCEMENT_SAVED' => 'Bekanntgabe gespeichert',

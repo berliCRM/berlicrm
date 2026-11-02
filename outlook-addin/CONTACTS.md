@@ -48,6 +48,63 @@ zugänglich. Deshalb erfolgt die Auswahl hier mit Kontrollkästchen.
 
 ## Microsoft Entra einmalig einrichten
 
+### Einrichtung über das CRM-Settings-Menü
+
+Nach dem Hochladen des Updates einmal `db_update.php` im üblichen CRM-Updateablauf
+oder gezielt `php outlook-addin/build/registerOutlookAddinOperation.php` ausführen.
+Dadurch erscheint für CRM-Administratoren **Einstellungen → Integration →
+Outlook Add-in**. Direkter Aufruf:
+`index.php?module=OutlookAddin&parent=Settings&view=Index`.
+
+Die Seite enthält die folgenden Entra-Schritte, zeigt die genaue SPA-
+Rückleitungsadresse dieser Installation und bietet Pflichtfelder für
+**Anwendungs-ID (Client) / client_id** und **Verzeichnis-ID (Mandant) / tenant_id**.
+Beide Werte müssen gültige GUIDs sein; leere oder ungültige Werte werden auch
+serverseitig abgelehnt. Bereits in der Serverkonfiguration hinterlegte IDs werden
+angezeigt. Ohne vorhandene Werte bleiben die Eingabefelder leer; nur die Platzhalter
+zeigen das GUID-Format. Es werden keine Beispiel-IDs als echte Eingabewerte eingesetzt.
+Ein Client Secret sowie CRM-Benutzername oder CRM-Access-Key werden nicht benötigt.
+
+**outlook.config.php herunterladen** erzeugt eine Konfiguration mit den beiden
+IDs, den passenden CRM-/Redirect-Adressen, 500 Empfängern und 30 Sekunden Zeitlimit.
+Diese Datei auf dem Server unter `outlook-addin/rest/outlook.config.php` ablegen.
+Eine vorhandene Konfiguration wird von der Settings-Seite nicht überschrieben;
+eigene Einstellungen vor einem Ersetzen vergleichen. Das zweite Download-Angebot
+erzeugt das installationsspezifische XML-Manifest, ohne dessen Vorlage zu ändern.
+
+Die Settings-Seite prüft außerdem Dateien und Webservices und bietet eine
+Reparaturregistrierung an. Menü und Webservices werden beim normalen CRM-Update
+ebenfalls eingerichtet. Die folgenden Schritte dokumentieren die Entra-Seite
+und die alternativ mögliche manuelle Konfiguration.
+
+### Microsoft-Verbindung aus den Einstellungen prüfen
+
+**Microsoft-Verbindung prüfen** verwendet die bereits auf dem Server gespeicherte
+`outlook-addin/rest/outlook.config.php`. Änderungen in den Formularfeldern müssen
+zuerst als Konfiguration heruntergeladen und auf den Server hochgeladen werden.
+Ohne gültige gespeicherte IDs ist der Testbutton deaktiviert.
+
+Der Klick öffnet die bestehende Microsoft-Anmeldung. Nach erfolgreicher Anmeldung
+führt die Settings-Seite genau eine lesende Graph-Anfrage an
+`/v1.0/me/contacts?$top=1&$select=id` aus. Ein leeres persönliches Adressbuch ist
+ebenfalls ein erfolgreicher Test. Es werden weder Kontakte angelegt oder geändert
+noch Kontakt-IDs oder Zugriffstokens im Ergebnis angezeigt. Das Token bleibt nur
+während der Anfrage im Browser und wird nicht an das CRM gesendet.
+
+Die Erfolgsmeldung bestätigt **Microsoft-Anmeldung und lesenden Kontaktzugriff**.
+Ein Schreibzugriff wird dabei nicht durch Anlegen eines Probekontakts getestet.
+Fehlende Zustimmung, ein blockiertes Anmeldefenster oder verweigerter Graph-Zugriff
+werden als Fehler beziehungsweise Abbruch angezeigt. Danach kann die Prüfung
+erneut gestartet werden; **Prüfung abbrechen** beendet einen laufenden Versuch.
+Die Prüfung ist kein Test der separaten CRM-Benutzeranmeldung.
+
+Für dieses Update `outlook-addin/settings-connection.js`, die Outlook-Settings-
+Vorlage, das Modulmodell und die beiden Settings-Sprachdateien gemeinsam hochladen.
+Die vorhandenen IDs bleiben in der Konfigurationsdatei erhalten. Ein erneuter
+`db_update.php`-Lauf ist bei bereits vorhandenem Outlook-Settings-Menü nicht nötig.
+
+### Appregistrierung und Microsoft-IDs
+
 Die Entra-Appregistrierung wird aktuell für den Zugriff auf die persönlichen
 Outlook-Kontakte über Microsoft Graph benötigt. Die E-Mail-Ablage und
 Kalenderübernahme verwenden die vorhandene CRM-Anmeldung und benötigen diese

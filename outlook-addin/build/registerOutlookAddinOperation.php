@@ -21,6 +21,7 @@ require_once dirname(__DIR__) . '/update.php';
 try {
     berli_outlookAddinUpdate();
     echo "Outlook add-in web services registered.\n";
+    echo "Outlook add-in Settings menu registered.\n";
 } catch (Throwable $exception) {
     fwrite(STDERR, 'Registration failed: ' . $exception->getMessage() . "\n");
     exit(1);

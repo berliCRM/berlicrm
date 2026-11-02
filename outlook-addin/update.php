@@ -19,6 +19,7 @@ function berli_outlookAddinUpdate(): void
         // Repeatable: repair/create all six operations and create missing link tables.
         // Let failures reach db_update.php, so it cannot advance the CRM release tag.
         Settings_OutlookAddin_Module_Model::registerOperation();
+        Settings_OutlookAddin_Module_Model::registerSettingsMenu();
     } finally {
         if ($previousDirectory !== false) chdir($previousDirectory);
     }

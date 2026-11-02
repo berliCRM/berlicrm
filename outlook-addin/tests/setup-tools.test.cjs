@@ -54,6 +54,7 @@ test('relocated CLI installer bootstraps CRM and calls the shared initializer fr
   for (const file of ['includes/Loader.php', 'include/utils/utils.php', 'include/database/PearDatabase.php', 'includes/runtime/BaseModel.php']) env.write(file, '<?php');
   env.write('modules/Settings/OutlookAddin/models/Module.php', `<?php
     class Settings_OutlookAddin_Module_Model {
+      public static function registerSettingsMenu() { echo "Settings menu initialized.\\n"; }
       public static function registerOperation() {
         if (!is_readable('config.inc.php')) throw new RuntimeException('Wrong CRM directory');
         echo "Shared initializer called.\\n";

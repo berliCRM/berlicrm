@@ -7,7 +7,8 @@ Die folgenden Befehle werden im CRM-Hauptverzeichnis ausgeführt.
 
 Beim normalen CRM-Update `db_update.php` über den vorhandenen CRM-Updateablauf
 ausführen. Dessen Outlook-Abschnitt lädt `outlook-addin/update.php` und
-initialisiert alle sechs Outlook-Webservices und fehlende Verknüpfungstabellen.
+initialisiert alle sechs Outlook-Webservices, fehlende Verknüpfungstabellen und
+den Menüeintrag **Einstellungen → Integration → Outlook Add-in**.
 Eine zusätzliche manuelle Webservice-Registrierung ist dann nicht notwendig.
 Bestehende Kalender-, Kontakt- und E-Mail-Verknüpfungen bleiben erhalten.
 Eine fehlgeschlagene Outlook-Initialisierung verhindert das anschließende
@@ -20,6 +21,18 @@ er verwendet dieselbe Outlook-Update-Routine:
 ```sh
 php outlook-addin/build/registerOutlookAddinOperation.php
 ```
+
+Das Settings-Menü ist nur für CRM-Administratoren zugänglich. Es erzeugt Downloads
+für das installationsspezifische Manifest und die `outlook.config.php`.
+Client-ID und Mandanten-ID sind für den Konfigurationsdownload Pflichtfelder
+und werden als GUIDs geprüft; die Seite erklärt die Beschaffung der IDs in
+Microsoft Entra. Die heruntergeladene Konfiguration unter
+`outlook-addin/rest/outlook.config.php` ablegen und dabei vorhandene eigene
+Einstellungen berücksichtigen. Die Seite überschreibt keine Serverdatei.
+Vorhandene IDs werden im Formular angezeigt; ohne Konfiguration zeigen leere
+Felder nur Formatbeispiele als Platzhalter. **Microsoft-Verbindung prüfen** testet
+die gespeicherte Konfiguration per Microsoft-Anmeldung und lesender Graph-Anfrage.
+Die Prüfung verändert keine Kontakte und bestätigt keinen Schreibtest.
 
 ## Manifest erzeugen
 
