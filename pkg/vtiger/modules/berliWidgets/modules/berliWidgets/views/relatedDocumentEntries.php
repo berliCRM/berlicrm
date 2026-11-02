@@ -12,8 +12,8 @@
 class berliWidgets_relatedDocumentEntries_View extends Vtiger_Detail_View {
 
 	/**
-	 * Checks permissions for the actual document
-	 * instead of the technical widget module.
+	 * Prüft die Berechtigung für das eigentliche Dokument
+	 * statt für das technische Widget-Modul.
 	 */
 	public function checkPermission(Vtiger_Request $request) {
 		$moduleName = $request->get('source_module');
@@ -42,8 +42,8 @@ class berliWidgets_relatedDocumentEntries_View extends Vtiger_Detail_View {
      * @param Vtiger_Request $request
      * @return boolean 
      */
-    public function preProcess(Vtiger_Request $request, $display= true) {
-        return true;
+    public function preProcess(Vtiger_Request $request, $display= true):void {
+        return;
     }
 
     /**
@@ -51,8 +51,8 @@ class berliWidgets_relatedDocumentEntries_View extends Vtiger_Detail_View {
      * @param Vtiger_Request $request
      * @return boolean 
      */
-    public function postProcess(Vtiger_Request $request) {
-        return true;
+    public function postProcess(Vtiger_Request $request):void {
+        return;
     }
 
     /**
