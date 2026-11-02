@@ -504,20 +504,25 @@ function berli_renderInvoiceFile($idnumber, $purpose, $path, $current_id, $forma
         }
         // set document information
         // file_put_contents('logs/ep4812.log', sprintf('%s %s %s', $invoice_no, $invoice_date, $invoice_buyer_purchaseorder_no) . PHP_EOL, FILE_APPEND);
+        $eInvoiceDocument->setDocumentInformation(
+            $invoice_no,
+            $invoiceTypeCode,
+            \DateTime::createFromFormat('d.m.Y', $invoice_date),
+            "EUR" // BT-5 invoice currency
+        );
+
+        if (trim($description) !== '') {
+            $eInvoiceDocument->addDocumentNote($description); // BT-22 invoice note
+        }
+
         $eInvoiceDocument
-            ->setDocumentInformation(
-                $invoice_no,
-                $invoiceTypeCode,
-                \DateTime::createFromFormat('d.m.Y', $invoice_date),
-                "EUR" // BT-5 invoice currency
-            )
             ->addDocumentNote($org_name . ' | ' . $org_address . ' | ' . $org_code . ' ' . $org_city . ' | ' . $org_country . ' | ' . $org_management . ' | ' . $org_taxid, null, 'REG')
             ->setDocumentSupplyChainEvent(\DateTime::createFromFormat('d.m.Y', $invoice_date))
             ->setDocumentSeller($org_name, $org_taxid)
             ->addDocumentSellerGlobalId($org_taxid, "0088") // ! should be german HRB number instead of $org_taxid
             // ->addDocumentSellerGlobalId($HRB, "9930") // ! should be german HRB number instead of $org_taxid
             ->addDocumentSellerTaxRegistration("VA", $org_vatid)
-            ->addDocumentPaymentTerm($description, \DateTime::createFromFormat('d.m.Y', $valid_till))
+            ->addDocumentPaymentTerm($conditions, \DateTime::createFromFormat('d.m.Y', $valid_till))
             ->setDocumentSellerAddress($org_address, "", "", $org_code, $org_city, $org_country_iso)
             // ->setDocumentSellerContact($owner_firstname . ' ' . $owner_lastname, "", $org_phone, $org_fax, $owner_mail) // CII-SR-236: FaxUniversalCommunication should not be present
             ->setDocumentSellerContact($owner_firstname . ' ' . $owner_lastname, "", $org_phone, '', $owner_mail)
