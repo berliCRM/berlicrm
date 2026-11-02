@@ -3,5 +3,15 @@
 test
 config.inc.php
 config.csfr-secret.php
+/rest/outlook.config.php
+/outlook-addin/rest/outlook.config.php
+/outlook-addin/manifest.generated.xml
 /vendor/
+/outlook-addin/node_modules/
+# Generated Outlook update packages, extracted copies and visual previews.
+/outlook-addin/build/*.zip
+/outlook-addin/build/outlook-update-*/
+/outlook-addin/build/contacts-auth-error-preview*.png
+/build/outlook-*-update*.zip
+/build/outlook-*-update*/
 logs/installLog.txt
