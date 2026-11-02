@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+           xsi:type="MailApp">
+  <Id>c20becc2-18ca-45a3-b0bc-9ebfd4e7c648</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>berliCRM</ProviderName>
+  <DefaultLocale>de-DE</DefaultLocale>
+  <DisplayName DefaultValue="berliCRM Kalender Minimaltest"/>
+  <Description DefaultValue="Zeigt nur einen Testbutton beim Erstellen eines Kalendertermins."/>
+  <IconUrl DefaultValue="https://unsercrm.i1.crm-now.de/outlook-addin/assets/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="https://unsercrm.i1.crm-now.de/outlook-addin/assets/icon-80.png"/>
+  <SupportUrl DefaultValue="https://unsercrm.i1.crm-now.de/"/>
+  <Hosts>
+    <Host Name="Mailbox"/>
+  </Hosts>
+  <Requirements>
+    <Sets>
+      <Set Name="Mailbox" MinVersion="1.3"/>
+    </Sets>
+  </Requirements>
+  <FormSettings>
+    <Form xsi:type="ItemEdit">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="https://unsercrm.i1.crm-now.de/outlook-addin/diagnostic-taskpane.html"/>
+      </DesktopSettings>
+    </Form>
+  </FormSettings>
+  <Permissions>Restricted</Permissions>
+  <Rule xsi:type="ItemIs" ItemType="Appointment" FormType="Edit"/>
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Requirements>
+      <bt:Sets DefaultMinVersion="1.3">
+        <bt:Set Name="Mailbox"/>
+      </bt:Sets>
+    </Requirements>
+    <Hosts>
+      <Host xsi:type="MailHost">
+        <DesktopFormFactor>
+          <ExtensionPoint xsi:type="AppointmentOrganizerCommandSurface">
+            <OfficeTab id="TabDefault">
+              <Group id="CalendarGroup">
+                <Label resid="ButtonLabel"/>
+                <Control xsi:type="Button" id="CalendarButton">
+                  <Label resid="ButtonLabel"/>
+                  <Supertip>
+                    <Title resid="ButtonLabel"/>
+                    <Description resid="ButtonDescription"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon"/>
+                    <bt:Image size="32" resid="Icon"/>
+                    <bt:Image size="80" resid="Icon"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="Page"/>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+    <Resources>
+      <bt:Images>
+        <bt:Image id="Icon" DefaultValue="https://unsercrm.i1.crm-now.de/outlook-addin/assets/icon-32.png"/>
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="Page" DefaultValue="https://unsercrm.i1.crm-now.de/outlook-addin/diagnostic-taskpane.html"/>
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="ButtonLabel" DefaultValue="Kalender Minimaltest"/>
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="ButtonDescription" DefaultValue="Öffnet eine einfache Testseite."/>
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>

@@ -1,0 +1,16 @@
+body { font-family: Arial, sans-serif; margin: 16px; color: #323130; }
+h1 { font-size: 1.35rem; }
+h2 { font-size: 1.1rem; margin-top: 0; }
+section { border: 1px solid #e1dfdd; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+label { display: block; margin: 10px 0 6px; font-weight: 600; }
+input, select { box-sizing: border-box; width: 100%; padding: 8px; border: 1px solid #c8c6c4; border-radius: 6px; margin-bottom: 12px; }
+button { background: #0078d4; color: #fff; border: 0; border-radius: 6px; padding: 10px 14px; cursor: pointer; }
+button:disabled { opacity: .6; cursor: not-allowed; }
+.actions { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px; margin: 12px 0; }
+.record { border: 1px solid #edebe9; border-radius: 6px; padding: 10px; margin-top: 10px; overflow-wrap: anywhere; }
+.record label { display: flex; gap: 8px; align-items: flex-start; margin: 0; }
+.record input[type=checkbox] { flex: 0 0 auto; width: auto; margin: 3px 0 0; }
+.record p { margin: 6px 0 0; }
+.record-status, #contactTransferStatus, #contactMicrosoftStatus { white-space: pre-wrap; overflow-wrap: anywhere; }
+.invalid { color: #a4262c; }
+[hidden] { display: none !important; }

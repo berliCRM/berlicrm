@@ -1,0 +1,14 @@
+{
+  "name": "berlicrm-outlook-contacts-auth",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:auth": "esbuild contacts-auth-entry.js --bundle --format=iife --platform=browser --target=es2020 --minify --legal-comments=external --outfile=assets/contacts-auth.bundle.js && esbuild contacts-sso-entry.js --bundle --format=iife --platform=browser --target=es2020 --minify --legal-comments=external --outfile=assets/contacts-sso.bundle.js"
+  },
+  "dependencies": {
+    "@azure/msal-browser": "5.25.1"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
+  }
+}

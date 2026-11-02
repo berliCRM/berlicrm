@@ -1615,6 +1615,13 @@ Settings_WordAddin_Module_Model::registerOperations();
 echo "<br>\n Install Word Add-in menu and webservices END ";
 // Word add-in update END
 
+// Outlook add-in update START
+echo "<br>\n Install Outlook Add-in webservice START ";
+require_once __DIR__ . '/outlook-addin/update.php';
+berli_outlookAddinUpdate();
+echo "<br>\n Install Outlook Add-in webservice END ";
+// Outlook add-in update END
+
 ///////////////////////////////////////////////////////////////////////////
 // on the End, we set update of Version Nummer and updates of all Modules:
 berli_updateAllModules();

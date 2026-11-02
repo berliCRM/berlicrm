@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>berliCRM Kontakte</title>
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <link rel="stylesheet" href="contacts.css?v=20261101.1" />
+</head>
+<body>
+  <nav><a href="taskpane.html">Zurück zu Mail und Kalender</a></nav>
+  <h1>berliCRM Kontakte</h1>
+  <section>
+    <h2>CRM-Anmeldung</h2>
+    <form id="contactLoginForm">
+      <label for="contactUsername">Benutzername</label>
+      <input id="contactUsername" autocomplete="username" required />
+      <label for="contactAccessKey">Access Key</label>
+      <input id="contactAccessKey" type="password" autocomplete="current-password" required />
+      <button type="submit">Am CRM anmelden</button>
+    </form>
+    <p id="contactLoginStatus" role="status" aria-live="polite"></p>
+    <button id="contactLogout" type="button" hidden>Anders anmelden</button>
+  </section>
+  <div id="contactWorkspace" hidden>
+    <section>
+      <h2>Microsoft-Konto</h2>
+      <p id="contactMicrosoftStatus" role="status" aria-live="polite">Microsoft-Verbindung wird vorbereitet …</p>
+      <div id="contactMicrosoftLogin" hidden>
+        <p>Verbinde das Konto, dessen persönliche Outlook-Kontakte du übernehmen möchtest.</p>
+        <div class="actions"><button id="contactConnect" type="button">Mit Microsoft verbinden</button></div>
+      </div>
+      <div class="actions"><button id="contactDisconnect" type="button" hidden>Verbindung trennen</button></div>
+      <label for="contactFolder">Outlook-Kontaktordner für Import und Export</label>
+      <select id="contactFolder" disabled><option value="">Standardkontakte</option></select>
+      <button id="contactLoadFolders" type="button" disabled>Weitere Ordner laden</button>
+    </section>
+    <section>
+      <h2>CRM → Outlook</h2>
+      <form id="contactSearchForm">
+        <label for="contactSearch">Person im CRM suchen</label>
+        <input id="contactSearch" placeholder="Name oder E-Mail" required />
+        <button type="submit">Suchen</button>
+      </form>
+      <div class="actions">
+        <button id="contactSelectCrm" type="button">Alle Treffer auswählen</button>
+        <button id="contactExport" type="button" disabled>Ausgewählte als Outlook-Kontakte anlegen</button>
+      </div>
+      <div id="contactCrmResults" class="results"></div>
+    </section>
+    <section>
+      <h2>Outlook → CRM</h2>
+      <p id="contactRequiredFields"></p>
+      <p>Nur vollständige Kontakte werden angelegt. Vorhandene Kontakte werden übersprungen.</p>
+      <div class="actions">
+        <button id="contactLoadOutlook" type="button" disabled>Outlook-Kontakte laden</button>
+        <button id="contactMoreOutlook" type="button" hidden>Weitere Kontakte laden</button>
+        <button id="contactSelectOutlook" type="button">Alle vollständigen Kontakte auswählen</button>
+        <button id="contactImport" type="button" disabled>Ausgewählte ins CRM übernehmen</button>
+      </div>
+      <div id="contactOutlookResults" class="results"></div>
+    </section>
+    <p id="contactTransferStatus" role="status" aria-live="polite"></p>
+  </div>
+  <script src="contact-model.js?v=20261101.1"></script>
+  <script src="contact-graph.js?v=20261101.1"></script>
+  <script src="assets/contacts-sso.bundle.js?v=20261102.10"></script>
+  <script src="contacts.js?v=20261102.10"></script>
+</body>
+</html>

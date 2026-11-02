@@ -33,6 +33,11 @@ Documentation
 ------------
 User's and administration manuals: https://blog.crm-now.de/doc/berliCRM/help/v1.0/index.html
 
+Outlook Add-in
+------------
+The Office.js Outlook add-in and its setup instructions are in
+[outlook-addin/README.md](./outlook-addin/README.md).
+
 Security
 ------------
 If you discover any security related issues, please contact the berliCRM team.
@@ -51,4 +56,3 @@ Get involved
 ------------
 Development on berliCRM is done at https://www.berlicrm.de 
 Please look up this site for further information
-
