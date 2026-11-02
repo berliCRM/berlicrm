@@ -1688,4 +1688,18 @@ class Vtiger_Module_Model extends Vtiger_Module {
 		
         return $listQuery;
 	}
+	
+	/**
+	 * Function gets a module's sequence numbering field
+	 * @return boolean
+	 */
+	public function getSequenceNumberField() {
+		$fieldList = $this->getFields();
+		foreach($fieldList as $fieldName => $fieldModel) {
+			if($fieldModel->get('uitype') === '4') {
+				return $fieldModel;
+			}
+		}
+        return false;
+	}
 }

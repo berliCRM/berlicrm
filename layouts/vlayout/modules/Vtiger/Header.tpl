@@ -13,7 +13,10 @@
 <html>
 	<head>
 		<title>
-			{$smarty.server.HTTP_HOST|regex_replace:"/\..*/":""}: {vtranslate($PAGETITLE, $MODULE_NAME)}
+			{if !empty($RECORD)}
+				{assign var=SEQUENCE_NO_VALUE value=$RECORD->getSequenceNumberValue()}
+			{/if}
+			{$smarty.server.HTTP_HOST|regex_replace:"/\..*/":""}: {vtranslate($PAGETITLE, $MODULE_NAME)}{if !empty($SEQUENCE_NO_VALUE)}: {$SEQUENCE_NO_VALUE}{/if}
 		</title>
 		<link id="favicon" REL="SHORTCUT ICON" HREF="layouts/vlayout/skins/images/favicon.ico">
 		<meta name="viewport" content="width=device-width, initial-scale=0.7">
