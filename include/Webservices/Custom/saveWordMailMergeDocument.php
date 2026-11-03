@@ -14,6 +14,7 @@ global $root_directory;
 require_once $root_directory . '/include/Webservices/Query.php';
 require_once $root_directory . '/include/Webservices/Create.php';
 require_once $root_directory . '/include/Webservices/Retrieve.php';
+if (!defined('BERLI_WORD_DOCX_SAVE_VERSION')) define('BERLI_WORD_DOCX_SAVE_VERSION', 1);
 /**
  * Saves one Word mail-merge document in berliCRM and links it to its record.
  *
@@ -21,7 +22,7 @@ require_once $root_directory . '/include/Webservices/Retrieve.php';
  * @param string $listId ID of the selected saved list view.
  * @param string $recordId Internal record ID.
  * @param string $notesTitle CRM document title.
- * @param string $fileContent Base64-encoded UTF-8 HTML document content.
+ * @param string $fileContent Base64-encoded legacy UTF-8 HTML or native DOCX bytes.
  * @param Users $user Authenticated berliCRM web-service user.
  * @return array The created CRM document ID.
  * @throws WebServiceException If access is denied or input is invalid.
@@ -78,6 +79,12 @@ function berli_saveWordMailMergeDocument($moduleName, $listId, $recordId, $notes
 	if ($fileBytes === false || $fileBytes === '' || strlen($fileBytes) > $maxFileSize) {
 		throw new WebServiceException(WebServiceErrorCode::$INVALIDID, 'Der Dokumentinhalt ist ungültig oder größer als 5 MB.');
 	}
+	$fileFormat = array('extension' => 'doc', 'mime' => 'application/msword');
+	if (substr($fileBytes, 0, 2) === 'PK') {
+		require_once __DIR__ . '/WordMailMergeDocx.php';
+		try { $fileFormat = berli_wordMailMergeDocxFormat($fileBytes); }
+		catch (Throwable $formatError) { throw new WebServiceException(WebServiceErrorCode::$INVALIDID, $formatError->getMessage()); }
+	}
 
 	$userIds = berli_wordMailMergeGetUserIds($user);
 	if ($userIds === false) {
@@ -85,7 +92,7 @@ function berli_saveWordMailMergeDocument($moduleName, $listId, $recordId, $notes
 	}
 	$userId = $userIds['id'];
 	$userWebserviceId = $userIds['webserviceId'];
-	$documentFileName = 'berliCRM-Serienbrief-' . $recordId . '-' . date('Ymd-His') . '.doc';
+	$documentFileName = 'berliCRM-Serienbrief-' . $recordId . '-' . date('Ymd-His') . '.' . $fileFormat['extension'];
 
 	$documentFolders = array();
 
@@ -108,7 +115,7 @@ function berli_saveWordMailMergeDocument($moduleName, $listId, $recordId, $notes
 		'notes_title' => $notesTitle,
 		'filename' => $documentFileName,
 		'filesize' => strlen($fileBytes),
-		'filetype' => 'application/msword',
+		'filetype' => $fileFormat['mime'],
 		'filelocationtype' => 'I',
 		'filestatus' => 1,
 		'filedownloadcount' => 0,
@@ -149,7 +156,7 @@ function berli_saveWordMailMergeDocument($moduleName, $listId, $recordId, $notes
 	$fileDetails = array(
 		'name' => $documentFileName,
 		'original_name' => $documentFileName,
-		'type' => 'application/msword',
+		'type' => $fileFormat['mime'],
 		'size' => strlen($fileBytes),
 		'tmp_name' => $tempFilePath,
 		'error' => 0

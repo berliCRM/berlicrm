@@ -4,6 +4,75 @@ Dieses Dokument beschreibt die Bereitstellung des Office.js-Add-ins auf dem
 berliCRM-Server, die Installation in Word ohne Exchange und die zentrale
 Bereitstellung über Microsoft 365/Exchange sowie die tägliche Nutzung.
 
+## Update auf 1.3.0.2 und Zurückschalten
+
+**Die bisherige Ausgabe bleibt voreingestellt.** Unter **Ausgabe > Dateiformat**
+kann jederzeit zwischen **Bisherige Ausgabe (.doc/HTML)** und **Word-Dokument
+(.docx) – neu** gewechselt werden. Der neue DOCX-Code wird nur bei ausdrücklicher
+Auswahl geladen. Die geöffnete Word-Vorlage wird beim Export nicht verändert.
+
+1. Vor dem Update den vorhandenen Ordner `wordplugin-officejs`,
+   `modules/Settings/WordAddin/models/Module.php`, beide bisherigen Handler
+   `include/Webservices/Custom/getWordMailMergeData.php` und
+   `include/Webservices/Custom/saveWordMailMergeDocument.php` sowie das eigene
+   Manifest sichern. Das separat gelieferte Rückfallpaket
+   `word-rollback-1.2.3.0-before-docx.zip` enthält den lokalen Stand vor dem Umbau;
+   ein eigenes Serverbackup bewahrt zusätzlich lokale Anpassungen.
+2. `word-update-1.3.0.2.zip` ins CRM-Webroot entpacken; die relativen Pfade im
+   Archiv erhalten. Mitkopieren: die neuen Word-Dateien `src/docx-engine.js`,
+   `src/docx-export.js`, `src/vendor/fflate-0.8.3.js` samt MIT-Lizenz, die neue
+   `include/Webservices/Custom/WordMailMergeDocx.php`, beide aktualisierten
+   Word-Handler und das Settings-Modell. Auf dem Server ist kein npm nötig.
+3. **DOCX-Ablage im CRM** benötigt ZIP im PHP des Webservers. Die bisherige
+   HTML/.doc-Ablage und reine DOCX-Downloads benötigen diese Erweiterung nicht.
+   Bestehende Webservice-Namen und Parameter bleiben unverändert: für dieses
+   Formatupdate weder erneut registrieren noch `db_update.php` ausführen.
+4. Add-in schließen und neu öffnen; gegebenenfalls den Office-Webcache
+   aktualisieren. Die Fußzeile muss **Version 1.3.0.2** zeigen. Das Manifest
+   ebenfalls aktualisieren: unter **CRM-Einstellungen > Integration > Word
+   Add-in** für die eigene CRM-Adresse herunterladen und über den bisherigen
+   Bereitstellungsweg ersetzen. Die beigelegte `manifest.xml` ist nur eine
+   Vorlage mit Beispieladressen.
+5. Mit wenigen Datensätzen beide Downloadarten, einen mehrseitigen Brief und
+   bei Bedarf die CRM-Ablage testen. Das Umschalten konvertiert keine bereits
+   erzeugten Dateien.
+
+**Schneller Rückfall:** Im Auswahlfeld **Bisherige Ausgabe (.doc/HTML)** wählen.
+**Vollständiger Rückfall:** Gesicherte Dateien an den bisherigen Pfaden
+wiederherstellen und das Add-in neu laden. Die neuen DOCX-Dateien können liegen
+bleiben; die alte Version lädt sie nicht. Falls nötig auch das vorherige
+individuelle Manifest erneut bereitstellen. Es gibt keine Datenbankmigration
+zurückzunehmen. Bereits gespeicherte CRM-Dokumente bleiben erhalten.
+
+### DOCX-Vorlagen und Grenzen
+
+- **Korrektur in 1.3.0.2:** Word-Vorlagen können CRM-Platzhalter in gebundenen
+  Inhaltssteuerelementen enthalten. Deren alte Datenbindung konnte eingesetzte
+  Namen beim Öffnen der erzeugten Datei wieder durch Platzhalter überschreiben.
+  In den ausgegebenen Briefen wird diese Bindung für die betroffenen CRM-Felder
+  gelöst. Andere Inhaltssteuerelemente und die Originalvorlage bleiben erhalten.
+- Eine normale `.docx`-Vorlage in Word öffnen; alte binäre `.doc`-Vorlagen
+  zuerst in Word als `.docx` speichern. Die vollständige Datei wird übernommen,
+  einschließlich Tabellen, Bildern, Kopf-/Fußzeilen und mehrerer Seiten.
+  Seitenumbrüche, Ränder und Abschnitte bleiben erhalten. Lange Feldwerte
+  können den von Word berechneten Seitenumbruch verändern.
+- Im gemeinsamen Dokument beginnt jeder Empfänger auf einer neuen Seite.
+  Leere Word-Bestandteile für Fußnoten, Endnoten oder Kommentare sowie reine
+  Trennlinien-Definitionen verhindern die Ausgabe nicht (korrigiert in 1.3.0.1).
+  Vorlagen mit Fußnoten, Endnoten oder Kommentaren bitte als **Einzelne Briefe
+  als ZIP-Datei** erstellen; diese Elemente bleiben im jeweiligen DOCX erhalten.
+- Nachverfolgte Änderungen vor dem Export annehmen oder ablehnen. Makros,
+  digitale Paketsignaturen und verschachtelte bedingte Seriendruckfelder werden
+  nicht unterstützt. Nicht unterstützte Vorlagen erzeugen eine Fehlermeldung;
+  die bisherige Ausgabe bleibt auswählbar.
+- Normale `MERGEFIELD`-Felder und sichtbare `«FELDNAME»`-Platzhalter werden
+  ersetzt. Die Schalter `Upper`, `Lower`, `\b` und `\f` werden berücksichtigt;
+  andere Word-Feldschalter werden nicht nachgebildet. Datum und Zahlen kommen
+  als Anzeigewerte vom CRM. Andere Word-Felder wie `PAGE` bleiben erhalten.
+- Maximal 32 MiB pro Vorlage, 128 MiB entpackter Vorlageninhalt und 1.000
+  Empfänger. Für die CRM-Ablage gelten weiterhin 5 MiB pro Einzelbrief.
+  Layout und Inhalt vor Versand oder Druck mit der eigenen Vorlage prüfen.
+
 ## 1. Installation auf dem berliCRM-Server
 
 Die Installation besteht aus zwei Teilen:
@@ -69,12 +138,14 @@ Cross-Origin-Anfragen nicht ausdrücklich und sicher konfiguriert.
 
 1. Kopieren Sie
    `include/Webservices/Custom/getWordMailMergeData.php` und
-   `include/Webservices/Custom/saveWordMailMergeDocument.php` aus diesem
+   `include/Webservices/Custom/saveWordMailMergeDocument.php` sowie
+   `include/Webservices/Custom/WordMailMergeDocx.php` aus diesem
    Paket in genau diese Pfade relativ zum berliCRM-Webroot:
 
    ```text
    include/Webservices/Custom/getWordMailMergeData.php
    include/Webservices/Custom/saveWordMailMergeDocument.php
+   include/Webservices/Custom/WordMailMergeDocx.php
    ```
 
    Der erste Handler liest die für den Benutzer sichtbaren Listenansichten,
@@ -304,7 +375,8 @@ sein.
 
 ### Schritt 4: Ausgabeart wählen und Dokumente erstellen
 
-Wählen Sie unter **Ausgabe** eine der beiden Varianten. Unabhängig davon können
+Wählen Sie unter **Ausgabe > Dateiformat** zunächst bisheriges HTML/.doc oder
+echtes DOCX und danach die Download-Variante. Unabhängig davon können
 Sie zusätzlich **Individuelle Briefe zusätzlich als Dokument beim jeweiligen
 CRM-Datensatz speichern** aktivieren. Dann erstellt das Add-in für jeden
 Empfänger ein eigenes Word-kompatibles Dokument im CRM und verknüpft es mit
@@ -330,7 +402,8 @@ Wählen Sie danach die gewünschte Download-Variante:
 - Wählen Sie **Ein gemeinsamer Serienbrief (alle Datensätze in einem
   Dokument)**.
 - Klicken Sie auf **Seriendruck-Dokumente erstellen**.
-- Das Add-in erstellt eine `.doc`-Datei mit allen ausgewählten Empfängern.
+- Das Add-in erstellt eine `.doc`- oder echte `.docx`-Datei mit allen
+  ausgewählten Empfängern, je nach gewähltem Dateiformat.
   Jeder Datensatz beginnt auf einer neuen Seite.
 - Klicken Sie nach der Erstellung auf den Download-Link
   **Gemeinsamen Serienbrief herunterladen**.
@@ -343,7 +416,8 @@ geprüft, gedruckt oder weiterverarbeitet werden sollen.
 - Wählen Sie **Einzelne Briefe als ZIP-Datei**.
 - Klicken Sie auf **Seriendruck-Dokumente erstellen**.
 - Das Add-in erstellt für jeden ausgewählten Datensatz ein eigenes
-  Word-kompatibles `.doc`-Dokument und bündelt die Dateien in einer ZIP-Datei.
+  Dokument im gewählten Format (`.doc` mit HTML-Inhalt oder echtes `.docx`)
+  und bündelt die Dateien in einer ZIP-Datei.
 - Klicken Sie auf **ZIP-Datei mit den Einzelbriefen herunterladen** und
   entpacken Sie das Archiv, um die Briefe einzeln zu öffnen.
 
@@ -351,15 +425,15 @@ Diese Variante eignet sich, wenn jeder Brief separat gespeichert oder verteilt
 werden soll. Die Dateinamen werden aus dem Datensatznamen gebildet; doppelte
 Namen erhalten eine laufende Nummer.
 
-Die erzeugten Dokumente verwenden den HTML-Inhalt des geöffneten Word-
-Dokuments als Vorlage. Prüfen Sie das Ergebnis vor dem Versand oder Druck,
+Die bisherige Ausgabe verwendet den HTML-Inhalt des geöffneten Word-Dokuments;
+die DOCX-Ausgabe verwendet die vollständige Word-Datei. Prüfen Sie das Ergebnis vor dem Versand oder Druck,
 insbesondere Seitenlayout, Kopf-/Fußzeilen, Bilder und Formatierungen.
 
 ### Verfügbare Alternativen und Grenzen
 
 - **Empfänger:** einzelne Datensätze manuell auswählen oder alle Datensätze der
   aktuell gewählten Listenansicht auswählen.
-- **Ausgabe:** ein gemeinsames Dokument mit einem Empfänger pro Seite oder
+- **Ausgabe:** ein gemeinsames Dokument mit neuer Seite je Empfänger oder
   einzelne Dateien in einem ZIP-Archiv.
 - **Datenquelle:** gespeicherte Listenansichten in Kontakte, Firmen, Leads und
   Tickets. Benutzer können als Feldmodul für Mergefelder verwendet werden,

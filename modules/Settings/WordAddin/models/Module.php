@@ -50,8 +50,11 @@ class Settings_WordAddin_Module_Model extends Settings_Vtiger_Module_Model {
             'wordplugin-officejs/assets/icon-32.png', 'wordplugin-officejs/assets/icon-80.png',
             'wordplugin-officejs/src/taskpane.js', 'wordplugin-officejs/src/taskpane.css',
             'wordplugin-officejs/src/crm-client.js', 'wordplugin-officejs/src/zip.js',
+            'wordplugin-officejs/src/docx-engine.js', 'wordplugin-officejs/src/docx-export.js',
+            'wordplugin-officejs/src/vendor/fflate-0.8.3.js', 'wordplugin-officejs/src/vendor/fflate-LICENSE.txt',
             'include/Webservices/Custom/getWordMailMergeData.php',
-            'include/Webservices/Custom/saveWordMailMergeDocument.php'
+            'include/Webservices/Custom/saveWordMailMergeDocument.php',
+            'include/Webservices/Custom/WordMailMergeDocx.php'
         );
     }
 

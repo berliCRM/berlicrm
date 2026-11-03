@@ -4,6 +4,24 @@ This Office.js add-in replaces the previous VB6/32-bit COM plugin. It inserts
 Word `MERGEFIELD`s from berliCRM fields and creates mail-merge letters from
 saved CRM list views.
 
+## Version 1.3.0.2: native DOCX output with a fallback
+
+Fixed: bound Word content controls no longer restore old placeholders over
+merged CRM names when a letter is opened. Empty Word footnote/endnote parts
+also no longer prevent combined output.
+
+Under **Output > File format** (**Ausgabe > Dateiformat**), **Bisherige Ausgabe
+(.doc/HTML)** remains selected by default. This established output is HTML
+with a `.doc` extension. **Word-Dokument (.docx) – neu** creates native Word
+files from the complete open template, including multiple pages, pictures,
+headers, footers and sections. Both formats offer a combined document or
+individual letters as a ZIP, with optional storage linked to CRM records.
+
+Switch back by selecting **Bisherige Ausgabe (.doc/HTML)**; no database change
+is required. The established output remains available for the demonstration.
+Back up the server files before deployment; see the
+[update and rollback instructions](./DOKUMENTATION.en.md#updating-to-1302-and-switching-back).
+
 ## Setup in berliCRM v8x
 
 After the regular CRM database update (`db_update.php`), administrators can find
@@ -52,11 +70,17 @@ is available in [DOKUMENTATION.en.md](./DOKUMENTATION.en.md).
   be used as a recipient source.
 - A maximum of 1,000 records can be selected per export. Server-side and
   client-side requests use pages or batches of no more than 100 records.
-- Output can be a combined `.doc` document with one record per page, or
-  individual letters bundled in a ZIP archive.
+- Output can be legacy HTML with a `.doc` extension or native DOCX. Each
+  recipient starts on a new page in a combined document; an individual letter
+  may itself contain multiple pages.
 - Individual letters can optionally also be saved as CRM documents linked to
   their respective records. This requires `saveWordMailMergeDocument.php` to
   be installed and its web service operation to be registered.
+- Native DOCX storage additionally requires `WordMailMergeDocx.php`, both
+  updated Word handlers and the PHP ZIP extension. Existing web-service
+  registrations remain valid. DOCX downloads alone do not require PHP ZIP.
+  The fflate JavaScript library and its MIT license are bundled locally in
+  `src/vendor/`; the server does not need npm.
 - The CRM server checks module, list-view and record permissions.
 - The connection uses `getchallenge`, `login`, `listtypes` and `describe` on the
   berliCRM web service. The API key and session are not stored persistently.
@@ -64,8 +88,14 @@ is available in [DOKUMENTATION.en.md](./DOKUMENTATION.en.md).
 ## Development and tests
 
 The project files are static and require no build step. Node.js is required
-for the REST and field-name tests:
+for the REST, field-name and DOCX tests:
 
 ```powershell
+npm ci --ignore-scripts
 npm test
 ```
+
+DOCX tests cover multiple pages, pictures, headers, footers, field replacement
+and the legacy default. Additional offline PHP validation and an optional test
+using installed Word are in `tests/docx-server.php` and
+`tests/validate-docx-word.ps1`.

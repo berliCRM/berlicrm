@@ -4,6 +4,70 @@ This document describes deployment of the Office.js add-in on the berliCRM
 server, installation in Word without Exchange, centralized deployment through
 Microsoft 365/Exchange, and daily use.
 
+## Updating to 1.3.0.2 and switching back
+
+**The established output remains the default.** Under **Output > File format**
+(**Ausgabe > Dateiformat**), select **Bisherige Ausgabe (.doc/HTML)** for legacy
+export or **Word-Dokument (.docx) – neu** for native DOCX. The DOCX code is loaded
+only when explicitly selected. The open Word template is not modified.
+
+1. Back up `wordplugin-officejs`,
+   `modules/Settings/WordAddin/models/Module.php`, both existing handlers
+   `include/Webservices/Custom/getWordMailMergeData.php` and
+   `include/Webservices/Custom/saveWordMailMergeDocument.php`, and your own
+   manifest. The separately supplied `word-rollback-1.2.3.0-before-docx.zip`
+   contains the local pre-change baseline; your server backup also preserves
+   any installation-specific changes.
+2. Extract `word-update-1.3.0.2.zip` into the CRM webroot, retaining relative
+   paths. Include the new Word files `src/docx-engine.js`, `src/docx-export.js`,
+   `src/vendor/fflate-0.8.3.js` and its MIT license, plus
+   `include/Webservices/Custom/WordMailMergeDocx.php`, both updated Word
+   handlers and the settings model. The server does not need npm.
+3. **Saving DOCX in CRM** requires ZIP in the web server's PHP configuration.
+   Legacy HTML/.doc storage and DOCX downloads alone do not require it.
+   Existing web-service names and parameters remain unchanged: this format
+   update requires neither re-registration nor `db_update.php`.
+4. Close and reopen the add-in; refresh the Office web cache if necessary.
+   The footer must show **Version 1.3.0.2**. Also update the manifest: download
+   it for your CRM address from **CRM Settings > Integration > Word Add-in**
+   and replace it using your existing deployment method. The bundled
+   `manifest.xml` is a template with example addresses.
+5. Test both download modes, a multi-page letter and optional CRM storage with
+   a few records. Switching formats does not convert existing output.
+
+**Quick fallback:** select **Bisherige Ausgabe (.doc/HTML)** again.
+**Full rollback:** restore the backed-up files at their original paths and
+reload the add-in. The new DOCX files may remain; the old version does not
+load them. If necessary, redeploy your previous installation-specific manifest
+too. There is no database migration to reverse. Existing CRM documents remain.
+
+### DOCX templates and limitations
+
+- **Fixed in 1.3.0.2:** templates can contain CRM placeholders in bound content
+  controls. Opening a generated letter could reload their old data and replace
+  merged recipient names with placeholders. Generated letters now detach that
+  binding for the affected CRM fields. Other content controls and the original
+  template are preserved.
+- Open a normal `.docx` template in Word; save old binary `.doc` templates as
+  `.docx` first. The complete file is used, including tables, pictures, headers,
+  footers and multiple pages. Page breaks, margins and sections are retained.
+  Word recalculates pagination when longer field values change the amount of text.
+- Each recipient starts on a new page in a combined document. Templates with
+  empty Word note/comment parts or separator definitions are accepted (fixed
+  in 1.3.0.1). Actual templates with
+  footnotes, endnotes or comments require **Individual letters in a ZIP archive**
+  (**Einzelne Briefe als ZIP-Datei**); these elements remain in each DOCX file.
+- Accept or reject tracked changes before exporting. Macros, digital package
+  signatures and nested conditional merge fields are not supported. Unsupported
+  templates produce an error; the established export remains selectable.
+- Ordinary `MERGEFIELD` fields and visible `«FIELDNAME»` placeholders are
+  replaced. `Upper`, `Lower`, `\b` and `\f` switches are supported; other Word
+  field switches are not reproduced. Date/number display values come from CRM.
+  Other Word fields such as `PAGE` remain in place.
+- Maximum template size: 32 MiB; uncompressed template contents: 128 MiB;
+  recipients: 1,000. CRM storage remains limited to 5 MiB per individual file.
+  Review the layout and content using your real template before sending or printing.
+
 For a project overview and test commands, see [README.en.md](./README.en.md).
 
 ## Setup through berliCRM v8x administration
@@ -94,12 +158,14 @@ explicitly and securely configures cross-origin requests.
 ### Step 2: Install the REST operations on the server
 
 1. Copy `include/Webservices/Custom/getWordMailMergeData.php` and
-   `include/Webservices/Custom/saveWordMailMergeDocument.php` from this package
+   `include/Webservices/Custom/saveWordMailMergeDocument.php` and
+   `include/Webservices/Custom/WordMailMergeDocx.php` from this package
    to these exact paths relative to the berliCRM web root:
 
    ```text
    include/Webservices/Custom/getWordMailMergeData.php
    include/Webservices/Custom/saveWordMailMergeDocument.php
+   include/Webservices/Custom/WordMailMergeDocx.php
    ```
 
    The first handler reads the list views, records and selected field values
@@ -292,7 +358,8 @@ the selected CRM module are processed.
 
 ### Step 4: Choose an output format and create documents
 
-Under Output (**Ausgabe**), choose one of the two formats. Independently of
+Under Output > File format (**Ausgabe > Dateiformat**), choose legacy HTML/.doc
+or native DOCX, followed by the download mode. Independently of
 this choice, you can also enable Save individual letters as documents linked
 to their CRM records (**Individuelle Briefe zusätzlich als Dokument beim
 jeweiligen CRM-Datensatz speichern**). The add-in then creates a separate
@@ -317,7 +384,8 @@ Then choose the required download format:
 - Select One combined mail-merge document, all records in one document
   (**Ein gemeinsamer Serienbrief (alle Datensätze in einem Dokument)**).
 - Click Create mail-merge documents (**Seriendruck-Dokumente erstellen**).
-- The add-in creates a `.doc` file containing all selected recipients. Each
+- The add-in creates a `.doc` or native `.docx` file, depending on the chosen
+  file format, containing all selected recipients. Each
   record starts on a new page.
 - After generation, click Download combined mail merge
   (**Gemeinsamen Serienbrief herunterladen**).
@@ -329,7 +397,8 @@ together in one document.
 
 - Select Individual letters in a ZIP archive (**Einzelne Briefe als ZIP-Datei**).
 - Click Create mail-merge documents (**Seriendruck-Dokumente erstellen**).
-- The add-in creates a separate Word-compatible `.doc` document for each
+- The add-in creates a separate document in the chosen format (HTML with a
+  `.doc` extension or native `.docx`) for each
   selected record and bundles the files in a ZIP archive.
 - Click Download ZIP archive containing individual letters
   (**ZIP-Datei mit den Einzelbriefen herunterladen**) and extract the archive
@@ -339,15 +408,15 @@ Use this format when each letter should be saved or distributed separately.
 Filenames are based on the record name; duplicate names receive a sequential
 number.
 
-The generated documents use the HTML content of the open Word document as the
-template. Check the result before sending or printing, especially the page
+The established output uses the HTML content of the open Word document; native
+DOCX uses the complete Word file. Check the result before sending or printing, especially the page
 layout, headers, footers, images and formatting.
 
 ### Available options and limitations
 
 - **Recipients:** select individual records manually or select all records in
   the currently selected list view.
-- **Output:** one combined document with one recipient per page, or individual
+- **Output:** one combined document with a new page per recipient, or individual
   files in a ZIP archive.
 - **Data source:** saved list views in Contacts, Accounts, Leads and Tickets.
   Users can be used as a field module for merge fields, but not as a recipient

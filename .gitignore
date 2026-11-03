@@ -8,6 +8,10 @@ config.csfr-secret.php
 /outlook-addin/manifest.generated.xml
 /vendor/
 /outlook-addin/node_modules/
+/wordplugin-officejs/node_modules/
+/wordplugin-officejs/build/*.zip
+/wordplugin-officejs/build/word-update-*/
+/wordplugin-officejs/build/word-rollback-*/
 # Generated Outlook update packages, extracted copies and visual previews.
 /outlook-addin/build/*.zip
 /outlook-addin/build/outlook-update-*/

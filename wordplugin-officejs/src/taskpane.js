@@ -32,6 +32,7 @@ const elements = {
   mergeProgressText: document.querySelector("#merge-progress-text"),
   saveToCrm: document.querySelector("#save-to-crm"),
   outputMode: document.querySelector("#output-mode"),
+  outputFormat: document.querySelector("#output-format"),
   status: document.querySelector("#status"),
 };
 
@@ -141,6 +142,7 @@ function setButtonLoading(button, isLoading, loadingLabel = "Bitte warten …") 
 
 function setBusy(busy) {
   isBusy = busy;
+  if (elements.outputFormat) elements.outputFormat.disabled = busy;
   elements.connectButton.disabled = busy;
   elements.disconnectButton.disabled = busy;
   elements.insertButton.disabled = busy || elements.fieldSelect.selectedOptions.length === 0;
@@ -626,6 +628,34 @@ function createUniqueFileNames(records) {
 }
 
 async function createMergeDocuments() {
+  if (elements.outputFormat?.value !== "docx") return createLegacyMergeDocuments();
+  if (isBusy || !currentRecordsModule || !selectedRecords.size || !wordIsReady || !crmClient) return;
+  setBusy(true);
+  setButtonLoading(elements.mergeButton, true, "Erstelle DOCX …");
+  elements.mergeProgress.hidden = false;
+  try {
+    // Load the DOCX implementation only when explicitly selected. Its dependencies
+    // and failures cannot prevent the established legacy export from starting.
+    const { runDocxMerge } = await import("./docx-export.js?v=1.0.2");
+    clearDownloads();
+    const result = await runDocxMerge({ office: Office, module: currentRecordsModule,
+      records: Array.from(selectedRecords.values()), crmClient, viewId: elements.viewSelect.value,
+      page: currentPage, outputMode: elements.outputMode.querySelector('input[name="output-mode"]:checked').value,
+      saveToCrm: elements.saveToCrm.checked, nextFrame: waitForUiUpdate, addDownload,
+      fileNames: createUniqueFileNames, createTitle: createMailMergeDocumentTitle,
+      onProgress: message => { elements.mergeProgressText.textContent = message; setStatus(message); } });
+    setStatus(result.message, result.failed);
+  } catch (error) {
+    setStatus(`DOCX-Seriendruck fehlgeschlagen: ${error.message} Sie können jederzeit auf „Bisherige Ausgabe (.doc/HTML)“ zurückschalten.`, true);
+  } finally {
+    elements.mergeProgress.hidden = true;
+    setButtonLoading(elements.mergeButton, false);
+    setBusy(false);
+    renderSelectionCount();
+  }
+}
+
+async function createLegacyMergeDocuments() {
   if (!currentRecordsModule || selectedRecords.size === 0 || !wordIsReady) {
     return;
   }

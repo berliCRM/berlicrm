@@ -12,6 +12,15 @@
 // Required for field validation; this function is not guaranteed to be loaded for custom operations.
 require_once 'include/Webservices/DescribeObject.php';
 
+/** Advertises DOCX storage only when both the handler and ZIP support are present. */
+function berli_wordMailMergeDocumentFormats() {
+    $formats = array('html-doc');
+    if (!class_exists('ZipArchive') || !is_readable(__DIR__ . '/WordMailMergeDocx.php') || !is_readable(__DIR__ . '/saveWordMailMergeDocument.php')) return $formats;
+    require_once __DIR__ . '/saveWordMailMergeDocument.php';
+    if (defined('BERLI_WORD_DOCX_SAVE_VERSION')) $formats[] = 'docx';
+    return $formats;
+}
+
 /**
  * Returns available list views or mail-merge data to the Word add-in.
  *
@@ -127,7 +136,7 @@ function berli_getWordMailMergeData($moduleName, $listId, $page, $recordIds, $fi
 				'fields' => array_intersect_key($record, array_flip($selectedFields))
 			);
 		}
-		return array('records' => $records, 'nextPage' => false);
+		return array('records' => $records, 'nextPage' => false, 'documentFormats' => berli_wordMailMergeDocumentFormats());
 	}
 
 	// For regular list-view requests, validate the page number and load at most 100 records.
