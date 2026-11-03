@@ -1,5 +1,7 @@
 # berliCRM Outlook Add-in
 
+**Original (Deutsch/English)** | [English](README.en.md)
+
 This Office.js add-in is served by the berliCRM installation and uses a
 classic XML Outlook manifest. It supports CRM contact search, recent events,
 and adding CRM contacts to the recipient fields of an Outlook email draft.

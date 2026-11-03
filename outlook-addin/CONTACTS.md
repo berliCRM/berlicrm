@@ -1,5 +1,7 @@
 # CRM- und Outlook-Kontakte übernehmen
 
+**Deutsch** | [English](CONTACTS.en.md)
+
 Im berliCRM-Add-in öffnet der Link **CRM- und Outlook-Kontakte verwalten**
 die neue Kontakteansicht. Der Link ist auch im Aufgabenbereich der
 E-Mail-Leseansicht erreichbar, etwa beim Auswählen einer Mail in der Nachrichtenliste.

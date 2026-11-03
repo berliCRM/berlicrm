@@ -1,5 +1,7 @@
 # Empfangene Outlook-E-Mails im CRM ablegen
 
+**Deutsch** | [English](MAIL-ARCHIVE.en.md)
+
 Beim Öffnen einer vorhandenen E-Mail zeigt das berliCRM-Add-in eine eigene
 Leseansicht: CRM-Anmeldung beziehungsweise Anmeldestatus und **E-Mail im CRM
 ablegen** sowie den Link **CRM- und Outlook-Kontakte verwalten**. Dieser Link
