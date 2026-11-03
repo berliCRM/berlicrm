@@ -4,12 +4,12 @@ Dieses Dokument beschreibt die Bereitstellung des Office.js-Add-ins auf dem
 berliCRM-Server, die Installation in Word ohne Exchange und die zentrale
 Bereitstellung über Microsoft 365/Exchange sowie die tägliche Nutzung.
 
-## Update auf 1.3.0.2 und Zurückschalten
+## Update auf 1.3.0.3 und Zurückschalten
 
-**Die bisherige Ausgabe bleibt voreingestellt.** Unter **Ausgabe > Dateiformat**
-kann jederzeit zwischen **Bisherige Ausgabe (.doc/HTML)** und **Word-Dokument
-(.docx) – neu** gewechselt werden. Der neue DOCX-Code wird nur bei ausdrücklicher
-Auswahl geladen. Die geöffnete Word-Vorlage wird beim Export nicht verändert.
+**DOCX ist voreingestellt.** Unter **Ausgabe > Dateiformat** kann jederzeit
+zwischen **altes Word-Dokument (.doc/HTML)** und **Word-Dokument (.docx)**
+gewechselt werden. Der DOCX-Code wird beim DOCX-Export geladen.
+Die geöffnete Word-Vorlage wird beim Export nicht verändert.
 
 1. Vor dem Update den vorhandenen Ordner `wordplugin-officejs`,
    `modules/Settings/WordAddin/models/Module.php`, beide bisherigen Handler
@@ -18,7 +18,7 @@ Auswahl geladen. Die geöffnete Word-Vorlage wird beim Export nicht verändert.
    Manifest sichern. Das separat gelieferte Rückfallpaket
    `word-rollback-1.2.3.0-before-docx.zip` enthält den lokalen Stand vor dem Umbau;
    ein eigenes Serverbackup bewahrt zusätzlich lokale Anpassungen.
-2. `word-update-1.3.0.2.zip` ins CRM-Webroot entpacken; die relativen Pfade im
+2. `word-update-1.3.0.3.zip` ins CRM-Webroot entpacken; die relativen Pfade im
    Archiv erhalten. Mitkopieren: die neuen Word-Dateien `src/docx-engine.js`,
    `src/docx-export.js`, `src/vendor/fflate-0.8.3.js` samt MIT-Lizenz, die neue
    `include/Webservices/Custom/WordMailMergeDocx.php`, beide aktualisierten
@@ -28,7 +28,7 @@ Auswahl geladen. Die geöffnete Word-Vorlage wird beim Export nicht verändert.
    Bestehende Webservice-Namen und Parameter bleiben unverändert: für dieses
    Formatupdate weder erneut registrieren noch `db_update.php` ausführen.
 4. Add-in schließen und neu öffnen; gegebenenfalls den Office-Webcache
-   aktualisieren. Die Fußzeile muss **Version 1.3.0.2** zeigen. Das Manifest
+   aktualisieren. Die Fußzeile muss **Version 1.3.0.3** zeigen. Das Manifest
    ebenfalls aktualisieren: unter **CRM-Einstellungen > Integration > Word
    Add-in** für die eigene CRM-Adresse herunterladen und über den bisherigen
    Bereitstellungsweg ersetzen. Die beigelegte `manifest.xml` ist nur eine
@@ -37,7 +37,7 @@ Auswahl geladen. Die geöffnete Word-Vorlage wird beim Export nicht verändert.
    bei Bedarf die CRM-Ablage testen. Das Umschalten konvertiert keine bereits
    erzeugten Dateien.
 
-**Schneller Rückfall:** Im Auswahlfeld **Bisherige Ausgabe (.doc/HTML)** wählen.
+**Schneller Rückfall:** Im Auswahlfeld **altes Word-Dokument (.doc/HTML)** wählen.
 **Vollständiger Rückfall:** Gesicherte Dateien an den bisherigen Pfaden
 wiederherstellen und das Add-in neu laden. Die neuen DOCX-Dateien können liegen
 bleiben; die alte Version lädt sie nicht. Falls nötig auch das vorherige
@@ -356,6 +356,8 @@ der Vorlage passen.
    Bereich.
 3. Verwenden Sie **Zurück** und **Weiter**, um weitere Seiten der Ansicht
    anzuzeigen. Bereits ausgewählte Datensätze bleiben in der Auswahl erhalten.
+   Während des Abrufs dreht sich unten neben „CRM-Datensätze werden geladen …“
+   ein Spinner. Er verschwindet bei einer Antwort oder einem Fehler.
 4. Alternativ wählen Sie **Alle Datensätze auswählen**, um alle Datensätze der
    Listenansicht auszuwählen. Diese Schaltfläche ist nur verfügbar, wenn die
    Gesamtzahl höchstens 1.000 beträgt.

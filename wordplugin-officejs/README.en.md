@@ -4,23 +4,23 @@ This Office.js add-in replaces the previous VB6/32-bit COM plugin. It inserts
 Word `MERGEFIELD`s from berliCRM fields and creates mail-merge letters from
 saved CRM list views.
 
-## Version 1.3.0.2: native DOCX output with a fallback
+## Version 1.3.0.3: native DOCX output with a fallback
 
 Fixed: bound Word content controls no longer restore old placeholders over
 merged CRM names when a letter is opened. Empty Word footnote/endnote parts
 also no longer prevent combined output.
 
-Under **Output > File format** (**Ausgabe > Dateiformat**), **Bisherige Ausgabe
-(.doc/HTML)** remains selected by default. This established output is HTML
-with a `.doc` extension. **Word-Dokument (.docx) – neu** creates native Word
+Under **Output > File format** (**Ausgabe > Dateiformat**), **Word-Dokument
+(.docx)** is selected by default. **altes Word-Dokument (.doc/HTML)** remains
+available as a fallback and contains HTML with a `.doc` extension. DOCX creates native Word
 files from the complete open template, including multiple pages, pictures,
 headers, footers and sections. Both formats offer a combined document or
 individual letters as a ZIP, with optional storage linked to CRM records.
 
-Switch back by selecting **Bisherige Ausgabe (.doc/HTML)**; no database change
-is required. The established output remains available for the demonstration.
+Switch back by selecting **altes Word-Dokument (.doc/HTML)**; no database change
+is required.
 Back up the server files before deployment; see the
-[update and rollback instructions](./DOKUMENTATION.en.md#updating-to-1302-and-switching-back).
+[update and rollback instructions](./DOKUMENTATION.en.md#updating-to-1303-and-switching-back).
 
 ## Setup in berliCRM v8x
 
@@ -65,6 +65,8 @@ is available in [DOKUMENTATION.en.md](./DOKUMENTATION.en.md).
 
 ## Technical notes
 
+- An animated spinner next to the status message indicates that a record page
+  is loading. It disappears when the request succeeds or fails.
 - Saved list views for Contacts, Accounts, Leads and Tickets can be used as
   record sources. User fields can be inserted into templates, but Users cannot
   be used as a recipient source.
@@ -96,6 +98,6 @@ npm test
 ```
 
 DOCX tests cover multiple pages, pictures, headers, footers, field replacement
-and the legacy default. Additional offline PHP validation and an optional test
+and the available legacy fallback. Additional offline PHP validation and an optional test
 using installed Word are in `tests/docx-server.php` and
 `tests/validate-docx-word.ps1`.

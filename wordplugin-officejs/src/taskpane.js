@@ -52,8 +52,14 @@ const MAX_SELECTED_RECORDS = 1000;
 const RECORDS_PER_PAGE = 100;
 const MAX_RECORDS_PER_OPERATION = 100;
 
-function setStatus(message, isError = false) {
+function setStatus(message, isError = false, isLoading = false) {
   elements.status.textContent = message;
+  if (isLoading) {
+    const spinner = document.createElement("span");
+    spinner.className = "button-spinner";
+    spinner.setAttribute("aria-hidden", "true");
+    elements.status.prepend(spinner);
+  }
   elements.status.dataset.error = String(isError);
 }
 
@@ -335,7 +341,7 @@ async function loadRecords(page) {
   const selectedFields = getSelectedFields();
   elements.previousPageButton.disabled = true;
   elements.nextPageButton.disabled = true;
-  setStatus("CRM-Datensätze werden geladen …");
+  setStatus("CRM-Datensätze werden geladen …", false, true);
   try {
     const result = await crmClient.getMailMergeData(
       module.apiName,

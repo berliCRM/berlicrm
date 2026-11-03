@@ -4,24 +4,23 @@ Dieses Office.js-Add-in ersetzt das frühere VB6/32-Bit-COM-Plugin. Es fügt
 Word-`MERGEFIELD`s aus berliCRM-Feldern ein und erstellt Serienbriefe aus
 gespeicherten CRM-Listenansichten.
 
-## Version 1.3.0.2: echte DOCX-Ausgabe mit Rückfallweg
+## Version 1.3.0.3: echte DOCX-Ausgabe mit Rückfallweg
 
 Korrigiert: Gebundene Word-Inhaltssteuerelemente überschreiben eingesetzte
 CRM-Namen beim Öffnen nicht mehr mit den alten Platzhaltern. Leere Word-Teile
 für Fuß-/Endnoten verhindern den gemeinsamen Serienbrief ebenfalls nicht mehr.
 
-Unter **Ausgabe > Dateiformat** bleibt **Bisherige Ausgabe (.doc/HTML)**
-voreingestellt. Diese bewährte Ausgabe enthält HTML mit der Endung `.doc`.
-**Word-Dokument (.docx) – neu** erzeugt echte Word-Dateien aus der vollständigen
+Unter **Ausgabe > Dateiformat** ist **Word-Dokument (.docx)** voreingestellt.
+**altes Word-Dokument (.doc/HTML)** bleibt als Rückfallweg auswählbar und enthält
+HTML mit der Endung `.doc`. Die DOCX-Ausgabe erzeugt echte Word-Dateien aus der vollständigen
 geöffneten Vorlage, auch mit mehreren Seiten, Bildern, Kopf-/Fußzeilen und
 Abschnitten. Beide Formate bieten einen gemeinsamen Serienbrief oder
 Einzelbriefe als ZIP sowie die optionale Ablage beim CRM-Datensatz.
 
-Zum Zurückschalten genügt die Auswahl **Bisherige Ausgabe (.doc/HTML)**;
-eine Datenbankänderung ist dafür nicht nötig. Für die morgige Vorführung kann
-die bisherige Ausgabe weiter verwendet werden. Vor der Installation die
+Zum Zurückschalten genügt die Auswahl **altes Word-Dokument (.doc/HTML)**;
+eine Datenbankänderung ist dafür nicht nötig. Vor der Installation die
 Serverdateien sichern; Details zu Update und Wiederherstellung stehen im
-[Handbuch](./DOKUMENTATION.md#update-auf-1302-und-zurückschalten).
+[Handbuch](./DOKUMENTATION.md#update-auf-1303-und-zurückschalten).
 
 ## Einrichtung in berliCRM v8x
 
@@ -66,6 +65,8 @@ Schritt-für-Schritt-Nutzung befindet sich in
 
 ## Technische Hinweise
 
+- Beim Laden von Datensatzseiten zeigt ein animierter Spinner neben dem
+  Statustext den laufenden Abruf an. Er verschwindet bei Erfolg oder Fehler.
 - Für Kontakte, Firmen, Leads und Tickets können gespeicherte Listenansichten
   als Datensatzquelle verwendet werden. Benutzerfelder können in Vorlagen
   eingefügt werden, Benutzer selbst sind keine Empfängerquelle.
@@ -100,6 +101,6 @@ npm test
 ```
 
 Die DOCX-Tests prüfen unter anderem Mehrseitigkeit, Bilder, Kopf-/Fußzeilen,
-Feldersetzung und unveränderte Legacy-Voreinstellung. Ergänzende Offline-
+Feldersetzung und den weiterhin verfügbaren Legacy-Rückfallweg. Ergänzende Offline-
 PHP-Prüfungen und ein optionaler Test mit installiertem Word befinden sich in
 `tests/docx-server.php` und `tests/validate-docx-word.ps1`.

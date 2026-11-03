@@ -4,12 +4,12 @@ This document describes deployment of the Office.js add-in on the berliCRM
 server, installation in Word without Exchange, centralized deployment through
 Microsoft 365/Exchange, and daily use.
 
-## Updating to 1.3.0.2 and switching back
+## Updating to 1.3.0.3 and switching back
 
-**The established output remains the default.** Under **Output > File format**
-(**Ausgabe > Dateiformat**), select **Bisherige Ausgabe (.doc/HTML)** for legacy
-export or **Word-Dokument (.docx) – neu** for native DOCX. The DOCX code is loaded
-only when explicitly selected. The open Word template is not modified.
+**DOCX is the default.** Under **Output > File format** (**Ausgabe > Dateiformat**),
+select **altes Word-Dokument (.doc/HTML)** for legacy export or **Word-Dokument
+(.docx)** for native DOCX. The DOCX code is loaded when exporting DOCX.
+The open Word template is not modified.
 
 1. Back up `wordplugin-officejs`,
    `modules/Settings/WordAddin/models/Module.php`, both existing handlers
@@ -18,7 +18,7 @@ only when explicitly selected. The open Word template is not modified.
    manifest. The separately supplied `word-rollback-1.2.3.0-before-docx.zip`
    contains the local pre-change baseline; your server backup also preserves
    any installation-specific changes.
-2. Extract `word-update-1.3.0.2.zip` into the CRM webroot, retaining relative
+2. Extract `word-update-1.3.0.3.zip` into the CRM webroot, retaining relative
    paths. Include the new Word files `src/docx-engine.js`, `src/docx-export.js`,
    `src/vendor/fflate-0.8.3.js` and its MIT license, plus
    `include/Webservices/Custom/WordMailMergeDocx.php`, both updated Word
@@ -28,14 +28,14 @@ only when explicitly selected. The open Word template is not modified.
    Existing web-service names and parameters remain unchanged: this format
    update requires neither re-registration nor `db_update.php`.
 4. Close and reopen the add-in; refresh the Office web cache if necessary.
-   The footer must show **Version 1.3.0.2**. Also update the manifest: download
+   The footer must show **Version 1.3.0.3**. Also update the manifest: download
    it for your CRM address from **CRM Settings > Integration > Word Add-in**
    and replace it using your existing deployment method. The bundled
    `manifest.xml` is a template with example addresses.
 5. Test both download modes, a multi-page letter and optional CRM storage with
    a few records. Switching formats does not convert existing output.
 
-**Quick fallback:** select **Bisherige Ausgabe (.doc/HTML)** again.
+**Quick fallback:** select **altes Word-Dokument (.doc/HTML)**.
 **Full rollback:** restore the backed-up files at their original paths and
 reload the add-in. The new DOCX files may remain; the old version does not
 load them. If necessary, redeploy your previous installation-specific manifest
@@ -340,6 +340,8 @@ Fields list.
    operating system, hold **Shift** to select a continuous range.
 3. Use Previous (**Zurück**) and Next (**Weiter**) to display additional pages
    of the view. Previously selected records remain selected.
+   A spinner next to the loading status indicates that a request is running.
+   It disappears when the request succeeds or fails.
 4. Alternatively, choose Select all records (**Alle Datensätze auswählen**) to
    select every record in the list view. This button is available only when
    the total is no more than 1,000 records.
