@@ -6,7 +6,7 @@
   <title>berliCRM Outlook</title>
   <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 16px; color: #323130; }
+    body { display: flex; flex-direction: column; min-height: calc(100vh - 32px); font-family: Arial, sans-serif; margin: 16px; color: #323130; }
     h1 { font-size: 1.3rem; margin-bottom: 0.25rem; }
     .section { border: 1px solid #e1dfdd; border-radius: 10px; padding: 16px; margin-bottom: 16px; background: #fff; }
     .section label { display: block; margin-bottom: 6px; font-weight: 600; }
@@ -30,6 +30,8 @@
     .button-compact { flex-shrink: 0; padding: 4px 8px; font-size: 12px; line-height: 1.3; border-radius: 4px; }
     .record-details { overflow-wrap: anywhere; }
     .record-count { font-weight: normal; color: #605e5c; }
+    .addin-credit { color: #605e5c; font-size: 12px; line-height: 1.5; margin-top: auto; padding-top: 18px; text-align: right; }
+    .addin-version { display: block; margin-bottom: 2px; }
     [hidden] { display: none !important; }
     input, textarea { box-sizing: border-box; }
     fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
@@ -125,6 +127,11 @@
     <button id="eventsButton" class="button">Termine laden</button>
     <div id="eventsResult" class="result"></div>
   </div>
+
+  <footer class="addin-credit">
+    <span class="addin-version">Version 1.0.15.0</span>
+    <span>proudly made in Berlin by crm-now GmbH</span>
+  </footer>
 
   <script src="mail-read.js?v=20261102.8"></script>
   <script src="calendar.js?v=20261102.6"></script>

@@ -1,4 +1,4 @@
-body { font-family: Arial, sans-serif; margin: 16px; color: #323130; }
+body { display: flex; flex-direction: column; min-height: calc(100vh - 32px); font-family: Arial, sans-serif; margin: 16px; color: #323130; }
 h1 { font-size: 1.35rem; }
 h2 { font-size: 1.1rem; margin-top: 0; }
 section { border: 1px solid #e1dfdd; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
@@ -13,4 +13,6 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 .record p { margin: 6px 0 0; }
 .record-status, #contactTransferStatus, #contactMicrosoftStatus { white-space: pre-wrap; overflow-wrap: anywhere; }
 .invalid { color: #a4262c; }
+.addin-credit { color: #605e5c; font-size: 12px; line-height: 1.5; margin-top: auto; padding-top: 18px; text-align: right; }
+.addin-version { display: block; margin-bottom: 2px; }
 [hidden] { display: none !important; }
