@@ -22,6 +22,52 @@ class Accounts_AccountDatasheet_Service {
     public const MIME_TYPE = 'application/pdf';
 
     /**
+     * Create a temporary PDF for an immediate browser download.
+     *
+     * The caller owns the returned file and must remove it after use.
+     *
+     * @return array{account_id:int,filename:string,path:string,type:string}
+     */
+    public static function createTemporaryPdf($accountId) {
+        $accountId = self::normalizeRecordId($accountId);
+        if (!self::isReadableAccount($accountId)) {
+            throw new RuntimeException('Account is missing or not readable.');
+        }
+
+        $account = Vtiger_Record_Model::getInstanceById($accountId, 'Accounts');
+        $accountName = trim(decode_html((string)$account->get('accountname')));
+        if ($accountName === '') {
+            $accountName = 'Account-' . $accountId;
+        }
+
+        $absolutePath = tempnam(sys_get_temp_dir(), 'account-datasheet-');
+        if ($absolutePath === false) {
+            throw new RuntimeException('Could not allocate a temporary Account datasheet file.');
+        }
+
+        try {
+            self::renderPdf($account, $absolutePath);
+            if (!is_file($absolutePath)
+                || filesize($absolutePath) <= 0
+                || file_get_contents($absolutePath, false, null, 0, 5) !== '%PDF-') {
+                throw new RuntimeException('Generated Account datasheet is not a valid PDF.');
+            }
+
+            return array(
+                'account_id' => $accountId,
+                'filename' => self::buildFilename($accountName),
+                'path' => $absolutePath,
+                'type' => self::MIME_TYPE,
+            );
+        } catch (Throwable $e) {
+            if (is_file($absolutePath)) {
+                @unlink($absolutePath);
+            }
+            throw $e;
+        }
+    }
+
+    /**
      * Resolve the Account for the record currently used as email recipient context.
      */
     public static function resolveAccountId($moduleName, $recordId) {
