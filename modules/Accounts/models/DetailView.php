@@ -47,6 +47,16 @@ class Accounts_DetailView_Model extends Vtiger_DetailView_Model {
 			}
 			$index++;
 		}
+
+		if (Users_Privileges_Model::isPermitted('Accounts', 'DetailView', $recordModel->getId())) {
+			$datasheetLink = array(
+				'linktype' => 'DETAILVIEW',
+				'linklabel' => 'LBL_DOWNLOAD_ACCOUNT_DATASHEET',
+				'linkurl' => 'index.php?module=Accounts&action=DownloadDatasheet&record=' . $recordModel->getId(),
+				'linkicon' => ''
+			);
+			$linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($datasheetLink);
+		}
 		
 		$CalendarActionLinks = array();
 		$CalendarModuleModel = Vtiger_Module_Model::getInstance('Calendar');
