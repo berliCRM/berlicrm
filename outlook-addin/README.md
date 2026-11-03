@@ -19,6 +19,14 @@ controls. The existing Entra SPA redirect is reused; no extra registration is
 needed for this update. Deploy both `assets/contacts-auth.bundle.js` and the new
 `assets/contacts-sso.bundle.js` together with the updated contacts/auth HTML and
 `contacts.js`; `npm run build:auth` in `outlook-addin/` builds both bundles.
+If the sign-in window hangs after Microsoft sign-in, deploy the updated
+`contacts-auth.html`, `assets/contacts-auth.bundle.js` and its `.LEGAL.txt`
+together. The auth bundle uses cache version `20261103.2`, handles interactive
+callbacks inside Office frames, and includes the MSAL 5 silent response bridge.
+See [CONTACTS.md](CONTACTS.md#microsoft-anmeldung-und-fehlermeldungen) for stage
+timeouts and deployment details. Office.js is now loaded on demand and initialized
+before starting authentication in an Office dialog. Browser popups and silent SSO
+do not load it. No new Entra registration is needed.
 Received emails now show a separate sign-in/archive view with exact sender lookup,
 contact multi-selection and storage in CRM Emails. See [MAIL-ARCHIVE.md](MAIL-ARCHIVE.md).
 
@@ -321,7 +329,15 @@ See [MAIL-ARCHIVE.md](MAIL-ARCHIVE.md) for installation, permissions and limits.
 
 ### Calendar transfer in the existing add-in
 
-The calendar feature uses manifest version **1.0.15.0**, keeping the existing
+The current manifest version is **1.0.15.3**, including the Microsoft contact
+sign-in fixes and the Graph fetch receiver fix for reading and creating contacts.
+The contacts view loads `contact-graph.js?v=20261103.3`; deploy that script and
+`contacts.html` together and reopen the view. Generate/download the new
+installation-specific manifest from Settings after deploying the updated template
+if Outlook should also register this version. The sign-in fix itself needs no
+new operation registration or Entra configuration.
+
+The calendar feature was introduced in manifest version **1.0.15.0**, keeping the existing
 add-in ID. Both organizer and attendee appointment surfaces open the same task
 pane. Appointments show only login status and the calendar form; mail continues
 to show the existing mail sections. A restored CRM session is checked by the

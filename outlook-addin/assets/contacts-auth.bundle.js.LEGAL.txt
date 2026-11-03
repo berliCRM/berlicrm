@@ -134,4 +134,5 @@ Bundled license information:
 @azure/msal-browser/dist/operatingcontext/StandardOperatingContext.mjs:
 @azure/msal-browser/dist/app/PublicClientApplication.mjs:
 @azure/msal-browser/dist/index.mjs:
+@azure/msal-browser/dist/redirect_bridge/index.mjs:
   /*! @azure/msal-browser v5.25.1 2026-10-13 */

@@ -9,7 +9,7 @@ foreach (array('manifest.xml', 'manifest.generated.xml') as $filename) {
     if (!$document->load('outlook-addin/' . $filename, LIBXML_NONET)) throw new RuntimeException('Invalid XML');
     $xpath = new DOMXPath($document);
     $xsi = 'http://www.w3.org/2001/XMLSchema-instance';
-    if ($xpath->query('/*/*[local-name()="Version"]')->item(0)->textContent !== '1.0.15.0') throw new RuntimeException('Version not incremented');
+    if ($xpath->query('/*/*[local-name()="Version"]')->item(0)->textContent !== '1.0.15.3') throw new RuntimeException('Version not incremented');
     $rules = $xpath->query('/*/*[local-name()="Rule"]/*[@ItemType="Appointment"]');
     if ($rules->length !== 2) throw new RuntimeException('Read/edit appointment activation missing');
     foreach ($xpath->query('//*[local-name()="DesktopFormFactor"]') as $desktop) {

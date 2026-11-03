@@ -163,9 +163,10 @@ authorization code flow with PKCE and handles the redirect directly with
 `handleRedirectPromise`; no MSAL popup is used within the Office iframe.
 The add-in uses the Office Dialog API inside Outlook, and a browser window
 outside Outlook. If the server sets a CSP, it must allow Microsoft sign-in,
-Microsoft Graph and the existing Office.js. `Cross-Origin-Opener-Policy:
-same-origin` must not interrupt communication with the sign-in window;
-use `same-origin-allow-popups` for these pages if necessary.
+Microsoft Graph and the existing Office.js. The `contacts-auth.html` redirect
+page must not receive a `Cross-Origin-Opener-Policy` header, so the MSAL 5 redirect
+bridge retains its communication channel. This includes headers added by a
+reverse proxy; see [Microsoft's redirect bridge guidance](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/msal-browser-v5.25.1/lib/msal-browser/docs/redirect-bridge.md).
 
 After successful sign-in, Microsoft access tokens remain in the contacts view's
 memory. The temporary MSAL session cache in the sign-in window is cleared before
@@ -204,9 +205,10 @@ and [sign-in in embedded applications](https://learn.microsoft.com/en-us/entra/m
 The existing Entra app registration and SPA redirect URI
 `https://YOUR-CRM-HOST/outlook-addin/contacts-auth.html` are reused. Automatic
 sign-in needs no additional redirect URI, new manifest or webservice registration.
-When loaded as a hidden SSO iframe, the redirect page does not start its own
-sign-in and leaves the Microsoft response unchanged for the requesting MSAL
-instance.
+When loaded in MSAL's hidden SSO iframe, the redirect page does not start its own
+sign-in. It uses the bundled MSAL 5 redirect bridge to deliver the response.
+An interactive sign-in callback framed by Outlook is processed normally;
+having a parent window alone does not identify a silent sign-in.
 
 **Upload these update files together:**
 
@@ -226,6 +228,36 @@ sign-in bundles from `contacts-auth-entry.js` and `contacts-sso-entry.js`.
 The MSAL license files remain part of the distribution.
 
 ### Microsoft sign-in and error messages
+
+If the page remains on **Anmeldung wird vorbereitet** (Preparing sign-in) after
+successful Microsoft sign-in, update `outlook-addin/contacts-auth.html`,
+`outlook-addin/assets/contacts-auth.bundle.js` and its `.LEGAL.txt` file together.
+The authentication bundle now uses cache version `20261103.2`; other scripts keep
+their versions listed above. This fix distinguishes the interactive callback
+from MSAL's hidden SSO iframe. Administrator consent does not replace callback
+processing.
+
+Version **1.0.15.2** also fixes Office initialization. The sign-in page loads
+Office.js only for an Office dialog and calls `Office.onReady()` immediately after
+loading it. Microsoft sign-in or callback processing starts only once Office is
+ready. Previously, initialization was deferred until token delivery, which could
+miss Office's limited initialization window. The CRM connection-test popup and
+silent SSO callback do not load Office.js.
+
+For **Verbindung zum Outlook-Anmeldefenster wird hergestellt … Zeitüberschreitung**
+(Outlook dialog connection timeout), first update the files listed above together.
+Failure to load the Office library now has a separate error message. Microsoft
+sign-in still uses the normal user's account; this code update requires no new
+administrator consent.
+
+The page now shows each stage: loading configuration, initializing Microsoft,
+processing the response and passing it to Outlook. Preparation and Outlook
+handoff each have a 20-second timeout; Microsoft response processing and
+redirection each have a 60-second timeout. A timeout displays an error with the
+affected stage under **Technische Details** (Technical details); restart the
+connection afterwards. These limits apply to our local page, not the time spent
+entering credentials on Microsoft's sign-in page. The manifest, IDs, redirect
+URI and webservice registration remain unchanged.
 
 The sign-in window displays berliCRM status messages for preparation, successful
 connection and errors. An `access_denied` result shows an explanation; the
@@ -301,6 +333,14 @@ and overlong field values are reported as errors. Whether an email address is
 mandatory is determined by the CRM field configuration.
 
 ## Retries and errors
+
+Version **1.0.15.3** fixes **Failed to execute 'fetch' on 'Window': Illegal
+invocation** when reading and creating Outlook contacts. The shared Graph client
+now binds native `fetch` to the browser window. Upload
+`outlook-addin/contact-graph.js` and `outlook-addin/contacts.html` together; the
+contacts view loads the script with cache version `20261103.3`. Close and reopen
+the contacts view afterwards. Existing Microsoft permissions and server
+configuration are unchanged. No webservice registration is needed for this fix.
 
 - Export checks the selected Outlook folder for the stable CRM marker and then
   for each transferred email address. A match is skipped. The marker contains

@@ -3,16 +3,18 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const source = fs.readFileSync(path.join(__dirname, '../contacts-auth-entry.js'), 'utf8').replace(/^import .*;\r?\n/, '');
+const source = fs.readFileSync(path.join(__dirname, '../contacts-auth-entry.js'), 'utf8').replace(/^import .*;\r?\n/gm, '');
 function setup(options = {}) {
   const events = [], stored = new Map(options.savedChannel ? [['berliCRM.contacts.authChannel', options.savedChannel]] : []);
+  const timers = new Map(); let timerId = 0;
   const origin = 'https://crm.example.test';
-  const location = new URL(origin + '/outlook-addin/contacts-auth.html' + (options.start ? '?start=1&channel=office' : '#code=example'));
+  const location = new URL(origin + '/outlook-addin/contacts-auth.html' + (options.start ? '?start=1&channel=' + (options.startChannel || 'office') : '#code=example'));
   const config = { configured: true, clientId: 'client', tenantId: 'tenant', redirectUri: options.badRedirect || origin + '/outlook-addin/contacts-auth.html' };
   class PublicClientApplication {
     constructor(config) { events.push(['config', config]); }
-    async initialize() {}
+    async initialize() { if (options.initialize) return options.initialize(); }
     async handleRedirectPromise() {
+      if (options.redirect) return options.redirect();
       if (options.error) throw options.error;
       return options.start ? null : { accessToken: 'token', account: { homeAccountId: 'account', username: 'user@example.test' }, expiresOn: new Date(Date.now() + 60000) };
     }
@@ -26,18 +28,24 @@ function setup(options = {}) {
   };
   const status = element('authStatus');
   location.replace = address => events.push(['navigate', address]);
+  const scripts = [];
   const context = vm.createContext({ PublicClientApplication, URL, URLSearchParams, location,
+    setTimeout: options.fakeTimers ? callback => { timers.set(++timerId, callback); return timerId; } : setTimeout,
+    clearTimeout: options.fakeTimers ? id => timers.delete(id) : clearTimeout,
+    broadcastResponseToMainFrame: async () => { events.push(['bridge']); },
     sessionStorage: { getItem: key => stored.get(key), setItem: (key, value) => stored.set(key, value), removeItem: key => stored.delete(key) },
-    document: { getElementById: element },
+    document: { getElementById: element, createElement: () => ({}), head: { appendChild: script => scripts.push(script) } },
     fetch: async url => {
       assert.equal(String(url), origin + '/outlook-addin/rest/outlook.php');
+      if (options.fetch) return options.fetch();
       return { ok: true, json: async () => ({ success: true, payload: config }) };
     },
-    Office: { onReady: async () => ({ host: null }), context: { ui: { messageParent: (message, settings) => events.push(['send', JSON.parse(message), settings]) } } },
+    ...(options.omitOffice ? {} : { Office: { onReady: options.officeReady || (async () => ({ host: null })), context: { ui: { messageParent: (message, settings) => events.push(['send', JSON.parse(message), settings]) } } } }),
     window: { opener: { postMessage: (message, targetOrigin) => events.push(['popup', message, targetOrigin]) }, close() {} },
   });
   if (options.iframe) context.window.parent = {};
-  return { events, stored, status, element, location, run: () => vm.runInContext(source, context) };
+  if (options.silentFrame) context.window.frameElement = { classList: { contains: name => name === 'msalSilentIframe' } };
+  return { events, stored, status, element, location, timers, scripts, context, run: () => vm.runInContext(source, context) };
 }
 test('OAuth start uses MSAL redirect and delegated contacts scope without a secret', async () => {
   const env = setup({ start: true }); await env.run();
@@ -96,11 +104,129 @@ test('successful connection shows confirmation without error details or retry', 
   assert.equal(env.element('authActions').hidden, true);
 });
 
-test('silent SSO callback iframe leaves the response hash and authentication storage untouched', async () => {
-  const env = setup({ iframe: true, savedChannel: 'office' });
+test('silent SSO callback invokes the MSAL 5 bridge without starting interactive login, even with a stale channel', async () => {
+  const env = setup({ iframe: true, silentFrame: true, savedChannel: 'office' });
   const hash = env.location.hash;
   await env.run();
-  assert.deepEqual(env.events, []);
+  assert.deepEqual(env.events, [['bridge']]);
   assert.equal(env.location.hash, hash);
   assert.equal(env.stored.get('berliCRM.contacts.authChannel'), 'office');
+});
+
+test('an interactive Office callback in a frame completes instead of remaining on the loading screen', async () => {
+  const env = setup({ iframe: true, savedChannel: 'office' });
+  await env.run();
+  assert.deepEqual(env.events.map(event => event[0]), ['config', 'clear', 'send']);
+  assert.equal(env.element('authCard').dataset.state, 'success');
+});
+
+test('an explicit Office start in a frame is not silently ignored', async () => {
+  const env = setup({ iframe: true, start: true });
+  await env.run();
+  assert.equal(env.events.some(event => event[0] === 'login'), true);
+});
+
+test('a silent iframe without an interactive channel only invokes the redirect bridge', async () => {
+  const env = setup({ iframe: true, silentFrame: true });
+  await env.run();
+  assert.deepEqual(env.events, [['bridge']]);
+  assert.equal(env.stored.size, 0);
+});
+
+test('a framed callback with missing channel reports an error instead of silently skipping initialization', async () => {
+  const env = setup({ iframe: true });
+  await env.run();
+  assert.equal(env.element('authCard').dataset.state, 'error');
+  assert.match(env.element('authErrorDetails').textContent, /aus der berliCRM-Kontakteansicht starten/);
+  assert.equal(env.events.some(event => event[0] === 'bridge'), false);
+  assert.equal(env.events.some(event => event[1]?.type === 'berliCRM.contacts.connected'), false);
+});
+
+test('stalled configuration, MSAL initialization and callback processing report their stage and cannot deliver a late token', async () => {
+  for (const [stage, option] of [['Konfiguration', 'fetch'], ['initialisiert', 'initialize'], ['Rückmeldung', 'redirect']]) {
+    let finish;
+    const pending = new Promise(resolve => { finish = resolve; });
+    const env = setup({ savedChannel: 'popup', fakeTimers: true, [option]: () => pending });
+    const running = env.run();
+    await new Promise(resolve => setImmediate(resolve));
+    assert.match(env.status.textContent, new RegExp(stage));
+    [...env.timers.values()][0]();
+    await running;
+    assert.equal(env.element('authCard').dataset.state, 'error');
+    assert.match(env.element('authErrorDetails').textContent, /Zeitüberschreitung/);
+    assert.match(env.element('authErrorDetails').textContent, new RegExp(stage));
+    assert.equal(env.events.at(-1)[1].type, 'berliCRM.contacts.authError');
+    finish({ accessToken: 'late-token', account: { homeAccountId: 'old' }, expiresOn: new Date(Date.now() + 60000) });
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(env.events.some(event => event[1]?.type === 'berliCRM.contacts.connected'), false);
+    assert.equal(env.timers.size, 0);
+  }
+});
+
+test('a stalled Outlook handshake shows a bounded error and never reports a successful connection', async () => {
+  const env = setup({ savedChannel: 'office', fakeTimers: true, officeReady: () => new Promise(() => {}) });
+  const running = env.run();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.match(env.status.textContent, /Outlook-Anmeldefenster/);
+  [...env.timers.values()][0]();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(env.element('authCard').dataset.state, 'error');
+  assert.match(env.element('authErrorDetails').textContent, /Outlook-Anmeldefenster.*Zeitüberschreitung/);
+  assert.match(env.status.textContent, /konnte nicht hergestellt werden/);
+  await running;
+  assert.equal(env.events.some(event => event[0] === 'send'), false);
+  assert.equal(env.timers.size, 0);
+});
+
+test('Office dialog readiness is awaited before any Microsoft configuration or login request', async () => {
+  let ready;
+  const env = setup({ start: true, officeReady: () => new Promise(resolve => { ready = resolve; }) });
+  const running = env.run();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(env.events, []);
+  ready({ host: null });
+  await running;
+  assert.equal(env.events.some(event => event[0] === 'login'), true);
+});
+
+test('the dialog loads Office.js on demand and calls onReady immediately before authentication', async () => {
+  const env = setup({ start: true, omitOffice: true });
+  const running = env.run();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(env.scripts.length, 1);
+  assert.equal(env.scripts[0].src, 'https://appsforoffice.microsoft.com/lib/1/hosted/office.js');
+  assert.deepEqual(env.events, []);
+  env.context.Office = { onReady: async () => { env.events.push(['ready']); return { host: null }; } };
+  env.scripts[0].onload();
+  await running;
+  assert.deepEqual(env.events.map(event => event[0]), ['ready', 'config', 'login']);
+});
+
+test('a failed Office.js download gives a specific error without starting Microsoft sign-in', async () => {
+  const env = setup({ start: true, omitOffice: true });
+  const running = env.run();
+  await new Promise(resolve => setImmediate(resolve));
+  env.scripts[0].onerror();
+  await running;
+  assert.equal(env.element('authCard').dataset.state, 'error');
+  assert.match(env.element('authErrorDetails').textContent, /Office-Bibliothek konnte nicht geladen werden/);
+  assert.deepEqual(env.events, []);
+  assert.equal(env.scripts.length, 1);
+});
+
+test('browser popup sign-in and callbacks do not initialize Office.js', async () => {
+  for (const options of [{ start: true, startChannel: 'popup' }, { savedChannel: 'popup' }]) {
+    const env = setup({ ...options, omitOffice: true });
+    await env.run();
+    assert.equal(env.scripts.length, 0);
+    assert.equal(env.element('authCard').dataset.state === 'error', false);
+  }
+});
+
+test('Office readiness is initialized once and reused when returning the token', async () => {
+  let readyCalls = 0;
+  const env = setup({ savedChannel: 'office', officeReady: async () => { readyCalls++; return { host: null }; } });
+  await env.run();
+  assert.equal(readyCalls, 1);
+  assert.equal(env.events.at(-1)[1].type, 'berliCRM.contacts.connected');
 });

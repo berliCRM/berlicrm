@@ -7,7 +7,7 @@
   }
   function literal(value) { return String(value).replace(/'/g, "''"); }
   class GraphClient {
-    constructor(tokenProvider, propertyId, transport = fetch) {
+    constructor(tokenProvider, propertyId, transport = root.fetch.bind(root)) {
       this.tokenProvider = tokenProvider; this.propertyId = propertyId; this.transport = transport;
     }
     async request(path, options = {}) {

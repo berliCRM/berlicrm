@@ -1,5 +1,8 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
 const { GraphClient, GraphError } = require('../contact-graph.js');
 const model = require('../contact-model.js');
 const propertyId = 'String {f9e177c7-325a-4d90-ade5-a45bd5922b2e} Name berliCRMContact';
@@ -9,6 +12,28 @@ const metadata = { ownerId: '19x3', fields: [
   { name: 'assigned_user_id', label: 'Zuständig', mandatory: true, editable: false },
   { name: 'email', label: 'E-Mail', mandatory: false, editable: true },
 ] };
+
+test('default browser transport keeps the Window receiver when reading and creating contacts', async () => {
+  let browserGlobal;
+  const calls = [];
+  const context = vm.createContext({ URL, URLSearchParams,
+    fetch: function (url, options) {
+      // Native browser fetch rejects a GraphClient instance as its receiver.
+      if (this !== browserGlobal) throw new TypeError("Failed to execute 'fetch' on 'Window': Illegal invocation");
+      calls.push({ url, options });
+      return Promise.resolve(response(options.method === 'POST' ? { id: 'created-contact' } : { value: [] }));
+    },
+  });
+  browserGlobal = vm.runInContext('globalThis', context);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../contact-graph.js'), 'utf8'), context);
+  const client = new context.BerliContactGraph.GraphClient(() => 'test-token', propertyId);
+  await client.listPage();
+  const created = await client.create({ contact: { surname: 'Test' } });
+  assert.equal(created.id, 'created-contact');
+  assert.deepEqual(calls.map(call => call.options.method), ['GET', 'POST']);
+  assert.equal(JSON.parse(calls[1].options.body).surname, 'Test');
+  for (const call of calls) assert.equal(call.options.headers.Authorization, 'Bearer test-token');
+});
 
 test('mandatory CRM fields, including custom fields, control import eligibility', () => {
   assert.deepEqual(model.missingFields({ givenName: 'Ada' }, metadata).map(f => f.name), ['lastname']);

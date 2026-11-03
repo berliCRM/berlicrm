@@ -11,6 +11,7 @@ config.csfr-secret.php
 # Generated Outlook update packages, extracted copies and visual previews.
 /outlook-addin/build/*.zip
 /outlook-addin/build/outlook-update-*/
+/outlook-addin/build/outlook-auth-fix-*/
 /outlook-addin/build/contacts-auth-error-preview*.png
 /outlook-addin/build/outlook-settings-preview*
 /build/outlook-*-update*.zip

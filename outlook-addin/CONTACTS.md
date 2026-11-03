@@ -168,9 +168,10 @@ mit `handleRedirectPromise`; es wird kein MSAL-Popup innerhalb des Office-Iframe
 verwendet. Im Outlook-Add-in wird die Office-Dialog-API genutzt, außerhalb
 Outlooks ein Browserfenster. Falls der Server eine CSP setzt, müssen die
 Microsoft-Anmeldung, Microsoft Graph und das vorhandene Office.js zugelassen
-sein. `Cross-Origin-Opener-Policy: same-origin` darf die Kommunikation mit dem
-Anmeldefenster nicht unterbrechen; für diese Seiten gegebenenfalls
-`same-origin-allow-popups` verwenden.
+sein. Die Rückleitungsseite `contacts-auth.html` darf keinen
+`Cross-Origin-Opener-Policy`-Header erhalten, damit die MSAL-5-Redirect-Bridge
+ihren Rückkanal behält. Das gilt auch für per Reverse Proxy ergänzte Header;
+siehe [Microsofts Hinweise zur Redirect-Bridge](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/msal-browser-v5.25.1/lib/msal-browser/docs/redirect-bridge.md).
 
 Die Microsoft-Zugriffstokens bleiben nach erfolgreicher Anmeldung im Speicher
 der Kontakteansicht. Der kurzzeitige MSAL-Sitzungscache im Anmeldefenster wird
@@ -209,9 +210,11 @@ und [Anmeldung in eingebetteten Anwendungen](https://learn.microsoft.com/en-us/e
 Die vorhandene Entra-Appregistrierung und die SPA-Rückleitungsadresse
 `https://EURE-CRM-ADRESSE/outlook-addin/contacts-auth.html` werden weiterverwendet.
 Für die automatische Anmeldung ist keine zusätzliche Redirect-URI, kein neues
-Manifest und keine Webservice-Registrierung nötig. Beim Aufruf als verstecktes
-SSO-Iframe führt die Rückleitungsseite keine eigene Anmeldung aus und lässt die
-Microsoft-Antwort unverändert für die anfragende MSAL-Instanz stehen.
+Manifest und keine Webservice-Registrierung nötig. Beim Aufruf in dem von MSAL
+erzeugten versteckten SSO-Iframe führt die Rückleitungsseite keine eigene Anmeldung
+aus. Sie verwendet die mitgelieferte MSAL-5-Redirect-Bridge zur Übergabe der Antwort.
+Ein von Outlook eingerahmtes interaktives Anmeldefenster wird dagegen normal
+verarbeitet; ein übergeordnetes Fenster allein kennzeichnet keine stille Anmeldung.
 
 **Update-Dateien gemeinsam hochladen:**
 
@@ -232,6 +235,37 @@ beide Microsoft-Anmeldebundles aus `contacts-auth-entry.js` und
 `contacts-sso-entry.js`. Die MSAL-Lizenzdateien bleiben Bestandteil der Auslieferung.
 
 ### Microsoft-Anmeldung und Fehlermeldungen
+
+Wenn nach erfolgreicher Microsoft-Anmeldung die Seite **Anmeldung wird vorbereitet**
+stehen bleibt, gemeinsam `outlook-addin/contacts-auth.html`,
+`outlook-addin/assets/contacts-auth.bundle.js` und dessen `.LEGAL.txt` aktualisieren.
+Das Anmeldebundle verwendet jetzt die Cache-Version `20261103.2`; die übrigen
+Skripte behalten ihre oben genannten Versionen. Die Korrektur unterscheidet den
+interaktiven Rückruf von MSALs verstecktem SSO-Iframe. Die erforderliche
+Administratorzustimmung ersetzt diese Verarbeitung nicht.
+
+Version **1.0.15.2** korrigiert zusätzlich die Office-Initialisierung. Die
+Anmeldeseite lädt Office.js nur im Office-Dialog und ruft `Office.onReady()`
+unmittelbar nach dessen Laden auf. Erst wenn Office bereit ist, startet die
+Microsoft-Anmeldung beziehungsweise die Verarbeitung des Rückrufs. Das vermeidet
+die bisherige Verzögerung bis zur Tokenübergabe; Office hat für die Initialisierung
+ein begrenztes Zeitfenster. Beim Verbindungstest im CRM-Browserfenster und beim
+stillen SSO-Rückruf wird Office.js nicht geladen.
+
+Bei **Verbindung zum Outlook-Anmeldefenster wird hergestellt … Zeitüberschreitung**
+deshalb zuerst die oben genannten Dateien gemeinsam aktualisieren. Ein Fehler
+beim Laden der Office-Bibliothek erhält nun eine eigene Meldung. Die normale
+Microsoft-Anmeldung bleibt beim Benutzer; eine weitere Administratorfreigabe ist
+für diesen Code-Update nicht erforderlich.
+
+Die Seite zeigt nun den jeweiligen Schritt: Konfiguration laden, Microsoft
+initialisieren, Rückmeldung verarbeiten und an Outlook übergeben. Vorbereitung
+und Outlook-Übergabe haben je 20 Sekunden Zeitlimit, die Microsoft-Rückmeldung und
+Weiterleitung je 60 Sekunden. Nach einer Zeitüberschreitung erscheint eine
+Fehlermeldung mit dem betroffenen Schritt unter **Technische Details**; danach
+die Verbindung erneut starten. Die Zeitlimits gelten für unsere lokale Seite,
+nicht für die Zeit zur Eingabe von Zugangsdaten auf Microsofts Anmeldeseite.
+Manifest, IDs, Redirect-URI und Webservice-Registrierung bleiben unverändert.
 
 Das Anmeldefenster zeigt einen eigenen berliCRM-Status für Vorbereitung,
 erfolgreiche Verbindung und Fehler. Bei `access_denied` erscheint eine
@@ -306,6 +340,15 @@ E-Mail-Adressen und zu lange Feldwerte werden als Fehler gemeldet. Ob eine
 E-Mail-Adresse Pflicht ist, entscheidet die CRM-Feldkonfiguration.
 
 ## Wiederholungen und Fehler
+
+Version **1.0.15.3** behebt **Failed to execute 'fetch' on 'Window': Illegal
+invocation** beim Lesen und Anlegen von Outlook-Kontakten. Der gemeinsame
+Graph-Client bindet den nativen `fetch`-Aufruf jetzt an das Browserfenster.
+Gemeinsam `outlook-addin/contact-graph.js` und `outlook-addin/contacts.html`
+hochladen; die Kontakteansicht lädt das Skript mit Cache-Version `20261103.3`.
+Danach die Kontakteansicht schließen und neu öffnen. Die bestehenden Microsoft-
+Berechtigungen und die Serverkonfiguration bleiben unverändert. Ein erneuter
+Webservice-Registrierungslauf ist für diese Korrektur nicht nötig.
 
 - Beim Export wird im ausgewählten Outlook-Ordner nach der stabilen CRM-Markierung
   und anschließend nach jeder übertragenen E-Mail-Adresse gesucht. Ein Treffer
