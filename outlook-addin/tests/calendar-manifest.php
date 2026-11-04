@@ -100,7 +100,7 @@ echo "Registration checks passed: repeated registration, six operations, encoded
 $updater = file_get_contents($root . '/db_update.php');
 $start = strpos($updater, '// Outlook add-in update START');
 $end = strpos($updater, '// Outlook add-in update END');
-$versionWrite = strpos($updater, 'UPDATE `vtiger_version` SET `tag_version`');
+$versionWrite = strpos($updater, 'BerliCRM_Version_Utils::setInstalledTag');
 if ($start === false || $end === false || $versionWrite === false || $end >= $versionWrite) {
     throw new RuntimeException('Outlook hook must precede CRM release tag update');
 }
