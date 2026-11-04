@@ -16,9 +16,10 @@ require_once('include/simplehtmldom/simple_html_dom.php');
 class VTEmailTask extends VTTask{
 	// Sending email takes more time, this should be handled via queue all the time.
 	public $executeImmediately = false;
+	public $replyTo = '';
 
 	public function getFieldNames(){
-		return array("subject", "content", "recepient", 'emailcc', 'emailbcc', 'fromEmail');
+		return array("subject", "content", "recepient", 'emailcc', 'emailbcc', 'fromEmail', 'replyTo');
 	}
 	public function doTask($entity){
 		global $adb, $current_user;
@@ -29,6 +30,7 @@ class VTEmailTask extends VTTask{
 		$taskContents = json_decode($this->getContents($entity), true);
 		$from_email	= $taskContents['fromEmail'];
 		$from_name	= $taskContents['fromName'];
+		$replyTo = $taskContents['replyTo'] ?? ''; // Older queued tasks have no Reply-To.
 		$to_email	= $taskContents['toEmail'];
 		$cc			= $taskContents['ccEmail'];
 		$bcc		= $taskContents['bccEmail'];
@@ -67,16 +69,17 @@ class VTEmailTask extends VTTask{
 //			$trackURL = "$site_URL/modules/Emails/actions/TrackAccess.php?record=$entityId&mailid=$emailId&app_key=$application_unique_key";
 //			$content = "<img src='$trackURL' alt='' width='1' height='1'>$content";
 
+			$logo = 0;
 			if (stripos($content, '<img src="cid:logo" />')) {
 				$logo = 1;
 			}
 
-			$status = send_mail($module, $to_email, $from_name, $from_email, $subject, $content, $cc, $bcc, '', '', $logo);
+			$status = send_mail($module, $to_email, $from_name, $from_email, $subject, $content, $cc, $bcc, '', '', $logo, false, $replyTo);
 
 			if(!empty($emailId)) {
 				$emailFocus->setEmailAccessCountValue($emailId);
 			}
-			if(!$status) {
+			if ($status !== true && $status !== 1) {
 				//If mail is not sent then removing the details about email
 				$emailFocus->trash($moduleName, $emailId);
 			}
@@ -102,6 +105,7 @@ class VTEmailTask extends VTTask{
 				$entityCache = new VTEntityCache($adminUser);
 			}
 
+			$fromName = '';
 			$fromUserId = Users::getActiveAdminId();
 			$entityOwnerId = $entity->get('assigned_user_id');
 			if ($entityOwnerId) {
@@ -144,6 +148,9 @@ class VTEmailTask extends VTTask{
 
 			$taskContents['fromEmail'] = $fromEmail;
 			$taskContents['fromName'] =	$fromName;
+
+			$replyToTemplate = new VTEmailRecipientsTemplate($this->replyTo ?? '');
+			$taskContents['replyTo'] = decode_html($replyToTemplate->render($entityCache, $entityId));
 
 			if ($entity->getModuleName() === 'Events') {
 				$contactId = $entity->get('contact_id');

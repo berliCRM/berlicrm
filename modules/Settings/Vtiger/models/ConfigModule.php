@@ -70,6 +70,10 @@ class Settings_Vtiger_ConfigModule_Model extends Settings_Vtiger_Module_Model {
 			$data = array();
 			$editableFileds = $this->getEditableFields();
 			foreach ($editableFileds as $fieldName => $fieldDetails) {
+				if ($fieldName === 'mail_envelope_from') {
+					$data[$fieldName] = $GLOBALS['mail_envelope_from'] ?? '';
+					continue;
+				}
 				if ($fieldName === 'custom_logo_link') {
 					$data[$fieldName] = $GLOBALS['custom_logo_link'] ?? '';
 					continue;
@@ -148,6 +152,7 @@ class Settings_Vtiger_ConfigModule_Model extends Settings_Vtiger_Module_Model {
 	 */
 	public function getEditableFields() {
 		return array(
+			'mail_envelope_from' => array('label' => 'LBL_MAIL_ENVELOPE_FROM', 'fieldType' => 'input'),
 			'custom_logo_link' => array('label' => 'LBL_CUSTOM_LOGO_LINK', 'fieldType' => 'input'),
 			'custom_logo_link_target' => array('label' => 'LBL_CUSTOM_LOGO_LINK_TARGET', 'fieldType' => 'picklist'),
 //			'CALENDAR_DISPLAY'				=> array('label' => 'LBL_MINI_CALENDAR_DISPLAY',			'fieldType' => 'checkbox'),
@@ -174,11 +179,11 @@ class Settings_Vtiger_ConfigModule_Model extends Settings_Vtiger_Module_Model {
 		$validationInfo = $this->validateFieldValues($updatedFields);
 		if ($validationInfo === true) {
 			foreach ($updatedFields as $fieldName => $fieldValue) {
-				if ($fieldName === 'custom_logo_link' || $fieldName === 'custom_logo_link_target') {
+				if ($fieldName === 'custom_logo_link' || $fieldName === 'custom_logo_link_target' || $fieldName === 'mail_envelope_from') {
 					$replacement = '$' . $fieldName . ' = ' . var_export(trim($fieldValue), true) . ';';
 					// Match the entire PHP string, including escaped quotes and semicolons in URLs.
 					$pattern = <<<'REGEX'
-~\$custom_logo_link\s*=\s*'(?:\\.|[^'\\])*'\s*;~
+~\$custom_logo_link\s*=\s*(?:'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*")\s*;~
 REGEX;
 					$pattern = str_replace('custom_logo_link', $fieldName, $pattern);
 					$fileContent = preg_replace_callback($pattern, function () use ($replacement) {
@@ -213,6 +218,13 @@ REGEX;
 	 * @return <String> True/Error message
 	 */
 	public function validateFieldValues($updatedFields){
+		if (array_key_exists('mail_envelope_from', $updatedFields)) {
+			$value = $updatedFields['mail_envelope_from'];
+			if (!is_string($value) || preg_match('/[\r\n]/', $value)
+				|| (trim($value) !== '' && !filter_var(trim($value), FILTER_VALIDATE_EMAIL))) {
+				return 'LBL_INVALID_MAIL_ENVELOPE_FROM';
+			}
+		}
 		if (array_key_exists('custom_logo_link_target', $updatedFields)
 			&& !in_array($updatedFields['custom_logo_link_target'], array('_self', '_blank'), true)) {
 			return 'LBL_INVALID_CUSTOM_LOGO_LINK_TARGET';

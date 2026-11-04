@@ -9,6 +9,7 @@
  * Reviewed by crm-now GmbH
  *************************************************************************************/
 $languageStrings = array(
+	'LBL_REPLY_TO' => 'Reply-To',
 	'ADD_CONDITIONS' => 'Bedingungen hinzufügen',
 	'ADD_TASKS' => 'Aufgaben hinzufügen',
 	'Calendar' => 'Kalender',
