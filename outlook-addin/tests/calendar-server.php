@@ -1,4 +1,9 @@
 <?php
+/**
+ * Isolated calendar import tests using temporary files and fake CRM transports.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 // Isolated contract tests: fake CRM transports/DB; never bootstrap a real CRM.
 if (PHP_SAPI !== 'cli') { http_response_code(403); exit; }
 $root = dirname(__DIR__, 2);

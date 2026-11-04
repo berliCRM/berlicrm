@@ -1,10 +1,27 @@
 <?php
+/**
+ * Administrator view for Outlook add-in configuration and deployment.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 
 class Settings_OutlookAddin_Index_View extends Settings_Vtiger_Index_View {
+    /**
+     * Returns the localized Outlook settings page title.
+     *
+     * @param Vtiger_Request $request Current CRM request.
+     * @return string
+     */
     public function getPageTitle(Vtiger_Request $request): string {
         return vtranslate('LBL_OUTLOOK_ADDIN', $request->getModule(false));
     }
 
+    /**
+     * Renders setup state, public Entra IDs, registration checks and installation instructions.
+     *
+     * @param Vtiger_Request $request Current CRM request.
+     * @return void
+     */
     public function process(Vtiger_Request $request) {
         global $site_URL;
         $model = new Settings_OutlookAddin_Module_Model();

@@ -1,7 +1,20 @@
 <?php
+/**
+ * Expansion of owned distribution lists into readable email contacts.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 
 require_once 'include/Webservices/Retrieve.php';
 
+/**
+ * Expands an owned distribution list into readable contacts with non-empty email fields.
+ *
+ * @param string $verteilerId Distribution-list webservice identifier.
+ * @param Users $user Authenticated CRM user.
+ * @return array
+ * @throws WebServiceException On invalid identifiers, missing rights or database errors.
+ */
 function berli_outlookGetVerteilerContacts($verteilerId, $user)
 {
     global $adb;

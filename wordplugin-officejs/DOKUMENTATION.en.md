@@ -4,7 +4,7 @@ This document describes deployment of the Office.js add-in on the berliCRM
 server, installation in Word without Exchange, centralized deployment through
 Microsoft 365/Exchange, and daily use.
 
-## Updating to 1.3.0.3 and switching back
+## Updating to 1.3.0.4 and switching back
 
 **DOCX is the default.** Under **Output > File format** (**Ausgabe > Dateiformat**),
 select **altes Word-Dokument (.doc/HTML)** for legacy export or **Word-Dokument
@@ -18,7 +18,7 @@ The open Word template is not modified.
    manifest. The separately supplied `word-rollback-1.2.3.0-before-docx.zip`
    contains the local pre-change baseline; your server backup also preserves
    any installation-specific changes.
-2. Extract `word-update-1.3.0.3.zip` into the CRM webroot, retaining relative
+2. Extract `word-update-1.3.0.4.zip` into the CRM webroot, retaining relative
    paths. Include the new Word files `src/docx-engine.js`, `src/docx-export.js`,
    `src/vendor/fflate-0.8.3.js` and its MIT license, plus
    `include/Webservices/Custom/WordMailMergeDocx.php`, both updated Word
@@ -28,7 +28,7 @@ The open Word template is not modified.
    Existing web-service names and parameters remain unchanged: this format
    update requires neither re-registration nor `db_update.php`.
 4. Close and reopen the add-in; refresh the Office web cache if necessary.
-   The footer must show **Version 1.3.0.3**. Also update the manifest: download
+   The footer must show **Version 1.3.0.4**. Also update the manifest: download
    it for your CRM address from **CRM Settings > Integration > Word Add-in**
    and replace it using your existing deployment method. The bundled
    `manifest.xml` is a template with example addresses.

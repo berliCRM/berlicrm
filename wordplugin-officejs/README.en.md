@@ -4,7 +4,7 @@ This Office.js add-in replaces the previous VB6/32-bit COM plugin. It inserts
 Word `MERGEFIELD`s from berliCRM fields and creates mail-merge letters from
 saved CRM list views.
 
-## Version 1.3.0.3: native DOCX output with a fallback
+## Version 1.3.0.4: native DOCX output with a fallback
 
 Fixed: bound Word content controls no longer restore old placeholders over
 merged CRM names when a letter is opened. Empty Word footnote/endnote parts
@@ -20,7 +20,7 @@ individual letters as a ZIP, with optional storage linked to CRM records.
 Switch back by selecting **altes Word-Dokument (.doc/HTML)**; no database change
 is required.
 Back up the server files before deployment; see the
-[update and rollback instructions](./DOKUMENTATION.en.md#updating-to-1303-and-switching-back).
+[update and rollback instructions](./DOKUMENTATION.en.md#updating-to-1304-and-switching-back).
 
 ## Setup in berliCRM v8x
 
@@ -64,6 +64,14 @@ Exchange, centralized deployment through Microsoft 365/Exchange, and daily use
 is available in [DOKUMENTATION.en.md](./DOKUMENTATION.en.md).
 
 ## Technical notes
+
+- PHP server code targets the CRM's supported **PHP 8.2–8.5** range. Syntax,
+  PHPDoc and isolated server contracts are checked with 8.2.35, 8.3.32,
+  8.4.27 and 8.5.12, treating warnings and deprecations as failures.
+  From the CRM root, run `php build/tests/office-addins-php.php` and
+  `php build/tests/word-addin-settings.php`. Manifest generation requires
+  DOM/XML; DOCX storage requires ZIP. Other extensions and libraries follow
+  the CRM's requirements.
 
 - An animated spinner next to the status message indicates that a record page
   is loading. It disappears when the request succeeds or fails.

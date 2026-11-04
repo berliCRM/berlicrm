@@ -1,4 +1,9 @@
 <?php
+/**
+ * Authenticated, owner-scoped Outlook calendar import and event updates.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 
 require_once 'include/Webservices/Create.php';
 require_once 'include/Webservices/Revise.php';
@@ -6,6 +11,14 @@ require_once 'include/Webservices/Retrieve.php';
 require_once 'include/Webservices/Custom/OutlookGetEventDisplay.php';
 require_once 'include/fields/DateTimeField.php';
 
+/**
+ * Executes a parameterized query against the add-in calendar link table.
+ *
+ * @param string $sql Parameterized SQL statement.
+ * @param array $params Bound values.
+ * @return object|bool
+ * @throws WebServiceException On a database failure.
+ */
 function berli_outlookCalendarQuery($sql, array $params)
 {
     global $adb;
@@ -17,6 +30,14 @@ function berli_outlookCalendarQuery($sql, array $params)
     return $result;
 }
 
+/**
+ * Validates mailbox/item identity and calculates the calendar idempotency hash.
+ *
+ * @param array<string,mixed> $input Outlook event identity.
+ * @param bool $requireId Whether saving requires a stable item identifier.
+ * @return string|null
+ * @throws InvalidArgumentException On malformed identity data.
+ */
 function berli_outlookCalendarSource(array $input, $requireId)
 {
     $mailbox = $input['mailbox'] ?? '';
@@ -29,6 +50,15 @@ function berli_outlookCalendarSource(array $input, $requireId)
     return $itemId === '' ? null : hash('sha256', strtolower(trim($mailbox)) . "\n" . $itemId);
 }
 
+/**
+ * Resolves a confirmed calendar link and rechecks access to the CRM event.
+ *
+ * @param string|null $sourceHash Outlook item identity hash.
+ * @param Users $user Authenticated CRM user.
+ * @return string|null
+ * @throws RuntimeException If a previous save was not confirmed.
+ * @throws WebServiceException When the event is not accessible.
+ */
 function berli_outlookCalendarLink($sourceHash, $user)
 {
     global $adb;
@@ -56,6 +86,13 @@ function berli_outlookCalendarLink($sourceHash, $user)
     return $link['eventid'];
 }
 
+/**
+ * Maps the personal CRM date and hour preferences to a PHP date format.
+ *
+ * @param Users $user Authenticated CRM user.
+ * @return string
+ * @throws InvalidArgumentException On unsupported date preferences.
+ */
 function berli_outlookCalendarTimeFormat($user)
 {
     $dateFormat = !empty($user->date_format) ? $user->date_format : 'dd-mm-yyyy';
@@ -66,12 +103,25 @@ function berli_outlookCalendarTimeFormat($user)
     return $formats[$dateFormat] . ((string)($user->hour_format ?? '24') === '12' ? ' h:i A' : ' H:i');
 }
 
+/**
+ * Resolves the personal timezone with the configured CRM timezone as fallback.
+ *
+ * @param Users $user Authenticated CRM user.
+ * @return DateTimeZone
+ */
 function berli_outlookCalendarTimezone($user)
 {
     global $default_timezone;
     return new DateTimeZone(!empty($user->time_zone) ? $user->time_zone : ($default_timezone ?: 'UTC'));
 }
 
+/**
+ * Parses a strict Outlook UTC timestamp without silently correcting invalid dates.
+ *
+ * @param mixed $value Expected ISO UTC timestamp.
+ * @return DateTimeImmutable
+ * @throws InvalidArgumentException On malformed timestamps or dates.
+ */
 function berli_outlookCalendarUtc($value)
 {
     if (!is_string($value) || !preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/D', $value)) {
@@ -86,6 +136,15 @@ function berli_outlookCalendarUtc($value)
     return $date;
 }
 
+/**
+ * Parses a user-formatted event time and rejects ambiguous daylight-saving edits.
+ *
+ * @param mixed $value User-edited local date/time text.
+ * @param string $originalUtc Original Outlook UTC timestamp.
+ * @param Users $user User whose timezone and date preferences apply.
+ * @return DateTimeImmutable
+ * @throws InvalidArgumentException On invalid or ambiguous local times.
+ */
 function berli_outlookCalendarParseEditedTime($value, $originalUtc, $user)
 {
     $format = berli_outlookCalendarTimeFormat($user);
@@ -113,6 +172,14 @@ function berli_outlookCalendarParseEditedTime($value, $originalUtc, $user)
     return $date;
 }
 
+/**
+ * Validates editable event values and converts them to CRM database date/time fields.
+ *
+ * @param array<string,mixed> $input Edited event values and original UTC timestamps.
+ * @param Users $user Authenticated CRM user.
+ * @return array<string,string>
+ * @throws InvalidArgumentException When an event field or time range is invalid.
+ */
 function berli_outlookCalendarFields(array $input, $user)
 {
     $subject = $input['subject'] ?? '';
@@ -142,6 +209,16 @@ function berli_outlookCalendarFields(array $input, $user)
     );
 }
 
+/**
+ * Prepares or saves an Outlook event using owner-scoped links and standard CRM rights.
+ *
+ * @param mixed $input Decoded prepare/save payload.
+ * @param Users $user Authenticated CRM user.
+ * @return array<string,mixed>
+ * @throws InvalidArgumentException On invalid input.
+ * @throws RuntimeException On locking or unconfirmed save failures.
+ * @throws WebServiceException On CRM permission or database failures.
+ */
 function berli_outlookCalendarEvent($input, $user)
 {
     global $adb;

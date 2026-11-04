@@ -1,5 +1,16 @@
 <?php
-/** Validates generated DOCX packages without extracting or executing their contents. */
+/**
+ * Validates generated DOCX packages without extracting or executing their contents.
+ *
+ * @package berliCRM.WordAddin
+ */
+/**
+ * Checks ZIP structure, size limits, required XML and the Word content type.
+ *
+ * @param string $bytes Complete binary DOCX package.
+ * @return array{extension:string,mime:string} Validated attachment format.
+ * @throws RuntimeException If ZIP support is unavailable or the package is invalid.
+ */
 function berli_wordMailMergeDocxFormat($bytes) {
     if (!class_exists('ZipArchive')) throw new RuntimeException('Für die DOCX-Ablage muss die PHP-Erweiterung ZIP aktiviert sein. Die bisherige HTML/.doc-Ausgabe bleibt verfügbar.');
     $path = tempnam(sys_get_temp_dir(), 'berli-docx-check-');

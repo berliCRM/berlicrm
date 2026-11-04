@@ -1,6 +1,18 @@
 <?php
+/**
+ * Public Microsoft Entra SPA configuration validation for Outlook contacts.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 
 // Public SPA configuration only. Never expose CRM credentials or client secrets.
+/**
+ * Validates and returns only public Entra SPA settings for the contacts client.
+ *
+ * @param array<string,mixed> $config Private installation configuration; credentials are never returned.
+ * @return array<string,mixed>
+ * @throws InvalidArgumentException On invalid tenant, client or redirect settings.
+ */
 function outlookContactsMicrosoftConfig(array $config): array
 {
     $settings = $config['contacts_microsoft'] ?? array();

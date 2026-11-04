@@ -1,4 +1,9 @@
 <?php
+/**
+ * JSON/form gateway for authenticated Outlook add-in actions.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
@@ -20,22 +25,40 @@ if (file_exists(__DIR__ . '/outlook.config.php')) {
 $input = parseRequest();
 actionHandler($input, $config);
 
+/**
+ * Reads form parameters or a JSON object and rejects invalid JSON bodies.
+ *
+ * @return array<string,mixed>
+ */
 function parseRequest(): array
 {
     $data = [];
     $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
     if (strpos($contentType, 'application/json') !== false) {
         $body = file_get_contents('php://input');
-        $data = json_decode($body, true) ?: [];
+        if (!is_string($body)) {
+            jsonResponse(false, 'Der Anfrageinhalt konnte nicht gelesen werden.', 400);
+        }
+        $data = json_decode($body, true);
+        if (!is_array($data) || substr(ltrim($body), 0, 1) !== '{') {
+            jsonResponse(false, 'Der JSON-Anfrageinhalt muss ein Objekt sein.', 400);
+        }
     }
     return array_merge($_REQUEST, $data);
 }
 
+/**
+ * Dispatches an Outlook action using the signed-in CRM session.
+ *
+ * @param array<string,mixed> $input Validated request parameters.
+ * @param array<string,mixed> $config Installation configuration.
+ * @return void
+ */
 function actionHandler(array $input, array $config): void
 {
     $action = $input['action'] ?? '';
-    if (!$action) {
-        jsonResponse(false, 'Action fehlt.');
+    if (!is_string($action) || $action === '') {
+        jsonResponse(false, 'Action fehlt oder ist ungültig.', 400);
     }
 
     $clientConfig = [
@@ -199,6 +222,13 @@ function actionHandler(array $input, array $config): void
     }
 }
 
+/**
+ * Terminates the request with a JSON error when a required parameter is missing.
+ *
+ * @param array<string,mixed> $input Request values.
+ * @param string[] $names Required parameter names.
+ * @return void
+ */
 function requireParams(array $input, array $names): void
 {
     foreach ($names as $name) {
@@ -208,6 +238,13 @@ function requireParams(array $input, array $names): void
     }
 }
 
+/**
+ * Validates the configured combined To, Cc and Bcc recipient limit.
+ *
+ * @param array<string,mixed> $config Installation settings.
+ * @return int
+ * @throws InvalidArgumentException If the limit is outside 1 through 1000.
+ */
 function configuredRecipientLimit(array $config): int
 {
     $value = $config['recipient_limit'] ?? 500;
@@ -221,6 +258,12 @@ function configuredRecipientLimit(array $config): int
     return $limit;
 }
 
+/**
+ * Builds the bounded CRM contact search used by the task pane.
+ *
+ * @param string $search User-entered search text.
+ * @return string
+ */
 function buildContactSearchQuery(string $search): string
 {
     $term = quoteSearch($search);
@@ -228,6 +271,12 @@ function buildContactSearchQuery(string $search): string
         . "where firstname like '%$term%' or lastname like '%$term%' or email like '%$term%' limit 50;";
 }
 
+/**
+ * Builds the bounded CRM account search used by the task pane.
+ *
+ * @param string $search User-entered search text.
+ * @return string
+ */
 function buildAccountSearchQuery(string $search): string
 {
     $term = quoteSearch($search);
@@ -235,6 +284,14 @@ function buildAccountSearchQuery(string $search): string
         . "where accountname like '%$term%' or phone like '%$term%' or email1 like '%$term%' limit 50;";
 }
 
+/**
+ * Builds a distribution-list search restricted to the authenticated CRM owner.
+ *
+ * @param string $search User-entered search text.
+ * @param string $userId CRM user webservice identifier returned by login.
+ * @return string
+ * @throws InvalidArgumentException If the user identifier is malformed.
+ */
 function buildVerteilerSearchQuery(string $search, string $userId): string
 {
     if (!preg_match('/^[1-9][0-9]*x[1-9][0-9]*$/D', $userId)) {
@@ -246,6 +303,13 @@ function buildVerteilerSearchQuery(string $search, string $userId): string
         . "where verteilername like '%$term%' and assigned_user_id = '$userId' limit 50;";
 }
 
+/**
+ * Builds a bounded event query with optional date limits.
+ *
+ * @param string|null $start Optional inclusive start date.
+ * @param string|null $end Optional inclusive end date.
+ * @return string
+ */
 function buildEventSearchQuery(?string $start, ?string $end): string
 {
     $conditions = [];
@@ -259,11 +323,23 @@ function buildEventSearchQuery(?string $start, ?string $end): string
     return "select id, subject, date_start, due_date, time_start, time_end, location, description, assigned_user_id from Events{$filter} order by date_start desc limit 100;";
 }
 
+/**
+ * Escapes a search value for a single-quoted CRM query literal.
+ *
+ * @param string $value Search text.
+ * @return string
+ */
 function quoteSearch(string $value): string
 {
     return str_replace("'", "''", trim($value));
 }
 
+/**
+ * Normalizes single records and wrapped result lists into a record list.
+ *
+ * @param mixed $records Decoded CRM response.
+ * @return array
+ */
 function normalizeRecords($records): array
 {
     if (!is_array($records)) {
@@ -281,6 +357,14 @@ function normalizeRecords($records): array
     return $records;
 }
 
+/**
+ * Writes the JSON response envelope and terminates the request.
+ *
+ * @param bool $success Whether the action succeeded.
+ * @param mixed $payload Response data or error message.
+ * @param int $statusCode HTTP response status.
+ * @return void
+ */
 function jsonResponse(bool $success, $payload, int $statusCode = 200): void
 {
     http_response_code($statusCode);

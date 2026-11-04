@@ -1,5 +1,33 @@
 # berliCRM Outlook Add-in
 
+## PHP compatibility and PHPDoc
+
+The add-in server code targets the CRM's supported PHP **8.2–8.5** range.
+Validation uses PHP 8.2.35, 8.3.32, 8.4.27 and 8.5.12 with warnings and
+deprecations treated as failures in isolated tests. The Outlook transport uses
+PHP 8 CurlHandle lifetime management and explicit nullable callback parameters.
+Malformed JSON, invalid action types and non-array CRM results return controlled
+errors rather than PHP type warnings.
+
+PHPDoc covers production entry points, classes, parameters, return values and
+relevant exceptions. Tests use fake CRM records and a loopback HTTP server,
+without real CRM or Microsoft connections. Private configuration is unchanged.
+
+With cURL enabled, run from the CRM root using each target PHP:
+
+```sh
+php build/tests/office-addins-php.php
+php outlook-addin/tests/php8-server.php
+php outlook-addin/tests/calendar-server.php
+php outlook-addin/tests/contacts-server.php
+php outlook-addin/tests/mail-archive-server.php
+php outlook-addin/tests/settings-server.php
+```
+
+The source/PHPDoc audit also checks Word add-in files. The gateway requires
+cURL, manifest generation requires DOM/XML, and a live deployment requires the
+CRM's own extensions and dependencies.
+
 [Deutsch / original documentation](README.md) | **English**
 
 The current add-in interface includes German labels. Where a German label is
@@ -332,7 +360,7 @@ See [MAIL-ARCHIVE.en.md](MAIL-ARCHIVE.en.md) for installation, permissions and l
 
 ### Calendar transfer in the existing add-in
 
-The current manifest version is **1.0.15.3**, including the Microsoft contact
+The current manifest version is **1.0.15.4**, including the Microsoft contact
 sign-in fixes and the Graph fetch receiver fix for reading and creating contacts.
 The contacts view loads `contact-graph.js?v=20261103.3`; deploy that script and
 `contacts.html` together and reopen the view. Generate/download the new

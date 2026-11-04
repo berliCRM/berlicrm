@@ -1,4 +1,9 @@
 <?php
+/**
+ * CLI registration of Outlook add-in operations and the administrator settings entry.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 
 if (PHP_SAPI !== 'cli') {
     http_response_code(403);

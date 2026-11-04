@@ -4,7 +4,7 @@ Dieses Office.js-Add-in ersetzt das frühere VB6/32-Bit-COM-Plugin. Es fügt
 Word-`MERGEFIELD`s aus berliCRM-Feldern ein und erstellt Serienbriefe aus
 gespeicherten CRM-Listenansichten.
 
-## Version 1.3.0.3: echte DOCX-Ausgabe mit Rückfallweg
+## Version 1.3.0.4: echte DOCX-Ausgabe mit Rückfallweg
 
 Korrigiert: Gebundene Word-Inhaltssteuerelemente überschreiben eingesetzte
 CRM-Namen beim Öffnen nicht mehr mit den alten Platzhaltern. Leere Word-Teile
@@ -20,7 +20,7 @@ Einzelbriefe als ZIP sowie die optionale Ablage beim CRM-Datensatz.
 Zum Zurückschalten genügt die Auswahl **altes Word-Dokument (.doc/HTML)**;
 eine Datenbankänderung ist dafür nicht nötig. Vor der Installation die
 Serverdateien sichern; Details zu Update und Wiederherstellung stehen im
-[Handbuch](./DOKUMENTATION.md#update-auf-1303-und-zurückschalten).
+[Handbuch](./DOKUMENTATION.md#update-auf-1304-und-zurückschalten).
 
 ## Einrichtung in berliCRM v8x
 
@@ -64,6 +64,14 @@ Schritt-für-Schritt-Nutzung befindet sich in
 [DOKUMENTATION.md](./DOKUMENTATION.md).
 
 ## Technische Hinweise
+
+- Der PHP-Code unterstützt den vom CRM vorgegebenen Bereich **PHP 8.2–8.5**.
+  Syntax, PHPDoc und isolierte Serververträge werden mit 8.2.35, 8.3.32,
+  8.4.27 und 8.5.12 geprüft; Warnungen und Deprecations gelten dabei als Fehler.
+  Aus dem CRM-Hauptverzeichnis: `php build/tests/office-addins-php.php` und
+  `php build/tests/word-addin-settings.php`. DOM/XML wird für die
+  Manifestgenerierung, ZIP für die DOCX-Ablage benötigt. Die übrigen
+  PHP-Erweiterungen und Bibliotheken richten sich nach den CRM-Anforderungen.
 
 - Beim Laden von Datensatzseiten zeigt ein animierter Spinner neben dem
   Statustext den laufenden Abruf an. Er verschwindet bei Erfolg oder Fehler.
