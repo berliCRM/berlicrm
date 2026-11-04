@@ -1,4 +1,9 @@
 <?php
+/**
+ * Isolated mail-archive and attachment tests using fake CRM records and temporary storage.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 // Isolated CRM/DB fixtures; the only real files written are inside this test's temp directory.
 if (PHP_SAPI !== 'cli') { http_response_code(403); exit; }
 $root = dirname(__DIR__, 2);

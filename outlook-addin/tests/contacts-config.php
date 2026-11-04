@@ -1,4 +1,9 @@
 <?php
+/**
+ * Offline public Entra configuration and redirect-URI validation tests.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 if (PHP_SAPI !== 'cli') { http_response_code(403); exit; }
 require dirname(__DIR__) . '/rest/OutlookContactsConfig.php';
 function check($value) { if (!$value) throw new RuntimeException('Configuration check failed'); }

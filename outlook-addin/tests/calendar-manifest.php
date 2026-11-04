@@ -1,15 +1,23 @@
 <?php
+/**
+ * Offline Outlook manifest, operation-registration and CRM update-hook contract checks.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 if (PHP_SAPI !== 'cli') { http_response_code(403); exit; }
 $root = dirname(__DIR__, 2);
 chdir($root);
 require 'includes/runtime/BaseModel.php';
 require 'modules/Settings/Vtiger/models/Module.php';
-foreach (array('manifest.xml', 'manifest.generated.xml') as $filename) {
+require 'modules/Settings/OutlookAddin/models/Module.php';
+$manifests = array(file_get_contents('outlook-addin/manifest.xml'),
+    Settings_OutlookAddin_Module_Model::createManifest('https://crm.example.test/subdir'));
+foreach ($manifests as $manifest) {
     $document = new DOMDocument();
-    if (!$document->load('outlook-addin/' . $filename, LIBXML_NONET)) throw new RuntimeException('Invalid XML');
+    if (!$document->loadXML($manifest, LIBXML_NONET)) throw new RuntimeException('Invalid XML');
     $xpath = new DOMXPath($document);
     $xsi = 'http://www.w3.org/2001/XMLSchema-instance';
-    if ($xpath->query('/*/*[local-name()="Version"]')->item(0)->textContent !== '1.0.15.3') throw new RuntimeException('Version not incremented');
+    if ($xpath->query('/*/*[local-name()="Version"]')->item(0)->textContent !== '1.0.15.4') throw new RuntimeException('Version not incremented');
     $rules = $xpath->query('/*/*[local-name()="Rule"]/*[@ItemType="Appointment"]');
     if ($rules->length !== 2) throw new RuntimeException('Read/edit appointment activation missing');
     foreach ($xpath->query('//*[local-name()="DesktopFormFactor"]') as $desktop) {

@@ -1,4 +1,9 @@
 <?php
+/**
+ * Outlook-specific CRM email sending with optional template and file attachments.
+ *
+ * @package berliCRM.OutlookAddin
+ */
 /************************************************************************************************************************************************************
 Description: send mail, body from template, attachments from Documents or direct payload
 Parameters:
@@ -19,6 +24,22 @@ Returns:
   - array($receiverId => status)
 ************************************************************************************************************************************************************ */
 
+/**
+ * Creates and sends CRM email records for the permitted recipient records.
+ *
+ * @param array|string $receiverIds Recipient webservice IDs or JSON.
+ * @param string $templateId Optional email-template identifier.
+ * @param string $subject Optional subject override.
+ * @param string $body Optional message-body override.
+ * @param array|string $documentIds Document webservice IDs or JSON.
+ * @param string $mailFieldToUse Preferred recipient email field.
+ * @param string $fromId Legacy sender identifier parameter.
+ * @param string $fromName Legacy sender display-name parameter.
+ * @param array|string $attachments Direct attachment payloads or JSON.
+ * @param Users $user Authenticated CRM user.
+ * @return array<string,mixed> Send status keyed by recipient identifier.
+ * @throws WebServiceException On invalid input or missing CRM permissions.
+ */
 function berli_outlookSendMail($receiverIds, $templateId, $subject, $body, $documentIds, $mailFieldToUse, $fromId, $fromName, $attachments, $user) {
     $adb = PearDatabase::getInstance();
     $types = vtws_listtypes(NULL, $user);
@@ -218,6 +239,13 @@ function berli_outlookSendMail($receiverIds, $templateId, $subject, $body, $docu
     return $returnArr;
 }
 
+/**
+ * Resolves an available CRM error-code property with a backwards-compatible fallback.
+ *
+ * @param string $codeName Preferred error-code property.
+ * @param string $fallbackCodeName Fallback error-code property.
+ * @return mixed
+ */
 function berli_outlookGetWebserviceErrorCode($codeName, $fallbackCodeName = 'MANDFIELDSMISSING') {
     if (property_exists('WebServiceErrorCode', $codeName)) {
         $property = 'WebServiceErrorCode::$' . $codeName;
@@ -233,14 +261,15 @@ function berli_outlookGetWebserviceErrorCode($codeName, $fallbackCodeName = 'MAN
 }
 
 /**
- * Creates a direct email attachment from payload, stores it in the CRM
- * in the same way as GUI-created email attachments, links it to the
- * given Email record, and returns the attachment CRM ID.
- */
-/**
  * Creates a direct email attachment from payload, stores it like a GUI-created
  * email attachment, links it to the given Email record, and returns the
  * attachment CRM ID.
+ *
+ * @param array<string,mixed> $attachment Filename, MIME type and base64 bytes.
+ * @param int|string $emailId Numeric CRM email identifier.
+ * @param Users $user Authenticated CRM user and attachment owner.
+ * @return int|string Created CRM attachment identifier.
+ * @throws WebServiceException On invalid attachment data or storage failures.
  */
 function berli_outlookCreateEmailAttachmentFromPayload($attachment, $emailId, $user) {
     global $root_directory;

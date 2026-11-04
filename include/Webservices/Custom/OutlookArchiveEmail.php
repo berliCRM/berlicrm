@@ -1,4 +1,9 @@
 <?php
+/**
+ * Authenticated Outlook message archival, sender-contact lookup and attachment storage.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 
 require_once 'include/Webservices/DescribeObject.php';
 require_once 'include/Webservices/Query.php';
@@ -6,6 +11,14 @@ require_once 'include/Webservices/Retrieve.php';
 require_once 'include/Webservices/Create.php';
 require_once 'include/fields/DateTimeField.php';
 
+/**
+ * Executes a parameterized archive-link query and rejects database failures.
+ *
+ * @param string $sql Parameterized SQL statement.
+ * @param array $params Bound values.
+ * @return object|bool
+ * @throws RuntimeException On an archive-link database failure.
+ */
 function berli_outlookMailQuery($sql, array $params)
 {
     global $adb;
@@ -14,6 +27,13 @@ function berli_outlookMailQuery($sql, array $params)
     return $result;
 }
 
+/**
+ * Validates and normalizes an email address used for exact contact matching.
+ *
+ * @param mixed $address Candidate email address.
+ * @return string
+ * @throws InvalidArgumentException On an invalid email address.
+ */
 function berli_outlookMailAddress($address)
 {
     if (!is_string($address) || strlen($address) > 254 || !filter_var(trim($address), FILTER_VALIDATE_EMAIL)) {
@@ -22,6 +42,14 @@ function berli_outlookMailAddress($address)
     return strtolower(trim($address));
 }
 
+/**
+ * Validates a webservice identifier against its expected module and returns its numeric ID.
+ *
+ * @param mixed $id Candidate webservice identifier.
+ * @param string $module Expected CRM module.
+ * @return int
+ * @throws InvalidArgumentException If the identifier does not match.
+ */
 function berli_outlookMailId($id, $module)
 {
     global $adb;
@@ -32,6 +60,13 @@ function berli_outlookMailId($id, $module)
     return (int)$match[1];
 }
 
+/**
+ * Loads user-visible contact/email fields, dynamic labels and archive-create permission.
+ *
+ * @param Users $user Authenticated CRM user.
+ * @return array<string,mixed>
+ * @throws WebServiceException When the contact email field is not readable.
+ */
 function berli_outlookMailRights($user)
 {
     $contacts = vtws_describe('Contacts', $user);
@@ -47,6 +82,15 @@ function berli_outlookMailRights($user)
         'contactEmailLabel' => $emailLabel, 'emailFields' => $emails['fields']);
 }
 
+/**
+ * Finds all readable contacts whose primary email exactly matches the sender.
+ *
+ * @param string $from Normalized sender email.
+ * @param array<string,mixed> $rights User-visible contact fields.
+ * @param Users $user Authenticated CRM user.
+ * @return array
+ * @throws RuntimeException If query pagination repeats a page.
+ */
 function berli_outlookMailFindContacts($from, array $rights, $user)
 {
     $email = str_replace(array('\\', "'"), array('\\\\', "''"), $from);
@@ -83,6 +127,16 @@ function berli_outlookMailFindContacts($from, array $rights, $user)
     return $matches;
 }
 
+/**
+ * Validates a UTF-8 mail field against its byte limit and required-value constraint.
+ *
+ * @param array<string,mixed> $input Mail payload.
+ * @param string $key Field name.
+ * @param int $max Maximum byte length.
+ * @param bool $required Whether blank text is rejected.
+ * @return string
+ * @throws InvalidArgumentException When the field is invalid.
+ */
 function berli_outlookMailString(array $input, $key, $max, $required = false)
 {
     $value = $input[$key] ?? '';
@@ -92,6 +146,13 @@ function berli_outlookMailString(array $input, $key, $max, $required = false)
     return $value;
 }
 
+/**
+ * Validates, normalizes and deduplicates an email recipient list.
+ *
+ * @param mixed $recipients Candidate address list.
+ * @return string
+ * @throws InvalidArgumentException On invalid addresses or recipient counts.
+ */
 function berli_outlookMailRecipients($recipients)
 {
     if (!is_array($recipients) || count($recipients) > 1000) throw new InvalidArgumentException('Ungültige E-Mail-Empfängerliste.');
@@ -100,6 +161,13 @@ function berli_outlookMailRecipients($recipients)
     return implode(',', array_unique($addresses));
 }
 
+/**
+ * Validates attachment names, MIME types and base64 content within size limits.
+ *
+ * @param mixed $attachments Candidate attachment list.
+ * @return array
+ * @throws InvalidArgumentException On malformed or oversized attachments.
+ */
 function berli_outlookMailFiles($attachments)
 {
     global $upload_badext;
@@ -125,6 +193,16 @@ function berli_outlookMailFiles($attachments)
     return $files;
 }
 
+/**
+ * Persists archive attachments with idempotent attachment links in CRM storage.
+ *
+ * @param array $files Validated attachment metadata and bytes.
+ * @param string $source Archive identity hash.
+ * @param int $email Numeric CRM email identifier.
+ * @param Users $user Authenticated CRM user.
+ * @return void
+ * @throws RuntimeException On incomplete attachment storage.
+ */
 function berli_outlookMailStoreFiles(array $files, $source, $email, $user)
 {
     global $adb, $root_directory;
@@ -164,6 +242,17 @@ function berli_outlookMailStoreFiles(array $files, $source, $email, $user)
     }
 }
 
+/**
+ * Archives the message and links all selected readable contacts without sending mail.
+ *
+ * @param array<string,mixed> $input Mail content, sender and selected contacts.
+ * @param array<string,mixed> $rights Current user archive and field permissions.
+ * @param Users $user Authenticated CRM user.
+ * @return array<string,mixed>
+ * @throws InvalidArgumentException On invalid fields or contacts.
+ * @throws RuntimeException On locking, storage or unconfirmed-save failures.
+ * @throws WebServiceException If permissions are missing.
+ */
 function berli_outlookMailSave(array $input, array $rights, $user)
 {
     global $adb;
@@ -249,6 +338,14 @@ function berli_outlookMailSave(array $input, array $rights, $user)
     } finally { $adb->pquery('SELECT RELEASE_LOCK(?)', array($lockName)); }
 }
 
+/**
+ * Dispatches permission checks, sender-contact lookup and idempotent email archiving.
+ *
+ * @param mixed $input Decoded archive action.
+ * @param Users $user Authenticated CRM user.
+ * @return array<string,mixed>
+ * @throws InvalidArgumentException On an invalid archive action.
+ */
 function berli_outlookArchiveEmail($input, $user)
 {
     if (!is_array($input)) throw new InvalidArgumentException('Ungültige E-Mail-Aktion.');

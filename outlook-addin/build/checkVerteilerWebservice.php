@@ -1,4 +1,9 @@
 <?php
+/**
+ * Read-only CLI diagnosis of distribution-list registration and cached permissions.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 
 // Local, read-only inspection of the module registration and effective cache flags.
 if (PHP_SAPI !== 'cli') {
@@ -29,6 +34,15 @@ require_once 'include/database/PearDatabase.php';
 require_once 'includes/runtime/BaseModel.php';
 require_once 'modules/Users/Users.php';
 
+/**
+ * Executes a parameterized diagnostic SELECT without modifying CRM data.
+ *
+ * @param PearDatabase $db CRM database connection.
+ * @param string $sql Read-only diagnostic statement.
+ * @param array $params Bound values.
+ * @return array
+ * @throws RuntimeException If the SELECT fails.
+ */
 function outlookVerteilerReadRows($db, $sql, array $params)
 {
     $result = $db->pquery($sql, $params);
@@ -42,6 +56,13 @@ function outlookVerteilerReadRows($db, $sql, array $params)
     return $rows;
 }
 
+/**
+ * Reads only the module and profile flags required for the owner diagnostic.
+ *
+ * @param int|string $userId Numeric CRM user identifier.
+ * @param int|string $tabId Distribution-list module identifier.
+ * @return array<string,mixed>
+ */
 function outlookVerteilerCacheFlags($userId, $tabId)
 {
     // Includes are scoped here: never print user_info, credentials, or unrelated flags.
@@ -62,6 +83,13 @@ function outlookVerteilerCacheFlags($userId, $tabId)
     );
 }
 
+/**
+ * Prints one labeled JSON diagnostic value.
+ *
+ * @param string $label Human-readable diagnostic label.
+ * @param mixed $value Value to encode.
+ * @return void
+ */
 function outlookVerteilerPrint($label, $value)
 {
     echo $label . ': ' . json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . PHP_EOL;

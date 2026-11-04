@@ -23,8 +23,9 @@ require_once 'include/utils/VTCacheUtils.php';
   *   $bcc		-- add email ids with comma seperated. - optional.
   *   $attachment	-- whether we want to attach the currently selected file or all vtiger_files.[values = current,all] - optional
   *   $emailid		-- id of the email object which will be used to get the vtiger_attachments
+  *   $replyTo      -- optional independent Reply-To address (empty keeps legacy behavior)
   */
-function send_mail($module, $to_email, $from_name, $from_email, $subject, $contents, $cc='', $bcc='', $attachment='', $emailid='', $logo='', $useGivenFromEmailAddress=false)
+function send_mail($module, $to_email, $from_name, $from_email, $subject, $contents, $cc='', $bcc='', $attachment='', $emailid='', $logo='', $useGivenFromEmailAddress=false, $replyTo='')
 {
 	// rework this function to use Record_Model
 	$adb = PearDatabase::getInstance();
@@ -53,6 +54,7 @@ function send_mail($module, $to_email, $from_name, $from_email, $subject, $conte
 			$recordModel->set('fromAddress', $from_email);
 			$recordModel->fromAddress = $from_email;
 		}
+		$recordModel->replyTo = $replyTo;
 		$recordModel->sendWithoutRelation = true;
 
 		$mail_status = $recordModel->send();

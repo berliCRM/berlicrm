@@ -1,8 +1,20 @@
 <?php
+/**
+ * Event labels and display preferences for the authenticated CRM user.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 
 require_once 'include/Webservices/DescribeObject.php';
 
 // Only display metadata for the authenticated user; no user ID is accepted as input.
+/**
+ * Returns event field labels, date preferences and permissions for the authenticated user.
+ *
+ * @param Users $user Authenticated CRM user.
+ * @return array<string,mixed>
+ * @throws WebServiceException When event metadata is not readable.
+ */
 function berli_outlookGetEventDisplay($user)
 {
     $description = vtws_describe('Events', $user);
