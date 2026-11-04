@@ -20,6 +20,7 @@
 
 require_once 'includes/main/WebUI.php';
 require_once 'include/utils/utils.php';
+require_once 'include/utils/VersionUtils.php';
 include_once 'vtlib/Vtiger/Module.php';
 include_once 'include/Webservices/Utils.php';
 require_once 'vtlib/Vtiger/Package.php';
@@ -248,13 +249,15 @@ function hasPrimaryKey($tableName) {
     return ((int)$adb->query_result($res, 0, 'cnt') > 0);
 }
 
-$res = $adb->query("SELECT tag_version FROM vtiger_version");
-$installedtag = $adb->query_result($res,0,'tag_version');
+$installedtag = BerliCRM_Version_Utils::getInstalledTag($adb);
 if ($installedtag == $current_release_tag) {
 	die("This installation of berliCRM is up to date.");
 }
 
-echo "<h1>Updating from $installedtag to $current_release_tag..</h1>";
+$installedVersionLabel = ($installedtag === null || $installedtag === '')
+    ? 'an unversioned installation'
+    : $installedtag;
+echo "<h1>Updating from $installedVersionLabel to $current_release_tag..</h1>";
 {
     echo "Remove special UI types of salutation and name fields in leads and contacts...";
     $query = "UPDATE vtiger_field SET uitype = '15', displaytype = 1, summaryfield = 1 WHERE columnname = 'salutation'";
@@ -1626,6 +1629,5 @@ echo "<br>\n Install Outlook Add-in menu and webservices END ";
 // on the End, we set update of Version Nummer and updates of all Modules:
 berli_updateAllModules();
 
-$query = "UPDATE `vtiger_version` SET `tag_version` = ?";
-$adb->pquery($query, array($current_release_tag));
+BerliCRM_Version_Utils::setInstalledTag($adb, $current_release_tag, $vtiger_current_version);
 echo "<h2>Finished updating to $current_release_tag!</h2>";

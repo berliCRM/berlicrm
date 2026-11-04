@@ -9,14 +9,17 @@
  *************************************************************************************/
 
 class Vtiger_Cache_Connector_Memory {
+	private $values = array();
+
 	function set($key, $value) {
-		$this->$key = $value;
+		$this->values[$key] = $value;
 	}
 	function get($key) {
-		return isset($this->$key)? $this->$key : false;
+		return isset($this->values[$key]) ? $this->values[$key] : false;
 	}
     
     function flush(){
+		$this->values = array();
         return true;
     }
 }
