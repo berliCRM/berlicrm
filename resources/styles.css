@@ -388,6 +388,12 @@ textarea,
   height: auto;
   margin: 0 auto;
 }
+.document-preview-content audio {
+  display: block;
+  box-sizing: border-box;
+  width: calc(100% - 24px);
+  margin: 24px 12px;
+}
 .document-preview-message {
   padding: 20px;
   color: #555;
