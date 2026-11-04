@@ -12,7 +12,11 @@
 // Required for field validation; this function is not guaranteed to be loaded for custom operations.
 require_once 'include/Webservices/DescribeObject.php';
 
-/** Advertises DOCX storage only when both the handler and ZIP support are present. */
+/**
+ * Advertises DOCX storage only when the handler, validator and ZIP support exist.
+ *
+ * @return string[] Document formats supported by this CRM installation.
+ */
 function berli_wordMailMergeDocumentFormats() {
     $formats = array('html-doc');
     if (!class_exists('ZipArchive') || !is_readable(__DIR__ . '/WordMailMergeDocx.php') || !is_readable(__DIR__ . '/saveWordMailMergeDocument.php')) return $formats;

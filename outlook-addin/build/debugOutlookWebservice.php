@@ -1,4 +1,9 @@
 <?php
+/**
+ * CLI webservice diagnosis with a read-only operation allowlist and secret redaction.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 
 // Standalone HTTP diagnostic: no CRM bootstrap, database changes, or registrations.
 if (PHP_SAPI !== 'cli') {
@@ -6,14 +11,28 @@ if (PHP_SAPI !== 'cli') {
     exit("Dieses Diagnosewerkzeug ist nur auf der Kommandozeile verfügbar.\n");
 }
 
+/** Performs allowlisted diagnostics while redacting access keys and session tokens. */
 class OutlookWebserviceDebugger
 {
+    /** @var string Validated HTTPS CRM webservice endpoint. */
     private $endpoint;
+    /** @var callable HTTP transport accepting endpoint, method and parameters. */
     private $transport;
+    /** @var callable Redacted diagnostic line writer. */
     private $output;
+    /** @var string[] Secrets and encoded variants excluded from output. */
     private $secrets = array();
 
-    public function __construct($endpoint, callable $transport = null, callable $output = null)
+    /**
+     * Configures a read-only HTTPS diagnostic transport and redacted output sink.
+     *
+     * @param string $endpoint CRM HTTPS endpoint or installation URL.
+     * @param callable|null $transport Optional HTTP transport returning status and body.
+     * @param callable|null $output Optional diagnostic line writer.
+     * @return void
+     * @throws InvalidArgumentException If the endpoint URL is unsafe.
+     */
+    public function __construct($endpoint, ?callable $transport = null, ?callable $output = null)
     {
         $parts = parse_url($endpoint);
         if (!$parts || ($parts['scheme'] ?? '') !== 'https' || empty($parts['host'])
@@ -26,6 +45,12 @@ class OutlookWebserviceDebugger
         $this->output = $output ?: function ($line) { echo $line . PHP_EOL; };
     }
 
+    /**
+     * Registers a secret and its encoded variants for log redaction.
+     *
+     * @param mixed $value Secret string; non-string values are ignored.
+     * @return void
+     */
     public function protect($value)
     {
         if (is_string($value) && $value !== '') {
@@ -36,6 +61,12 @@ class OutlookWebserviceDebugger
         }
     }
 
+    /**
+     * Writes one diagnostic line after removing registered secrets and control characters.
+     *
+     * @param mixed $message Diagnostic text.
+     * @return void
+     */
     public function log($message)
     {
         $secrets = array_unique($this->secrets);
@@ -46,6 +77,16 @@ class OutlookWebserviceDebugger
         call_user_func($this->output, $message);
     }
 
+    /**
+     * Executes only the allowlisted diagnostic operations and redacts their responses.
+     *
+     * @param string $operation Allowlisted CRM operation.
+     * @param array<string,mixed> $params Operation parameters.
+     * @param string $method Required HTTP method.
+     * @param string|null $label Optional diagnostic label.
+     * @return array{ok:bool,status:int,result:mixed}
+     * @throws InvalidArgumentException When the operation or method is not allowlisted.
+     */
     public function request($operation, array $params = array(), $method = 'GET', $label = null)
     {
         $allowed = array('getchallenge' => 'GET', 'login' => 'POST', 'listtypes' => 'GET',
@@ -87,6 +128,14 @@ class OutlookWebserviceDebugger
         return array('ok' => $ok, 'status' => $status, 'result' => $decoded['result'] ?? null);
     }
 
+    /**
+     * Runs challenge/login, module diagnostics and logout for a CRM user.
+     *
+     * @param string $username CRM login name.
+     * @param string $accessKey Personal API access key.
+     * @param string $search Distribution-list search text.
+     * @return int
+     */
     public function run($username, $accessKey, $search)
     {
         $this->protect($accessKey);
@@ -174,6 +223,15 @@ class OutlookWebserviceDebugger
         }
     }
 
+    /**
+     * Performs an HTTPS diagnostic request without following redirects.
+     *
+     * @param string $endpoint Validated HTTPS endpoint.
+     * @param string $method HTTP method.
+     * @param array<string,mixed> $params Form parameters.
+     * @return array<string,mixed>
+     * @throws RuntimeException When cURL is unavailable or the request fails.
+     */
     private function send($endpoint, $method, array $params)
     {
         if (!function_exists('curl_init')) {
@@ -202,11 +260,17 @@ class OutlookWebserviceDebugger
             return array('status' => curl_getinfo($curl, CURLINFO_HTTP_CODE), 'body' => $body,
                 'contentType' => curl_getinfo($curl, CURLINFO_CONTENT_TYPE));
         } finally {
-            curl_close($curl);
+            unset($curl);
         }
     }
 }
 
+/**
+ * Reads the access key from the environment or a hidden interactive prompt.
+ *
+ * @return string
+ * @throws RuntimeException If a hidden prompt cannot be provided.
+ */
 function outlookDebugReadAccessKey()
 {
     $key = getenv('BERLICRM_DEBUG_ACCESS_KEY');
@@ -261,6 +325,11 @@ function outlookDebugReadAccessKey()
     }
 }
 
+/**
+ * Parses CLI options and runs the redacted webservice diagnostic.
+ *
+ * @return int
+ */
 function outlookDebugMain()
 {
     $options = getopt('', array('help', 'url:', 'username:', 'search:'));

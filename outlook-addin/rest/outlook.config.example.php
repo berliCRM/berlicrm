@@ -1,4 +1,9 @@
 <?php
+/**
+ * Example Outlook add-in server settings; contains no real credentials.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 
 return array(
     // CRM users sign in through the add-in. Do not store CRM login credentials here.

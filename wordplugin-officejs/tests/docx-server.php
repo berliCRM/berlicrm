@@ -7,11 +7,33 @@ require dirname(__DIR__, 2) . '/include/Webservices/Custom/WordMailMergeDocx.php
 $directory = isset($argv[1]) ? $argv[1] : '';
 if (!class_exists('ZipArchive') || !is_dir($directory)) throw new RuntimeException('ZIP and generated fixture directory required.');
 $checks = 0;
+/**
+ * Asserts an offline DOCX validation result and increments the check count.
+ *
+ * @param bool $condition Expected condition.
+ * @param string $message Failure description.
+ * @return void
+ * @throws RuntimeException If the condition is false.
+ */
 function checkDocx($condition, $message) { global $checks; if (!$condition) throw new RuntimeException($message); $checks++; }
+/**
+ * Verifies that the validator rejects a malformed binary package.
+ *
+ * @param string $bytes Candidate package.
+ * @return void
+ * @throws RuntimeException If the invalid package is accepted.
+ */
 function rejectDocx($bytes) {
     try { berli_wordMailMergeDocxFormat($bytes); } catch (RuntimeException $error) { checkDocx(true, 'rejected'); return; }
     throw new RuntimeException('Invalid package accepted.');
 }
+/**
+ * Produces an invalid test package using only an owned temporary archive.
+ *
+ * @param string $bytes Original fixture package.
+ * @param array<string,string|null> $changes Parts to replace or remove.
+ * @return string Mutated ZIP bytes.
+ */
 function mutateDocx($bytes, $changes) {
     $path = tempnam(sys_get_temp_dir(), 'berli-docx-test-');
     try {

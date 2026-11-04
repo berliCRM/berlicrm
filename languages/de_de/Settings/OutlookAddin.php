@@ -1,4 +1,9 @@
 <?php
+/**
+ * German labels for the Outlook add-in administrator settings.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 $languageStrings = array(
     'LBL_OUTLOOK_ADDIN' => 'Outlook Add-in',
     'LBL_INTRO' => 'Richten Sie das berliCRM Outlook Add-in ein und erstellen Sie das Manifest und die Serverkonfiguration für diese CRM-Installation.',

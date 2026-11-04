@@ -5,6 +5,7 @@
  * template-based send_mail_with_attachments service.
  */
 class Settings_OutlookAddin_Module_Model extends Settings_Vtiger_Module_Model {
+    /** @var string Settings module name used by the CRM component loader. */
     var $name = 'OutlookAddin';
     const INDEX_URL = 'index.php?module=OutlookAddin&parent=Settings&view=Index';
     const MANIFEST_PATH = 'outlook-addin/manifest.xml';
@@ -19,6 +20,12 @@ class Settings_OutlookAddin_Module_Model extends Settings_Vtiger_Module_Model {
     const EVENT_DISPLAY_HANDLER_PATH = 'include/Webservices/Custom/OutlookGetEventDisplay.php';
     const EVENT_DISPLAY_HANDLER_METHOD = 'berli_outlookGetEventDisplay';
 
+    /**
+     * Creates add-in-owned link tables and registers or repairs all six Outlook operations.
+     *
+     * @return void
+     * @throws RuntimeException When schema or registration queries fail.
+     */
     public static function registerOperation() {
         // Add-in-owned link data; no existing CRM tables or privileges are altered.
         self::query('CREATE TABLE IF NOT EXISTS vtiger_outlook_calendar_link ('
@@ -39,6 +46,11 @@ class Settings_OutlookAddin_Module_Model extends Settings_Vtiger_Module_Model {
         }
     }
 
+    /**
+     * Lists the Outlook POST operations, handlers and ordered parameter definitions.
+     *
+     * @return array
+     */
     public static function getOperations() {
         return array(
             array(
@@ -91,6 +103,13 @@ class Settings_OutlookAddin_Module_Model extends Settings_Vtiger_Module_Model {
 
     }
 
+    /**
+     * Validates the configured HTTPS CRM URL and derives add-in endpoint addresses.
+     *
+     * @param mixed $url Configured CRM installation URL.
+     * @return array<string,string>
+     * @throws InvalidArgumentException On unsafe or invalid CRM URLs.
+     */
     public static function getUrls($url) {
         if (!is_string($url) || preg_match('/[\x00-\x20\x7f\\\\]/', $url)) {
             throw new InvalidArgumentException('LBL_OUTLOOK_INVALID_URL');
@@ -105,7 +124,14 @@ class Settings_OutlookAddin_Module_Model extends Settings_Vtiger_Module_Model {
             'redirect' => $base . '/outlook-addin/contacts-auth.html');
     }
 
-    /** Generate a download; never modify the shipped manifest or local configuration. */
+    /**
+     * Generates installation-specific XML without modifying the manifest template.
+     *
+     * @param string $url Configured HTTPS CRM installation URL.
+     * @return string Downloadable Outlook XML manifest.
+     * @throws InvalidArgumentException If the CRM URL is invalid.
+     * @throws RuntimeException If the template is unreadable or malformed.
+     */
     public static function createManifest($url) {
         $urls = self::getUrls($url);
         $document = new DOMDocument();
@@ -127,6 +153,14 @@ class Settings_OutlookAddin_Module_Model extends Settings_Vtiger_Module_Model {
         return $xml;
     }
 
+    /**
+     * Validates and normalizes an Entra client or tenant GUID.
+     *
+     * @param mixed $value Candidate GUID.
+     * @param string $field Client or tenant field name for validation messages.
+     * @return string
+     * @throws InvalidArgumentException If the GUID is invalid or missing.
+     */
     public static function validateMicrosoftId($value, $field) {
         if (!is_string($value) || !preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iD', trim($value))) {
             throw new InvalidArgumentException($field === 'client_id' ? 'LBL_OUTLOOK_CLIENT_REQUIRED' : 'LBL_OUTLOOK_TENANT_REQUIRED');
@@ -134,16 +168,30 @@ class Settings_OutlookAddin_Module_Model extends Settings_Vtiger_Module_Model {
         return strtolower(trim($value));
     }
 
+    /**
+     * Generates a PHP configuration download containing public Entra IDs and no credentials.
+     *
+     * @param string $url Configured CRM installation URL.
+     * @param mixed $clientId Entra application/client GUID.
+     * @param mixed $tenantId Entra directory/tenant GUID.
+     * @return string
+     * @throws InvalidArgumentException If the URL or required IDs are invalid.
+     */
     public static function createConfiguration($url, $clientId, $tenantId) {
         $urls = self::getUrls($url);
         $config = array('crm_webservice_url' => $urls['webservice'], 'default_request_timeout' => 30, 'recipient_limit' => 500,
             'contacts_microsoft' => array('client_id' => self::validateMicrosoftId($clientId, 'client_id'),
                 'tenant_id' => self::validateMicrosoftId($tenantId, 'tenant_id'), 'redirect_uri' => $urls['redirect']));
-        return "<?php\n\n// CRM users sign in through the add-in. No CRM credentials or client secret are stored here.\nreturn "
+        return "<?php\n\n/**\n * Installation-specific Outlook add-in settings.\n * No CRM credentials or Microsoft client secret are stored here.\n *\n * @package berliCRM.OutlookAddin\n */\nreturn "
             . var_export($config, true) . ";\n";
     }
 
-    /** Expose only the two public IDs, never legacy API credentials or other configuration. */
+    /**
+     * Reads only public Entra IDs from the private installation configuration.
+     *
+     * @return array{client_id:string,tenant_id:string} IDs or empty setup values.
+     * @throws RuntimeException If an existing configuration cannot be read safely.
+     */
     public static function getMicrosoftIds() {
         if (!file_exists(self::CONFIG_PATH)) return array('client_id' => '', 'tenant_id' => '');
         if (!is_readable(self::CONFIG_PATH)) throw new RuntimeException('LBL_OUTLOOK_CONFIG_ERROR');
@@ -154,6 +202,11 @@ class Settings_OutlookAddin_Module_Model extends Settings_Vtiger_Module_Model {
             'tenant_id' => is_string($settings['tenant_id'] ?? null) ? $settings['tenant_id'] : '');
     }
 
+    /**
+     * Lists unreadable runtime assets and handlers required by the Outlook add-in.
+     *
+     * @return string[]
+     */
     public static function getMissingFiles() {
         $files = array(self::MANIFEST_PATH, 'outlook-addin/taskpane.html', 'outlook-addin/taskpane.js', 'outlook-addin/settings-connection.js',
             'outlook-addin/calendar.js', 'outlook-addin/mail-read.js', 'outlook-addin/contacts.html', 'outlook-addin/contacts.js',
@@ -166,6 +219,12 @@ class Settings_OutlookAddin_Module_Model extends Settings_Vtiger_Module_Model {
         return array_values(array_filter($files, function ($file) { return !is_readable($file); }));
     }
 
+    /**
+     * Checks registered handlers, authenticated POST requirements and parameter order.
+     *
+     * @return array<string,bool>
+     * @throws RuntimeException If registration metadata cannot be queried.
+     */
     public static function getOperationStatus() {
         $db = PearDatabase::getInstance();
         $status = array();
@@ -191,6 +250,12 @@ class Settings_OutlookAddin_Module_Model extends Settings_Vtiger_Module_Model {
         return $status;
     }
 
+    /**
+     * Creates or repairs the administrator settings entry in the Integration block.
+     *
+     * @return void
+     * @throws RuntimeException On missing settings metadata or failed SQL.
+     */
     public static function registerSettingsMenu() {
         $db = PearDatabase::getInstance();
         $block = self::query('SELECT blockid FROM vtiger_settings_blocks WHERE label = ?', array('LBL_INTEGRATION'));
@@ -220,6 +285,13 @@ class Settings_OutlookAddin_Module_Model extends Settings_Vtiger_Module_Model {
                 (int) $db->query_result($sequence, 0, 'sequence') + 1));
     }
 
+    /**
+     * Registers one authenticated operation transactionally, retaining its existing ID.
+     *
+     * @param array<string,mixed> $operation Handler, method and ordered parameters.
+     * @return void
+     * @throws RuntimeException On missing handlers or failed registration.
+     */
     private static function registerWebserviceOperation(array $operation) {
         if (!is_readable($operation['path'])) {
             throw new RuntimeException('Outlook add-in handler is missing: ' . $operation['path']);
@@ -273,6 +345,14 @@ class Settings_OutlookAddin_Module_Model extends Settings_Vtiger_Module_Model {
         $db->completeTransaction();
     }
 
+    /**
+     * Runs a parameterized settings query and rejects reported database failures.
+     *
+     * @param string $sql Parameterized SQL statement.
+     * @param array $params Bound values.
+     * @return object|bool
+     * @throws RuntimeException On a failed database query.
+     */
     private static function query($sql, $params) {
         $result = PearDatabase::getInstance()->pquery($sql, $params);
         if ($result === false) {

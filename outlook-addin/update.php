@@ -1,4 +1,9 @@
 <?php
+/**
+ * Shared, repeatable Outlook setup used by the CRM updater and CLI installer.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 
 // Shared by the CRM version updater and the optional standalone CLI installer.
 // The caller must bootstrap berliCRM before invoking this routine.
@@ -7,6 +12,12 @@ if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
     exit("Use db_update.php or outlook-addin/build/registerOutlookAddinOperation.php.\n");
 }
 
+/**
+ * Initializes Outlook webservices, add-in link tables and settings after CRM bootstrap.
+ *
+ * @return void
+ * @throws Throwable If registration fails; the CRM release update must not advance.
+ */
 function berli_outlookAddinUpdate(): void
 {
     $crmRoot = dirname(__DIR__);

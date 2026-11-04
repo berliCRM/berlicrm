@@ -1,4 +1,9 @@
 <?php
+/**
+ * Isolated CRM contact import/export tests with no real database or mailbox access.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 // Isolated contracts: no CRM bootstrap, real database, login or mailbox access.
 if (PHP_SAPI !== 'cli') { http_response_code(403); exit; }
 $root = dirname(__DIR__, 2);

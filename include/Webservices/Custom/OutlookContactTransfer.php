@@ -1,15 +1,31 @@
 <?php
+/**
+ * Permission-aware transfer between CRM and personal Microsoft Graph contacts.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 
 require_once 'include/Webservices/DescribeObject.php';
 require_once 'include/Webservices/Retrieve.php';
 require_once 'include/Webservices/Create.php';
 require_once 'include/Webservices/Query.php';
 
+/**
+ * Returns the Graph extended-property identifier used for CRM contact links.
+ *
+ * @return string
+ */
 function berli_outlookContactPropertyId()
 {
     return 'String {f9e177c7-325a-4d90-ade5-a45bd5922b2e} Name berliCRMContact';
 }
 
+/**
+ * Calculates the stable namespace for this CRM installation.
+ *
+ * @return string
+ * @throws RuntimeException If the CRM installation URL is missing.
+ */
 function berli_outlookContactInstance()
 {
     global $site_URL;
@@ -17,6 +33,12 @@ function berli_outlookContactInstance()
     return hash('sha256', rtrim($site_URL, '/'));
 }
 
+/**
+ * Returns permitted contact fields, mandatory flags and authenticated owner metadata.
+ *
+ * @param Users $user Authenticated CRM user.
+ * @return array<string,mixed>
+ */
 function berli_outlookContactDescription($user)
 {
     $description = vtws_describe('Contacts', $user);
@@ -37,6 +59,14 @@ function berli_outlookContactDescription($user)
         'instance' => berli_outlookContactInstance(), 'propertyId' => berli_outlookContactPropertyId());
 }
 
+/**
+ * Executes a parameterized contact-link query and rejects database failures.
+ *
+ * @param string $sql Parameterized SQL statement.
+ * @param array $params Bound values.
+ * @return object|bool
+ * @throws RuntimeException On a contact-link database failure.
+ */
 function berli_outlookContactQuery($sql, array $params)
 {
     global $adb;
@@ -45,6 +75,13 @@ function berli_outlookContactQuery($sql, array $params)
     return $result;
 }
 
+/**
+ * Validates that a webservice identifier belongs to the Contacts module.
+ *
+ * @param mixed $id Candidate contact identifier.
+ * @return string
+ * @throws InvalidArgumentException If the identifier is invalid.
+ */
 function berli_outlookContactId($id)
 {
     global $adb;
@@ -55,6 +92,14 @@ function berli_outlookContactId($id)
     return $id;
 }
 
+/**
+ * Maps Graph values to editable CRM fields and reports missing mandatory fields.
+ *
+ * @param array<string,mixed> $contact Personal Outlook contact.
+ * @param array<string,mixed> $metadata User-visible CRM field metadata.
+ * @return array<string,mixed>
+ * @throws InvalidArgumentException On invalid field values.
+ */
 function berli_outlookContactMap(array $contact, array $metadata)
 {
     $mapping = array('firstname' => 'givenName', 'lastname' => 'surname', 'mobile' => 'mobilePhone',
@@ -103,6 +148,14 @@ function berli_outlookContactMap(array $contact, array $metadata)
     return array('fields' => $fields, 'missing' => $missing);
 }
 
+/**
+ * Converts a readable CRM contact into Graph contact fields and its stable CRM link.
+ *
+ * @param mixed $id Candidate CRM contact webservice identifier.
+ * @param array<string,mixed> $metadata Current user field permissions.
+ * @param Users $user Authenticated CRM user.
+ * @return array<string,mixed>
+ */
 function berli_outlookContactExport($id, array $metadata, $user)
 {
     $record = vtws_retrieve(berli_outlookContactId($id), $user);
@@ -137,6 +190,14 @@ function berli_outlookContactExport($id, array $metadata, $user)
     return array('recordId' => $id, 'key' => $key, 'contact' => $contact);
 }
 
+/**
+ * Imports a valid personal Outlook contact with duplicate checks and safe retry links.
+ *
+ * @param array<string,mixed> $input Contact and Microsoft account identity.
+ * @param array<string,mixed> $metadata Current user field permissions and mandatory flags.
+ * @param Users $user Authenticated CRM user.
+ * @return array<string,mixed>
+ */
 function berli_outlookContactImport(array $input, array $metadata, $user)
 {
     global $adb;
@@ -201,6 +262,15 @@ function berli_outlookContactImport(array $input, array $metadata, $user)
     }
 }
 
+/**
+ * Dispatches contact metadata, export and import using authenticated CRM permissions.
+ *
+ * @param mixed $input Decoded contact action.
+ * @param Users $user Authenticated CRM user.
+ * @return array<string,mixed>
+ * @throws InvalidArgumentException On an invalid action or contact payload.
+ * @throws WebServiceException If required CRM permissions are missing.
+ */
 function berli_outlookContactTransfer($input, $user)
 {
     if (!is_array($input) || !in_array($input['mode'] ?? '', array('describe', 'export', 'import'), true)) {

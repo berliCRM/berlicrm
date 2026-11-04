@@ -1,4 +1,9 @@
 <?php
+/**
+ * CLI generation of the installation-specific Outlook manifest from the configured CRM URL.
+ *
+ * @package berliCRM.OfficeAddins
+ */
 
 if (PHP_SAPI !== 'cli') {
     http_response_code(403);
