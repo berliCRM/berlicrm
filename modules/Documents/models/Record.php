@@ -221,6 +221,28 @@ class Documents_Record_Model extends Vtiger_Record_Model {
 				header('Content-Type: image/png');
 				header('Content-Disposition: inline; filename="' . basename($fileName) . '"');
 				break;
+			case 'mp3':
+				header('Content-Type: audio/mpeg');
+				header('Content-Disposition: inline; filename="' . basename($fileName) . '"');
+				break;
+			case 'webm':
+				header('Content-Type: audio/webm');
+				header('Content-Disposition: inline; filename="' . basename($fileName) . '"');
+				break;
+			case 'mp4':
+			case 'm4a':
+				header('Content-Type: audio/mp4');
+				header('Content-Disposition: inline; filename="' . basename($fileName) . '"');
+				break;
+			case 'ogg':
+			case 'oga':
+				header('Content-Type: audio/ogg');
+				header('Content-Disposition: inline; filename="' . basename($fileName) . '"');
+				break;
+			case 'wav':
+				header('Content-Type: audio/wav');
+				header('Content-Disposition: inline; filename="' . basename($fileName) . '"');
+				break;
 			default:
 				header("HTTP/1.1 204 No Content");
 				header("Content-Length: 0");

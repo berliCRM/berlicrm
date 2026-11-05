@@ -53,6 +53,9 @@ class Emails_Record_Model extends Vtiger_Record_Model {
      */
     public $senderEmail = '';
 
+    /** Optional independent Reply-To address; empty retains the default reply address. */
+    public $replyTo = '';
+
     /**
      * Optional flag to send emails without looking up entities
      * If provided, this value will prevent array keys to be treated as entity IDs
@@ -131,6 +134,11 @@ class Emails_Record_Model extends Vtiger_Record_Model {
      *         message string from the mailer/exception handling.
      */
     public function send() {
+        if (preg_match('/[\r\n]/', (string) $this->replyTo)
+            || (trim((string) $this->replyTo) !== ''
+                && !Emails_Mailer_Model::validateAddress(trim((string) $this->replyTo)))) {
+            return 'Invalid Reply-To address';
+        }
         $currentUserModel = Users_Record_Model::getCurrentUserModel();
 		// if there is no user (e.g. password reset) use admin and revert later
 		if (empty($currentUserModel->getId())) {
@@ -200,6 +208,10 @@ class Emails_Record_Model extends Vtiger_Record_Model {
             $userName = $this->senderName;
         }
 
+        if (trim((string) $this->replyTo) !== '') {
+            $replyTo = trim((string) $this->replyTo);
+        }
+
         // To eliminate the empty value of an array
         $toEmailInfo = array_filter((array)$this->get('toemailinfo'));
         $toMailNamesList = array_filter((array)$this->get('toMailNamesList'));
@@ -260,6 +272,7 @@ class Emails_Record_Model extends Vtiger_Record_Model {
             $old_mod_strings = vglobal('mod_strings');
             $description = $rawDescription;
             $subject = $this->get('subject');
+            $parentModule = null;
             if (!$this->sendWithoutRelation) {
                 $parentModule = $this->getEntityType($id);
             }
@@ -502,6 +515,7 @@ class Emails_Record_Model extends Vtiger_Record_Model {
      * @return <Array> List of Documents
      */
     public function getRelatedDocuments($excludeGeneratedDatasheets = false) {
+        $documentsList = array();
         $db = PearDatabase::getInstance();
 
         $documentRes = $db->pquery("SELECT * FROM vtiger_senotesrel

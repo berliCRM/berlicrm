@@ -222,6 +222,17 @@ class Vtiger_Mailer extends PHPMailer {
 			// $this->From = $oAuthDetails['user_name'];
 		// }
 
+		// Sender controls SMTP MAIL FROM and the -f option for mail()/sendmail.
+		// Resolve at delivery time too, so existing queue rows need no migration.
+		$envelopeFrom = (string) ($GLOBALS['mail_envelope_from'] ?? '');
+		if ($envelopeFrom !== '') {
+			if (preg_match('/[\r\n]/', $envelopeFrom) || !static::validateAddress(trim($envelopeFrom))) {
+				$this->ErrorInfo = 'Invalid Envelope-From address';
+				return false;
+			}
+			$this->Sender = trim($envelopeFrom);
+		}
+
 		if($sync) return parent::Send();
 
 		$this->__AddToQueue($linktoid);

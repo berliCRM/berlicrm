@@ -1180,7 +1180,8 @@ app.documentPreview = (function () {
 		fetch(url.href, {signal: controller.signal}).then(function (response) {
 			if (!response.ok || response.status === 204) throw new Error('No preview');
 			var type = (response.headers.get('Content-Type') || '').split(';')[0].trim().toLowerCase();
-			if (['application/pdf', 'image/jpeg', 'image/png', 'text/plain'].indexOf(type) === -1) {
+			if (['application/pdf', 'image/jpeg', 'image/png', 'text/plain',
+				'audio/mpeg', 'audio/webm', 'audio/mp4', 'audio/ogg', 'audio/wav'].indexOf(type) === -1) {
 				throw new Error('Unsupported format');
 			}
 			return response.blob();
@@ -1189,9 +1190,14 @@ app.documentPreview = (function () {
 			objectUrl = URL.createObjectURL(blob);
 			content.textContent = '';
 			var isImage = blob.type.indexOf('image/') === 0;
-			var element = document.createElement(isImage ? 'img' : 'iframe');
+			var isAudio = blob.type.indexOf('audio/') === 0;
+			var element = document.createElement(isImage ? 'img' : (isAudio ? 'audio' : 'iframe'));
 			if (isImage) {
 				element.alt = filename || 'Dokumentenvorschau';
+			} else if (isAudio) {
+				element.controls = true;
+				element.preload = 'metadata';
+				element.title = title.textContent;
 			} else {
 				element.title = title.textContent;
 			}
