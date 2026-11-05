@@ -21,7 +21,7 @@ class Settings_OutlookAddin_Module_Model extends Settings_Vtiger_Module_Model {
     const EVENT_DISPLAY_HANDLER_METHOD = 'berli_outlookGetEventDisplay';
 
     /**
-     * Creates add-in-owned link tables and registers or repairs all six Outlook operations.
+     * Creates add-in-owned link tables and registers or repairs all seven Office/Outlook operations.
      *
      * @return void
      * @throws RuntimeException When schema or registration queries fail.
@@ -53,6 +53,12 @@ class Settings_OutlookAddin_Module_Model extends Settings_Vtiger_Module_Model {
      */
     public static function getOperations() {
         return array(
+            array(
+                'name' => 'office_addin_user_preferences',
+                'path' => 'include/utils/OfficeAddinI18n.php',
+                'method' => 'berli_officeAddinUserPreferences',
+                'params' => array()
+            ),
             array(
                 'name' => self::OPERATION_NAME,
                 'path' => self::HANDLER_PATH,
@@ -209,6 +215,8 @@ class Settings_OutlookAddin_Module_Model extends Settings_Vtiger_Module_Model {
      */
     public static function getMissingFiles() {
         $files = array(self::MANIFEST_PATH, 'outlook-addin/taskpane.html', 'outlook-addin/taskpane.js', 'outlook-addin/settings-connection.js',
+            'include/utils/OfficeAddinI18n.php', 'outlook-addin/language.js',
+            'outlook-addin/languages/de_de.php', 'outlook-addin/languages/en_us.php',
             'outlook-addin/calendar.js', 'outlook-addin/mail-read.js', 'outlook-addin/contacts.html', 'outlook-addin/contacts.js',
             'outlook-addin/contacts-auth.html', 'outlook-addin/contacts-auth.css', 'outlook-addin/contacts.css',
             'outlook-addin/contact-model.js', 'outlook-addin/contact-graph.js',

@@ -3,6 +3,9 @@
 Die Outlook-Werkzeuge liegen vollständig unter `outlook-addin/build/`.
 Die folgenden Befehle werden im CRM-Hauptverzeichnis ausgeführt.
 
+Bei einer CRM-Neuinstallation richtet der abschließende Installationsschritt
+die Outlook-Webservices, Verknüpfungstabellen und den Menüeintrag automatisch ein.
+
 ## Normaler CRM-Versionswechsel
 
 Beim normalen CRM-Update `db_update.php` über den vorhandenen CRM-Updateablauf

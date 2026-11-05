@@ -3,38 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Outlook Minimaltest</title>
+  <title data-i18n="OUTLOOK_MINIMAL_TEST"></title>
   <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <script src="language.js?v=20261105.1"></script>
 </head>
 <body>
-  <h1>Outlook Minimaltest</h1>
-  <p>Diese Testseite verwendet nur Office.js. Sie meldet sich nicht am CRM an
-    und liest oder verändert keine E-Mail-Daten.</p>
-  <p id="pageStatus">HTML-Seite geladen.</p>
-  <p id="officeStatus" role="status">Warte auf die Office-Initialisierung.</p>
-  <script>
-    (function () {
-      var status = document.getElementById('officeStatus');
-      document.getElementById('pageStatus').textContent =
-        'HTML-Seite geladen: ' + new Date().toISOString();
-
-      if (typeof Office === 'undefined') {
-        status.textContent = 'Office.js konnte nicht geladen werden.';
-        return;
-      }
-
-      try {
-        Office.onReady(function (info) {
-          status.textContent = info.host
-            ? 'Office initialisiert: ' + info.host + ' / ' + info.platform
-            : 'Seite außerhalb eines Office-Add-ins geöffnet.';
-        }).catch(function (error) {
-          status.textContent = 'Office-Initialisierung fehlgeschlagen: ' + error.message;
-        });
-      } catch (error) {
-        status.textContent = 'Office-Initialisierung fehlgeschlagen: ' + error.message;
-      }
-    }());
-  </script>
+  <h1 data-i18n="OUTLOOK_MINIMAL_TEST"></h1>
+  <p data-i18n="THIS_TEST_PAGE_ONLY_USES_OFFICE_JS_IT_DOES_NOT_SIGN_IN_TO_CRM_OR_READ_OR"></p>
+  <p id="pageStatus" data-i18n="HTML_PAGE_LOADED"></p>
+  <p id="officeStatus" role="status" data-i18n="WAITING_FOR_OFFICE_INITIALIZATION"></p>
+  <script src="diagnostic-taskpane.js?v=20261105.1"></script>
 </body>
 </html>

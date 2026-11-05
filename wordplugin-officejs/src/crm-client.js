@@ -1,11 +1,12 @@
+import { t, i18n } from "./i18n.js?v=20261105.1";
 export const MERGE_MODULES = [
-  { apiName: "Contacts", label: "Kontaktfelder", prefix: "CONTACT" },
-  { apiName: "Accounts", label: "Firmenfelder", prefix: "ACCOUNT" },
-  { apiName: "Leads", label: "Leadfelder", prefix: "LEAD" },
-  { apiName: "HelpDesk", label: "Ticketfelder", prefix: "TICKET" },
+  { apiName: "Contacts", labelKey: "CONTACT_FIELDS", get label() { return t(this.labelKey); }, prefix: "CONTACT" },
+  { apiName: "Accounts", labelKey: "ORGANIZATION_FIELDS", get label() { return t(this.labelKey); }, prefix: "ACCOUNT" },
+  { apiName: "Leads", labelKey: "LEAD_FIELDS", get label() { return t(this.labelKey); }, prefix: "LEAD" },
+  { apiName: "HelpDesk", labelKey: "TICKET_FIELDS", get label() { return t(this.labelKey); }, prefix: "TICKET" },
   {
     apiName: "Users",
-    label: "Benutzerfelder",
+    labelKey: "USER_FIELDS", get label() { return t(this.labelKey); },
     prefix: "USER",
     legacyNames: {
       first_name: "FIRSTNAME",
@@ -117,17 +118,17 @@ export function normalizeCrmBaseUrl(value, currentOrigin) {
   try {
     url = new URL(value.trim());
   } catch {
-    throw new Error("Bitte eine gültige berliCRM-URL eingeben.");
+    throw new Error(t("PLEASE_ENTER_A_VALID_BERLICRM_URL"));
   }
 
   if (url.protocol !== "https:" && !(url.protocol === "http:" && /^(localhost|127\.0\.0\.1)$/.test(url.hostname))) {
-    throw new Error("Die CRM-Verbindung muss HTTPS verwenden.");
+    throw new Error(t("THE_CRM_CONNECTION_MUST_USE_HTTPS"));
   }
   if (url.username || url.password) {
-    throw new Error("Die CRM-URL darf keine eingebetteten Zugangsdaten enthalten.");
+    throw new Error(t("THE_CRM_URL_MUST_NOT_CONTAIN_EMBEDDED_CREDENTIALS"));
   }
   if (url.origin !== currentOrigin) {
-    throw new Error("Das Add-in muss auf derselben CRM-Adresse gehostet werden wie die REST-API.");
+    throw new Error(t("THE_ADD_IN_MUST_BE_HOSTED_AT_THE_SAME_CRM_ADDRESS_AS_THE_REST_API"));
   }
 
   url.search = "";
@@ -138,17 +139,23 @@ export function normalizeCrmBaseUrl(value, currentOrigin) {
 
 export function mergeFieldName(module, field) {
   if (!module || typeof field?.name !== "string" || !field.name.trim()) {
-    throw new Error("Ungültiger CRM-Feldname.");
+    throw new Error(t("INVALID_CRM_FIELD_NAME"));
   }
   const suffix = module.legacyNames?.[field.name] ?? field.label ?? field.name;
   if (typeof suffix !== "string") {
-    throw new Error("Ungültige Feldbezeichnung von berliCRM.");
+    throw new Error(t("INVALID_FIELD_LABEL_RETURNED_BY_BERLICRM"));
   }
   const normalizedSuffix = suffix.replace(/\s+/g, "");
   if (!normalizedSuffix) {
-    throw new Error("Ungültiger CRM-Feldname.");
+    throw new Error(t("INVALID_CRM_FIELD_NAME"));
   }
   return `${module.prefix}_${normalizedSuffix}`.toUpperCase();
+}
+
+/** Recognizes existing template names across CRM interface languages. */
+export function mergeFieldNames(module, field) {
+  return [...new Set([mergeFieldName(module, field), ...(field.aliases || []).map(label =>
+    mergeFieldName(module, { ...field, label }))])];
 }
 
 function escapeXml(value, attribute = false) {
@@ -170,7 +177,7 @@ function escapeXml(value, attribute = false) {
 
 export function mergeFieldOoxml(fieldNames) {
   if (!Array.isArray(fieldNames) || fieldNames.length === 0) {
-    throw new Error("Bitte mindestens ein Feld auswählen.");
+    throw new Error(t("PLEASE_SELECT_AT_LEAST_ONE_FIELD"));
   }
 
   const fields = fieldNames
@@ -181,7 +188,7 @@ export function mergeFieldOoxml(fieldNames) {
         /\s/.test(name) ||
         /[\u0000-\u0008\u000B\u000C\u000E-\u001F]/.test(name)
       ) {
-        throw new Error("Ungültiger Word-Mergefeldname.");
+        throw new Error(t("INVALID_WORD_MERGE_FIELD_NAME"));
       }
       const escapedName = escapeXml(name);
       const escapedInstruction = escapeXml(` MERGEFIELD ${name} `, true);
@@ -244,12 +251,12 @@ export class BerliCrmClient {
     try {
       payload = await response.json();
     } catch {
-      throw new Error(`berliCRM lieferte keine gültige JSON-Antwort (HTTP ${response.status}).`);
+      throw new Error(t("BERLICRM_DID_NOT_RETURN_VALID_JSON_HTTP", [response.status]));
     }
 
     if (!response.ok || payload.success !== true) {
       const message = payload.error?.message || payload.error?.code;
-      throw new Error(message || `REST-Anfrage fehlgeschlagen (HTTP ${response.status}).`);
+      throw new Error(message || t("REST_REQUEST_FAILED_HTTP", [response.status]));
     }
 
     return payload.result;
@@ -257,12 +264,12 @@ export class BerliCrmClient {
 
   async connect(username, accessKey) {
     if (!username.trim() || !accessKey) {
-      throw new Error("Bitte CRM-Benutzername und API-Schlüssel eingeben.");
+      throw new Error(t("PLEASE_ENTER_YOUR_CRM_USERNAME_AND_API_KEY"));
     }
 
     const challenge = await this.request("GET", "getchallenge", { username: username.trim() }, null);
     if (typeof challenge?.token !== "string" || !challenge.token) {
-      throw new Error("berliCRM hat kein gültiges REST-Challenge-Token zurückgegeben.");
+      throw new Error(t("BERLICRM_DID_NOT_RETURN_A_VALID_REST_CHALLENGE_TOKEN"));
     }
 
     const login = await this.request(
@@ -272,33 +279,37 @@ export class BerliCrmClient {
       null,
     );
     if (typeof login?.sessionName !== "string" || !login.sessionName) {
-      throw new Error("berliCRM hat keine gültige REST-Sitzung zurückgegeben.");
+      throw new Error(t("BERLICRM_DID_NOT_RETURN_A_VALID_REST_SESSION"));
     }
 
     this.sessionName = login.sessionName;
+    const preferences = await this.request("POST", "office_addin_user_preferences");
+    if (!['de_de', 'en_us'].includes(preferences?.language)) throw new Error(t('PREFERENCES_INVALID'));
+    i18n.setLanguage(preferences.language);
     return this.getMergeModules();
   }
 
   async getMergeModules() {
     if (!this.sessionName) {
-      throw new Error("Es besteht keine CRM-Sitzung.");
+      throw new Error(t("THERE_IS_NO_CRM_SESSION"));
     }
 
     const typeResult = await this.request("GET", "listtypes");
     if (!Array.isArray(typeResult?.types)) {
-      throw new Error("berliCRM hat keine gültige Modulliste zurückgegeben.");
+      throw new Error(t("BERLICRM_DID_NOT_RETURN_A_VALID_MODULE_LIST"));
     }
     const availableTypes = new Set(typeResult.types);
 
     const modules = [];
-    for (const module of MERGE_MODULES) {
+    for (const definition of MERGE_MODULES) {
+      const module = { ...definition, label: t(definition.labelKey) };
       if (!availableTypes.has(module.apiName)) {
         continue;
       }
 
       const description = await this.request("GET", "describe", { elementType: module.apiName });
       if (!Array.isArray(description?.fields)) {
-        throw new Error(`berliCRM hat für ${module.label} keine gültige Feldliste zurückgegeben.`);
+        throw new Error(t("BERLICRM_DID_NOT_RETURN_A_VALID_FIELD_LIST_FOR", [module.label]));
       }
 
       const describedFields = description.fields.filter(
@@ -321,7 +332,7 @@ export class BerliCrmClient {
 
   async getMailMergeData(moduleName, listId = "", page = 1, recordIds = [], fieldNames = []) {
     if (!this.sessionName) {
-      throw new Error("Es besteht keine CRM-Sitzung.");
+      throw new Error(t("THERE_IS_NO_CRM_SESSION"));
     }
 
     return this.request("POST", "getWordMailMergeData", {
@@ -335,7 +346,7 @@ export class BerliCrmClient {
 
   async saveMailMergeDocument(moduleName, listId, recordId, notesTitle, fileContent) {
     if (!this.sessionName) {
-      throw new Error("Es besteht keine CRM-Sitzung.");
+      throw new Error(t("THERE_IS_NO_CRM_SESSION"));
     }
 
     return this.request("POST", "saveWordMailMergeDocument", {
@@ -348,12 +359,12 @@ export class BerliCrmClient {
   }
 
   async disconnect() {
-    if (!this.sessionName) {
+    const sessionName = this.sessionName;
+    this.sessionName = null;
+    if (!sessionName) {
       return;
     }
 
-    const sessionName = this.sessionName;
     await this.request("POST", "logout", {}, sessionName);
-    this.sessionName = null;
   }
 }

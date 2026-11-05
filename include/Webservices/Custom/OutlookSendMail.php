@@ -4,6 +4,8 @@
  *
  * @package berliCRM.OutlookAddin
  */
+require_once dirname(__DIR__, 2) . '/utils/OfficeAddinI18n.php';
+
 /************************************************************************************************************************************************************
 Description: send mail, body from template, attachments from Documents or direct payload
 Parameters:
@@ -94,7 +96,7 @@ function berli_outlookSendMail($receiverIds, $templateId, $subject, $body, $docu
     }
 
     if (empty($templateRow['subject']) || empty($templateRow['body'])) {
-        throw new WebServiceException(WebServiceErrorCode::$MANDFIELDSMISSING, "Template ID oder Betreff/Text müssen gesetzt sein");
+        throw new WebServiceException(WebServiceErrorCode::$MANDFIELDSMISSING, berli_outlookT('A_TEMPLATE_ID_OR_SUBJECT_BODY_MUST_BE_PROVIDED'));
     }
 
     // only real Documents go here
@@ -105,7 +107,7 @@ function berli_outlookSendMail($receiverIds, $templateId, $subject, $body, $docu
         $meta = $moduleHandler->getMeta();
 
         if (!in_array('Documents', $types['types']) || $meta->hasReadAccess() !== true) {
-            throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, "Module 'Documents' is not accessible");
+            throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, berli_outlookT('THE_DOCUMENTS_MODULE_IS_NOT_ACCESSIBLE'));
         }
 
         foreach ($documentIds as $documentId) {
@@ -118,7 +120,7 @@ function berli_outlookSendMail($receiverIds, $templateId, $subject, $body, $docu
     }
 
     if (empty($receiverIds)) {
-        throw new WebServiceException(WebServiceErrorCode::$MANDFIELDSMISSING, "Receiver IDs must not be empty");
+        throw new WebServiceException(WebServiceErrorCode::$MANDFIELDSMISSING, berli_outlookT('RECIPIENT_IDS_MUST_NOT_BE_EMPTY'));
     }
 
     foreach ($receiverIds as $receiverId) {
@@ -145,11 +147,11 @@ function berli_outlookSendMail($receiverIds, $templateId, $subject, $body, $docu
                 continue;
             }
             if (!$meta->hasPermission(EntityMeta::$RETRIEVE, $receiverId)) {
-                $returnArr[$receiverId] = 'Permission to read denied for record';
+                $returnArr[$receiverId] = berli_outlookT('PERMISSION_TO_READ_THE_RECORD_IS_DENIED');
                 continue;
             }
             if (!$meta->exists($idComponents[1])) {
-                $returnArr[$receiverId] = 'Record not found';
+                $returnArr[$receiverId] = berli_outlookT('RECORD_NOT_FOUND');
                 continue;
             }
 
@@ -177,7 +179,7 @@ function berli_outlookSendMail($receiverIds, $templateId, $subject, $body, $docu
             }
 
             if (empty($emailAddress)) {
-                $returnArr[$receiverId] = 'No email address found';
+                $returnArr[$receiverId] = berli_outlookT('NO_EMAIL_ADDRESS_FOUND');
                 continue;
             }
 
@@ -276,7 +278,7 @@ function berli_outlookCreateEmailAttachmentFromPayload($attachment, $emailId, $u
     $adb = PearDatabase::getInstance();
 
     if (!is_array($attachment)) {
-        throw new WebServiceException(berli_outlookGetWebserviceErrorCode('INVALIDDATA', 'MANDFIELDSMISSING'), "Attachment payload must be an array");
+        throw new WebServiceException(berli_outlookGetWebserviceErrorCode('INVALIDDATA', 'MANDFIELDSMISSING'), berli_outlookT('THE_ATTACHMENT_PAYLOAD_MUST_BE_AN_ARRAY'));
     }
 
     $filename = isset($attachment['name']) ? trim($attachment['name']) : '';
@@ -284,7 +286,7 @@ function berli_outlookCreateEmailAttachmentFromPayload($attachment, $emailId, $u
     $content  = isset($attachment['content']) ? $attachment['content'] : '';
 
     if ($filename === '' || $content === '') {
-        throw new WebServiceException(berli_outlookGetWebserviceErrorCode('MANDFIELDSMISSING', 'MANDFIELDSMISSING'), "Attachment name and content are required");
+        throw new WebServiceException(berli_outlookGetWebserviceErrorCode('MANDFIELDSMISSING', 'MANDFIELDSMISSING'), berli_outlookT('ATTACHMENT_NAME_AND_CONTENT_ARE_REQUIRED'));
     }
 
     if ($filetype === '') {

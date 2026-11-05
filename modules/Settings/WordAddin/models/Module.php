@@ -26,6 +26,11 @@ class Settings_WordAddin_Module_Model extends Settings_Vtiger_Module_Model {
      */
     public static function getOperations() {
         return array(
+            'office_addin_user_preferences' => array(
+                'path' => 'include/utils/OfficeAddinI18n.php',
+                'method' => 'berli_officeAddinUserPreferences',
+                'params' => array()
+            ),
             'getWordMailMergeData' => array(
                 'path' => 'include/Webservices/Custom/getWordMailMergeData.php',
                 'method' => 'berli_getWordMailMergeData',
@@ -47,6 +52,10 @@ class Settings_WordAddin_Module_Model extends Settings_Vtiger_Module_Model {
     public static function getRequiredFiles() {
         return array(
             self::MANIFEST_PATH, 'wordplugin-officejs/taskpane.html',
+            'include/utils/OfficeAddinI18n.php',
+            'wordplugin-officejs/language.js',
+            'wordplugin-officejs/src/i18n.js',
+            'wordplugin-officejs/languages/de_de.php', 'wordplugin-officejs/languages/en_us.php',
             'wordplugin-officejs/assets/icon-32.png', 'wordplugin-officejs/assets/icon-80.png',
             'wordplugin-officejs/src/taskpane.js', 'wordplugin-officejs/src/taskpane.css',
             'wordplugin-officejs/src/crm-client.js', 'wordplugin-officejs/src/zip.js',

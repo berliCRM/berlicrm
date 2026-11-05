@@ -21,3 +21,8 @@ config.csfr-secret.php
 /build/outlook-*-update*.zip
 /build/outlook-*-update*/
 logs/installLog.txt
+# Local Office add-in validation scripts.
+/build/tests/office-addin-languages.php
+/build/tests/office-addin-languages.test.cjs
+/build/tests/office-addins-php.php
+/build/tests/word-addin-settings.php

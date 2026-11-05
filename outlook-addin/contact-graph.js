@@ -1,3 +1,4 @@
+if (typeof module !== 'undefined' && module.exports && !globalThis.BerliI18n) require('./language.js');
 (function (root) {
   'use strict';
   const ORIGIN = 'https://graph.microsoft.com';
@@ -13,7 +14,7 @@
     async request(path, options = {}) {
       const url = new URL(path, ORIGIN + '/v1.0/');
       if (url.origin !== ORIGIN || !url.pathname.startsWith('/v1.0/') || url.username || url.password || url.hash) {
-        throw new GraphError('Ungültige Microsoft-Graph-Adresse.');
+        throw new GraphError(globalThis.BerliI18n.t("INVALID_MICROSOFT_GRAPH_ADDRESS"));
       }
       const token = this.tokenProvider();
       const response = await this.transport(url.href, { method: options.method || 'GET',
@@ -21,8 +22,8 @@
           'Content-Type': 'application/json', Prefer: 'IdType="ImmutableId"' },
         ...(options.body ? { body: JSON.stringify(options.body) } : {}) });
       let result;
-      try { result = await response.json(); } catch (error) { throw new GraphError('Microsoft hat keine gültige Antwort geliefert.', response.status); }
-      if (!response.ok) throw new GraphError(result.error?.message || 'Microsoft-Anfrage fehlgeschlagen.', response.status);
+      try { result = await response.json(); } catch (error) { throw new GraphError(globalThis.BerliI18n.t("MICROSOFT_DID_NOT_RETURN_A_VALID_RESPONSE"), response.status); }
+      if (!response.ok) throw new GraphError(result.error?.message || globalThis.BerliI18n.t("MICROSOFT_REQUEST_FAILED"), response.status);
       return result;
     }
     folderPath(folder = '') {
@@ -46,10 +47,10 @@
         let next = path;
         const pages = new Set();
         while (next) {
-          if (pages.has(next)) throw new GraphError('Microsoft hat eine wiederholte Ordnerseite geliefert.');
+          if (pages.has(next)) throw new GraphError(globalThis.BerliI18n.t("MICROSOFT_RETURNED_A_REPEATED_FOLDER_PAGE"));
           pages.add(next);
           const result = await this.request(next);
-          if (!Array.isArray(result.value)) throw new GraphError('Ungültige Microsoft-Ordnerliste.');
+          if (!Array.isArray(result.value)) throw new GraphError(globalThis.BerliI18n.t("INVALID_MICROSOFT_FOLDER_LIST"));
           for (const folder of result.value) {
             if (!folder.id || visited.has(folder.id)) continue;
             visited.add(folder.id);
@@ -70,14 +71,14 @@
       for (const filter of filters) {
         const params = new URLSearchParams({ $filter: filter, $select: 'id', $top: '2' });
         const result = await this.request(this.folderPath(folder) + '?' + params);
-        if (!Array.isArray(result.value)) throw new GraphError('Ungültige Antwort bei der Dublettenprüfung.');
+        if (!Array.isArray(result.value)) throw new GraphError(globalThis.BerliI18n.t("INVALID_RESPONSE_WHEN_CHECKING_FOR_DUPLICATES"));
         if (result.value.length) return result.value[0];
       }
       return null;
     }
     async create(exported, folder = '') {
       const result = await this.request(this.folderPath(folder), { method: 'POST', body: exported.contact });
-      if (!result || typeof result.id !== 'string' || !result.id) throw new GraphError('Microsoft hat die Kontaktanlage nicht eindeutig bestätigt.');
+      if (!result || typeof result.id !== 'string' || !result.id) throw new GraphError(globalThis.BerliI18n.t("MICROSOFT_DID_NOT_UNAMBIGUOUSLY_CONFIRM_THAT_THE_CONTACT_WAS_CREATED"));
       return result;
     }
   }

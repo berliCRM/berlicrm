@@ -1,5 +1,9 @@
 # CRM- und Outlook-Kontakte übernehmen
 
+## Sprachen ab Word 1.4.0.0 / Outlook 1.1.0.0
+
+Die Add-ins verwenden nach der Anmeldung die Sprache des CRM-Benutzers (`de_de` oder `en_us`). Vorher gilt die Office-/Browsersprache. Texte werden in PHP-Spracharrays mit stabilen Schluesseln gepflegt. Fuer dieses Update muss `office_addin_user_preferences` registriert werden. Einrichtung und Pflege: [Sprachdokumentation](../wordplugin-officejs/LANGUAGES.md).
+
 **Deutsch** | [English](CONTACTS.en.md)
 
 Im berliCRM-Add-in öffnet der Link **CRM- und Outlook-Kontakte verwalten**

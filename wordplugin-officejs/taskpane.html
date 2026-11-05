@@ -4,84 +4,85 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>berliCRM Word Plugin</title>
-    <link rel="stylesheet" href="src/taskpane.css?v=1.3.9">
+    <link rel="stylesheet" href="src/taskpane.css?v=20261105.1">
     <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
-    <script type="module" src="src/taskpane.js?v=1.4.3"></script>
-  </head>
+    <script type="module" src="src/taskpane.js?v=20261105.2"></script>
+    <script src="language.js?v=20261105.1"></script>
+</head>
   <body>
     <main>
       <header>
         <h1>berliCRM Word Plugin</h1>
-        <p>Felder einfügen und aus CRM-Listenansichten Serienbriefe erstellen.</p>
+        <p data-i18n="INSERT_FIELDS_AND_CREATE_MAIL_MERGE_DOCUMENTS_FROM_CRM_LIST_VIEWS"></p>
       </header>
 
       <section id="connection-panel" aria-labelledby="connection-heading">
-        <h2 id="connection-heading">Mit berliCRM verbinden</h2>
-        <label for="crm-url">CRM-Adresse</label>
+        <h2 id="connection-heading" data-i18n="CONNECT_TO_BERLICRM"></h2>
+        <label for="crm-url" data-i18n="CRM_ADDRESS"></label>
         <input id="crm-url" type="url" autocomplete="url" required>
-        <label for="username">Benutzername</label>
+        <label for="username" data-i18n="USERNAME"></label>
         <input id="username" type="text" autocomplete="username" required>
-        <label for="access-key">API-Schlüssel</label>
+        <label for="access-key" data-i18n="API_KEY"></label>
         <input id="access-key" type="password" autocomplete="off" required>
-        <button id="connect-button" type="button">Verbinden</button>
+        <button id="connect-button" type="button" data-i18n="CONNECT"></button>
       </section>
 
       <section id="fields-panel" aria-labelledby="fields-heading" hidden>
         <div class="section-heading">
-          <h2 id="fields-heading">Seriendruckfelder</h2>
-          <button id="disconnect-button" class="secondary" type="button">Trennen</button>
+          <h2 id="fields-heading" data-i18n="MAIL_MERGE_FIELDS"></h2>
+          <button id="disconnect-button" class="secondary" type="button" data-i18n="DISCONNECT"></button>
         </div>
-        <label for="module-select">Modul</label>
+        <label for="module-select" data-i18n="MODULE"></label>
         <select id="module-select"></select>
-        <label for="field-select">Felder zum Einfügen (Mehrfachauswahl mit Strg)</label>
+        <label for="field-select" data-i18n="FIELDS_TO_INSERT_HOLD_CTRL_TO_SELECT_MULTIPLE"></label>
         <select id="field-select" size="12" multiple></select>
-        <button id="insert-button" type="button" disabled>In Word einfügen</button>
+        <button id="insert-button" type="button" disabled data-i18n="INSERT_INTO_WORD"></button>
       </section>
 
       <section id="records-panel" aria-labelledby="records-heading" hidden>
-        <h2 id="records-heading">Datensätze für den Seriendruck</h2>
-        <p>Die Vorschau zeigt die aktuell ausgewählten Felder. Wählen Sie eine gespeicherte Listenansicht und bis zu 1.000 Datensätze.</p>
-        <label for="view-select">Gespeicherte Listenansicht</label>
+        <h2 id="records-heading" data-i18n="RECORDS_FOR_MAIL_MERGE"></h2>
+        <p data-i18n="THE_PREVIEW_SHOWS_THE_SELECTED_FIELDS_CHOOSE_A_SAVED_LIST_VIEW_AND_UP_TO"></p>
+        <label for="view-select" data-i18n="SAVED_LIST_VIEW"></label>
         <select id="view-select"></select>
-        <label for="record-select">Datensätze (Mehrfachauswahl mit Strg)</label>
+        <label for="record-select" data-i18n="RECORDS_HOLD_CTRL_TO_SELECT_MULTIPLE"></label>
         <select id="record-select" size="8" multiple></select>
         <div class="section-heading">
-          <button id="select-all-records-button" class="secondary" type="button" disabled>Alle Datensätze auswählen</button>
-          <button id="clear-record-selection-button" class="secondary" type="button" disabled>Auswahl aufheben</button>
+          <button id="select-all-records-button" class="secondary" type="button" disabled data-i18n="SELECT_ALL_RECORDS"></button>
+          <button id="clear-record-selection-button" class="secondary" type="button" disabled data-i18n="CLEAR_SELECTION"></button>
         </div>
         <div class="section-heading">
-          <button id="previous-page-button" class="secondary" type="button" disabled>Zurück</button>
-          <span id="page-label">Seite 1</span>
-          <button id="next-page-button" class="secondary" type="button" disabled>Weiter</button>
+          <button id="previous-page-button" class="secondary" type="button" disabled data-i18n="BACK"></button>
+          <span id="page-label" data-i18n="PAGE_1"></span>
+          <button id="next-page-button" class="secondary" type="button" disabled data-i18n="NEXT"></button>
         </div>
-        <p id="selection-count">0 Datensätze ausgewählt.</p>
-        <label for="output-format">Dateiformat</label>
+        <p id="selection-count" data-i18n="SELECTION_EMPTY"></p>
+        <label for="output-format" data-i18n="FILE_FORMAT"></label>
         <select id="output-format" aria-describedby="output-format-help">
-          <option value="legacy">altes Word-Dokument (.doc/HTML)</option>
-          <option value="docx" selected>Word-Dokument (.docx)</option>
+          <option value="legacy" data-i18n="LEGACY_WORD_DOCUMENT_DOC_HTML"></option>
+          <option value="docx" selected data-i18n="WORD_DOCUMENT_DOCX"></option>
         </select>
-        <p id="output-format-help">Sie können zwischen .docx und .doc Format wählen</p>
+        <p id="output-format-help" data-i18n="YOU_CAN_CHOOSE_BETWEEN_DOCX_AND_DOC_FORMATS"></p>
         <fieldset id="output-mode">
-          <legend>Ausgabe</legend>
-          <label><input type="radio" name="output-mode" value="combined" checked> Ein gemeinsamer Serienbrief (alle Datensätze in einem Dokument)</label>
-          <label><input type="radio" name="output-mode" value="individual-zip"> Einzelne Briefe als ZIP-Datei</label>
+          <legend data-i18n="OUTPUT"></legend>
+          <label><input type="radio" name="output-mode" value="combined" checked> <span data-i18n="ONE_COMBINED_MAIL_MERGE_DOCUMENT_ALL_RECORDS_IN_ONE_DOCUMENT"></span></label>
+          <label><input type="radio" name="output-mode" value="individual-zip"> <span data-i18n="INDIVIDUAL_LETTERS_AS_A_ZIP_FILE"></span></label>
         </fieldset>
         <label class="option-checkbox" for="save-to-crm">
           <input id="save-to-crm" type="checkbox">
-          Individuelle Briefe zusätzlich als Dokument beim jeweiligen CRM-Datensatz speichern
+          <span data-i18n="ALSO_SAVE_INDIVIDUAL_LETTERS_AS_DOCUMENTS_LINKED_TO_THEIR_CRM_RECORDS"></span>
         </label>
-        <button id="merge-button" type="button" disabled>Seriendruck-Dokumente erstellen</button>
+        <button id="merge-button" type="button" disabled data-i18n="CREATE_MAIL_MERGE_DOCUMENTS"></button>
         <div id="merge-progress" aria-live="polite" hidden>
-          <span id="merge-spinner" class="spinner" role="img" aria-label="Seriendruck wird erstellt"></span>
-          <span id="merge-progress-text">Seriendruck wird erstellt …</span>
+          <span id="merge-spinner" class="spinner" role="img" data-i18n-aria-label="CREATING_MAIL_MERGE_DOCUMENTS" aria-label=""></span>
+          <span id="merge-progress-text" data-i18n="MERGE_PROGRESS_TEXT"></span>
         </div>
-        <ul id="download-list" aria-label="Erstellte Word-Dokumente"></ul>
+        <ul id="download-list" data-i18n-aria-label="CREATED_WORD_DOCUMENTS" aria-label=""></ul>
       </section>
 
       <p id="status" role="status" aria-live="polite"></p>
       <footer class="addin-credit">
-        <span class="addin-version">Version 1.3.0.4</span>
-        <span>proudly made in Berlin by crm-now GmbH</span>
+        <span class="addin-version" data-i18n="ADDIN_VERSION"></span>
+        <span data-i18n="PROUDLY_MADE_IN_BERLIN_BY_CRM_NOW_GMBH"></span>
       </footer>
     </main>
   </body>

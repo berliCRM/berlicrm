@@ -1,3 +1,4 @@
+const { localizedContext } = require('./language-fixture.cjs');
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -25,7 +26,7 @@ function setup(options = {}) {
   const element = id => { if (!elements.has(id)) elements.set(id, new Element()); return elements.get(id); };
   element('contactWorkspace').hidden = true;
   if (options.saved) stored.set(sessionKey, JSON.stringify({ username: 'CRM User', sessionName: 'session', userId: '19x3' }));
-  const context = vm.createContext({
+  const context = localizedContext({
     URL, URLSearchParams, Set, Date, clearInterval, setInterval, clearTimeout, setTimeout: options.setTimeout || setTimeout,
     location: new URL('https://crm.example.test/outlook-addin/contacts.html'),
     localStorage: { getItem: key => stored.get(key) || null, setItem: (key, value) => stored.set(key, value), removeItem: key => stored.delete(key) },

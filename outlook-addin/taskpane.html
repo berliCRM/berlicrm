@@ -36,105 +36,106 @@
     input, textarea { box-sizing: border-box; }
     fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
   </style>
+  <script src="language.js?v=20261105.1"></script>
 </head>
 <body>
 
   <div class="section">
-    <h2 id="loginHeading">Login</h2>
+    <h2 id="loginHeading" data-i18n="LOGIN_HEADING"></h2>
     <div id="loginFields">
-    <label for="username">Benutzername</label>
-    <input id="username" type="text" autocomplete="username" placeholder="CRM-Benutzer" />
-    <label for="accessKey">Access Key</label>
-    <input id="accessKey" type="password" autocomplete="current-password" placeholder="Access Key" />
-    <button id="loginButton" class="button">Anmelden</button>
+    <label for="username" data-i18n="USERNAME"></label>
+    <input id="username" type="text" autocomplete="username" data-i18n-placeholder="CRM_USERNAME_PLACEHOLDER" placeholder="" />
+    <label for="accessKey" data-i18n="ACCESS_KEY"></label>
+    <input id="accessKey" type="password" autocomplete="current-password" data-i18n-placeholder="ACCESS_KEY" placeholder="" />
+    <button id="loginButton" class="button" data-i18n="LOGIN_BUTTON"></button>
     </div>
     <div id="loginStatus" class="notice" role="status"></div>
-    <button id="loginSwitchButton" type="button" class="button button-compact" hidden>Anders anmelden</button>
-    <p class="notice" id="contactsManagerLink"><a href="contacts.html">CRM- und Outlook-Kontakte verwalten</a></p>
+    <button id="loginSwitchButton" type="button" class="button button-compact" hidden data-i18n="USE_ANOTHER_ACCOUNT"></button>
+    <p class="notice" id="contactsManagerLink"><a href="contacts.html" data-i18n="MANAGE_CRM_AND_OUTLOOK_CONTACTS"></a></p>
   </div>
 
   <div class="section" id="mailReadSection" hidden>
-    <h2>E-Mail im CRM ablegen</h2>
+    <h2 data-i18n="SAVE_EMAIL_TO_CRM"></h2>
     <p id="mailArchiveSender" class="notice"></p>
     <p id="mailArchiveMatchField" class="notice"></p>
-    <button id="mailArchiveStart" class="button" type="button" disabled>E-Mail im CRM ablegen</button>
+    <button id="mailArchiveStart" class="button" type="button" disabled data-i18n="SAVE_EMAIL_TO_CRM"></button>
     <form id="mailArchiveForm" hidden>
-      <p>Bei welchen Kontakten soll diese E-Mail abgelegt werden? Mehrfachauswahl ist möglich.</p>
+      <p data-i18n="WHICH_CONTACTS_SHOULD_THIS_EMAIL_BE_SAVED_TO_YOU_CAN_SELECT_MORE_THAN_ON"></p>
       <div id="mailArchiveContacts"></div>
       <label id="mailArchiveAttachmentOption" hidden>
         <input id="mailArchiveAttachments" type="checkbox" checked />
-        <span id="mailArchiveAttachmentLabel">Anhänge übernehmen</span>
+        <span id="mailArchiveAttachmentLabel" data-i18n="INCLUDE_ATTACHMENTS_LABEL"></span>
       </label>
       <div class="calendar-actions">
-        <button id="mailArchiveSave" class="button" type="submit" disabled>E-Mail bei ausgewählten Kontakten ablegen</button>
+        <button id="mailArchiveSave" class="button" type="submit" disabled data-i18n="SAVE_EMAIL_TO_SELECTED_CONTACTS"></button>
       </div>
     </form>
     <p id="mailArchiveStatus" class="notice" role="status" aria-live="polite"></p>
   </div>
 
   <div class="section" id="calendarSection" hidden>
-    <h2>Outlook-Termin ins CRM übernehmen</h2>
+    <h2 data-i18n="SAVE_OUTLOOK_APPOINTMENT_TO_CRM"></h2>
     <p id="calendarTimezone" class="notice"></p>
     <form id="calendarForm">
       <fieldset id="calendarFields" disabled>
-        <label id="calendarSubjectLabel" for="calendarSubject">Betreff</label>
+        <label id="calendarSubjectLabel" for="calendarSubject" data-i18n="SUBJECT"></label>
         <input id="calendarSubject" type="text" maxlength="255" required />
-        <label id="calendarStartLabel" for="calendarStart">Beginn</label>
+        <label id="calendarStartLabel" for="calendarStart" data-i18n="START"></label>
         <input id="calendarStart" type="text" required />
-        <label id="calendarEndLabel" for="calendarEnd">Ende</label>
+        <label id="calendarEndLabel" for="calendarEnd" data-i18n="END"></label>
         <input id="calendarEnd" type="text" required />
-        <label id="calendarLocationLabel" for="calendarLocation">Ort</label>
+        <label id="calendarLocationLabel" for="calendarLocation" data-i18n="LOCATION"></label>
         <input id="calendarLocation" type="text" maxlength="255" />
-        <label id="calendarDescriptionLabel" for="calendarDescription">Beschreibung</label>
+        <label id="calendarDescriptionLabel" for="calendarDescription" data-i18n="DESCRIPTION"></label>
         <textarea id="calendarDescription" rows="6" maxlength="100000"></textarea>
       </fieldset>
       <div class="calendar-actions">
-        <button id="calendarSaveButton" class="button" type="submit" disabled>Im CRM ablegen</button>
-        <button id="calendarRefreshButton" class="button" type="button">Aus Outlook neu laden</button>
+        <button id="calendarSaveButton" class="button" type="submit" disabled data-i18n="SAVE_TO_CRM"></button>
+        <button id="calendarRefreshButton" class="button" type="button" data-i18n="RELOAD_FROM_OUTLOOK"></button>
       </div>
     </form>
-    <p class="notice">Beim Übernehmen wird der Outlook-Termin gespeichert. Änderungen im Formular gelten für die CRM-Kopie. Einzeltermine werden per Klick übernommen; Terminserien werden nicht übernommen.</p>
+    <p class="notice" data-i18n="THE_OUTLOOK_APPOINTMENT_IS_SAVED_WHEN_YOU_TRANSFER_IT_CHANGES_IN_THIS_FO"></p>
     <div id="calendarStatus" class="notice" role="status" aria-live="polite"></div>
   </div>
 
   <div class="section mail-section">
-    <h2>Empfänger in Outlook hinzufügen</h2>
-    <label for="recipientField">Outlook-Empfängerfeld</label>
+    <h2 data-i18n="ADD_RECIPIENTS_IN_OUTLOOK"></h2>
+    <label for="recipientField" data-i18n="OUTLOOK_RECIPIENT_FIELD"></label>
     <select id="recipientField">
-      <option value="to">An</option>
-      <option value="cc">Cc</option>
-      <option value="bcc">Bcc</option>
+      <option value="to" data-i18n="TO"></option>
+      <option value="cc" data-i18n="CC"></option>
+      <option value="bcc" data-i18n="BCC"></option>
     </select>
-    <div id="recipientStatus" class="notice">Öffne einen Outlook-E-Mail-Entwurf, um Empfänger einzutragen.</div>
+    <div id="recipientStatus" class="notice" data-i18n="OPEN_AN_OUTLOOK_EMAIL_DRAFT_TO_ADD_RECIPIENTS"></div>
   </div>
 
   <div class="section mail-section">
-    <h2>CRM-Kontakt suchen</h2>
-    <input id="searchQuery" type="text" placeholder="Name oder E-Mail" />
-    <button id="searchButton" class="button">Suchen</button>
+    <h2 data-i18n="SEARCH_CRM_CONTACTS"></h2>
+    <input id="searchQuery" type="text" data-i18n-placeholder="NAME_OR_EMAIL" placeholder="" />
+    <button id="searchButton" class="button" data-i18n="SEARCH"></button>
     <div id="searchResult" class="result"></div>
   </div>
 
   <div class="section mail-section">
-    <h2>CRM-Verteiler suchen</h2>
-    <input id="verteilerQuery" type="text" placeholder="Verteilername" />
-    <button id="searchVerteilerButton" class="button">Suchen</button>
+    <h2 data-i18n="SEARCH_CRM_DISTRIBUTION_LISTS"></h2>
+    <input id="verteilerQuery" type="text" data-i18n-placeholder="DISTRIBUTION_LIST_NAME" placeholder="" />
+    <button id="searchVerteilerButton" class="button" data-i18n="SEARCH"></button>
     <div id="verteilerResult" class="result"></div>
   </div>
 
   <div class="section mail-section">
-    <h2>Letzte Termine</h2>
-    <button id="eventsButton" class="button">Termine laden</button>
+    <h2 data-i18n="RECENT_APPOINTMENTS"></h2>
+    <button id="eventsButton" class="button" data-i18n="LOAD_APPOINTMENTS"></button>
     <div id="eventsResult" class="result"></div>
   </div>
 
   <footer class="addin-credit">
-    <span class="addin-version">Version 1.0.15.4</span>
-    <span>proudly made in Berlin by crm-now GmbH</span>
+    <span class="addin-version" data-i18n="ADDIN_VERSION"></span>
+    <span data-i18n="PROUDLY_MADE_IN_BERLIN_BY_CRM_NOW_GMBH"></span>
   </footer>
 
-  <script src="mail-read.js?v=20261102.8"></script>
-  <script src="calendar.js?v=20261102.6"></script>
-  <script src="taskpane.js?v=20261102.4"></script>
+  <script src="mail-read.js?v=20261105.1"></script>
+  <script src="calendar.js?v=20261105.1"></script>
+  <script src="taskpane.js?v=20261105.1"></script>
 </body>
 </html>

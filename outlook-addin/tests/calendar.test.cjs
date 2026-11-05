@@ -1,3 +1,4 @@
+const { localizedContext } = require('./language-fixture.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -32,7 +33,7 @@ function setup(options = {}) {
     },
   };
   if (options.mail) item.itemType = 'message';
-  const context = vm.createContext({
+  const context = localizedContext({
     URL,
     window: { location: { href: 'https://example.test/outlook-addin/taskpane.html' }, localStorage: {
       getItem: key => stored.get(key) || null,

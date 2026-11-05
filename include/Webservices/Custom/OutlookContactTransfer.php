@@ -4,6 +4,8 @@
  *
  * @package berliCRM.OfficeAddins
  */
+require_once dirname(__DIR__, 2) . '/utils/OfficeAddinI18n.php';
+
 
 require_once 'include/Webservices/DescribeObject.php';
 require_once 'include/Webservices/Retrieve.php';
@@ -29,7 +31,7 @@ function berli_outlookContactPropertyId()
 function berli_outlookContactInstance()
 {
     global $site_URL;
-    if (empty($site_URL)) throw new RuntimeException('Die CRM-Installationsadresse fehlt.');
+    if (empty($site_URL)) throw new RuntimeException(berli_outlookT('THE_CRM_INSTALLATION_ADDRESS_IS_MISSING'));
     return hash('sha256', rtrim($site_URL, '/'));
 }
 
@@ -71,7 +73,7 @@ function berli_outlookContactQuery($sql, array $params)
 {
     global $adb;
     $result = $adb->pquery($sql, $params);
-    if ($result === false) throw new RuntimeException('Die Kontaktverknüpfung konnte nicht gespeichert oder gelesen werden. Bitte den Outlook-Installer ausführen.');
+    if ($result === false) throw new RuntimeException(berli_outlookT('COULD_NOT_READ_OR_SAVE_THE_CONTACT_LINK_PLEASE_RUN_THE_OUTLOOK_INSTALLER'));
     return $result;
 }
 
@@ -87,7 +89,7 @@ function berli_outlookContactId($id)
     global $adb;
     $object = VtigerWebserviceObject::fromName($adb, 'Contacts');
     if (!is_string($id) || !preg_match('/^' . preg_quote((string)$object->getEntityId(), '/') . 'x[1-9][0-9]*$/D', $id)) {
-        throw new InvalidArgumentException('Ungültige CRM-Kontakt-ID.');
+        throw new InvalidArgumentException(berli_outlookT('INVALID_CRM_CONTACT_ID'));
     }
     return $id;
 }
@@ -108,16 +110,16 @@ function berli_outlookContactMap(array $contact, array $metadata)
     foreach ($mapping as $crm => $graph) $values[$crm] = $contact[$graph] ?? '';
     $emails = $contact['emailAddresses'] ?? array();
     $phones = $contact['businessPhones'] ?? array();
-    if (!is_array($emails) || !is_array($phones)) throw new InvalidArgumentException('Ungültige Outlook-Kontaktdaten.');
+    if (!is_array($emails) || !is_array($phones)) throw new InvalidArgumentException(berli_outlookT('INVALID_OUTLOOK_CONTACT_DATA'));
     foreach ($emails as $email) {
-        if (!is_array($email) || !is_string($email['address'] ?? null)) throw new InvalidArgumentException('Ungültige Outlook-E-Mail-Adresse.');
+        if (!is_array($email) || !is_string($email['address'] ?? null)) throw new InvalidArgumentException(berli_outlookT('INVALID_OUTLOOK_EMAIL_ADDRESS'));
     }
     $values['email'] = $emails[0]['address'] ?? '';
     $values['secondaryemail'] = $emails[1]['address'] ?? '';
     $values['phone'] = $phones[0] ?? '';
     foreach (array('businessAddress' => 'mailing', 'homeAddress' => 'other') as $addressKey => $prefix) {
         $address = $contact[$addressKey] ?? array();
-        if (!is_array($address)) throw new InvalidArgumentException('Ungültige Outlook-Adresse.');
+        if (!is_array($address)) throw new InvalidArgumentException(berli_outlookT('INVALID_OUTLOOK_ADDRESS'));
         foreach (array('street' => 'street', 'city' => 'city', 'state' => 'state', 'postalCode' => 'zip', 'countryOrRegion' => 'country') as $graph => $crm) {
             $values[$prefix . $crm] = $address[$graph] ?? '';
         }
@@ -129,14 +131,14 @@ function berli_outlookContactMap(array $contact, array $metadata)
         if (array_key_exists($name, $values) && ($field['editable'] || $name === 'assigned_user_id')) {
             $value = $values[$name];
             if (!is_string($value) || !preg_match('//u', $value) || strlen($value) > 100000) {
-                throw new InvalidArgumentException('Ungültiger Wert für ' . $field['label'] . '.');
+                throw new InvalidArgumentException(berli_outlookT('INVALID_VALUE_FOR') . $field['label'] . '.');
             }
             $value = trim($value);
             if ($field['fieldsize'] > 0 && preg_match_all('/./us', $value) > $field['fieldsize']) {
-                throw new InvalidArgumentException($field['label'] . ' überschreitet die CRM-Feldlänge.');
+                throw new InvalidArgumentException($field['label'] . berli_outlookT('EXCEEDS_THE_CRM_FIELD_LENGTH'));
             }
             if (in_array($name, array('email', 'secondaryemail'), true) && $value !== '' && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
-                throw new InvalidArgumentException('Ungültige E-Mail-Adresse im Feld ' . $field['label'] . '.');
+                throw new InvalidArgumentException(berli_outlookT('INVALID_EMAIL_ADDRESS_IN_FIELD') . $field['label'] . '.');
             }
             $fields[$name] = $value;
         }
@@ -173,7 +175,7 @@ function berli_outlookContactExport($id, array $metadata, $user)
     $contact['emailAddresses'] = array();
     foreach (array('email', 'secondaryemail') as $field) {
         if ($value($field) !== '') {
-            if (!filter_var($value($field), FILTER_VALIDATE_EMAIL)) throw new InvalidArgumentException('Der CRM-Kontakt enthält eine ungültige E-Mail-Adresse.');
+            if (!filter_var($value($field), FILTER_VALIDATE_EMAIL)) throw new InvalidArgumentException(berli_outlookT('THE_CRM_CONTACT_CONTAINS_AN_INVALID_EMAIL_ADDRESS'));
             $contact['emailAddresses'][] = array('address' => $value($field), 'name' => $contact['displayName']);
         }
     }
@@ -201,21 +203,21 @@ function berli_outlookContactExport($id, array $metadata, $user)
 function berli_outlookContactImport(array $input, array $metadata, $user)
 {
     global $adb;
-    if (!$metadata['canCreate']) throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, 'Keine Berechtigung zum Anlegen von CRM-Kontakten.');
+    if (!$metadata['canCreate']) throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, berli_outlookT('NO_PERMISSION_TO_CREATE_CRM_CONTACTS'));
     $contact = $input['contact'] ?? null;
     $account = $input['account'] ?? '';
     if (!is_array($contact) || !is_string($account) || $account === '' || strlen($account) > 1024
         || empty($contact['id']) || !is_string($contact['id']) || strlen($contact['id']) > 4096
         || preg_match('/[\x00-\x1f]/', $account . $contact['id'])) {
-        throw new InvalidArgumentException('Die Microsoft-Konto- oder Kontakt-ID fehlt oder ist ungültig.');
+        throw new InvalidArgumentException(berli_outlookT('THE_MICROSOFT_ACCOUNT_OR_CONTACT_ID_IS_MISSING_OR_INVALID'));
     }
     $mapped = berli_outlookContactMap($contact, $metadata);
     if ($mapped['missing']) return array('status' => 'skipped_missing_fields', 'missingFields' => $mapped['missing']);
     // A CRM export coming back through Outlook must not create a second CRM record.
     $properties = $contact['singleValueExtendedProperties'] ?? array();
-    if (!is_array($properties)) throw new InvalidArgumentException('Ungültige Outlook-Kontaktverknüpfung.');
+    if (!is_array($properties)) throw new InvalidArgumentException(berli_outlookT('INVALID_OUTLOOK_CONTACT_LINK'));
     foreach ($properties as $property) {
-        if (!is_array($property)) throw new InvalidArgumentException('Ungültige Outlook-Kontaktverknüpfung.');
+        if (!is_array($property)) throw new InvalidArgumentException(berli_outlookT('INVALID_OUTLOOK_CONTACT_LINK'));
         if (($property['id'] ?? '') === berli_outlookContactPropertyId() && is_string($property['value'] ?? null)
             && strpos($property['value'], $metadata['instance'] . ':') === 0) {
             $id = berli_outlookContactId(substr($property['value'], strlen($metadata['instance']) + 1));
@@ -228,13 +230,13 @@ function berli_outlookContactImport(array $input, array $metadata, $user)
     $source = hash('sha256', $account . "\n" . $contact['id']);
     $lockName = 'outlook-contact-' . substr(hash('sha256', $user->id . ':' . $source), 0, 43);
     $lock = berli_outlookContactQuery('SELECT GET_LOCK(?, 5) AS acquired', array($lockName));
-    if ((string)$adb->query_result($lock, 0, 'acquired') !== '1') throw new RuntimeException('Dieser Kontakt wird bereits übernommen.');
+    if ((string)$adb->query_result($lock, 0, 'acquired') !== '1') throw new RuntimeException(berli_outlookT('THIS_CONTACT_IS_ALREADY_BEING_TRANSFERRED'));
     try {
         $link = berli_outlookContactQuery('SELECT contactid, state FROM vtiger_outlook_contact_link WHERE userid = ? AND sourcehash = ?', array((int)$user->id, $source));
         if ($adb->num_rows($link)) {
             $row = $adb->fetchByAssoc($link, -1, false);
             if ($row['state'] !== 'ready' || empty($row['contactid'])) {
-                throw new RuntimeException('Eine frühere Kontaktübernahme wurde nicht eindeutig bestätigt. Bitte administrativ prüfen lassen; es wird kein weiterer Kontakt angelegt.');
+                throw new RuntimeException(berli_outlookT('AN_EARLIER_CONTACT_TRANSFER_WAS_NOT_UNAMBIGUOUSLY_CONFIRMED_PLEASE_ASK_A'));
             }
             vtws_retrieve(berli_outlookContactId($row['contactid']), $user);
             return array('status' => 'skipped_existing', 'recordId' => $row['contactid']);
@@ -243,7 +245,7 @@ function berli_outlookContactImport(array $input, array $metadata, $user)
         if (!empty($mapped['fields']['email'])) {
             $email = str_replace(array('\\', "'"), array('\\\\', "''"), $mapped['fields']['email']);
             $existing = vtws_query("select id from Contacts where email = '$email' limit 2;", $user);
-            if (count($existing) > 1) return array('status' => 'skipped_duplicate', 'message' => 'Mehrere lesbare CRM-Kontakte mit derselben E-Mail-Adresse.');
+            if (count($existing) > 1) return array('status' => 'skipped_duplicate', 'message' => berli_outlookT('MULTIPLE_READABLE_CRM_CONTACTS_HAVE_THE_SAME_EMAIL_ADDRESS'));
             if (count($existing) === 1) $id = berli_outlookContactId($existing[0]['id']);
         }
         berli_outlookContactQuery('INSERT INTO vtiger_outlook_contact_link (userid, sourcehash, contactid, state) VALUES (?, ?, NULL, ?)', array((int)$user->id, $source, 'pending'));
@@ -274,7 +276,7 @@ function berli_outlookContactImport(array $input, array $metadata, $user)
 function berli_outlookContactTransfer($input, $user)
 {
     if (!is_array($input) || !in_array($input['mode'] ?? '', array('describe', 'export', 'import'), true)) {
-        throw new InvalidArgumentException('Ungültige Kontaktaktion.');
+        throw new InvalidArgumentException(berli_outlookT('INVALID_CONTACT_ACTION'));
     }
     $metadata = berli_outlookContactDescription($user);
     if ($input['mode'] === 'describe') return $metadata;

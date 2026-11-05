@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Installs the Word add-in menu and both mail-merge web services from the CLI.
+ * Installs the Word add-in menu and mail-merge web services and authenticated language preferences from the CLI.
  *
  * Run: php wordplugin-officejs/build/registerWordMailMergeOperation.php
  * Resolves the CRM root relative to this file, loads the configured CRM runtime

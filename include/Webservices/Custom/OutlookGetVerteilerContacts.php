@@ -4,6 +4,8 @@
  *
  * @package berliCRM.OfficeAddins
  */
+require_once dirname(__DIR__, 2) . '/utils/OfficeAddinI18n.php';
+
 
 require_once 'include/Webservices/Retrieve.php';
 
@@ -20,14 +22,14 @@ function berli_outlookGetVerteilerContacts($verteilerId, $user)
     global $adb;
 
     if (!is_string($verteilerId) || !preg_match('/^[1-9][0-9]*x[1-9][0-9]*$/D', $verteilerId)) {
-        throw new WebServiceException(WebServiceErrorCode::$INVALIDID, 'Ungültige Verteiler-ID.');
+        throw new WebServiceException(WebServiceErrorCode::$INVALIDID, berli_outlookT('INVALID_DISTRIBUTION_LIST_ID'));
     }
     $verteilerIdComponents = vtws_getIdComponents($verteilerId);
     $verteilerObject = VtigerWebserviceObject::fromId($adb, $verteilerIdComponents[0]);
     if ($verteilerObject->getEntityName() !== 'Verteiler') {
         throw new WebServiceException(
             WebServiceErrorCode::$INVALIDID,
-            'The supplied record is not a berliCRM Verteiler.'
+            berli_outlookT('THE_SUPPLIED_RECORD_IS_NOT_A_BERLICRM_DISTRIBUTION_LIST')
         );
     }
 
@@ -42,7 +44,7 @@ function berli_outlookGetVerteilerContacts($verteilerId, $user)
         || !$verteilerMeta->exists($verteilerIdComponents[1])) {
         throw new WebServiceException(
             WebServiceErrorCode::$ACCESSDENIED,
-            'Permission to read the Verteiler is denied.'
+            berli_outlookT('PERMISSION_TO_READ_THE_DISTRIBUTION_LIST_IS_DENIED')
         );
     }
 
@@ -52,10 +54,10 @@ function berli_outlookGetVerteilerContacts($verteilerId, $user)
         array($verteilerIdComponents[1], 'Verteiler', (int)$user->id)
     );
     if ($ownerResult === false) {
-        throw new WebServiceException(WebServiceErrorCode::$DATABASEQUERYERROR, 'Verteilerzuständigkeit konnte nicht geprüft werden.');
+        throw new WebServiceException(WebServiceErrorCode::$DATABASEQUERYERROR, berli_outlookT('COULD_NOT_CHECK_DISTRIBUTION_LIST_OWNERSHIP'));
     }
     if (!$adb->num_rows($ownerResult)) {
-        throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, 'Der Verteiler ist nicht dem angemeldeten CRM-Benutzer zugewiesen.');
+        throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, berli_outlookT('THE_DISTRIBUTION_LIST_IS_NOT_ASSIGNED_TO_THE_SIGNED_IN_CRM_USER'));
     }
 
     $contactsObject = VtigerWebserviceObject::fromName($adb, 'Contacts');
@@ -68,7 +70,7 @@ function berli_outlookGetVerteilerContacts($verteilerId, $user)
     if (!$contactsMeta->hasReadAccess()) {
         throw new WebServiceException(
             WebServiceErrorCode::$ACCESSDENIED,
-            'Permission to read Contacts is denied.'
+            berli_outlookT('PERMISSION_TO_READ_CONTACTS_IS_DENIED')
         );
     }
 

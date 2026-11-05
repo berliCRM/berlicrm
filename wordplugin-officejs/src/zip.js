@@ -1,3 +1,4 @@
+import { t } from "./i18n.js?v=20261105.1";
 const CRC_TABLE = Uint32Array.from({ length: 256 }, (_, value) => {
   let crc = value;
   for (let bit = 0; bit < 8; bit += 1) {
@@ -42,10 +43,10 @@ function concatBytes(parts) {
 
 export function createZip(files) {
   if (!Array.isArray(files) || files.length === 0) {
-    throw new Error("Für die ZIP-Datei werden mindestens eine Datei benötigt.");
+    throw new Error(t("AT_LEAST_ONE_FILE_IS_REQUIRED_TO_CREATE_A_ZIP_FILE"));
   }
   if (files.length > 1000) {
-    throw new Error("Eine ZIP-Datei darf höchstens 1.000 Briefe enthalten.");
+    throw new Error(t("A_ZIP_FILE_MAY_CONTAIN_AT_MOST_1_000_LETTERS"));
   }
 
   const encoder = new TextEncoder();
@@ -56,7 +57,7 @@ export function createZip(files) {
 
   for (const file of files) {
     if (typeof file?.name !== "string" || !file.name || file.name.includes("/") || file.name.includes("\\")) {
-      throw new Error("Ungültiger Dateiname für die ZIP-Datei.");
+      throw new Error(t("INVALID_FILENAME_FOR_THE_ZIP_FILE"));
     }
 
     const nameBytes = encoder.encode(file.name);
@@ -64,7 +65,7 @@ export function createZip(files) {
       ? encoder.encode(file.content)
       : new Uint8Array(file.content);
     if (nameBytes.length > 0xffff || contentBytes.length > 0xffffffff) {
-      throw new Error("Eine Datei ist zu groß für das ZIP-Format.");
+      throw new Error(t("A_FILE_IS_TOO_LARGE_FOR_THE_ZIP_FORMAT"));
     }
     const checksum = crc32(contentBytes);
     const localHeader = new Uint8Array(30 + nameBytes.length);

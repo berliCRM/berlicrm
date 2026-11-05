@@ -19,6 +19,11 @@ test('nested REST endpoint loads its adjacent private configuration and public h
   fs.mkdirSync(endpointDir, { recursive: true });
   const sources = ['outlook.php', 'OutlookWebserviceClient.php', 'OutlookContactsConfig.php'];
   for (const name of sources) fs.copyFileSync(path.join(__dirname, '..', 'rest', name), path.join(endpointDir, name));
+  const helperDir = path.join(root, 'include', 'utils');
+  const languageDir = path.join(root, 'outlook-addin', 'languages');
+  fs.mkdirSync(helperDir, { recursive: true }); fs.mkdirSync(languageDir);
+  fs.copyFileSync(path.join(__dirname, '../../include/utils/OfficeAddinI18n.php'), path.join(helperDir, 'OfficeAddinI18n.php'));
+  for (const language of ['de_de', 'en_us']) fs.copyFileSync(path.join(__dirname, '../languages', language + '.php'), path.join(languageDir, language + '.php'));
   fs.writeFileSync(path.join(endpointDir, 'outlook.config.php'), `<?php return [
     'crm_webservice_url' => 'https://crm.example.test/installation/webservice.php',
     'api_access_key' => 'private-test-sentinel',
@@ -57,6 +62,10 @@ test('nested REST endpoint loads its adjacent private configuration and public h
     // Remove only files and directories created by this test; no recursive deletion.
     for (const name of [...sources, 'outlook.config.php']) fs.unlinkSync(path.join(endpointDir, name));
     fs.rmdirSync(endpointDir);
+    for (const language of ['de_de', 'en_us']) fs.unlinkSync(path.join(languageDir, language + '.php'));
+    fs.rmdirSync(languageDir);
+    fs.unlinkSync(path.join(helperDir, 'OfficeAddinI18n.php'));
+    fs.rmdirSync(helperDir); fs.rmdirSync(path.dirname(helperDir));
     fs.rmdirSync(path.dirname(endpointDir));
     fs.rmdirSync(root);
   }

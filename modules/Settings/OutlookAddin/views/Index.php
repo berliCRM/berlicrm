@@ -44,6 +44,7 @@ class Settings_OutlookAddin_Index_View extends Settings_Vtiger_Index_View {
         $viewer->assign('QUALIFIED_MODULE', $request->getModule(false));
         $viewer->assign('WIDTHTYPE', Users_Record_Model::getCurrentUserModel()->get('rowheight') ?: 'medium');
         $viewer->assign('CRM_URL', $site_URL);
+        $viewer->assign('ADDIN_LANGUAGE', Users_Record_Model::getCurrentUserModel()->get('language') ?: 'en_us');
         $viewer->assign('ADDIN_URLS', $urls);
         $viewer->assign('MISSING_FILES', $model->getMissingFiles());
         $viewer->assign('OPERATIONS', $operations);

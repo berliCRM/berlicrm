@@ -1,3 +1,4 @@
+const { localizedContext } = require('./language-fixture.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -42,7 +43,7 @@ function setup(options = {}) {
       },
     };
   }
-  const context = vm.createContext({
+  const context = localizedContext({
     URL,
     window: { location: { href: 'https://example.test/outlook-addin/taskpane.html' } },
     document: { getElementById: id => ({ recipientStatus: status, recipientField: field })[id] },

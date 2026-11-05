@@ -1,7 +1,7 @@
 /* global Office */
 // Diagnostic function command, following OfficeDev's TaskPane-JS example.
 // Displays an Outlook notification without reading or changing message content.
-Office.onReady(function () {});
+Office.onReady(function () { globalThis.BerliI18n.initialize(); });
 
 function diagnosticCommand(event) {
   var completed = false;
@@ -12,22 +12,22 @@ function diagnosticCommand(event) {
     }
   }
 
-  console.info('berliCRM Befehlstest: handler gestartet.');
+  console.info(globalThis.BerliI18n.t('DIAGNOSTIC_HANDLER_STARTED'));
   try {
     Office.context.mailbox.item.notificationMessages.replaceAsync(
       'berliCrmCommandDiagnostic',
       {
         type: Office.MailboxEnums.ItemNotificationMessageType.InformationalMessage,
-        message: 'berliCRM: Befehl ausgeführt (' + new Date().toISOString() + ').',
+        message: globalThis.BerliI18n.t("BERLICRM_COMMAND_EXECUTED") + new Date().toISOString() + ').',
         icon: 'icon32',
         persistent: true
       },
       function (result) {
         try {
           if (result.status === Office.AsyncResultStatus.Failed) {
-            console.error('berliCRM Befehlstest: Meldung fehlgeschlagen.', result.error);
+            console.error(globalThis.BerliI18n.t('DIAGNOSTIC_MESSAGE_FAILED'), result.error);
           } else {
-            console.info('berliCRM Befehlstest: Meldung angezeigt.');
+            console.info(globalThis.BerliI18n.t('DIAGNOSTIC_MESSAGE_SHOWN'));
           }
         } finally {
           complete();
@@ -35,7 +35,7 @@ function diagnosticCommand(event) {
       }
     );
   } catch (error) {
-    console.error('berliCRM Befehlstest: Fehler.', error);
+    console.error(globalThis.BerliI18n.t("BERLICRM_COMMAND_TEST_ERROR"), error);
     complete();
   }
 }

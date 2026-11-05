@@ -24,6 +24,7 @@
             </td></tr>
             <tr><td class="fieldLabel">{vtranslate('LBL_CHECK_CONNECTION', $QUALIFIED_MODULE)}</td><td>
                 <div id="outlookConnectionCheck"
+                    data-language="{$ADDIN_LANGUAGE|escape:'html'}"
                     data-auth-url="{if $ADDIN_URLS}{$ADDIN_URLS.redirect|escape:'html'}{/if}"
                     data-signing-in="{vtranslate('LBL_CHECK_SIGNING_IN', $QUALIFIED_MODULE)|escape:'html'}"
                     data-reading="{vtranslate('LBL_CHECK_READING', $QUALIFIED_MODULE)|escape:'html'}"

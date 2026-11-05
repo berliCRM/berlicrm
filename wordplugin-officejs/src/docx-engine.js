@@ -1,5 +1,6 @@
+import { t } from "./i18n.js?v=20261105.1";
 import { unzipSync, zipSync, strFromU8, strToU8 } from "./vendor/fflate-0.8.3.js";
-import { mergeFieldName } from "./crm-client.js?v=1.3.10";
+import { mergeFieldNames } from "./crm-client.js?v=20261105.1";
 
 export const DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
@@ -17,9 +18,9 @@ const stories = name => /^word\/(document|header[^/]*|footer[^/]*|footnotes|endn
 
 function parse(bytes, name) {
   const source = typeof bytes === "string" ? bytes : strFromU8(bytes);
-  if (/<!DOCTYPE|<!ENTITY/i.test(source)) throw new Error(`Nicht erlaubte XML-Deklaration in ${name}.`);
+  if (/<!DOCTYPE|<!ENTITY/i.test(source)) throw new Error(t("DISALLOWED_XML_DECLARATION_IN", [name]));
   const doc = new DOMParser().parseFromString(source, "application/xml");
-  if (!doc.documentElement || doc.getElementsByTagName("parsererror").length) throw new Error(`Ungültiges DOCX-XML: ${name}.`);
+  if (!doc.documentElement || doc.getElementsByTagName("parsererror").length) throw new Error(t("INVALID_DOCX_XML", [name]));
   return doc;
 }
 
@@ -82,7 +83,7 @@ function complexFields(doc) {
     for (const child of Array.from(node.childNodes || [])) visit(child);
   }
   visit(doc.documentElement);
-  if (stack.some(field => /MERGEFIELD/i.test(field.code))) throw new Error("Die Vorlage enthält ein nicht abgeschlossenes Seriendruckfeld.");
+  if (stack.some(field => /MERGEFIELD/i.test(field.code))) throw new Error(t("THE_TEMPLATE_CONTAINS_AN_UNCLOSED_MAIL_MERGE_FIELD"));
   return fields;
 }
 
@@ -155,9 +156,9 @@ function mergeStory(doc, values) {
   for (const field of complexFields(doc)) {
     const name = fieldName(field.code);
     if (!name || !values.has(name)) continue;
-    if (field.nested) throw new Error(`Verschachteltes Seriendruckfeld ${name}: Für DOCX bitte eine Vorlage ohne verschachtelte IF-Felder verwenden.`);
+    if (field.nested) throw new Error(t("NESTED_MERGE_FIELD_FOR_DOCX_PLEASE_USE_A_TEMPLATE_WITHOUT_NESTED_IF_FIEL", [name]));
     const startRun = ancestor(field.begin, "r");
-    if (!startRun) throw new Error(`Ungültiger Feldbeginn für ${name}.`);
+    if (!startRun) throw new Error(t("INVALID_FIELD_START_FOR", [name]));
     const before = startRun.cloneNode(false), properties = direct(startRun, "rPr");
     if (properties) before.appendChild(properties.cloneNode(true));
     for (const child of Array.from(startRun.childNodes)) {
@@ -191,10 +192,10 @@ function combinedNoteContent(files, storyNames) {
     const doc = parse(files[name], name);
     // Word can keep these parts even when the document has no actual notes.
     // Separator/continuation records are layout definitions, not user notes.
-    for (const [kind, label] of [["footnote", "Fußnoten"], ["endnote", "Endnoten"]]) {
+    for (const [kind, label] of [["footnote", t("FOOTNOTES")], ["endnote", t("ENDNOTES")]]) {
       if (all(doc, kind + "Reference").length || all(doc, kind).some(node => !["separator", "continuationSeparator", "continuationNotice"].includes(node.getAttributeNS(W, "type")))) found.add(label);
     }
-    if (["comment", "commentReference", "commentRangeStart", "commentRangeEnd"].some(tag => all(doc, tag).length)) found.add("Kommentare");
+    if (["comment", "commentReference", "commentRangeStart", "commentRangeEnd"].some(tag => all(doc, tag).length)) found.add(t("COMMENTS"));
   }
   return [...found];
 }
@@ -223,38 +224,39 @@ function newIds(node, state, prefix) {
 }
 
 export function prepareDocxTemplate(bytes, module) {
-  if (!(bytes instanceof Uint8Array) || bytes.length > 32 * 1024 * 1024) throw new Error("Die Word-Vorlage ist ungültig oder größer als 32 MiB.");
+  if (!(bytes instanceof Uint8Array) || bytes.length > 32 * 1024 * 1024) throw new Error(t("THE_WORD_TEMPLATE_IS_INVALID_OR_EXCEEDS_32_MIB"));
   let expanded = 0, entries = 0;
   const names = new Set();
   const files = unzipSync(bytes, { filter: entry => {
     expanded += entry.originalSize; entries++;
-    if (expanded > MAX_EXPANDED || entries > 4096 || names.has(entry.name) || entry.name.includes("\\") || entry.name.startsWith("/") || entry.name.split("/").includes("..")) throw new Error("Das DOCX-Paket ist zu groß oder enthält ungültige Teile.");
+    if (expanded > MAX_EXPANDED || entries > 4096 || names.has(entry.name) || entry.name.includes("\\") || entry.name.startsWith("/") || entry.name.split("/").includes("..")) throw new Error(t("THE_DOCX_PACKAGE_IS_TOO_LARGE_OR_CONTAINS_INVALID_PARTS"));
     names.add(entry.name); return true;
   } });
-  if (!files[MAIN] || !files["[Content_Types].xml"] || !files["_rels/.rels"]) throw new Error("Die Vorlage ist keine vollständige DOCX-Datei.");
-  if (Object.keys(files).some(name => /vbaProject|^_xmlsignatures\//i.test(name))) throw new Error("Für DOCX bitte eine Vorlage ohne Makros oder digitale Paketsignatur verwenden.");
+  if (!files[MAIN] || !files["[Content_Types].xml"] || !files["_rels/.rels"]) throw new Error(t("THE_TEMPLATE_IS_NOT_A_COMPLETE_DOCX_FILE"));
+  if (Object.keys(files).some(name => /vbaProject|^_xmlsignatures\//i.test(name))) throw new Error(t("FOR_DOCX_PLEASE_USE_A_TEMPLATE_WITHOUT_MACROS_OR_A_DIGITAL_PACKAGE_SIGNA"));
   const document = parse(files[MAIN], MAIN);
-  if (!is(document.documentElement, "document") || !direct(document.documentElement, "body")) throw new Error("Dieses Word-XML-Format wird für DOCX noch nicht unterstützt.");
+  if (!is(document.documentElement, "document") || !direct(document.documentElement, "body")) throw new Error(t("THIS_WORD_XML_FORMAT_IS_NOT_YET_SUPPORTED_FOR_DOCX"));
   const mainType = all(parse(files["[Content_Types].xml"], "[Content_Types].xml"), "Override", CT).find(node => node.getAttribute("PartName") === "/" + MAIN);
-  if (mainType?.getAttribute("ContentType") !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml") throw new Error("Die Vorlage muss als normales Word-Dokument (.docx) vorliegen.");
+  if (mainType?.getAttribute("ContentType") !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml") throw new Error(t("THE_TEMPLATE_MUST_BE_A_STANDARD_WORD_DOCUMENT_DOCX"));
   const available = new Map();
   for (const field of module.fields) {
-    const name = mergeFieldName(module, field);
-    if (available.has(name)) throw new Error(`Mehrdeutiger Seriendruckfeldname: ${name}.`);
-    available.set(name, field);
+    for (const name of mergeFieldNames(module, field)) {
+      if (available.has(name) && available.get(name).name !== field.name) throw new Error(t("AMBIGUOUS_MERGE_FIELD_NAME", [name]));
+      available.set(name, field);
+    }
   }
   const used = new Set(), storyNames = Object.keys(files).filter(stories);
   for (const name of storyNames) {
     const doc = parse(files[name], name);
-    if (["ins", "del", "moveFrom", "moveTo"].some(tag => all(doc, tag).length)) throw new Error("Für die neue DOCX-Ausgabe bitte zuerst nachverfolgte Änderungen in der Vorlage annehmen oder ablehnen.");
+    if (["ins", "del", "moveFrom", "moveTo"].some(tag => all(doc, tag).length)) throw new Error(t("FOR_DOCX_OUTPUT_PLEASE_ACCEPT_OR_REJECT_TRACKED_CHANGES_IN_THE_TEMPLATE"));
     for (const field of storyFieldNames(doc)) {
-      if (!available.has(field)) throw new Error(`Seriendruckfeld ${field} ist für das gewählte CRM-Modul nicht verfügbar.`);
+      if (!available.has(field)) throw new Error(t("MERGE_FIELD_IS_NOT_AVAILABLE_FOR_THE_SELECTED_CRM_MODULE", [field]));
       used.add(field);
     }
     const text = all(doc, "t").map(node => node.textContent).join("");
     for (const field of available.keys()) if (text.includes(`«${field}»`)) used.add(field);
   }
-  if (!used.size) throw new Error("Die DOCX-Vorlage enthält keine erkennbaren Seriendruckfelder für das gewählte Modul.");
+  if (!used.size) throw new Error(t("THE_DOCX_TEMPLATE_CONTAINS_NO_RECOGNIZABLE_MERGE_FIELDS_FOR_THE_SELECTED"));
 
   function render(record) {
     const result = { ...files };
@@ -264,7 +266,7 @@ export function prepareDocxTemplate(bytes, module) {
       const doc = parse(files[name], name);
       count += mergeStory(doc, values); result[name] = strToU8(serialize(doc));
     }
-    if (!count) throw new Error("Es konnten keine DOCX-Seriendruckfelder ersetzt werden.");
+    if (!count) throw new Error(t("NO_DOCX_MERGE_FIELDS_COULD_BE_REPLACED"));
     if (result["word/settings.xml"]) {
       const settings = parse(result["word/settings.xml"], "settings.xml");
       for (const merge of all(settings, "mailMerge")) merge.parentNode.removeChild(merge);
@@ -274,10 +276,10 @@ export function prepareDocxTemplate(bytes, module) {
   }
 
   function combined(records) {
-    if (!records.length || records.length > 1000) throw new Error("Für DOCX sind 1 bis 1.000 Datensätze erforderlich.");
+    if (!records.length || records.length > 1000) throw new Error(t("DOCX_REQUIRES_BETWEEN_1_AND_1_000_RECORDS"));
     if (records.length === 1) return pack(render(records[0]));
     const noteContent = combinedNoteContent(files, storyNames);
-    if (noteContent.length) throw new Error(`Die Vorlage enthält ${noteContent.join(", ")}. Diese Elemente werden im gemeinsamen DOCX für mehrere Empfänger noch nicht unterstützt. Bitte DOCX-Einzelbriefe als ZIP wählen; dort bleiben sie erhalten.`);
+    if (noteContent.length) throw new Error(t("THE_TEMPLATE_CONTAINS_THESE_ELEMENTS_ARE_NOT_YET_SUPPORTED_IN_COMBINED_D", [noteContent.join(", ")]));
     const output = render(records[0]);
     const main = parse(output[MAIN], MAIN), body = direct(main.documentElement, "body");
     while (body.firstChild) body.removeChild(body.firstChild);
@@ -310,7 +312,7 @@ export function prepareDocxTemplate(bytes, module) {
     for (const [index, record] of records.entries()) {
       const part = render(record), doc = parse(part[MAIN], MAIN), partBody = direct(doc.documentElement, "body");
       combinedLength += part[MAIN].length;
-      if (combinedLength > 48 * 1024 * 1024) throw new Error("Der gemeinsame DOCX-Serienbrief wird zu groß. Bitte weniger Datensätze oder Einzelbriefe wählen.");
+      if (combinedLength > 48 * 1024 * 1024) throw new Error(t("THE_COMBINED_DOCX_DOCUMENT_WOULD_BE_TOO_LARGE_PLEASE_SELECT_FEWER_RECORD"));
       const prefix = `bcrm${index + 1}_`, relMap = new Map(), numMap = new Map();
       if (index && numbering) for (const num of originalNums) {
         const copy = num.cloneNode(true), id = String(++nextNum);
@@ -319,9 +321,9 @@ export function prepareDocxTemplate(bytes, module) {
       const remap = node => { newIds(node, state, prefix); for (const num of all(node, "numId")) if (numMap.has(num.getAttributeNS(W, "val"))) num.setAttributeNS(W, "w:val", numMap.get(num.getAttributeNS(W, "val"))); };
       for (const relation of baseRels.filter(node => /\/(header|footer)$/.test(node.getAttribute("Type")))) {
         const target = relation.getAttribute("Target");
-        if (target.includes("/") || target.includes("..") || relation.getAttribute("TargetMode") === "External") throw new Error("Ungewöhnlicher Kopf-/Fußzeilenpfad: Bitte DOCX-Einzelbriefe wählen.");
+        if (target.includes("/") || target.includes("..") || relation.getAttribute("TargetMode") === "External") throw new Error(t("UNUSUAL_HEADER_FOOTER_PATH_PLEASE_SELECT_INDIVIDUAL_DOCX_LETTERS"));
         const oldName = "word/" + target, newName = "word/" + prefix + target;
-        if (!part[oldName]) throw new Error("Kopf- oder Fußzeile fehlt in der DOCX-Vorlage.");
+        if (!part[oldName]) throw new Error(t("A_HEADER_OR_FOOTER_IS_MISSING_FROM_THE_DOCX_TEMPLATE"));
         const header = parse(part[oldName], oldName); remap(header); output[newName] = strToU8(serialize(header));
         const oldRelName = "word/_rels/" + target + ".rels", newRelName = "word/_rels/" + prefix + target + ".rels";
         if (part[oldRelName]) output[newRelName] = part[oldRelName];
@@ -337,7 +339,7 @@ export function prepareDocxTemplate(bytes, module) {
         if (relMap.has(oldId)) reference.setAttributeNS(R, "r:id", relMap.get(oldId));
       }
       const finalSection = direct(partBody, "sectPr");
-      if (!finalSection) throw new Error("Die DOCX-Vorlage enthält keine abschließenden Abschnittseinstellungen.");
+      if (!finalSection) throw new Error(t("THE_DOCX_TEMPLATE_HAS_NO_FINAL_SECTION_SETTINGS"));
       const firstSection = all(partBody, "sectPr")[0];
       for (const empty of emptyReferences) {
         const reference = doc.createElementNS(W, "w:" + empty.tag);
@@ -374,23 +376,23 @@ export function prepareDocxTemplate(bytes, module) {
     if (numbering) output["word/numbering.xml"] = strToU8(serialize(numbering));
     return pack(output);
   }
-  return { fields: [...used].map(name => available.get(name)), single: record => pack(render(record)), combined };
+  return { fields: [...new Set([...used].map(name => available.get(name)))], single: record => pack(render(record)), combined };
 }
 
 export async function readWordDocx(office) {
-  if (!office?.context?.document?.getFileAsync || !office.FileType?.Compressed) throw new Error("Diese Word-Version unterstützt den vollständigen DOCX-Export nicht. Bitte die bisherige Ausgabe wählen.");
+  if (!office?.context?.document?.getFileAsync || !office.FileType?.Compressed) throw new Error(t("THIS_WORD_VERSION_DOES_NOT_SUPPORT_FULL_DOCX_EXPORT_PLEASE_SELECT_THE_LE"));
   const ok = office.AsyncResultStatus.Succeeded;
-  const file = await new Promise((resolve, reject) => office.context.document.getFileAsync(office.FileType.Compressed, { sliceSize: 65536 }, result => result.status === ok ? resolve(result.value) : reject(new Error(result.error?.message || "Die Word-Datei konnte nicht gelesen werden."))));
+  const file = await new Promise((resolve, reject) => office.context.document.getFileAsync(office.FileType.Compressed, { sliceSize: 65536 }, result => result.status === ok ? resolve(result.value) : reject(new Error(result.error?.message || t("COULD_NOT_READ_THE_WORD_FILE")))));
   try {
-    if (!file || file.size > 32 * 1024 * 1024 || !Number.isInteger(file.sliceCount) || file.sliceCount < 1 || file.sliceCount > 8192) throw new Error("Die Word-Datei ist ungültig oder größer als 32 MiB.");
+    if (!file || file.size > 32 * 1024 * 1024 || !Number.isInteger(file.sliceCount) || file.sliceCount < 1 || file.sliceCount > 8192) throw new Error(t("THE_WORD_FILE_IS_INVALID_OR_EXCEEDS_32_MIB"));
     const chunks = []; let length = 0;
     for (let index = 0; index < file.sliceCount; index++) {
-      const slice = await new Promise((resolve, reject) => file.getSliceAsync(index, result => result.status === ok ? resolve(result.value) : reject(new Error(result.error?.message || "Ein Teil der Word-Datei konnte nicht gelesen werden."))));
-      if (slice.index !== index || !slice.data || slice.data.length !== slice.size) throw new Error("Word hat einen unvollständigen Dateiteil geliefert.");
+      const slice = await new Promise((resolve, reject) => file.getSliceAsync(index, result => result.status === ok ? resolve(result.value) : reject(new Error(result.error?.message || t("COULD_NOT_READ_PART_OF_THE_WORD_FILE")))));
+      if (slice.index !== index || !slice.data || slice.data.length !== slice.size) throw new Error(t("WORD_RETURNED_AN_INCOMPLETE_FILE_PART"));
       const bytes = new Uint8Array(slice.data); chunks.push(bytes); length += bytes.length;
-      if (length > 32 * 1024 * 1024) throw new Error("Die Word-Datei ist zu groß.");
+      if (length > 32 * 1024 * 1024) throw new Error(t("THE_WORD_FILE_IS_TOO_LARGE"));
     }
-    if (length !== file.size) throw new Error("Die vollständige Word-Datei konnte nicht gelesen werden.");
+    if (length !== file.size) throw new Error(t("COULD_NOT_READ_THE_COMPLETE_WORD_FILE"));
     const bytes = new Uint8Array(length); let offset = 0;
     for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
     return bytes;

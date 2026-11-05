@@ -4,6 +4,8 @@
  *
  * @package berliCRM.OfficeAddins
  */
+require_once dirname(__DIR__, 2) . '/utils/OfficeAddinI18n.php';
+
 
 require_once 'include/Webservices/Create.php';
 require_once 'include/Webservices/Revise.php';
@@ -25,7 +27,7 @@ function berli_outlookCalendarQuery($sql, array $params)
     $result = $adb->pquery($sql, $params);
     if ($result === false) {
         throw new WebServiceException(WebServiceErrorCode::$DATABASEQUERYERROR,
-            'Die Outlook-Terminverknüpfung konnte nicht gelesen oder gespeichert werden. Bitte den Outlook-Installer ausführen.');
+            berli_outlookT('COULD_NOT_READ_OR_SAVE_THE_OUTLOOK_APPOINTMENT_LINK_PLEASE_RUN_THE_OUTLO'));
     }
     return $result;
 }
@@ -45,7 +47,7 @@ function berli_outlookCalendarSource(array $input, $requireId)
     if (!is_string($mailbox) || !filter_var($mailbox, FILTER_VALIDATE_EMAIL)
         || !is_string($itemId) || strlen($itemId) > 4096 || preg_match('/[\x00-\x1f]/', $itemId)
         || ($requireId && $itemId === '')) {
-        throw new InvalidArgumentException('Die Outlook-Postfach- oder Termin-ID fehlt oder ist ungültig.');
+        throw new InvalidArgumentException(berli_outlookT('THE_OUTLOOK_MAILBOX_OR_APPOINTMENT_ID_IS_MISSING_OR_INVALID'));
     }
     return $itemId === '' ? null : hash('sha256', strtolower(trim($mailbox)) . "\n" . $itemId);
 }
@@ -74,12 +76,12 @@ function berli_outlookCalendarLink($sourceHash, $user)
     }
     $link = $adb->fetchByAssoc($result, -1, false);
     if ($link['state'] !== 'ready' || empty($link['eventid'])) {
-        throw new RuntimeException('Eine frühere Übernahme dieses Termins wurde nicht eindeutig bestätigt. '
-            . 'Bitte die Verknüpfung administrativ prüfen lassen; es wird kein weiterer Termin angelegt.');
+        throw new RuntimeException(berli_outlookT('AN_EARLIER_TRANSFER_OF_THIS_APPOINTMENT_WAS_NOT_UNAMBIGUOUSLY_CONFIRMED')
+            . berli_outlookT('PLEASE_ASK_AN_ADMINISTRATOR_TO_CHECK_THE_LINK_NO_FURTHER_APPOINTMENT_WIL'));
     }
     $object = VtigerWebserviceObject::fromName($adb, 'Events');
     if (!preg_match('/^' . preg_quote((string)$object->getEntityId(), '/') . 'x[1-9][0-9]*$/D', $link['eventid'])) {
-        throw new RuntimeException('Die gespeicherte CRM-Terminverknüpfung ist ungültig.');
+        throw new RuntimeException(berli_outlookT('THE_SAVED_CRM_APPOINTMENT_LINK_IS_INVALID'));
     }
     // Recheck record access even when only displaying the saved link.
     vtws_retrieve($link['eventid'], $user);
@@ -98,7 +100,7 @@ function berli_outlookCalendarTimeFormat($user)
     $dateFormat = !empty($user->date_format) ? $user->date_format : 'dd-mm-yyyy';
     $formats = array('dd-mm-yyyy' => 'd-m-Y', 'mm-dd-yyyy' => 'm-d-Y', 'yyyy-mm-dd' => 'Y-m-d');
     if (!isset($formats[$dateFormat])) {
-        throw new InvalidArgumentException('Das persönliche CRM-Datumsformat wird nicht unterstützt.');
+        throw new InvalidArgumentException(berli_outlookT('YOUR_PREFERRED_CRM_DATE_FORMAT_IS_NOT_SUPPORTED'));
     }
     return $formats[$dateFormat] . ((string)($user->hour_format ?? '24') === '12' ? ' h:i A' : ' H:i');
 }
@@ -125,13 +127,13 @@ function berli_outlookCalendarTimezone($user)
 function berli_outlookCalendarUtc($value)
 {
     if (!is_string($value) || !preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/D', $value)) {
-        throw new InvalidArgumentException('Der Outlook-Termin enthält einen ungültigen Zeitpunkt.');
+        throw new InvalidArgumentException(berli_outlookT('THE_OUTLOOK_APPOINTMENT_CONTAINS_AN_INVALID_TIME'));
     }
     $format = strpos($value, '.') !== false ? '!Y-m-d\TH:i:s.v\Z' : '!Y-m-d\TH:i:s\Z';
     $date = DateTimeImmutable::createFromFormat($format, $value, new DateTimeZone('UTC'));
     $errors = DateTimeImmutable::getLastErrors();
     if (!$date || ($errors && ($errors['warning_count'] || $errors['error_count']))) {
-        throw new InvalidArgumentException('Der Outlook-Termin enthält ein ungültiges Datum.');
+        throw new InvalidArgumentException(berli_outlookT('THE_OUTLOOK_APPOINTMENT_CONTAINS_AN_INVALID_DATE'));
     }
     return $date;
 }
@@ -150,7 +152,7 @@ function berli_outlookCalendarParseEditedTime($value, $originalUtc, $user)
     $format = berli_outlookCalendarTimeFormat($user);
     $zone = berli_outlookCalendarTimezone($user);
     if (!is_string($value) || strlen($value) > 40) {
-        throw new InvalidArgumentException('Beginn und Ende müssen im persönlichen CRM-Datumsformat angegeben werden.');
+        throw new InvalidArgumentException(berli_outlookT('START_AND_END_MUST_USE_YOUR_PREFERRED_CRM_DATE_FORMAT'));
     }
     // Preserve the Outlook instant at the autumn DST overlap, including seconds.
     $original = berli_outlookCalendarUtc($originalUtc);
@@ -160,13 +162,13 @@ function berli_outlookCalendarParseEditedTime($value, $originalUtc, $user)
     $date = DateTimeImmutable::createFromFormat('!' . $format, $value, $zone);
     $errors = DateTimeImmutable::getLastErrors();
     if (!$date || ($errors && ($errors['warning_count'] || $errors['error_count'])) || $date->format($format) !== $value) {
-        throw new InvalidArgumentException('Beginn oder Ende ist ungültig oder entspricht nicht dem persönlichen CRM-Datumsformat.');
+        throw new InvalidArgumentException(berli_outlookT('START_OR_END_IS_INVALID_OR_DOES_NOT_MATCH_YOUR_PREFERRED_CRM_DATE_FORMAT'));
     }
     // A changed local time occurring twice cannot be resolved without an offset.
     foreach ($zone->getTransitions($date->getTimestamp() - 86400, $date->getTimestamp() + 86400) ?: array() as $transition) {
         $candidate = (new DateTimeImmutable('@' . ($date->getTimestamp() + $date->getOffset() - $transition['offset'])))->setTimezone($zone);
         if ($candidate->getTimestamp() !== $date->getTimestamp() && $candidate->format($format) === $value) {
-            throw new InvalidArgumentException('Diese Uhrzeit kommt bei der Zeitumstellung zweimal vor. Bitte die Zeit in Outlook ändern und erneut übernehmen.');
+            throw new InvalidArgumentException(berli_outlookT('THIS_TIME_OCCURS_TWICE_DURING_THE_DAYLIGHT_SAVING_TRANSITION_PLEASE_CHAN'));
         }
     }
     return $date;
@@ -188,12 +190,12 @@ function berli_outlookCalendarFields(array $input, $user)
     if (!is_string($subject) || !preg_match('/^.{1,255}$/us', trim($subject))
         || !is_string($location) || !preg_match('/^.{0,255}$/us', $location)
         || !is_string($description) || strlen($description) > 100000) {
-        throw new InvalidArgumentException('Bitte Betreff (maximal 255 Zeichen), Ort (maximal 255 Zeichen) und Beschreibung prüfen.');
+        throw new InvalidArgumentException(berli_outlookT('PLEASE_CHECK_THE_SUBJECT_AT_MOST_255_CHARACTERS_LOCATION_AT_MOST_255_CHA'));
     }
     $start = berli_outlookCalendarParseEditedTime($input['start'] ?? '', $input['originalStart'] ?? '', $user);
     $end = berli_outlookCalendarParseEditedTime($input['end'] ?? '', $input['originalEnd'] ?? '', $user);
     if ($end <= $start) {
-        throw new InvalidArgumentException('Das Terminende muss nach dem Beginn liegen.');
+        throw new InvalidArgumentException(berli_outlookT('THE_APPOINTMENT_MUST_END_AFTER_IT_STARTS'));
     }
     // Standard CRM web services take database dates/times; their field sanitizers
     // perform the later user-format conversion required by CRMEntity::save.
@@ -223,7 +225,7 @@ function berli_outlookCalendarEvent($input, $user)
 {
     global $adb;
     if (!is_array($input) || !in_array($input['mode'] ?? '', array('prepare', 'save'), true)) {
-        throw new InvalidArgumentException('Ungültige Kalenderaktion.');
+        throw new InvalidArgumentException(berli_outlookT('INVALID_CALENDAR_ACTION'));
     }
     $save = $input['mode'] === 'save';
     $sourceHash = berli_outlookCalendarSource($input, $save);
@@ -233,7 +235,7 @@ function berli_outlookCalendarEvent($input, $user)
         $start = berli_outlookCalendarUtc($input['originalStart'] ?? '');
         $end = berli_outlookCalendarUtc($input['originalEnd'] ?? '');
         if ($end <= $start) {
-            throw new InvalidArgumentException('Das Terminende muss nach dem Beginn liegen.');
+            throw new InvalidArgumentException(berli_outlookT('THE_APPOINTMENT_MUST_END_AFTER_IT_STARTS'));
         }
         $format = berli_outlookCalendarTimeFormat($user);
         return array(
@@ -247,7 +249,7 @@ function berli_outlookCalendarEvent($input, $user)
     $lockName = 'outlook-event-' . substr(hash('sha256', (string)$user->id . ':' . $sourceHash), 0, 45);
     $lock = berli_outlookCalendarQuery('SELECT GET_LOCK(?, 5) AS acquired', array($lockName));
     if ((string)$adb->query_result($lock, 0, 'acquired') !== '1') {
-        throw new RuntimeException('Dieser Termin wird bereits übernommen. Bitte gleich erneut versuchen.');
+        throw new RuntimeException(berli_outlookT('THIS_APPOINTMENT_IS_ALREADY_BEING_TRANSFERRED_PLEASE_TRY_AGAIN_SHORTLY'));
     }
     try {
         $eventId = berli_outlookCalendarLink($sourceHash, $user);
@@ -256,7 +258,7 @@ function berli_outlookCalendarEvent($input, $user)
             return array('eventId' => $event['id'], 'updated' => true);
         }
         if (empty($display['canCreate'])) {
-            throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, 'Keine Berechtigung zum Anlegen von CRM-Terminen.');
+            throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, berli_outlookT('NO_PERMISSION_TO_CREATE_CRM_APPOINTMENTS'));
         }
         // Durable reservation prevents a retry after an uncertain HTTP/PHP failure
         // from creating a second event. Only the installer creates the link table.
@@ -270,7 +272,7 @@ function berli_outlookCalendarEvent($input, $user)
             'activitytype' => 'Meeting', 'eventstatus' => 'Planned', 'visibility' => 'Private'
         )), $user);
         if (!is_array($event) || empty($event['id'])) {
-            throw new RuntimeException('Das CRM hat die Terminanlage nicht eindeutig bestätigt.');
+            throw new RuntimeException(berli_outlookT('THE_CRM_DID_NOT_UNAMBIGUOUSLY_CONFIRM_THAT_THE_APPOINTMENT_WAS_CREATED'));
         }
         berli_outlookCalendarQuery(
             'UPDATE vtiger_outlook_calendar_link SET eventid = ?, state = ? WHERE userid = ? AND sourcehash = ?',

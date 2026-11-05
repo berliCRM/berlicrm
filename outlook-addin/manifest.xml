@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from manifest.template.xml and languages/*.php. -->
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0" xsi:type="MailApp">
   <Id>4fbaf5e4-1f93-4c85-9cbf-128c7d8a1909</Id>
-  <Version>1.0.15.4</Version>
+  <Version>1.1.0.0</Version>
   <ProviderName>berliCRM</ProviderName>
   <DefaultLocale>de-DE</DefaultLocale>
   <DisplayName DefaultValue="berliCRM Outlook"/>
-  <Description DefaultValue="Outlook-Add-in für berliCRM mit Kontakt-, Termin- und E-Mail-Integration."/>
+  <Description DefaultValue="Outlook-Add-in für berliCRM mit Kontakt-, Termin- und E-Mail-Integration."><Override Locale="en-US" Value="Outlook add-in for berliCRM with contacts, calendar and email integration."/></Description>
   <IconUrl DefaultValue="https://crm.example.org/outlook-addin/assets/icon-32.png"/>
   <HighResolutionIconUrl DefaultValue="https://crm.example.org/outlook-addin/assets/icon-80.png"/>
   <SupportUrl DefaultValue="https://crm.example.org/"/>
@@ -151,13 +152,13 @@
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="groupLabel" DefaultValue="berliCRM"/>
-        <bt:String id="readPaneButtonLabel" DefaultValue="berliCRM öffnen"/>
-        <bt:String id="composePaneButtonLabel" DefaultValue="berliCRM öffnen"/>
+        <bt:String id="readPaneButtonLabel" DefaultValue="berliCRM öffnen"><bt:Override Locale="en-US" Value="Open berliCRM"/></bt:String>
+        <bt:String id="composePaneButtonLabel" DefaultValue="berliCRM öffnen"><bt:Override Locale="en-US" Value="Open berliCRM"/></bt:String>
       </bt:ShortStrings>
       <bt:LongStrings>
-        <bt:String id="readPaneButtonDesc" DefaultValue="berliCRM öffnen und zugehörige CRM-Daten anzeigen."/>
-        <bt:String id="composePaneButtonDesc" DefaultValue="berliCRM öffnen und E-Mails mit CRM-Verknüpfung senden."/>
-        <bt:String id="calendarPaneButtonDesc" DefaultValue="Outlook-Termin im CRM ablegen oder aktualisieren."/>
+        <bt:String id="readPaneButtonDesc" DefaultValue="berliCRM öffnen und zugehörige CRM-Daten anzeigen."><bt:Override Locale="en-US" Value="Open berliCRM and display related CRM data."/></bt:String>
+        <bt:String id="composePaneButtonDesc" DefaultValue="berliCRM öffnen und E-Mails mit CRM-Verknüpfung senden."><bt:Override Locale="en-US" Value="Open berliCRM and send emails linked to CRM records."/></bt:String>
+        <bt:String id="calendarPaneButtonDesc" DefaultValue="Outlook-Termin im CRM ablegen oder aktualisieren."><bt:Override Locale="en-US" Value="Save or update the Outlook appointment in CRM."/></bt:String>
       </bt:LongStrings>
     </Resources>
     <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">
@@ -273,13 +274,13 @@
         </bt:Urls>
         <bt:ShortStrings>
           <bt:String id="groupLabel" DefaultValue="berliCRM"/>
-          <bt:String id="readPaneButtonLabel" DefaultValue="berliCRM öffnen"/>
-          <bt:String id="composePaneButtonLabel" DefaultValue="berliCRM öffnen"/>
+          <bt:String id="readPaneButtonLabel" DefaultValue="berliCRM öffnen"><bt:Override Locale="en-US" Value="Open berliCRM"/></bt:String>
+          <bt:String id="composePaneButtonLabel" DefaultValue="berliCRM öffnen"><bt:Override Locale="en-US" Value="Open berliCRM"/></bt:String>
         </bt:ShortStrings>
         <bt:LongStrings>
-          <bt:String id="readPaneButtonDesc" DefaultValue="berliCRM öffnen und zugehörige CRM-Daten anzeigen."/>
-          <bt:String id="composePaneButtonDesc" DefaultValue="berliCRM öffnen und E-Mails mit CRM-Verknüpfung senden."/>
-          <bt:String id="calendarPaneButtonDesc" DefaultValue="Outlook-Termin im CRM ablegen oder aktualisieren."/>
+          <bt:String id="readPaneButtonDesc" DefaultValue="berliCRM öffnen und zugehörige CRM-Daten anzeigen."><bt:Override Locale="en-US" Value="Open berliCRM and display related CRM data."/></bt:String>
+          <bt:String id="composePaneButtonDesc" DefaultValue="berliCRM öffnen und E-Mails mit CRM-Verknüpfung senden."><bt:Override Locale="en-US" Value="Open berliCRM and send emails linked to CRM records."/></bt:String>
+          <bt:String id="calendarPaneButtonDesc" DefaultValue="Outlook-Termin im CRM ablegen oder aktualisieren."><bt:Override Locale="en-US" Value="Save or update the Outlook appointment in CRM."/></bt:String>
         </bt:LongStrings>
       </Resources>
     </VersionOverrides>

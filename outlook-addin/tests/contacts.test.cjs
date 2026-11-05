@@ -1,3 +1,4 @@
+const { localizedContext } = require('./language-fixture.cjs');
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -16,7 +17,7 @@ const metadata = { ownerId: '19x3', fields: [
 test('default browser transport keeps the Window receiver when reading and creating contacts', async () => {
   let browserGlobal;
   const calls = [];
-  const context = vm.createContext({ URL, URLSearchParams,
+  const context = localizedContext({ URL, URLSearchParams,
     fetch: function (url, options) {
       // Native browser fetch rejects a GraphClient instance as its receiver.
       if (this !== browserGlobal) throw new TypeError("Failed to execute 'fetch' on 'Window': Illegal invocation");

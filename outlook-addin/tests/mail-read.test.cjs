@@ -1,3 +1,4 @@
+const { localizedContext } = require('./language-fixture.cjs');
 const assert = require('node:assert/strict');
 const { test } = require('node:test');
 const fs = require('node:fs');
@@ -27,7 +28,7 @@ function setup(options = {}) {
     getAttachmentContentAsync(id, callback) { callback({status:'ok',value:options.fileContent || {format:'base64',content:'SGVsbG8='}}); },
   };
   const mailbox = { item, userProfile:{ emailAddress:'owner@example.test' }, addHandlerAsync(event, callback){changed=callback;} };
-  const context = vm.createContext({ URL, TextEncoder, btoa, window:{location:{href:'https://crm.example.test/outlook-addin/taskpane.html'},localStorage:{getItem:key=>stored.get(key)||null,removeItem:key=>stored.delete(key),setItem:(key,value)=>stored.set(key,value)}},
+  const context = localizedContext({ URL, TextEncoder, btoa, window:{location:{href:'https://crm.example.test/outlook-addin/taskpane.html'},localStorage:{getItem:key=>stored.get(key)||null,removeItem:key=>stored.delete(key),setItem:(key,value)=>stored.set(key,value)}},
     document:{getElementById:element,createElement:()=>new Element(),querySelectorAll:()=>sections},
     Office:{onReady(callback){context.ready=callback;},context:{mailbox},AsyncResultStatus:{Succeeded:'ok'},CoercionType:{Html:'html'},EventType:{ItemChanged:'changed'}},
     fetch:async (url,init)=>{

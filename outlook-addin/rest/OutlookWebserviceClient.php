@@ -4,6 +4,8 @@
  *
  * @package berliCRM.OfficeAddins
  */
+require_once dirname(__DIR__, 2) . '/include/utils/OfficeAddinI18n.php';
+
 
 /** Sends authenticated CRM webservice requests for the Outlook JSON gateway. */
 class OutlookWebserviceClient
@@ -34,7 +36,7 @@ class OutlookWebserviceClient
         $this->apiAccessKey = $config['api_access_key'] ?? '';
 
         if (empty($this->endpointUrl)) {
-            throw new InvalidArgumentException('CRM-Webservice-URL ist nicht konfiguriert.');
+            throw new InvalidArgumentException(berli_outlookT('THE_CRM_WEBSERVICE_URL_IS_NOT_CONFIGURED'));
         }
         if (strpos($this->endpointUrl, '.php') === false) {
             $this->endpointUrl .= '/webservice.php';
@@ -60,7 +62,7 @@ class OutlookWebserviceClient
         ], 'POST');
 
         if (!is_array($result)) {
-            throw new RuntimeException('Login: Ungültige Antwort vom CRM.');
+            throw new RuntimeException(berli_outlookT('SIGN_IN_INVALID_RESPONSE_FROM_CRM'));
         }
 
         return $result;
@@ -126,7 +128,7 @@ class OutlookWebserviceClient
     public function loginWithApiUser(): array
     {
         if (empty($this->apiUsername) || empty($this->apiAccessKey)) {
-            throw new RuntimeException('API-Benutzer für automatische Anmeldung ist nicht konfiguriert.');
+            throw new RuntimeException(berli_outlookT('THE_API_USER_FOR_AUTOMATIC_SIGN_IN_IS_NOT_CONFIGURED'));
         }
         return $this->login($this->apiUsername, $this->apiAccessKey);
     }
@@ -142,7 +144,7 @@ class OutlookWebserviceClient
     {
         $result = $this->callOperation('getchallenge', ['username' => $username], 'GET');
         if (!is_array($result) || !is_string($result['token'] ?? null) || $result['token'] === '') {
-            throw new RuntimeException('Challenge konnte nicht angefordert werden.');
+            throw new RuntimeException(berli_outlookT('COULD_NOT_REQUEST_A_CHALLENGE'));
         }
         return $result['token'];
     }
@@ -196,7 +198,7 @@ class OutlookWebserviceClient
         if ($response === false) {
             $this->lastError = curl_error($curl);
             unset($curl);
-            throw new RuntimeException('CRM-Anfrage fehlgeschlagen: ' . $this->lastError);
+            throw new RuntimeException(berli_outlookT('CRM_REQUEST_FAILED') . $this->lastError);
         }
 
         $httpStatus = (int)curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -216,10 +218,10 @@ class OutlookWebserviceClient
             } elseif (trim($response) === 'Unknown operation requested') {
                 // OperationManager can fail before assignment in webservice.php.
                 // That error is returned as plain text instead of a JSON envelope.
-                $message = 'Unknown operation requested: Die Webservice-Operation ist nicht registriert.';
+                $message = berli_outlookT('UNKNOWN_OPERATION_REQUESTED_THE_WEBSERVICE_OPERATION_IS_NOT_REGISTERED');
             }
 
-            $error = "CRM-Webservice-Operation '$operationName' ist mit HTTP-Status $httpStatus fehlgeschlagen.";
+            $error = berli_outlookT('CRM_WEBSERVICE_OPERATION_FAILED_WITH_HTTP_STATUS', array($operationName, $httpStatus));
             if ($message !== '') {
                 $error .= ' ' . substr($message, 0, 300);
             }
@@ -228,17 +230,17 @@ class OutlookWebserviceClient
 
         $decoded = json_decode($response, true);
         if (!is_array($decoded)) {
-            throw new RuntimeException('Ungültige JSON-Antwort vom CRM: ' . $response);
+            throw new RuntimeException(berli_outlookT('INVALID_JSON_RESPONSE_FROM_CRM') . $response);
         }
 
         if (isset($decoded['success']) && $decoded['success'] === false) {
             $message = $decoded['error']['message'] ?? json_encode($decoded['error']);
-            throw new RuntimeException('CRM-Fehler: ' . $message);
+            throw new RuntimeException(berli_outlookT('CRM_ERROR') . $message);
         }
 
         $result = $decoded['result'] ?? $decoded;
         if (!is_array($result)) {
-            throw new RuntimeException('Ungültige CRM-Ergebnisstruktur.');
+            throw new RuntimeException(berli_outlookT('INVALID_CRM_RESULT_STRUCTURE'));
         }
         return $result;
     }

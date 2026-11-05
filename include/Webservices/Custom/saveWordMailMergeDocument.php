@@ -8,6 +8,8 @@
  *
  * @package berliCRM.WordAddin
  */
+require_once dirname(__DIR__, 2) . '/utils/OfficeAddinI18n.php';
+
 
 global $root_directory;
 
@@ -32,23 +34,23 @@ function berli_saveWordMailMergeDocument($moduleName, $listId, $recordId, $notes
 
 	$allowedModules = array('Contacts', 'Accounts', 'Leads', 'HelpDesk');
 	if (!in_array($moduleName, $allowedModules, true)) {
-		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, 'Dieses Modul ist für den Word-Seriendruck nicht freigegeben.');
+		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, berli_wordT('THIS_MODULE_IS_NOT_ENABLED_FOR_WORD_MAIL_MERGE'));
 	}
 
 	$types = vtws_listtypes(null, $user);
 	if (!in_array($moduleName, $types['types'], true) || !in_array('Documents', $types['types'], true)) {
-		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, 'Sie dürfen das CRM-Modul oder Dokumente nicht verwenden.');
+		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, berli_wordT('YOU_DO_NOT_HAVE_PERMISSION_TO_USE_THIS_CRM_MODULE_OR_DOCUMENTS'));
 	}
 
 	$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
 	$documentsModuleModel = Vtiger_Module_Model::getInstance('Documents');
 	if (!$moduleModel || !$moduleModel->isPermitted('DetailView')
 		|| !$documentsModuleModel || !$documentsModuleModel->isPermitted('CreateView')) {
-		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, 'Sie dürfen den Datensatz oder Dokumente nicht verwenden.');
+		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, berli_wordT('YOU_DO_NOT_HAVE_PERMISSION_TO_USE_THIS_RECORD_OR_DOCUMENTS'));
 	}
 
 	if (!ctype_digit((string) $recordId) || (int) $recordId < 1 || empty($listId)) {
-		throw new WebServiceException(WebServiceErrorCode::$INVALIDID, 'Ungültige Datensatz- oder Listenansichts-ID.');
+		throw new WebServiceException(WebServiceErrorCode::$INVALIDID, berli_wordT('INVALID_RECORD_OR_LIST_VIEW_ID'));
 	}
 
 	$view = null;
@@ -59,7 +61,7 @@ function berli_saveWordMailMergeDocument($moduleName, $listId, $recordId, $notes
 		}
 	}
 	if (!$view || !in_array((int) $recordId, array_map('intval', $view->getRecordIds()), true)) {
-		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, 'Der Datensatz gehört nicht zur verfügbaren Listenansicht.');
+		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, berli_wordT('THE_RECORD_DOES_NOT_BELONG_TO_THE_AVAILABLE_LIST_VIEW'));
 	}
 
 	$webserviceObject = VtigerWebserviceObject::fromName($adb, $moduleName);
@@ -67,17 +69,21 @@ function berli_saveWordMailMergeDocument($moduleName, $listId, $recordId, $notes
 
 	$notesTitle = trim(vtlib_purify($notesTitle));
 	$titleLength = function_exists('mb_strlen') ? mb_strlen($notesTitle, 'UTF-8') : strlen($notesTitle);
-	if ($notesTitle === '' || $titleLength > 50 || strpos($notesTitle, 'Serienbrief') !== 0) {
-		throw new WebServiceException(WebServiceErrorCode::$INVALIDID, 'Ungültiger oder zu langer Dokumenttitel.');
+	$allowedTitle = false;
+	foreach (array('de_de', 'en_us') as $language) {
+		if (strpos($notesTitle, berli_officeT('word', 'DOCUMENT_TITLE_START', array(), $language)) === 0) $allowedTitle = true;
+	}
+	if ($notesTitle === '' || $titleLength > 50 || !$allowedTitle) {
+		throw new WebServiceException(WebServiceErrorCode::$INVALIDID, berli_wordT('INVALID_DOCUMENT_TITLE_OR_TITLE_TOO_LONG'));
 	}
 
 	$maxFileSize = 5 * 1024 * 1024;
 	if (!is_string($fileContent) || strlen($fileContent) > (int) ceil($maxFileSize * 4 / 3) + 4) {
-		throw new WebServiceException(WebServiceErrorCode::$INVALIDID, 'Der Dokumentinhalt ist ungültig oder größer als 5 MB.');
+		throw new WebServiceException(WebServiceErrorCode::$INVALIDID, berli_wordT('THE_DOCUMENT_CONTENT_IS_INVALID_OR_EXCEEDS_5_MB'));
 	}
 	$fileBytes = base64_decode($fileContent, true);
 	if ($fileBytes === false || $fileBytes === '' || strlen($fileBytes) > $maxFileSize) {
-		throw new WebServiceException(WebServiceErrorCode::$INVALIDID, 'Der Dokumentinhalt ist ungültig oder größer als 5 MB.');
+		throw new WebServiceException(WebServiceErrorCode::$INVALIDID, berli_wordT('THE_DOCUMENT_CONTENT_IS_INVALID_OR_EXCEEDS_5_MB'));
 	}
 	$fileFormat = array('extension' => 'doc', 'mime' => 'application/msword');
 	if (substr($fileBytes, 0, 2) === 'PK') {
@@ -88,11 +94,11 @@ function berli_saveWordMailMergeDocument($moduleName, $listId, $recordId, $notes
 
 	$userIds = berli_wordMailMergeGetUserIds($user);
 	if ($userIds === false) {
-		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, 'Der angemeldete CRM-Benutzer konnte nicht ermittelt werden.');
+		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, berli_wordT('COULD_NOT_DETERMINE_THE_SIGNED_IN_CRM_USER'));
 	}
 	$userId = $userIds['id'];
 	$userWebserviceId = $userIds['webserviceId'];
-	$documentFileName = 'berliCRM-Serienbrief-' . $recordId . '-' . date('Ymd-His') . '.' . $fileFormat['extension'];
+	$documentFileName = berli_wordT('BERLICRM_MAIL_MERGE') . $recordId . '-' . date('Ymd-His') . '.' . $fileFormat['extension'];
 
 	$documentFolders = array();
 
@@ -108,7 +114,7 @@ function berli_saveWordMailMergeDocument($moduleName, $listId, $recordId, $notes
 		);
 	}
 	if (empty($documentFolders[0]['id'])) {
-		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, 'Der CRM-Dokumentenordner konnte nicht gefunden werden.');
+		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, berli_wordT('COULD_NOT_FIND_THE_CRM_DOCUMENT_FOLDER'));
 	}
 
 	$documentFields = array(
@@ -124,21 +130,21 @@ function berli_saveWordMailMergeDocument($moduleName, $listId, $recordId, $notes
     $documentFolders[0]['id']
 ),
 		'assigned_user_id' => $userWebserviceId,
-		'notecontent' => 'Erstellt durch das berliCRM Word Add-in.',
+		'notecontent' => berli_wordT('CREATED_USING_THE_BERLICRM_WORD_ADD_IN'),
 	);
 	try {
 		$document = vtws_create('Documents', $documentFields, $user);
 	} catch (Throwable $createError) {
 		error_log('Word mail-merge document creation failed: ' . $createError->getMessage());
-		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, 'Das CRM-Dokument konnte nicht angelegt werden. Details stehen im CRM-Serverprotokoll.');
+		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, berli_wordT('COULD_NOT_CREATE_THE_CRM_DOCUMENT_SEE_THE_CRM_SERVER_LOG_FOR_DETAILS'));
 	}
 	if (empty($document['id'])) {
-		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, 'Das CRM-Dokument konnte nicht angelegt werden.');
+		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, berli_wordT('COULD_NOT_CREATE_THE_CRM_DOCUMENT'));
 	}
 
 	$documentIdParts = vtws_getIdComponents($document['id']);
 	if (count($documentIdParts) !== 2 || !ctype_digit($documentIdParts[1])) {
-		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, 'berliCRM lieferte eine ungültige Dokument-ID zurück.');
+		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, berli_wordT('BERLICRM_RETURNED_AN_INVALID_DOCUMENT_ID'));
 	}
 	$documentId = (int) $documentIdParts[1];
 	$tempFilePath = tempnam(sys_get_temp_dir(), 'berli-word-');
@@ -147,7 +153,7 @@ function berli_saveWordMailMergeDocument($moduleName, $listId, $recordId, $notes
 			error_log('Word mail-merge cleanup could not remove temporary file ' . $tempFilePath . '.');
 		}
 		berli_wordMailMergeCleanup($documentId, null);
-		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, 'Die Dokumentdatei konnte nicht vorbereitet werden.');
+		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, berli_wordT('COULD_NOT_PREPARE_THE_DOCUMENT_FILE'));
 	}
 
 	$focus = CRMEntity::getInstance('Documents');
@@ -168,7 +174,7 @@ function berli_saveWordMailMergeDocument($moduleName, $listId, $recordId, $notes
 			error_log('Word mail-merge cleanup could not remove temporary file ' . $tempFilePath . '.');
 		}
 		berli_wordMailMergeCleanup($documentId, null);
-		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, 'Das berliCRM-Webroot konnte für den Datei-Upload nicht ermittelt werden.');
+		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, berli_wordT('COULD_NOT_DETERMINE_THE_BERLICRM_WEBROOT_FOR_FILE_UPLOAD'));
 	}
 	$previousDirectory = getcwd();
 	if ($previousDirectory === false || !chdir($crmRoot)) {
@@ -176,7 +182,7 @@ function berli_saveWordMailMergeDocument($moduleName, $listId, $recordId, $notes
 			error_log('Word mail-merge cleanup could not remove temporary file ' . $tempFilePath . '.');
 		}
 		berli_wordMailMergeCleanup($documentId, null);
-		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, 'Das berliCRM-Webroot konnte für den Datei-Upload nicht verwendet werden.');
+		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, berli_wordT('COULD_NOT_USE_THE_BERLICRM_WEBROOT_FOR_FILE_UPLOAD'));
 	}
 
 	vtws_preserveGlobal('current_user', $user);
@@ -185,7 +191,7 @@ function berli_saveWordMailMergeDocument($moduleName, $listId, $recordId, $notes
 	} catch (Throwable $uploadError) {
 		error_log('Word mail-merge file upload failed for document ' . $documentId . ': ' . $uploadError->getMessage());
 		berli_wordMailMergeCleanup($documentId, null);
-		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, 'Die Dokumentdatei konnte nicht im CRM-Speicher abgelegt werden. Details stehen im CRM-Serverprotokoll.');
+		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, berli_wordT('COULD_NOT_SAVE_THE_DOCUMENT_FILE_IN_CRM_STORAGE_SEE_THE_CRM_SERVER_LOG_F'));
 	} finally {
 		VTWS_PreserveGlobal::flush();
 		if (!chdir($previousDirectory)) {
@@ -197,7 +203,7 @@ function berli_saveWordMailMergeDocument($moduleName, $listId, $recordId, $notes
 	}
 	if (empty($attachmentId)) {
 		berli_wordMailMergeCleanup($documentId, null);
-		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, 'Die Dokumentdatei konnte nicht im CRM-Speicher abgelegt werden.');
+		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, berli_wordT('COULD_NOT_SAVE_THE_DOCUMENT_FILE_IN_CRM_STORAGE'));
 	}
 
 	$documentObject = VtigerWebserviceObject::fromName($adb, 'Documents');
@@ -209,13 +215,13 @@ function berli_saveWordMailMergeDocument($moduleName, $listId, $recordId, $notes
 	} catch (Throwable $relationError) {
 		error_log('Word mail-merge relation creation failed for document ' . $documentId . ': ' . $relationError->getMessage());
 		berli_wordMailMergeCleanup($documentId, $attachmentId);
-		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, 'Das Dokument konnte nicht mit dem Datensatz verknüpft werden. Details stehen im CRM-Serverprotokoll.');
+		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, berli_wordT('COULD_NOT_LINK_THE_DOCUMENT_TO_THE_RECORD_SEE_THE_CRM_SERVER_LOG_FOR_DET'));
 	}
 
 	$storedFile = berli_wordMailMergeVerifySavedDocument($documentId, $attachmentId, (int) $recordId);
 	if ($storedFile === false) {
 		berli_wordMailMergeCleanup($documentId, $attachmentId);
-		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, 'berliCRM hat das Dokument nicht vollständig gespeichert: Dokument, Datei oder Datensatzverknüpfung fehlt.');
+		throw new WebServiceException(WebServiceErrorCode::$INTERNALERROR, berli_wordT('BERLICRM_DID_NOT_SAVE_THE_COMPLETE_DOCUMENT_THE_DOCUMENT_FILE_OR_RECORD'));
 	}
 
 	return array(
@@ -242,13 +248,13 @@ function berli_wordMailMergeSaveGeneratedFile($documentId, $fileDetails, $ownerI
     $name = sanitizeUploadFileName($fileDetails['name'], $upload_badext);
     $name = ltrim(basename(' ' . $name));
     if ($name === '' || !is_file($fileDetails['tmp_name'])) {
-        throw new RuntimeException('Generated document or filename invalid.');
+        throw new RuntimeException(berli_wordT('THE_GENERATED_DOCUMENT_OR_FILENAME_IS_INVALID'));
     }
     $attachmentId = (int) $adb->getUniqueID('vtiger_crmentity');
     $path = decideFilePath();
     $destination = rtrim($path, '/\\') . DIRECTORY_SEPARATOR . $attachmentId . '_' . $name;
     if (!rename($fileDetails['tmp_name'], $destination)) {
-        throw new RuntimeException('Cannot move generated document into CRM storage: ' . $destination);
+        throw new RuntimeException(berli_wordT('CANNOT_MOVE_THE_GENERATED_DOCUMENT_INTO_CRM_STORAGE') . $destination);
     }
     $now = date('Y-m-d H:i:s');
     $queries = array(
@@ -266,7 +272,7 @@ function berli_wordMailMergeSaveGeneratedFile($documentId, $fileDetails, $ownerI
             $adb->pquery('DELETE FROM vtiger_attachments WHERE attachmentsid = ?', array($attachmentId));
             $adb->pquery('DELETE FROM vtiger_crmentity WHERE crmid = ?', array($attachmentId));
             if (is_file($destination)) { unlink($destination); }
-            throw new RuntimeException('Cannot save generated document attachment metadata.');
+            throw new RuntimeException(berli_wordT('CANNOT_SAVE_GENERATED_DOCUMENT_ATTACHMENT_METADATA'));
         }
     }
     return $attachmentId;
@@ -392,15 +398,15 @@ function berli_wordMailMergeRelateDocument($documentId, $relatedRecordId, $expec
 
 	if ($documentModule !== 'Documents' || !in_array('Documents', $types['types'], true)
 		|| $documentModule !== $documentWebserviceObject->getEntityName()) {
-		throw new WebServiceException(WebServiceErrorCode::$INVALIDID, 'Die angegebene Dokument-ID ist ungültig.');
+		throw new WebServiceException(WebServiceErrorCode::$INVALIDID, berli_wordT('THE_SPECIFIED_DOCUMENT_ID_IS_INVALID'));
 	}
 	if ($documentMeta->hasReadAccess() !== true || $documentMeta->hasWriteAccess() !== true
 		|| !$documentMeta->hasPermission(EntityMeta::$RETRIEVE, $documentId)) {
-		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, 'Sie dürfen das CRM-Dokument nicht verknüpfen.');
+		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, berli_wordT('YOU_DO_NOT_HAVE_PERMISSION_TO_LINK_THIS_CRM_DOCUMENT'));
 	}
 
 	if (!$documentMeta->exists($documentParts[1])) {
-		throw new WebServiceException(WebServiceErrorCode::$RECORDNOTFOUND, 'Das CRM-Dokument wurde nicht gefunden.');
+		throw new WebServiceException(WebServiceErrorCode::$RECORDNOTFOUND, berli_wordT('THE_CRM_DOCUMENT_WAS_NOT_FOUND'));
 	}
 
 	$relatedWebserviceObject = VtigerWebserviceObject::fromId($adb, $relatedParts[0]);
@@ -408,7 +414,7 @@ function berli_wordMailMergeRelateDocument($documentId, $relatedRecordId, $expec
 	$relatedMeta = $relatedHandler->getMeta();
 	$relatedModule = $relatedMeta->getObjectEntityName($relatedRecordId);
 	if ($relatedModule !== $expectedModule || !in_array($relatedModule, $types['types'], true)) {
-		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, 'Der Zieldatensatz ist für diese Verknüpfung nicht verfügbar.');
+		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, berli_wordT('THE_TARGET_RECORD_IS_NOT_AVAILABLE_FOR_THIS_LINK'));
 	}
 try {
     vtws_retrieve($relatedRecordId, $user);
@@ -416,11 +422,11 @@ try {
     error_log('Word mail-merge relation access denied for ' . $expectedModule . ' record ' . $relatedRecordId . ': ' . $e->getMessage());
     throw new WebServiceException(
         WebServiceErrorCode::$ACCESSDENIED,
-        'Sie haben keine Berechtigung für den Zieldatensatz.'
+        berli_wordT('YOU_DO_NOT_HAVE_PERMISSION_TO_ACCESS_THE_TARGET_RECORD')
     );
 }
 	if (!$relatedMeta->exists($relatedParts[1])) {
-		throw new WebServiceException(WebServiceErrorCode::$RECORDNOTFOUND, 'Der Zieldatensatz wurde nicht gefunden.');
+		throw new WebServiceException(WebServiceErrorCode::$RECORDNOTFOUND, berli_wordT('THE_TARGET_RECORD_WAS_NOT_FOUND'));
 	}
 
 	$documentObject = new VtigerCRMObject($documentMeta->getTabId(), true);
@@ -440,7 +446,7 @@ try {
 function berli_wordMailMergeGetIdParts($webserviceId) {
 	$parts = vtws_getIdComponents($webserviceId);
 	if (count($parts) !== 2 || !ctype_digit((string) $parts[0]) || !ctype_digit((string) $parts[1])) {
-		throw new WebServiceException(WebServiceErrorCode::$INVALIDID, 'Ungültige CRM-Datensatz-ID.');
+		throw new WebServiceException(WebServiceErrorCode::$INVALIDID, berli_wordT('INVALID_CRM_RECORD_ID'));
 	}
 	return array((int) $parts[0], (int) $parts[1]);
 }

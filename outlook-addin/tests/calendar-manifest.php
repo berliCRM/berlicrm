@@ -17,7 +17,7 @@ foreach ($manifests as $manifest) {
     if (!$document->loadXML($manifest, LIBXML_NONET)) throw new RuntimeException('Invalid XML');
     $xpath = new DOMXPath($document);
     $xsi = 'http://www.w3.org/2001/XMLSchema-instance';
-    if ($xpath->query('/*/*[local-name()="Version"]')->item(0)->textContent !== '1.0.15.4') throw new RuntimeException('Version not incremented');
+    if ($xpath->query('/*/*[local-name()="Version"]')->item(0)->textContent !== '1.1.0.0') throw new RuntimeException('Version not incremented');
     $rules = $xpath->query('/*/*[local-name()="Rule"]/*[@ItemType="Appointment"]');
     if ($rules->length !== 2) throw new RuntimeException('Read/edit appointment activation missing');
     foreach ($xpath->query('//*[local-name()="DesktopFormFactor"]') as $desktop) {
@@ -91,7 +91,7 @@ if (getcwd() !== $launchDirectory) throw new RuntimeException('Update did not re
 chdir($root);
 $db = PearDatabase::getInstance();
 $operation = $db->operations['outlook_calendar_event'];
-if (count($db->operations) !== 6 || !$db->tables['calendar'] || !$db->tables['contacts'] || !$db->tables['mail'] || !$db->tables['files']
+if (count($db->operations) !== 7 || !$db->tables['calendar'] || !$db->tables['contacts'] || !$db->tables['mail'] || !$db->tables['files']
     || $operation['method'] !== 'berli_outlookCalendarEvent' || $operation['type'] !== 'POST'
     || $db->parameters[$operation['id']] !== array(array('input', 'encoded'))) {
     throw new RuntimeException('Wrong calendar operation registration');
@@ -102,7 +102,7 @@ if ($contacts['method'] !== 'berli_outlookContactTransfer' || $contacts['type'] 
 $archive = $db->operations['outlook_archive_email'];
 if ($archive['method'] !== 'berli_outlookArchiveEmail' || $archive['type'] !== 'POST'
     || $db->parameters[$archive['id']] !== array(array('input', 'encoded'))) throw new RuntimeException('Wrong email archive registration');
-echo "Registration checks passed: repeated registration, six operations, encoded payloads and add-in-owned link tables only.\n";
+echo "Registration checks passed: repeated registration, seven operations, encoded payloads and add-in-owned link tables only.\n";
 
 // Exercise the actual db_update hook without bootstrapping/running the full CRM update.
 $updater = file_get_contents($root . '/db_update.php');

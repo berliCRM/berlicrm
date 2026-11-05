@@ -1,3 +1,4 @@
+const { localizedContext } = require('./language-fixture.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -14,7 +15,7 @@ class Element {
 }
 function setup(payload) {
   const container = new Element();
-  const context = vm.createContext({
+  const context = localizedContext({
     URL,
     window: { location: { href: 'https://example.test/outlook-addin/taskpane.html' } },
     document: {
@@ -24,7 +25,7 @@ function setup(payload) {
     },
     Office: { onReady() {} },
     fetch: async (url, init) => {
-      assert.deepEqual(JSON.parse(init.body), { action: 'listEvents', sessionName: 'fixture-session' });
+      assert.deepEqual(JSON.parse(init.body), { language: 'de_de', action: 'listEvents', sessionName: 'fixture-session' });
       return { json: async () => ({ success: true, payload }) };
     },
   });

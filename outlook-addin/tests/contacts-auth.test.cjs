@@ -1,3 +1,4 @@
+const { localizedContext } = require('./language-fixture.cjs');
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -29,7 +30,7 @@ function setup(options = {}) {
   const status = element('authStatus');
   location.replace = address => events.push(['navigate', address]);
   const scripts = [];
-  const context = vm.createContext({ PublicClientApplication, URL, URLSearchParams, location,
+  const context = localizedContext({ PublicClientApplication, URL, URLSearchParams, location,
     setTimeout: options.fakeTimers ? callback => { timers.set(++timerId, callback); return timerId; } : setTimeout,
     clearTimeout: options.fakeTimers ? id => timers.delete(id) : clearTimeout,
     broadcastResponseToMainFrame: async () => { events.push(['bridge']); },
@@ -52,6 +53,17 @@ test('OAuth start uses MSAL redirect and delegated contacts scope without a secr
   assert.equal(env.stored.get('berliCRM.contacts.authChannel'), 'office');
   assert.deepEqual(Array.from(env.events.find(e => e[0] === 'login')[1].scopes), ['https://graph.microsoft.com/Contacts.ReadWrite']);
   assert.doesNotMatch(JSON.stringify(env.events), /clientSecret/);
+});
+
+test('a callback retains the CRM language for its error message and retry link', async () => {
+  const env = setup({ savedChannel: 'office', error: new Error('access_denied') });
+  env.stored.set('berliCRM.contacts.authLanguage', 'en_us');
+  await env.run();
+  assert.equal(env.element('authTitle').textContent, 'Access not granted');
+  assert.match(env.status.textContent, /Microsoft did not grant access/);
+  env.element('authRetry').events.click();
+  const retry = new URL(env.events.find(event => event[0] === 'navigate')[1]);
+  assert.equal(retry.searchParams.get('language'), 'en_us');
 });
 test('redirect clears token cache before delivering to exact Office parent origin even with host null', async () => {
   const env = setup({ savedChannel: 'office' }); await env.run();
@@ -90,7 +102,7 @@ test('retry starts a fresh local flow retaining only its channel and Office host
   env.element('authRetry').events.click();
   const restart = new URL(env.events.at(-1)[1]);
   assert.equal(restart.origin + restart.pathname, 'https://crm.example.test/outlook-addin/contacts-auth.html');
-  assert.deepEqual([...restart.searchParams], [['start', '1'], ['channel', 'office'], ['_host_Info', 'outlook$web']]);
+  assert.deepEqual([...restart.searchParams], [['start', '1'], ['channel', 'office'], ['language', 'de_de'], ['_host_Info', 'outlook$web']]);
   assert.equal(restart.hash, '');
   assert.equal(env.element('authRetry').disabled, true);
 });

@@ -1,10 +1,13 @@
+import { t, i18n } from "./i18n.js?v=20261105.1";
+i18n.initialize();
 import {
   BerliCrmClient,
   mergeFieldName,
+  mergeFieldNames,
   mergeFieldOoxml,
   normalizeCrmBaseUrl,
-} from "./crm-client.js?v=1.3.10";
-import { createZip } from "./zip.js?v=1.2.0";
+} from "./crm-client.js?v=20261105.2";
+import { createZip } from "./zip.js?v=20261105.1";
 
 const elements = {
   crmUrl: document.querySelector("#crm-url"),
@@ -83,7 +86,7 @@ function createMailMergeDocumentTitle(fields, record, date = new Date()) {
     String(date.getMonth() + 1).padStart(2, "0"),
     date.getFullYear(),
   ].join(".");
-  const prefix = `Serienbrief ${formattedDate}: `;
+  const prefix = t("DOCUMENT_TITLE_PREFIX", [formattedDate]);
   const values = fields
     .map((field) => displayValue(record.fields?.[field.name]).trim())
     .filter(Boolean);
@@ -107,7 +110,7 @@ function createMailMergeDocumentTitle(fields, record, date = new Date()) {
   return title;
 }
 
-function setButtonLoading(button, isLoading, loadingLabel = "Bitte warten …") {
+function setButtonLoading(button, isLoading, loadingLabel = t("PLEASE_WAIT")) {
   if (!button) {
     return;
   }
@@ -168,7 +171,7 @@ function setBusy(busy) {
 
 function renderSelectionCount() {
   const count = selectedRecords.size;
-  elements.selectionCount.textContent = `${count} Datensätze ausgewählt.`;
+  elements.selectionCount.textContent = t("RECORDS_SELECTED", [count]);
   elements.mergeButton.disabled = !wordIsReady || !crmClient || count === 0;
   elements.clearRecordSelectionButton.disabled = isBusy || count === 0;
 }
@@ -192,7 +195,7 @@ function renderFields() {
   }
 
   const sortedFields = [...selectedModule.fields].sort((left, right) =>
-    (left.label || left.name).localeCompare(right.label || right.name, "de", { sensitivity: "base" }),
+    (left.label || left.name).localeCompare(right.label || right.name, i18n.locale, { sensitivity: "base" }),
   );
   for (const field of sortedFields) {
     const option = document.createElement("option");
@@ -206,8 +209,8 @@ function renderFields() {
 
 async function connect() {
   setBusy(true);
-  setButtonLoading(elements.connectButton, true, "Verbinde …");
-  setStatus("Verbindung wird hergestellt …");
+  setButtonLoading(elements.connectButton, true, t('CONNECTING'));
+  setStatus(t("CONNECTING"));
 
   try {
     const crmBaseUrl = normalizeCrmBaseUrl(elements.crmUrl.value, window.location.origin);
@@ -216,7 +219,7 @@ async function connect() {
     elements.accessKey.value = "";
 
     if (modules.length === 0) {
-      throw new Error("Für diesen CRM-Benutzer sind keine unterstützten Module verfügbar.");
+      throw new Error(t("NO_SUPPORTED_MODULES_ARE_AVAILABLE_FOR_THIS_CRM_USER"));
     }
 
     elements.moduleSelect.replaceChildren();
@@ -231,7 +234,7 @@ async function connect() {
     elements.fieldsPanel.hidden = false;
     elements.recordsPanel.hidden = false;
     renderFields();
-    setStatus("Verbunden. Angezeigt werden die für diesen Benutzer verfügbaren Felder.");
+    setStatus(t("CONNECTED_THE_FIELDS_AVAILABLE_TO_THIS_USER_ARE_DISPLAYED"));
     await loadViews();
   } catch (error) {
     let message = error.message;
@@ -239,7 +242,7 @@ async function connect() {
       try {
         await crmClient.disconnect();
       } catch (logoutError) {
-        message += ` Die Abmeldung nach dem Fehler ist ebenfalls fehlgeschlagen: ${logoutError.message}`;
+        message += t("SIGNING_OUT_AFTER_THE_ERROR_ALSO_FAILED", [logoutError.message]);
       }
     }
     crmClient = null;
@@ -254,28 +257,39 @@ async function connect() {
 }
 
 async function disconnect() {
-  setBusy(true);
-  setButtonLoading(elements.disconnectButton, true, "Trenne …");
-  try {
-    if (crmClient) {
-      await crmClient.disconnect();
+  const disconnectedClient = crmClient;
+  crmClient = null;
+  modules = [];
+  currentRecordsModule = null;
+  // Late list responses must not restore data from the disconnected session.
+  recordsRequestId += 1;
+  viewsRequestId += 1;
+  currentPage = 1;
+  totalRecordCount = null;
+  elements.fieldsPanel.hidden = true;
+  elements.recordsPanel.hidden = true;
+  elements.connectionPanel.hidden = false;
+  elements.accessKey.value = "";
+  elements.moduleSelect.replaceChildren();
+  elements.fieldSelect.replaceChildren();
+  elements.viewSelect.replaceChildren();
+  elements.recordSelect.replaceChildren();
+  elements.nextPageButton.dataset.available = "false";
+  elements.pageLabel.textContent = t("PAGE_1");
+  selectedRecords.clear();
+  clearDownloads();
+  renderSelectionCount();
+  setBusy(false);
+  setStatus(t("DISCONNECTED_FROM_CRM"));
+
+  // Local sign-out is complete; an expired or unreachable server cannot block
+  // the login form, and a late logout response must not affect a new connection.
+  if (disconnectedClient) {
+    try {
+      await disconnectedClient.disconnect();
+    } catch {
+      // The server may already have expired this session.
     }
-    crmClient = null;
-    modules = [];
-    elements.fieldsPanel.hidden = true;
-    elements.recordsPanel.hidden = true;
-    elements.connectionPanel.hidden = false;
-    currentRecordsModule = null;
-    elements.fieldSelect.replaceChildren();
-    elements.recordSelect.replaceChildren();
-    selectedRecords.clear();
-    clearDownloads();
-    setStatus("CRM-Verbindung getrennt.");
-  } catch (error) {
-    setStatus(`Abmeldung fehlgeschlagen: ${error.message}`, true);
-  } finally {
-    setButtonLoading(elements.disconnectButton, false);
-    setBusy(false);
   }
 }
 
@@ -289,7 +303,7 @@ async function loadViews() {
   clearDownloads();
   elements.recordSelect.replaceChildren();
   elements.viewSelect.replaceChildren();
-  elements.pageLabel.textContent = "Seite 1";
+  elements.pageLabel.textContent = t("PAGE_1");
   elements.previousPageButton.disabled = true;
   elements.nextPageButton.disabled = true;
   elements.nextPageButton.dataset.available = "false";
@@ -299,17 +313,18 @@ async function loadViews() {
     return;
   }
   if (!["Contacts", "Accounts", "Leads", "HelpDesk"].includes(currentRecordsModule.apiName)) {
-    setStatus("Benutzerfelder können eingefügt werden; für Benutzer gibt es hier keine unterstützte Listenansichts-Datensatzquelle.");
+    setStatus(t("USER_FIELDS_CAN_BE_INSERTED_A_LIST_VIEW_RECORD_SOURCE_IS_NOT_AVAILABLE_F"));
     return;
   }
-  setStatus("Gespeicherte Listenansichten werden geladen …");
+  setStatus(t("LOADING_SAVED_LIST_VIEWS"));
   try {
     const result = await crmClient.getMailMergeData(currentRecordsModule.apiName);
     if (requestId !== viewsRequestId) {
       return;
     }
+    for (const field of currentRecordsModule.fields) field.aliases = result?.fieldAliases?.[field.name] || [];
     if (!Array.isArray(result?.views)) {
-      throw new Error("berliCRM hat keine gültige Listenansichtsliste zurückgegeben.");
+      throw new Error(t("BERLICRM_DID_NOT_RETURN_A_VALID_LIST_OF_VIEWS"));
     }
     for (const view of result.views) {
       const option = document.createElement("option");
@@ -318,7 +333,7 @@ async function loadViews() {
       elements.viewSelect.append(option);
     }
     if (!elements.viewSelect.options.length) {
-      setStatus("Für dieses Modul sind keine für Sie sichtbaren Listenansichten vorhanden.");
+      setStatus(t("THIS_MODULE_HAS_NO_LIST_VIEWS_VISIBLE_TO_YOU"));
       return;
     }
     elements.viewSelect.value = String(result.views[0].id);
@@ -327,7 +342,7 @@ async function loadViews() {
     if (requestId !== viewsRequestId) {
       return;
     }
-    setStatus(`Listenansichten konnten nicht geladen werden: ${error.message}`, true);
+    setStatus(t("COULD_NOT_LOAD_LIST_VIEWS", [error.message]), true);
   }
 }
 
@@ -341,7 +356,7 @@ async function loadRecords(page) {
   const selectedFields = getSelectedFields();
   elements.previousPageButton.disabled = true;
   elements.nextPageButton.disabled = true;
-  setStatus("CRM-Datensätze werden geladen …", false, true);
+  setStatus(t("LOADING_CRM_RECORDS"), false, true);
   try {
     const result = await crmClient.getMailMergeData(
       module.apiName,
@@ -354,11 +369,11 @@ async function loadRecords(page) {
       return;
     }
     if (!Array.isArray(result?.records)) {
-      throw new Error("berliCRM hat keine gültige Datensatzliste zurückgegeben.");
+      throw new Error(t("BERLICRM_DID_NOT_RETURN_A_VALID_RECORD_LIST"));
     }
     if (result.records.length === 0 && result.totalCount > 0) {
       throw new Error(
-        `berliCRM meldet ${result.totalCount} Datensätze, lieferte aber für Seite ${page} keine Einträge zurück.`,
+        t("BERLICRM_REPORTS_RECORDS_BUT_RETURNED_NO_ENTRIES_FOR_PAGE", [result.totalCount, page]),
       );
     }
     currentPage = page;
@@ -367,8 +382,8 @@ async function loadRecords(page) {
       totalRecordCount = result.totalCount;
       elements.selectAllRecordsButton.disabled = isBusy || totalRecordCount === 0 || totalRecordCount > MAX_SELECTED_RECORDS;
       elements.selectAllRecordsButton.textContent = totalRecordCount > MAX_SELECTED_RECORDS
-        ? `Limit ${MAX_SELECTED_RECORDS.toLocaleString("de-DE")} (${totalRecordCount.toLocaleString("de-DE")} gesamt)`
-        : `Alle Datensätze auswählen (${totalRecordCount.toLocaleString("de-DE")} gesamt)`;
+        ? `Limit ${MAX_SELECTED_RECORDS.toLocaleString(globalThis.BerliI18n.locale)} (${totalRecordCount.toLocaleString(globalThis.BerliI18n.locale)} gesamt)`
+        : t("SELECT_ALL_RECORDS_TOTAL", [totalRecordCount.toLocaleString(globalThis.BerliI18n.locale)]);
     }
     for (const record of result.records) {
       const option = document.createElement("option");
@@ -390,17 +405,17 @@ async function loadRecords(page) {
     elements.previousPageButton.disabled = page <= 1;
     elements.nextPageButton.dataset.available = String(result.nextPage === true);
     elements.nextPageButton.disabled = result.nextPage !== true;
-    elements.pageLabel.textContent = `Seite ${page}`;
+    elements.pageLabel.textContent = t("PAGE", [page]);
     setStatus(totalRecordCount > MAX_SELECTED_RECORDS
-      ? `${result.records.length} Datensätze auf dieser Seite geladen. Das Exportlimit beträgt ${MAX_SELECTED_RECORDS.toLocaleString("de-DE")} Datensätze.`
-      : `${result.records.length} Datensätze auf dieser Seite geladen.`);
+      ? t("RECORDS_LOADED_ON_THIS_PAGE_THE_EXPORT_LIMIT_IS_RECORDS", [result.records.length, MAX_SELECTED_RECORDS.toLocaleString(globalThis.BerliI18n.locale)])
+      : t("RECORDS_LOADED_ON_THIS_PAGE", [result.records.length]));
   } catch (error) {
     if (requestId !== recordsRequestId) {
       return;
     }
     elements.previousPageButton.disabled = currentPage <= 1;
     elements.nextPageButton.disabled = elements.nextPageButton.dataset.available !== "true";
-    setStatus(`Datensätze konnten nicht geladen werden: ${error.message}`, true);
+    setStatus(t("COULD_NOT_LOAD_RECORDS", [error.message]), true);
   }
 }
 
@@ -410,7 +425,7 @@ async function selectAllRecords() {
   }
   if (totalRecordCount > MAX_SELECTED_RECORDS) {
     setStatus(
-      `Diese Listenansicht enthält ${totalRecordCount.toLocaleString("de-DE")} Datensätze. Das Exportlimit beträgt ${MAX_SELECTED_RECORDS.toLocaleString("de-DE")}; filtern Sie die Listenansicht und versuchen Sie es erneut.`,
+      t("THIS_LIST_VIEW_CONTAINS_RECORDS_THE_EXPORT_LIMIT_IS_FILTER_THE_LIST_VIEW", [totalRecordCount.toLocaleString(globalThis.BerliI18n.locale), MAX_SELECTED_RECORDS.toLocaleString(globalThis.BerliI18n.locale)]),
       true,
     );
     return;
@@ -419,11 +434,11 @@ async function selectAllRecords() {
   const selectedFields = getSelectedFields();
   selectedRecords.clear();
   setBusy(true);
-  setButtonLoading(elements.selectAllRecordsButton, true, "Lade alle …");
+  setButtonLoading(elements.selectAllRecordsButton, true, t("LOADING_ALL"));
   try {
     const totalPages = Math.ceil(totalRecordCount / RECORDS_PER_PAGE);
     for (let page = 1; page <= totalPages; page += 1) {
-      setStatus(`Alle Datensätze werden geladen: Seite ${page} von ${totalPages} …`);
+      setStatus(t("LOADING_ALL_RECORDS_PAGE_OF", [page, totalPages]));
       const result = await crmClient.getMailMergeData(
         currentRecordsModule.apiName,
         elements.viewSelect.value,
@@ -432,22 +447,22 @@ async function selectAllRecords() {
         selectedFields.map((field) => field.name),
       );
       if (!Array.isArray(result?.records) || result.records.length === 0) {
-        throw new Error(`Die CRM-Listenansicht lieferte auf Seite ${page} keine erwarteten Datensätze.`);
+        throw new Error(t("THE_CRM_LIST_VIEW_DID_NOT_RETURN_THE_EXPECTED_RECORDS_ON_PAGE", [page]));
       }
       for (const record of result.records) {
         selectedRecords.set(String(record.id), {
           id: String(record.id),
-          name: record.name || "Datensatz",
+          name: record.name || t("RECORD"),
         });
       }
     }
     if (selectedRecords.size !== totalRecordCount) {
-      throw new Error(`Erwartet wurden ${totalRecordCount} Datensätze, geladen wurden ${selectedRecords.size}.`);
+      throw new Error(t("EXPECTED_RECORDS_LOADED", [totalRecordCount, selectedRecords.size]));
     }
-    setStatus(`${selectedRecords.size} Datensätze aus allen Seiten ausgewählt.`);
+    setStatus(t("RECORDS_SELECTED_ACROSS_ALL_PAGES", [selectedRecords.size]));
   } catch (error) {
     selectedRecords.clear();
-    setStatus(`Alle Datensätze konnten nicht ausgewählt werden: ${error.message}`, true);
+    setStatus(t("COULD_NOT_SELECT_ALL_RECORDS", [error.message]), true);
   } finally {
     setButtonLoading(elements.selectAllRecordsButton, false);
     setBusy(false);
@@ -472,7 +487,7 @@ function updateSelectedRecords() {
     if (option.selected && !selectedRecords.has(recordId)) {
       if (selectedRecords.size >= MAX_SELECTED_RECORDS) {
         option.selected = false;
-        setStatus(`Es können höchstens ${MAX_SELECTED_RECORDS} Datensätze gleichzeitig ausgewählt werden.`, true);
+        setStatus(t("YOU_CAN_SELECT_AT_MOST_RECORDS_AT_A_TIME", [MAX_SELECTED_RECORDS]), true);
         continue;
       }
       const record = Array.from(elements.recordSelect.options).find((item) => item.value === recordId);
@@ -516,7 +531,7 @@ function getTemplateFields(template, module) {
   const parsed = new DOMParser().parseFromString(template, "text/html");
   const templateText = parsed.body.textContent || "";
   return module.fields.filter((field) =>
-    templateText.includes(`«${mergeFieldName(module, field)}»`),
+    mergeFieldNames(module, field).some(name => templateText.includes(`«${name}»`)),
   );
 }
 
@@ -525,7 +540,7 @@ function mergeDocumentHtml(html, module, record, selectedFields) {
   setUtf8HtmlEncoding(parsed);
   const replacements = new Map();
   for (const field of selectedFields) {
-    replacements.set(`«${mergeFieldName(module, field)}»`, displayValue(record.fields?.[field.name]));
+    for (const name of mergeFieldNames(module, field)) replacements.set(`«${name}»`, displayValue(record.fields?.[field.name]));
   }
 
   const containers = parsed.body.querySelectorAll("p");
@@ -569,7 +584,7 @@ function mergeDocumentHtml(html, module, record, selectedFields) {
     }
   }
   if (replacementCount === 0) {
-    throw new Error("Die Vorlage enthält keine erkennbaren Seriendruckfelder für das gewählte Modul.");
+    throw new Error(t("THE_TEMPLATE_CONTAINS_NO_RECOGNIZABLE_MAIL_MERGE_FIELDS_FOR_THE_SELECTED"));
   }
   return `\uFEFF<!doctype html>${parsed.documentElement.outerHTML}`;
 }
@@ -587,7 +602,7 @@ function safeFileName(value) {
     .replace(/[<>:"/\\|?*\u0000-\u001f]/g, "_")
     .replace(/\s+/g, " ")
     .trim()
-    .slice(0, 100) || "Datensatz";
+    .slice(0, 100) || t("RECORD");
 }
 
 function addDownload(blob, fileName, label) {
@@ -626,7 +641,7 @@ function createCombinedDocument(documents) {
 function createUniqueFileNames(records) {
   const counts = new Map();
   return records.map((record) => {
-    const baseName = `berliCRM-${safeFileName(record.name || record.id || "Datensatz")}`;
+    const baseName = `berliCRM-${safeFileName(record.name || record.id || t("RECORD"))}`;
     const count = (counts.get(baseName) || 0) + 1;
     counts.set(baseName, count);
     return `${baseName}${count > 1 ? `-${count}` : ""}.doc`;
@@ -637,12 +652,12 @@ async function createMergeDocuments() {
   if (elements.outputFormat?.value !== "docx") return createLegacyMergeDocuments();
   if (isBusy || !currentRecordsModule || !selectedRecords.size || !wordIsReady || !crmClient) return;
   setBusy(true);
-  setButtonLoading(elements.mergeButton, true, "Erstelle DOCX …");
+  setButtonLoading(elements.mergeButton, true, t("CREATING_DOCX"));
   elements.mergeProgress.hidden = false;
   try {
     // Load the DOCX implementation only when explicitly selected. Its dependencies
     // and failures cannot prevent the established legacy export from starting.
-    const { runDocxMerge } = await import("./docx-export.js?v=1.0.2");
+    const { runDocxMerge } = await import("./docx-export.js?v=20261105.1");
     clearDownloads();
     const result = await runDocxMerge({ office: Office, module: currentRecordsModule,
       records: Array.from(selectedRecords.values()), crmClient, viewId: elements.viewSelect.value,
@@ -652,7 +667,7 @@ async function createMergeDocuments() {
       onProgress: message => { elements.mergeProgressText.textContent = message; setStatus(message); } });
     setStatus(result.message, result.failed);
   } catch (error) {
-    setStatus(`DOCX-Seriendruck fehlgeschlagen: ${error.message} Sie können jederzeit auf „Bisherige Ausgabe (.doc/HTML)“ zurückschalten.`, true);
+    setStatus(t("DOCX_MAIL_MERGE_FAILED_YOU_CAN_SWITCH_BACK_TO_THE_LEGACY_OUTPUT_DOC_HTML", [error.message]), true);
   } finally {
     elements.mergeProgress.hidden = true;
     setButtonLoading(elements.mergeButton, false);
@@ -667,10 +682,10 @@ async function createLegacyMergeDocuments() {
   }
   const records = Array.from(selectedRecords.values());
   setBusy(true);
-  setButtonLoading(elements.mergeButton, true, "Erstelle …");
+  setButtonLoading(elements.mergeButton, true, t('CREATING'));
   elements.mergeProgress.hidden = false;
-  elements.mergeProgressText.textContent = "Word-Vorlage wird gelesen …";
-  setStatus("Word-Vorlage wird gelesen …");
+  elements.mergeProgressText.textContent = t("READING_WORD_TEMPLATE");
+  setStatus(t("READING_WORD_TEMPLATE"));
   try {
     await waitForUiUpdate();
     const template = await Word.run(async (context) => {
@@ -680,13 +695,13 @@ async function createLegacyMergeDocuments() {
     });
     const templateFields = getTemplateFields(template, currentRecordsModule);
     if (templateFields.length === 0) {
-      throw new Error("Die Word-Vorlage enthält keine erkennbaren Seriendruckfelder für das gewählte Modul.");
+      throw new Error(t("THE_WORD_TEMPLATE_CONTAINS_NO_RECOGNIZABLE_MAIL_MERGE_FIELDS_FOR_THE_SEL"));
     }
     clearDownloads();
     const mergedRecords = [];
     for (let offset = 0; offset < records.length; offset += MAX_RECORDS_PER_OPERATION) {
       const batch = records.slice(offset, offset + MAX_RECORDS_PER_OPERATION);
-      const progress = `CRM-Datensätze werden geladen: ${Math.floor(offset / MAX_RECORDS_PER_OPERATION) + 1} von ${Math.ceil(records.length / MAX_RECORDS_PER_OPERATION)} …`;
+      const progress = t("LOADING_CRM_RECORDS_OF", [Math.floor(offset / MAX_RECORDS_PER_OPERATION) + 1, Math.ceil(records.length / MAX_RECORDS_PER_OPERATION)]);
       elements.mergeProgressText.textContent = progress;
       setStatus(progress);
       const result = await crmClient.getMailMergeData(
@@ -697,14 +712,14 @@ async function createLegacyMergeDocuments() {
         templateFields.map((field) => field.name),
       );
       if (!Array.isArray(result?.records) || result.records.length !== batch.length) {
-        throw new Error("Nicht alle ausgewählten CRM-Datensätze konnten geladen werden.");
+        throw new Error(t("NOT_ALL_SELECTED_CRM_RECORDS_COULD_BE_LOADED"));
       }
       mergedRecords.push(...result.records);
     }
     const documents = [];
     for (const [index, record] of mergedRecords.entries()) {
       if (index % 20 === 0) {
-        const progress = `Dokumente werden erstellt: ${index + 1} von ${mergedRecords.length} …`;
+        const progress = t("CREATING_DOCUMENTS_OF", [index + 1, mergedRecords.length]);
         elements.mergeProgressText.textContent = progress;
         setStatus(progress);
         await waitForUiUpdate();
@@ -721,15 +736,15 @@ async function createLegacyMergeDocuments() {
         name: fileNames[index],
         content: item.html,
       })));
-      addDownload(zip, "berliCRM-Einzelbriefe.zip", "ZIP-Datei mit den Einzelbriefen herunterladen");
+      addDownload(zip, "berliCRM-Einzelbriefe.zip", t("DOWNLOAD_INDIVIDUAL_LETTERS_AS_A_ZIP_FILE"));
     } else {
       const combinedHtml = createCombinedDocument(documents);
       const blob = new Blob(["\ufeff", combinedHtml], { type: "application/msword;charset=utf-8" });
-      addDownload(blob, "berliCRM-Serienbrief.doc", "Gemeinsamen Serienbrief herunterladen");
+      addDownload(blob, t("BERLICRM_MAIL_MERGE_DOC"), t("DOWNLOAD_COMBINED_MAIL_MERGE_DOCUMENT"));
     }
     let statusMessage = outputMode === "individual-zip"
-      ? `${mergedRecords.length} Einzelbrief(e) in einer ZIP-Datei vorbereitet.`
-      : `Ein gemeinsamer Serienbrief mit ${mergedRecords.length} Datensätzen wurde vorbereitet.`;
+      ? t("PREPARED_INDIVIDUAL_LETTER_S_IN_A_ZIP_FILE", [mergedRecords.length])
+      : t("PREPARED_A_COMBINED_MAIL_MERGE_DOCUMENT_WITH_RECORDS", [mergedRecords.length]);
 
     if (elements.saveToCrm.checked) {
       const savedAt = new Date();
@@ -737,7 +752,7 @@ async function createLegacyMergeDocuments() {
       const savedDocumentIds = [];
       const failures = [];
       for (const [index, documentFile] of documents.entries()) {
-        const progress = `CRM-Dokumente werden gespeichert: ${index + 1} von ${documents.length} …`;
+        const progress = t("SAVING_CRM_DOCUMENTS_OF", [index + 1, documents.length]);
         elements.mergeProgressText.textContent = progress;
         setStatus(progress);
         await waitForUiUpdate();
@@ -750,7 +765,7 @@ async function createLegacyMergeDocuments() {
             encodeBase64(documentFile.html),
           );
           if (typeof savedDocument?.documentId !== "string" || !savedDocument.documentId) {
-            throw new Error("berliCRM hat keine bestätigte Dokument-ID zurückgegeben.");
+            throw new Error(t("BERLICRM_DID_NOT_RETURN_A_CONFIRMED_DOCUMENT_ID"));
           }
           savedCount += 1;
           savedDocumentIds.push(savedDocument.documentId);
@@ -759,24 +774,24 @@ async function createLegacyMergeDocuments() {
         }
       }
 
-      statusMessage += ` CRM-Dokumente gespeichert: ${savedCount} von ${documents.length}.`;
+      statusMessage += t("CRM_DOCUMENTS_SAVED_OF", [savedCount, documents.length]);
       if (savedDocumentIds.length > 0) {
         statusMessage += ` CRM-Dokument-ID(s): ${savedDocumentIds.slice(0, 3).join(", ")}`;
         if (savedDocumentIds.length > 3) {
-          statusMessage += ` und ${savedDocumentIds.length - 3} weitere`;
+          statusMessage += t("AND_MORE", [savedDocumentIds.length - 3]);
         }
         statusMessage += ".";
       }
       if (failures.length > 0) {
-        statusMessage += ` Fehler bei ${failures.length}: ${failures.slice(0, 3).join(" | ")}`;
+        statusMessage += t("ERROR_FOR", [failures.length, failures.slice(0, 3).join(" | ")]);
         if (failures.length > 3) {
-          statusMessage += ` | sowie ${failures.length - 3} weitere.`;
+          statusMessage += t("ADDITIONAL_ERRORS_SUFFIX", [failures.length - 3]);
         }
       }
     }
-    setStatus(statusMessage, elements.saveToCrm.checked && statusMessage.includes("Fehler bei"));
+    setStatus(statusMessage, elements.saveToCrm.checked && statusMessage.includes(t("ERROR_MARKER")));
   } catch (error) {
-    setStatus(`Seriendruck fehlgeschlagen: ${error.message}`, true);
+    setStatus(t("MAIL_MERGE_FAILED", [error.message]), true);
   } finally {
     elements.mergeProgress.hidden = true;
     setButtonLoading(elements.mergeButton, false);
@@ -794,25 +809,25 @@ async function insertFields() {
     .filter(Boolean)
     .map((field) => mergeFieldName(module, field));
   if (!selectedNames.length) {
-    setStatus("Bitte mindestens ein Feld auswählen.", true);
+    setStatus(t("PLEASE_SELECT_AT_LEAST_ONE_FIELD"), true);
     return;
   }
   if (!wordIsReady) {
-    setStatus("Das Add-in ist nicht in Word geöffnet.", true);
+    setStatus(t("THE_ADD_IN_IS_NOT_OPEN_IN_WORD"), true);
     return;
   }
 
   setBusy(true);
-  setButtonLoading(elements.insertButton, true, "Füge ein …");
+  setButtonLoading(elements.insertButton, true, t("INSERTING"));
   try {
     const ooxml = mergeFieldOoxml(selectedNames);
     await Word.run(async (context) => {
       context.document.getSelection().insertOoxml(ooxml, Word.InsertLocation.replace);
       await context.sync();
     });
-    setStatus(`${selectedNames.length} Word-Seriendruckfeld(er) eingefügt.`);
+    setStatus(t("INSERTED_WORD_MAIL_MERGE_FIELD_S", [selectedNames.length]));
   } catch (error) {
-    setStatus(`Felder konnten nicht eingefügt werden: ${error.message}`, true);
+    setStatus(t("COULD_NOT_INSERT_FIELDS", [error.message]), true);
   } finally {
     setButtonLoading(elements.insertButton, false);
     setBusy(false);
@@ -838,7 +853,7 @@ elements.viewSelect.addEventListener("change", () => {
   currentPage = 1;
   totalRecordCount = null;
   elements.recordSelect.replaceChildren();
-  elements.pageLabel.textContent = "Seite 1";
+  elements.pageLabel.textContent = t("PAGE_1");
   elements.nextPageButton.dataset.available = "false";
   elements.previousPageButton.disabled = true;
   elements.selectAllRecordsButton.disabled = true;
@@ -857,15 +872,16 @@ elements.insertButton.addEventListener("click", insertFields);
 
 if (globalThis.Office) {
   Office.onReady((info) => {
+    if (!crmClient?.sessionName) i18n.initialize();
     wordIsReady = info.host === Office.HostType.Word;
     if (!wordIsReady) {
-      setStatus("Dieses Add-in muss in Microsoft Word geöffnet werden.", true);
+      setStatus(t("THIS_ADD_IN_MUST_BE_OPENED_IN_MICROSOFT_WORD"), true);
       elements.insertButton.disabled = true;
     }
     renderSelectionCount();
   });
 } else {
-  setStatus("Dieses Add-in muss in Microsoft Word geöffnet werden.", true);
+  setStatus(t("THIS_ADD_IN_MUST_BE_OPENED_IN_MICROSOFT_WORD"), true);
 }
 
 elements.crmUrl.value = new URL("../", window.location.href).href;

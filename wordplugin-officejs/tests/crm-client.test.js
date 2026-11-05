@@ -68,6 +68,7 @@ test("REST login and module describe use berliCRM challenge flow", async () => {
     const responses = {
       getchallenge: { token: "challenge", serverTime: 123, expireTime: 456 },
       login: { sessionName: "session-1" },
+      office_addin_user_preferences: { language: "de_de" },
       listtypes: { types: ["Contacts", "HelpDesk"] },
       describe: {
         fields: [{ name: "firstname", label: "Vorname" }, { label: "Ohne API-Namen" }],
@@ -96,9 +97,68 @@ test("REST login and module describe use berliCRM challenge flow", async () => {
     new URLSearchParams(requests[1].options.body).get("accessKey"),
     createHash("md5").update("challengeaccess-key").digest("hex"),
   );
-  assert.equal(requests[2].url.searchParams.get("sessionName"), "session-1");
-  assert.equal(requests[2].url.searchParams.get("format"), "json");
-  assert.equal(requests[3].url.searchParams.get("elementType"), "Contacts");
+  assert.equal(new URLSearchParams(requests[2].options.body).get("sessionName"), "session-1");
+  assert.equal(new URLSearchParams(requests[2].options.body).get("operation"), "office_addin_user_preferences");
+  assert.equal(requests[3].url.searchParams.get("format"), "json");
+  assert.equal(requests[4].url.searchParams.get("elementType"), "Contacts");
+});
+
+test("disconnect clears the local session before the server responds", async () => {
+  let completeLogout;
+  const requests = [];
+  const client = new BerliCrmClient("https://crm.example.test/berliCRM", (url, options) => {
+    requests.push({ url, options });
+    return new Promise((resolve) => { completeLogout = resolve; });
+  });
+  client.sessionName = "old-session";
+
+  const logout = client.disconnect();
+  assert.equal(client.sessionName, null);
+  const body = new URLSearchParams(requests[0].options.body);
+  assert.equal(body.get("operation"), "logout");
+  assert.equal(body.get("sessionName"), "old-session");
+  await client.disconnect();
+  assert.equal(requests.length, 1);
+
+  client.sessionName = "new-session";
+  completeLogout({ ok: true, json: async () => ({ success: true, result: true }) });
+  await logout;
+  assert.equal(client.sessionName, "new-session");
+});
+
+for (const [name, fetchImpl] of [
+  ["expired session", async () => ({
+    ok: true,
+    status: 200,
+    json: async () => ({ success: false, error: { code: "INVALID_SESSIONID", message: "Session expired" } }),
+  })],
+  ["HTTP failure", async () => ({
+    ok: false,
+    status: 401,
+    json: async () => ({ success: false }),
+  })],
+  ["invalid JSON", async () => ({
+    ok: true,
+    status: 200,
+    json: async () => { throw new SyntaxError("Not JSON"); },
+  })],
+  ["network failure", async () => { throw new TypeError("Offline"); }],
+]) {
+  test("disconnect clears the local session after " + name, async () => {
+    const client = new BerliCrmClient("https://crm.example.test/berliCRM", fetchImpl);
+    client.sessionName = "expired-session";
+    await assert.rejects(client.disconnect());
+    assert.equal(client.sessionName, null);
+    await client.disconnect();
+  });
+}
+
+test("disconnect without a session does not send a request", async () => {
+  const client = new BerliCrmClient("https://crm.example.test/berliCRM", async () => {
+    assert.fail("No logout request expected");
+  });
+  await client.disconnect();
+  assert.equal(client.sessionName, null);
 });
 
 test("Users are limited to the exact legacy merge-field set", async () => {

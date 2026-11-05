@@ -3,72 +3,73 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>berliCRM Kontakte</title>
+  <title data-i18n="BERLICRM_CONTACTS"></title>
   <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
-  <link rel="stylesheet" href="contacts.css?v=20261103.3" />
+  <link rel="stylesheet" href="contacts.css?v=20261105.1" />
+  <script src="language.js?v=20261105.1"></script>
 </head>
 <body>
-  <nav><a href="taskpane.html">Zurück zu Mail und Kalender</a></nav>
-  <h1>berliCRM Kontakte</h1>
+  <nav><a href="taskpane.html" data-i18n="BACK_TO_MAIL_AND_CALENDAR"></a></nav>
+  <h1 data-i18n="BERLICRM_CONTACTS"></h1>
   <section>
-    <h2>CRM-Anmeldung</h2>
+    <h2 data-i18n="CRM_SIGN_IN"></h2>
     <form id="contactLoginForm">
-      <label for="contactUsername">Benutzername</label>
+      <label for="contactUsername" data-i18n="USERNAME"></label>
       <input id="contactUsername" autocomplete="username" required />
-      <label for="contactAccessKey">Access Key</label>
+      <label for="contactAccessKey" data-i18n="ACCESS_KEY"></label>
       <input id="contactAccessKey" type="password" autocomplete="current-password" required />
-      <button type="submit">Am CRM anmelden</button>
+      <button type="submit" data-i18n="SIGN_IN_TO_CRM"></button>
     </form>
     <p id="contactLoginStatus" role="status" aria-live="polite"></p>
-    <button id="contactLogout" type="button" hidden>Anders anmelden</button>
+    <button id="contactLogout" type="button" hidden data-i18n="USE_ANOTHER_ACCOUNT"></button>
   </section>
   <div id="contactWorkspace" hidden>
     <section>
-      <h2>Microsoft-Konto</h2>
-      <p id="contactMicrosoftStatus" role="status" aria-live="polite">Microsoft-Verbindung wird vorbereitet …</p>
+      <h2 data-i18n="MICROSOFT_ACCOUNT"></h2>
+      <p id="contactMicrosoftStatus" role="status" aria-live="polite" data-i18n="PREPARING_MICROSOFT_CONNECTION"></p>
       <div id="contactMicrosoftLogin" hidden>
-        <p>Verbinde das Konto, dessen persönliche Outlook-Kontakte du übernehmen möchtest.</p>
-        <div class="actions"><button id="contactConnect" type="button">Mit Microsoft verbinden</button></div>
+        <p data-i18n="CONNECT_THE_ACCOUNT_WHOSE_PERSONAL_OUTLOOK_CONTACTS_YOU_WANT_TO_TRANSFER"></p>
+        <div class="actions"><button id="contactConnect" type="button" data-i18n="CONNECT_TO_MICROSOFT"></button></div>
       </div>
-      <div class="actions"><button id="contactDisconnect" type="button" hidden>Verbindung trennen</button></div>
-      <label for="contactFolder">Outlook-Kontaktordner für Import und Export</label>
-      <select id="contactFolder" disabled><option value="">Standardkontakte</option></select>
-      <button id="contactLoadFolders" type="button" disabled>Weitere Ordner laden</button>
+      <div class="actions"><button id="contactDisconnect" type="button" hidden data-i18n="DISCONNECT"></button></div>
+      <label for="contactFolder" data-i18n="OUTLOOK_CONTACT_FOLDER_FOR_IMPORT_AND_EXPORT"></label>
+      <select id="contactFolder" disabled><option value="" data-i18n="DEFAULT_CONTACTS"></option></select>
+      <button id="contactLoadFolders" type="button" disabled data-i18n="LOAD_MORE_FOLDERS"></button>
     </section>
     <section>
-      <h2>CRM → Outlook</h2>
+      <h2 data-i18n="CRM_OUTLOOK"></h2>
       <form id="contactSearchForm">
-        <label for="contactSearch">Person im CRM suchen</label>
-        <input id="contactSearch" placeholder="Name oder E-Mail" required />
-        <button type="submit">Suchen</button>
+        <label for="contactSearch" data-i18n="FIND_A_PERSON_IN_CRM"></label>
+        <input id="contactSearch" data-i18n-placeholder="NAME_OR_EMAIL" placeholder="" required />
+        <button type="submit" data-i18n="SEARCH"></button>
       </form>
       <div class="actions">
-        <button id="contactSelectCrm" type="button">Alle Treffer auswählen</button>
-        <button id="contactExport" type="button" disabled>Ausgewählte als Outlook-Kontakte anlegen</button>
+        <button id="contactSelectCrm" type="button" data-i18n="SELECT_ALL_RESULTS"></button>
+        <button id="contactExport" type="button" disabled data-i18n="CREATE_SELECTED_AS_OUTLOOK_CONTACTS"></button>
       </div>
       <div id="contactCrmResults" class="results"></div>
     </section>
     <section>
-      <h2>Outlook → CRM</h2>
+      <h2 data-i18n="OUTLOOK_CRM"></h2>
       <p id="contactRequiredFields"></p>
-      <p>Nur vollständige Kontakte werden angelegt. Vorhandene Kontakte werden übersprungen.</p>
+      <p data-i18n="ONLY_COMPLETE_CONTACTS_ARE_CREATED_EXISTING_CONTACTS_ARE_SKIPPED"></p>
       <div class="actions">
-        <button id="contactLoadOutlook" type="button" disabled>Outlook-Kontakte laden</button>
-        <button id="contactMoreOutlook" type="button" hidden>Weitere Kontakte laden</button>
-        <button id="contactSelectOutlook" type="button">Alle vollständigen Kontakte auswählen</button>
-        <button id="contactImport" type="button" disabled>Ausgewählte ins CRM übernehmen</button>
+        <button id="contactLoadOutlook" type="button" disabled data-i18n="LOAD_OUTLOOK_CONTACTS"></button>
+        <button id="contactMoreOutlook" type="button" hidden data-i18n="LOAD_MORE_CONTACTS"></button>
+        <button id="contactSelectOutlook" type="button" data-i18n="SELECT_ALL_COMPLETE_CONTACTS"></button>
+        <button id="contactImport" type="button" disabled data-i18n="IMPORT_SELECTED_INTO_CRM"></button>
       </div>
       <div id="contactOutlookResults" class="results"></div>
     </section>
     <p id="contactTransferStatus" role="status" aria-live="polite"></p>
   </div>
   <footer class="addin-credit">
-    <span class="addin-version">Version 1.0.15.4</span>
-    <span>proudly made in Berlin by crm-now GmbH</span>
+    <span class="addin-version" data-i18n="ADDIN_VERSION"></span>
+    <span data-i18n="PROUDLY_MADE_IN_BERLIN_BY_CRM_NOW_GMBH"></span>
   </footer>
-  <script src="contact-model.js?v=20261101.1"></script>
-  <script src="contact-graph.js?v=20261103.3"></script>
-  <script src="assets/contacts-sso.bundle.js?v=20261102.10"></script>
-  <script src="contacts.js?v=20261102.10"></script>
+  <script src="contact-model.js?v=20261105.1"></script>
+  <script src="contact-graph.js?v=20261105.1"></script>
+  <script src="assets/contacts-sso.bundle.js?v=20261105.1"></script>
+  <script src="contacts.js?v=20261105.1"></script>
 </body>
 </html>

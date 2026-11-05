@@ -1,5 +1,9 @@
 # berliCRM Word Add-in
 
+## Sprachen ab Word 1.4.0.0 / Outlook 1.1.0.0
+
+Die Add-ins verwenden nach der Anmeldung die Sprache des CRM-Benutzers (`de_de` oder `en_us`). Vorher gilt die Office-/Browsersprache. Texte werden in PHP-Spracharrays mit stabilen Schluesseln gepflegt. Fuer dieses Update muss `office_addin_user_preferences` registriert werden. Einrichtung und Pflege: [Sprachdokumentation](LANGUAGES.md).
+
 Dieses Office.js-Add-in ersetzt das frühere VB6/32-Bit-COM-Plugin. Es fügt
 Word-`MERGEFIELD`s aus berliCRM-Feldern ein und erstellt Serienbriefe aus
 gespeicherten CRM-Listenansichten.
@@ -23,6 +27,9 @@ Serverdateien sichern; Details zu Update und Wiederherstellung stehen im
 [Handbuch](./DOKUMENTATION.md#update-auf-1304-und-zurückschalten).
 
 ## Einrichtung in berliCRM v8x
+
+Bei einer CRM-Neuinstallation registriert der abschließende Installationsschritt
+den Menüeintrag und die Word-Webservices automatisch.
 
 Nach dem regulären CRM-Datenbankupdate (`db_update.php`) finden Administratoren
 die Seite unter **CRM-Einstellungen > Integration > Word Add-in**.
@@ -52,12 +59,6 @@ Einzeltests in Word im Web und einen Windows-Testkatalog ohne Exchange. Sie
 verlinkt die jeweiligen Microsoft-Anleitungen. Die lokale Dateiprüfung ersetzt
 keine Prüfung von Zertifikat und Erreichbarkeit auf einem Word-Arbeitsplatz.
 
-Tests der Admin-Integration ohne CRM-Datenbank:
-
-```sh
-php build/tests/word-addin-settings.php
-```
-
 Die vollständige Anleitung zur Serverinstallation, Word-Installation ohne
 Exchange und zentralen Bereitstellung über Microsoft 365/Exchange sowie zur
 Schritt-für-Schritt-Nutzung befindet sich in
@@ -68,8 +69,7 @@ Schritt-für-Schritt-Nutzung befindet sich in
 - Der PHP-Code unterstützt den vom CRM vorgegebenen Bereich **PHP 8.2–8.5**.
   Syntax, PHPDoc und isolierte Serververträge werden mit 8.2.35, 8.3.32,
   8.4.27 und 8.5.12 geprüft; Warnungen und Deprecations gelten dabei als Fehler.
-  Aus dem CRM-Hauptverzeichnis: `php build/tests/office-addins-php.php` und
-  `php build/tests/word-addin-settings.php`. DOM/XML wird für die
+  DOM/XML wird für die
   Manifestgenerierung, ZIP für die DOCX-Ablage benötigt. Die übrigen
   PHP-Erweiterungen und Bibliotheken richten sich nach den CRM-Anforderungen.
 

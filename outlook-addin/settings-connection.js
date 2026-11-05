@@ -37,6 +37,7 @@
       if (address.origin !== location.origin || !address.pathname.endsWith('/outlook-addin/contacts-auth.html')) throw new Error(labels.badReply);
       address.searchParams.set('start', '1');
       address.searchParams.set('channel', 'popup');
+      address.searchParams.set('language', labels.language || document.documentElement?.lang || 'en_us');
       // Open synchronously from the user's click, before making asynchronous requests.
       popup = window.open(address.href, '_blank', 'width=640,height=780');
       if (!popup) throw new Error(labels.blocked);

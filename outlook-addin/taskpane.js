@@ -2,7 +2,8 @@ const API_URL = new URL('rest/outlook.php', window.location.href).toString();
 const SESSION_STORAGE_KEY = 'berliCRM.outlook.session';
 const OUTLOOK_RECIPIENT_BATCH_SIZE = 100;
 
-function initializeTaskpane() {
+async function initializeTaskpane() {
+  globalThis.BerliI18n.initialize();
   const loginButton = document.getElementById('loginButton');
   const searchButton = document.getElementById('searchButton');
   const searchVerteilerButton = document.getElementById('searchVerteilerButton');
@@ -12,7 +13,7 @@ function initializeTaskpane() {
   searchButton.addEventListener('click', searchContacts);
   searchVerteilerButton.addEventListener('click', searchVerteiler);
   eventsButton.addEventListener('click', loadEvents);
-  restoreSession();
+  await restoreSession();
   if (typeof initializeMailReadPane === 'function') initializeMailReadPane();
   initializeCalendarPane();
 }
@@ -22,8 +23,10 @@ let crmUserId = null;
 let crmUsername = '';
 let recipientTransferInProgress = false;
 let verteilerSearchGeneration = 0;
+let crmSessionGeneration = 0;
 
-function restoreSession() {
+async function restoreSession() {
+  const generation = ++crmSessionGeneration;
   const loginStatus = document.getElementById('loginStatus');
 
   try {
@@ -38,15 +41,23 @@ function restoreSession() {
       return;
     }
 
+    const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ language: globalThis.BerliI18n.language, action: 'getUserPreferences', sessionName: saved.sessionName }) });
+    const preferences = await response.json();
+    if (generation !== crmSessionGeneration) return;
+    if (!response.ok || !preferences.success || !preferences.payload?.language) throw new Error(preferences.payload || 'INVALID_SESSIONID');
+    globalThis.BerliI18n.setLanguage(preferences.payload.language);
+
     sessionName = saved.sessionName;
     crmUserId = typeof saved.userId === 'string' ? saved.userId : null;
     if (typeof saved.username === 'string') {
       crmUsername = saved.username;
       document.getElementById('username').value = saved.username;
     }
-    loginStatus.textContent = 'Angemeldet als ' + (crmUsername || 'CRM-Nutzer') + '.';
+    loginStatus.textContent = globalThis.BerliI18n.t("SIGNED_IN_AS") + (crmUsername || globalThis.BerliI18n.t("CRM_USER")) + '.';
   } catch (error) {
-    loginStatus.textContent = 'Gespeicherte CRM-Anmeldung konnte nicht gelesen werden: ' + error.message;
+    if (generation !== crmSessionGeneration) return;
+    loginStatus.textContent = globalThis.BerliI18n.t("COULD_NOT_READ_THE_SAVED_CRM_SIGN_IN") + error.message;
   }
 }
 
@@ -56,26 +67,29 @@ async function login() {
   const loginStatus = document.getElementById('loginStatus');
 
   if (!username || !accessKey) {
-    loginStatus.textContent = 'Bitte Benutzername und Access Key eingeben.';
+    loginStatus.textContent = globalThis.BerliI18n.t("PLEASE_ENTER_YOUR_USERNAME_AND_ACCESS_KEY");
     return;
   }
 
-  loginStatus.textContent = 'Anmeldung läuft...';
+  const generation = ++crmSessionGeneration;
+  loginStatus.textContent = globalThis.BerliI18n.t("SIGNING_IN");
   try {
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'login', username, accessKey }),
+      body: JSON.stringify({ language: globalThis.BerliI18n.language, action: 'login', username, accessKey }),
     });
 
     const result = await response.json();
+    if (generation !== crmSessionGeneration) return;
     if (result.success) {
       if (!result.payload || typeof result.payload.sessionName !== 'string' || !result.payload.sessionName) {
-        loginStatus.textContent = 'Login fehlgeschlagen: Das CRM hat kein gültiges Sitzungstoken zurückgegeben.';
+        loginStatus.textContent = globalThis.BerliI18n.t("SIGN_IN_FAILED_THE_CRM_DID_NOT_RETURN_A_VALID_SESSION_TOKEN");
         return;
       }
 
       sessionName = result.payload.sessionName;
+      globalThis.BerliI18n.setLanguage(result.payload.language);
       crmUserId = result.payload.userId;
       crmUsername = username;
       document.getElementById('accessKey').value = '';
@@ -85,16 +99,17 @@ async function login() {
           sessionName,
           userId: crmUserId,
         }));
-        loginStatus.textContent = 'Angemeldet. CRM-Sitzung wird beim erneuten Öffnen wiederverwendet.';
+        loginStatus.textContent = globalThis.BerliI18n.t("SIGNED_IN_YOUR_CRM_SESSION_WILL_BE_REUSED_WHEN_YOU_REOPEN_THE_ADD_IN");
       } catch (error) {
-        loginStatus.textContent = 'Angemeldet, aber die Sitzung konnte nicht dauerhaft gespeichert werden: ' + error.message;
+        loginStatus.textContent = globalThis.BerliI18n.t("SIGNED_IN_BUT_THE_SESSION_COULD_NOT_BE_SAVED") + error.message;
       }
       refreshTaskpaneMode();
     } else {
-      loginStatus.textContent = 'Login fehlgeschlagen: ' + result.payload;
+      loginStatus.textContent = globalThis.BerliI18n.t("SIGN_IN_FAILED") + result.payload;
     }
   } catch (error) {
-    loginStatus.textContent = 'Login-Fehler: ' + error.message;
+    if (generation !== crmSessionGeneration) return;
+    loginStatus.textContent = globalThis.BerliI18n.t("SIGN_IN_ERROR") + error.message;
   }
 }
 
@@ -103,29 +118,29 @@ async function searchContacts() {
   const searchResult = document.getElementById('searchResult');
 
   if (!sessionName) {
-    searchResult.textContent = 'Bitte zuerst anmelden.';
+    searchResult.textContent = globalThis.BerliI18n.t("PLEASE_SIGN_IN_FIRST");
     return;
   }
   if (!query) {
-    searchResult.textContent = 'Suchbegriff fehlt.';
+    searchResult.textContent = globalThis.BerliI18n.t("SEARCH_TERM_IS_MISSING");
     return;
   }
 
-  searchResult.textContent = 'Suche läuft...';
+  searchResult.textContent = globalThis.BerliI18n.t("SEARCHING");
   try {
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'searchContacts', query, sessionName }),
+      body: JSON.stringify({ language: globalThis.BerliI18n.language, action: 'searchContacts', query, sessionName }),
     });
     const result = await response.json();
     if (result.success) {
       renderContactSearchResults(result.payload.contacts);
     } else {
-      searchResult.textContent = 'Suche fehlgeschlagen: ' + result.payload;
+      searchResult.textContent = globalThis.BerliI18n.t("SEARCH_FAILED") + result.payload;
     }
   } catch (error) {
-    searchResult.textContent = 'Fehler: ' + error.message;
+    searchResult.textContent = globalThis.BerliI18n.t("ERROR") + error.message;
   }
 }
 
@@ -135,20 +150,20 @@ async function searchVerteiler() {
   const searchResult = document.getElementById('verteilerResult');
 
   if (!sessionName || !crmUserId) {
-    searchResult.textContent = 'Bitte erneut am CRM anmelden, um eigene Verteiler zu suchen.';
+    searchResult.textContent = globalThis.BerliI18n.t("PLEASE_SIGN_IN_TO_CRM_AGAIN_TO_SEARCH_YOUR_DISTRIBUTION_LISTS");
     return;
   }
   if (!query) {
-    searchResult.textContent = 'Suchbegriff fehlt.';
+    searchResult.textContent = globalThis.BerliI18n.t("SEARCH_TERM_IS_MISSING");
     return;
   }
 
-  searchResult.textContent = 'Suche läuft...';
+  searchResult.textContent = globalThis.BerliI18n.t("SEARCHING");
   try {
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'searchVerteiler', query, sessionName, userId: crmUserId }),
+      body: JSON.stringify({ language: globalThis.BerliI18n.language, action: 'searchVerteiler', query, sessionName, userId: crmUserId }),
     });
     const result = await response.json();
     if (generation !== verteilerSearchGeneration) {
@@ -157,55 +172,56 @@ async function searchVerteiler() {
     if (result.success) {
       renderVerteilerSearchResults(result.payload.verteilers);
     } else {
-      searchResult.textContent = 'Suche fehlgeschlagen: ' + result.payload;
+      searchResult.textContent = globalThis.BerliI18n.t("SEARCH_FAILED") + result.payload;
     }
   } catch (error) {
     if (generation !== verteilerSearchGeneration) {
       return;
     }
-    searchResult.textContent = 'Fehler: ' + error.message;
+    searchResult.textContent = globalThis.BerliI18n.t("ERROR") + error.message;
   }
 }
 
 async function addVerteilerToOutlook(verteiler, status = document.getElementById('recipientStatus')) {
   if (!sessionName) {
-    status.textContent = 'Bitte zuerst anmelden.';
+    status.textContent = globalThis.BerliI18n.t("PLEASE_SIGN_IN_FIRST");
     return;
   }
 
-  status.textContent = 'Verteilerkontakte werden geladen...';
+  status.textContent = globalThis.BerliI18n.t("LOADING_DISTRIBUTION_LIST_CONTACTS");
   try {
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        action: 'getVerteilerContacts',
+          language: globalThis.BerliI18n.language,
+          action: 'getVerteilerContacts',
         verteilerId: verteiler.id,
         sessionName,
       }),
     });
     const result = await response.json();
     if (!result.success) {
-      status.textContent = 'Verteiler konnte nicht geladen werden: ' + result.payload;
+      status.textContent = globalThis.BerliI18n.t("COULD_NOT_LOAD_DISTRIBUTION_LIST") + result.payload;
       return;
     }
 
     await addContactsToOutlook(result.payload.contacts, status);
   } catch (error) {
-    status.textContent = 'Fehler: ' + error.message;
+    status.textContent = globalThis.BerliI18n.t("ERROR") + error.message;
   }
 }
 
 async function addContactsToOutlook(records, status = document.getElementById('recipientStatus')) {
   if (recipientTransferInProgress) {
-    status.textContent = 'Es werden bereits Empfänger hinzugefügt. Bitte warte, bis der Vorgang abgeschlossen ist.';
+    status.textContent = globalThis.BerliI18n.t("RECIPIENTS_ARE_ALREADY_BEING_ADDED_PLEASE_WAIT_UNTIL_THE_OPERATION_FINIS");
     return;
   }
   const item = Office.context && Office.context.mailbox && Office.context.mailbox.item;
   const field = document.getElementById('recipientField').value;
   const recipientCollection = getOutlookRecipientCollection();
   if (!recipientCollection) {
-    status.textContent = 'Bitte öffne einen E-Mail-Entwurf in Outlook und versuche es dort erneut.';
+    status.textContent = globalThis.BerliI18n.t("PLEASE_OPEN_AN_EMAIL_DRAFT_IN_OUTLOOK_AND_TRY_AGAIN_THERE");
     return;
   }
 
@@ -232,7 +248,7 @@ async function addContactsToOutlook(records, status = document.getElementById('r
   });
 
   if (recipients.length === 0) {
-    status.textContent = 'Keine E-Mail-Adressen im Kontakt oder Verteiler gefunden.';
+    status.textContent = globalThis.BerliI18n.t("NO_EMAIL_ADDRESSES_FOUND_IN_THE_CONTACT_OR_DISTRIBUTION_LIST");
     return;
   }
 
@@ -240,7 +256,7 @@ async function addContactsToOutlook(records, status = document.getElementById('r
   let addedCount = 0;
   let pendingCount = recipients.length;
   try {
-    status.textContent = 'Empfängerzahl und Postfachlimit werden geprüft...';
+    status.textContent = globalThis.BerliI18n.t("CHECKING_RECIPIENT_COUNT_AND_MAILBOX_LIMIT");
     const [recipientLimit, existingFields] = await Promise.all([
       getConfiguredRecipientLimit(),
       Promise.all(['to', 'cc', 'bcc'].map(name => getOutlookRecipients(item[name]))),
@@ -255,45 +271,45 @@ async function addContactsToOutlook(records, status = document.getElementById('r
     pendingCount = newRecipients.length;
 
     if (existingCount + newRecipients.length > recipientLimit) {
-      status.textContent = 'Empfängerlimit überschritten: Bereits ' + existingCount
-        + ' Empfänger in An, Cc und Bcc; zusätzlich ' + newRecipients.length
-        + ', insgesamt ' + (existingCount + newRecipients.length) + '. Erlaubt sind höchstens '
-        + recipientLimit + '. Es wurden keine Empfänger hinzugefügt.';
+      status.textContent = globalThis.BerliI18n.t("RECIPIENT_LIMIT_EXCEEDED_ALREADY") + existingCount
+        + globalThis.BerliI18n.t("RECIPIENTS_IN_TO_CC_AND_BCC_ADDING") + newRecipients.length
+        + globalThis.BerliI18n.t("TOTAL") + (existingCount + newRecipients.length) + globalThis.BerliI18n.t("THE_MAXIMUM_ALLOWED_IS")
+        + recipientLimit + globalThis.BerliI18n.t("NO_RECIPIENTS_WERE_ADDED");
       return;
     }
     if (newRecipients.length === 0) {
-      status.textContent = 'Alle E-Mail-Adressen sind bereits im ausgewählten Outlook-Feld vorhanden.';
+      status.textContent = globalThis.BerliI18n.t("ALL_EMAIL_ADDRESSES_ARE_ALREADY_PRESENT_IN_THE_SELECTED_OUTLOOK_FIELD");
       return;
     }
 
-    const fieldLabel = { to: 'An', cc: 'Cc', bcc: 'Bcc' }[field];
+    const fieldLabel = globalThis.BerliI18n.t({ to: 'TO', cc: 'CC', bcc: 'BCC' }[field]);
     for (let offset = 0; offset < newRecipients.length; offset += OUTLOOK_RECIPIENT_BATCH_SIZE) {
       if (offset > 0) {
         const currentFields = await Promise.all(['to', 'cc', 'bcc'].map(name => getOutlookRecipients(item[name])));
         const currentCount = currentFields.reduce((total, entries) => total + entries.length, 0);
         if (currentCount + newRecipients.length - offset > recipientLimit) {
-          throw new Error('Empfängerlimit von ' + recipientLimit
-            + ' würde durch zwischenzeitlich hinzugefügte Empfänger überschritten.');
+          throw new Error(globalThis.BerliI18n.t("THE_RECIPIENT_LIMIT_OF") + recipientLimit
+            + globalThis.BerliI18n.t("WOULD_BE_EXCEEDED_BECAUSE_OTHER_RECIPIENTS_WERE_ADDED_IN_THE_MEANTIME"));
         }
       }
       if (Office.context.mailbox.item !== item) {
-        throw new Error('Der Outlook-Entwurf wurde gewechselt.');
+        throw new Error(globalThis.BerliI18n.t("THE_OUTLOOK_DRAFT_HAS_CHANGED"));
       }
       const batch = newRecipients.slice(offset, offset + OUTLOOK_RECIPIENT_BATCH_SIZE);
-      status.textContent = addedCount + ' von ' + newRecipients.length
-        + ' Empfängern hinzugefügt. Nächste ' + batch.length + ' werden übertragen...';
+      status.textContent = addedCount + globalThis.BerliI18n.t("OF") + newRecipients.length
+        + globalThis.BerliI18n.t("RECIPIENTS_ADDED_TRANSFERRING_THE_NEXT") + batch.length + globalThis.BerliI18n.t("TRANSFER_PENDING_SUFFIX");
       await addOutlookRecipients(recipientCollection, batch);
       addedCount += batch.length;
     }
     const duplicateCount = contacts.length - missingEmailCount - recipients.length;
-    status.textContent = addedCount + ' Empfänger zum Outlook-Feld „' + fieldLabel + '“ hinzugefügt.'
-      + (missingEmailCount > 0 ? ' ' + missingEmailCount + ' Kontakte ohne E-Mail-Adresse übersprungen.' : '')
-      + (duplicateCount > 0 ? ' ' + duplicateCount + ' doppelte E-Mail-Adressen zusammengefasst.' : '')
-      + (alreadyPresentCount > 0 ? ' ' + alreadyPresentCount + ' bereits vorhandene Adressen übersprungen.' : '');
+    status.textContent = addedCount + globalThis.BerliI18n.t("RECIPIENTS_ADDED_TO_THE_OUTLOOK_FIELD") + fieldLabel + globalThis.BerliI18n.t("RECIPIENT_FIELD_ADDED_SUFFIX")
+      + (missingEmailCount > 0 ? ' ' + missingEmailCount + globalThis.BerliI18n.t("CONTACTS_WITHOUT_AN_EMAIL_ADDRESS_SKIPPED") : '')
+      + (duplicateCount > 0 ? ' ' + duplicateCount + globalThis.BerliI18n.t("DUPLICATE_EMAIL_ADDRESSES_COMBINED") : '')
+      + (alreadyPresentCount > 0 ? ' ' + alreadyPresentCount + globalThis.BerliI18n.t("EXISTING_ADDRESSES_SKIPPED") : '');
   } catch (error) {
-    status.textContent = 'Hinzufügen abgebrochen: ' + error.message
-      + ' ' + addedCount + ' von ' + pendingCount + ' neuen Empfängern wurden bestätigt hinzugefügt.'
-      + ' Bitte prüfe die Empfängerfelder vor einem erneuten Versuch.';
+    status.textContent = globalThis.BerliI18n.t("ADDING_RECIPIENTS_STOPPED") + error.message
+      + ' ' + addedCount + globalThis.BerliI18n.t("OF") + pendingCount + globalThis.BerliI18n.t("NEW_RECIPIENTS_WERE_CONFIRMED_AS_ADDED")
+      + globalThis.BerliI18n.t("PLEASE_CHECK_THE_RECIPIENT_FIELDS_BEFORE_TRYING_AGAIN");
   } finally {
     recipientTransferInProgress = false;
   }
@@ -303,16 +319,16 @@ async function getConfiguredRecipientLimit() {
   const response = await fetch(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'getRecipientSettings', sessionName }),
+    body: JSON.stringify({ language: globalThis.BerliI18n.language, action: 'getRecipientSettings', sessionName }),
   });
   const result = await response.json();
   if (!response.ok || !result.success) {
-    throw new Error('Das Empfängerlimit konnte nicht geladen werden. '
+    throw new Error(globalThis.BerliI18n.t("COULD_NOT_LOAD_THE_RECIPIENT_LIMIT")
       + (typeof result.payload === 'string' ? result.payload : 'HTTP ' + response.status));
   }
   const limit = result.payload && result.payload.recipientLimit;
   if (!Number.isInteger(limit) || limit < 1 || limit > 1000) {
-    throw new Error('Das konfigurierte Empfängerlimit ist ungültig.');
+    throw new Error(globalThis.BerliI18n.t("THE_CONFIGURED_RECIPIENT_LIMIT_IS_INVALID"));
   }
   return limit;
 }
@@ -320,15 +336,15 @@ async function getConfiguredRecipientLimit() {
 function getOutlookRecipients(collection) {
   return new Promise((resolve, reject) => {
     if (!collection || typeof collection.getAsync !== 'function') {
-      reject(new Error('Die vorhandenen Outlook-Empfänger können nicht gezählt werden.'));
+      reject(new Error(globalThis.BerliI18n.t("THE_EXISTING_OUTLOOK_RECIPIENTS_CANNOT_BE_COUNTED")));
       return;
     }
     collection.getAsync(result => {
       if (result.status === Office.AsyncResultStatus.Succeeded && Array.isArray(result.value)) {
         resolve(result.value);
       } else {
-        reject(new Error('Die vorhandenen Outlook-Empfänger können nicht gezählt werden: '
-          + (result.error ? result.error.message : 'Ungültige Outlook-Antwort.')));
+        reject(new Error(globalThis.BerliI18n.t("THE_EXISTING_OUTLOOK_RECIPIENTS_CANNOT_BE_COUNTED_2")
+          + (result.error ? result.error.message : globalThis.BerliI18n.t("INVALID_OUTLOOK_RESPONSE"))));
       }
     });
   });
@@ -350,7 +366,7 @@ function addOutlookRecipients(collection, recipients) {
       if (result.status === Office.AsyncResultStatus.Succeeded) {
         resolve();
       } else {
-        reject(new Error(result.error ? result.error.message : 'Unbekannter Outlook-Fehler.'));
+        reject(new Error(result.error ? result.error.message : globalThis.BerliI18n.t("UNKNOWN_OUTLOOK_ERROR")));
       }
     });
   });
@@ -360,32 +376,32 @@ async function loadEvents() {
   const eventsResult = document.getElementById('eventsResult');
 
   if (!sessionName) {
-    eventsResult.textContent = 'Bitte zuerst anmelden.';
+    eventsResult.textContent = globalThis.BerliI18n.t("PLEASE_SIGN_IN_FIRST");
     return;
   }
-  eventsResult.textContent = 'Termine laden...';
+  eventsResult.textContent = globalThis.BerliI18n.t("LOADING_APPOINTMENTS");
 
   try {
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'listEvents', sessionName }),
+      body: JSON.stringify({ language: globalThis.BerliI18n.language, action: 'listEvents', sessionName }),
     });
     const result = await response.json();
     if (result.success) {
       renderEvents(result.payload.events, result.payload.display);
     } else {
-      eventsResult.textContent = 'Fehler beim Laden: ' + result.payload;
+      eventsResult.textContent = globalThis.BerliI18n.t("ERROR_LOADING_DATA") + result.payload;
     }
   } catch (error) {
-    eventsResult.textContent = 'Fehler: ' + error.message;
+    eventsResult.textContent = globalThis.BerliI18n.t("ERROR") + error.message;
   }
 }
 
 function renderContactSearchResults(records) {
   const container = document.getElementById('searchResult');
   if (!Array.isArray(records) || records.length === 0) {
-    container.textContent = 'Keine Kontakte gefunden.';
+    container.textContent = globalThis.BerliI18n.t("NO_CONTACTS_FOUND");
     return;
   }
   container.innerHTML = '';
@@ -396,15 +412,15 @@ function renderContactSearchResults(records) {
 
     const title = document.createElement('strong');
     const name = [record.firstname, record.lastname].filter(Boolean).join(' ').trim();
-    title.textContent = name || record.accountname || record.email || record.id || 'Kontakt';
+    title.textContent = name || record.accountname || record.email || record.id || globalThis.BerliI18n.t("CONTACT");
     const header = document.createElement('div');
     header.className = 'record-header';
     if (record.email) {
       const addButton = document.createElement('button');
       addButton.type = 'button';
-      addButton.textContent = 'Zu Outlook hinzufügen';
+      addButton.textContent = globalThis.BerliI18n.t("ADD_TO_OUTLOOK");
       addButton.className = 'button button-compact';
-      addButton.setAttribute('aria-label', title.textContent + ' zu Outlook hinzufügen');
+      addButton.setAttribute('aria-label', title.textContent + globalThis.BerliI18n.t("ADD_TO_OUTLOOK_ARIA_SUFFIX"));
       addButton.addEventListener('click', () => addContactsToOutlook([record]));
       header.appendChild(addButton);
     }
@@ -413,13 +429,13 @@ function renderContactSearchResults(records) {
 
     const lines = [];
     if (record.email) {
-      lines.push('E-Mail: ' + record.email);
+      lines.push(globalThis.BerliI18n.t('CONTACT_EMAIL_LABEL') + record.email);
     }
     if (record.phone) {
-      lines.push('Tel: ' + record.phone);
+      lines.push(globalThis.BerliI18n.t("PHONE") + record.phone);
     }
     if (record.mobile) {
-      lines.push('Mobil: ' + record.mobile);
+      lines.push(globalThis.BerliI18n.t("MOBILE") + record.mobile);
     }
 
     const details = document.createElement('div');
@@ -430,7 +446,7 @@ function renderContactSearchResults(records) {
     if (!record.email) {
       const noEmail = document.createElement('div');
       noEmail.className = 'notice';
-      noEmail.textContent = 'Keine E-Mail-Adresse hinterlegt.';
+      noEmail.textContent = globalThis.BerliI18n.t("NO_EMAIL_ADDRESS_IS_STORED");
       item.appendChild(noEmail);
     }
 
@@ -442,7 +458,7 @@ function renderVerteilerSearchResults(records) {
   const generation = ++verteilerSearchGeneration;
   const container = document.getElementById('verteilerResult');
   if (!Array.isArray(records) || records.length === 0) {
-    container.textContent = 'Keine Verteiler gefunden.';
+    container.textContent = globalThis.BerliI18n.t("NO_DISTRIBUTION_LISTS_FOUND");
     return;
   }
   container.innerHTML = '';
@@ -452,11 +468,11 @@ function renderVerteilerSearchResults(records) {
     const item = document.createElement('div');
     item.className = 'record';
     const title = document.createElement('strong');
-    const verteilerName = record.verteilername || record.id || 'Verteiler';
+    const verteilerName = record.verteilername || record.id || globalThis.BerliI18n.t("DISTRIBUTION_LIST");
     title.textContent = verteilerName;
     const count = document.createElement('span');
     count.className = 'record-count';
-    count.textContent = ' (Anzahl wird geladen...)';
+    count.textContent = globalThis.BerliI18n.t("LOADING_COUNT");
     title.appendChild(count);
     countEntries.push({ record, element: count });
     const header = document.createElement('div');
@@ -469,9 +485,9 @@ function renderVerteilerSearchResults(records) {
 
     const addButton = document.createElement('button');
     addButton.type = 'button';
-    addButton.textContent = 'Zu Outlook hinzufügen';
+    addButton.textContent = globalThis.BerliI18n.t("ADD_TO_OUTLOOK");
     addButton.className = 'button button-compact';
-    addButton.setAttribute('aria-label', 'Verteilerkontakte aus ' + verteilerName + ' zu Outlook hinzufügen');
+    addButton.setAttribute('aria-label', globalThis.BerliI18n.t("DISTRIBUTION_LIST_CONTACTS_FROM") + verteilerName + globalThis.BerliI18n.t("ADD_TO_OUTLOOK_ARIA_SUFFIX"));
     addButton.addEventListener('click', async () => {
       addButton.disabled = true;
       status.hidden = false;
@@ -499,7 +515,7 @@ async function loadVerteilerContactCounts(entries, generation) {
         const response = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'countVerteilerContacts', verteilerId: entry.record.id, sessionName }),
+          body: JSON.stringify({ language: globalThis.BerliI18n.language, action: 'countVerteilerContacts', verteilerId: entry.record.id, sessionName }),
         });
         const result = await response.json();
         if (generation !== verteilerSearchGeneration) {
@@ -507,14 +523,14 @@ async function loadVerteilerContactCounts(entries, generation) {
         }
         const count = result.payload && result.payload.emailContactCount;
         if (!response.ok || !result.success || !Number.isSafeInteger(count) || count < 0) {
-          throw new Error(typeof result.payload === 'string' ? result.payload : 'Ungültige Antwort beim Zählen.');
+          throw new Error(typeof result.payload === 'string' ? result.payload : globalThis.BerliI18n.t("INVALID_RESPONSE_WHEN_COUNTING_CONTACTS"));
         }
-        entry.element.textContent = ' (' + count + (count === 1 ? ' Kontakt' : ' Kontakte') + ' mit E-Mail)';
+        entry.element.textContent = ' (' + count + (count === 1 ? globalThis.BerliI18n.t("EMAIL_CONTACT_COUNT_SINGULAR") : globalThis.BerliI18n.t("CONTACTS")) + globalThis.BerliI18n.t("WITH_EMAIL");
       } catch (error) {
         if (generation !== verteilerSearchGeneration) {
           return;
         }
-        entry.element.textContent = ' (Anzahl nicht verfügbar)';
+        entry.element.textContent = globalThis.BerliI18n.t("COUNT_UNAVAILABLE");
         entry.element.title = error.message;
       }
     }
@@ -526,25 +542,25 @@ async function loadVerteilerContactCounts(entries, generation) {
 function renderEvents(records, display) {
   const container = document.getElementById('eventsResult');
   if (!Array.isArray(records) || records.length === 0) {
-    container.textContent = 'Keine Daten gefunden.';
+    container.textContent = globalThis.BerliI18n.t("NO_DATA_FOUND");
     return;
   }
   if (!display || !display.fieldLabels || typeof display.dateFormat !== 'string') {
-    throw new Error('Die CRM-Feldbezeichnungen oder das persönliche Datumsformat fehlen.');
+    throw new Error(globalThis.BerliI18n.t("THE_CRM_FIELD_LABELS_OR_YOUR_PREFERRED_DATE_FORMAT_ARE_MISSING"));
   }
   container.innerHTML = '';
   records.forEach(record => {
     const item = document.createElement('div');
     item.className = 'record';
     const title = document.createElement('strong');
-    title.textContent = record.subject || record.id || 'Termin';
+    title.textContent = record.subject || record.id || globalThis.BerliI18n.t("APPOINTMENT");
     item.appendChild(title);
     const lines = [];
     for (const key of ['location', 'date_start', 'due_date']) {
       if (record[key]) {
         const label = display.fieldLabels[key];
         if (typeof label !== 'string' || !label) {
-          throw new Error('Die CRM-Feldbezeichnung für ein Terminfeld fehlt.');
+          throw new Error(globalThis.BerliI18n.t("A_CRM_FIELD_LABEL_FOR_AN_APPOINTMENT_FIELD_IS_MISSING"));
         }
         const value = key === 'date_start' || key === 'due_date'
           ? formatCrmDate(record[key], display.dateFormat) : record[key];
@@ -565,7 +581,7 @@ function formatCrmDate(value, dateFormat) {
   }
   const match = typeof value === 'string' && /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
   if (!match) {
-    throw new Error('Ein Termindatum ist ungültig.');
+    throw new Error(globalThis.BerliI18n.t("AN_APPOINTMENT_DATE_IS_INVALID"));
   }
   const year = Number(match[1]);
   const month = Number(match[2]);
@@ -573,12 +589,12 @@ function formatCrmDate(value, dateFormat) {
   const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
   const monthDays = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
   if (year === 0 || month < 1 || month > 12 || day < 1 || day > monthDays[month - 1]) {
-    throw new Error('Ein Termindatum ist ungültig.');
+    throw new Error(globalThis.BerliI18n.t("AN_APPOINTMENT_DATE_IS_INVALID"));
   }
   const tokens = typeof dateFormat === 'string' && dateFormat.match(/yyyy|mm|dd/g);
   if (!/^(yyyy|mm|dd)[./-](yyyy|mm|dd)[./-](yyyy|mm|dd)$/.test(dateFormat)
       || !tokens || new Set(tokens).size !== 3) {
-    throw new Error('Das persönliche CRM-Datumsformat wird nicht unterstützt.');
+    throw new Error(globalThis.BerliI18n.t("YOUR_PREFERRED_CRM_DATE_FORMAT_IS_NOT_SUPPORTED"));
   }
   const parts = { yyyy: match[1], mm: match[2], dd: match[3] };
   return dateFormat.replace(/yyyy|mm|dd/g, token => parts[token]);

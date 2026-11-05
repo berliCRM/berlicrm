@@ -18,7 +18,13 @@ $root = dirname(__DIR__, 2);
 $fixture = sys_get_temp_dir() . '/berlicrm-php8-http-' . bin2hex(random_bytes(8));
 mkdir($fixture, 0700);
 $files = array('outlook.php', 'OutlookWebserviceClient.php', 'OutlookContactsConfig.php');
-foreach ($files as $file) copy($root . '/outlook-addin/rest/' . $file, $fixture . '/' . $file);
+foreach ($files as $file) {
+    // Keep this flat HTTP fixture independent of private installation configuration.
+    $source = file_get_contents($root . '/outlook-addin/rest/' . $file);
+    $source = str_replace("dirname(__DIR__, 2) . '/include/utils/OfficeAddinI18n.php'",
+        var_export($root . '/include/utils/OfficeAddinI18n.php', true), $source);
+    file_put_contents($fixture . '/' . $file, $source);
+}
 $router = <<<'PHP'
 <?php
 if (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) !== '/crm.php') return false;

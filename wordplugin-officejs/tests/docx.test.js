@@ -238,8 +238,8 @@ test("DOCX is the default, legacy remains available and the DOCX implementation 
   const html = await readFile(new URL("../taskpane.html", import.meta.url), "utf8");
   assert.match(html, /value="legacy"/);
   assert.match(html, /value="docx" selected/);
-  assert.match(html, /Version 1\.3\.0\.4/);
-  assert.match(await readFile(new URL('../manifest.xml', import.meta.url), 'utf8'), /<Version>1\.3\.0\.4<\/Version>/);
+  assert.match(await readFile(new URL("../languages/de_de.php", import.meta.url), "utf8"), /Version 1\.4\.0\.0/);
+  assert.match(await readFile(new URL('../manifest.xml', import.meta.url), 'utf8'), /<Version>1\.4\.0\.0<\/Version>/);
   const source = await readFile(new URL("../src/taskpane.js", import.meta.url), "utf8");
   assert.match(source, /outputFormat\?\.value !== "docx"\) return createLegacyMergeDocuments/);
   assert.doesNotMatch(source, /^import[^\n]*docx/m);

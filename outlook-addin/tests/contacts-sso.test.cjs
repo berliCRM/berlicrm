@@ -1,3 +1,4 @@
+const { localizedContext } = require('./language-fixture.cjs');
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -16,7 +17,7 @@ function setup(options = {}) {
     }
     async clearCache() { events.push(['clear']); }
   }
-  const context = vm.createContext({ PublicClientApplication, URL, Date, window: {}, location: new URL('https://crm.example.test/outlook-addin/contacts.html') });
+  const context = localizedContext({ PublicClientApplication, URL, Date, window: {}, location: new URL('https://crm.example.test/outlook-addin/contacts.html') });
   vm.runInContext(source, context);
   const config = { configured: true, clientId: 'client', tenantId: 'tenant', redirectUri: 'https://crm.example.test/outlook-addin/contacts-auth.html' };
   return { events, connect: (overrides = {}, hint = '') => context.window.BerliContactsAuth.connectSilently({ ...config, ...overrides }, hint) };

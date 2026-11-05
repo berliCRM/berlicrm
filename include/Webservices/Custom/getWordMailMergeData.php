@@ -8,6 +8,8 @@
  *
  * @package berliCRM.WordAddin
  */
+require_once dirname(__DIR__, 2) . '/utils/OfficeAddinI18n.php';
+
 
 // Required for field validation; this function is not guaranteed to be loaded for custom operations.
 require_once 'include/Webservices/DescribeObject.php';
@@ -23,6 +25,31 @@ function berli_wordMailMergeDocumentFormats() {
     require_once __DIR__ . '/saveWordMailMergeDocument.php';
     if (defined('BERLI_WORD_DOCX_SAVE_VERSION')) $formats[] = 'docx';
     return $formats;
+}
+
+/**
+ * Provides readable field aliases in both languages for existing templates.
+ * @param string $moduleName Authorized module name.
+ * @param Users $user Authenticated CRM user.
+ * @return array<string,string[]> Labels for readable fields only.
+ */
+function berli_wordFieldAliases($moduleName, $user) {
+    $description = vtws_describe($moduleName, $user);
+    $aliases = array();
+    foreach ($description['fields'] as $field) {
+        $name = $field['name'];
+        $labels = array($name, $field['label'] ?? $name);
+        if (class_exists('Vtiger_Field_Model') && class_exists('Vtiger_Language_Handler')) {
+            $model = Vtiger_Field_Model::getInstance($name, Vtiger_Module_Model::getInstance($moduleName));
+            if ($model) foreach (array('de_de', 'en_us') as $language) {
+                $labels[] = Vtiger_Language_Handler::getTranslatedString($model->get('label'), $moduleName, $language);
+            }
+        }
+        $aliases[$name] = array_values(array_unique(array_map(function ($label) {
+            return html_entity_decode($label, ENT_QUOTES, 'UTF-8');
+        }, $labels)));
+    }
+    return $aliases;
 }
 
 /**
@@ -47,18 +74,18 @@ function berli_getWordMailMergeData($moduleName, $listId, $page, $recordIds, $fi
 	// Allow only modules supported as record sources by the Word add-in.
 	$allowedModules = array('Contacts', 'Accounts', 'Leads', 'HelpDesk');
 	if (!in_array($moduleName, $allowedModules, true)) {
-		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, 'Dieses Modul ist für den Word-Seriendruck nicht freigegeben.');
+		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, berli_wordT('THIS_MODULE_IS_NOT_ENABLED_FOR_WORD_MAIL_MERGE'));
 	}
 
 	// Require both web-service module access and berliCRM detail-view permission.
 	$types = vtws_listtypes(null, $user);
 	if (!in_array($moduleName, $types['types'], true)) {
-		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, 'Sie dürfen dieses CRM-Modul nicht lesen.');
+		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, berli_wordT('YOU_DO_NOT_HAVE_READ_PERMISSION_FOR_THIS_CRM_MODULE'));
 	}
 
 	$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
 	if (!$moduleModel || !$moduleModel->isPermitted('DetailView')) {
-		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, 'Sie dürfen dieses CRM-Modul nicht lesen.');
+		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, berli_wordT('YOU_DO_NOT_HAVE_READ_PERMISSION_FOR_THIS_CRM_MODULE'));
 	}
 
 	// CustomView_Record_Model returns only views available to this user.
@@ -71,7 +98,7 @@ function berli_getWordMailMergeData($moduleName, $listId, $page, $recordIds, $fi
 				'name' => $view->getCustomViewName()
 			);
 		}
-		return array('views' => $result);
+		return array('views' => $result, 'fieldAliases' => berli_wordFieldAliases($moduleName, $user));
 	}
 
 	// The requested view ID must belong to the list of views the user is allowed to access.
@@ -83,7 +110,7 @@ function berli_getWordMailMergeData($moduleName, $listId, $page, $recordIds, $fi
 		}
 	}
 	if (!$view) {
-		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, 'Die Listenansicht ist nicht verfügbar.');
+		throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, berli_wordT('THE_LIST_VIEW_IS_NOT_AVAILABLE'));
 	}
 
 	$selectedFields = array();
@@ -99,7 +126,7 @@ function berli_getWordMailMergeData($moduleName, $listId, $page, $recordIds, $fi
 		}
 		foreach (array_unique(explode(',', $fieldNames)) as $fieldName) {
 			if (!isset($availableFields[$fieldName])) {
-				throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, 'Ein ausgewähltes Feld ist für diesen Benutzer nicht verfügbar.');
+				throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, berli_wordT('A_SELECTED_FIELD_IS_NOT_AVAILABLE_TO_THIS_USER'));
 			}
 			$selectedFields[] = $fieldName;
 			$fieldModels[$fieldName] = Vtiger_Field_Model::getInstance($fieldName, $moduleModel);
@@ -110,14 +137,14 @@ function berli_getWordMailMergeData($moduleName, $listId, $page, $recordIds, $fi
 	if (!empty($recordIds)) {
 		$requestedIds = explode(',', $recordIds);
 		if (count($requestedIds) > 100) {
-			throw new WebServiceException(WebServiceErrorCode::$INVALIDID, 'Pro Webservice-Aufruf können höchstens 100 Datensätze verarbeitet werden.');
+			throw new WebServiceException(WebServiceErrorCode::$INVALIDID, berli_wordT('AT_MOST_100_RECORDS_CAN_BE_PROCESSED_PER_WEBSERVICE_REQUEST'));
 		}
 		if (empty($selectedFields)) {
-			throw new WebServiceException(WebServiceErrorCode::$INVALIDID, 'Mindestens ein Mergefeld muss ausgewählt sein.');
+			throw new WebServiceException(WebServiceErrorCode::$INVALIDID, berli_wordT('AT_LEAST_ONE_MERGE_FIELD_MUST_BE_SELECTED'));
 		}
 		foreach ($requestedIds as $requestedId) {
 			if (!ctype_digit($requestedId) || (int) $requestedId < 1) {
-				throw new WebServiceException(WebServiceErrorCode::$INVALIDID, 'Ungültige Datensatz-ID.');
+				throw new WebServiceException(WebServiceErrorCode::$INVALIDID, berli_wordT('INVALID_RECORD_ID'));
 			}
 		}
 		$requestedIds = array_values(array_unique($requestedIds));
@@ -129,7 +156,7 @@ function berli_getWordMailMergeData($moduleName, $listId, $page, $recordIds, $fi
 
 		foreach ($requestedIds as $recordId) {
 			if (!isset($availableIdMap[$recordId])) {
-				throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, 'Ein ausgewählter Datensatz gehört nicht zur Listenansicht.');
+				throw new WebServiceException(WebServiceErrorCode::$ACCESSDENIED, berli_wordT('A_SELECTED_RECORD_DOES_NOT_BELONG_TO_THE_LIST_VIEW'));
 			}
 			// vtws_retrieve also enforces the user's record-level access permissions.
 			$record = vtws_retrieve(vtws_getId($webserviceObject->getEntityId(), $recordId), $user);
@@ -146,7 +173,7 @@ function berli_getWordMailMergeData($moduleName, $listId, $page, $recordIds, $fi
 	// For regular list-view requests, validate the page number and load at most 100 records.
 	$pageNumber = (int) $page;
 	if ($pageNumber < 1 || $pageNumber > 10000) {
-		throw new WebServiceException(WebServiceErrorCode::$INVALIDID, 'Ungültige Seitennummer.');
+		throw new WebServiceException(WebServiceErrorCode::$INVALIDID, berli_wordT('INVALID_PAGE_NUMBER'));
 	}
 
 	$recordIdsInView = $view->getRecordIds();

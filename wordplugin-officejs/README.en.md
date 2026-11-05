@@ -1,5 +1,9 @@
 # berliCRM Word Add-in
 
+## Languages in Word 1.4.0.0 / Outlook 1.1.0.0
+
+After sign-in, both add-ins use the CRM user language (`de_de` or `en_us`). Before sign-in, the Office/browser language is used. Translations are maintained in keyed PHP arrays. This update requires registration of `office_addin_user_preferences`. See the [language guide](LANGUAGES.en.md) for deployment and maintenance.
+
 This Office.js add-in replaces the previous VB6/32-bit COM plugin. It inserts
 Word `MERGEFIELD`s from berliCRM fields and creates mail-merge letters from
 saved CRM list views.
@@ -23,6 +27,9 @@ Back up the server files before deployment; see the
 [update and rollback instructions](./DOKUMENTATION.en.md#updating-to-1304-and-switching-back).
 
 ## Setup in berliCRM v8x
+
+Fresh CRM installations automatically register the administration menu and Word
+web services during the final installation step.
 
 After the regular CRM database update (`db_update.php`), administrators can find
 the page under **CRM Settings > Integration > Word Add-in**.
@@ -53,12 +60,6 @@ without Exchange. It links to the relevant Microsoft instructions. The local
 file check does not replace checking certificate trust and connectivity on a
 Word workstation.
 
-Run the administration integration tests without a CRM database:
-
-```sh
-php build/tests/word-addin-settings.php
-```
-
 The complete guide to server installation, installation in Word without
 Exchange, centralized deployment through Microsoft 365/Exchange, and daily use
 is available in [DOKUMENTATION.en.md](./DOKUMENTATION.en.md).
@@ -68,8 +69,7 @@ is available in [DOKUMENTATION.en.md](./DOKUMENTATION.en.md).
 - PHP server code targets the CRM's supported **PHP 8.2–8.5** range. Syntax,
   PHPDoc and isolated server contracts are checked with 8.2.35, 8.3.32,
   8.4.27 and 8.5.12, treating warnings and deprecations as failures.
-  From the CRM root, run `php build/tests/office-addins-php.php` and
-  `php build/tests/word-addin-settings.php`. Manifest generation requires
+  Manifest generation requires
   DOM/XML; DOCX storage requires ZIP. Other extensions and libraries follow
   the CRM's requirements.
 

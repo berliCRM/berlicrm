@@ -4,13 +4,16 @@
  *
  * @package berliCRM.OfficeAddins
  */
+require_once dirname(__DIR__, 2) . '/include/utils/OfficeAddinI18n.php';
+
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
+$GLOBALS['berli_office_language'] = berli_officeLanguage($_GET['language'] ?? ($_POST['language'] ?? 'en_us'));
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     http_response_code(405);
-    echo json_encode(['success' => false, 'payload' => 'Nur POST-Anfragen sind erlaubt.']);
+    echo json_encode(['success' => false, 'payload' => berli_outlookT('ONLY_POST_REQUESTS_ARE_ALLOWED')]);
     exit;
 }
 
@@ -37,11 +40,11 @@ function parseRequest(): array
     if (strpos($contentType, 'application/json') !== false) {
         $body = file_get_contents('php://input');
         if (!is_string($body)) {
-            jsonResponse(false, 'Der Anfrageinhalt konnte nicht gelesen werden.', 400);
+            jsonResponse(false, berli_outlookT('COULD_NOT_READ_THE_REQUEST_BODY'), 400);
         }
         $data = json_decode($body, true);
         if (!is_array($data) || substr(ltrim($body), 0, 1) !== '{') {
-            jsonResponse(false, 'Der JSON-Anfrageinhalt muss ein Objekt sein.', 400);
+            jsonResponse(false, berli_outlookT('THE_JSON_REQUEST_BODY_MUST_BE_AN_OBJECT'), 400);
         }
     }
     return array_merge($_REQUEST, $data);
@@ -56,9 +59,10 @@ function parseRequest(): array
  */
 function actionHandler(array $input, array $config): void
 {
+    $GLOBALS['berli_office_language'] = berli_officeLanguage($input['language'] ?? 'en_us');
     $action = $input['action'] ?? '';
     if (!is_string($action) || $action === '') {
-        jsonResponse(false, 'Action fehlt oder ist ungültig.', 400);
+        jsonResponse(false, berli_outlookT('ACTION_IS_MISSING_OR_INVALID'), 400);
     }
 
     $clientConfig = [
@@ -73,11 +77,19 @@ function actionHandler(array $input, array $config): void
             jsonResponse(true, outlookContactsMicrosoftConfig($config));
         }
         $service = new OutlookWebserviceClient($clientConfig);
+        if (!empty($input['sessionName'])) {
+            $preferences = $service->customOperation('office_addin_user_preferences', [], $input['sessionName']);
+            $GLOBALS['berli_office_language'] = berli_officeLanguage($preferences['language'] ?? 'en_us');
+        }
 
         switch ($action) {
+            case 'getUserPreferences':
+                requireParams($input, ['sessionName']);
+                jsonResponse(true, $preferences);
+                break;
             case 'archiveEmail':
                 requireParams($input, ['sessionName', 'archive']);
-                if (!is_array($input['archive'])) jsonResponse(false, 'Ungültige E-Mail-Daten.');
+                if (!is_array($input['archive'])) jsonResponse(false, berli_outlookT('INVALID_EMAIL_DATA'));
                 $result = $service->customOperation('outlook_archive_email',
                     ['input' => json_encode($input['archive'])], $input['sessionName']);
                 jsonResponse(true, $result);
@@ -85,7 +97,7 @@ function actionHandler(array $input, array $config): void
 
             case 'contactTransfer':
                 requireParams($input, ['sessionName', 'transfer']);
-                if (!is_array($input['transfer'])) jsonResponse(false, 'Ungültige Kontaktdaten.');
+                if (!is_array($input['transfer'])) jsonResponse(false, berli_outlookT('INVALID_CONTACT_DATA'));
                 $result = $service->customOperation('outlook_contact_transfer',
                     ['input' => json_encode($input['transfer'])], $input['sessionName']);
                 jsonResponse(true, $result);
@@ -99,6 +111,8 @@ function actionHandler(array $input, array $config): void
             case 'login':
                 requireParams($input, ['username', 'accessKey']);
                 $result = $service->login($input['username'], $input['accessKey']);
+                $preferences = $service->customOperation('office_addin_user_preferences', [], $result['sessionName']);
+                $result['language'] = berli_officeLanguage($preferences['language'] ?? 'en_us');
                 jsonResponse(true, $result);
                 break;
 
@@ -156,7 +170,7 @@ function actionHandler(array $input, array $config): void
             case 'calendarEvent':
                 requireParams($input, ['sessionName', 'calendar']);
                 if (!is_array($input['calendar'])) {
-                    jsonResponse(false, 'Ungültige Kalenderdaten.');
+                    jsonResponse(false, berli_outlookT('INVALID_CALENDAR_DATA'));
                 }
                 $result = $service->customOperation('outlook_calendar_event',
                     ['input' => json_encode($input['calendar'])], $input['sessionName']);
@@ -167,7 +181,7 @@ function actionHandler(array $input, array $config): void
                 requireParams($input, ['sessionName', 'event']);
                 $eventElement = is_array($input['event']) ? $input['event'] : json_decode($input['event'], true);
                 if (!is_array($eventElement)) {
-                    jsonResponse(false, 'Ungültiges Event-Element.');
+                    jsonResponse(false, berli_outlookT('INVALID_EVENT_ELEMENT'));
                 }
                 $result = $service->create($eventElement, $input['sessionName']);
                 jsonResponse(true, ['event' => $result]);
@@ -191,7 +205,7 @@ function actionHandler(array $input, array $config): void
                 }
                 $allReceivers = array_values(array_filter(array_merge($receiverIds, $receiverEmails)));
                 if (empty($allReceivers)) {
-                    jsonResponse(false, 'Empfänger fehlen.');
+                    jsonResponse(false, berli_outlookT('RECIPIENTS_ARE_MISSING'));
                 }
                 $params = [
                     'receiverIds' => json_encode($allReceivers),
@@ -215,7 +229,7 @@ function actionHandler(array $input, array $config): void
                 break;
 
             default:
-                jsonResponse(false, 'Unbekannte Aktion: ' . $action);
+                jsonResponse(false, berli_outlookT('UNKNOWN_ACTION') . $action);
         }
     } catch (Throwable $e) {
         jsonResponse(false, $e->getMessage());
@@ -233,7 +247,7 @@ function requireParams(array $input, array $names): void
 {
     foreach ($names as $name) {
         if (!isset($input[$name]) || $input[$name] === '') {
-            jsonResponse(false, "Parameter '$name' fehlt.");
+            jsonResponse(false, berli_outlookT('PARAMETER_IS_MISSING', array($name)));
         }
     }
 }
@@ -249,11 +263,11 @@ function configuredRecipientLimit(array $config): int
 {
     $value = $config['recipient_limit'] ?? 500;
     if (!is_int($value) && !is_string($value)) {
-        throw new InvalidArgumentException('recipient_limit muss eine ganze Zahl zwischen 1 und 1000 sein.');
+        throw new InvalidArgumentException(berli_outlookT('RECIPIENT_LIMIT_MUST_BE_AN_INTEGER_BETWEEN_1_AND_1000'));
     }
     $limit = filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 1000]]);
     if ($limit === false) {
-        throw new InvalidArgumentException('recipient_limit muss eine ganze Zahl zwischen 1 und 1000 sein.');
+        throw new InvalidArgumentException(berli_outlookT('RECIPIENT_LIMIT_MUST_BE_AN_INTEGER_BETWEEN_1_AND_1000'));
     }
     return $limit;
 }
@@ -295,11 +309,11 @@ function buildAccountSearchQuery(string $search): string
 function buildVerteilerSearchQuery(string $search, string $userId): string
 {
     if (!preg_match('/^[1-9][0-9]*x[1-9][0-9]*$/D', $userId)) {
-        throw new InvalidArgumentException('Ungültige CRM-Benutzer-ID. Bitte erneut anmelden.');
+        throw new InvalidArgumentException(berli_outlookT('INVALID_CRM_USER_ID_PLEASE_SIGN_IN_AGAIN'));
     }
     $term = quoteSearch($search);
     // userId comes from the standard CRM login response, not the Outlook account.
-    return "select id, verteilername from Verteiler "
+    return 'select id, verteilername from Verteiler '
         . "where verteilername like '%$term%' and assigned_user_id = '$userId' limit 50;";
 }
 

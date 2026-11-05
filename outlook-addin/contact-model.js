@@ -1,7 +1,8 @@
+if (typeof module !== 'undefined' && module.exports && !globalThis.BerliI18n) require('./language.js');
 (function (root) {
   'use strict';
   function name(contact) {
-    return contact.displayName || [contact.givenName, contact.surname].filter(Boolean).join(' ') || 'Kontakt ohne Namen';
+    return contact.displayName || [contact.givenName, contact.surname].filter(Boolean).join(' ') || globalThis.BerliI18n.t("UNNAMED_CONTACT");
   }
   function crmValues(contact, ownerId) {
     const values = { assigned_user_id: ownerId, firstname: contact.givenName || '', lastname: contact.surname || '',
@@ -21,7 +22,7 @@
       (!(field.editable || field.name === 'assigned_user_id') || typeof values[field.name] !== 'string' || values[field.name].trim() === ''));
   }
   function isSessionError(message) {
-    return /INVALID_SESSIONID|Authencation required|Authentication required|HTTP-Status 401/i.test(message);
+    return /INVALID_SESSIONID|Authencation required|Authentication required|HTTP(?:-Status| status) 401/i.test(message);
   }
   const api = { name, crmValues, missingFields, isSessionError };
   root.BerliContactModel = api;

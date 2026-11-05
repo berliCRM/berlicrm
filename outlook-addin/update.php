@@ -27,7 +27,7 @@ function berli_outlookAddinUpdate(): void
         throw new RuntimeException('The CRM directory is not accessible for the Outlook add-in update.');
     }
     try {
-        // Repeatable: repair/create all six operations and create missing link tables.
+        // Repeatable: repair/create all seven operations and create missing link tables.
         // Let failures reach db_update.php, so it cannot advance the CRM release tag.
         Settings_OutlookAddin_Module_Model::registerOperation();
         Settings_OutlookAddin_Module_Model::registerSettingsMenu();

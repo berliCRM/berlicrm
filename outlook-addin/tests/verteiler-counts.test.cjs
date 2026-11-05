@@ -1,3 +1,4 @@
+const { localizedContext } = require('./language-fixture.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -18,7 +19,7 @@ function setup(fetcher) {
   const container = new Element('div');
   const query = { value: 'test' };
   const requests = [];
-  const context = vm.createContext({
+  const context = localizedContext({
     URL,
     window: { location: { href: 'https://example.test/outlook-addin/taskpane.html' } },
     document: {

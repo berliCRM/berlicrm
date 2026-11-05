@@ -172,8 +172,8 @@ class PearDatabase {
      * @throws RuntimeException If the query falls outside the supported fixture SQL.
      */
     public function pquery($sql, $params = array()) {
-        if (preg_match('/^CREATE TABLE IF NOT EXISTS (vtiger_outlook_\w+) /', $sql, $created)) { if (!isset($this->tables[$created[1]])) $this->tables[$created[1]] = array(); return true; }
         if ($this->failOn && strpos($sql, $this->failOn) !== false) { $this->failed = true; return false; }
+        if (preg_match('/^CREATE TABLE IF NOT EXISTS (vtiger_outlook_\w+) /', $sql, $created)) { if (!isset($this->tables[$created[1]])) $this->tables[$created[1]] = array(); return true; }
         if (preg_match('/^SELECT (.+) FROM (\w+)(?: WHERE (\w+) = \?)?(?: ORDER BY (\w+))?$/', $sql, $match)) {
             $rows = $this->tables[$match[2]];
             if (!empty($match[3])) $rows = array_values(array_filter($rows, function ($row) use ($match, $params) {
@@ -227,7 +227,7 @@ foreach (array('https://crm.example.net', 'https://crm.example.net:8443/a/b/', '
     checkOutlookAddin($xml->loadXML($manifest), 'Invalid generated XML');
     $xpath = new DOMXPath($xml);
     checkOutlookAddin($xpath->evaluate('string(/*/*[local-name()="Id"])') === '4fbaf5e4-1f93-4c85-9cbf-128c7d8a1909', 'Manifest ID changed');
-    checkOutlookAddin($xpath->evaluate('string(/*/*[local-name()="Version"])') === '1.0.15.4', 'Manifest version changed');
+    checkOutlookAddin($xpath->evaluate('string(/*/*[local-name()="Version"])') === '1.1.0.0', 'Manifest version changed');
     checkOutlookAddin($xpath->evaluate('string(/*/*[local-name()="Permissions"])') === 'ReadWriteItem', 'Manifest permissions changed');
     checkOutlookAddin(strpos($manifest, rtrim($base, '/') . '/outlook-addin/taskpane.html') !== false, 'CRM subpath/port missing');
     checkOutlookAddin(strpos($manifest, 'crm.example.org') === false, 'Placeholder URL left in manifest');
@@ -256,7 +256,7 @@ $db = new PearDatabase();
 require 'outlook-addin/update.php';
 berli_outlookAddinUpdate();
 checkOutlookAddin(count($db->tables['vtiger_settings_field']) === 1 && $db->tables['vtiger_settings_field'][0]['blockid'] === 12, 'Outlook menu missing from Integration');
-checkOutlookAddin(count($model->getOperationStatus()) === 6 && !in_array(false, $model->getOperationStatus(), true), 'Incomplete Outlook registrations');
+checkOutlookAddin(count($model->getOperationStatus()) === 7 && !in_array(false, $model->getOperationStatus(), true), 'Incomplete Outlook registrations');
 $db->tables['vtiger_outlook_mail_link'][] = array('userid' => 3, 'emailid' => '10x100');
 $installed = $db->tables;
 berli_outlookAddinUpdate();
@@ -393,4 +393,61 @@ if (isset($argv[1])) {
         rmdir($compileDir);
     }
 }
-echo "PASS: Outlook settings menu/repair, six services, manifest URLs and identity, required GUIDs, executable PHP downloads, admin permissions, POST/CSRF and configuration privacy.\n";
+// Execute the fresh installer's actual Office setup against the schema's seeded
+// menu rows. No configured CRM database or unrelated installation code is loaded.
+$installerSource = file_get_contents('modules/Install/models/InitSchema.php');
+checkOutlookAddin(preg_match('/public static function setCRMNOWmodifications\(\).*?\/\/ Office add-ins installation START\R(.*?)\/\/ Office add-ins installation END/s',
+    $installerSource, $installBlock) === 1, 'Fresh installer does not initialize Office add-ins');
+checkOutlookAddin(strpos($installerSource, '// Office add-ins installation END') < strpos($installerSource, '//last step, set info this system was installed'),
+    'Installer marks setup complete before initializing Office add-ins');
+$schema = file_get_contents('schema/DatabaseSchema.sql');
+checkOutlookAddin(preg_match('/INSERT INTO `vtiger_settings_field` \(([^;]+?)\) VALUES\s*(.*?);/s', $schema, $seed) === 1,
+    'Settings menu seed is missing');
+preg_match_all('/`([^`]+)`/', $seed[1], $columns);
+preg_match_all('/^\(([^\r\n]*)\)[,;]/m', $seed[2] . ';', $rows);
+$seedMenus = array();
+foreach ($rows[1] as $row) {
+    $values = array_map('trim', str_getcsv($row, ',', "'", '\\'));
+    $seedMenus[] = array_combine($columns[1], $values);
+}
+checkOutlookAddin(preg_match('/\((\d+), \'LBL_INTEGRATION\', \d+\)/', $schema, $integration) === 1, 'Integration block seed missing');
+checkOutlookAddin(preg_match('/INSERT INTO `vtiger_settings_field_seq` \(`id`\) VALUES\s*\((\d+)\);/', $schema, $sequence) === 1,
+    'Settings menu sequence seed missing');
+$seedNames = array_column($seedMenus, 'name');
+checkOutlookAddin(count(array_keys($seedNames, 'LBL_WORD_ADDIN', true)) === 1
+    && count(array_keys($seedNames, 'LBL_OUTLOOK_ADDIN', true)) === 1, 'Schema does not seed both Office menus exactly once');
+checkOutlookAddin((int) $sequence[1] >= max(array_column($seedMenus, 'fieldid')), 'Settings sequence trails seeded menu IDs');
+
+require_once 'modules/Settings/WordAddin/models/Module.php';
+$wordModel = new Settings_WordAddin_Module_Model();
+foreach (array(false, true) as $legacyWordOnly) {
+    $db = new PearDatabase();
+    $db->tables['vtiger_settings_blocks'] = array(array('blockid' => (int) $integration[1], 'label' => 'LBL_INTEGRATION'));
+    $db->tables['vtiger_settings_field'] = array_values(array_filter($seedMenus, static function ($row) use ($legacyWordOnly) {
+        return !$legacyWordOnly || $row['name'] !== 'LBL_OUTLOOK_ADDIN';
+    }));
+    $db->tables['vtiger_settings_field_seq'] = array(array('id' => (int) $sequence[1]));
+    $seededIds = array_column($db->tables['vtiger_settings_field'], 'fieldid', 'name');
+    eval($installBlock[1]);
+    checkOutlookAddin(!in_array(false, $wordModel->getOperationStatus(), true), 'Fresh installation did not register Word services');
+    checkOutlookAddin(!in_array(false, $model->getOperationStatus(), true), 'Fresh installation did not register Outlook services');
+    checkOutlookAddin(count($db->tables['vtiger_ws_operation']) === 9, 'Shared Office preferences operation was duplicated');
+    $menus = $db->tables['vtiger_settings_field'];
+    foreach (array('LBL_WORD_ADDIN', 'LBL_OUTLOOK_ADDIN') as $name) {
+        $matches = array_values(array_filter($menus, static function ($row) use ($name) { return $row['name'] === $name; }));
+        checkOutlookAddin(count($matches) === 1 && (int) $matches[0]['blockid'] === (int) $integration[1], 'Office menu missing or duplicated');
+        if (isset($seededIds[$name])) checkOutlookAddin($matches[0]['fieldid'] === $seededIds[$name], 'Seeded Office menu ID changed');
+    }
+    foreach (array('calendar_link', 'contact_link', 'mail_link', 'mail_file') as $table) {
+        checkOutlookAddin(array_key_exists('vtiger_outlook_' . $table, $db->tables), 'Fresh installer omitted an Outlook link table');
+    }
+    $db->tables['vtiger_outlook_mail_link'][] = array('userid' => 3, 'emailid' => '10x100');
+    $installed = $db->tables;
+    eval($installBlock[1]);
+    checkOutlookAddin($db->tables === $installed, 'Repeating fresh Office setup changed seeded menus, service IDs or existing links');
+}
+$db->failOn = 'CREATE TABLE IF NOT EXISTS vtiger_outlook_calendar_link';
+expectOutlookAddinError(static function () use ($installBlock) { eval($installBlock[1]); }, 'Fresh installer ignored failed Outlook initialization');
+$db->failOn = '';
+
+echo "PASS: fresh Office installation, seeded menus, repeatable registration, failure propagation, Outlook settings/repair, seven services, manifest URLs and identity, required GUIDs, executable PHP downloads, admin permissions, POST/CSRF and configuration privacy.\n";

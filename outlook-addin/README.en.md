@@ -1,5 +1,9 @@
 # berliCRM Outlook Add-in
 
+## Languages in Word 1.4.0.0 / Outlook 1.1.0.0
+
+After sign-in, both add-ins use the CRM user language (`de_de` or `en_us`). Before sign-in, the Office/browser language is used. Translations are maintained in keyed PHP arrays. This update requires registration of `office_addin_user_preferences`. See the [language guide](../wordplugin-officejs/LANGUAGES.en.md) for deployment and maintenance.
+
 ## PHP compatibility and PHPDoc
 
 The add-in server code targets the CRM's supported PHP **8.2–8.5** range.
@@ -16,7 +20,6 @@ without real CRM or Microsoft connections. Private configuration is unchanged.
 With cURL enabled, run from the CRM root using each target PHP:
 
 ```sh
-php build/tests/office-addins-php.php
 php outlook-addin/tests/php8-server.php
 php outlook-addin/tests/calendar-server.php
 php outlook-addin/tests/contacts-server.php
@@ -24,7 +27,7 @@ php outlook-addin/tests/mail-archive-server.php
 php outlook-addin/tests/settings-server.php
 ```
 
-The source/PHPDoc audit also checks Word add-in files. The gateway requires
+The gateway requires
 cURL, manifest generation requires DOM/XML, and a live deployment requires the
 CRM's own extensions and dependencies.
 
@@ -136,6 +139,9 @@ choosing **Anders anmelden**. The Access Key is not saved with the session.
 ## Server installation
 
 ### Administrator setup page
+
+Fresh CRM installations automatically register the Outlook services, link tables
+and administration menu during the final installation step.
 
 After deploying the updated files, run the normal CRM `db_update.php` process,
 or use `php outlook-addin/build/registerOutlookAddinOperation.php` for a targeted

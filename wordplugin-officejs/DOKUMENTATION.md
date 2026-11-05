@@ -1,5 +1,9 @@
 # berliCRM Word-Add-in – Installations- und Benutzerhandbuch
 
+## Sprachen ab Word 1.4.0.0 / Outlook 1.1.0.0
+
+Die Add-ins verwenden nach der Anmeldung die Sprache des CRM-Benutzers (`de_de` oder `en_us`). Vorher gilt die Office-/Browsersprache. Texte werden in PHP-Spracharrays mit stabilen Schluesseln gepflegt. Fuer dieses Update muss `office_addin_user_preferences` registriert werden. Einrichtung und Pflege: [Sprachdokumentation](LANGUAGES.md).
+
 Dieses Dokument beschreibt die Bereitstellung des Office.js-Add-ins auf dem
 berliCRM-Server, die Installation in Word ohne Exchange und die zentrale
 Bereitstellung über Microsoft 365/Exchange sowie die tägliche Nutzung.
