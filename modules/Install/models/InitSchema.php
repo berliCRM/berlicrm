@@ -829,6 +829,15 @@ class Install_InitSchema_Model
         self::addEmailConfigurator();
         self::alterTables();
 
+        // Office add-ins installation START
+        // New installations need the same registrations as the CRM updater.
+        require_once 'modules/Settings/WordAddin/models/Module.php';
+        Settings_WordAddin_Module_Model::registerSettingsMenu();
+        Settings_WordAddin_Module_Model::registerOperations();
+        require_once 'outlook-addin/update.php';
+        berli_outlookAddinUpdate();
+        // Office add-ins installation END
+
         //last step, set info this system was installed
         $path = Install_Utils_Model::INSTALL_FINISHED;
         $fh = fopen($path, 'a+');

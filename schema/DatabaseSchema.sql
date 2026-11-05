@@ -13021,7 +13021,8 @@ INSERT INTO `vtiger_settings_field` (`fieldid`, `blockid`, `name`, `iconpath`, `
 (26, 4, 'Scheduler', 'Cron.png', 'Allows you to Configure Cron Task', 'index.php?module=CronTasks&parent=Settings&view=List', 8, 0, 0),
 (27, 4, 'LBL_WORKFLOW_LIST', 'settingsWorkflow.png', 'LBL_AVAILABLE_WORKLIST_LIST', 'index.php?module=com_vtiger_workflow&action=workflowlist', 8, 0, 0),
 (28, 2, 'LBL_EDIT_FIELDS', '', 'LBL_LAYOUT_EDITOR_DESCRIPTION', 'index.php?module=LayoutEditor&parent=Settings&view=Index', NULL, 0, 0),
-(29, 5, 'LBL_WORD_ADDIN', 'migrate.gif', 'LBL_WORD_ADDIN_DESCRIPTION', 'index.php?module=WordAddin&parent=Settings&view=Index', 1, 0, 0);
+(29, 5, 'LBL_WORD_ADDIN', 'migrate.gif', 'LBL_WORD_ADDIN_DESCRIPTION', 'index.php?module=WordAddin&parent=Settings&view=Index', 1, 0, 0),
+(30, 5, 'LBL_OUTLOOK_ADDIN', 'migrate.gif', 'LBL_OUTLOOK_ADDIN_DESCRIPTION', 'index.php?module=OutlookAddin&parent=Settings&view=Index', 2, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -13038,7 +13039,7 @@ CREATE TABLE IF NOT EXISTS `vtiger_settings_field_seq` (
 --
 
 INSERT INTO `vtiger_settings_field_seq` (`id`) VALUES
-(29);
+(30);
 
 -- --------------------------------------------------------
 
