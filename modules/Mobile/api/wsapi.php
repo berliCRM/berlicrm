@@ -14,7 +14,7 @@
 
 /**
  * @berli-openapi-begin
- * {"summary":"List mobile alerts","description":"Returns all alerts available to the authenticated mobile client.","tags":["Mobile"],"parameters":{},"result":{"schema":{"type":"object","additionalProperties":true},"example":{"alerts":[]}}}
+ * {"summary":"List mobile alerts","description":"Returns all alerts available to the authenticated mobile client.","tags":["Mobile"],"parameters":{},"result":{"schema":{"type":"object","required":["alerts"],"properties":{"alerts":{"type":"array","items":{"type":"object","additionalProperties":true}}},"additionalProperties":true},"example":{"alerts":[]}}}
  * @berli-openapi-end
  */
 function mobile_ws_fetchAllAlerts($user) {
@@ -35,7 +35,7 @@ function mobile_ws_alertDetailsWithMessage($alertid, $user) {
 
 /**
  * @berli-openapi-begin
- * {"summary":"List mobile module filters","description":"Returns accessible list filters for a CRM module.","tags":["Mobile"],"parameters":{"module":{"required":true,"description":"CRM module name.","example":"Contacts"}},"result":{"schema":{"type":"object","additionalProperties":true},"example":{"filters":[]}}}
+ * {"summary":"List mobile module filters","description":"Returns accessible list filters for a CRM module, separated into the authenticated user's filters and other shared filters.","tags":["Mobile"],"parameters":{"module":{"required":true,"description":"CRM module name.","example":"Contacts"}},"result":{"schema":{"type":"object","required":["filters"],"properties":{"filters":{"type":"object","required":["yours","others"],"properties":{"yours":{"type":"array","items":{"type":"object","additionalProperties":true}},"others":{"type":"array","items":{"type":"object","additionalProperties":true}}},"additionalProperties":false}},"additionalProperties":true},"example":{"filters":{"yours":[],"others":[]}}}}
  * @berli-openapi-end
  */
 function mobile_ws_fetchModuleFilters($module, $user) {
@@ -46,7 +46,7 @@ function mobile_ws_fetchModuleFilters($module, $user) {
 
 /**
  * @berli-openapi-begin
- * {"summary":"Fetch a mobile record","description":"Returns a record formatted for the mobile client.","tags":["Mobile"],"parameters":{"record":{"required":true,"description":"Record webservice ID.","example":"12x345"}},"result":{"schema":{"type":"object","additionalProperties":true},"example":{"record":{"id":"12x345"}}}}
+ * {"summary":"Fetch a mobile record","description":"Returns a record formatted for the mobile client, with optional comments and related-list content.","tags":["Mobile"],"parameters":{"record":{"required":true,"description":"Record webservice ID.","example":"12x345","schema":{"type":"string","pattern":"^[0-9]+x[0-9]+$"}}},"result":{"schema":{"type":"object","required":["record"],"properties":{"record":{"$ref":"#/components/schemas/Entity"},"comments":{"type":"array","items":{"type":"object","additionalProperties":true}},"relatedlistcontent":{"type":"object","additionalProperties":true}},"additionalProperties":true},"example":{"record":{"id":"12x345"}}}}
  * @berli-openapi-end
  */
 function mobile_ws_fetchRecord($record, $user) {
@@ -57,7 +57,7 @@ function mobile_ws_fetchRecord($record, $user) {
 
 /**
  * @berli-openapi-begin
- * {"summary":"Fetch a grouped mobile record","description":"Returns a record with fields grouped for mobile display.","tags":["Mobile"],"parameters":{"record":{"required":true,"description":"Record webservice ID.","example":"12x345"}},"result":{"schema":{"type":"object","additionalProperties":true},"example":{"record":{"id":"12x345"},"blocks":[]}}}
+ * {"summary":"Fetch a grouped mobile record","description":"Returns a record with fields and sections grouped for mobile display.","tags":["Mobile"],"parameters":{"record":{"required":true,"description":"Record webservice ID.","example":"12x345","schema":{"type":"string","pattern":"^[0-9]+x[0-9]+$"}}},"result":{"schema":{"type":"object","additionalProperties":true},"example":{"record":{"id":"12x345"},"blocks":[],"sections":[]}}}
  * @berli-openapi-end
  */
 function mobile_ws_fetchRecordWithGrouping($record, $user) {
@@ -68,7 +68,7 @@ function mobile_ws_fetchRecordWithGrouping($record, $user) {
 
 /**
  * @berli-openapi-begin
- * {"summary":"Get mobile filter details and count","description":"Returns filter metadata together with the matching record count.","tags":["Mobile"],"parameters":{"filterid":{"required":true,"description":"CRM custom-view filter ID.","example":"1"}},"result":{"schema":{"type":"object","additionalProperties":true},"example":{"filterid":"1","count":0}}}
+ * {"summary":"Get mobile filter details and count","description":"Returns filter metadata together with the matching record count.","tags":["Mobile"],"parameters":{"filterid":{"required":true,"description":"CRM custom-view filter ID.","example":"1"}},"result":{"schema":{"type":"object","required":["filter"],"properties":{"filter":{"type":"object","additionalProperties":true}},"additionalProperties":true},"example":{"filter":{"id":"1","count":0}}}}
  * @berli-openapi-end
  */
 function mobile_ws_filterDetailsWithCount($filterid, $user) {
@@ -89,7 +89,7 @@ function mobile_ws_listModuleRecords($elements, $user) {
 
 /**
  * @berli-openapi-begin
- * {"summary":"Save a mobile record","description":"Creates or updates a module record from mobile field values.","tags":["Mobile"],"parameters":{"module":{"required":true,"description":"CRM module name.","example":"Contacts"},"record":{"required":false,"description":"Existing record webservice ID; leave empty to create.","example":"12x345"},"values":{"required":true,"description":"JSON object of field values.","example":"{\"lastname\":\"Doe\"}","decodedSchema":{"type":"object","additionalProperties":true}}},"result":{"schema":{"type":"object","additionalProperties":true},"example":{"record":{"id":"12x345","lastname":"Doe"}}}}
+ * {"summary":"Save a mobile record","description":"Creates or updates a module record from mobile field values.","tags":["Mobile"],"parameters":{"module":{"required":true,"description":"CRM module name.","example":"Contacts"},"record":{"required":false,"description":"Existing record webservice ID; send an empty value to create a record.","example":"12x345"},"values":{"required":true,"description":"JSON object of field values.","example":"{\"lastname\":\"Doe\"}","decodedSchema":{"type":"object","additionalProperties":true}}},"result":{"schema":{"type":"object","additionalProperties":true},"example":{"record":{"id":"12x345","lastname":"Doe"}}}}
  * @berli-openapi-end
  */
 function mobile_ws_saveRecord($module, $record, $values, $user) {

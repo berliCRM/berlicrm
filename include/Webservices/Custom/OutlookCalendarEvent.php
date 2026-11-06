@@ -220,6 +220,9 @@ function berli_outlookCalendarFields(array $input, $user)
  * @throws InvalidArgumentException On invalid input.
  * @throws RuntimeException On locking or unconfirmed save failures.
  * @throws WebServiceException On CRM permission or database failures.
+ * @berli-openapi-begin
+ * {"summary":"Prepare or save an Outlook calendar event","description":"Prepares localized event values or idempotently creates or updates a CRM Event from an Outlook event.","tags":["Outlook"],"parameters":{"input":{"required":true,"description":"JSON calendar action. mode must be prepare or save; mailbox and itemId identify the Outlook event.","example":"{\"mode\":\"prepare\",\"mailbox\":\"user@example.org\",\"itemId\":\"AAMk...\",\"originalStart\":\"2026-11-06T09:00:00Z\",\"originalEnd\":\"2026-11-06T10:00:00Z\"}","decodedSchema":{"type":"object","required":["mode","mailbox"],"properties":{"mode":{"type":"string","enum":["prepare","save"]},"mailbox":{"type":"string","format":"email"},"itemId":{"type":"string"}},"additionalProperties":true}}},"result":{"schema":{"oneOf":[{"type":"object","required":["eventId","display","timezone","start","end"],"additionalProperties":true},{"type":"object","required":["eventId","updated"],"properties":{"eventId":{"type":"string"},"updated":{"type":"boolean"}},"additionalProperties":false}]},"example":{"eventId":"18x200","updated":false}}}
+ * @berli-openapi-end
  */
 function berli_outlookCalendarEvent($input, $user)
 {

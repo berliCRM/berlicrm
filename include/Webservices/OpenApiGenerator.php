@@ -175,22 +175,39 @@ class BerliCRM_OpenApiGenerator
                 return false;
             }
         }
-        if (!is_string($metadata['summary']) || $metadata['summary'] === '' || !is_string($metadata['description'])
-            || !is_array($metadata['tags']) || !is_array($metadata['parameters']) || !is_array($metadata['result'])
-            || !isset($metadata['result']['schema']) || !array_key_exists('example', $metadata['result'])) {
+        if (!is_string($metadata['summary']) || trim($metadata['summary']) === ''
+            || !is_string($metadata['description']) || trim($metadata['description']) === ''
+            || !$this->isStringList($metadata['tags'], false) || !is_array($metadata['parameters'])
+            || !is_array($metadata['result']) || !isset($metadata['result']['schema'])
+            || !$this->isSchema($metadata['result']['schema']) || !array_key_exists('example', $metadata['result'])) {
             $this->warn($operation['name'], 'Structured handler metadata has an invalid shape.');
             return false;
         }
 
         $registered = array();
-        foreach ($operation['parameters'] as $parameter) {
+        foreach ($operation['parameters'] as $index => $parameter) {
+            if (!is_string($parameter['name']) || $parameter['name'] === '' || isset($registered[$parameter['name']])
+                || (int)$parameter['sequence'] !== $index + 1 || !is_string($parameter['type']) || $parameter['type'] === '') {
+                $this->warn($operation['name'], 'Registered parameters contain duplicate names, invalid types or a non-contiguous sequence.');
+                return false;
+            }
             $registered[$parameter['name']] = true;
             if (!isset($metadata['parameters'][$parameter['name']])
                 || !is_array($metadata['parameters'][$parameter['name']])
                 || !array_key_exists('required', $metadata['parameters'][$parameter['name']])
+                || !is_bool($metadata['parameters'][$parameter['name']]['required'])
                 || !isset($metadata['parameters'][$parameter['name']]['description'])
+                || !is_string($metadata['parameters'][$parameter['name']]['description'])
+                || trim($metadata['parameters'][$parameter['name']]['description']) === ''
                 || !array_key_exists('example', $metadata['parameters'][$parameter['name']])) {
                 $this->warn($operation['name'], "Metadata for parameter '{$parameter['name']}' is missing or incomplete.");
+                return false;
+            }
+            $details = $metadata['parameters'][$parameter['name']];
+            if ((isset($details['schema']) && !$this->isSchema($details['schema']))
+                || (isset($details['decodedSchema']) && !$this->isSchema($details['decodedSchema']))
+                || (strtolower((string)$parameter['type']) === 'encoded' && !isset($details['decodedSchema']))) {
+                $this->warn($operation['name'], "Metadata schema for parameter '{$parameter['name']}' is missing or invalid.");
                 return false;
             }
         }
@@ -198,6 +215,74 @@ class BerliCRM_OpenApiGenerator
             if (!isset($registered[$name])) {
                 $this->warn($operation['name'], "Metadata contains unregistered parameter '$name'.");
                 return false;
+            }
+        }
+        return true;
+    }
+
+    private function isStringList($value, $allowEmpty = true)
+    {
+        if (!is_array($value) || (!$allowEmpty && empty($value))) {
+            return false;
+        }
+        foreach ($value as $item) {
+            if (!is_string($item) || trim($item) === '') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Performs conservative structural validation of the OpenAPI 3.0 Schema
+     * Objects embedded in handler metadata. Full specification validation is
+     * intentionally left to the repository contract test.
+     */
+    private function isSchema($schema)
+    {
+        if (!is_array($schema)) {
+            return false;
+        }
+        if (isset($schema['type']) && !in_array($schema['type'], array('object', 'array', 'string', 'number', 'integer', 'boolean'), true)) {
+            return false;
+        }
+        if (isset($schema['$ref']) && (!is_string($schema['$ref']) || $schema['$ref'] === '')) {
+            return false;
+        }
+        if (isset($schema['required']) && !$this->isStringList($schema['required'])) {
+            return false;
+        }
+        if (isset($schema['enum']) && !is_array($schema['enum'])) {
+            return false;
+        }
+        if (isset($schema['items']) && !$this->isSchema($schema['items'])) {
+            return false;
+        }
+        if (isset($schema['properties'])) {
+            if (!is_array($schema['properties'])) {
+                return false;
+            }
+            foreach ($schema['properties'] as $propertySchema) {
+                if (!$this->isSchema($propertySchema)) {
+                    return false;
+                }
+            }
+        }
+        if (isset($schema['additionalProperties']) && !is_bool($schema['additionalProperties'])
+            && !$this->isSchema($schema['additionalProperties'])) {
+            return false;
+        }
+        foreach (array('allOf', 'anyOf', 'oneOf') as $composition) {
+            if (!isset($schema[$composition])) {
+                continue;
+            }
+            if (!is_array($schema[$composition]) || empty($schema[$composition])) {
+                return false;
+            }
+            foreach ($schema[$composition] as $part) {
+                if (!$this->isSchema($part)) {
+                    return false;
+                }
             }
         }
         return true;

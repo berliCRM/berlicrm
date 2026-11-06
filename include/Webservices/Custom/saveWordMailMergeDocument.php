@@ -28,6 +28,9 @@ if (!defined('BERLI_WORD_DOCX_SAVE_VERSION')) define('BERLI_WORD_DOCX_SAVE_VERSI
  * @param Users $user Authenticated berliCRM web-service user.
  * @return array The created CRM document ID.
  * @throws WebServiceException If access is denied or input is invalid.
+ * @berli-openapi-begin
+ * {"summary":"Save a Word mail-merge document","description":"Stores a generated DOC or DOCX file as a CRM Document and links it to an authorized record from the selected list view.","tags":["Word"],"parameters":{"moduleName":{"required":true,"description":"Supported source module name.","example":"Contacts","schema":{"type":"string","enum":["Contacts","Accounts","Leads","HelpDesk"]}},"listId":{"required":true,"description":"Saved list-view ID containing the source record.","example":"1"},"recordId":{"required":true,"description":"Numeric source record ID.","example":"345","schema":{"type":"string","pattern":"^[1-9][0-9]*$"}},"notesTitle":{"required":true,"description":"Document title beginning with Serienbrief and containing at most 50 characters.","example":"Serienbrief Jane Doe"},"fileContent":{"required":true,"description":"Base64-encoded DOC or DOCX content, limited to 5 MiB after decoding.","example":"UEsDBBQAAAAI..."}},"result":{"schema":{"type":"object","required":["documentId","fileName"],"properties":{"documentId":{"type":"string","pattern":"^[0-9]+x[0-9]+$"},"fileName":{"type":"string"}},"additionalProperties":false},"example":{"documentId":"15x900","fileName":"berliCRM-Serienbrief-345-20261106-120000.docx"}}}
+ * @berli-openapi-end
  */
 function berli_saveWordMailMergeDocument($moduleName, $listId, $recordId, $notesTitle, $fileContent, $user) {
 	global $adb;

@@ -14,6 +14,9 @@ require_once 'include/Webservices/DescribeObject.php';
  * @param Users $user Authenticated CRM user.
  * @return array<string,mixed>
  * @throws WebServiceException When event metadata is not readable.
+ * @berli-openapi-begin
+ * {"summary":"Get Outlook event display settings","description":"Returns event field labels, date preferences and create/update permissions for the authenticated user.","tags":["Outlook"],"parameters":{},"result":{"schema":{"type":"object","required":["dateFormat","fieldLabels","canCreate","canUpdate"],"properties":{"dateFormat":{"type":"string"},"fieldLabels":{"type":"object","additionalProperties":{"type":"string"}},"canCreate":{"type":"boolean"},"canUpdate":{"type":"boolean"}},"additionalProperties":false},"example":{"dateFormat":"dd-mm-yyyy","fieldLabels":{"subject":"Subject","location":"Location"},"canCreate":true,"canUpdate":true}}}
+ * @berli-openapi-end
  */
 function berli_outlookGetEventDisplay($user)
 {

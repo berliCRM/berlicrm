@@ -10,7 +10,7 @@
 require_once 'modules/WSAPP/SyncServer.php';
 /**
  * @berli-openapi-begin
- * {"summary":"Deregister a synchronization client","description":"Removes a WSAPP synchronization registration for the authenticated user.","tags":["WSAPP"],"parameters":{"type":{"required":true,"description":"Synchronization application type.","example":"Outlook"},"key":{"required":true,"description":"Registration key returned by wsapp_register.","example":"client-key"}},"result":{"schema":{"type":"object","additionalProperties":true},"example":{"status":"success"}}}
+ * {"summary":"Deregister a synchronization client","description":"Removes a WSAPP synchronization registration for the authenticated user.","tags":["WSAPP"],"parameters":{"type":{"required":true,"description":"Synchronization application type.","example":"Outlook"},"key":{"required":true,"description":"Registration key returned by wsapp_register.","example":"client-key"}},"result":{"schema":{"type":"array","minItems":2,"maxItems":2,"items":{"type":"string"}},"example":["Outlook","client-key"]}}
  * @berli-openapi-end
  */
 function wsapp_deregister ($type, $key, $user) {

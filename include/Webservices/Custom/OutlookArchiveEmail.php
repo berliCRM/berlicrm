@@ -347,6 +347,9 @@ function berli_outlookMailSave(array $input, array $rights, $user)
  * @param Users $user Authenticated CRM user.
  * @return array<string,mixed>
  * @throws InvalidArgumentException On an invalid archive action.
+ * @berli-openapi-begin
+ * {"summary":"Archive an Outlook email","description":"Checks archive permissions, finds sender contacts, or idempotently stores an Outlook email and its attachments according to input.mode.","tags":["Outlook"],"parameters":{"input":{"required":true,"description":"JSON email archive action. mode must be check, find or save.","example":"{\"mode\":\"find\",\"from\":\"sender@example.org\"}","decodedSchema":{"type":"object","required":["mode"],"properties":{"mode":{"type":"string","enum":["check","find","save"]}},"additionalProperties":true}}},"result":{"schema":{"type":"object","additionalProperties":true},"example":{"canCreate":true,"contactEmailLabel":"Email","contacts":[]}}}
+ * @berli-openapi-end
  */
 function berli_outlookArchiveEmail($input, $user)
 {

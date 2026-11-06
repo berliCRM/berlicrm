@@ -1,5 +1,5 @@
 <?php
-/**
+/************************************************************************************************************************************************************ 
 CWC - CRM Word Connector
 Description: CWC Campaign Module
 Update Document Relations for given Document id and related ids
@@ -11,13 +11,15 @@ Update Document Relations for given Document id and related ids
     - array('relids'=>list of relids as provided)
   Comments:
     - this function respects the vtiger CRM profile privilege system and returns only entities accessible by the user accessing the rest functionality
-  @berli-openapi-begin
-  {"summary":"Update document relations","description":"Adds relations for a Document and optionally removes existing accessible relations not present in the request.","tags":["Documents","Relations"],"parameters":{"docid":{"required":true,"description":"Document webservice ID.","example":"15x900"},"relids":{"required":true,"description":"Comma-separated related record webservice IDs.","example":"12x345,3x100"},"preserve":{"required":false,"description":"Keep existing relations not supplied by this request.","example":true,"default":true}},"result":{"schema":{"type":"object","required":["relids"],"properties":{"relids":{"type":"array","items":{"type":"string"}}}},"example":{"relids":["12x345","3x100"]}}}
-  @berli-openapi-end
 Copyright (C) crm-now GmbH
 All Rights Reserved.
 ************************************************************************************************************************************************************ */
 
+/**
+ * @berli-openapi-begin
+ * {"summary":"Update document relations","description":"Adds relations for a Document and optionally removes existing accessible relations not present in the request.","tags":["Documents","Relations"],"parameters":{"docid":{"required":true,"description":"Document webservice ID.","example":"15x900","schema":{"type":"string","pattern":"^[0-9]+x[0-9]+$"}},"relids":{"required":true,"description":"Comma-separated related record webservice IDs.","example":"12x345,3x100"},"preserve":{"required":false,"description":"Keep existing relations not supplied by this request.","example":true,"default":true}},"result":{"schema":{"type":"object","required":["relids"],"properties":{"relids":{"type":"string"}},"additionalProperties":false},"example":{"relids":"12x345,3x100"}}}
+ * @berli-openapi-end
+ */
 function vtws_update_document_relations($docid, $relids, $preserve=true)
 {
 	global $adb, $current_user;

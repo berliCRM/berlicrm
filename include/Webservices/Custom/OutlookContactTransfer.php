@@ -272,6 +272,9 @@ function berli_outlookContactImport(array $input, array $metadata, $user)
  * @return array<string,mixed>
  * @throws InvalidArgumentException On an invalid action or contact payload.
  * @throws WebServiceException If required CRM permissions are missing.
+ * @berli-openapi-begin
+ * {"summary":"Transfer Outlook contacts","description":"Returns contact metadata, exports a CRM Contact for Outlook, or idempotently imports an Outlook contact according to input.mode.","tags":["Outlook"],"parameters":{"input":{"required":true,"description":"JSON contact action. mode must be describe, export or import.","example":"{\"mode\":\"export\",\"recordId\":\"12x345\"}","decodedSchema":{"type":"object","required":["mode"],"properties":{"mode":{"type":"string","enum":["describe","export","import"]}},"additionalProperties":true}}},"result":{"schema":{"type":"object","additionalProperties":true},"example":{"recordId":"12x345","key":"crm-instance:12x345","contact":{"displayName":"Jane Doe"}}}}
+ * @berli-openapi-end
  */
 function berli_outlookContactTransfer($input, $user)
 {

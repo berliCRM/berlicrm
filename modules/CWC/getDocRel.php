@@ -1,5 +1,5 @@
 <?php
-/**
+/************************************************************************************************************************************************************ 
 CWC - CRM Word Connector
 Description: CWC Module
 Get Document Relations for given Document ids
@@ -9,13 +9,15 @@ Get Document Relations for given Document ids
     - array(docid1=>list of relids, docid2=>list of relids)
   Comments:
     - this function respects the vtiger CRM profile privilege system and returns only entities accessible by the user accessing the rest functionality
-  @berli-openapi-begin
-  {"summary":"List document relations","description":"Returns accessible records related to the supplied Documents.","tags":["Documents","Relations"],"parameters":{"docids":{"required":true,"description":"JSON array of Document webservice IDs.","example":"[\"15x900\"]"}},"result":{"schema":{"type":"object","properties":{"found":{"type":"object","additionalProperties":true},"failed":{"type":"object","additionalProperties":{"type":"string"}}}},"example":{"found":{"Contacts":{"12x345":["15x900"]}},"failed":{}}}}
-  @berli-openapi-end
 Copyright (C) crm-now GmbH
 All Rights Reserved.
 ************************************************************************************************************************************************************ */
 
+/**
+ * @berli-openapi-begin
+ * {"summary":"List document relations","description":"Returns accessible records related to the supplied Documents and reports inaccessible or missing Documents separately.","tags":["Documents","Relations"],"parameters":{"docids":{"required":true,"description":"JSON array of Document webservice IDs.","example":"[\"15x900\"]","schema":{"type":"string"}}},"result":{"schema":{"type":"object","properties":{"found":{"type":"object","additionalProperties":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}}},"failed":{"type":"object","additionalProperties":{"type":"string"}}},"additionalProperties":false},"example":{"found":{"Contacts":{"12x345":["15x900"]}},"failed":{}}}}
+ * @berli-openapi-end
+ */
 function vtws_get_document_relations($docids) {
 	global $adb, $current_user;
 	$arr_docs = json_decode($docids);

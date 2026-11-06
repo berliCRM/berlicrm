@@ -16,6 +16,9 @@ require_once 'include/Webservices/Retrieve.php';
  * @param Users $user Authenticated CRM user.
  * @return array
  * @throws WebServiceException On invalid identifiers, missing rights or database errors.
+ * @berli-openapi-begin
+ * {"summary":"Expand an Outlook distribution list","description":"Returns readable Contacts with non-empty email addresses from a distribution list owned by the authenticated user.","tags":["Outlook"],"parameters":{"verteilerId":{"required":true,"description":"Verteiler record webservice ID.","example":"40x100","schema":{"type":"string","pattern":"^[1-9][0-9]*x[1-9][0-9]*$"}}},"result":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/Entity"}},"example":[{"id":"12x345","firstname":"Jane","lastname":"Doe","email":"jane@example.org"}]}}
+ * @berli-openapi-end
  */
 function berli_outlookGetVerteilerContacts($verteilerId, $user)
 {

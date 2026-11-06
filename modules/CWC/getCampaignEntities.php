@@ -1,5 +1,5 @@
 <?php
-/**
+/************************************************************************************************************************************************************ 
 CWC - CRM Word Connector
 Description: CWC Campaign Module
 Returns related entities of a given campaign record
@@ -14,13 +14,15 @@ Returns related entities of a given campaign record
     - array('Leads'=>{leadids},'Contacts'=>{contactids},'Accounts'=>{accountids}) where {leadids},{contactids} and {accountids} are strings of rest ids separated by commas: e.g. 4x12,4x34,...
   Comments:
     - this function respects the vtiger CRM profile privilege system and returns only entities accessible by the user accessing the rest functionality
-  @berli-openapi-begin
-  {"summary":"List campaign entities","description":"Returns accessible Leads, Contacts or Accounts related to a Campaign.","tags":["Relations"],"parameters":{"campaignid":{"required":true,"description":"Campaign webservice ID.","example":"17x100"},"returnresults":{"required":false,"description":"Entity group to return.","example":"Both","default":"Both","schema":{"type":"string","enum":["Leads","Contacts","Accounts","Both"]}}},"result":{"schema":{"type":"object","properties":{"Leads":{"type":"string"},"Contacts":{"type":"string"},"Accounts":{"type":"string"}}},"example":{"Leads":"","Contacts":"12x345","Accounts":""}}}
-  @berli-openapi-end
 Copyright (C) crm-now GmbH
 All Rights Reserved.
 ************************************************************************************************************************************************************ */
 
+/**
+ * @berli-openapi-begin
+ * {"summary":"List campaign contacts","description":"Returns the accessible Contacts related to a Campaign. The legacy returnresults parameter is accepted for compatibility; the current implementation returns the Contacts group only.","tags":["Relations"],"parameters":{"campaignid":{"required":true,"description":"Campaign webservice ID.","example":"17x100","schema":{"type":"string","pattern":"^[0-9]+x[0-9]+$"}},"returnresults":{"required":false,"description":"Legacy result selector. Invalid values are normalized to Both, but the current implementation still returns Contacts only.","example":"Both","default":"Both","schema":{"type":"string","enum":["Leads","Contacts","Accounts","Both"]}}},"result":{"schema":{"type":"object","required":["Contacts"],"properties":{"Contacts":{"type":"string","description":"Comma-separated Contact webservice IDs."}},"additionalProperties":false},"example":{"Contacts":"12x345,12x346"}}}
+ * @berli-openapi-end
+ */
 function vtws_get_campaign_entities($campaignid, $returnresults='Both') {
   global $adb, $current_user;
   
