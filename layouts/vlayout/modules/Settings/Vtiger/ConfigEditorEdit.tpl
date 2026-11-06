@@ -54,8 +54,11 @@
 								{else if $FIELD_NAME == 'USE_RTE'}
 									<input type="hidden" name="{$FIELD_NAME}" value="false" />
 									<input type="checkbox" name="{$FIELD_NAME}" value="true" {if $FIELD_DATA[$FIELD_NAME] == 'true'} checked {/if} />
+								{else if $FIELD_NAME == 'instancename'}
+									<input type="text" name="{$FIELD_NAME}" value="{$FIELD_DATA[$FIELD_NAME]|escape:'html'}" pattern="[a-zA-Z0-9_-]*" />
+									<span class="help-inline">{vtranslate('LBL_INSTANCE_NAME_HELP', $QUALIFIED_MODULE)}</span>
 								{else if $FIELD_NAME == 'mail_envelope_from'}
-									<input type="email" name="{$FIELD_NAME}" value="{$FIELD_DATA[$FIELD_NAME]|escape:'html'}" />
+									<input type="text" name="{$FIELD_NAME}" value="{$FIELD_DATA[$FIELD_NAME]|escape:'html'}" />
 									<span class="help-inline">{vtranslate('LBL_MAIL_ENVELOPE_FROM_HELP', $QUALIFIED_MODULE)}</span>
 								{else if $FIELD_NAME == 'custom_logo_link'}
 									<input type="url" name="{$FIELD_NAME}" value="{$FIELD_DATA[$FIELD_NAME]|escape:'html'}" placeholder="https://example.com" />

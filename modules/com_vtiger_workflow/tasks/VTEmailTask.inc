@@ -74,7 +74,7 @@ class VTEmailTask extends VTTask{
 				$logo = 1;
 			}
 
-			$status = send_mail($module, $to_email, $from_name, $from_email, $subject, $content, $cc, $bcc, '', '', $logo, false, $replyTo);
+			$status = send_mail($module, $to_email, $from_name, $from_email, $subject, $content, $cc, $bcc, '', $emailId, $logo, false, $replyTo);
 
 			if(!empty($emailId)) {
 				$emailFocus->setEmailAccessCountValue($emailId);

@@ -409,6 +409,7 @@ class Emails_Record_Model extends Vtiger_Record_Model {
                 if (!$instant) {
                     $mailer->unalteredBody = $description;
                 }
+                $mailer->emailId = $this->getId();
                 $status = $mailer->Send($instant, $id, $this->sendWithoutRelation);
             } catch (Exception $e) {
                 $errorMsg = $e->getMessage();
