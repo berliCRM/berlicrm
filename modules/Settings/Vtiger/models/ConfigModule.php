@@ -70,6 +70,10 @@ class Settings_Vtiger_ConfigModule_Model extends Settings_Vtiger_Module_Model {
 			$data = array();
 			$editableFileds = $this->getEditableFields();
 			foreach ($editableFileds as $fieldName => $fieldDetails) {
+				if ($fieldName === 'instancename') {
+					$data[$fieldName] = $GLOBALS['instancename'] ?? '';
+					continue;
+				}
 				if ($fieldName === 'mail_envelope_from') {
 					$data[$fieldName] = $GLOBALS['mail_envelope_from'] ?? '';
 					continue;
@@ -152,6 +156,7 @@ class Settings_Vtiger_ConfigModule_Model extends Settings_Vtiger_Module_Model {
 	 */
 	public function getEditableFields() {
 		return array(
+			'instancename' => array('label' => 'LBL_INSTANCE_NAME', 'fieldType' => 'input'),
 			'mail_envelope_from' => array('label' => 'LBL_MAIL_ENVELOPE_FROM', 'fieldType' => 'input'),
 			'custom_logo_link' => array('label' => 'LBL_CUSTOM_LOGO_LINK', 'fieldType' => 'input'),
 			'custom_logo_link_target' => array('label' => 'LBL_CUSTOM_LOGO_LINK_TARGET', 'fieldType' => 'picklist'),
@@ -179,11 +184,11 @@ class Settings_Vtiger_ConfigModule_Model extends Settings_Vtiger_Module_Model {
 		$validationInfo = $this->validateFieldValues($updatedFields);
 		if ($validationInfo === true) {
 			foreach ($updatedFields as $fieldName => $fieldValue) {
-				if ($fieldName === 'custom_logo_link' || $fieldName === 'custom_logo_link_target' || $fieldName === 'mail_envelope_from') {
+				if ($fieldName === 'custom_logo_link' || $fieldName === 'custom_logo_link_target' || $fieldName === 'mail_envelope_from' || $fieldName === 'instancename') {
 					$replacement = '$' . $fieldName . ' = ' . var_export(trim($fieldValue), true) . ';';
 					// Match the entire PHP string, including escaped quotes and semicolons in URLs.
 					$pattern = <<<'REGEX'
-~\$custom_logo_link\s*=\s*(?:'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*")\s*;~
+~^[\t ]*\$custom_logo_link\s*=\s*(?:'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*")\s*;~m
 REGEX;
 					$pattern = str_replace('custom_logo_link', $fieldName, $pattern);
 					$fileContent = preg_replace_callback($pattern, function () use ($replacement) {
@@ -218,10 +223,16 @@ REGEX;
 	 * @return <String> True/Error message
 	 */
 	public function validateFieldValues($updatedFields){
+		if (array_key_exists('instancename', $updatedFields)
+			&& (!is_string($updatedFields['instancename'])
+				|| !preg_match('/^[a-zA-Z0-9_-]*$/D', trim($updatedFields['instancename']))
+				|| preg_match('/[\r\n]/', $updatedFields['instancename']))) {
+			return 'LBL_INVALID_INSTANCE_NAME';
+		}
 		if (array_key_exists('mail_envelope_from', $updatedFields)) {
+			require_once 'vtlib/Vtiger/EnvelopeFrom.php';
 			$value = $updatedFields['mail_envelope_from'];
-			if (!is_string($value) || preg_match('/[\r\n]/', $value)
-				|| (trim($value) !== '' && !filter_var(trim($value), FILTER_VALIDATE_EMAIL))) {
+			if (!Vtiger_EnvelopeFrom::isValidTemplate($value)) {
 				return 'LBL_INVALID_MAIL_ENVELOPE_FROM';
 			}
 		}
