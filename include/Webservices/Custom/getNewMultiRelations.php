@@ -111,7 +111,9 @@ function berli_get_new_multi_relations($ids, $relModule = 'all', $user) {
 				$alreadySet = array();
 				while ($row2 = $db->fetch_row($res2)) {
 					$relCrmId = $prefix.'x'.$row2['crmid'];
-					if ($tmpMeta->hasPermission(EntityMeta::$RETRIEVE, $relCrmId) && !isset($alreadySet[$relCrmId])) {
+					// Relation queries may be customized and omit the recycle-bin filter.
+					// Check existence centrally: module metadata excludes deleted records.
+					if (!isset($alreadySet[$relCrmId]) && $tmpMeta->exists($row2['crmid']) && $tmpMeta->hasPermission(EntityMeta::$RETRIEVE, $relCrmId)) {
 						$arrRet[$id][$relatedModuleName][$label][] = $relCrmId;
 						$alreadySet[$relCrmId] = $relCrmId;
 					}
