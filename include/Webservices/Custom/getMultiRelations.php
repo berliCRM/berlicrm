@@ -18,6 +18,7 @@ All Rights Reserved.
 
 function berli_get_multi_relations($id, $user) {
 	$db = PearDatabase::getInstance();
+	$relID = array();
 
 	$webserviceObject = VtigerWebserviceObject::fromId($db,$id);
 	$handlerPath = $webserviceObject->getHandlerPath();
@@ -154,6 +155,7 @@ function multi_relations_check_permissions ($wsid, $user) {
 	
 	//validate access
 	$idComponents = vtws_getIdComponents($wsid);
+	// exists() excludes recycle-bin records for every relation path, including Products.
 	if(in_array($rel_entityName,$types['types']) && $rel_meta->hasReadAccess()==true && $rel_entityName == $rel_webserviceObject->getEntityName() && $rel_meta->hasPermission(EntityMeta::$RETRIEVE,$wsid) && $rel_meta->exists($idComponents[1])){
 		return true;
 	}
