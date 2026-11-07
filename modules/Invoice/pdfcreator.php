@@ -463,7 +463,7 @@ function berli_renderInvoiceFile($idnumber, $purpose, $path, $current_id, $forma
     }
 
     // custom demand connectware, hide discount if not used
-    $hasDiscount == false;
+    $hasDiscount = false;
 
     //Population of current date
     $addyear = strtotime("+0 year");
