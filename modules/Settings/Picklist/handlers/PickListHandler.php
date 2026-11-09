@@ -232,13 +232,13 @@ class PickListHandler extends VTEventHandler {
 		
 		foreach ($valueToDelete as $value) {
 			//update Workflows values
-			$query = 'SELECT workflow_id,test FROM com_vtiger_workflows where module_name=? AND test != "" AND test IS NOT NULL AND test !="null" AND test LIKE "%' . $value . '%"';
-			$result = $db->pquery($query, array($moduleName));
+			$query = 'SELECT workflow_id,test FROM com_vtiger_workflows where module_name=? AND test != "" AND test IS NOT NULL AND test !="null" AND test LIKE ?';
+			$result = $db->pquery($query, array($moduleName, "%{$value}%"));
 			$num_rows = $db->num_rows($result);
 			for ($i = 0; $i < $num_rows; $i++) {
 				$row = $db->query_result_rowdata($result, $i);
 				$condition = decode_html($row['test']);
-				$decodedArrayConditions = json_decode($condition);
+				$decodedArrayConditions = json_decode($condition, true);
 				if (!empty($decodedArrayConditions)) {
 					foreach ($decodedArrayConditions as $key => $condition) {
 						if ($condition['fieldname'] == $pickListFieldName) {
