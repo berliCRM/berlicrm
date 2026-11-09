@@ -1625,6 +1625,20 @@ berli_outlookAddinUpdate();
 echo "<br>\n Install Outlook Add-in menu and webservices END ";
 // Outlook add-in update END
 
+// remove PBXManager reference if present START
+echo "<br>\n Remove PBXManager reference if present START ";
+$path = 'packages/vtiger/mandatory/PBXManager.zip';
+if (file_exists($path)) {
+	unlink($path);
+}
+$moduleName = 'PBXManager';
+$moduleInstance = Vtiger_Module::getInstance($moduleName);
+if ($moduleInstance) {
+	$moduleInstance->delete();
+}
+echo "<br>\n Remove PBXManager reference if present END ";
+// remove PBXManager reference if present END
+
 ///////////////////////////////////////////////////////////////////////////
 // on the End, we set update of Version Nummer and updates of all Modules:
 berli_updateAllModules();
