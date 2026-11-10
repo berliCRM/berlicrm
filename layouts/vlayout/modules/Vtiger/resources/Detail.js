@@ -450,9 +450,10 @@ jQuery.Class("Vtiger_Detail_Js", {
 		var thisInstance = this;
 		var maxLines = 5;
 		var visibleTextLines = maxLines - 1;
+		this.initializeCommentDisplayControls();
 
 		jQuery(container).filter('.commentInfoContent').add(jQuery(container).find('.commentInfoContent')).filter(function () {
-			return jQuery(this).closest('.recentComments').length > 0;
+			return jQuery(this).closest('.commentContainer').length > 0;
 		}).each(function () {
 			var commentContent = jQuery(this);
 			var singleComment = commentContent.closest('.singleComment');
@@ -479,15 +480,36 @@ jQuery.Class("Vtiger_Detail_Js", {
 				return;
 			}
 
-			commentContent
-				.addClass('summaryCommentCollapsed')
-				.css('max-height', collapsedHeight + 'px');
-
 			thisInstance.getSummaryCommentEllipsisElement().insertAfter(commentContent);
-
 			var commentActionsDiv = singleComment.find('.commentActionsDiv').first();
-			thisInstance.getSummaryCommentToggleElement(commentContent, false, collapsedHeight).prependTo(commentActionsDiv);
+			var toggle = thisInstance.getSummaryCommentToggleElement(commentContent, thisInstance.commentsExpanded, collapsedHeight);
+			toggle.prependTo(commentActionsDiv);
+			thisInstance.setCommentExpanded(toggle, thisInstance.commentsExpanded);
 		});
+	},
+
+	initializeCommentDisplayControls: function () {
+		var buttons = this.getContentHolder().find('.toggleAllComments');
+		if (typeof this.commentsExpanded === 'undefined' && buttons.length) {
+			this.commentsExpanded = buttons.first().attr('data-expanded') === '1';
+		}
+		var expanded = this.commentsExpanded;
+		buttons.each(function () {
+			var button = jQuery(this);
+			button.text(button.attr(expanded ? 'data-collapse-label' : 'data-expand-label'))
+				.attr('aria-expanded', expanded ? 'true' : 'false');
+		}).prop('disabled', !!this.commentDisplaySaving);
+	},
+
+	setCommentExpanded: function (toggleElement, expanded) {
+		var singleComment = toggleElement.closest('.singleComment');
+		var commentContent = singleComment.find('.commentInfoContent').first();
+		commentContent.toggleClass('summaryCommentExpanded', expanded)
+			.toggleClass('summaryCommentCollapsed', !expanded)
+			.css('max-height', expanded ? '' : toggleElement.data('collapsedHeight') + 'px');
+		singleComment.find('.summaryCommentEllipsis').toggle(!expanded && commentContent.is(':visible'));
+		toggleElement.text(this.getSummaryCommentToggleLabel(commentContent, expanded))
+			.attr('aria-expanded', expanded ? 'true' : 'false');
 	},
 
 	getSummaryCommentEllipsisElement: function () {
@@ -507,7 +529,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 	},
 
 	getSummaryCommentToggleLabel: function (commentContent, expanded) {
-		var recentCommentsContainer = commentContent.closest('.recentComments');
+		var recentCommentsContainer = commentContent.closest('.commentContainer');
 		var labelAttribute = expanded ? 'show-less-label' : 'show-more-label';
 		var fallbackLabel = expanded ? 'weniger anzeigen' : 'mehr anzeigen';
 		return recentCommentsContainer.attr('data-' + labelAttribute) || fallbackLabel;
@@ -2652,6 +2674,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 			}
 			commentInfoBlock.find('.summaryCommentToggle').show();
 			thisInstance.removeCommentBlockIfExists();
+			thisInstance.initializeSummaryCommentToggle(commentInfoBlock);
 		});
 
 		detailContentsHolder.on('click', '.replyComment', function (e) {
@@ -2699,6 +2722,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 			var ulElements = currentCommentBlock.find('ul');
 			if (ulElements.length > 0) {
 				ulElements.show();
+				thisInstance.initializeSummaryCommentToggle(ulElements);
 				commentActionsBlock.find('.hideThreadBlock').show();
 				currentTargetParent.hide();
 				return;
@@ -2878,27 +2902,37 @@ jQuery.Class("Vtiger_Detail_Js", {
 			recentCommentsTab.trigger('click');
 		});
 
+		detailContentsHolder.on('click', '.toggleAllComments', function (e) {
+			var button = jQuery(e.currentTarget);
+			if (thisInstance.commentDisplaySaving) {
+				return;
+			}
+			var expanded = !thisInstance.commentsExpanded;
+			thisInstance.commentDisplaySaving = true;
+			thisInstance.initializeCommentDisplayControls();
+			var finish = function (saved) {
+				thisInstance.commentDisplaySaving = false;
+				if (saved) {
+					thisInstance.commentsExpanded = expanded;
+					thisInstance.initializeSummaryCommentToggle(detailContentsHolder);
+				} else {
+					thisInstance.initializeCommentDisplayControls();
+					Vtiger_Helper_Js.showPnotify({text: button.attr('data-save-error'), type: 'error'});
+				}
+			};
+			AppConnector.request({
+				module: 'Users', action: 'SaveCommentDisplay', expanded: expanded ? '1' : '0'
+			}).then(function (data) {
+				finish(data && data.success && data.result && data.result.expanded === expanded);
+			}, function () {
+				finish(false);
+			});
+		});
+
 		detailContentsHolder.on('click', '.summaryCommentToggle', function (e) {
 			var toggleElement = jQuery(e.currentTarget);
-			var singleComment = toggleElement.closest('.singleComment');
-			var commentContent = singleComment.find('.commentInfoContent').first();
-			var ellipsisElement = singleComment.find('.summaryCommentEllipsis');
-			var isExpanded = commentContent.hasClass('summaryCommentExpanded');
-			if (isExpanded) {
-				commentContent
-					.removeClass('summaryCommentExpanded')
-					.addClass('summaryCommentCollapsed')
-					.css('max-height', toggleElement.data('collapsedHeight') + 'px');
-				ellipsisElement.show();
-				toggleElement.text(thisInstance.getSummaryCommentToggleLabel(commentContent, false));
-			} else {
-				commentContent
-					.removeClass('summaryCommentCollapsed')
-					.addClass('summaryCommentExpanded')
-					.css('max-height', '');
-				ellipsisElement.hide();
-				toggleElement.text(thisInstance.getSummaryCommentToggleLabel(commentContent, true));
-			}
+			var commentContent = toggleElement.closest('.singleComment').find('.commentInfoContent').first();
+			thisInstance.setCommentExpanded(toggleElement, !commentContent.hasClass('summaryCommentExpanded'));
 		});
 
 		// Pagination

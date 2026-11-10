@@ -805,14 +805,17 @@ td.listViewEntryValue .row-fluid input {
   padding: 1px 0;
   word-wrap: break-word;
 }
-.recentComments .commentInfoContent.summaryCommentCollapsed {
+.commentContainer .commentInfoContent.summaryCommentCollapsed {
   overflow: hidden;
 }
-.recentComments .summaryCommentEllipsis {
+.commentContainer .summaryCommentEllipsis {
   line-height: inherit;
 }
-.recentComments .summaryCommentToggle {
+.commentContainer .summaryCommentToggle {
   font-size: 12px;
+}
+.commentDisplayControls {
+  margin-bottom: 10px;
 }
 .commentTitle .span1 {
   -webkit-box-sizing: border-box;
