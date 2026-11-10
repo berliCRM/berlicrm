@@ -215,6 +215,8 @@ class DateTimeField {
 		// Need to figure out the root cause for the problem. Till then, disabling caching.
 		//if(empty(self::$cache[$time][$targetTimeZoneName])) {
 			// create datetime object for given time in source timezone
+			// ' ' instead of '' strings will cause errors
+			$time = trim($time);
 			$sourceTimeZone = new DateTimeZone($sourceTimeZoneName);
 			if($time == '24:00') $time = '00:00';
 			$myDateTime = new DateTime($time, $sourceTimeZone);
