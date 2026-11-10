@@ -20,19 +20,19 @@ class Mobile_WS_AlertDetailsWithMessage extends Mobile_WS_FetchAllAlerts {
 		$alertid = $request->get('alertid');
 		$current_user = $this->getActiveUser();
 
-		$alert = $this->getAlertDetails($alertid);
+		$alert = $this->getAlertDetailsWithMessage($alertid);
 		if(empty($alert)) {
 			$response->setError(1401, 'Alert not found');
 		} else {
 			$result = array();
-			$result['alert'] = $this->getAlertDetails($alertid);
+			$result['alert'] = $this->getAlertDetailsWithMessage($alertid);
 			$response->setResult($result);			
 		}
 
 		return $response;
 	}
 	
-	function getAlertDetails($alertid) {
+	function getAlertDetailsWithMessage($alertid) {
 		
 		$alertModel = Mobile_WS_AlertModel::modelWithId($alertid);
 		

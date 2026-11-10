@@ -32,7 +32,7 @@ class Vtiger_PDF_PagerViewer extends Vtiger_PDF_Viewer {
 		if($this->model) {
 			$displayFormat = $this->model->get('format', $displayFormat);
 		}
-		$contentHeight = $pdf->GetStringHeight($displayFormat, $contentFrame->w/2.0);
+		$contentHeight = $pdf->getSimpleStringHeight($displayFormat, $contentFrame->w/2.0);
 		$pdf->MultiCell($contentFrame->w/2.0, $contentHeight, sprintf($displayFormat, $pdf->getPage()), 0, 'L', 0, 1,
 			$contentFrame->x+$contentFrame->w/2.0, $parent->getTotalHeight());
 	}

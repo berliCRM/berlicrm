@@ -38,23 +38,23 @@
 				$imageHeightInMM = 30;
 
 				$pdf->SetFont('freeserif', 'B');
-				$contentHeight = $pdf->GetStringHeight( $modelColumnLeft['summary'], $headerColumnWidth);
+				$contentHeight = $pdf->getSimpleStringHeight( $modelColumnLeft['summary'], $headerColumnWidth);
 				$pdf->MultiCell($headerColumnWidth, $contentHeight, $modelColumnLeft['summary'], 0, 'L', 0, 1,
 					$headerFrame->x, $headerFrame->y+$imageHeightInMM+2);
 
 				$pdf->SetFont('freeserif', '');
-				$contentHeight = $pdf->GetStringHeight( $modelColumnLeft['content'], $headerColumnWidth);
+				$contentHeight = $pdf->getSimpleStringHeight( $modelColumnLeft['content'], $headerColumnWidth);
 				$pdf->MultiCell($headerColumnWidth, $contentHeight, $modelColumnLeft['content'], 0, 'L', 0, 1,
 					$headerFrame->x, $pdf->GetY());
 
 				if(!empty($modelColumnLeft['fieldvalue'])) {
 					$pdf->SetFont('freeserif', 'B');
 					$pdf->SetFillColor(205,201,201);
-					$height = $pdf->GetStringHeight($modelColumnLeft['fieldlabel'], $headerColumnWidth);
+					$height = $pdf->getSimpleStringHeight($modelColumnLeft['fieldlabel'], $headerColumnWidth);
 					$pdf->MultiCell($headerColumnWidth, 7, $modelColumnLeft['fieldlabel'], 1, 'C', 1, 1, $headerFrame->x, $pdf->GetY()+2);
 
 					$pdf->SetFont('freeserif', '');
-					$height = $pdf->GetStringHeight($modelColumnLeft['fieldvalue'], $headerColumnWidth);
+					$height = $pdf->getSimpleStringHeight($modelColumnLeft['fieldvalue'], $headerColumnWidth);
 					$pdf->MultiCell($headerColumnWidth, 7, $modelColumnLeft['fieldvalue'], 1, 'C', 0, 1, $headerFrame->x, $pdf->GetY());
 				}
 
@@ -84,7 +84,7 @@
 				$modelColumnRight = $modelColumns[2];
 
 				$contentWidth = $pdf->GetStringWidth($this->model->get('title'));
-				$contentHeight = $pdf->GetStringHeight($this->model->get('title'), $contentWidth);
+				$contentHeight = $pdf->getSimpleStringHeight($this->model->get('title'), $contentWidth);
 
 				$roundedRectX = $headerFrame->w+$headerFrame->x-$contentWidth*2.0;
 				$roundedRectW = $contentWidth*2.0;

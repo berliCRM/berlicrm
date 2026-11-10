@@ -47,12 +47,12 @@ class Vtiger_PDF_InventoryHeaderViewer extends Vtiger_PDF_HeaderViewer {
 			$imageHeightInMM = 30;
 			
 			$pdf->SetFont('freeserif', 'B');
-			$contentHeight = $pdf->GetStringHeight( $modelColumn0['summary'], $headerColumnWidth);
+			$contentHeight = $pdf->getSimpleStringHeight( $modelColumn0['summary'], $headerColumnWidth);
 			$pdf->MultiCell($headerColumnWidth, $contentHeight, $modelColumn0['summary'], 0, 'L', 0, 1, 
 				$headerFrame->x, $headerFrame->y+$imageHeightInMM+2);
 			
 			$pdf->SetFont('freeserif', '');
-			$contentHeight = $pdf->GetStringHeight( $modelColumn0['content'], $headerColumnWidth);			
+			$contentHeight = $pdf->getSimpleStringHeight( $modelColumn0['content'], $headerColumnWidth);
 			$pdf->MultiCell($headerColumnWidth, $contentHeight, $modelColumn0['content'], 0, 'L', 0, 1, 
 				$headerFrame->x, $pdf->GetY());
 				
@@ -82,7 +82,7 @@ class Vtiger_PDF_InventoryHeaderViewer extends Vtiger_PDF_HeaderViewer {
 			$modelColumn2 = $modelColumns[2];
 			
 			$contentWidth = $pdf->GetStringWidth($this->model->get('title'));
-			$contentHeight = $pdf->GetStringHeight($this->model->get('title'), $contentWidth);
+			$contentHeight = $pdf->getSimpleStringHeight($this->model->get('title'), $contentWidth);
 			
 			$roundedRectX = $headerFrame->w+$headerFrame->x-$contentWidth*2.0;
 			$roundedRectW = $contentWidth*2.0;
@@ -111,7 +111,7 @@ class Vtiger_PDF_InventoryHeaderViewer extends Vtiger_PDF_HeaderViewer {
 				$pdf->SetFillColor(205,201,201);
                                 if($label=='Shipping Address'){ 
                                     $width=$pdf->GetStringWidth($value); 
-                                    $height=$pdf->GetStringHeight($value,$width);
+                                    $height=$pdf->getSimpleStringHeight($value,$width);
                                     $pdf->MultiCell($headerColumnWidth-$offsetX, 7, $label, 1, 'L', 1, 1, $headerFrame->x+$headerColumnWidth*2.0+$offsetX,
                                             $pdf->GetY()+$offsetY-$height-$offsetX-4.0); 
 

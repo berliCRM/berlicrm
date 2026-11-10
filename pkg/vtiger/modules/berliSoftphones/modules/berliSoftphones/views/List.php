@@ -21,7 +21,7 @@ class berliSoftphones_List_View extends Vtiger_List_View{
     /*
      * Override default preProcess
      */
-	function preProcess(Vtiger_Request $request, $display=true) {
+	function preProcess(Vtiger_Request $request, $display=true): void {
 		parent::preProcess($request, false);
 
 		$viewer = $this->getViewer ($request);

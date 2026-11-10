@@ -27,7 +27,7 @@ class Vtiger_ThemeImport extends Vtiger_ThemeExport {
 	 * Initialize Import
 	 * @access private
 	 */
-	function initImport($zipfile, $overwrite) {
+	function initImport($zipfile, $overwrite = true) {
 		$this->__initSchema();
 		$name = $this->getModuleNameFromZip($zipfile);
                 return $name;

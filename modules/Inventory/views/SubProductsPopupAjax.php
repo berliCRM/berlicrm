@@ -25,12 +25,10 @@ class Inventory_SubProductsPopupAjax_View extends Inventory_SubProductsPopup_Vie
 		return 'Products';
 	}
 	
-	function preProcess(Vtiger_Request $request) {
-		return true;
+	function preProcess(Vtiger_Request $request, bool $display=true): void {
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return true;
+	function postProcess(Vtiger_Request $request): void {
 	}
 
 	function process (Vtiger_Request $request) {

@@ -97,7 +97,7 @@ class Vtiger_PDF_InventoryContentViewer extends Vtiger_PDF_ContentViewer {
 			foreach($this->cells as $cellName => $cellWidth) {
 				$contentString = $model->get($cellName);
 				if(empty($contentString)) continue;
-				$contentStringHeight = $pdf->GetStringHeight($contentString, $cellWidth);
+				$contentStringHeight = $pdf->getSimpleStringHeight($contentString, $cellWidth);
 				if ($contentStringHeight > $contentHeight) $contentHeight = $contentStringHeight;
 			}
 			
@@ -125,7 +125,7 @@ class Vtiger_PDF_InventoryContentViewer extends Vtiger_PDF_ContentViewer {
 				$commentCellWidth = $this->cells['Name'];
 				$offsetX = $this->cells['Code'];
 				
-				$contentHeight = $pdf->GetStringHeight($commentContent, $commentCellWidth);			
+				$contentHeight = $pdf->getSimpleStringHeight($commentContent, $commentCellWidth);
 				if(ceil($contentLineY + $contentHeight + $overflowOffsetH) > ceil($contentFrame->h+$contentFrame->y)) {
 					
 					$this->drawCellBorder($parent);
@@ -148,7 +148,7 @@ class Vtiger_PDF_InventoryContentViewer extends Vtiger_PDF_ContentViewer {
 			$summaryCellKeys = $this->contentSummaryModel->keys(); $summaryCellCount = count($summaryCellKeys);
 		
 			$summaryCellLabelWidth = $this->cells['Quantity'] + $this->cells['Price'] + $this->cells['Discount'] + $this->cells['Tax'];
-			$summaryCellHeight = $pdf->GetStringHeight("TEST", $summaryCellLabelWidth); // Pre-calculate cell height
+			$summaryCellHeight = $pdf->getSimpleStringHeight("TEST", $summaryCellLabelWidth); // Pre-calculate cell height
 		
 			$summaryTotalHeight = ceil(($summaryCellHeight * $summaryCellCount));
 	

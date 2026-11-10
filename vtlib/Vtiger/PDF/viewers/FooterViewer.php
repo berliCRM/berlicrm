@@ -45,7 +45,7 @@ class Vtiger_PDF_FooterViewer extends Vtiger_PDF_Viewer {
 			$pdf = $parent->getPDF();
 
 			$contentText = $this->model->get('content');
-			$height = $pdf->GetStringHeight($contentText, $parent->getTotalWidth());
+			$height = $pdf->getSimpleStringHeight($contentText, $parent->getTotalWidth());
 		}		
 
 		if($this->onEveryPage) return $height;

@@ -245,7 +245,7 @@ Class Google_Contacts_Connector extends WSAPP_TargetConnector {
      * @param <object> $SyncState
      * @return <array> google Records
      */
-    public function pull($SyncState) {
+    public function pull(WSAPP_SyncStateModel $SyncState) {
         return $this->getContacts($SyncState);
     }
 
