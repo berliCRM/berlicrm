@@ -1488,6 +1488,19 @@ if(!empty($errors)){
 echo "<br>\n New tables done ";
 
 
+// Global first-page and continuation-page letterheads for inventory PDFs.
+echo "<br>\n Install global PDF letterhead configuration START ";
+$adb->pquery("CREATE TABLE IF NOT EXISTS `berli_pdfletterhead` (
+    `id` tinyint(1) NOT NULL DEFAULT '1',
+    `first_document_id` int(11) DEFAULT NULL,
+    `continuation_document_id` int(11) DEFAULT NULL,
+    `updated_by` int(11) DEFAULT NULL,
+    `updated_at` datetime DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", array());
+echo "<br>\n Install global PDF letterhead configuration END ";
+
+
 // do some table modifications
 echo "<br>\n Install_InitSchema_Model::alterTables() START ";
 if (method_exists('Install_InitSchema_Model', 'alterTables')) {

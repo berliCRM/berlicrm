@@ -110,89 +110,21 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	$footerradio = $pdf_config_details['footerradio'];
 	//display footer page number?
 	$pageradio = $pdf_config_details['pageradio'];
-	// get company information from settings
-	$add_query = "select * from vtiger_organizationdetails";
-	$result = $adb->pquery($add_query, array());
-	$num_rows = $adb->num_rows($result);
-	if($num_rows > 0) {
-		$org_name = $adb->query_result($result,0,"organizationname");
-		$org_address = $adb->query_result($result,0,"address");
-		$org_city = $adb->query_result($result,0,"city");
-		$org_state = $adb->query_result($result,0,"state");
-		$org_country = $adb->query_result($result,0,"country");
-		$org_code = $adb->query_result($result,0,"code");
-		$org_phone = $adb->query_result($result,0,"phone");
-		$org_fax = $adb->query_result($result,0,"fax");
-		$org_taxid = $adb->query_result($result,0,"tax_id");
-		$org_vatid = $adb->query_result($result,0,"vatid");
-		$org_website = $adb->query_result($result,0,"website");
-
-		$logo_name = decode_html($adb->query_result($result,0,"logoname"));
-		$bank_name = $adb->query_result($result,0,"bankname");
-		$bank_street = $adb->query_result($result,0,"bankstreet");
-		$bank_city = $adb->query_result($result,0,"bankcity");
-		$bank_zip = $adb->query_result($result,0,"bankzip");
-		$bank_country = $adb->query_result($result,0,"bankcountry");
-		$bank_account = $adb->query_result($result,0,"bankaccount");
-		$bank_routing = $adb->query_result($result,0,"bankrouting");
-		$bank_iban = $adb->query_result($result,0,"bankiban");
-		$bank_swift = $adb->query_result($result,0,"bankswift");
-	}
+	InventoryPdfGenerator::populateOrganizationGlobals();
 	// get owner information
-	$recordOwnerArr = getRecordOwnerId ($_REQUEST['record']);
-	foreach($recordOwnerArr as $type=>$id) 	{
-		$ownertype=$type;
-		$ownerid=$id;
-	}
-	if($ownertype == 'Users') 	{
-		// get owner information for user
-		$sql="SELECT * FROM vtiger_users,vtiger_crmentity WHERE vtiger_users.id = vtiger_crmentity.smownerid AND vtiger_crmentity.crmid = ? ";
-		$result = $adb->pquery($sql, array($_REQUEST['record']));
-		$owner_lastname = $adb->query_result($result,0,'last_name');
-		$owner_firstname = $adb->query_result($result,0,'first_name');
-		$owner_id = $adb->query_result($result,0,'smownerid');
-		$owner_phone = $adb->query_result($result,0,'phone_work');
-		$owner_title = decode_html(trim($adb->query_result($result,0,'title')));
-	}
-	else {
-	// get owner information for Groups
-		$sql="SELECT * FROM vtiger_groups,vtiger_crmentity WHERE vtiger_groups.groupid  = vtiger_crmentity.smownerid AND vtiger_crmentity.crmid = ? ";
-		$result = $adb->pquery($sql, array($_REQUEST['record']));
-		$owner_lastname = '';
-		$owner_firstname = $adb->query_result($result,0,'groupname');
-		$owner_id = $adb->query_result($result,0,'smownerid');
-		$owner_phone = $org_phone;
-		$owner_title = '';
-	}
+	$ownerDetails = InventoryPdfGenerator::ownerDetails($idnumber, $org_phone);
+	$owner_lastname = $ownerDetails['last_name'];
+	$owner_firstname = $ownerDetails['first_name'];
+	$owner_id = $ownerDetails['id'];
+	$owner_phone = $ownerDetails['phone'];
+	$owner_title = $ownerDetails['title'];
 	//display owner?
 	$owner = $pdf_config_details['owner'];
 	//display owner phone#?
 	$ownerphone = $pdf_config_details['ownerphone'];
 	//to display at product description based on tax type
-	$gproddetailarray = array($pdf_config_details['gprodname'],$pdf_config_details['gproddes'],$pdf_config_details['gprodcom']);
-	$gproddetails = 0;
-	foreach($gproddetailarray as $key=>$value){
-		if ($value=='true') {
-			if ($key==0) {
-				$gproddetails = $gproddetails + 1;
-			}
-			else {
-				$gproddetails = $gproddetails + $key*2;
-			}
-		}
-	}
-	$iproddetails = 0;
-	$iproddetailarray = array($pdf_config_details['iprodname'],$pdf_config_details['iproddes'],$pdf_config_details['iprodcom']);
-	foreach($iproddetailarray as $key=>$value){
-		if ($value=='true') {
-			if ($key==0) {
-				$iproddetails = $iproddetails + 1;
-			}
-			else {
-				$iproddetails = $iproddetails + $key*2;
-			}
-		}
-	}
+	$gproddetails = InventoryPdfGenerator::productDetailMask($pdf_config_details, 'gprod');
+	$iproddetails = InventoryPdfGenerator::productDetailMask($pdf_config_details, 'iprod');
 
 	// SO Requisition Nummer 
 	$requisition_no = $focus->column_fields['vtiger_purchaseorder'];
@@ -465,34 +397,14 @@ function createpdffile ($idnumber,$purpose='', $path='',$current_id='') {
 	$page_num='1';
 	// create new PDF document
 	//$pdf = new PDF( 'P', 'mm', 'A4' );
-	$pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true); 
-	// set font
-	$pdf->SetFont($default_font, " ", $font_size_body);
-	$pdf->setPrintHeader(0); //header switched off permanently
-	// auto break on
-	//$pdf->SetAutoPageBreak(true); 
-	// set footer fonts
-	//$pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
-
-	//set margins
-	$pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-	$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
-	$pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
-
-	// set pdf information
-	$pdf-> SetTitle ($pdf_strings['FACTURE'].": ".$account_name);
-	$pdf-> SetAuthor ($owner_firstname." ".$owner_lastname.", ".$org_name);
-	$pdf-> SetSubject ($account_name);
-	$pdf-> SetCreator ('CRM System berliCRM: www.crm-now.de ');
-	//list product names as keywords
-	$productlisting = implode(", ",$product_name);
-	$pdf-> SetKeywords ($productlisting);
-	//Disable automatic page break
-	$pdf->SetAutoPageBreak(true,PDF_MARGIN_FOOTER);
-	//set image scale factor
-	$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO); 
-	//set some language-dependent strings
-	$pdf->setLanguageArray($pdf_config_details['pdflang']); 
+	$pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true);
+	InventoryPdfGenerator::initializeDocument($pdf, array(
+		'font' => $default_font, 'font_size' => $font_size_body,
+		'title' => $pdf_strings['FACTURE'] . ': ' . $account_name,
+		'author' => $owner_firstname . ' ' . $owner_lastname . ', ' . $org_name,
+		'subject' => $account_name, 'keywords' => $product_name,
+		'language' => $pdf_config_details['pdflang'],
+	));
 	//initialize document
 
 	//in reference to body.php -> if a new page must be added if the space available for summary is too small

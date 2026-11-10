@@ -23,6 +23,15 @@ $languageStrings = Array(
 	'LBL_PDFCONFIGURATOR_INVOICES' =>'Settings For Invoices',
 	'LBL_PDFCONFIGURATOR_SO' =>'Settings For Sales Order Confirmations',
 	'LBL_PDFCONFIGURATOR_PO' =>'Settings For Purchase Orders',
+	'LBL_GLOBAL_LETTERHEAD' => 'Global letterhead',
+	'LBL_FIRST_PAGE_LETTERHEAD' => 'Letterhead for the first page',
+	'LBL_CONTINUATION_PAGE_LETTERHEAD' => 'Letterhead from the second page onward',
+	'LBL_NO_LETTERHEAD' => 'No letterhead',
+	'LBL_LETTERHEAD_HELP' => 'Active, internally stored, single-page PDFs from Documents can be used. Existing logos and footers are not disabled automatically.',
+	'LBL_LETTERHEAD_INVALID' => 'The currently configured Document cannot be used:',
+	'LBL_SAVE_LETTERHEAD' => 'Save letterhead',
+	'LBL_SELECT_DOCUMENT' => 'Select Document',
+	'LBL_PREVIEW' => 'Preview',
 
 );
 
@@ -40,6 +49,7 @@ $jsLanguageStrings = array(
 	'TAB_GROUP' => 'group Tax',
 	'TAB_INDIVIDUAL' => 'individual Tax',
  	'LBL_SUCCESS' => 'Your PDF settings have been saved.',
+	'LBL_LETTERHEAD_SUCCESS' => 'The global letterheads have been saved.',
     
 );
 
