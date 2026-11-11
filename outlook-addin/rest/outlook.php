@@ -134,9 +134,13 @@ function actionHandler(array $input, array $config): void
 
             case 'searchContacts':
                 requireParams($input, ['query', 'sessionName']);
-                $query = buildContactSearchQuery($input['query']);
-                $contacts = $service->query($query, $input['sessionName']);
-                jsonResponse(true, ['contacts' => normalizeRecords($contacts)]);
+                $page = contactSearchPage($input['page'] ?? 1);
+                $query = buildContactSearchQuery($input['query'], $page);
+                $contacts = normalizeRecords($service->query($query, $input['sessionName']));
+                $counts = normalizeRecords($service->query(buildContactSearchCountQuery($input['query']), $input['sessionName']));
+                $total = contactSearchTotal($counts);
+                jsonResponse(true, ['contacts' => array_slice($contacts, 0, 50),
+                    'page' => $page, 'pageSize' => 50, 'hasMore' => count($contacts) > 50, 'total' => $total]);
                 break;
 
             case 'searchAccounts':
@@ -289,16 +293,73 @@ function configuredRecipientLimit(array $config): int
 }
 
 /**
- * Builds the bounded CRM contact search used by the task pane.
+ * Validates a one-based contact-search page before using it in a CRM query.
+ *
+ * @param mixed $value Requested page number.
+ * @return int
+ * @throws InvalidArgumentException If the page is not an integer from 1 through 1000000.
+ */
+function contactSearchPage($value): int
+{
+    if (!is_int($value) && !is_string($value)) throw new InvalidArgumentException(berli_outlookT('INVALID_CONTACT_SEARCH_PAGE'));
+    $page = filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 1000000]]);
+    if ($page === false) throw new InvalidArgumentException(berli_outlookT('INVALID_CONTACT_SEARCH_PAGE'));
+    return $page;
+}
+
+/**
+ * Builds a stable, bounded CRM contact search with one lookahead result.
+ *
+ * @param string $search User-entered search text.
+ * @param int $page Validated one-based page number.
+ * @return string
+ */
+function buildContactSearchQuery(string $search, int $page = 1): string
+{
+    $offset = (contactSearchPage($page) - 1) * 50;
+    return "select id, firstname, lastname, email, mobile, phone, account_id from Contacts "
+        . contactSearchFilter($search) . " order by id limit $offset,51;";
+}
+
+/**
+ * Shares the escaped search conditions between result pages and their total.
  *
  * @param string $search User-entered search text.
  * @return string
  */
-function buildContactSearchQuery(string $search): string
+function contactSearchFilter(string $search): string
 {
     $term = quoteSearch($search);
-    return "select id, firstname, lastname, email, mobile, phone, account_id from Contacts "
-        . "where firstname like '%$term%' or lastname like '%$term%' or email like '%$term%' limit 50;";
+    return "where firstname like '%$term%' or lastname like '%$term%' or email like '%$term%'";
+}
+
+/**
+ * Counts matching contacts through the same permission-aware CRM webservice.
+ *
+ * @param string $search User-entered search text.
+ * @return string
+ */
+function buildContactSearchCountQuery(string $search): string
+{
+    return 'select count(*) from Contacts ' . contactSearchFilter($search) . ';';
+}
+
+/**
+ * Validates the CRM's aggregate response; malformed counts must not become zero.
+ *
+ * @param array $records Normalized webservice count result.
+ * @return int
+ * @throws RuntimeException On a missing, negative or non-integer count.
+ */
+function contactSearchTotal(array $records): int
+{
+    $value = $records[0]['count'] ?? null;
+    if (count($records) !== 1 || (!is_int($value) && !is_string($value))) {
+        throw new RuntimeException(berli_outlookT('INVALID_CRM_RESPONSE'));
+    }
+    $total = filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+    if ($total === false) throw new RuntimeException(berli_outlookT('INVALID_CRM_RESPONSE'));
+    return $total;
 }
 
 /**

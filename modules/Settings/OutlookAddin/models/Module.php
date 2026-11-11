@@ -218,6 +218,7 @@ class Settings_OutlookAddin_Module_Model extends Settings_Vtiger_Module_Model {
             'include/utils/OfficeAddinI18n.php', 'outlook-addin/language.js',
             'outlook-addin/languages/de_de.php', 'outlook-addin/languages/en_us.php',
             'outlook-addin/calendar.js', 'outlook-addin/mail-read.js', 'outlook-addin/contacts.html', 'outlook-addin/contacts.js',
+            'outlook-addin/contacts-layout.js',
             'outlook-addin/contacts-auth.html', 'outlook-addin/contacts-auth.css', 'outlook-addin/contacts.css',
             'outlook-addin/contact-model.js', 'outlook-addin/contact-graph.js',
             'outlook-addin/assets/contacts-auth.bundle.js', 'outlook-addin/assets/contacts-sso.bundle.js',

@@ -1,5 +1,44 @@
 # Transfer CRM and Outlook contacts
 
+## Contacts in the existing task pane, version 1.2.0.1
+
+The additional Microsoft 365 app has been withdrawn. No additional app, Teams,
+Teams SDK, NAA or new Entra redirect URI is needed. Open berliCRM from an email
+as before and select **Manage CRM and Outlook contacts**. The contact UI opens
+inside that same existing task pane.
+
+A narrow pane has **Outlook contacts** and **CRM contacts** tabs. Selections
+survive switching tabs. The first Outlook contact page loads automatically
+after connection. Expand **Account and contact folder** to change the folder
+or disconnect. Changing folders reloads the contact list; additional pages
+still require **Load more contacts**. CRM search results use **Previous** and
+**Next**, with 50 contacts per page. A new search starts on page 1. Selection
+applies to the displayed CRM page and resets when changing pages; switching
+between the two view tabs preserves selection. The page status includes the
+total matching contacts readable by the signed-in user, for example
+**Page 12 · results 551–600 of 25616**. A CRM aggregate query uses the same
+search conditions and permissions without downloading every matching contact.
+The contact list requests only that page and one lookahead result to detect a
+following page. A wide view shows both lists
+side by side. Transfers require an explicit selection and action. There is no
+automatic background synchronization or control of Outlook's native People view.
+
+Deploy `outlook-addin-1.2.0.1-taskpane-contacts.zip` to the CRM root and preserve
+`outlook-addin/rest/outlook.config.php`. Reload Outlook and reopen the task pane.
+The previously working Microsoft authentication files are restored unchanged.
+
+If the withdrawn contacts app was installed, remove its deployment under
+**Microsoft 365 admin center → Settings → Integrated apps**, or remove the
+personal test app from Outlook/Teams. Keep the existing mail/calendar add-in.
+Unused `contacts-workspace*` files, `assets/contacts-workspace.bundle.js`,
+`assets/microsoft-teams-js.LICENSE.txt` and `WORKSPACE*.md` may be removed from
+the server; the task pane does not load them.
+
+The complete 1.1.0.2 rollback package `outlook-addin-1.1.0.2-before-workspace.zip`
+remains available. It restores the previous 56 runtime files from Git without
+overwriting private configuration or deleting contacts. This UI change does not
+require a database migration.
+
 ## Languages in Word 1.4.0.0 / Outlook 1.1.0.0
 
 After sign-in, both add-ins use the CRM user language (`de_de` or `en_us`). Before sign-in, the Office/browser language is used. Translations are maintained in keyed PHP arrays. This update requires registration of `office_addin_user_preferences`. See the [language guide](../wordplugin-officejs/LANGUAGES.en.md) for deployment and maintenance.

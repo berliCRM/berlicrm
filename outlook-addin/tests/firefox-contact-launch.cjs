@@ -24,7 +24,7 @@ async function main() {
   const crmOrigin = 'http://localhost:' + port;
   const metadata = { ownerId: '19x3', propertyId: 'fixture', canCreate: true, fields: [] };
   let completed = false, geckodriver, sessionId;
-  let settingsHadNoOpener = false, settingsGraphReads = 0;
+  let settingsHadNoOpener = false, settingsGraphReads = 0, contactReads = 0, contactWrites = 0;
   const driver = async (method, route, body) => {
     const response = await fetch('http://127.0.0.1:' + controlPort + route, {
       method, headers: { 'Content-Type': 'application/json' }, ...(body ? { body: JSON.stringify(body) } : {}),
@@ -39,6 +39,15 @@ async function main() {
       const url = new URL(request.url, crmOrigin);
       const pagePath = url.pathname.replace(/^\/outlook-addin(?=\/)/, '');
       const send = (text, type = 'text/html') => { response.writeHead(200, { 'Content-Type': type + '; charset=utf-8' }); response.end(text); };
+      if (pagePath === '/pane-graph') {
+        assert.equal(request.method, 'GET'); contactReads++;
+        assert.equal(request.headers.authorization, 'Bearer synthetic-not-a-real-token');
+        return send(JSON.stringify({ value: [{ id: 'fixture-contact', givenName: 'Outlook', surname: 'Fixture',
+          displayName: 'Outlook Fixture', emailAddresses: [{ address: 'outlook@example.test' }] }] }), 'application/json');
+      }
+      if (pagePath === '/assets/icon-80.png') {
+        response.writeHead(200, { 'Content-Type': 'image/png' }); return response.end(await fs.readFile(path.join(root, 'assets/icon-80.png')));
+      }
       if (pagePath === '/settings') return send(`<!doctype html><div id="outlookConnectionCheck">
         <button id="outlookCheckConnection">Check Microsoft connection</button><span id="outlookCancelConnection" hidden>Cancel</span>
         <p id="outlookConnectionStatus" hidden></p></div><script>
@@ -87,7 +96,7 @@ async function main() {
           '<script src="settings-auth-fixture.js"></script>');
         return send(html);
       }
-      if (url.pathname === '/outlook') return send('<iframe id="crm" style="width:700px;height:900px" src="' + crmOrigin + '/taskpane.html"></iframe>');
+      if (url.pathname === '/outlook') return send('<style>body{margin:0}iframe{width:100%;height:98vh;border:0}</style><iframe id="crm" src="' + crmOrigin + '/taskpane.html"></iframe>');
       if (url.pathname === '/taskpane.html') return send(`<!doctype html><a id="launch" href="contacts.html">Manage contacts</a>
         <script>var Office={onReady(){},context:{platform:'OfficeOnline'}};var BerliI18n={t:()=> 'Preparing'};
         window.defaultPopupBlocked=window.open('about:blank','controlProbe')===null;</script>
@@ -99,7 +108,9 @@ async function main() {
         html = html.replace(/<script src="https:\/\/appsforoffice[^>]*><\/script>/,
           '<script>var Office={onReady:()=>new Promise(()=>{}),context:{}};</script>');
         html = html.replace(/<script src="assets\/contacts-sso.bundle.js[^>]*><\/script>/,
-          "<script>window.BerliContactsAuth={connectSilently:async()=>{throw {errorCode:'login_required',message:'AADSTS50058 synthetic fixture'};}};</script>");
+          `<script>window.BerliContactsAuth={connectSilently:async()=>{throw {errorCode:'login_required',message:'AADSTS50058 synthetic fixture'};}};
+          const originalFetch=window.fetch.bind(window);window.fetch=(url,init)=>originalFetch(
+            String(url).startsWith('https://graph.microsoft.com/')?'/pane-graph':url,init);</script>`);
         return send(html);
       }
       if (url.pathname === '/contacts-auth.html') return send(`<!doctype html><p>Local synthetic Microsoft response</p>
@@ -114,7 +125,11 @@ async function main() {
         let body = ''; for await (const bytes of request) body += bytes;
         const input = JSON.parse(body); let payload;
         if (input.action === 'getUserPreferences') payload = { language: 'de_de' };
-        else if (input.action === 'contactTransfer') payload = metadata;
+        else if (input.action === 'contactTransfer') { if (input.transfer?.mode !== 'describe') contactWrites++; payload = metadata; }
+        else if (input.action === 'searchContacts') payload = {
+          contacts: [{ id: input.page === 2 ? '4x51' : '4x1', firstname: 'CRM', lastname: input.page === 2 ? 'Second page' : 'Fixture', email: 'crm@example.test' }],
+          page: input.page, pageSize: 50, hasMore: input.page === 1, total: 51,
+        };
         else if (input.action === 'getContactsMicrosoftConfig') payload = { configured: true, clientId: 'fixture', tenantId: 'fixture',
           redirectUri: crmOrigin + (url.pathname.startsWith('/outlook-addin/') ? '/outlook-addin' : '') + '/contacts-auth.html' };
         else if (input.action === 'beginContactsAuthRelay') {
@@ -131,7 +146,7 @@ async function main() {
       }
       const name = pagePath.slice(1);
       if (!['taskpane.js', 'contacts.js', 'contacts.css', 'language.js', 'contact-model.js', 'contact-graph.js', 'contacts-auth-relay.js',
-        'settings-connection.js', 'contacts-auth.css'].includes(name)) {
+        'settings-connection.js', 'contacts-auth.css', 'contacts-layout.js'].includes(name)) {
         response.writeHead(404); return response.end();
       }
       return send(await fs.readFile(path.join(root, name), 'utf8'), name.endsWith('.css') ? 'text/css' : 'application/javascript');
@@ -157,10 +172,19 @@ async function main() {
     sessionId = session.sessionId;
     const browserVersion = session.capabilities.browserVersion;
     const sessionRoute = '/session/' + sessionId;
+    await driver('POST', sessionRoute + '/window/rect', { width: 450, height: 1100 });
     await driver('POST', sessionRoute + '/url', { url: 'http://127.0.0.1:' + port + '/outlook' });
     const frame = await driver('POST', sessionRoute + '/element', { using: 'css selector', value: '#crm' });
     await driver('POST', sessionRoute + '/frame', { id: frame });
     const evaluate = script => driver('POST', sessionRoute + '/execute/sync', { script, args: [] });
+    const screenshot = async name => {
+      // Firefox cannot capture from inside a cross-origin frame; capture its top-level window instead.
+      await driver('POST', sessionRoute + '/frame', { id: null });
+      const bytes = await driver('GET', sessionRoute + '/screenshot');
+      await fs.writeFile(path.join(root, 'build/' + name), Buffer.from(bytes, 'base64'));
+      const currentFrame = await driver('POST', sessionRoute + '/element', { using: 'css selector', value: '#crm' });
+      await driver('POST', sessionRoute + '/frame', { id: currentFrame });
+    };
     const control = await evaluate('return window.defaultPopupBlocked;');
     assert.equal(control, true, 'Default popup blocking must remain enabled in this isolated profile');
     const anchor = await driver('POST', sessionRoute + '/element', { using: 'css selector', value: '#launch' });
@@ -177,6 +201,46 @@ async function main() {
     const windows = await driver('GET', sessionRoute + '/window/handles');
     assert.equal(windows.length, 1, 'No unused authentication window remains');
     process.stdout.write('Firefox ' + browserVersion + ': popup blocking enabled; trusted contacts click, delayed Office readiness, encrypted popup handover and connection passed. Synthetic responses; no Microsoft account used.\n');
+    for (let attempt = 0; attempt < 80; attempt++) {
+      if ((await evaluate("return document.getElementById('contactOutlookResults')?.textContent || '';"))?.includes('Outlook Fixture')) break;
+      await delay(100);
+    }
+    assert.equal(contactReads, 1, 'Opening contacts automatically reads exactly one page');
+    assert.match(await evaluate("return document.getElementById('contactOutlookResults').textContent;"), /Outlook Fixture/);
+    assert.equal(await evaluate("return !document.getElementById('contactOutlookSection').hidden && document.getElementById('contactCrmSection').hidden && document.documentElement.scrollWidth<=innerWidth;"), true);
+    await evaluate("const checkbox=document.querySelector('#contactOutlookResults input');checkbox.checked=true;checkbox.dispatchEvent(new Event('change'));");
+    await screenshot('contacts-taskpane-preview-outlook.png');
+    const crmTab = await driver('POST', sessionRoute + '/element', { using: 'css selector', value: '#contactShowCrm' });
+    await driver('POST', sessionRoute + '/element/' + crmTab['element-6066-11e4-a52e-4f735466cecf'] + '/click', {});
+    await evaluate("document.getElementById('contactSearch').value='Fixture';document.getElementById('contactSearchForm').requestSubmit();");
+    for (let attempt = 0; attempt < 40; attempt++) {
+      if ((await evaluate("return document.getElementById('contactCrmResults').textContent;"))?.includes('CRM Fixture')) break;
+      await delay(100);
+    }
+    assert.match(await evaluate("return document.getElementById('contactCrmResults').textContent;"), /CRM Fixture/);
+    const nextPage = await driver('POST', sessionRoute + '/element', { using: 'css selector', value: '#contactCrmNext' });
+    await driver('POST', sessionRoute + '/element/' + nextPage['element-6066-11e4-a52e-4f735466cecf'] + '/click', {});
+    for (let attempt = 0; attempt < 40; attempt++) {
+      if ((await evaluate("return document.getElementById('contactCrmPageStatus').textContent;"))?.includes('Seite 2')) break;
+      await delay(100);
+    }
+    assert.match(await evaluate("return document.getElementById('contactCrmResults').textContent;"), /Second page/);
+    assert.equal(await evaluate("return document.getElementById('contactCrmPageStatus').textContent;"), 'Seite 2 · Treffer 51–51 von 51');
+    assert.equal(await evaluate("return document.getElementById('contactCrmNext').disabled;"), true);
+    const previousPage = await driver('POST', sessionRoute + '/element', { using: 'css selector', value: '#contactCrmPrevious' });
+    await driver('POST', sessionRoute + '/element/' + previousPage['element-6066-11e4-a52e-4f735466cecf'] + '/click', {});
+    for (let attempt = 0; attempt < 40; attempt++) {
+      if ((await evaluate("return document.getElementById('contactCrmPageStatus').textContent;"))?.includes('Seite 1')) break;
+      await delay(100);
+    }
+    assert.match(await evaluate("return document.getElementById('contactCrmResults').textContent;"), /CRM Fixture/);
+    assert.equal(await evaluate("return document.querySelector('#contactOutlookResults input').checked && document.getElementById('contactOutlookSection').hidden;"), true);
+    await screenshot('contacts-taskpane-preview-crm.png');
+    await driver('POST', sessionRoute + '/window/rect', { width: 1280, height: 1050 });
+    await delay(150);
+    assert.equal(await evaluate("const a=document.getElementById('contactOutlookSection').getBoundingClientRect(),b=document.getElementById('contactCrmSection').getBoundingClientRect();return a.width>0 && a.right<=b.left && document.querySelector('#contactOutlookResults input').checked;"), true);
+    assert.equal(contactReads, 1); assert.equal(contactWrites, 0);
+    process.stdout.write('Firefox existing task pane: automatic contact read, narrow tabs, retained selection, CRM search, next/previous pages, wide columns and no writes passed with synthetic responses. No extra app or Teams SDK.\n');
     await driver('POST', sessionRoute + '/url', { url: crmOrigin + '/settings' });
     const check = await driver('POST', sessionRoute + '/element', { using: 'css selector', value: '#outlookCheckConnection' });
     await driver('POST', sessionRoute + '/element/' + check['element-6066-11e4-a52e-4f735466cecf'] + '/click', {});

@@ -4,6 +4,7 @@ const CONTACT_API = new URL('rest/outlook.php', location.href).href;
 const CONTACT_SESSION_KEY = 'berliCRM.outlook.session';
 const CONTACT_MICROSOFT_SESSION_KEY = 'berliCRM.outlook.contacts.microsoft:' + CONTACT_API;
 const contactState = { session: null, metadata: null, config: null, graph: null, client: null,
+  crmQuery: '', crmPage: 1, crmHasMore: false, crmSearched: false,
   crmRows: [], outlookRows: [], nextLink: '', pages: new Set(), busy: false, generation: 0, authPending: false, showMicrosoftLogin: false, selectMicrosoftAccount: false };
 let contactDialog = null;
 let contactPopup = null;
@@ -155,7 +156,11 @@ function contactError(error) {
 }
 function contactControls() {
   const state = contactState;
+  window.BerliContactsLayout?.setCounts({ outlook: state.outlookRows.length, crm: state.crmRows.length });
   const locked = state.busy || state.authPending;
+  contactElement('contactCrmPager').hidden = !state.crmSearched;
+  contactElement('contactCrmPrevious').disabled = locked || !state.crmSearched || state.crmPage <= 1;
+  contactElement('contactCrmNext').disabled = locked || !state.crmHasMore;
   contactElement('contactLogout').disabled = locked;
   contactElement('contactRetry').disabled = locked;
   contactElement('contactCancelAuth').hidden = !contactRelay;
@@ -185,6 +190,7 @@ function contactAuthClose() {
   contactState.authPending = false;
 }
 function contactDisconnect(message = globalThis.BerliI18n.t("MICROSOFT_ACCOUNT_IS_NOT_CONNECTED")) {
+  window.BerliContactsLayout?.setConnection(false);
   clearTimeout(contactMicrosoftExpiryTimer); contactMicrosoftExpiryTimer = null;
   contactElement('contactAutoDetails').hidden = true;
   contactElement('contactAutoDetails').open = false;
@@ -207,6 +213,8 @@ function contactReset(message = globalThis.BerliI18n.t("PLEASE_SIGN_IN_TO_CRM"),
   contactState.session = null; contactState.metadata = null; contactState.config = null;
   contactState.selectMicrosoftAccount = false;
   contactState.crmRows = []; contactState.busy = false;
+  contactState.crmQuery = ''; contactState.crmPage = 1; contactState.crmHasMore = false; contactState.crmSearched = false;
+  contactElement('contactCrmPageStatus').textContent = '';
   if (clearStored) try { localStorage.removeItem(CONTACT_SESSION_KEY); } catch (error) { /* Reset still applies in memory. */ }
   contactElement('contactCrmResults').replaceChildren();
   contactElement('contactTransferStatus').textContent = '';
@@ -358,6 +366,10 @@ function contactAcceptAuth(message, generation) {
   }
   contactWatchMicrosoftExpiry();
   contactControls();
+  if (window.BerliContactsLayout) {
+    window.BerliContactsLayout.setConnection(true);
+    void contactLoadOutlook();
+  }
 }
 async function contactPollAuthRelay(relay) {
   if (contactRelay !== relay || contactState.generation !== relay.generation) return;
@@ -506,11 +518,31 @@ async function contactSearch(event) {
   event.preventDefault();
   const query = contactElement('contactSearch').value.trim();
   if (!query) return;
+  await contactSearchPage(query, 1);
+}
+async function contactChangeCrmPage(direction) {
+  if (!contactState.crmSearched || contactState.busy || contactState.authPending) return;
+  if ((direction === -1 && contactState.crmPage <= 1) || (direction === 1 && !contactState.crmHasMore)) return;
+  if (direction !== -1 && direction !== 1) return;
+  await contactSearchPage(contactState.crmQuery, contactState.crmPage + direction);
+}
+async function contactSearchPage(query, page) {
   await contactJob(async job => {
-    const result = await contactApi('searchContacts', { query }, job.session); job.check();
+    const result = await contactApi('searchContacts', { query, page }, job.session); job.check();
+    if (!Array.isArray(result?.contacts) || result.contacts.length > 50 || result.page !== page
+        || result.pageSize !== 50 || typeof result.hasMore !== 'boolean'
+        || !Number.isSafeInteger(result.total) || result.total < 0) {
+      throw new Error(globalThis.BerliI18n.t('INVALID_CRM_RESPONSE'));
+    }
     contactElement('contactCrmResults').replaceChildren();
     contactState.crmRows = result.contacts.map(record => contactRow(contactElement('contactCrmResults'), record, 'crm'));
-    contactElement("contactTransferStatus").textContent = result.contacts.length + globalThis.BerliI18n.t("CRM_MATCHES_AT_MOST_50_PER_SEARCH");
+    contactState.crmQuery = query; contactState.crmPage = page;
+    contactState.crmHasMore = result.hasMore; contactState.crmSearched = true;
+    const start = (page - 1) * 50 + 1, end = start + result.contacts.length - 1;
+    const message = result.contacts.length ? globalThis.BerliI18n.t('CONTACTS_PAGE_RANGE', [page, start, end, result.total])
+      : globalThis.BerliI18n.t('CONTACTS_PAGE_EMPTY', [page, result.total]);
+    contactElement('contactCrmPageStatus').textContent = message;
+    contactElement('contactTransferStatus').textContent = message;
   });
 }
 async function contactLoadOutlook(more = false) {
@@ -606,6 +638,8 @@ function initializeContacts() {
     contactForgetMicrosoft(true); contactState.selectMicrosoftAccount = true; contactDisconnect();
   });
   contactElement('contactSearchForm').addEventListener('submit', contactSearch);
+  contactElement('contactCrmPrevious').addEventListener('click', () => contactChangeCrmPage(-1));
+  contactElement('contactCrmNext').addEventListener('click', () => contactChangeCrmPage(1));
   contactElement('contactLoadOutlook').addEventListener('click', () => contactLoadOutlook());
   contactElement('contactMoreOutlook').addEventListener('click', () => contactLoadOutlook(true));
   contactElement('contactLoadFolders').addEventListener('click', contactLoadFolders);
@@ -619,6 +653,7 @@ function initializeContacts() {
     contactElement('contactOutlookResults').replaceChildren();
     for (const row of contactState.crmRows) { row.done = false; row.checkbox.checked = false; row.status.textContent = ''; }
     contactControls();
+    if (window.BerliContactsLayout && contactState.graph) void contactLoadOutlook();
   });
   window.addEventListener('message', event => {
     if (event.origin === location.origin && event.source === contactPopup && contactPopup) contactAcceptAuth(event.data || {}, contactState.generation);

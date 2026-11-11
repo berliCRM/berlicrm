@@ -39,6 +39,7 @@ function setup(options = {}) {
       getItem() { throw new Error('Storage blocked'); }, setItem() { throw new Error('Storage blocked'); }, removeItem() { throw new Error('Storage blocked'); },
     } : { getItem: key => sessionStored.get(key) || null, setItem: (key, value) => sessionStored.set(key, value), removeItem: key => sessionStored.delete(key) },
     window: { addEventListener: (name, handler) => { listeners[name] = handler; },
+      ...(options.layout ? { BerliContactsLayout: options.layout } : {}),
       ...(options.preparedPopup ? { open: (address, name) => {
         assert.equal(address, ''); assert.equal(name, 'berliCRMContactsAuth'); return options.preparedPopup;
       } } : {}),
@@ -59,7 +60,7 @@ function setup(options = {}) {
         else if (input.action === 'pollContactsAuthRelay') payload = { state: 'pending', payload: null };
         else if (input.action === 'closeContactsAuthRelay') payload = { closed: true };
         else if (input.action === 'getContactsMicrosoftConfig') payload = { configured: true, clientId: 'client', tenantId: 'tenant', redirectUri: 'https://crm.example.test/outlook-addin/contacts-auth.html' };
-        else if (input.action === 'searchContacts') payload = { contacts: [{ id: '4x1', firstname: '<img onerror=evil()>', lastname: 'Test', email: 'test@example.test' }] };
+        else if (input.action === 'searchContacts') payload = { contacts: [{ id: '4x1', firstname: '<img onerror=evil()>', lastname: 'Test', email: 'test@example.test' }], page: input.page || 1, pageSize: 50, hasMore: false, total: 1 };
         else if (input.transfer.mode === 'describe') payload = metadata;
         else if (input.transfer.mode === 'export') payload = { key: 'crm:4x1', contact: { surname: 'Test' } };
         else payload = { status: 'created', recordId: '4x2' };
@@ -815,4 +816,114 @@ test('a late expired-session response cannot delete a newer CRM login from anoth
   fail(new Error('INVALID_SESSIONID')); await searching;
   assert.equal(env.stored.get(sessionKey), newer);
   assert.equal(env.element('contactSessionNotice').hidden, true);
+});
+
+test('task-pane connection loads Outlook contacts once, refreshes the selected folder, and never writes automatically', async () => {
+  const connections = [], counts = [];
+  const env = setup({ saved: true, silent: async () => { throw new Error('No cached account'); },
+    layout: { setConnection: value => connections.push(value), setCounts: value => counts.push(value) },
+  });
+  await tick(); let reads = 0;
+  env.context.contactLoadOutlook = async () => { reads++; };
+  env.state().authPending = true;
+  env.context.contactAcceptAuth({ type: 'berliCRM.contacts.connected', token: 'synthetic-token', account: 'fixture-account',
+    username: 'user@example.test', expiresAt: Date.now() + 3600000 }, env.state().generation);
+  assert.equal(reads, 1); assert.equal(connections.at(-1), true);
+  env.element('contactFolder').value = 'another-folder';
+  env.element('contactFolder').events.change();
+  assert.equal(reads, 2);
+  assert.ok(env.requests.every(input => input.action !== 'contactTransfer' || input.transfer.mode === 'describe'));
+  env.context.contactDisconnect(); assert.equal(connections.at(-1), false);
+  assert.equal(counts.at(-1).outlook, 0);
+});
+
+test('CRM paging loads only one page, uses the completed search, and clears selection on page changes', async () => {
+  const env = setup({ saved: true, api: input => input.action === 'searchContacts' ? {
+    contacts: Array.from({ length: input.page === 1 ? 50 : 1 }, (_, index) => ({ id: '4x' + ((input.page - 1) * 50 + index + 1), lastname: 'Contact' })),
+    page: input.page, pageSize: 50, hasMore: input.page === 1, total: 51,
+  } : undefined });
+  await tick(); env.element('contactSearch').value = 'Initial search';
+  await env.context.contactSearch({ preventDefault() {} });
+  assert.equal(env.state().crmRows.length, 50);
+  assert.equal(env.element('contactCrmPrevious').disabled, true);
+  assert.equal(env.element('contactCrmNext').disabled, false);
+  assert.equal(env.element('contactCrmPageStatus').textContent, 'Seite 1 · Treffer 1–50 von 51');
+  env.state().crmRows[0].checkbox.checked = true;
+  env.element('contactSearch').value = 'Not submitted';
+  await env.context.contactChangeCrmPage(1);
+  assert.equal(env.state().crmPage, 2); assert.equal(env.state().crmRows.length, 1);
+  assert.equal(env.state().crmRows[0].record.id, '4x51');
+  assert.equal(env.state().crmRows[0].checkbox.checked, false);
+  assert.equal(env.element('contactCrmNext').disabled, true);
+  assert.equal(env.element('contactCrmPageStatus').textContent, 'Seite 2 · Treffer 51–51 von 51');
+  const requests = env.requests.filter(input => input.action === 'searchContacts');
+  assert.deepEqual(requests.map(input => [input.query, input.page]), [['Initial search', 1], ['Initial search', 2]]);
+  await env.context.contactChangeCrmPage(1);
+  assert.equal(env.requests.filter(input => input.action === 'searchContacts').length, 2, 'No request beyond the last page');
+  await env.context.contactChangeCrmPage(-1);
+  assert.equal(env.state().crmPage, 1);
+  await env.context.contactSearch({ preventDefault() {} });
+  assert.equal(env.state().crmQuery, 'Not submitted'); assert.equal(env.state().crmPage, 1);
+  assert.ok(env.requests.every(input => input.action !== 'contactTransfer' || input.transfer.mode === 'describe'));
+});
+
+test('CRM page failures preserve the displayed page and prevent duplicate navigation while pending', async () => {
+  let fail;
+  const pending = new Promise((resolve, reject) => { fail = reject; });
+  const env = setup({ saved: true, api: input => input.action !== 'searchContacts' ? undefined : input.page === 2 ? pending
+    : { contacts: [{ id: '4x1', lastname: 'Kept' }], page: 1, pageSize: 50, hasMore: true, total: 51 } });
+  await tick(); env.element('contactSearch').value = 'Test';
+  await env.context.contactSearch({ preventDefault() {} });
+  env.state().crmRows[0].checkbox.checked = true;
+  const next = env.context.contactChangeCrmPage(1); await tick();
+  assert.equal(env.element('contactCrmPrevious').disabled, true); assert.equal(env.element('contactCrmNext').disabled, true);
+  await env.context.contactChangeCrmPage(1);
+  assert.equal(env.requests.filter(input => input.action === 'searchContacts').length, 2);
+  fail(new Error('Temporary connection error')); await next;
+  assert.equal(env.state().crmPage, 1); assert.equal(env.state().crmRows[0].checkbox.checked, true);
+  assert.equal(env.element('contactCrmNext').disabled, false);
+  assert.match(env.element('contactTransferStatus').textContent, /Temporary connection error/);
+});
+
+test('CRM paging handles empty results, English labels and session resets', async () => {
+  const env = setup({ saved: true, preferences: async () => ({ ok: true, json: async () => ({ success: true, payload: { language: 'en_us' } }) }),
+    api: input => input.action === 'searchContacts' ? { contacts: [], page: input.page, pageSize: 50, hasMore: false, total: 0 } : undefined });
+  await tick(); env.element('contactSearch').value = 'Nobody';
+  await env.context.contactSearch({ preventDefault() {} });
+  assert.equal(env.element('contactCrmPageStatus').textContent, 'Page 1 · 0 results (total: 0)');
+  assert.equal(env.element('contactCrmPrevious').disabled, true); assert.equal(env.element('contactCrmNext').disabled, true);
+  env.context.contactReset();
+  assert.equal(env.element('contactCrmPager').hidden, true);
+  assert.equal(env.state().crmQuery, ''); assert.equal(env.state().crmPage, 1);
+});
+
+test('CRM page 12 displays its search total in German and English', async () => {
+  for (const [language, expected] of [['de_de', 'Seite 12 · Treffer 551–600 von 25616'], ['en_us', 'Page 12 · results 551–600 of 25616']]) {
+    const env = setup({ saved: true,
+      preferences: async () => ({ ok: true, json: async () => ({ success: true, payload: { language } }) }),
+      api: input => input.action === 'searchContacts' ? {
+        contacts: Array.from({ length: 50 }, (_, index) => ({ id: '4x' + (551 + index), lastname: 'Contact' })),
+        page: input.page, pageSize: 50, hasMore: true, total: 25616,
+      } : undefined,
+    });
+    await tick();
+    await env.context.contactSearchPage('a', 12);
+    assert.equal(env.element('contactCrmPageStatus').textContent, expected);
+    assert.equal(env.state().crmRows.length, 50, 'The total is metadata, not a full contact download');
+  }
+});
+
+test('invalid or missing search totals do not replace the current page or become zero', async () => {
+  for (const total of [undefined, null, -1, '51', 1.5]) {
+    const env = setup({ saved: true, api: input => input.action === 'searchContacts' ? {
+      contacts: [{ id: '4x1', lastname: 'Kept' }], page: input.page, pageSize: 50, hasMore: true,
+      total: input.page === 1 ? 51 : total,
+    } : undefined });
+    await tick(); await env.context.contactSearchPage('Test', 1);
+    env.state().crmRows[0].checkbox.checked = true;
+    await env.context.contactChangeCrmPage(1);
+    assert.equal(env.state().crmPage, 1); assert.equal(env.state().crmRows[0].checkbox.checked, true);
+    assert.equal(env.element('contactCrmPageStatus').textContent, 'Seite 1 · Treffer 1–1 von 51');
+    assert.equal(env.element('contactTransferStatus').textContent, env.context.BerliI18n.t('INVALID_CRM_RESPONSE'));
+  }
 });

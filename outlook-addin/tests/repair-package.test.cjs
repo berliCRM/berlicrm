@@ -33,8 +33,9 @@ function startPhp(root, port) {
   return { process, ready };
 }
 
-test('the extracted repair ZIP serves login, preferences and contact metadata with all language dependencies', { timeout: 30000 }, async () => {
+for (const variant of ['update', 'rollback']) test('the extracted ' + variant + ' ZIP serves login, preferences and contact metadata with all language dependencies', { timeout: 30000 }, async () => {
   const { createRepairPackage } = await import(pathToFileURL(path.join(__dirname, '../build/package-outlook-repair.mjs')));
+  const { createRollbackPackage } = await import(pathToFileURL(path.join(__dirname, '../build/package-workspace-rollback.mjs')));
   const { unzipSync } = await import(pathToFileURL(path.join(__dirname, '../../wordplugin-officejs/src/vendor/fflate-0.8.3.js')));
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'berlicrm-repair-'));
   const files = new Set(), directories = new Set(), servers = [];
@@ -48,8 +49,9 @@ test('the extracted repair ZIP serves login, preferences and contact metadata wi
   }
   try {
     const archive = path.join(root, 'repair.zip'); files.add(archive);
-    await createRepairPackage(archive);
+    await (variant === 'rollback' ? createRollbackPackage : createRepairPackage)(archive);
     const contents = unzipSync(new Uint8Array(await fs.readFile(archive)));
+    assert.ok(!Object.keys(contents).some(name => /contacts-workspace|m365\//.test(name)), 'No extra-app runtime is shipped');
     assert.ok(!Object.keys(contents).some(name => /outlook\.config\.php$|manifest\.generated\.xml$/.test(name)));
     for (const [name, bytes] of Object.entries(contents)) await write(name, bytes);
     const [gatewayPort, crmPort] = await Promise.all([freePort(), freePort()]);
@@ -71,6 +73,18 @@ test('the extracted repair ZIP serves login, preferences and contact metadata wi
         $result = ['language' => 'de_de'];
       }
       elseif ($operation === 'outlook_contact_transfer') $result = ['canCreate' => true, 'fields' => [], 'ownerId' => '19x3'];
+      elseif ($operation === 'query') {
+        $query = $input['query'] ?? '';
+        $size = strpos($query, '%Large set%') !== false ? 25616 : (strpos($query, '%No results%') !== false ? 0 : 101);
+        if (strpos($query, 'select count(*) from Contacts where firstname like ') === 0) {
+          if (strpos($query, 'limit ') !== false) throw new RuntimeException('A total must not use a page limit');
+          $result = [['count' => strpos($query, '%Bad count%') !== false ? 'unavailable' : (string)$size]];
+        } else {
+        if (!preg_match('/order by id limit ([0-9]+),51;$/', $input['query'] ?? '', $match)) throw new RuntimeException('Missing stable bounded pagination');
+        $result = []; $offset = (int)$match[1];
+        for ($id = $offset + 1; $id <= min($size, $offset + 51); $id++) $result[] = ['id' => '4x' . $id, 'lastname' => 'Contact ' . $id];
+        }
+      }
       else throw new RuntimeException('Unexpected operation: ' . $operation);
       echo json_encode(['success' => true, 'result' => $result]);
     `);
@@ -107,6 +121,25 @@ test('the extracted repair ZIP serves login, preferences and contact metadata wi
     assert.deepEqual(preferences, { success: true, payload: { language: 'de_de' } });
     const contact = await request({ action: 'contactTransfer', sessionName: login.payload.sessionName, transfer: { mode: 'describe' } });
     assert.equal(contact.success, true); assert.equal(contact.payload.canCreate, true);
+    if (variant === 'update') {
+      const search = (page, query = 'Contact') => request({ action: 'searchContacts', sessionName: login.payload.sessionName, query, ...(page === undefined ? {} : { page }) });
+      const first = await search(); assert.equal(first.success, true);
+      assert.equal(first.payload.contacts.length, 50); assert.equal(first.payload.hasMore, true); assert.equal(first.payload.page, 1);
+      assert.equal(first.payload.total, 101);
+      const second = await search('2'); assert.equal(second.payload.contacts[0].id, '4x51');
+      assert.equal(second.payload.contacts.length, 50); assert.equal(second.payload.hasMore, true);
+      const third = await search(3); assert.equal(third.payload.contacts.length, 1); assert.equal(third.payload.hasMore, false);
+      assert.equal(third.payload.contacts[0].id, '4x101');
+      const empty = await search(4); assert.equal(empty.payload.contacts.length, 0); assert.equal(empty.payload.hasMore, false);
+      assert.equal(empty.payload.total, 101);
+      const large = await search(12, 'Large set'); assert.equal(large.payload.total, 25616);
+      assert.equal(large.payload.contacts.length, 50); assert.equal(large.payload.contacts[0].id, '4x551');
+      const noResults = await search(1, 'No results'); assert.equal(noResults.payload.total, 0); assert.equal(noResults.payload.contacts.length, 0);
+      const badCount = await search(1, 'Bad count'); assert.equal(badCount.success, false);
+      for (const page of [0, -1, 1.5, '2; DROP TABLE contacts', [], true, 1000001]) {
+        const invalid = await search(page); assert.equal(invalid.success, false, 'Reject invalid page: ' + JSON.stringify(page));
+      }
+    }
     const relayTools = require(path.join(root, 'outlook-addin/contacts-auth-relay.js'));
     const flow = await request({ action: 'beginContactsAuthRelay', sessionName: login.payload.sessionName });
     assert.equal(flow.success, true);

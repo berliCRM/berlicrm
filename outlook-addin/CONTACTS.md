@@ -1,5 +1,51 @@
 # CRM- und Outlook-Kontakte übernehmen
 
+## Kontakte im bestehenden Seitenfenster ab 1.2.0.1
+
+Die zusaetzliche Microsoft-365-App wurde verworfen. Es wird keine weitere App,
+kein Teams und keine neue Entra-Rueckleitungsadresse benoetigt. Oeffne berliCRM
+wie bisher bei einer E-Mail und waehle **CRM- und Outlook-Kontakte verwalten**.
+Die Kontakteoberflaeche erscheint im selben vorhandenen Seitenfenster.
+
+Im schmalen Bereich wechselst du zwischen **Outlook-Kontakte** und
+**CRM-Kontakte**. Eine Auswahl bleibt beim Wechsel erhalten. Nach erfolgreicher
+Microsoft-Verbindung wird die erste Outlook-Kontaktseite automatisch geladen.
+Unter **Konto und Kontaktordner** kannst du den Ordner wechseln oder die
+Verbindung trennen. Beim Ordnerwechsel wird die Kontaktliste neu geladen.
+Weitere Outlook-Seiten laedt weiterhin **Weitere Kontakte laden**. CRM-Treffer
+haben **Zurueck** und **Weiter** mit je 50 Ergebnissen pro Seite. Eine neue Suche
+beginnt auf Seite 1. Die Auswahl gilt fuer die angezeigte CRM-Seite und wird
+beim Blaettern zurueckgesetzt; beim Wechsel zwischen den beiden Reitern bleibt
+sie erhalten. Die Anzeige enthaelt die Gesamtzahl der passenden, fuer den
+angemeldeten Benutzer lesbaren Kontakte, zum Beispiel
+**Seite 12 · Treffer 551–600 von 25616**. Das CRM zaehlt mit denselben
+Suchbedingungen und Benutzerrechten; dafuer werden nicht alle Kontaktdatensaetze
+geladen. Die Kontaktliste fragt nur die angeforderte Seite und einen einzelnen
+weiteren Treffer zur Erkennung der Folgeseite ab. Eine breite
+Browseransicht zeigt beide Kontaktlisten nebeneinander.
+
+Uebernahmen erfordern weiterhin Auswahl und Klick. Es gibt keine automatische
+Hintergrundsynchronisation. Das native Outlook-Personenmodul wird nicht geoeffnet.
+
+Das Paket `outlook-addin-1.2.0.1-taskpane-contacts.zip` im CRM-Hauptverzeichnis
+einspielen und `outlook-addin/rest/outlook.config.php` beibehalten. Danach Outlook
+neu laden und das Seitenfenster schliessen und erneut oeffnen. Die vorhandene
+Anmeldung und die zuvor funktionierenden Authentifizierungsbuendel werden
+verwendet. Eine zusaetzliche App-Installation ist nicht erforderlich.
+
+Falls die verworfene Kontakte-App bereits installiert wurde, deren Bereitstellung
+unter **Microsoft-365-Admincenter → Einstellungen → Integrierte Apps** entfernen
+bzw. die persoenliche Test-App in Outlook/Teams deinstallieren. Das bisherige
+Mail-/Termin-Add-in beibehalten. Auf dem Server koennen die unbenutzten
+`contacts-workspace*`-Dateien, `assets/contacts-workspace.bundle.js`,
+`assets/microsoft-teams-js.LICENSE.txt` und `WORKSPACE*.md` entfernt werden.
+Das neue Seitenfenster bindet diese Dateien nicht ein.
+
+Der vollstaendige Ruecksetzstand 1.1.0.2 bleibt als
+`outlook-addin-1.1.0.2-before-workspace.zip` erhalten. Er stellt die 56 vorherigen
+Laufzeitdateien aus Git wieder her, ohne die private Konfiguration oder Kontakte
+zu loeschen. Fuer diesen GUI-Umbau sind keine Datenbankmigrationen erforderlich.
+
 ## Sprachen ab Word 1.4.0.0 / Outlook 1.1.0.0
 
 Die Add-ins verwenden nach der Anmeldung die Sprache des CRM-Benutzers (`de_de` oder `en_us`). Vorher gilt die Office-/Browsersprache. Texte werden in PHP-Spracharrays mit stabilen Schluesseln gepflegt. Fuer dieses Update muss `office_addin_user_preferences` registriert werden. Einrichtung und Pflege: [Sprachdokumentation](../wordplugin-officejs/LANGUAGES.md).
