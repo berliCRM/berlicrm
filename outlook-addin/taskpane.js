@@ -77,6 +77,9 @@ async function restoreSession() {
 
     const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ language: globalThis.BerliI18n.language, action: 'getUserPreferences', sessionName: saved.sessionName }) });
+    if (response.status === 401) {
+      const error = new Error('CRM HTTP status 401'); error.crmSessionExpired = true; throw error;
+    }
     const preferences = await response.json();
     if (generation !== crmSessionGeneration) return;
     if (!response.ok || !preferences.success || !preferences.payload?.language) throw new Error(preferences.payload || 'INVALID_SESSIONID');
@@ -91,6 +94,12 @@ async function restoreSession() {
     loginStatus.textContent = globalThis.BerliI18n.t("SIGNED_IN_AS") + (crmUsername || globalThis.BerliI18n.t("CRM_USER")) + '.';
   } catch (error) {
     if (generation !== crmSessionGeneration) return;
+    if (error.crmSessionExpired || /INVALID_SESSIONID|Authencation required|Authentication required|HTTP(?:-Status| status) 401/i.test(error.message)) {
+      sessionName = null; crmUserId = null;
+      try { window.localStorage.removeItem(SESSION_STORAGE_KEY); } catch { /* The login form remains usable. */ }
+      loginStatus.textContent = globalThis.BerliI18n.t('CONTACT_CRM_SESSION_EXPIRED');
+      return;
+    }
     loginStatus.textContent = globalThis.BerliI18n.t("COULD_NOT_READ_THE_SAVED_CRM_SIGN_IN") + error.message;
   }
 }

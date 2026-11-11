@@ -10,6 +10,8 @@ let contactPopup = null;
 let contactPopupTimer = null;
 let contactRelay = null;
 let contactOfficeInfo = null;
+let contactMicrosoftExpiryTimer = null;
+let contactSessionNoticeKind = '';
 let contactPreparedPopup = null;
 let contactPreparedWeb = false;
 const contactLaunchParams = new URLSearchParams(location.search);
@@ -89,22 +91,65 @@ function contactAutomaticErrorText(error) {
   }
   return parts.join('\n') || globalThis.BerliI18n.t('UNKNOWN_SIGN_IN_ERROR');
 }
+function contactSessionNotice(message = '', kind = '') {
+  contactSessionNoticeKind = kind;
+  contactElement('contactSessionNotice').textContent = message;
+  contactElement('contactSessionNotice').hidden = !message;
+}
+function contactExpireCrm() {
+  const message = globalThis.BerliI18n.t('CONTACT_CRM_SESSION_EXPIRED');
+  contactReset(message);
+  contactSessionNotice(message, 'crm');
+}
+function contactExpireMicrosoft(error = null) {
+  const message = globalThis.BerliI18n.t('CONTACT_MICROSOFT_SESSION_EXPIRED');
+  contactForgetMicrosoft();
+  contactDisconnect(message);
+  contactSessionNotice(message, 'microsoft');
+  contactElement('contactTransferStatus').textContent = message;
+  if (error?.message) {
+    contactElement('contactAutoDetails').hidden = false;
+    contactElement('contactAutoDetails').open = false;
+    contactElement('contactAutoError').textContent = error.message;
+  }
+}
+function contactCheckMicrosoftExpiry() {
+  if (!contactState.busy && !contactState.authPending && contactState.graph
+      && Number.isFinite(contactState.graph.expiresAt) && contactState.graph.expiresAt <= Date.now() + 30000) {
+    contactExpireMicrosoft(); return true;
+  }
+  return false;
+}
+function contactWatchMicrosoftExpiry() {
+  clearTimeout(contactMicrosoftExpiryTimer); contactMicrosoftExpiryTimer = null;
+  const expiresAt = contactState.graph?.expiresAt;
+  if (!Number.isFinite(expiresAt)) return;
+  contactMicrosoftExpiryTimer = setTimeout(() => {
+    contactMicrosoftExpiryTimer = null;
+    if (!contactCheckMicrosoftExpiry() && contactState.graph) contactWatchMicrosoftExpiry();
+  }, Math.min(2147483647, Math.max(1000, expiresAt - Date.now() - 30000)));
+}
 
 async function contactApi(action, data = {}, session = contactState.session) {
   const response = await fetch(CONTACT_API, { method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action, language: globalThis.BerliI18n.language, ...data, ...(session ? { sessionName: session.sessionName } : {}) }) });
+  if (session && response.status === 401) {
+    const error = new Error('CRM HTTP status 401'); error.crmSessionExpired = true; throw error;
+  }
   const result = await response.json();
-  if (!response.ok || !result.success) throw new Error(typeof result.payload === 'string' ? result.payload : globalThis.BerliI18n.t("INVALID_CRM_RESPONSE"));
+  if (!response.ok || !result.success) {
+    throw new Error(typeof result.payload === 'string' ? result.payload : globalThis.BerliI18n.t("INVALID_CRM_RESPONSE"));
+  }
   return result.payload;
 }
 function contactError(error) {
-  if (BerliContactModel.isSessionError(error.message)) {
-    contactReset(globalThis.BerliI18n.t("YOUR_CRM_SESSION_HAS_EXPIRED_PLEASE_SIGN_IN_AGAIN"));
+  // A Graph 401 must never be mistaken for a CRM logout by its message text.
+  if (error instanceof BerliContactGraph.GraphError && error.status === 401) {
+    contactExpireMicrosoft(error);
     return;
   }
-  if (error instanceof BerliContactGraph.GraphError && error.status === 401) {
-    contactForgetMicrosoft();
-    contactDisconnect(globalThis.BerliI18n.t("YOUR_MICROSOFT_SIGN_IN_HAS_EXPIRED_PLEASE_CONNECT_AGAIN"));
+  if (!(error instanceof BerliContactGraph.GraphError) && (error.crmSessionExpired || BerliContactModel.isSessionError(error.message))) {
+    contactExpireCrm(); return;
   }
   contactElement("contactTransferStatus").textContent = error.message;
 }
@@ -140,6 +185,7 @@ function contactAuthClose() {
   contactState.authPending = false;
 }
 function contactDisconnect(message = globalThis.BerliI18n.t("MICROSOFT_ACCOUNT_IS_NOT_CONNECTED")) {
+  clearTimeout(contactMicrosoftExpiryTimer); contactMicrosoftExpiryTimer = null;
   contactElement('contactAutoDetails').hidden = true;
   contactElement('contactAutoDetails').open = false;
   contactElement('contactAutoError').textContent = '';
@@ -153,6 +199,7 @@ function contactDisconnect(message = globalThis.BerliI18n.t("MICROSOFT_ACCOUNT_I
   contactControls();
 }
 function contactReset(message = globalThis.BerliI18n.t("PLEASE_SIGN_IN_TO_CRM"), clearStored = true) {
+  contactSessionNotice();
   contactState.generation++;
   contactAuthClose();
   contactClosePreparedPopup();
@@ -162,6 +209,7 @@ function contactReset(message = globalThis.BerliI18n.t("PLEASE_SIGN_IN_TO_CRM"),
   contactState.crmRows = []; contactState.busy = false;
   if (clearStored) try { localStorage.removeItem(CONTACT_SESSION_KEY); } catch (error) { /* Reset still applies in memory. */ }
   contactElement('contactCrmResults').replaceChildren();
+  contactElement('contactTransferStatus').textContent = '';
   contactDisconnect();
   contactElement('contactWorkspace').hidden = true;
   contactElement('contactLoginForm').hidden = false;
@@ -184,6 +232,7 @@ async function contactPrepare(session) {
       throw new Error(globalThis.BerliI18n.t("INVALID_CRM_RESPONSE"));
     }
     globalThis.BerliI18n.setLanguage(preferences.language);
+    if (contactSessionNoticeKind === 'crm') contactSessionNotice();
     const metadata = await contactApi('contactTransfer', { transfer: { mode: 'describe' } }, session);
     if (generation !== contactState.generation) return;
     contactState.metadata = metadata;
@@ -214,7 +263,7 @@ async function contactPrepare(session) {
   } catch (error) {
     if (generation !== contactState.generation) return;
     contactClosePreparedPopup();
-    if (BerliContactModel.isSessionError(error.message)) contactReset(globalThis.BerliI18n.t("YOUR_CRM_SESSION_HAS_EXPIRED_PLEASE_SIGN_IN_AGAIN"));
+    if (error.crmSessionExpired || BerliContactModel.isSessionError(error.message)) contactExpireCrm();
     else {
       contactState.metadata = null;
       contactElement('contactWorkspace').hidden = true;
@@ -304,6 +353,10 @@ function contactAcceptAuth(message, generation) {
     return contactState.graph.token;
   }, contactState.metadata.propertyId);
   contactElement("contactMicrosoftStatus").textContent = globalThis.BerliI18n.t("MICROSOFT_ACCOUNT_CONNECTED") + message.username;
+  if (contactSessionNoticeKind === 'microsoft') {
+    contactSessionNotice(); contactElement('contactTransferStatus').textContent = '';
+  }
+  contactWatchMicrosoftExpiry();
   contactControls();
 }
 async function contactPollAuthRelay(relay) {
@@ -324,6 +377,7 @@ async function contactPollAuthRelay(relay) {
     relay.timer = setTimeout(() => contactPollAuthRelay(relay), 1500);
   } catch (error) {
     if (contactRelay !== relay) return;
+    if (error.crmSessionExpired || BerliContactModel.isSessionError(error.message)) { contactExpireCrm(); return; }
     contactAuthClose(); contactState.showMicrosoftLogin = true;
     contactElement('contactMicrosoftStatus').textContent = error.message; contactControls();
   }
@@ -408,6 +462,7 @@ async function contactConnect(options = {}) {
     }
   } catch (error) {
     contactAuthClose(); contactState.showMicrosoftLogin = true;
+    if (error.crmSessionExpired || BerliContactModel.isSessionError(error.message)) { contactExpireCrm(); return; }
     contactElement("contactMicrosoftStatus").textContent = error.message; contactControls();
   }
 }
@@ -429,16 +484,23 @@ function contactRow(container, record, source, metadata) {
   container.append(element);
   return row;
 }
-async function contactJob(work) {
+async function contactJob(work, needsMicrosoft = false) {
   if (contactState.busy || contactState.authPending || !contactState.session) return;
+  const expired = contactCheckMicrosoftExpiry();
+  if (expired && needsMicrosoft) return;
   contactState.busy = true; contactControls();
   const snapshot = { generation: contactState.generation, session: contactState.session, graph: contactState.graph,
     client: contactState.client, folder: contactElement('contactFolder').value };
   snapshot.check = () => {
     if (snapshot.generation !== contactState.generation || snapshot.session !== contactState.session || snapshot.graph !== contactState.graph) throw new Error(globalThis.BerliI18n.t("THE_SIGNED_IN_ACCOUNT_HAS_CHANGED_PLEASE_START_THE_OPERATION_AGAIN"));
   };
-  try { await work(snapshot); } catch (error) { contactError(error); }
-  finally { if (snapshot.generation === contactState.generation) { contactState.busy = false; contactControls(); } }
+  try { await work(snapshot); }
+  catch (error) { if (snapshot.generation === contactState.generation) contactError(error); }
+  finally {
+    if (snapshot.generation === contactState.generation) {
+      contactState.busy = false; contactCheckMicrosoftExpiry(); contactControls();
+    }
+  }
 }
 async function contactSearch(event) {
   event.preventDefault();
@@ -468,14 +530,14 @@ async function contactLoadOutlook(more = false) {
     }
     contactState.nextLink = result['@odata.nextLink'] || '';
     contactElement("contactTransferStatus").textContent = contactState.outlookRows.length + globalThis.BerliI18n.t("OUTLOOK_CONTACTS_LOADED") + contactState.outlookRows.filter(row => row.invalid).length + globalThis.BerliI18n.t("WITH_MISSING_REQUIRED_CRM_FIELDS");
-  });
+  }, true);
 }
 async function contactLoadFolders() {
   await contactJob(async job => {
     const folders = await job.client.folders(); job.check();
     contactElement('contactFolder').replaceChildren(new Option(globalThis.BerliI18n.t("DEFAULT_CONTACTS"), ''), ...folders.map(folder => new Option(folder.name, folder.id)));
     contactElement('contactFolder').value = job.folder;
-  });
+  }, true);
 }
 async function contactTransfer(direction) {
   await contactJob(async job => {
@@ -524,7 +586,7 @@ async function contactTransfer(direction) {
       }
       contactElement("contactTransferStatus").textContent = (index + 1) + '/' + rows.length + ': ' + created + globalThis.BerliI18n.t("CREATED") + skipped + globalThis.BerliI18n.t("SKIPPED") + failed + globalThis.BerliI18n.t("FAILED");
     }
-  });
+  }, true);
 }
 function initializeContacts() {
   contactElement('contactLoginForm').addEventListener('submit', contactLogin);
@@ -540,6 +602,7 @@ function initializeContacts() {
   });
   contactElement('contactConnect').addEventListener('click', contactConnect);
   contactElement('contactDisconnect').addEventListener('click', () => {
+    if (contactSessionNoticeKind === 'microsoft') contactSessionNotice();
     contactForgetMicrosoft(true); contactState.selectMicrosoftAccount = true; contactDisconnect();
   });
   contactElement('contactSearchForm').addEventListener('submit', contactSearch);
@@ -562,6 +625,11 @@ function initializeContacts() {
   });
   window.addEventListener('storage', event => {
     if (event.key === CONTACT_SESSION_KEY && contactState.session) contactReset(globalThis.BerliI18n.t("THE_CRM_SIGN_IN_CHANGED_IN_ANOTHER_VIEW_PLEASE_SIGN_IN_AGAIN_HERE"), false);
+  });
+  window.addEventListener('focus', contactCheckMicrosoftExpiry);
+  window.addEventListener('pageshow', contactCheckMicrosoftExpiry);
+  document.addEventListener?.('visibilitychange', () => {
+    if (!document.hidden) contactCheckMicrosoftExpiry();
   });
   contactControls();
   try {

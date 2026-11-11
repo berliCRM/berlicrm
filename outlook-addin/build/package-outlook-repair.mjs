@@ -28,7 +28,7 @@ async function tree(relative) {
   return names;
 }
 
-export async function createRepairPackage(target = path.join(root, 'outlook-addin/build/outlook-addin-1.1.0.1.zip')) {
+export async function createRepairPackage(target = path.join(root, 'outlook-addin/build/outlook-addin-1.1.0.2.zip')) {
   const handlers = (await fs.readdir(path.join(root, 'include/Webservices/Custom')))
     .filter(name => /^Outlook.*\.php$/.test(name)).map(name => 'include/Webservices/Custom/' + name);
   const names = [...browserNames.map(name => 'outlook-addin/' + name), ...handlers,
@@ -41,9 +41,22 @@ export async function createRepairPackage(target = path.join(root, 'outlook-addi
   const digest = bytes => createHash('sha256').update(bytes).digest('hex');
   for (const name of names) files[name] = new Uint8Array(await fs.readFile(path.join(root, name)));
   files['SHA256SUMS.txt'] = strToU8(names.map(name => digest(files[name]) + '  ' + name).join('\n') + '\n');
-  files['UPDATE.txt'] = strToU8(`berliCRM Outlook Add-in 1.1.0.1, Build 20261111.4, 11.11.2026
+  files['UPDATE.txt'] = strToU8(`berliCRM Outlook Add-in 1.1.0.2, Build 20261111.5, 11.11.2026
 
-Versionsanzeige und Manifestvorlage sind auf 1.1.0.1 erhoeht. Die Add-in-ID bleibt
+NEU IN 1.1.0.2: Verstaendliche Hinweise bei abgelaufener Anmeldung.
+In der Kontakteansicht wird eine abgelaufene Microsoft-Verbindung anhand der
+Token-Gueltigkeit auch ohne weiteren Zugriff erkannt. Die Pruefung laeuft
+ebenfalls bei Rueckkehr zur Ansicht und vor Kontaktaktionen. Die CRM-Anmeldung
+bleibt bei einem Microsoft-Fehler erhalten. Mit Microsoft verbinden erneuert
+die Verbindung; technische Fehlertexte bleiben eingeklappt.
+
+Bei abgelaufener CRM-Sitzung erscheint ein sichtbarer Hinweis oberhalb des
+CRM-Anmeldeformulars. Dort Benutzername und Access Key erneut eingeben.
+Nach erfolgreicher Anmeldung verschwindet der jeweilige Hinweis. Es werden
+keine Kontakte automatisch erneut uebertragen und keine Sitzungen kuenstlich
+durch Hintergrund-Anfragen verlaengert.
+
+Versionsanzeige und Manifestvorlage sind auf 1.1.0.2 erhoeht. Die Add-in-ID bleibt
 gleich. Fuer die von Outlook verwaltete Versionsangabe das installationsspezifische
 Manifest im CRM unter Einstellungen > Integration > Outlook Add-in neu erzeugen
 und in der bestehenden Outlook-Bereitstellung aktualisieren. Die Beispieladressen

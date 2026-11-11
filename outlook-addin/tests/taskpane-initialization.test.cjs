@@ -67,6 +67,8 @@ test('a failed preference lookup keeps Outlook events available and leaves sign-
   assert.equal(typeof changedBeforeResponse, 'function');
   assert.equal(vm.runInContext('sessionName', env.context), null);
   assert.equal(env.element('loginFields').hidden, false);
+  assert.match(env.element('loginStatus').textContent, /CRM-Anmeldung.*abgelaufen.*Access Key/);
+  assert.doesNotMatch(env.element('loginStatus').textContent, /INVALID_SESSIONID/);
   env.changed()();
   assert.equal(env.element('loginFields').hidden, false);
 });

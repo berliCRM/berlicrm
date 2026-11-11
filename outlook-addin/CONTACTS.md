@@ -284,6 +284,22 @@ wird der Bereich wieder geschlossen; die allgemeine Fehlermeldung bleibt sichtba
 Die Buildkennung steht unten in der Kontakteansicht. Der bestätigte Anmeldeablauf
 für Firefox und Edge bleibt unverändert.
 
+Ab **Version 1.1.0.2 / Build 20261111.5** zeigt die Kontakteansicht abgelaufene
+Anmeldungen mit einem sichtbaren Hinweis oberhalb der CRM-Anmeldung an:
+
+- **CRM-Anmeldung abgelaufen:** oben erneut mit CRM-Benutzername und Access Key
+  anmelden. Der Hinweis erscheint, sobald das CRM eine abgelaufene Sitzung meldet.
+- **Microsoft-Verbindung abgelaufen oder nicht mehr gültig:** **Mit Microsoft
+  verbinden** wählen. Die CRM-Anmeldung bleibt dabei erhalten.
+
+Das bekannte Ablaufdatum der Microsoft-Verbindung wird auch ohne weiteren Zugriff
+geprüft sowie bei Rückkehr zur Ansicht und vor Kontaktaktionen. Während einer
+laufenden Übertragung wird der Wechsel der Ansicht zurückgestellt. Eine ungültige
+Verbindung wird nicht für eine neue Übertragung verwendet. Es gibt keine
+automatische Wiederholung von Kontaktübernahmen oder Hintergrund-Anfragen zum
+Verlängern der CRM-Sitzung. Nach erfolgreicher Anmeldung verschwindet der Hinweis;
+technische Microsoft-Meldungen bleiben unter **Technische Details** eingeklappt.
+
 **Update-Dateien gemeinsam hochladen:**
 
 - `outlook-addin/contacts.html`

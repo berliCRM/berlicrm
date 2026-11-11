@@ -5,6 +5,8 @@
  * @package berliCRM.OfficeAddins.Languages
  */
 return array(
+    'CONTACT_CRM_SESSION_EXPIRED' => 'Your CRM sign-in has expired, for example after a longer period of inactivity. Please sign in again above with your CRM username and Access Key.',
+    'CONTACT_MICROSOFT_SESSION_EXPIRED' => 'Your Microsoft connection has expired or is no longer valid. Select “Connect to Microsoft” to renew it. Your CRM sign-in is retained.',
     'MICROSOFT_SIGN_IN_WINDOW_ERROR' => 'Microsoft sign-in window: {0}',
     'AUTOMATIC_MICROSOFT_SIGN_IN_IFRAME_LIMIT' => 'Silent browser sign-in may be prevented by blocked third-party cookies or a required sign-in/consent. In that case, use “Connect to Microsoft”.',
     'MICROSOFT_SIGN_IN_RELAY_UNAVAILABLE' => 'Microsoft sign-in cannot be passed back to the add-in right now. Please try again.',
@@ -13,7 +15,7 @@ return array(
     'ACCESS_NOT_GRANTED' => 'Access not granted',
     'ACTION_IS_MISSING_OR_INVALID' => 'Action is missing or invalid.',
     'ADDING_RECIPIENTS_STOPPED' => 'Adding recipients stopped: ',
-    'ADDIN_VERSION' => 'Version 1.1.0.1',
+    'ADDIN_VERSION' => 'Version 1.1.0.2',
     'ADD_RECIPIENTS_IN_OUTLOOK' => 'Add recipients in Outlook',
     'ADD_TO_OUTLOOK' => 'Add to Outlook',
     'ADD_TO_OUTLOOK_ARIA_SUFFIX' => ': add to Outlook',

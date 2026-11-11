@@ -15,6 +15,7 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 .invalid { color: #a4262c; }
 #contactAutoDetails { margin: 10px 0; color: #605e5c; font-size: .9rem; }
 #contactAutoDetails summary { cursor: pointer; }
+.session-notice { padding: 12px; border: 1px solid #d9a441; border-radius: 6px; background: #fff4ce; white-space: pre-wrap; }
 .addin-credit { color: #605e5c; font-size: 12px; line-height: 1.5; margin-top: auto; padding-top: 18px; text-align: right; }
 .addin-version { display: block; margin-bottom: 2px; }
 [hidden] { display: none !important; }

@@ -23,12 +23,16 @@ class Element {
   querySelector(selector) { if (!this.button) this.button = new Element(); return this.button; }
 }
 function setup(options = {}) {
-  const elements = new Map(), stored = options.stored || new Map(), sessionStored = options.sessionStored || new Map(), listeners = {}, requests = [];
+  const elements = new Map(), stored = options.stored || new Map(), sessionStored = options.sessionStored || new Map(), listeners = {}, documentEvents = {}, requests = [];
   const element = id => { if (!elements.has(id)) elements.set(id, new Element()); return elements.get(id); };
   element('contactWorkspace').hidden = true;
   if (options.saved) stored.set(sessionKey, JSON.stringify({ username: 'CRM User', sessionName: 'session', userId: '19x3', ...(options.savedLanguage ? { language: options.savedLanguage } : {}) }));
   const context = localizedContext({
-    URL, URLSearchParams, Set, Date, clearInterval, setInterval, clearTimeout, setTimeout: options.setTimeout || setTimeout,
+    URL, URLSearchParams, Set, Date, clearInterval, setInterval, clearTimeout,
+    setTimeout: (callback, milliseconds) => {
+      const timer = (options.setTimeout || setTimeout)(callback, milliseconds);
+      timer?.unref?.(); return timer;
+    },
     location: new URL('https://crm.example.test/outlook-addin/contacts.html' + (options.preparedPopup ? '?preparedAuth=' + Date.now() + '&outlookPlatform=OfficeOnline' : '')),
     localStorage: { getItem: key => stored.get(key) || null, setItem: (key, value) => stored.set(key, value), removeItem: key => stored.delete(key) },
     sessionStorage: options.blockSessionStorage ? {
@@ -40,7 +44,8 @@ function setup(options = {}) {
       } } : {}),
       ...(options.silent ? { BerliContactsAuth: { connectSilently: options.silent } } : {}) },
     ...(options.office ? { Office: options.office } : {}),
-    document: { getElementById: element, createElement: () => new Element() },
+    document: { getElementById: element, createElement: () => new Element(),
+      addEventListener: (name, handler) => { documentEvents[name] = handler; } },
     Option: function(label, value) { const option = new Element(); option.textContent = label; option.value = value; return option; },
     BerliContactModel: model, BerliContactGraph: graph, BerliAuthRelay: relayTools,
     fetch: async (url, init) => {
@@ -71,7 +76,7 @@ function setup(options = {}) {
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../contacts.js'), 'utf8'), context);
   const state = () => vm.runInContext('contactState', context);
   function connect(client = {}) { state().graph = { account: 'account' }; state().client = client; context.contactControls(); }
-  return { context, element, stored, sessionStored, listeners, requests, state, connect };
+  return { context, element, stored, sessionStored, listeners, documentEvents, requests, state, connect };
 }
 
 test('signed-out contacts view offers CRM login, clears Access Key and reuses validated saved sessions', async () => {
@@ -670,4 +675,144 @@ test('unavailable session storage still allows silent or manual Microsoft connec
   env.context.contactReset();
   const manual = await manuallyConnected({ blockSessionStorage: true });
   assert.equal(manual.state().graph.account, 'selected-account');
+});
+
+test('an idle Microsoft token expiry shows a recovery notice without logging out of CRM or opening a window', async () => {
+  const timers = [];
+  const env = await manuallyConnected({ setTimeout: (callback, milliseconds) => { timers.push({ callback, milliseconds }); return timers.length; } });
+  assert.ok(timers.at(-1).milliseconds > 30000);
+  env.context.window.open = () => { throw new Error('Expiry notices must not open a sign-in window automatically'); };
+  env.state().graph.expiresAt = Date.now() + 29000;
+  timers.at(-1).callback();
+  assert.equal(env.state().graph, null);
+  assert.equal(env.state().session.sessionName, 'session');
+  assert.equal(env.stored.has(sessionKey), true);
+  assert.equal(env.sessionStored.size, 0);
+  assert.equal(env.element('contactSessionNotice').hidden, false);
+  assert.match(env.element('contactSessionNotice').textContent, /Microsoft.*abgelaufen.*Mit Microsoft verbinden/);
+  assert.equal(env.element('contactMicrosoftLogin').hidden, false);
+  assert.equal(env.element('contactConnect').disabled, false);
+  assert.equal(env.element('contactLoadOutlook').disabled, true);
+});
+
+test('returning to a suspended pane detects expiry on focus, pageshow and visibility changes', async () => {
+  for (const event of ['focus', 'pageshow', 'visibilitychange']) {
+    const env = await manuallyConnected();
+    env.state().graph.expiresAt = Date.now() - 1;
+    if (event === 'visibilitychange') {
+      env.context.document.hidden = true; env.documentEvents[event]();
+      assert.notEqual(env.state().graph, null);
+      env.context.document.hidden = false; env.documentEvents[event]();
+    } else env.listeners[event]();
+    assert.equal(env.state().graph, null, event);
+    assert.match(env.element('contactSessionNotice').textContent, /Microsoft/);
+  }
+});
+
+test('expiry before a transfer stops before exporting or writing selected contacts', async () => {
+  const env = await manuallyConnected();
+  env.element('contactSearch').value = 'Test'; await env.context.contactSearch({ preventDefault() {} });
+  env.state().crmRows[0].checkbox.checked = true;
+  let writes = 0;
+  env.state().client = { existing: async () => null, create: async () => { writes++; } };
+  env.state().graph.expiresAt = Date.now() - 1;
+  await env.context.contactTransfer('export');
+  assert.equal(writes, 0);
+  assert.equal(env.requests.filter(input => input.transfer?.mode === 'export').length, 0);
+  assert.equal(env.state().session.sessionName, 'session');
+  assert.match(env.element('contactTransferStatus').textContent, /Mit Microsoft verbinden/);
+});
+
+test('a Graph HTTP 401 is not mistaken for an expired CRM session and its raw message stays collapsed', async () => {
+  const env = await manuallyConnected();
+  env.context.contactError(new graph.GraphError('HTTP status 401: InvalidAuthenticationToken, Trace ID private-diagnostic', 401));
+  assert.equal(env.state().session.sessionName, 'session');
+  assert.equal(env.element('contactLoginForm').hidden, true);
+  assert.match(env.element('contactMicrosoftStatus').textContent, /Mit Microsoft verbinden/);
+  assert.doesNotMatch(env.element('contactTransferStatus').textContent, /Trace ID|InvalidAuthenticationToken/);
+  assert.equal(env.element('contactAutoDetails').open, false);
+  assert.match(env.element('contactAutoError').textContent, /Trace ID/);
+});
+
+test('an expired CRM session during contact use shows the CRM login and a clear notice outside the hidden workspace', async () => {
+  const env = await manuallyConnected({ api: async input => {
+    if (input.action === 'searchContacts') throw new Error('INVALID_SESSIONID');
+  } });
+  env.element('contactSearch').value = 'Test'; await env.context.contactSearch({ preventDefault() {} });
+  assert.equal(env.state().session, null);
+  assert.equal(env.element('contactWorkspace').hidden, true);
+  assert.equal(env.element('contactLoginForm').hidden, false);
+  assert.equal(env.element('contactSessionNotice').hidden, false);
+  assert.match(env.element('contactLoginStatus').textContent, /CRM-Anmeldung.*abgelaufen.*Access Key/);
+  assert.doesNotMatch(env.element('contactLoginStatus').textContent, /INVALID_SESSIONID/);
+});
+
+test('a CRM HTTP 401 without JSON still gives a readable CRM session expiry message', async () => {
+  const env = setup({ saved: true, preferences: async () => ({ status: 401, ok: false,
+    json: async () => { throw new Error('Do not parse an expired-session HTML response'); },
+  }) }); await tick();
+  assert.equal(env.state().session, null);
+  assert.equal(env.element('contactSessionNotice').hidden, false);
+  assert.match(env.element('contactSessionNotice').textContent, /CRM-Anmeldung.*Access Key/);
+});
+
+test('reconnecting Microsoft clears the expired-session notice and the stale transfer message', async () => {
+  const env = await manuallyConnected();
+  env.state().graph.expiresAt = Date.now() - 1; env.listeners.focus();
+  const popup = { closed: false, close() { this.closed = true; } };
+  env.context.window.open = () => popup;
+  await env.context.contactConnect();
+  env.listeners.message({ origin: 'https://crm.example.test', source: popup, data: {
+    type: 'berliCRM.contacts.connected', account: 'renewed', token: 'new-temporary-token',
+    expiresAt: Date.now() + 3600000, username: 'selected@example.test',
+  } });
+  assert.equal(env.element('contactSessionNotice').hidden, true);
+  assert.equal(env.element('contactTransferStatus').textContent, '');
+  assert.equal(env.state().session.sessionName, 'session');
+  assert.equal(env.state().graph.account, 'renewed');
+  env.context.contactReset();
+});
+
+test('Microsoft expiry is deferred during an active operation', async () => {
+  const env = await manuallyConnected();
+  const currentGraph = env.state().graph;
+  env.state().busy = true; env.state().graph.expiresAt = Date.now() - 1;
+  assert.equal(env.context.contactCheckMicrosoftExpiry(), false);
+  assert.equal(env.state().graph, currentGraph);
+  env.state().busy = false; env.listeners.focus();
+  assert.equal(env.state().graph, null);
+});
+
+test('expiry notices respect an English CRM language preference', async () => {
+  const env = await manuallyConnected({ preferences: async () => ({ ok: true,
+    json: async () => ({ success: true, payload: { language: 'en_us' } }),
+  }) });
+  env.state().graph.expiresAt = Date.now() - 1; env.listeners.focus();
+  assert.match(env.element('contactSessionNotice').textContent, /Your Microsoft connection.*Connect to Microsoft/);
+  env.context.contactError(new Error('INVALID_SESSIONID'));
+  assert.match(env.element('contactSessionNotice').textContent, /Your CRM sign-in.*CRM username and Access Key/);
+});
+
+test('signing back into CRM clears its expiry notice after validation', async () => {
+  const env = await manuallyConnected();
+  env.context.contactError(new Error('INVALID_SESSIONID'));
+  env.element('contactUsername').value = 'CRM User'; env.element('contactAccessKey').value = 'temporary-key';
+  await env.context.contactLogin({ preventDefault() {}, currentTarget: env.element('contactLoginForm') });
+  assert.equal(env.element('contactSessionNotice').hidden, true);
+  assert.equal(env.element('contactLoginForm').hidden, true);
+  assert.equal(env.element('contactWorkspace').hidden, false);
+  assert.equal(env.element('contactTransferStatus').textContent, '');
+});
+
+test('a late expired-session response cannot delete a newer CRM login from another view', async () => {
+  let fail;
+  const pending = new Promise((resolve, reject) => { fail = reject; });
+  const env = await manuallyConnected({ api: input => input.action === 'searchContacts' ? pending : undefined });
+  env.element('contactSearch').value = 'Test';
+  const searching = env.context.contactSearch({ preventDefault() {} }); await tick();
+  const newer = JSON.stringify({ username: 'Other user', sessionName: 'new-session', userId: '19x4' });
+  env.stored.set(sessionKey, newer); env.listeners.storage({ key: sessionKey });
+  fail(new Error('INVALID_SESSIONID')); await searching;
+  assert.equal(env.stored.get(sessionKey), newer);
+  assert.equal(env.element('contactSessionNotice').hidden, true);
 });

@@ -272,6 +272,21 @@ including error codes and subcodes. A new error collapses the section again;
 the general error message remains visible. The build is shown at the bottom of
 the contacts view. The confirmed Firefox and Edge sign-in flow is unchanged.
 
+From **version 1.1.0.2 / build 20261111.5**, expired sign-ins produce a visible
+notice above the CRM sign-in section:
+
+- **CRM sign-in expired:** sign in again above with the CRM username and Access
+  Key. This is shown when the CRM reports an expired session.
+- **Microsoft connection expired or no longer valid:** select **Connect to
+  Microsoft**. The CRM sign-in is retained.
+
+The known Microsoft expiry time is also checked without another request, when
+returning to the view and before contact operations. UI changes are deferred
+while a transfer is running. An expired connection is not used to begin a new
+transfer. No contact writes are automatically retried, and no background requests
+extend the CRM session. A successful sign-in clears the notice; technical
+Microsoft messages remain in the collapsed **Technical details** section.
+
 **Upload these update files together:**
 
 - `outlook-addin/contacts.html`

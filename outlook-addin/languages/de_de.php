@@ -5,6 +5,8 @@
  * @package berliCRM.OfficeAddins.Languages
  */
 return array(
+    'CONTACT_CRM_SESSION_EXPIRED' => 'Deine CRM-Anmeldung ist abgelaufen, zum Beispiel nach längerer Inaktivität. Bitte melde dich oben erneut mit deinem CRM-Benutzernamen und Access Key an.',
+    'CONTACT_MICROSOFT_SESSION_EXPIRED' => 'Deine Microsoft-Verbindung ist abgelaufen oder nicht mehr gültig. Klicke auf „Mit Microsoft verbinden“, um sie zu erneuern. Deine CRM-Anmeldung bleibt bestehen.',
     'MICROSOFT_SIGN_IN_WINDOW_ERROR' => 'Microsoft-Anmeldefenster: {0}',
     'AUTOMATIC_MICROSOFT_SIGN_IN_IFRAME_LIMIT' => 'Die stille Browser-Anmeldung kann durch gesperrte Drittanbieter-Cookies oder eine erforderliche Anmeldung/Zustimmung verhindert werden. Verwende dann „Mit Microsoft verbinden“.',
     'MICROSOFT_SIGN_IN_RELAY_UNAVAILABLE' => 'Die Microsoft-Anmeldung kann gerade nicht an das Add-in übergeben werden. Bitte erneut versuchen.',
@@ -13,7 +15,7 @@ return array(
     'ACCESS_NOT_GRANTED' => 'Zugriff nicht freigegeben',
     'ACTION_IS_MISSING_OR_INVALID' => 'Action fehlt oder ist ungültig.',
     'ADDING_RECIPIENTS_STOPPED' => 'Hinzufügen abgebrochen: ',
-    'ADDIN_VERSION' => 'Version 1.1.0.1',
+    'ADDIN_VERSION' => 'Version 1.1.0.2',
     'ADD_RECIPIENTS_IN_OUTLOOK' => 'Empfänger in Outlook hinzufügen',
     'ADD_TO_OUTLOOK' => 'Zu Outlook hinzufügen',
     'ADD_TO_OUTLOOK_ARIA_SUFFIX' => ' zu Outlook hinzufügen',

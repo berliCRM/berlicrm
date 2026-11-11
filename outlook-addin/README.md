@@ -1,6 +1,8 @@
 # berliCRM Outlook Add-in
 
-Aktuelle Version: **1.1.0.1** (Build 20261111.4). Technische Fehlerdetails sind
+Aktuelle Version: **1.1.0.2** (Build 20261111.5). Abgelaufene CRM- und Microsoft-
+Anmeldungen erhalten getrennte, verständliche Hinweise zum erneuten Anmelden.
+Technische Fehlerdetails sind
 standardmäßig eingeklappt und werden erst per Klick sichtbar. Die bestätigte
 automatische Microsoft-Anmeldung in Firefox und Edge bleibt erhalten.
 
@@ -367,7 +369,7 @@ See [MAIL-ARCHIVE.md](MAIL-ARCHIVE.md) for installation, permissions and limits.
 
 ### Calendar transfer in the existing add-in
 
-The current manifest version is **1.1.0.1**, including the Microsoft contact
+The current manifest version is **1.1.0.2**, including the Microsoft contact
 sign-in fixes for Firefox and Edge and collapsed technical error details.
 Deploy the update files together and reopen Outlook. Generate/download the new
 installation-specific manifest from Settings after deploying the updated template
