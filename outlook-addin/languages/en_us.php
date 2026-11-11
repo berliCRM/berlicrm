@@ -5,6 +5,8 @@
  * @package berliCRM.OfficeAddins.Languages
  */
 return array(
+    'SETTINGS_MICROSOFT_RETURN_HELP' => 'Close this window and select “Check Microsoft connection” again in the CRM settings.',
+    'SETTINGS_MICROSOFT_CONNECTION_FAILED' => 'Could not connect to your Microsoft account. Please restart the connection check in the CRM settings.',
     'CONTACT_CRM_SESSION_EXPIRED' => 'Your CRM sign-in has expired, for example after a longer period of inactivity. Please sign in again above with your CRM username and Access Key.',
     'CONTACT_MICROSOFT_SESSION_EXPIRED' => 'Your Microsoft connection has expired or is no longer valid. Select “Connect to Microsoft” to renew it. Your CRM sign-in is retained.',
     'MICROSOFT_SIGN_IN_WINDOW_ERROR' => 'Microsoft sign-in window: {0}',
@@ -19,7 +21,7 @@ return array(
     'ADD_RECIPIENTS_IN_OUTLOOK' => 'Add recipients in Outlook',
     'ADD_TO_OUTLOOK' => 'Add to Outlook',
     'ADD_TO_OUTLOOK_ARIA_SUFFIX' => ': add to Outlook',
-    'AGAIN_IN_WORD' => 'again in Word.',
+    'AGAIN_IN_WORD' => 'again in the berliCRM contacts view.',
     'ALL_EMAIL_ADDRESSES_ARE_ALREADY_PRESENT_IN_THE_SELECTED_OUTLOOK_FIELD' => 'All email addresses are already present in the selected Outlook field.',
     'AND_LINKED_TO' => ' and linked to ',
     'AN_APPOINTMENT_DATE_IS_INVALID' => 'An appointment date is invalid.',

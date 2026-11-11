@@ -28,7 +28,7 @@ async function tree(relative) {
   return names;
 }
 
-export async function createRepairPackage(target = path.join(root, 'outlook-addin/build/outlook-addin-1.1.0.2.zip')) {
+export async function createRepairPackage(target = path.join(root, 'outlook-addin/build/outlook-addin-1.1.0.2-settings-fix2.zip')) {
   const handlers = (await fs.readdir(path.join(root, 'include/Webservices/Custom')))
     .filter(name => /^Outlook.*\.php$/.test(name)).map(name => 'include/Webservices/Custom/' + name);
   const names = [...browserNames.map(name => 'outlook-addin/' + name), ...handlers,
@@ -41,7 +41,31 @@ export async function createRepairPackage(target = path.join(root, 'outlook-addi
   const digest = bytes => createHash('sha256').update(bytes).digest('hex');
   for (const name of names) files[name] = new Uint8Array(await fs.readFile(path.join(root, name)));
   files['SHA256SUMS.txt'] = strToU8(names.map(name => digest(files[name]) + '  ' + name).join('\n') + '\n');
-  files['UPDATE.txt'] = strToU8(`berliCRM Outlook Add-in 1.1.0.2, Build 20261111.5, 11.11.2026
+  files['UPDATE.txt'] = strToU8(`berliCRM Outlook Add-in 1.1.0.2, Settings-Fix 2, Cache 20261111.7, 11.11.2026
+
+Die Kanal-Kennung bleibt jetzt auch erhalten, wenn MSAL auf die urspruengliche
+Startadresse mit start=1 zurueckkehrt. Der vorherige Test bildete nur die reine
+Callback-Adresse ab und hatte diesen Fall uebersehen. Regressionstest und
+Firefox-Test decken nun den Ruecksprung zur Startadresse nach COOP-Trennung ab.
+Pruefung abbrechen hat einen festen Abstand zum vorherigen Button.
+
+NEU: Microsoft-Verbindung pruefen in den CRM-Einstellungen repariert.
+Die Add-in-Version bleibt ausdruecklich 1.1.0.2. Das Manifest bleibt gleich.
+Der Einstellungs-Test erhaelt die Antwort aus dem Microsoft-Anmeldefenster
+ueber einen pro Versuch zufaellig erzeugten Browserkanal derselben CRM-Origin.
+Der Empfang wird bestaetigt, bevor das Fenster schliesst. Getrenntes window.opener
+und ein durch COOP irrefuehrendes popup.closed loesen keinen falschen Abbruch aus.
+Es wird weiterhin genau ein lesender Graph-Aufruf ausgefuehrt; keine Kontakte
+werden angelegt oder geaendert. Tokens werden dafuer nicht im CRM gespeichert.
+Die Meldungen nennen die CRM-Einstellungen statt Word oder die Kontakteansicht.
+
+Vollstaendig einspielen, insbesondere auch layouts/ und languages/ sowie die
+aktualisierten Anmeldedateien/Bundles. Danach die CRM-Einstellungsseite mit
+Strg+F5 neu laden und Microsoft-Verbindung pruefen erneut starten.
+Lokaler Firefox-Test mit echter COOP-Trennung und simulierten Microsoft- und
+Graph-Antworten bestanden. Der echte Microsoft-Login bleibt im Zielsystem zu pruefen.
+
+Historie der Version 1.1.0.2:
 
 NEU IN 1.1.0.2: Verstaendliche Hinweise bei abgelaufener Anmeldung.
 In der Kontakteansicht wird eine abgelaufene Microsoft-Verbindung anhand der

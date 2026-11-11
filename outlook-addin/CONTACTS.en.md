@@ -115,8 +115,20 @@ blocked sign-in window or denied Graph access is reported as an error or
 cancellation. The test can then be started again; **Cancel test** ends a running
 attempt. This does not test the separate CRM user sign-in.
 
+The fix with cache identifier **20261111.7** keeps add-in version **1.1.0.2**.
+The sign-in window returns its result over a per-attempt browser channel on the
+same CRM origin and waits for acknowledgement before closing. Microsoft's COOP
+isolation can therefore sever `window.opener` or make `popup.closed` misleading
+without prematurely ending the test. A five-minute deadline and **Cancel test**
+release an unfinished attempt. Tokens are not saved in CRM or persistent browser
+storage for this exchange. Error and return instructions refer to CRM settings.
+The channel survives MSAL returning to the original start URL and is only cleared
+after acknowledged delivery. **Cancel test** is spaced from the preceding button.
+
 For this update, upload `outlook-addin/settings-connection.js`, the Outlook
 Settings template, module model and both Settings language files together.
+Also update `contacts-auth.html`, `assets/contacts-auth.bundle.js`, its `.LEGAL.txt`
+and the Outlook language files including `language.js` together.
 Existing IDs remain in the configuration file. If the Outlook Settings menu
 already exists, another `db_update.php` run is unnecessary.
 

@@ -3,9 +3,16 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { webcrypto } = require('node:crypto');
 const source = fs.readFileSync(path.join(__dirname, '../settings-connection.js'), 'utf8');
 function setup(options = {}) {
-  const elements = new Map(), listeners = {}, requests = [], opened = [], timers = new Map();
+  const elements = new Map(), listeners = {}, requests = [], opened = [], timers = new Map(), channels = [];
+  let now = Date.now();
+  class TestChannel {
+    constructor(name) { this.name = name; this.sent = []; this.closed = false; channels.push(this); }
+    postMessage(message) { this.sent.push(message); }
+    close() { this.closed = true; }
+  }
   const element = id => {
     if (!elements.has(id)) elements.set(id, { dataset: {}, events: {}, textContent: '', disabled: false, hidden: true,
       addEventListener(name, callback) { this.events[name] = callback; },
@@ -15,12 +22,13 @@ function setup(options = {}) {
   const root = element('outlookConnectionCheck');
   Object.assign(root.dataset, { authUrl: options.authUrl || 'https://crm.example.test/crm/outlook-addin/contacts-auth.html',
     signingIn: 'Signing in', reading: 'Checking read access', success: 'Read access succeeded; write access not tested',
-    failed: 'Failed:', denied: 'Access denied', httpError: 'Request failed', badReply: 'Invalid reply', blocked: 'Popup blocked', closed: 'Closed', cancelled: 'Cancelled' });
+    failed: 'Failed:', denied: 'Access denied', httpError: 'Request failed', badReply: 'Invalid reply', blocked: 'Popup blocked', closed: 'Closed', cancelled: 'Cancelled', timedOut: 'No Microsoft response' });
   const button = element('outlookCheckConnection'); button.disabled = !!options.disabled;
   const popup = { closed: false, close() { if (options.closeError) throw new Error('Cannot close'); this.closed = true; } };
   let timerId = 0;
   vm.runInNewContext(source, {
-    URL, Date, AbortController,
+    URL, URLSearchParams, Date: { now: () => now }, AbortController,
+    ...(options.broadcast ? { BroadcastChannel: TestChannel, crypto: webcrypto } : {}),
     location: new URL('https://crm.example.test/crm/index.php?module=OutlookAddin'),
     document: { getElementById: element },
     window: { addEventListener: (name, callback) => { listeners[name] = callback; }, open(url) { opened.push(url); popup.closed = false; return options.blocked ? null : popup; } },
@@ -29,7 +37,12 @@ function setup(options = {}) {
   });
   const message = (data, overrides = {}) => listeners.message({ origin: 'https://crm.example.test', source: popup, data, ...overrides });
   const success = () => message({ type: 'berliCRM.contacts.connected', token: 'memory-only-token', expiresAt: Date.now() + 60000 });
-  return { root, element, popup, requests, opened, timers, message, success,
+  return { root, element, popup, requests, opened, timers, channels, message, success,
+    advance: milliseconds => { now += milliseconds; },
+    broadcast: (result, overrides = {}) => {
+      const id = new URLSearchParams(new URL(opened.at(-1)).hash.slice(1)).get('settingsChannel');
+      return channels.at(-1).onmessage({ origin: 'https://crm.example.test', data: { type: 'berliCRM.settings.auth', id, result, ...overrides } });
+    },
     start: () => button.events.click(), cancel: () => element('outlookCancelConnection').events.click() };
 }
 test('connection test uses the deployed auth page and only a minimal read-only Graph request', async () => {
@@ -113,4 +126,45 @@ test('unconfigured buttons and external callback URLs cannot initiate sign-in', 
   const external = setup({ authUrl: 'https://evil.example/outlook-addin/contacts-auth.html' }); external.start();
   assert.equal(external.opened.length, 0);
   assert.equal(external.element('outlookCheckConnection').disabled, false);
+});
+
+test('a COOP-isolated settings popup returns through its unique channel without a false closed-window result', async () => {
+  const env = setup({ broadcast: true }); env.start();
+  const address = new URL(env.opened[0]);
+  assert.equal(address.searchParams.get('source'), 'settings');
+  assert.match(new URLSearchParams(address.hash.slice(1)).get('settingsChannel'), /^[a-f0-9]{64}$/);
+  assert.equal(address.searchParams.has('settingsChannel'), false);
+  env.popup.closed = true; // COOP severs the proxy while authentication continues.
+  [...env.timers.values()][0]();
+  assert.equal(env.element('outlookCheckConnection').disabled, true);
+  assert.equal(env.element('outlookConnectionStatus').textContent, 'Signing in');
+  await env.broadcast({ type: 'berliCRM.contacts.connected', token: 'memory-only-token', expiresAt: Date.now() + 60000 });
+  assert.equal(env.requests.length, 1);
+  assert.equal(env.requests[0].init.method, 'GET');
+  assert.equal(env.element('outlookConnectionStatus').className, 'alert alert-success');
+  assert.equal(env.channels[0].sent[0].type, 'berliCRM.settings.auth.received');
+  assert.equal(env.channels[0].closed, true);
+});
+
+test('settings channels reject the wrong attempt and ignore replies after cancellation', async () => {
+  const env = setup({ broadcast: true }); env.start();
+  const result = { type: 'berliCRM.contacts.connected', token: 'temporary', expiresAt: Date.now() + 60000 };
+  await env.broadcast(result, { id: 'wrong-attempt' });
+  assert.equal(env.requests.length, 0);
+  const oldChannel = env.channels[0];
+  const oldReply = oldChannel.onmessage;
+  env.cancel(); env.start();
+  await oldReply({ origin: 'https://crm.example.test', data: { type: 'berliCRM.settings.auth',
+    id: oldChannel.name.split('.').at(-1), result } });
+  assert.equal(env.requests.length, 0);
+  assert.equal(env.channels[1].closed, false);
+  env.cancel();
+});
+
+test('a settings channel times out cleanly without relying on popup.closed', () => {
+  const env = setup({ broadcast: true }); env.start();
+  env.advance(300001); [...env.timers.values()][0]();
+  assert.equal(env.element('outlookConnectionStatus').textContent, 'No Microsoft response');
+  assert.equal(env.element('outlookCheckConnection').disabled, false);
+  assert.equal(env.channels[0].closed, true);
 });

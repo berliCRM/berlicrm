@@ -24,6 +24,7 @@ async function main() {
   const crmOrigin = 'http://localhost:' + port;
   const metadata = { ownerId: '19x3', propertyId: 'fixture', canCreate: true, fields: [] };
   let completed = false, geckodriver, sessionId;
+  let settingsHadNoOpener = false, settingsGraphReads = 0;
   const driver = async (method, route, body) => {
     const response = await fetch('http://127.0.0.1:' + controlPort + route, {
       method, headers: { 'Content-Type': 'application/json' }, ...(body ? { body: JSON.stringify(body) } : {}),
@@ -36,7 +37,56 @@ async function main() {
   const server = http.createServer(async (request, response) => {
     try {
       const url = new URL(request.url, crmOrigin);
+      const pagePath = url.pathname.replace(/^\/outlook-addin(?=\/)/, '');
       const send = (text, type = 'text/html') => { response.writeHead(200, { 'Content-Type': type + '; charset=utf-8' }); response.end(text); };
+      if (pagePath === '/settings') return send(`<!doctype html><div id="outlookConnectionCheck">
+        <button id="outlookCheckConnection">Check Microsoft connection</button><span id="outlookCancelConnection" hidden>Cancel</span>
+        <p id="outlookConnectionStatus" hidden></p></div><script>
+        Object.assign(document.getElementById('outlookConnectionCheck').dataset,${JSON.stringify({
+          authUrl: crmOrigin + '/outlook-addin/contacts-auth.html', language: 'en_us',
+          signingIn: 'Signing in', reading: 'Reading', success: 'Read access succeeded', failed: 'Failed:',
+          badReply: 'Invalid reply', blocked: 'Blocked', closed: 'Closed', cancelled: 'Cancelled', timedOut: 'Timeout',
+          denied: 'Denied', httpError: 'HTTP error',
+        })});
+        const nativeFetch=window.fetch.bind(window);window.fetch=(url,init)=>nativeFetch(
+          String(url).startsWith('https://graph.microsoft.com/')?'/settings-graph':url,init);
+        </script><script src="settings-connection.js"></script>`);
+      if (pagePath === '/settings-isolate') {
+        response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+        const callback = new URL(url.searchParams.get('returnUrl'), crmOrigin);
+        assert.equal(callback.origin, crmOrigin); assert.equal(callback.pathname, '/outlook-addin/contacts-auth.html');
+        callback.searchParams.set('settingsCallback', '1');
+        return send('<script>setTimeout(()=>location.replace(' + JSON.stringify(callback.href) + '),1000);</script>');
+      }
+      if (pagePath === '/settings-probe') { settingsHadNoOpener = url.searchParams.get('opener') === 'false'; return send('ok'); }
+      if (pagePath === '/settings-graph') {
+        assert.equal(request.method, 'GET');
+        assert.equal(request.headers.authorization, 'Bearer synthetic-settings-token');
+        settingsGraphReads++; return send(JSON.stringify({ value: [] }), 'application/json');
+      }
+      if (pagePath === '/settings-auth-fixture.js') {
+        const source = (await fs.readFile(path.join(root, 'contacts-auth-entry.js'), 'utf8')).replace(/^import .*;\r?\n/gm, '');
+        return send(`class PublicClientApplication {
+          async initialize(){} async clearCache(){}
+          async handleRedirectPromise(){
+            if(!new URLSearchParams(location.search).has('settingsCallback'))return null;
+            await fetch('/settings-probe?opener='+Boolean(window.opener));
+            return {accessToken:'synthetic-settings-token',account:{homeAccountId:'fixture',username:'fixture@example.test'},expiresOn:new Date(Date.now()+60000)};
+          }
+          async loginRedirect(){
+            const target=new URL(${JSON.stringify('http://127.0.0.1:' + port + '/settings-isolate')});
+            target.searchParams.set('returnUrl',location.href);location.replace(target.href);await new Promise(()=>{});
+          }
+        }
+        function broadcastResponseToMainFrame(){return Promise.resolve();}
+        ` + source, 'application/javascript');
+      }
+      if (pagePath === '/contacts-auth.html' && (url.searchParams.get('source') === 'settings' || url.searchParams.has('settingsCallback'))) {
+        const html = (await fs.readFile(path.join(root, 'contacts-auth.html'), 'utf8')).replace(
+          /<script src="assets\/contacts-auth.bundle.js[^>]*><\/script>/,
+          '<script src="settings-auth-fixture.js"></script>');
+        return send(html);
+      }
       if (url.pathname === '/outlook') return send('<iframe id="crm" style="width:700px;height:900px" src="' + crmOrigin + '/taskpane.html"></iframe>');
       if (url.pathname === '/taskpane.html') return send(`<!doctype html><a id="launch" href="contacts.html">Manage contacts</a>
         <script>var Office={onReady(){},context:{platform:'OfficeOnline'}};var BerliI18n={t:()=> 'Preparing'};
@@ -60,12 +110,13 @@ async function main() {
           await fetch('rest/outlook.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
             action:'completeContactsAuthRelay',flowId:relay.flowId,writeKey:relay.writeKey,payload})});window.close();
         })().catch(error=>document.body.textContent=error.message);</script>`);
-      if (url.pathname === '/rest/outlook.php') {
+      if (pagePath === '/rest/outlook.php') {
         let body = ''; for await (const bytes of request) body += bytes;
         const input = JSON.parse(body); let payload;
         if (input.action === 'getUserPreferences') payload = { language: 'de_de' };
         else if (input.action === 'contactTransfer') payload = metadata;
-        else if (input.action === 'getContactsMicrosoftConfig') payload = { configured: true, clientId: 'fixture', tenantId: 'fixture', redirectUri: crmOrigin + '/contacts-auth.html' };
+        else if (input.action === 'getContactsMicrosoftConfig') payload = { configured: true, clientId: 'fixture', tenantId: 'fixture',
+          redirectUri: crmOrigin + (url.pathname.startsWith('/outlook-addin/') ? '/outlook-addin' : '') + '/contacts-auth.html' };
         else if (input.action === 'beginContactsAuthRelay') {
           payload = { flowId: crypto.randomBytes(32).toString('hex'), writeKey: crypto.randomBytes(32).toString('hex'), expiresAt: Date.now() + 300000 };
           flows.set(payload.flowId, { ...payload });
@@ -78,8 +129,9 @@ async function main() {
         else throw new Error('Unexpected fixture API: ' + input.action);
         return send(JSON.stringify({ success: true, payload }), 'application/json');
       }
-      const name = url.pathname.slice(1);
-      if (!['taskpane.js', 'contacts.js', 'contacts.css', 'language.js', 'contact-model.js', 'contact-graph.js', 'contacts-auth-relay.js'].includes(name)) {
+      const name = pagePath.slice(1);
+      if (!['taskpane.js', 'contacts.js', 'contacts.css', 'language.js', 'contact-model.js', 'contact-graph.js', 'contacts-auth-relay.js',
+        'settings-connection.js', 'contacts-auth.css'].includes(name)) {
         response.writeHead(404); return response.end();
       }
       return send(await fs.readFile(path.join(root, name), 'utf8'), name.endsWith('.css') ? 'text/css' : 'application/javascript');
@@ -125,6 +177,20 @@ async function main() {
     const windows = await driver('GET', sessionRoute + '/window/handles');
     assert.equal(windows.length, 1, 'No unused authentication window remains');
     process.stdout.write('Firefox ' + browserVersion + ': popup blocking enabled; trusted contacts click, delayed Office readiness, encrypted popup handover and connection passed. Synthetic responses; no Microsoft account used.\n');
+    await driver('POST', sessionRoute + '/url', { url: crmOrigin + '/settings' });
+    const check = await driver('POST', sessionRoute + '/element', { using: 'css selector', value: '#outlookCheckConnection' });
+    await driver('POST', sessionRoute + '/element/' + check['element-6066-11e4-a52e-4f735466cecf'] + '/click', {});
+    let settingsStatus;
+    for (let attempt = 0; attempt < 100; attempt++) {
+      settingsStatus = await evaluate("return document.getElementById('outlookConnectionStatus').textContent;");
+      if (settingsStatus === 'Read access succeeded') break;
+      await delay(100);
+    }
+    assert.equal(settingsHadNoOpener, true, 'COOP must actually sever window.opener during this test');
+    assert.equal(settingsGraphReads, 1, 'The connection check only reads once');
+    assert.equal(settingsStatus, 'Read access succeeded');
+    assert.equal((await driver('GET', sessionRoute + '/window/handles')).length, 1);
+    process.stdout.write('Firefox CRM settings: cross-origin COOP redirect, missing opener, acknowledged channel reply and read-only Graph check passed with synthetic responses.\n');
   } finally {
     if (sessionId) try { await driver('DELETE', '/session/' + sessionId); } catch {}
     if (geckodriver && geckodriver.exitCode === null) { geckodriver.kill(); await Promise.race([once(geckodriver, 'exit'), delay(3000)]); }

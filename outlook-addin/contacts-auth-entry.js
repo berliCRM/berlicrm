@@ -17,6 +17,10 @@ async function main() {
   const channelKey = 'berliCRM.contacts.authChannel';
   const modeKey = 'berliCRM.contacts.authMode';
   const hintKey = 'berliCRM.contacts.authHint';
+  const sourceKey = 'berliCRM.contacts.authSource';
+  const settingsChannelKey = 'berliCRM.contacts.settingsChannel';
+  let authSource = 'contacts';
+  let settingsChannelId = null;
   let channel;
   let officeReady;
   let relay = null;
@@ -68,11 +72,29 @@ async function main() {
     restart.searchParams.set('start', '1');
     restart.searchParams.set('channel', channel);
     restart.searchParams.set('language', globalThis.BerliI18n.language);
+    if (authSource === 'settings') {
+      restart.searchParams.set('source', 'settings');
+      if (settingsChannelId) restart.hash = new URLSearchParams({ settingsChannel: settingsChannelId }).toString();
+    }
     const hostInfo = params.get('_host_Info');
     if (hostInfo) restart.searchParams.set('_host_Info', hostInfo);
     location.replace(restart.href);
   });
   const send = async message => {
+    if (channel === 'popup' && settingsChannelId && typeof globalThis.BroadcastChannel === 'function') {
+      const reply = new BroadcastChannel('berliCRM.settings.contacts.' + settingsChannelId);
+      try {
+        await step(globalThis.BerliI18n.t('COMPLETING_MICROSOFT_SIGN_IN'), () => new Promise(resolve => {
+          reply.onmessage = event => {
+            if ((!event.origin || event.origin === location.origin) && event.data?.type === 'berliCRM.settings.auth.received'
+                && event.data.id === settingsChannelId) resolve();
+          };
+          reply.postMessage({ type: 'berliCRM.settings.auth', id: settingsChannelId, result: message });
+        }));
+        sessionStorage.removeItem(settingsChannelKey); sessionStorage.removeItem(sourceKey);
+        window.close(); return;
+      } finally { reply.close(); }
+    }
     if (channel === 'popup' && relay) {
       await step(globalThis.BerliI18n.t('COMPLETING_MICROSOFT_SIGN_IN'), async () => {
         const payload = await BerliAuthRelay.encrypt(relay, message);
@@ -100,9 +122,29 @@ async function main() {
       window.close();
       return;
     }
-    throw new Error(globalThis.BerliI18n.t("PLEASE_START_MICROSOFT_SIGN_IN_FROM_THE_BERLICRM_CONTACTS_VIEW"));
+    throw new Error(globalThis.BerliI18n.t(authSource === 'settings' ? 'SETTINGS_MICROSOFT_RETURN_HELP'
+      : 'PLEASE_START_MICROSOFT_SIGN_IN_FROM_THE_BERLICRM_CONTACTS_VIEW'));
   };
   try {
+    if (params.get('start') === '1') {
+      sessionStorage.setItem(sourceKey, params.get('source') === 'settings' ? 'settings' : 'contacts');
+      // MSAL 5 may return to the original start=1 URL without its removed fragment.
+      // Retain the in-flight settings channel until receipt; a new fragment replaces it.
+      if (params.get('source') !== 'settings') sessionStorage.removeItem(settingsChannelKey);
+      if (params.get('source') === 'settings') {
+        sessionStorage.removeItem('berliCRM.contacts.authRelay');
+        const id = new URLSearchParams(location.hash.slice(1)).get('settingsChannel');
+        if (id && /^[a-f0-9]{64}$/.test(id)) {
+          sessionStorage.setItem(settingsChannelKey, id);
+          // Keep the one-use channel name out of OAuth navigation and HTTP requests.
+          try { history.replaceState(null, '', location.pathname + location.search); } catch { location.hash = ''; }
+        }
+      }
+    }
+    authSource = sessionStorage.getItem(sourceKey) || 'contacts';
+    settingsChannelId = authSource === 'settings' ? sessionStorage.getItem(settingsChannelKey) : null;
+    if (settingsChannelId && !/^[a-f0-9]{64}$/.test(settingsChannelId)) settingsChannelId = null;
+    if (authSource === 'settings') document.getElementById('authReturnHelp').textContent = globalThis.BerliI18n.t('SETTINGS_MICROSOFT_RETURN_HELP');
     if (typeof BerliAuthRelay !== 'undefined') relay = BerliAuthRelay.readContext(location, sessionStorage);
     if (params.get('start') === '1') {
       sessionStorage.setItem(channelKey, params.get('channel') || 'popup');
@@ -158,6 +200,7 @@ async function main() {
       sessionStorage.removeItem(channelKey);
       sessionStorage.removeItem(modeKey);
       sessionStorage.removeItem(hintKey);
+      if (authSource !== 'settings') sessionStorage.removeItem(sourceKey);
       await send(message);
       showState('success', globalThis.BerliI18n.t("MICROSOFT_ACCOUNT_CONNECTED_2"), globalThis.BerliI18n.t("SIGN_IN_WAS_SUCCESSFUL_YOU_CAN_CLOSE_THIS_WINDOW"));
     } else if (params.get('start') === '1') {
@@ -174,7 +217,8 @@ async function main() {
     const denied = /\baccess_denied\b/i.test(error.errorCode || error.message || '');
     showState('error', denied ? globalThis.BerliI18n.t("ACCESS_NOT_GRANTED") : globalThis.BerliI18n.t("SIGN_IN_NOT_COMPLETED"),
       denied ? globalThis.BerliI18n.t("MICROSOFT_DID_NOT_GRANT_ACCESS_TO_YOUR_OUTLOOK_CONTACTS_SIGN_IN_MAY_HAVE")
-        : globalThis.BerliI18n.t("COULD_NOT_CONNECT_TO_YOUR_MICROSOFT_ACCOUNT_PLEASE_TRY_AGAIN_OR_START_SI"),
+        : globalThis.BerliI18n.t(authSource === 'settings' ? 'SETTINGS_MICROSOFT_CONNECTION_FAILED'
+          : 'COULD_NOT_CONNECT_TO_YOUR_MICROSOFT_ACCOUNT_PLEASE_TRY_AGAIN_OR_START_SI'),
       error.message || globalThis.BerliI18n.t("UNKNOWN_SIGN_IN_ERROR"));
     // A failed Office handshake must not replace the original error on screen.
     try { await send({ type: 'berliCRM.contacts.authError', message: error.message }); } catch (sendError) { /* Error remains visible in the dialog. */ }

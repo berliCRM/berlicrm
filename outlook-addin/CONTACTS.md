@@ -119,8 +119,23 @@ werden als Fehler beziehungsweise Abbruch angezeigt. Danach kann die Prüfung
 erneut gestartet werden; **Prüfung abbrechen** beendet einen laufenden Versuch.
 Die Prüfung ist kein Test der separaten CRM-Benutzeranmeldung.
 
+Die Korrektur mit Cache-Kennung **20261111.7** behält die Add-in-Version
+**1.1.0.2** bei. Die Rückmeldung aus dem Anmeldefenster erfolgt über einen nur
+für diesen Prüfversuch erzeugten Browserkanal derselben CRM-Origin. Eine
+Empfangsbestätigung stellt sicher, dass das Ergebnis vor dem Schließen beim
+Einstellungsfenster angekommen ist. Ein durch Microsofts COOP-Isolation getrenntes
+`window.opener` oder ein irreführendes `popup.closed` beendet die Prüfung damit
+nicht vorzeitig. Nach fünf Minuten ohne Antwort oder durch **Prüfung abbrechen**
+wird der Versuch freigegeben. Tokens werden dafür weder im CRM noch dauerhaft
+im Browser gespeichert. Meldungen und Rückkehrhinweise nennen die CRM-Einstellungen.
+Auch beim MSAL-Rücksprung auf die ursprüngliche Startadresse bleibt die Kennung
+bis zur bestätigten Rückgabe erhalten. **Prüfung abbrechen** hat einen festen
+Abstand zum vorherigen Button.
+
 Für dieses Update `outlook-addin/settings-connection.js`, die Outlook-Settings-
 Vorlage, das Modulmodell und die beiden Settings-Sprachdateien gemeinsam hochladen.
+Außerdem `contacts-auth.html`, `assets/contacts-auth.bundle.js`, dessen `.LEGAL.txt`
+und die Outlook-Sprachdateien einschließlich `language.js` gemeinsam aktualisieren.
 Die vorhandenen IDs bleiben in der Konfigurationsdatei erhalten. Ein erneuter
 `db_update.php`-Lauf ist bei bereits vorhandenem Outlook-Settings-Menü nicht nötig.
 

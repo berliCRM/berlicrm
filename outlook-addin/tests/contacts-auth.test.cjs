@@ -35,6 +35,14 @@ function setup(options = {}) {
   location.replace = address => events.push(['navigate', address]);
   const scripts = [];
   const context = localizedContext({ PublicClientApplication, URL, URLSearchParams, location,
+    ...(options.broadcast ? { BroadcastChannel: class {
+      constructor(name) { events.push(['channel', name]); }
+      postMessage(message) {
+        events.push(['channelSend', message]);
+        queueMicrotask(() => this.onmessage?.({ origin, data: { type: 'berliCRM.settings.auth.received', id: message.id } }));
+      }
+      close() { events.push(['channelClose']); }
+    } } : {}),
     setTimeout: options.fakeTimers ? callback => { timers.set(++timerId, callback); return timerId; } : setTimeout,
     clearTimeout: options.fakeTimers ? id => timers.delete(id) : clearTimeout,
     broadcastResponseToMainFrame: async () => { events.push(['bridge']); },
@@ -138,6 +146,53 @@ test('redirect clears token cache before delivering to exact Office parent origi
 test('browser popup callback is addressed only to same-origin opener', async () => {
   const env = setup({ savedChannel: 'popup' }); await env.run();
   assert.equal(env.events.at(-1)[0], 'popup'); assert.equal(env.events.at(-1)[2], 'https://crm.example.test');
+});
+
+test('the CRM settings callback succeeds without window.opener and waits for its channel receipt', async () => {
+  const env = setup({ savedChannel: 'popup', noOpener: true, omitOffice: true, broadcast: true });
+  env.stored.set('berliCRM.contacts.authSource', 'settings');
+  env.stored.set('berliCRM.contacts.settingsChannel', 'a'.repeat(64));
+  await env.run();
+  assert.equal(env.events.find(event => event[0] === 'channel')[1], 'berliCRM.settings.contacts.' + 'a'.repeat(64));
+  assert.equal(env.events.find(event => event[0] === 'channelSend')[1].result.token, 'token');
+  assert.equal(env.context.window.closed, true);
+  assert.equal(env.events.at(-1)[0], 'channelClose');
+  assert.equal(env.stored.has('berliCRM.contacts.settingsChannel'), false);
+  assert.equal(env.stored.has('berliCRM.contacts.authSource'), false);
+  assert.equal(env.element('authCard').dataset.state, 'success');
+});
+
+test('MSAL returning to the original settings start URL retains the pending reply channel', async () => {
+  const env = setup({ start: true, startChannel: 'popup', noOpener: true, omitOffice: true, broadcast: true,
+    redirect: async () => ({ accessToken: 'returned-token', account: { homeAccountId: 'account', username: 'user@example.test' },
+      expiresOn: new Date(Date.now() + 60000) }),
+  });
+  env.location.searchParams.set('source', 'settings');
+  env.stored.set('berliCRM.contacts.authSource', 'settings');
+  env.stored.set('berliCRM.contacts.settingsChannel', 'b'.repeat(64));
+  await env.run();
+  assert.equal(env.element('authCard').dataset.state, 'success');
+  assert.equal(env.events.find(event => event[0] === 'channelSend')[1].result.token, 'returned-token');
+  assert.equal(env.events.some(event => event[0] === 'login'), false);
+});
+
+test('settings errors refer to the CRM connection check rather than Word or the contacts view', async () => {
+  const env = setup({ savedChannel: 'popup', noOpener: true, error: new Error('login_required') });
+  env.stored.set('berliCRM.contacts.authSource', 'settings');
+  await env.run();
+  assert.match(env.status.textContent, /CRM-Einstellungen/);
+  assert.match(env.element('authReturnHelp').textContent, /Microsoft-Verbindung prüfen/);
+  assert.doesNotMatch(env.status.textContent + env.element('authReturnHelp').textContent, /Word|Kontakteansicht/);
+});
+
+test('a new contacts sign-in clears stale settings channel state', async () => {
+  const env = setup({ start: true, startChannel: 'popup' });
+  env.stored.set('berliCRM.contacts.authSource', 'settings');
+  env.stored.set('berliCRM.contacts.settingsChannel', 'a'.repeat(64));
+  await env.run();
+  assert.equal(env.stored.get('berliCRM.contacts.authSource'), 'contacts');
+  assert.equal(env.stored.has('berliCRM.contacts.settingsChannel'), false);
+  assert.equal(env.events.some(event => event[0] === 'login'), true);
 });
 
 test('a callback without an opener returns only ciphertext through its saved one-time relay', async () => {

@@ -9,6 +9,7 @@
   const labels = root.dataset;
   const unavailable = button.disabled;
   let popup = null, poll = null, controller = null, attempt = 0;
+  let replyChannel = null, replyDeadline = 0;
 
   function show(message, kind) {
     status.textContent = message;
@@ -20,6 +21,7 @@
     const oldPopup = popup;
     popup = null;
     clearInterval(poll); poll = null;
+    if (replyChannel) { replyChannel.close(); replyChannel = null; }
     if (controller) { controller.abort(); controller = null; }
     button.disabled = unavailable;
     cancel.hidden = true;
@@ -37,23 +39,42 @@
       if (address.origin !== location.origin || !address.pathname.endsWith('/outlook-addin/contacts-auth.html')) throw new Error(labels.badReply);
       address.searchParams.set('start', '1');
       address.searchParams.set('channel', 'popup');
+      address.searchParams.set('source', 'settings');
+      address.searchParams.set('v', '20261111.7');
       address.searchParams.set('language', labels.language || document.documentElement?.lang || 'en_us');
+      if (typeof globalThis.BroadcastChannel === 'function' && globalThis.crypto?.getRandomValues) {
+        const id = Array.from(globalThis.crypto.getRandomValues(new Uint8Array(32)), value => value.toString(16).padStart(2, '0')).join('');
+        const channel = new BroadcastChannel('berliCRM.settings.contacts.' + id);
+        replyChannel = channel; replyDeadline = Date.now() + 300000;
+        address.hash = new URLSearchParams({ settingsChannel: id }).toString();
+        channel.onmessage = async event => {
+          if (current !== attempt || replyChannel !== channel || event.origin && event.origin !== location.origin
+              || event.data?.type !== 'berliCRM.settings.auth' || event.data.id !== id) return;
+          channel.postMessage({ type: 'berliCRM.settings.auth.received', id });
+          await receive(event.data.result);
+        };
+      }
       // Open synchronously from the user's click, before making asynchronous requests.
       popup = window.open(address.href, '_blank', 'width=640,height=780');
       if (!popup) throw new Error(labels.blocked);
       poll = setInterval(() => {
         if (current !== attempt) return;
+        if (replyChannel) {
+          // COOP can make an active Microsoft window report closed. Wait for its reply/cancel/deadline.
+          if (Date.now() >= replyDeadline) finish(labels.timedOut || labels.failed, 'error');
+          return;
+        }
         try { if (!popup || popup.closed) finish(labels.closed, 'info'); }
         catch (error) { finish(labels.closed, 'info'); }
       }, 600);
     } catch (error) { finish(labels.failed + ' ' + error.message, 'error'); }
   });
   cancel.addEventListener('click', () => finish(labels.cancelled, 'info'));
-  window.addEventListener('message', async event => {
-    if (!popup || event.source !== popup || event.origin !== location.origin) return;
+  async function receive(data) {
+    if (!popup) return;
     const current = attempt;
     try {
-      const message = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+      const message = typeof data === 'string' ? JSON.parse(data) : data;
       if (message?.type === 'berliCRM.contacts.authError') throw new Error(message.message || labels.badReply);
       if (message?.type !== 'berliCRM.contacts.connected' || typeof message.token !== 'string' || !message.token
           || !Number.isFinite(message.expiresAt) || message.expiresAt <= Date.now()) throw new Error(labels.badReply);
@@ -76,5 +97,9 @@
     } catch (error) {
       if (current === attempt) finish(labels.failed + ' ' + error.message, 'error');
     }
+  }
+  window.addEventListener('message', async event => {
+    if (!popup || event.source !== popup || event.origin !== location.origin) return;
+    await receive(event.data);
   });
 })();

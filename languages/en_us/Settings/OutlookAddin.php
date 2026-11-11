@@ -5,6 +5,7 @@
  * @package berliCRM.OfficeAddins
  */
 $languageStrings = array(
+    'LBL_CHECK_TIMEOUT' => 'Microsoft sign-in did not respond within five minutes. Please start the connection check again.',
     'LBL_OUTLOOK_ADDIN' => 'Outlook Add-in',
     'LBL_INTRO' => 'Set up the berliCRM Outlook add-in and generate the manifest and server configuration for this CRM installation.',
     'LBL_REFRESH' => 'Check again',

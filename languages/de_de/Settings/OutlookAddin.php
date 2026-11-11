@@ -5,6 +5,7 @@
  * @package berliCRM.OfficeAddins
  */
 $languageStrings = array(
+    'LBL_CHECK_TIMEOUT' => 'Die Microsoft-Anmeldung hat innerhalb von fünf Minuten keine Rückmeldung geliefert. Bitte die Prüfung erneut starten.',
     'LBL_OUTLOOK_ADDIN' => 'Outlook Add-in',
     'LBL_INTRO' => 'Richten Sie das berliCRM Outlook Add-in ein und erstellen Sie das Manifest und die Serverkonfiguration für diese CRM-Installation.',
     'LBL_REFRESH' => 'Erneut prüfen',

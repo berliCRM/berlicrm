@@ -5,6 +5,8 @@
  * @package berliCRM.OfficeAddins.Languages
  */
 return array(
+    'SETTINGS_MICROSOFT_RETURN_HELP' => 'Schließe dieses Fenster und wähle in den CRM-Einstellungen erneut „Microsoft-Verbindung prüfen“.',
+    'SETTINGS_MICROSOFT_CONNECTION_FAILED' => 'Die Verbindung mit deinem Microsoft-Konto konnte nicht hergestellt werden. Bitte starte die Prüfung in den CRM-Einstellungen erneut.',
     'CONTACT_CRM_SESSION_EXPIRED' => 'Deine CRM-Anmeldung ist abgelaufen, zum Beispiel nach längerer Inaktivität. Bitte melde dich oben erneut mit deinem CRM-Benutzernamen und Access Key an.',
     'CONTACT_MICROSOFT_SESSION_EXPIRED' => 'Deine Microsoft-Verbindung ist abgelaufen oder nicht mehr gültig. Klicke auf „Mit Microsoft verbinden“, um sie zu erneuern. Deine CRM-Anmeldung bleibt bestehen.',
     'MICROSOFT_SIGN_IN_WINDOW_ERROR' => 'Microsoft-Anmeldefenster: {0}',
@@ -413,7 +415,7 @@ return array(
     'YOUR_CRM_SESSION_HAS_EXPIRED_PLEASE_SIGN_IN_AGAIN' => 'Die CRM-Anmeldung ist abgelaufen. Bitte erneut anmelden.',
     'YOUR_MICROSOFT_SIGN_IN_HAS_EXPIRED_PLEASE_CONNECT_AGAIN' => 'Die Microsoft-Anmeldung ist abgelaufen. Bitte erneut verbinden.',
     'YOUR_PREFERRED_CRM_DATE_FORMAT_IS_NOT_SUPPORTED' => 'Das persönliche CRM-Datumsformat wird nicht unterstützt.',
-    'YOU_CAN_ALSO_CLOSE_THIS_WINDOW_AND_SELECT' => 'Du kannst dieses Fenster auch schließen und in Word erneut',
+    'YOU_CAN_ALSO_CLOSE_THIS_WINDOW_AND_SELECT' => 'Du kannst dieses Fenster auch schließen und in der berliCRM-Kontakteansicht erneut',
     'YOU_DO_NOT_HAVE_CRM_PERMISSION_TO_CREATE_EMAILS' => 'Du hast im CRM keine Berechtigung zum Anlegen von E-Mails.',
     'YOU_DO_NOT_HAVE_CRM_PERMISSION_TO_CREATE_OR_EDIT_THIS_APPOINTMENT' => 'Du hast im CRM keine Berechtigung, diesen Termin anzulegen oder zu bearbeiten.',
     'YOU_DO_NOT_HAVE_PERMISSION_TO_CREATE_CRM_CONTACTS' => ' Du hast keine Berechtigung zum Anlegen von CRM-Kontakten.',

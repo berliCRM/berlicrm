@@ -35,9 +35,10 @@
                     data-bad-reply="{vtranslate('LBL_CHECK_BAD_REPLY', $QUALIFIED_MODULE)|escape:'html'}"
                     data-blocked="{vtranslate('LBL_CHECK_BLOCKED', $QUALIFIED_MODULE)|escape:'html'}"
                     data-closed="{vtranslate('LBL_CHECK_CLOSED', $QUALIFIED_MODULE)|escape:'html'}"
+                    data-timed-out="{vtranslate('LBL_CHECK_TIMEOUT', $QUALIFIED_MODULE)|escape:'html'}"
                     data-cancelled="{vtranslate('LBL_CHECK_CANCELLED', $QUALIFIED_MODULE)|escape:'html'}">
                     <button id="outlookCheckConnection" type="button" class="btn" {if !$CONFIGURED || !$ADDIN_URLS}disabled="disabled"{/if}><i class="icon-refresh" aria-hidden="true"></i> {vtranslate('LBL_CHECK_CONNECTION', $QUALIFIED_MODULE)}</button>
-                    <span id="outlookCancelConnection" hidden="hidden"><button type="button" class="btn">{vtranslate('LBL_CHECK_CANCEL', $QUALIFIED_MODULE)}</button></span>
+                    <span id="outlookCancelConnection" hidden="hidden" style="margin-left:8px"><button type="button" class="btn">{vtranslate('LBL_CHECK_CANCEL', $QUALIFIED_MODULE)}</button></span>
                     <p class="muted marginTop10px">{vtranslate('LBL_CHECK_HINT', $QUALIFIED_MODULE)}</p>
                     <p id="outlookConnectionStatus" role="status" aria-live="polite" hidden="hidden"></p>
                 </div>
@@ -101,5 +102,5 @@
         <p>{vtranslate('LBL_PINNING_HINT', $QUALIFIED_MODULE)}</p>
     </div>
 </div>
-<script src="outlook-addin/settings-connection.js?v=20261102.12"></script>
+<script src="outlook-addin/settings-connection.js?v=20261111.7"></script>
 {/strip}
