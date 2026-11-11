@@ -2,14 +2,93 @@
 globalThis.BerliI18n.initialize();
 const CONTACT_API = new URL('rest/outlook.php', location.href).href;
 const CONTACT_SESSION_KEY = 'berliCRM.outlook.session';
+const CONTACT_MICROSOFT_SESSION_KEY = 'berliCRM.outlook.contacts.microsoft:' + CONTACT_API;
 const contactState = { session: null, metadata: null, config: null, graph: null, client: null,
-  crmRows: [], outlookRows: [], nextLink: '', pages: new Set(), busy: false, generation: 0, authPending: false, showMicrosoftLogin: false };
+  crmRows: [], outlookRows: [], nextLink: '', pages: new Set(), busy: false, generation: 0, authPending: false, showMicrosoftLogin: false, selectMicrosoftAccount: false };
 let contactDialog = null;
 let contactPopup = null;
 let contactPopupTimer = null;
+let contactRelay = null;
+let contactOfficeInfo = null;
+let contactPreparedPopup = null;
+let contactPreparedWeb = false;
+const contactLaunchParams = new URLSearchParams(location.search);
+const contactPreparedAt = Number(contactLaunchParams.get('preparedAuth'));
+if (contactPreparedAt > 0 && Date.now() - contactPreparedAt >= 0 && Date.now() - contactPreparedAt < 120000
+    && contactLaunchParams.get('outlookPlatform') === 'OfficeOnline') {
+  contactPreparedWeb = true;
+  try { contactPreparedPopup = window.open('', 'berliCRMContactsAuth'); } catch { /* The manual connection remains available. */ }
+}
 const contactOfficeReady = typeof Office !== 'undefined' ? Office.onReady() : Promise.resolve({ host: null });
-contactOfficeReady.then(() => { if (!contactState.session) globalThis.BerliI18n.initialize(); });
+contactOfficeReady.then(info => {
+  contactOfficeInfo = info;
+  if (!contactState.session) globalThis.BerliI18n.initialize();
+});
 const contactElement = id => document.getElementById(id);
+
+function contactClosePreparedPopup() {
+  const popup = contactPreparedPopup; contactPreparedPopup = null;
+  if (popup) try { if (!popup.closed) popup.close(); } catch { /* It may already have been closed. */ }
+}
+function contactPlatform() {
+  return contactOfficeInfo?.platform || (typeof Office !== 'undefined' ? Office.context?.platform : null)
+    || (contactPreparedWeb ? 'OfficeOnline' : null);
+}
+
+function contactMicrosoftScope() {
+  const { session, config } = contactState;
+  return session && config ? JSON.stringify([CONTACT_API, session.sessionName, session.userId,
+    config.clientId, config.tenantId, config.redirectUri]) : null;
+}
+function contactMicrosoftHintKey() {
+  const { session, config } = contactState;
+  return session && config ? 'berliCRM.outlook.contacts.account:' + JSON.stringify([CONTACT_API,
+    session.userId, session.username, config.clientId, config.tenantId]) : null;
+}
+function contactForgetMicrosoft(forgetHint = false) {
+  try { sessionStorage.removeItem(CONTACT_MICROSOFT_SESSION_KEY); } catch { /* Storage may be unavailable in embedded views. */ }
+  const hintKey = contactMicrosoftHintKey();
+  if (forgetHint && hintKey) try { localStorage.removeItem(hintKey); } catch { /* The current view still disconnects. */ }
+}
+function contactValidMicrosoft(message) {
+  return message?.type === 'berliCRM.contacts.connected' && typeof message.token === 'string' && Boolean(message.token)
+    && typeof message.account === 'string' && Boolean(message.account) && typeof message.username === 'string'
+    && Number.isFinite(message.expiresAt) && message.expiresAt > Date.now() + 30000;
+}
+function contactCachedMicrosoft() {
+  try {
+    const cached = JSON.parse(sessionStorage.getItem(CONTACT_MICROSOFT_SESSION_KEY));
+    if (cached && cached.scope === contactMicrosoftScope() && contactValidMicrosoft(cached.connection)) return cached.connection;
+    contactForgetMicrosoft();
+  } catch { contactForgetMicrosoft(); }
+  return null;
+}
+function contactRememberMicrosoft(message) {
+  const scope = contactMicrosoftScope();
+  if (!scope) return;
+  // Only the access token lives in this tab's session; never store it in localStorage or the CRM.
+  const connection = { type: message.type, token: message.token, account: message.account,
+    username: message.username, expiresAt: message.expiresAt };
+  try { sessionStorage.setItem(CONTACT_MICROSOFT_SESSION_KEY, JSON.stringify({ scope, connection })); } catch { /* Keep the working in-memory connection. */ }
+  const hintKey = contactMicrosoftHintKey();
+  if (hintKey && message.username) try { localStorage.setItem(hintKey, message.username); } catch { /* A hint is optional. */ }
+}
+function contactMicrosoftLoginHint() {
+  try {
+    const hintKey = contactMicrosoftHintKey();
+    const saved = hintKey && localStorage.getItem(hintKey);
+    if (saved) return saved;
+  } catch { /* Fall back to the available Outlook context. */ }
+  try { return typeof Office !== 'undefined' ? Office.context?.mailbox?.userProfile?.emailAddress || '' : ''; }
+  catch { return ''; }
+}
+function contactAutomaticErrorText(error) {
+  const parts = [];
+  for (const value of [error?.errorCode, error?.subError, typeof error === 'string' ? error : error?.message]) {
+    if (typeof value === 'string' && value.trim() && !parts.some(part => part.includes(value.trim()))) parts.push(value.trim());
+  }
+  return parts.join('\n') || globalThis.BerliI18n.t('UNKNOWN_SIGN_IN_ERROR');
+}
 
 async function contactApi(action, data = {}, session = contactState.session) {
   const response = await fetch(CONTACT_API, { method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -23,13 +102,18 @@ function contactError(error) {
     contactReset(globalThis.BerliI18n.t("YOUR_CRM_SESSION_HAS_EXPIRED_PLEASE_SIGN_IN_AGAIN"));
     return;
   }
-  if (error instanceof BerliContactGraph.GraphError && error.status === 401) contactDisconnect(globalThis.BerliI18n.t("YOUR_MICROSOFT_SIGN_IN_HAS_EXPIRED_PLEASE_CONNECT_AGAIN"));
+  if (error instanceof BerliContactGraph.GraphError && error.status === 401) {
+    contactForgetMicrosoft();
+    contactDisconnect(globalThis.BerliI18n.t("YOUR_MICROSOFT_SIGN_IN_HAS_EXPIRED_PLEASE_CONNECT_AGAIN"));
+  }
   contactElement("contactTransferStatus").textContent = error.message;
 }
 function contactControls() {
   const state = contactState;
   const locked = state.busy || state.authPending;
   contactElement('contactLogout').disabled = locked;
+  contactElement('contactRetry').disabled = locked;
+  contactElement('contactCancelAuth').hidden = !contactRelay;
   contactElement('contactConnect').disabled = locked || !state.config?.configured;
   contactElement('contactMicrosoftLogin').hidden = !state.showMicrosoftLogin || Boolean(state.graph);
   contactElement('contactDisconnect').hidden = !state.graph;
@@ -44,6 +128,11 @@ function contactControls() {
   for (const row of [...state.crmRows, ...state.outlookRows]) row.checkbox.disabled = locked || row.invalid || row.done;
 }
 function contactAuthClose() {
+  const relay = contactRelay; contactRelay = null;
+  if (relay) {
+    clearTimeout(relay.timer);
+    if (relay.flowId) contactApi('closeContactsAuthRelay', { flowId: relay.flowId }, relay.session).catch(() => {});
+  }
   if (contactDialog) { const dialog = contactDialog; contactDialog = null; dialog.close(); }
   if (contactPopup && !contactPopup.closed) contactPopup.close();
   contactPopup = null;
@@ -51,6 +140,9 @@ function contactAuthClose() {
   contactState.authPending = false;
 }
 function contactDisconnect(message = globalThis.BerliI18n.t("MICROSOFT_ACCOUNT_IS_NOT_CONNECTED")) {
+  contactElement('contactAutoDetails').hidden = true;
+  contactElement('contactAutoDetails').open = false;
+  contactElement('contactAutoError').textContent = '';
   contactState.showMicrosoftLogin = true;
   contactState.graph = null; contactState.client = null;
   contactState.outlookRows = []; contactState.nextLink = ''; contactState.pages.clear();
@@ -63,7 +155,10 @@ function contactDisconnect(message = globalThis.BerliI18n.t("MICROSOFT_ACCOUNT_I
 function contactReset(message = globalThis.BerliI18n.t("PLEASE_SIGN_IN_TO_CRM"), clearStored = true) {
   contactState.generation++;
   contactAuthClose();
+  contactClosePreparedPopup();
+  contactForgetMicrosoft(true);
   contactState.session = null; contactState.metadata = null; contactState.config = null;
+  contactState.selectMicrosoftAccount = false;
   contactState.crmRows = []; contactState.busy = false;
   if (clearStored) try { localStorage.removeItem(CONTACT_SESSION_KEY); } catch (error) { /* Reset still applies in memory. */ }
   contactElement('contactCrmResults').replaceChildren();
@@ -71,16 +166,23 @@ function contactReset(message = globalThis.BerliI18n.t("PLEASE_SIGN_IN_TO_CRM"),
   contactElement('contactWorkspace').hidden = true;
   contactElement('contactLoginForm').hidden = false;
   contactElement('contactLogout').hidden = true;
+  contactElement('contactRetry').hidden = true;
   contactElement("contactLoginStatus").textContent = message;
   contactElement('contactAccessKey').value = '';
 }
 async function contactPrepare(session) {
   const generation = ++contactState.generation;
   contactState.session = session;
+  contactElement('contactLoginForm').hidden = true;
+  contactElement('contactLogout').hidden = false;
+  contactElement('contactRetry').hidden = true;
   contactElement("contactLoginStatus").textContent = globalThis.BerliI18n.t("CHECKING_CRM_SIGN_IN");
   try {
     const preferences = await contactApi('getUserPreferences', {}, session);
     if (generation !== contactState.generation) return;
+    if (!preferences || typeof preferences.language !== 'string' || !preferences.language) {
+      throw new Error(globalThis.BerliI18n.t("INVALID_CRM_RESPONSE"));
+    }
     globalThis.BerliI18n.setLanguage(preferences.language);
     const metadata = await contactApi('contactTransfer', { transfer: { mode: 'describe' } }, session);
     if (generation !== contactState.generation) return;
@@ -100,8 +202,10 @@ async function contactPrepare(session) {
       contactElement("contactMicrosoftStatus").textContent = config.configured ? globalThis.BerliI18n.t("MICROSOFT_ACCOUNT_IS_NOT_CONNECTED")
         : globalThis.BerliI18n.t("THE_MICROSOFT_CONTACTS_CONNECTION_STILL_NEEDS_TO_BE_CONFIGURED_CLIENT_ID");
       if (config.configured) await contactConnectAutomatically(generation);
+      else contactClosePreparedPopup();
     } catch (error) {
       if (generation === contactState.generation) {
+        contactClosePreparedPopup();
         contactState.showMicrosoftLogin = true;
         contactElement("contactMicrosoftStatus").textContent = error.message;
       }
@@ -109,27 +213,32 @@ async function contactPrepare(session) {
     contactControls();
   } catch (error) {
     if (generation !== contactState.generation) return;
+    contactClosePreparedPopup();
     if (BerliContactModel.isSessionError(error.message)) contactReset(globalThis.BerliI18n.t("YOUR_CRM_SESSION_HAS_EXPIRED_PLEASE_SIGN_IN_AGAIN"));
     else {
-      contactState.session = null;
+      contactState.metadata = null;
+      contactElement('contactWorkspace').hidden = true;
+      contactElement('contactRetry').hidden = false;
       contactElement("contactLoginStatus").textContent = globalThis.BerliI18n.t("COULD_NOT_PREPARE_CONTACTS") + error.message;
+      contactControls();
     }
   }
 }
 async function contactConnectAutomatically(generation) {
+  contactElement('contactAutoDetails').hidden = true;
+  contactElement('contactAutoDetails').open = false;
+  contactElement('contactAutoError').textContent = '';
   contactState.showMicrosoftLogin = false;
   contactState.authPending = true;
   contactElement("contactMicrosoftStatus").textContent = globalThis.BerliI18n.t("CONNECTING_TO_MICROSOFT_AUTOMATICALLY");
   contactControls();
   let timeout;
   try {
-    const automatic = (async () => {
-      const info = await contactOfficeReady;
-      if (generation !== contactState.generation) return;
-      if (!window.BerliContactsAuth?.connectSilently) throw new Error(globalThis.BerliI18n.t("AUTOMATIC_SIGN_IN_IS_NOT_AVAILABLE"));
-      const hint = info.host ? Office.context.mailbox?.userProfile?.emailAddress || '' : '';
-      return window.BerliContactsAuth.connectSilently(contactState.config, hint);
-    })();
+    const cached = contactCachedMicrosoft();
+    if (cached) { contactAcceptAuth(cached, generation); return; }
+    if (!window.BerliContactsAuth?.connectSilently) throw new Error(globalThis.BerliI18n.t("AUTOMATIC_SIGN_IN_IS_NOT_AVAILABLE"));
+    // Browser SSO does not require Office.onReady, which can stall outside an email item.
+    const automatic = window.BerliContactsAuth.connectSilently(contactState.config, contactMicrosoftLoginHint());
     const result = await Promise.race([automatic, new Promise((resolve, reject) => {
       timeout = setTimeout(() => reject(new Error(globalThis.BerliI18n.t("AUTOMATIC_SIGN_IN_TOOK_TOO_LONG"))), 12000);
     })]);
@@ -141,7 +250,17 @@ async function contactConnectAutomatically(generation) {
     contactAuthClose();
     contactState.showMicrosoftLogin = true;
     contactElement("contactMicrosoftStatus").textContent = globalThis.BerliI18n.t("COULD_NOT_CONNECT_AUTOMATICALLY_PLEASE_SELECT_CONNECT_TO_MICROSOFT_TO_SI");
+    contactElement('contactAutoDetails').hidden = false;
+    contactElement('contactAutoDetails').open = false;
+    contactElement('contactAutoError').textContent = contactAutomaticErrorText(error) + '\n\n'
+      + globalThis.BerliI18n.t('AUTOMATIC_MICROSOFT_SIGN_IN_IFRAME_LIMIT');
     contactControls();
+    const platform = contactPlatform();
+    if (platform === 'OfficeOnline' && /\blogin_required\b|\bAADSTS50058\b/i.test(contactAutomaticErrorText(error))) {
+      // One top-level attempt can use cookies unavailable to the hidden iframe.
+      // Browsers may block this automatic popup; contactConnect then keeps the manual button usable.
+      await contactConnect({ automatic: true });
+    } else contactClosePreparedPopup();
   } finally { clearTimeout(timeout); }
 }
 async function contactLogin(event) {
@@ -152,7 +271,8 @@ async function contactLogin(event) {
     const result = await contactApi('login', { username, accessKey: contactElement('contactAccessKey').value }, null);
     if (!result?.sessionName) throw new Error(globalThis.BerliI18n.t("THE_CRM_DID_NOT_RETURN_A_VALID_SESSION"));
     contactElement('contactAccessKey').value = '';
-    const session = { username, sessionName: result.sessionName, userId: result.userId };
+    if (result.language) globalThis.BerliI18n.setLanguage(result.language);
+    const session = { username, sessionName: result.sessionName, userId: result.userId, language: globalThis.BerliI18n.language };
     try { localStorage.setItem(CONTACT_SESSION_KEY, JSON.stringify(session)); } catch (error) { /* Session remains available in this view. */ }
     await contactPrepare(session);
   } catch (error) { contactElement("contactLoginStatus").textContent = globalThis.BerliI18n.t("CONTACT_LOGIN_FAILED") + error.message; }
@@ -160,17 +280,22 @@ async function contactLogin(event) {
 }
 function contactAcceptAuth(message, generation) {
   if (generation !== contactState.generation || !contactState.authPending) return;
-  if (message.type === 'berliCRM.contacts.authError') {
+  if (message?.type === 'berliCRM.contacts.authError') {
     contactAuthClose();
     contactState.showMicrosoftLogin = true;
-    contactElement("contactMicrosoftStatus").textContent = globalThis.BerliI18n.t("MICROSOFT_SIGN_IN_FAILED") + message.message;
+    contactElement("contactMicrosoftStatus").textContent = globalThis.BerliI18n.t("SIGN_IN_NOT_COMPLETED");
+    contactElement('contactAutoDetails').hidden = false;
+    contactElement('contactAutoDetails').open = false;
+    contactElement('contactAutoError').textContent = globalThis.BerliI18n.t('MICROSOFT_SIGN_IN_WINDOW_ERROR', [message.message || '']);
     contactControls(); return;
   }
-  if (message.type !== 'berliCRM.contacts.connected' || typeof message.token !== 'string' || !message.token
-      || typeof message.account !== 'string' || !message.account || !(message.expiresAt > Date.now())) return;
+  if (!contactValidMicrosoft(message)) return;
+  contactClosePreparedPopup();
   contactAuthClose();
   contactDisconnect();
   contactState.graph = message;
+  contactRememberMicrosoft(message);
+  contactState.selectMicrosoftAccount = false;
   contactState.showMicrosoftLogin = false;
   contactState.client = new BerliContactGraph.GraphClient(() => {
     if (!contactState.graph || contactState.graph.expiresAt <= Date.now() + 30000) {
@@ -181,16 +306,82 @@ function contactAcceptAuth(message, generation) {
   contactElement("contactMicrosoftStatus").textContent = globalThis.BerliI18n.t("MICROSOFT_ACCOUNT_CONNECTED") + message.username;
   contactControls();
 }
-async function contactConnect() {
+async function contactPollAuthRelay(relay) {
+  if (contactRelay !== relay || contactState.generation !== relay.generation) return;
+  try {
+    if (Date.now() >= relay.expiresAt) throw new Error(globalThis.BerliI18n.t('THE_SIGN_IN_HAS_EXPIRED_PLEASE_START_THE_CONNECTION_AGAIN_FROM_THE_CONTA'));
+    const reply = await contactApi('pollContactsAuthRelay', { flowId: relay.flowId }, relay.session);
+    if (contactRelay !== relay || contactState.generation !== relay.generation) return;
+    if (reply.state === 'ready') {
+      const message = await BerliAuthRelay.decrypt(relay, reply.payload);
+      if (contactRelay === relay && contactState.generation === relay.generation) {
+        contactAcceptAuth(message, relay.generation);
+        if (contactRelay === relay) throw new Error(globalThis.BerliI18n.t('INVALID_CRM_RESPONSE'));
+      }
+      return;
+    }
+    if (reply.state !== 'pending') throw new Error(globalThis.BerliI18n.t('MICROSOFT_SIGN_IN_RELAY_UNAVAILABLE'));
+    relay.timer = setTimeout(() => contactPollAuthRelay(relay), 1500);
+  } catch (error) {
+    if (contactRelay !== relay) return;
+    contactAuthClose(); contactState.showMicrosoftLogin = true;
+    contactElement('contactMicrosoftStatus').textContent = error.message; contactControls();
+  }
+}
+async function contactStartAuthPopup(address, useRelay = false) {
+  address.searchParams.set('channel', 'popup');
+  const prepared = contactPreparedPopup; contactPreparedPopup = null;
+  contactPopup = prepared && !prepared.closed ? prepared
+    : window.open(useRelay ? 'about:blank' : address.href, 'berliCRMContactsAuth', 'width=600,height=720');
+  if (!contactPopup) throw new Error(globalThis.BerliI18n.t("PLEASE_ALLOW_THE_SIGN_IN_WINDOW_IN_YOUR_BROWSER"));
+  if (useRelay) {
+    if (typeof BerliAuthRelay === 'undefined' || !contactState.session) throw new Error(globalThis.BerliI18n.t('MICROSOFT_SIGN_IN_RELAY_UNAVAILABLE'));
+    const popup = contactPopup;
+    const relay = { session: contactState.session, generation: contactState.generation };
+    contactRelay = relay; contactControls();
+    if (popup.document?.body) popup.document.body.textContent = globalThis.BerliI18n.t('PREPARING_SIGN_IN');
+    const [flow, key] = await Promise.all([contactApi('beginContactsAuthRelay', {}, relay.session), BerliAuthRelay.createKey()]);
+    Object.assign(relay, flow, { key });
+    if (contactRelay !== relay || contactState.generation !== relay.generation) {
+      contactApi('closeContactsAuthRelay', { flowId: relay.flowId }, relay.session).catch(() => {});
+      return;
+    }
+    if (!BerliAuthRelay.valid(relay) || !(relay.expiresAt > Date.now()) || popup.closed) {
+      throw new Error(globalThis.BerliI18n.t('MICROSOFT_SIGN_IN_RELAY_UNAVAILABLE'));
+    }
+    address.hash = new URLSearchParams({ relayFlow: relay.flowId, relayWrite: relay.writeKey, relayKey: key }).toString();
+    popup.location.replace(address.href);
+    // COOP can report a closed popup while Microsoft is still open. Use completion/cancel instead.
+    void contactPollAuthRelay(relay);
+    return;
+  }
+  contactPopupTimer = setInterval(() => {
+    if (!contactPopup || contactPopup.closed) { contactAuthClose(); contactControls(); }
+  }, 800);
+}
+async function contactConnect(options = {}) {
   if (contactState.busy || contactState.authPending || !contactState.config?.configured) return;
   const generation = contactState.generation;
+  if (options.automatic === true) contactState.showMicrosoftLogin = false;
   contactState.authPending = true; contactControls();
   try {
-    const info = await contactOfficeReady;
-    if (generation !== contactState.generation) return;
     const address = new URL('contacts-auth.html', location.href);
+    address.searchParams.set('v', '20261111.3');
     address.searchParams.set('language', globalThis.BerliI18n.language);
     address.searchParams.set('start', '1');
+    address.searchParams.set('mode', options.automatic === true ? 'silent' : contactState.selectMicrosoftAccount ? 'select' : 'reuse');
+    const hint = contactMicrosoftLoginHint();
+    if (hint && !contactState.selectMicrosoftAccount) address.searchParams.set('login_hint', hint);
+    contactElement('contactMicrosoftStatus').textContent = globalThis.BerliI18n.t(options.automatic === true ? 'CONNECTING_TO_MICROSOFT_AUTOMATICALLY' : 'PREPARING_SIGN_IN');
+    const platform = contactPlatform();
+    // Open during the user's click, without awaiting the Office dialog handshake.
+    // The auth page's popup channel does not load or initialize Office.js.
+    if (typeof Office === 'undefined' || platform === 'OfficeOnline' || contactOfficeInfo?.host === null) {
+      await contactStartAuthPopup(address, platform === 'OfficeOnline');
+      return;
+    }
+    const info = await contactOfficeReady;
+    if (generation !== contactState.generation) return;
     if (info.host && Office.context.ui?.displayDialogAsync) {
       address.searchParams.set('channel', 'office');
       Office.context.ui.displayDialogAsync(address.href, { height: 65, width: 45, displayInIframe: false }, result => {
@@ -213,14 +404,12 @@ async function contactConnect() {
         });
       });
     } else {
-      address.searchParams.set('channel', 'popup');
-      contactPopup = window.open(address.href, 'berliCRMContactsAuth', 'width=600,height=720');
-      if (!contactPopup) throw new Error(globalThis.BerliI18n.t("PLEASE_ALLOW_THE_SIGN_IN_WINDOW_IN_YOUR_BROWSER"));
-      contactPopupTimer = setInterval(() => {
-        if (!contactPopup || contactPopup.closed) { contactAuthClose(); contactControls(); }
-      }, 800);
+      await contactStartAuthPopup(address);
     }
-  } catch (error) { contactAuthClose(); contactElement("contactMicrosoftStatus").textContent = error.message; contactControls(); }
+  } catch (error) {
+    contactAuthClose(); contactState.showMicrosoftLogin = true;
+    contactElement("contactMicrosoftStatus").textContent = error.message; contactControls();
+  }
 }
 function contactRow(container, record, source, metadata) {
   const element = document.createElement('div'); element.className = 'record';
@@ -340,8 +529,19 @@ async function contactTransfer(direction) {
 function initializeContacts() {
   contactElement('contactLoginForm').addEventListener('submit', contactLogin);
   contactElement('contactLogout').addEventListener('click', () => contactReset());
+  contactElement('contactRetry').addEventListener('click', () => {
+    if (contactState.session) contactPrepare(contactState.session);
+  });
+  contactElement('contactCancelAuth').addEventListener('click', () => {
+    contactState.generation++;
+    contactAuthClose(); contactState.showMicrosoftLogin = true;
+    contactElement('contactMicrosoftStatus').textContent = globalThis.BerliI18n.t('MICROSOFT_ACCOUNT_IS_NOT_CONNECTED');
+    contactControls();
+  });
   contactElement('contactConnect').addEventListener('click', contactConnect);
-  contactElement('contactDisconnect').addEventListener('click', () => contactDisconnect());
+  contactElement('contactDisconnect').addEventListener('click', () => {
+    contactForgetMicrosoft(true); contactState.selectMicrosoftAccount = true; contactDisconnect();
+  });
   contactElement('contactSearchForm').addEventListener('submit', contactSearch);
   contactElement('contactLoadOutlook').addEventListener('click', () => contactLoadOutlook());
   contactElement('contactMoreOutlook').addEventListener('click', () => contactLoadOutlook(true));
@@ -367,9 +567,16 @@ function initializeContacts() {
   try {
     const saved = JSON.parse(localStorage.getItem(CONTACT_SESSION_KEY) || 'null');
     if (saved && typeof saved.sessionName === 'string' && saved.sessionName) {
+      if (saved.language) globalThis.BerliI18n.setLanguage(saved.language);
       contactElement('contactUsername').value = saved.username || '';
       contactPrepare(saved);
-    } else contactElement("contactLoginStatus").textContent = globalThis.BerliI18n.t("PLEASE_SIGN_IN_TO_CRM");
-  } catch (error) { contactElement("contactLoginStatus").textContent = globalThis.BerliI18n.t("PLEASE_SIGN_IN_TO_CRM"); }
+    } else {
+      contactClosePreparedPopup();
+      contactElement("contactLoginStatus").textContent = globalThis.BerliI18n.t("PLEASE_SIGN_IN_TO_CRM");
+    }
+  } catch (error) {
+    contactClosePreparedPopup();
+    contactElement("contactLoginStatus").textContent = globalThis.BerliI18n.t("PLEASE_SIGN_IN_TO_CRM");
+  }
 }
 initializeContacts();

@@ -17,7 +17,7 @@ set_error_handler(function ($severity, $message, $file, $line) {
 $root = dirname(__DIR__, 2);
 $fixture = sys_get_temp_dir() . '/berlicrm-php8-http-' . bin2hex(random_bytes(8));
 mkdir($fixture, 0700);
-$files = array('outlook.php', 'OutlookWebserviceClient.php', 'OutlookContactsConfig.php');
+$files = array('outlook.php', 'OutlookWebserviceClient.php', 'OutlookContactsConfig.php', 'OutlookAuthRelay.php');
 foreach ($files as $file) {
     // Keep this flat HTTP fixture independent of private installation configuration.
     $source = file_get_contents($root . '/outlook-addin/rest/' . $file);

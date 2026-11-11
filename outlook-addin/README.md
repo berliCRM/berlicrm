@@ -1,5 +1,9 @@
 # berliCRM Outlook Add-in
 
+Aktuelle Version: **1.1.0.1** (Build 20261111.4). Technische Fehlerdetails sind
+standardmäßig eingeklappt und werden erst per Klick sichtbar. Die bestätigte
+automatische Microsoft-Anmeldung in Firefox und Edge bleibt erhalten.
+
 ## Sprachen ab Word 1.4.0.0 / Outlook 1.1.0.0
 
 Die Add-ins verwenden nach der Anmeldung die Sprache des CRM-Benutzers (`de_de` oder `en_us`). Vorher gilt die Office-/Browsersprache. Texte werden in PHP-Spracharrays mit stabilen Schluesseln gepflegt. Fuer dieses Update muss `office_addin_user_preferences` registriert werden. Einrichtung und Pflege: [Sprachdokumentation](../wordplugin-officejs/LANGUAGES.md).
@@ -363,10 +367,9 @@ See [MAIL-ARCHIVE.md](MAIL-ARCHIVE.md) for installation, permissions and limits.
 
 ### Calendar transfer in the existing add-in
 
-The current manifest version is **1.0.15.4**, including the Microsoft contact
-sign-in fixes and the Graph fetch receiver fix for reading and creating contacts.
-The contacts view loads `contact-graph.js?v=20261103.3`; deploy that script and
-`contacts.html` together and reopen the view. Generate/download the new
+The current manifest version is **1.1.0.1**, including the Microsoft contact
+sign-in fixes for Firefox and Edge and collapsed technical error details.
+Deploy the update files together and reopen Outlook. Generate/download the new
 installation-specific manifest from Settings after deploying the updated template
 if Outlook should also register this version. The sign-in fix itself needs no
 new operation registration or Entra configuration.

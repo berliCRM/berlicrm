@@ -25,6 +25,20 @@ using checkboxes in this separate view.
 
 ## Update an existing installation
 
+**“Unknown action: getUserPreferences”** indicates that the browser UI and PHP
+gateway versions do not match. Deploy the full Outlook language update,
+including `outlook-addin/rest/`, `include/utils/OfficeAddinI18n.php`, language
+catalogs and the updated Settings model. Then run
+`php outlook-addin/build/registerOutlookAddinOperation.php` from the CRM root,
+or use the Outlook add-in Settings service setup/repair button. Replacing
+browser files alone does not resolve this mismatch.
+
+The contacts view validates a saved CRM session with the login form hidden.
+After a technical failure, **Try again** repeats validation with the same session.
+An expired session restores the login form. The saved language is used as a hint
+until the authenticated preference response arrives. This update does not require
+reinstalling the Outlook manifest.
+
 1. Extract the contacts update package into the CRM root directory. Keep the
    existing `outlook-addin/rest/outlook.config.php` and add the configuration
    block shown below. The examples contain no production credentials.
@@ -172,13 +186,16 @@ page must not receive a `Cross-Origin-Opener-Policy` header, so the MSAL 5 redir
 bridge retains its communication channel. This includes headers added by a
 reverse proxy; see [Microsoft's redirect bridge guidance](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/msal-browser-v5.25.1/lib/msal-browser/docs/redirect-bridge.md).
 
-After successful sign-in, Microsoft access tokens remain in the contacts view's
-memory. The temporary MSAL session cache in the sign-in window is cleared before
-returning the result. Automatic sign-in also uses an in-memory MSAL cache and
-clears it after the attempt. Reloading or closing the view discards the token;
-opening it again triggers another automatic connection attempt. If the token
-expires during use, the displayed sign-in menu allows another sign-in.
-There is no automatic background token renewal. Client ID, tenant ID and
+From **20261108.7**, the Microsoft access token also remains in the current browser
+tab's `sessionStorage`, so closing and reopening the contacts view reuses a valid
+connection. Reuse is bound to the same validated CRM session, CRM user and Entra
+configuration. Expired tokens and tokens rejected by Graph are discarded.
+**Disconnect** and CRM logout also clear this session cache. No refresh tokens
+are stored, and no tokens are persistently saved in `localStorage` or CRM.
+Only the last successful Microsoft username is kept in `localStorage` as an
+optional account hint. The temporary MSAL cache in the sign-in window is cleared
+before returning the result; the silent attempt still uses an in-memory MSAL
+cache. There is no automatic background token renewal. Client ID, tenant ID and
 redirect URI are public configuration; CRM credentials are not exposed by it.
 
 ## Usage
@@ -187,7 +204,7 @@ redirect URI are public configuration; CRM credentials are not exposed by it.
 
 After CRM sign-in or validation of a saved CRM session, the contacts view
 automatically tries to reuse an existing Microsoft sign-in for
-`Contacts.ReadWrite`. No sign-in window opens. During this check, the manual
+`Contacts.ReadWrite`. Initially, no sign-in window opens. During this check, the manual
 sign-in menu remains hidden and the status is **Microsoft-Verbindung wird
 automatisch hergestellt …** (Connecting to Microsoft automatically …).
 
@@ -198,21 +215,62 @@ become available. The displayed account determines whose personal Outlook
 address book is used. **Verbindung trennen** (Disconnect) brings back the menu
 so a different account can be selected if needed.
 
+From **build 20261111.3**, clicking **Manage CRM and Outlook contacts** in the
+signed-in email task pane reserves the Microsoft sign-in window during that
+user action. The contacts page reuses it after navigation, so this launch path
+does not require a popup exception. A valid cached connection skips preparation;
+a window is closed if silent sign-in succeeds without needing it. The Outlook
+platform is passed across navigation so delayed `Office.onReady()` cannot skip
+the fallback.
+
+`login_required` or `AADSTS50058` in Outlook on the web
+triggers one attempt through the existing Microsoft sign-in popup with `prompt=none`.
+Microsoft can use its top-level session cookies even when they are unavailable in
+the hidden iframe. Opening the contacts view directly without the original click
+may still cause the browser to block a newly requested automatic popup. If the
+browser blocks the popup or no usable Microsoft session exists there, **Connect to
+Microsoft** remains available. There is no automatic retry loop.
+
+If `prompt=none` also fails in the sign-in window, one normal Microsoft sign-in
+attempt follows in that same window without forced account selection. Microsoft
+decides whether the existing session suffices or user input/consent is needed.
+A further failure ends the attempt. Errors from this window are explicitly
+labelled **Microsoft sign-in window** in the technical details.
+
 If the automatic connection fails or takes too long, the manual sign-in menu
-appears. Only an explicit click on **Mit Microsoft verbinden** opens the Office
-dialog or browser window. This may be necessary when consent is missing, several
+appears. **Connect to Microsoft** opens the Office dialog or browser window and
+allows Microsoft to reuse its session without forcing account selection.
+**Disconnect** explicitly enables account selection for the next connection.
+Manual sign-in may be necessary when consent is missing, several
 Microsoft accounts are available, or cookies are blocked. The automatic attempt
 alone does not grant permissions. See
 [Microsoft's SSO guidance](https://learn.microsoft.com/en-us/entra/msal/javascript/browser/single-sign-on)
 and [sign-in in embedded applications](https://learn.microsoft.com/en-us/entra/msal/javascript/browser/iframe-usage).
+Microsoft documents the popup workaround under
+[interactive requests with prompt=none](https://learn.microsoft.com/en-us/entra/msal/javascript/browser/prompt-behavior#interactive-requests-with-promptnone).
 
 The existing Entra app registration and SPA redirect URI
-`https://YOUR-CRM-HOST/outlook-addin/contacts-auth.html` are reused. Automatic
-sign-in needs no additional redirect URI, new manifest or webservice registration.
-When loaded in MSAL's hidden SSO iframe, the redirect page does not start its own
+`https://YOUR-CRM-HOST/outlook-addin/contacts-auth.html` are reused. No additional
+Entra entries are required by this update; NAA is not used. The installed manifest
+and service registration remain. After CRM validation, a valid token from the
+current tab is reused first. Otherwise, MSAL tries silent iframe SSO without
+waiting for `Office.onReady()`. The preferred account hint is the last successfully
+connected Microsoft username, falling back to an available Outlook mailbox address.
+Blocked third-party cookies, missing consent or an expired Microsoft session may
+still require manual sign-in.
+
+**Technical details** shows the actual failure and possible cookie/sign-in
+limitations. When loaded in MSAL's
+hidden SSO iframe, the redirect page does not start its own
 sign-in. It uses the bundled MSAL 5 redirect bridge to deliver the response.
 An interactive sign-in callback framed by Outlook is processed normally;
 having a parent window alone does not identify a silent sign-in.
+
+From **build 20261111.4**, technical error information appears in a collapsed
+**Technical details** section. A click reveals the full Microsoft message,
+including error codes and subcodes. A new error collapses the section again;
+the general error message remains visible. The build is shown at the bottom of
+the contacts view. The confirmed Firefox and Edge sign-in flow is unchanged.
 
 **Upload these update files together:**
 
@@ -233,26 +291,46 @@ The MSAL license files remain part of the distribution.
 
 ### Microsoft sign-in and error messages
 
+For **Please start Microsoft sign-in from the berliCRM contacts view**, the
+browser may have severed `window.opener` after the Microsoft redirect. Cache
+version **20261108.5** returns the response independently of that connection:
+the browser encrypts it with AES-GCM; the server temporarily holds only ciphertext
+in a private PHP temp directory outside the webroot. Only the initiating,
+authenticated CRM session can collect it; the decryption key stays in the browser.
+The handover expires after five minutes and can be cancelled with **Cancel
+Microsoft sign-in**. A popup reported as closed because of COOP no longer
+prematurely ends the handover.
+Expired replies cannot be collected. Orphaned encrypted files are cleaned on
+subsequent requests; completion and cancellation remove them directly.
+
+Deploy `outlook-addin/rest/outlook.php`, `outlook-addin/rest/OutlookAuthRelay.php`,
+`contacts-auth-relay.js`, both language catalogs and generated `language.js`
+together with the HTML/authentication scripts. No new CRM operation or database
+table is required when the language update is registered already. PHP needs a
+writable private temp directory; the private configuration can optionally set
+`contacts_auth_relay_directory` to another private location outside the webroot.
+
 If the page remains on **Anmeldung wird vorbereitet** (Preparing sign-in) after
 successful Microsoft sign-in, update `outlook-addin/contacts-auth.html`,
 `outlook-addin/assets/contacts-auth.bundle.js` and its `.LEGAL.txt` file together.
-The authentication bundle now uses cache version `20261103.2`; other scripts keep
-their versions listed above. This fix distinguishes the interactive callback
+The authentication bundle now uses cache version `20261108.4`. This fix distinguishes the interactive callback
 from MSAL's hidden SSO iframe. Administrator consent does not replace callback
 processing.
 
-Version **1.0.15.2** also fixes Office initialization. The sign-in page loads
-Office.js only for an Office dialog and calls `Office.onReady()` immediately after
-loading it. Microsoft sign-in or callback processing starts only once Office is
-ready. Previously, initialization was deferred until token delivery, which could
-miss Office's limited initialization window. The CRM connection-test popup and
-silent SSO callback do not load Office.js.
+In **Outlook on the web**, manual Microsoft sign-in uses the existing popup
+channel. The Microsoft sign-in window opens directly when **Connect to Microsoft**
+is clicked. It does not load Office.js or wait for `Office.onReady()`. The contacts
+manager remains in the existing add-in. Classic Outlook continues to use the
+Office dialog and its Office initialization. The silent SSO callback does not
+require Office.js either.
 
 For **Verbindung zum Outlook-Anmeldefenster wird hergestellt … Zeitüberschreitung**
-(Outlook dialog connection timeout), first update the files listed above together.
-Failure to load the Office library now has a separate error message. Microsoft
-sign-in still uses the normal user's account; this code update requires no new
-administrator consent.
+(Outlook dialog connection timeout), update the files listed above together to
+cache version `20261108.4`. This bypasses the stalled Office dialog handshake in
+Outlook on the web. Allow the Microsoft sign-in popup if the browser blocks it.
+Responses are accepted only from the expected window and exact CRM origin;
+Microsoft tokens stay in the contacts view and its tab session. No new administrator
+consent is required for this code update.
 
 The page now shows each stage: loading configuration, initializing Microsoft,
 processing the response and passing it to Outlook. Preparation and Outlook

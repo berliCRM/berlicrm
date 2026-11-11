@@ -13,6 +13,8 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 .record p { margin: 6px 0 0; }
 .record-status, #contactTransferStatus, #contactMicrosoftStatus { white-space: pre-wrap; overflow-wrap: anywhere; }
 .invalid { color: #a4262c; }
+#contactAutoDetails { margin: 10px 0; color: #605e5c; font-size: .9rem; }
+#contactAutoDetails summary { cursor: pointer; }
 .addin-credit { color: #605e5c; font-size: 12px; line-height: 1.5; margin-top: auto; padding-top: 18px; text-align: right; }
 .addin-version { display: block; margin-bottom: 2px; }
 [hidden] { display: none !important; }

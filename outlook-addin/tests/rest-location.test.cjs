@@ -17,7 +17,7 @@ test('nested REST endpoint loads its adjacent private configuration and public h
   const port = server.address().port;
   await new Promise(resolve => server.close(resolve));
   fs.mkdirSync(endpointDir, { recursive: true });
-  const sources = ['outlook.php', 'OutlookWebserviceClient.php', 'OutlookContactsConfig.php'];
+  const sources = ['outlook.php', 'OutlookWebserviceClient.php', 'OutlookContactsConfig.php', 'OutlookAuthRelay.php'];
   for (const name of sources) fs.copyFileSync(path.join(__dirname, '..', 'rest', name), path.join(endpointDir, name));
   const helperDir = path.join(root, 'include', 'utils');
   const languageDir = path.join(root, 'outlook-addin', 'languages');

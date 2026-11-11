@@ -14,6 +14,12 @@ config.csfr-secret.php
 /wordplugin-officejs/build/word-rollback-*/
 # Generated Outlook update packages, extracted copies and visual previews.
 /outlook-addin/build/*.zip
+/outlook-addin/*.zip
+/outlook-addin/build/outlook-addin-*/
+/outlook-addin/build/outlook-complete-repair-*/
+/outlook-addin/build/outlook-contacts-window-*/
+/outlook-addin/build/outlook-initialization-fix-*/
+/outlook-addin/build/outlook-navigation-baseline-*/
 /outlook-addin/build/outlook-update-*/
 /outlook-addin/build/outlook-auth-fix-*/
 /outlook-addin/build/contacts-auth-error-preview*.png

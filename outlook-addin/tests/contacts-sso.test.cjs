@@ -28,7 +28,8 @@ test('silent authentication requests only contact access, uses memory storage an
   assert.equal(result.type, 'berliCRM.contacts.connected');
   assert.equal(result.username, 'user@example.test');
   assert.equal(env.events[0][1].cache.cacheLocation, 'memoryStorage');
-  assert.equal(env.events[0][1].system.iframeHashTimeout, 8000);
+  assert.equal(env.events[0][1].system.iframeBridgeTimeout, 8000);
+  assert.equal('iframeHashTimeout' in env.events[0][1].system, false);
   const request = env.events.find(entry => entry[0] === 'silent')[1];
   assert.deepEqual(Array.from(request.scopes), ['https://graph.microsoft.com/Contacts.ReadWrite']);
   assert.equal(request.loginHint, 'owner@example.test');

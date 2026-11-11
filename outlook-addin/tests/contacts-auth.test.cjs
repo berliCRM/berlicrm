@@ -4,12 +4,16 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const relayTools = require('../contacts-auth-relay.js');
 const source = fs.readFileSync(path.join(__dirname, '../contacts-auth-entry.js'), 'utf8').replace(/^import .*;\r?\n/gm, '');
 function setup(options = {}) {
   const events = [], stored = new Map(options.savedChannel ? [['berliCRM.contacts.authChannel', options.savedChannel]] : []);
+  if (options.relay) stored.set('berliCRM.contacts.authRelay', JSON.stringify(options.relay));
   const timers = new Map(); let timerId = 0;
   const origin = 'https://crm.example.test';
   const location = new URL(origin + '/outlook-addin/contacts-auth.html' + (options.start ? '?start=1&channel=' + (options.startChannel || 'office') : '#code=example'));
+  if (options.mode) location.searchParams.set('mode', options.mode);
+  if (options.hint) location.searchParams.set('login_hint', options.hint);
   const config = { configured: true, clientId: 'client', tenantId: 'tenant', redirectUri: options.badRedirect || origin + '/outlook-addin/contacts-auth.html' };
   class PublicClientApplication {
     constructor(config) { events.push(['config', config]); }
@@ -36,13 +40,19 @@ function setup(options = {}) {
     broadcastResponseToMainFrame: async () => { events.push(['bridge']); },
     sessionStorage: { getItem: key => stored.get(key), setItem: (key, value) => stored.set(key, value), removeItem: key => stored.delete(key) },
     document: { getElementById: element, createElement: () => ({}), head: { appendChild: script => scripts.push(script) } },
-    fetch: async url => {
+    ...(options.relay ? { BerliAuthRelay: relayTools } : {}),
+    fetch: async (url, init) => {
       assert.equal(String(url), origin + '/outlook-addin/rest/outlook.php');
+      const input = JSON.parse(init.body);
+      if (input.action === 'completeContactsAuthRelay') {
+        events.push(['relay', input]);
+        return { ok: true, json: async () => ({ success: true, payload: { accepted: true } }) };
+      }
       if (options.fetch) return options.fetch();
       return { ok: true, json: async () => ({ success: true, payload: config }) };
     },
     ...(options.omitOffice ? {} : { Office: { onReady: options.officeReady || (async () => ({ host: null })), context: { ui: { messageParent: (message, settings) => events.push(['send', JSON.parse(message), settings]) } } } }),
-    window: { opener: { postMessage: (message, targetOrigin) => events.push(['popup', message, targetOrigin]) }, close() {} },
+    window: { opener: options.noOpener ? null : { postMessage: (message, targetOrigin) => events.push(['popup', message, targetOrigin]) }, close() { this.closed = true; } },
   });
   if (options.iframe) context.window.parent = {};
   if (options.silentFrame) context.window.frameElement = { classList: { contains: name => name === 'msalSilentIframe' } };
@@ -53,6 +63,60 @@ test('OAuth start uses MSAL redirect and delegated contacts scope without a secr
   assert.equal(env.stored.get('berliCRM.contacts.authChannel'), 'office');
   assert.deepEqual(Array.from(env.events.find(e => e[0] === 'login')[1].scopes), ['https://graph.microsoft.com/Contacts.ReadWrite']);
   assert.doesNotMatch(JSON.stringify(env.events), /clientSecret/);
+});
+
+test('automatic popup SSO requests no prompt and passes the optional Microsoft account hint', async () => {
+  const env = setup({ start: true, startChannel: 'popup', mode: 'silent', hint: 'owner@example.test', omitOffice: true });
+  await env.run();
+  const request = env.events.find(event => event[0] === 'login')[1];
+  assert.equal(request.prompt, 'none');
+  assert.equal(request.loginHint, 'owner@example.test');
+  assert.equal(env.scripts.length, 0);
+});
+
+test('manual reconnection lets Microsoft reuse its session without forcing account selection', async () => {
+  const env = setup({ start: true, startChannel: 'popup', mode: 'reuse', hint: 'owner@example.test', omitOffice: true });
+  await env.run();
+  const request = env.events.find(event => event[0] === 'login')[1];
+  assert.equal(Object.hasOwn(request, 'prompt'), false);
+  assert.equal(request.loginHint, 'owner@example.test');
+});
+
+test('explicit account switching keeps account selection and does not bias it with the old hint', async () => {
+  const env = setup({ start: true, mode: 'select', hint: 'old@example.test' }); await env.run();
+  const request = env.events.find(event => event[0] === 'login')[1];
+  assert.equal(request.prompt, 'select_account');
+  assert.equal(Object.hasOwn(request, 'loginHint'), false);
+});
+
+test('a rejected no-prompt popup returns its error without restarting authentication in a loop', async () => {
+  const env = setup({ savedChannel: 'popup', error: new Error('login_required: AADSTS50058') }); await env.run();
+  assert.equal(env.events.some(event => event[0] === 'login'), false);
+  assert.equal(env.events.at(-1)[1].type, 'berliCRM.contacts.authError');
+});
+
+test('a rejected automatic popup switches once to normal sign-in in the same window', async () => {
+  const env = setup({ savedChannel: 'popup', error: Object.assign(new Error('AADSTS50058'), { errorCode: 'login_required' }) });
+  env.stored.set('berliCRM.contacts.authMode', 'silent');
+  env.stored.set('berliCRM.contacts.authHint', 'owner@example.test');
+  await env.run();
+  const request = env.events.find(event => event[0] === 'login')[1];
+  assert.equal(Object.hasOwn(request, 'prompt'), false);
+  assert.equal(request.loginHint, 'owner@example.test');
+  assert.equal(env.stored.get('berliCRM.contacts.authMode'), 'interactive');
+  assert.equal(env.events.some(event => event[0] === 'popup'), false);
+  env.events.length = 0;
+  await vm.runInContext('main()', env.context);
+  assert.equal(env.events.some(event => event[0] === 'login'), false, 'A second failure must not restart sign-in');
+  assert.equal(env.events.at(-1)[1].type, 'berliCRM.contacts.authError');
+});
+
+test('access denial in an automatic popup is not converted to another sign-in attempt', async () => {
+  const env = setup({ savedChannel: 'popup', error: new Error('access_denied') });
+  env.stored.set('berliCRM.contacts.authMode', 'silent');
+  await env.run();
+  assert.equal(env.events.some(event => event[0] === 'login'), false);
+  assert.equal(env.events.at(-1)[1].type, 'berliCRM.contacts.authError');
 });
 
 test('a callback retains the CRM language for its error message and retry link', async () => {
@@ -74,6 +138,20 @@ test('redirect clears token cache before delivering to exact Office parent origi
 test('browser popup callback is addressed only to same-origin opener', async () => {
   const env = setup({ savedChannel: 'popup' }); await env.run();
   assert.equal(env.events.at(-1)[0], 'popup'); assert.equal(env.events.at(-1)[2], 'https://crm.example.test');
+});
+
+test('a callback without an opener returns only ciphertext through its saved one-time relay', async () => {
+  const relay = { flowId: 'a'.repeat(64), writeKey: 'b'.repeat(64), key: await relayTools.createKey() };
+  const env = setup({ relay, noOpener: true, omitOffice: true });
+  await env.run();
+  const input = env.events.find(event => event[0] === 'relay')[1];
+  assert.equal(input.flowId, relay.flowId);
+  assert.equal(input.writeKey, relay.writeKey);
+  assert.doesNotMatch(JSON.stringify(input), /"token"|"key"|user@example/);
+  assert.equal((await relayTools.decrypt(relay, input.payload)).token, 'token');
+  assert.equal(env.context.window.closed, true);
+  assert.equal(env.stored.has('berliCRM.contacts.authRelay'), false);
+  assert.equal(env.scripts.length, 0);
 });
 test('mismatched redirect configuration cannot start Microsoft authentication or send a token', async () => {
   const env = setup({ start: true, badRedirect: 'https://evil.example/contacts-auth.html' }); await env.run();

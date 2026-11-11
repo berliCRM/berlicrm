@@ -25,6 +25,21 @@ zugänglich. Deshalb erfolgt die Auswahl hier mit Kontrollkästchen.
 
 ## Update einer vorhandenen Installation
 
+Bei **„Unbekannte Aktion: getUserPreferences“** passen Oberfläche und PHP-Endpunkt
+nicht zusammen. Das vollständige Outlook-Sprachupdate einschließlich
+`outlook-addin/rest/`, `include/utils/OfficeAddinI18n.php`, Sprachdateien und
+aktualisiertem Settings-Modell einspielen. Anschließend im CRM-Hauptverzeichnis
+`php outlook-addin/build/registerOutlookAddinOperation.php` ausführen oder in den
+Outlook-Add-in-Einstellungen **Webservices einrichten / reparieren** wählen.
+Nur Browserdateien auszutauschen behebt diesen Versionskonflikt nicht.
+
+Eine gespeicherte CRM-Sitzung wird beim Öffnen der Kontakteansicht geprüft;
+währenddessen bleibt das Loginformular verborgen. Bei technischen Fehlern
+erlaubt **Erneut versuchen** eine erneute Prüfung mit derselben Sitzung.
+Bei einer tatsächlich abgelaufenen Sitzung erscheint die Anmeldung wieder.
+Die gespeicherte Sprachvorgabe dient bis zur authentifizierten Sprachabfrage als
+Hinweis. Dieses Update erfordert keine Neuinstallation des Outlook-Manifests.
+
 1. Das Kontakte-Update-Paket im CRM-Hauptverzeichnis entpacken. Die vorhandene
    `outlook-addin/rest/outlook.config.php` beibehalten und um den unten gezeigten Block ergänzen.
    Die Beispiele enthalten keine produktiven Zugangsdaten.
@@ -177,14 +192,18 @@ sein. Die Rückleitungsseite `contacts-auth.html` darf keinen
 ihren Rückkanal behält. Das gilt auch für per Reverse Proxy ergänzte Header;
 siehe [Microsofts Hinweise zur Redirect-Bridge](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/msal-browser-v5.25.1/lib/msal-browser/docs/redirect-bridge.md).
 
-Die Microsoft-Zugriffstokens bleiben nach erfolgreicher Anmeldung im Speicher
-der Kontakteansicht. Der kurzzeitige MSAL-Sitzungscache im Anmeldefenster wird
-vor der Rückgabe gelöscht. Auch die automatische Anmeldung verwendet nur einen
-MSAL-Speicher im Arbeitsspeicher und leert ihn nach ihrem Versuch. Neuladen oder
-Schließen verwirft das Token; beim erneuten Öffnen wird wieder eine automatische
-Verbindung versucht. Bei Ablauf während der Verwendung kann über das eingeblendete
-Menü erneut angemeldet werden. Es gibt keine automatische Token-Erneuerung im
-Hintergrund. Client-/Mandanten-ID und Redirect-URI sind
+Ab **20261108.7** bleibt der Microsoft-Zugriffstoken zusätzlich im `sessionStorage`
+des aktuellen Browsertabs, damit das Schließen und erneute Öffnen der Kontakteansicht
+keine erneute Anmeldung verlangt, solange er gültig ist. Die Wiederverwendung ist
+an dieselbe geprüfte CRM-Sitzung, denselben CRM-Benutzer und dieselbe Entra-Konfiguration
+gebunden. Abgelaufene oder von Graph zurückgewiesene Tokens werden verworfen;
+**Verbindung trennen** und CRM-Abmeldung löschen den Sitzungscache ebenfalls.
+Es werden keine Refresh-Tokens gespeichert und keine Tokens dauerhaft in `localStorage`
+oder im CRM abgelegt. Nur der zuletzt verwendete Microsoft-Benutzername wird als
+unverbindlicher Kontohinweis in `localStorage` behalten. Der kurzzeitige MSAL-Cache
+im Anmeldefenster wird vor der Rückgabe gelöscht; der stille Versuch verwendet
+weiterhin einen MSAL-Cache im Arbeitsspeicher. Es gibt keine automatische
+Token-Erneuerung im Hintergrund. Client-/Mandanten-ID und Redirect-URI sind
 öffentliche Konfiguration; CRM-Zugangsdaten werden darüber nicht ausgegeben.
 
 ## Verwendung
@@ -193,7 +212,7 @@ Hintergrund. Client-/Mandanten-ID und Redirect-URI sind
 
 Nach der CRM-Anmeldung beziehungsweise der Prüfung einer gespeicherten
 CRM-Sitzung versucht die Kontakteansicht automatisch, eine vorhandene
-Microsoft-Anmeldung für `Contacts.ReadWrite` zu verwenden. Dabei wird kein
+Microsoft-Anmeldung für `Contacts.ReadWrite` zu verwenden. Zunächst wird kein
 Anmeldefenster geöffnet. Während der Prüfung bleibt das bisherige Anmeldemenü
 verborgen; der Status lautet **Microsoft-Verbindung wird automatisch hergestellt …**.
 
@@ -203,22 +222,67 @@ Kontaktordner und Übernahmefunktionen werden freigegeben. Das angezeigte Konto
 bestimmt das persönliche Outlook-Adressbuch. Über **Verbindung trennen** lässt
 sich das Menü bei Bedarf wieder einblenden und ein anderes Konto wählen.
 
-Scheitert die automatische Verbindung oder dauert ihre Prüfung zu lange, wird das bisherige Anmeldemenü
-eingeblendet. Erst der bewusste Klick auf **Mit Microsoft verbinden** öffnet den
-Office-Dialog beziehungsweise das Browserfenster. Das kann beispielsweise bei
+Ab **Build 20261111.3** wird das Microsoft-Anmeldefenster bei Bedarf bereits beim
+normalen Klick auf **CRM- und Outlook-Kontakte verwalten** aus dem angemeldeten
+E-Mail-Seitenfenster geöffnet. Die Kontakteansicht übernimmt dieses Fenster nach
+dem Seitenwechsel. Damit ist für diesen Ablauf keine Popup-Ausnahme erforderlich.
+Bei einer noch gültigen zwischengespeicherten Verbindung entfällt die Vorbereitung;
+gelingt die stille Anmeldung bereits, wird ein vorbereitetes Fenster wieder geschlossen.
+Die Outlook-Plattform wird beim Übergang mitgegeben, damit eine verzögerte
+`Office.onReady()`-Meldung den Ausweichweg nicht überspringt.
+
+Auf `login_required` beziehungsweise
+`AADSTS50058` folgt ein einmaliger Versuch über das bestehende Microsoft-Anmeldefenster.
+Dabei wird `prompt=none` verwendet: Microsoft kann seine Sitzung im obersten Fenster
+erkennen, auch wenn die Sitzungscookies im versteckten Iframe nicht verfügbar sind.
+Wird die Kontakteansicht direkt ohne den ursprünglichen Klick geöffnet, kann der
+Browser ein neu angefordertes automatisches Popup weiterhin blockieren. Ist ein Popup
+blockiert oder fehlt auch dort eine nutzbare Microsoft-Sitzung, bleibt **Mit Microsoft
+verbinden** verfügbar. Es gibt keine automatische Wiederholungsschleife.
+
+Scheitert `prompt=none` auch im Anmeldefenster, wird dort einmalig eine normale
+Microsoft-Anmeldung ohne erzwungene Kontoauswahl begonnen. Dafür öffnet sich kein
+weiteres Fenster. Microsoft entscheidet, ob die bestehende Sitzung genügt oder
+eine Eingabe/Zustimmung nötig ist. Nach einem weiteren Fehler endet der Versuch.
+Fehler aus diesem Fenster werden unter **Technische Details** ausdrücklich als
+**Microsoft-Anmeldefenster** gekennzeichnet.
+
+Scheitert die automatische Verbindung oder dauert ihre Prüfung zu lange, wird das
+bisherige Anmeldemenü eingeblendet. **Mit Microsoft verbinden** öffnet den Office-Dialog
+beziehungsweise das Browserfenster und lässt Microsoft eine vorhandene Sitzung
+ohne erzwungene Kontoauswahl verwenden. Nach **Verbindung trennen** wird die
+Kontoauswahl ausdrücklich angeboten. Eine manuelle Anmeldung kann beispielsweise bei
 fehlender Zustimmung, mehreren Microsoft-Konten oder blockierten Cookies nötig
 sein. Der automatische Versuch allein erteilt keine Berechtigung. Siehe
 [Microsofts Hinweise zu SSO](https://learn.microsoft.com/en-us/entra/msal/javascript/browser/single-sign-on)
 und [Anmeldung in eingebetteten Anwendungen](https://learn.microsoft.com/en-us/entra/msal/javascript/browser/iframe-usage).
+Die Ausweichmöglichkeit über ein Fenster mit `prompt=none` beschreibt Microsoft unter
+[Prompt-Verhalten](https://learn.microsoft.com/en-us/entra/msal/javascript/browser/prompt-behavior#interactive-requests-with-promptnone).
 
 Die vorhandene Entra-Appregistrierung und die SPA-Rückleitungsadresse
 `https://EURE-CRM-ADRESSE/outlook-addin/contacts-auth.html` werden weiterverwendet.
-Für die automatische Anmeldung ist keine zusätzliche Redirect-URI, kein neues
-Manifest und keine Webservice-Registrierung nötig. Beim Aufruf in dem von MSAL
+Für dieses Update sind keine weiteren Entra-Einträge erforderlich. NAA wird nicht
+verwendet. Manifest und Webservice-Registrierung bleiben bestehen. Nach der
+CRM-Prüfung wird zuerst ein noch gültiger Token aus dem Browsertab verwendet.
+Fehlt er, startet der stille MSAL-Iframe-Versuch ohne auf `Office.onReady()` zu
+warten. Als Kontohinweis dient bevorzugt der zuletzt erfolgreich verbundene
+Microsoft-Benutzername, ansonsten die verfügbare Outlook-Postfachadresse.
+Blockierte Drittanbieter-Cookies, fehlende Zustimmung oder eine abgelaufene
+Microsoft-Sitzung können weiterhin eine manuelle Anmeldung erfordern.
+
+Unter **Technische Details** erscheinen die konkrete Fehlermeldung und Hinweise
+zu möglichen Cookie-/Anmeldebeschränkungen. Beim Aufruf in dem von MSAL
 erzeugten versteckten SSO-Iframe führt die Rückleitungsseite keine eigene Anmeldung
 aus. Sie verwendet die mitgelieferte MSAL-5-Redirect-Bridge zur Übergabe der Antwort.
 Ein von Outlook eingerahmtes interaktives Anmeldefenster wird dagegen normal
 verarbeitet; ein übergeordnetes Fenster allein kennzeichnet keine stille Anmeldung.
+
+Ab **Build 20261111.4** erscheinen technische Fehlerangaben in einem zunächst
+geschlossenen Bereich **Technische Details**. Erst ein Klick zeigt die vollständige
+Microsoft-Meldung einschließlich Fehlercode und Untercode. Bei einem neuen Fehler
+wird der Bereich wieder geschlossen; die allgemeine Fehlermeldung bleibt sichtbar.
+Die Buildkennung steht unten in der Kontakteansicht. Der bestätigte Anmeldeablauf
+für Firefox und Edge bleibt unverändert.
 
 **Update-Dateien gemeinsam hochladen:**
 
@@ -231,7 +295,7 @@ verarbeitet; ein übergeordnetes Fenster allein kennzeichnet keine stille Anmeld
 Die neue SSO-Bundle-Datei ist erforderlich. Die bestehende
 `outlook-addin/rest/outlook.config.php` beibehalten. Danach die Kontakteansicht
 schließen und erneut öffnen. Die aktualisierten Skripte verwenden die
-Cache-Version `20261102.10`. Bei alten Meldungen oder altem Verhalten den
+Cache-Version `20261108.4`. Bei alten Meldungen oder altem Verhalten den
 Browsercache der CRM-Add-in-Seite leeren.
 
 Für Entwickler erzeugt `npm run build:auth` im Verzeichnis `outlook-addin/`
@@ -240,27 +304,48 @@ beide Microsoft-Anmeldebundles aus `contacts-auth-entry.js` und
 
 ### Microsoft-Anmeldung und Fehlermeldungen
 
+Bei **Bitte die Microsoft-Anmeldung aus der berliCRM-Kontakteansicht starten**
+kann der Browser nach der Microsoft-Weiterleitung `window.opener` getrennt haben.
+Outlook im Browser verwendet ab Cache-Version **20261108.5** eine davon unabhängige
+Rückgabe: Die Browserfenster verschlüsseln die Antwort mit AES-GCM. Der Server
+hält nur den verschlüsselten Inhalt kurzzeitig in einem privaten PHP-Tempordner
+außerhalb des Webroots vor. Nur die initiierende, authentifizierte CRM-Sitzung
+kann ihn abholen; der Entschlüsselungsschlüssel bleibt im Browser. Die Übergabe
+läuft höchstens fünf Minuten und kann über **Microsoft-Anmeldung abbrechen**
+beendet werden. Ein durch COOP als geschlossen gemeldetes Anmeldefenster beendet
+die Rückgabe nicht mehr vorzeitig.
+Abgelaufene Antworten sind nicht mehr abrufbar. Verwaiste verschlüsselte Dateien
+werden bei späteren Zugriffen bereinigt; Abschluss und Abbruch entfernen sie direkt.
+
+Für dieses Update auch `outlook-addin/rest/outlook.php`,
+`outlook-addin/rest/OutlookAuthRelay.php`, `contacts-auth-relay.js`, die beiden
+Sprachdateien und das erzeugte `language.js` mit den HTML-/Anmeldeskripten
+gemeinsam einspielen. Es benötigt keine neue CRM-Operation oder Datenbanktabelle,
+wenn das Sprachupdate bereits registriert ist. PHP benötigt einen beschreibbaren
+privaten Tempordner; optional legt `contacts_auth_relay_directory` in der privaten
+Serverkonfiguration einen anderen Speicherort außerhalb des Webroots fest.
+
 Wenn nach erfolgreicher Microsoft-Anmeldung die Seite **Anmeldung wird vorbereitet**
 stehen bleibt, gemeinsam `outlook-addin/contacts-auth.html`,
 `outlook-addin/assets/contacts-auth.bundle.js` und dessen `.LEGAL.txt` aktualisieren.
-Das Anmeldebundle verwendet jetzt die Cache-Version `20261103.2`; die übrigen
-Skripte behalten ihre oben genannten Versionen. Die Korrektur unterscheidet den
+Das Anmeldebundle verwendet jetzt die Cache-Version `20261108.4`. Die Korrektur unterscheidet den
 interaktiven Rückruf von MSALs verstecktem SSO-Iframe. Die erforderliche
 Administratorzustimmung ersetzt diese Verarbeitung nicht.
 
-Version **1.0.15.2** korrigiert zusätzlich die Office-Initialisierung. Die
-Anmeldeseite lädt Office.js nur im Office-Dialog und ruft `Office.onReady()`
-unmittelbar nach dessen Laden auf. Erst wenn Office bereit ist, startet die
-Microsoft-Anmeldung beziehungsweise die Verarbeitung des Rückrufs. Das vermeidet
-die bisherige Verzögerung bis zur Tokenübergabe; Office hat für die Initialisierung
-ein begrenztes Zeitfenster. Beim Verbindungstest im CRM-Browserfenster und beim
-stillen SSO-Rückruf wird Office.js nicht geladen.
+In **Outlook im Browser** verwendet die manuelle Microsoft-Anmeldung den
+vorhandenen Popup-Kanal. Das Microsoft-Anmeldefenster öffnet sich direkt beim
+Klick auf **Mit Microsoft verbinden**. Es lädt kein Office.js und wartet nicht
+auf `Office.onReady()`. Die Kontakteverwaltung bleibt im vorhandenen Add-in.
+Klassisches Outlook verwendet weiterhin den Office-Dialog und wartet dort auf
+die Office-Initialisierung. Der stille SSO-Rückruf benötigt ebenfalls kein Office.js.
 
 Bei **Verbindung zum Outlook-Anmeldefenster wird hergestellt … Zeitüberschreitung**
-deshalb zuerst die oben genannten Dateien gemeinsam aktualisieren. Ein Fehler
-beim Laden der Office-Bibliothek erhält nun eine eigene Meldung. Die normale
-Microsoft-Anmeldung bleibt beim Benutzer; eine weitere Administratorfreigabe ist
-für diesen Code-Update nicht erforderlich.
+die oben genannten Dateien gemeinsam auf Cache-Version `20261108.4` aktualisieren.
+Damit wird der hängende Office-Dialog-Handshake in Outlook im Browser umgangen.
+Ein vom Browser blockiertes Microsoft-Anmeldefenster muss zugelassen werden.
+Die Rückmeldung wird nur vom erwarteten Fenster und der exakten CRM-Adresse
+angenommen; Microsoft-Tokens bleiben in der Kontakteansicht und ihrer Tabsitzung.
+Eine weitere Administratorfreigabe ist für dieses Code-Update nicht erforderlich.
 
 Die Seite zeigt nun den jeweiligen Schritt: Konfiguration laden, Microsoft
 initialisieren, Rückmeldung verarbeiten und an Outlook übergeben. Vorbereitung

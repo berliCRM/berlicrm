@@ -15,8 +15,11 @@ async function main() {
   } catch { /* Use the URL/Office/browser hint when storage is unavailable. */ }
   globalThis.BerliI18n.initialize(language);
   const channelKey = 'berliCRM.contacts.authChannel';
+  const modeKey = 'berliCRM.contacts.authMode';
+  const hintKey = 'berliCRM.contacts.authHint';
   let channel;
   let officeReady;
+  let relay = null;
   const step = async (message, work, milliseconds = 20000) => {
     status.textContent = message;
     let timer;
@@ -70,6 +73,21 @@ async function main() {
     location.replace(restart.href);
   });
   const send = async message => {
+    if (channel === 'popup' && relay) {
+      await step(globalThis.BerliI18n.t('COMPLETING_MICROSOFT_SIGN_IN'), async () => {
+        const payload = await BerliAuthRelay.encrypt(relay, message);
+        const response = await fetch(new URL('rest/outlook.php', location.href), {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'completeContactsAuthRelay', flowId: relay.flowId,
+            writeKey: relay.writeKey, payload, language: globalThis.BerliI18n.language }),
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.payload || globalThis.BerliI18n.t('MICROSOFT_SIGN_IN_RELAY_UNAVAILABLE'));
+      });
+      sessionStorage.removeItem('berliCRM.contacts.authRelay');
+      window.close();
+      return;
+    }
     if (channel === 'office') {
       await prepareOffice();
       if (Office.context.ui?.messageParent) {
@@ -85,8 +103,14 @@ async function main() {
     throw new Error(globalThis.BerliI18n.t("PLEASE_START_MICROSOFT_SIGN_IN_FROM_THE_BERLICRM_CONTACTS_VIEW"));
   };
   try {
-    if (params.get('start') === '1') sessionStorage.setItem(channelKey, params.get('channel') || 'popup');
-    channel = sessionStorage.getItem(channelKey);
+    if (typeof BerliAuthRelay !== 'undefined') relay = BerliAuthRelay.readContext(location, sessionStorage);
+    if (params.get('start') === '1') {
+      sessionStorage.setItem(channelKey, params.get('channel') || 'popup');
+      sessionStorage.setItem(modeKey, params.get('mode') === 'silent' ? 'silent' : 'interactive');
+      if (params.get('login_hint')) sessionStorage.setItem(hintKey, params.get('login_hint'));
+      else sessionStorage.removeItem(hintKey);
+    }
+    channel = sessionStorage.getItem(channelKey) || (relay ? 'popup' : null);
     // Initialize the Office dialog before starting or processing authentication.
     // Plain browser popups and the silent MSAL bridge do not need Office.js.
     if (channel === 'office') await prepareOffice();
@@ -110,7 +134,20 @@ async function main() {
       cache: { cacheLocation: 'sessionStorage' },
     });
     await step(globalThis.BerliI18n.t("INITIALIZING_MICROSOFT_SIGN_IN"), () => client.initialize());
-    const result = await step(globalThis.BerliI18n.t("PROCESSING_THE_RESPONSE_FROM_MICROSOFT"), () => client.handleRedirectPromise(), 60000);
+    let result;
+    try {
+      result = await step(globalThis.BerliI18n.t("PROCESSING_THE_RESPONSE_FROM_MICROSOFT"), () => client.handleRedirectPromise(), 60000);
+    } catch (error) {
+      if (channel !== 'popup' || sessionStorage.getItem(modeKey) !== 'silent'
+          || !/\blogin_required\b|\binteraction_required\b|\bconsent_required\b|\bAADSTS50058\b/i.test(error.errorCode || error.message || '')) throw error;
+      // One transition in the already open window; never retry prompt=none in a loop.
+      sessionStorage.setItem(modeKey, 'interactive');
+      const hint = sessionStorage.getItem(hintKey);
+      await step(globalThis.BerliI18n.t('REDIRECTING_TO_MICROSOFT_SIGN_IN'), () => client.loginRedirect({
+        scopes: ['https://graph.microsoft.com/Contacts.ReadWrite'], ...(hint ? { loginHint: hint } : {}),
+      }), 60000);
+      return;
+    }
     if (result) {
       if (!result.accessToken || !result.account?.homeAccountId || !result.expiresOn) throw new Error(globalThis.BerliI18n.t("MICROSOFT_DID_NOT_RETURN_A_COMPLETE_CONTACTS_SIGN_IN"));
       const message = { type: 'berliCRM.contacts.connected', token: result.accessToken,
@@ -119,10 +156,17 @@ async function main() {
       // Clear cached bearer tokens before the parent closes this dialog.
       await step(globalThis.BerliI18n.t("COMPLETING_MICROSOFT_SIGN_IN"), () => client.clearCache());
       sessionStorage.removeItem(channelKey);
+      sessionStorage.removeItem(modeKey);
+      sessionStorage.removeItem(hintKey);
       await send(message);
       showState('success', globalThis.BerliI18n.t("MICROSOFT_ACCOUNT_CONNECTED_2"), globalThis.BerliI18n.t("SIGN_IN_WAS_SUCCESSFUL_YOU_CAN_CLOSE_THIS_WINDOW"));
     } else if (params.get('start') === '1') {
-      await step(globalThis.BerliI18n.t("REDIRECTING_TO_MICROSOFT_SIGN_IN"), () => client.loginRedirect({ scopes: ['https://graph.microsoft.com/Contacts.ReadWrite'], prompt: 'select_account' }), 60000);
+      const mode = params.get('mode');
+      const hint = params.get('login_hint');
+      const request = { scopes: ['https://graph.microsoft.com/Contacts.ReadWrite'],
+        ...(mode === 'silent' ? { prompt: 'none' } : mode === 'reuse' ? {} : { prompt: 'select_account' }),
+        ...(hint && mode !== 'select' ? { loginHint: hint } : {}) };
+      await step(globalThis.BerliI18n.t("REDIRECTING_TO_MICROSOFT_SIGN_IN"), () => client.loginRedirect(request), 60000);
     } else {
       throw new Error(globalThis.BerliI18n.t("THE_SIGN_IN_HAS_EXPIRED_PLEASE_START_THE_CONNECTION_AGAIN_FROM_THE_CONTA"));
     }

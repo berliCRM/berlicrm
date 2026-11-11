@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title data-i18n="BERLICRM_CONTACTS"></title>
   <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
-  <link rel="stylesheet" href="contacts.css?v=20261105.1" />
-  <script src="language.js?v=20261105.1"></script>
+  <link rel="stylesheet" href="contacts.css?v=20261111.4" />
+  <script src="language.js?v=20261111.4"></script>
+  <script src="contacts-auth-relay.js?v=20261108.5"></script>
 </head>
 <body>
   <nav><a href="taskpane.html" data-i18n="BACK_TO_MAIL_AND_CALENDAR"></a></nav>
@@ -21,15 +22,21 @@
       <button type="submit" data-i18n="SIGN_IN_TO_CRM"></button>
     </form>
     <p id="contactLoginStatus" role="status" aria-live="polite"></p>
+    <button id="contactRetry" type="button" hidden data-i18n="TRY_AGAIN"></button>
     <button id="contactLogout" type="button" hidden data-i18n="USE_ANOTHER_ACCOUNT"></button>
   </section>
   <div id="contactWorkspace" hidden>
     <section>
       <h2 data-i18n="MICROSOFT_ACCOUNT"></h2>
       <p id="contactMicrosoftStatus" role="status" aria-live="polite" data-i18n="PREPARING_MICROSOFT_CONNECTION"></p>
+      <details id="contactAutoDetails" hidden>
+        <summary data-i18n="TECHNICAL_DETAILS"></summary>
+        <p id="contactAutoError" class="record-status"></p>
+      </details>
       <div id="contactMicrosoftLogin" hidden>
         <p data-i18n="CONNECT_THE_ACCOUNT_WHOSE_PERSONAL_OUTLOOK_CONTACTS_YOU_WANT_TO_TRANSFER"></p>
         <div class="actions"><button id="contactConnect" type="button" data-i18n="CONNECT_TO_MICROSOFT"></button></div>
+      <button id="contactCancelAuth" type="button" hidden data-i18n="CANCEL_MICROSOFT_SIGN_IN"></button>
       </div>
       <div class="actions"><button id="contactDisconnect" type="button" hidden data-i18n="DISCONNECT"></button></div>
       <label for="contactFolder" data-i18n="OUTLOOK_CONTACT_FOLDER_FOR_IMPORT_AND_EXPORT"></label>
@@ -65,11 +72,12 @@
   </div>
   <footer class="addin-credit">
     <span class="addin-version" data-i18n="ADDIN_VERSION"></span>
+    <span class="addin-version">Build 20261111.4</span>
     <span data-i18n="PROUDLY_MADE_IN_BERLIN_BY_CRM_NOW_GMBH"></span>
   </footer>
   <script src="contact-model.js?v=20261105.1"></script>
   <script src="contact-graph.js?v=20261105.1"></script>
-  <script src="assets/contacts-sso.bundle.js?v=20261105.1"></script>
-  <script src="contacts.js?v=20261105.1"></script>
+  <script src="assets/contacts-sso.bundle.js?v=20261111.3"></script>
+  <script src="contacts.js?v=20261111.4"></script>
 </body>
 </html>

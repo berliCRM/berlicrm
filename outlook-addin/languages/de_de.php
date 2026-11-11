@@ -5,11 +5,15 @@
  * @package berliCRM.OfficeAddins.Languages
  */
 return array(
+    'MICROSOFT_SIGN_IN_WINDOW_ERROR' => 'Microsoft-Anmeldefenster: {0}',
+    'AUTOMATIC_MICROSOFT_SIGN_IN_IFRAME_LIMIT' => 'Die stille Browser-Anmeldung kann durch gesperrte Drittanbieter-Cookies oder eine erforderliche Anmeldung/Zustimmung verhindert werden. Verwende dann „Mit Microsoft verbinden“.',
+    'MICROSOFT_SIGN_IN_RELAY_UNAVAILABLE' => 'Die Microsoft-Anmeldung kann gerade nicht an das Add-in übergeben werden. Bitte erneut versuchen.',
+    'CANCEL_MICROSOFT_SIGN_IN' => 'Microsoft-Anmeldung abbrechen',
     'ACCESS_KEY' => 'Access Key',
     'ACCESS_NOT_GRANTED' => 'Zugriff nicht freigegeben',
     'ACTION_IS_MISSING_OR_INVALID' => 'Action fehlt oder ist ungültig.',
     'ADDING_RECIPIENTS_STOPPED' => 'Hinzufügen abgebrochen: ',
-    'ADDIN_VERSION' => 'Version 1.1.0.0',
+    'ADDIN_VERSION' => 'Version 1.1.0.1',
     'ADD_RECIPIENTS_IN_OUTLOOK' => 'Empfänger in Outlook hinzufügen',
     'ADD_TO_OUTLOOK' => 'Zu Outlook hinzufügen',
     'ADD_TO_OUTLOOK_ARIA_SUFFIX' => ' zu Outlook hinzufügen',

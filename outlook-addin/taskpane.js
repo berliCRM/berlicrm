@@ -13,9 +13,14 @@ async function initializeTaskpane() {
   searchButton.addEventListener('click', searchContacts);
   searchVerteilerButton.addEventListener('click', searchVerteiler);
   eventsButton.addEventListener('click', loadEvents);
-  await restoreSession();
+  document.getElementById('contactsManagerAnchor')?.addEventListener('click', launchContactsManager);
+  // Register Outlook handlers immediately, as before the language update.
+  const restoring = restoreSession();
+  const restoringGeneration = crmSessionGeneration;
   if (typeof initializeMailReadPane === 'function') initializeMailReadPane();
   initializeCalendarPane();
+  await restoring;
+  if (restoringGeneration === crmSessionGeneration) refreshTaskpaneMode();
 }
 
 let sessionName = null;
@@ -24,6 +29,34 @@ let crmUsername = '';
 let recipientTransferInProgress = false;
 let verteilerSearchGeneration = 0;
 let crmSessionGeneration = 0;
+
+function launchContactsManager(event) {
+  if (event.defaultPrevented || event.button > 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey
+      || !sessionName || typeof Office === 'undefined' || Office.context?.platform !== 'OfficeOnline') return;
+  const address = new URL(event.currentTarget.href, window.location.href);
+  const expected = new URL('contacts.html', window.location.href);
+  if (address.origin !== expected.origin || address.pathname !== expected.pathname) return;
+  try {
+    const cached = JSON.parse(window.sessionStorage.getItem('berliCRM.outlook.contacts.microsoft:' + API_URL));
+    const scope = cached && JSON.parse(cached.scope);
+    if (scope?.[0] === API_URL && scope[1] === sessionName && scope[2] === crmUserId
+        && cached.connection?.token && cached.connection.expiresAt > Date.now() + 30000) return;
+  } catch { /* No usable tab cache; the contacts view validates the actual connection. */ }
+  let popup;
+  try {
+    // Reserve the authentication window inside this real user click, before any fetch/navigation.
+    popup = window.open('about:blank', 'berliCRMContactsAuth', 'width=600,height=720');
+    if (!popup) return;
+    if (popup.document?.body) popup.document.body.textContent = globalThis.BerliI18n.t('PREPARING_SIGN_IN');
+    address.searchParams.set('preparedAuth', String(Date.now()));
+    address.searchParams.set('outlookPlatform', 'OfficeOnline');
+    event.preventDefault();
+    window.location.assign(address.href);
+  } catch {
+    if (popup) try { popup.close(); } catch { /* Normal link navigation still works. */ }
+    if (event.defaultPrevented) window.location.assign(expected.href);
+  }
+}
 
 async function restoreSession() {
   const generation = ++crmSessionGeneration;
@@ -40,6 +73,7 @@ async function restoreSession() {
       window.localStorage.removeItem(SESSION_STORAGE_KEY);
       return;
     }
+    if (saved.language) globalThis.BerliI18n.setLanguage(saved.language);
 
     const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ language: globalThis.BerliI18n.language, action: 'getUserPreferences', sessionName: saved.sessionName }) });
@@ -89,7 +123,7 @@ async function login() {
       }
 
       sessionName = result.payload.sessionName;
-      globalThis.BerliI18n.setLanguage(result.payload.language);
+      if (result.payload.language) globalThis.BerliI18n.setLanguage(result.payload.language);
       crmUserId = result.payload.userId;
       crmUsername = username;
       document.getElementById('accessKey').value = '';
@@ -98,6 +132,7 @@ async function login() {
           username,
           sessionName,
           userId: crmUserId,
+          language: globalThis.BerliI18n.language,
         }));
         loginStatus.textContent = globalThis.BerliI18n.t("SIGNED_IN_YOUR_CRM_SESSION_WILL_BE_REUSED_WHEN_YOU_REOPEN_THE_ADD_IN");
       } catch (error) {

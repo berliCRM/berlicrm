@@ -227,7 +227,7 @@ foreach (array('https://crm.example.net', 'https://crm.example.net:8443/a/b/', '
     checkOutlookAddin($xml->loadXML($manifest), 'Invalid generated XML');
     $xpath = new DOMXPath($xml);
     checkOutlookAddin($xpath->evaluate('string(/*/*[local-name()="Id"])') === '4fbaf5e4-1f93-4c85-9cbf-128c7d8a1909', 'Manifest ID changed');
-    checkOutlookAddin($xpath->evaluate('string(/*/*[local-name()="Version"])') === '1.1.0.0', 'Manifest version changed');
+    checkOutlookAddin($xpath->evaluate('string(/*/*[local-name()="Version"])') === '1.1.0.1', 'Unexpected manifest version');
     checkOutlookAddin($xpath->evaluate('string(/*/*[local-name()="Permissions"])') === 'ReadWriteItem', 'Manifest permissions changed');
     checkOutlookAddin(strpos($manifest, rtrim($base, '/') . '/outlook-addin/taskpane.html') !== false, 'CRM subpath/port missing');
     checkOutlookAddin(strpos($manifest, 'crm.example.org') === false, 'Placeholder URL left in manifest');

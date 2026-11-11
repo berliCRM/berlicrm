@@ -19,6 +19,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
 
 require_once __DIR__ . '/OutlookWebserviceClient.php';
 require_once __DIR__ . '/OutlookContactsConfig.php';
+require_once __DIR__ . '/OutlookAuthRelay.php';
 
 $config = [];
 if (file_exists(__DIR__ . '/outlook.config.php')) {
@@ -76,6 +77,10 @@ function actionHandler(array $input, array $config): void
         if ($action === 'getContactsMicrosoftConfig') {
             jsonResponse(true, outlookContactsMicrosoftConfig($config));
         }
+        if ($action === 'completeContactsAuthRelay') {
+            requireParams($input, ['flowId', 'writeKey', 'payload']);
+            jsonResponse(true, (new OutlookAuthRelay($config))->complete($input['flowId'], $input['writeKey'], $input['payload']));
+        }
         $service = new OutlookWebserviceClient($clientConfig);
         if (!empty($input['sessionName'])) {
             $preferences = $service->customOperation('office_addin_user_preferences', [], $input['sessionName']);
@@ -83,6 +88,17 @@ function actionHandler(array $input, array $config): void
         }
 
         switch ($action) {
+            case 'beginContactsAuthRelay':
+                requireParams($input, ['sessionName']);
+                jsonResponse(true, (new OutlookAuthRelay($config))->begin($input['sessionName']));
+                break;
+            case 'pollContactsAuthRelay':
+            case 'closeContactsAuthRelay':
+                requireParams($input, ['sessionName', 'flowId']);
+                $relay = new OutlookAuthRelay($config);
+                jsonResponse(true, $action === 'pollContactsAuthRelay'
+                    ? $relay->poll($input['flowId'], $input['sessionName']) : $relay->close($input['flowId'], $input['sessionName']));
+                break;
             case 'getUserPreferences':
                 requireParams($input, ['sessionName']);
                 jsonResponse(true, $preferences);
