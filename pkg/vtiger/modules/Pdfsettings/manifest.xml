@@ -5,7 +5,7 @@
 <label>Pdfsettings</label>
 <parent>Tools</parent>
 <type>extension</type>
-<version>2.4</version>
+<version>2.5</version>
 <dependencies>
 <vtiger_version>6.0.0RC</vtiger_version>
 </dependencies>
@@ -111,6 +111,17 @@
   `tcpdfname` varchar(30) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `namedisplay` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`fontid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+</table>
+<table>
+<name>berli_pdfletterhead</name>
+<sql><![CDATA[CREATE TABLE `berli_pdfletterhead` (
+  `id` tinyint(1) NOT NULL DEFAULT '1',
+  `first_document_id` int(11) DEFAULT NULL,
+  `continuation_document_id` int(11) DEFAULT NULL,
+  `updated_by` int(11) DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 </table>
 </tables>

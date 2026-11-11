@@ -10,8 +10,8 @@
 
 Class Settings_ModuleManager_Index_View extends Settings_Vtiger_Index_View {
 
-	public function  preProcess(Vtiger_Request $request) {
-		parent::preProcess($request);
+	public function preProcess(Vtiger_Request $request, bool $display=false): void {
+		parent::preProcess($request, $display);
 	}
 
 	public function process(Vtiger_Request $request) {

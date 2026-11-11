@@ -14,7 +14,7 @@ require_once 'modules/WSAPP/Utils.php';
 
 /**
  * @berli-openapi-begin
- * {"summary":"Upload synchronization changes","description":"Applies created, updated or deleted records from a registered WSAPP client.","tags":["WSAPP"],"parameters":{"key":{"required":true,"description":"Registered synchronization client key.","example":"client-key"},"element":{"required":true,"description":"JSON synchronization change set.","example":"{\"created\":[],\"updated\":[],\"deleted\":[]}","decodedSchema":{"type":"object","additionalProperties":true}}},"result":{"schema":{"type":"object","additionalProperties":true},"example":{"created":[],"updated":[],"deleted":[]}}}
+ * {"summary":"Upload synchronization changes","description":"Applies created, updated or deleted records from a registered WSAPP client.","tags":["WSAPP"],"parameters":{"key":{"required":true,"description":"Registered synchronization client key.","example":"client-key"},"element":{"required":true,"description":"JSON synchronization record or record list.","example":"[{\"id\":\"external-1\",\"module\":\"Contacts\",\"mode\":\"save\",\"values\":{\"lastname\":\"Doe\"}}]","decodedSchema":{"oneOf":[{"type":"object","additionalProperties":true},{"type":"array","items":{"type":"object","additionalProperties":true}}]}}},"result":{"schema":{"type":"object","required":["created","updated","deleted"],"properties":{"created":{"type":"array","items":{"type":"object","additionalProperties":true}},"updated":{"type":"array","items":{"type":"object","additionalProperties":true}},"deleted":{"type":"array","items":{"type":"string"}}},"additionalProperties":true},"example":{"created":[],"updated":[],"deleted":[]}}}
  * @berli-openapi-end
  */
 function wsapp_put ($key, $element, $user) {

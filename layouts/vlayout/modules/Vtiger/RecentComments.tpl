@@ -35,6 +35,7 @@
 			{/if}
 		</div>
 		<hr><br>
+		{include file='CommentDisplayControls.tpl'|@vtemplate_path}
 		<div class="commentsList commentsBody">
 			{include file='CommentsList.tpl'|@vtemplate_path
 			COMMENT_MODULE_MODEL=$COMMENTS_MODULE_MODEL

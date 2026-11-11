@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp
+  xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+  xsi:type="MailApp">
+
+  <Id>3f8b0d0d-56f1-4cbc-a60f-f4b7f783b6c0</Id>
+
+  <Version>1.0.0.0</Version>
+  <ProviderName>CRM-NOW</ProviderName>
+  <DefaultLocale>de-DE</DefaultLocale>
+
+  <DisplayName DefaultValue="CRM-NOW Test"/>
+
+  <Description DefaultValue="Minimaler Outlook-Test"/>
+
+  <IconUrl DefaultValue="https://unsercrm.i1.crm-now.de/outlook-addin/assets/icon-80.png"/>
+  <HighResolutionIconUrl DefaultValue="https://unsercrm.i1.crm-now.de/outlook-addin/assets/icon-80.png"/>
+
+  <SupportUrl DefaultValue="https://unsercrm.i1.crm-now.de"/>
+
+  <AppDomains>
+    <AppDomain>https://unsercrm.i1.crm-now.de</AppDomain>
+  </AppDomains>
+
+  <Hosts>
+    <Host Name="Mailbox"/>
+  </Hosts>
+
+  <Requirements>
+    <Sets>
+      <Set Name="Mailbox" MinVersion="1.5"/>
+    </Sets>
+  </Requirements>
+
+  <Permissions>ReadItem</Permissions>
+
+  <Rule xsi:type="RuleCollection" Mode="Or">
+    <Rule xsi:type="ItemIs"
+          ItemType="Message"
+          FormType="Read"/>
+  </Rule>
+
+  <VersionOverrides
+      xmlns="http://schemas.microsoft.com/office/mailappversionoverrides"
+      xsi:type="VersionOverridesV1_0">
+
+    <Requirements>
+      <bt:Sets DefaultMinVersion="1.5">
+        <bt:Set Name="Mailbox"/>
+      </bt:Sets>
+    </Requirements>
+
+    <Hosts>
+      <Host xsi:type="MailHost">
+
+        <DesktopFormFactor>
+
+          <FunctionFile resid="Commands.Url"/>
+
+          <ExtensionPoint xsi:type="MessageReadCommandSurface">
+
+            <OfficeTab id="TabDefault">
+
+              <Group id="crmnow_group">
+
+                <Label resid="groupLabel"/>
+
+                <Control xsi:type="Button"
+                         id="crmnow_open">
+
+                  <Label resid="buttonLabel"/>
+
+                  <Supertip>
+                    <Title resid="buttonLabel"/>
+                    <Description resid="buttonDescription"/>
+                  </Supertip>
+
+                  <Icon>
+                    <bt:Image size="16" resid="icon16"/>
+                    <bt:Image size="32" resid="icon32"/>
+                    <bt:Image size="80" resid="icon80"/>
+                  </Icon>
+
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="taskpaneUrl"/>
+                  </Action>
+
+                </Control>
+
+              </Group>
+
+            </OfficeTab>
+
+          </ExtensionPoint>
+
+        </DesktopFormFactor>
+
+      </Host>
+    </Hosts>
+
+    <Resources>
+
+      <bt:Images>
+        <bt:Image id="icon16"
+            DefaultValue="https://unsercrm.i1.crm-now.de/outlook-addin/assets/icon-16.png"/>
+        <bt:Image id="icon32"
+            DefaultValue="https://unsercrm.i1.crm-now.de/outlook-addin/assets/icon-32.png"/>
+        <bt:Image id="icon80"
+            DefaultValue="https://unsercrm.i1.crm-now.de/outlook-addin/assets/icon-80.png"/>
+      </bt:Images>
+
+      <bt:Urls>
+
+        <bt:Url id="Commands.Url"
+            DefaultValue="https://unsercrm.i1.crm-now.de/outlook-addin/commands.html"/>
+
+        <bt:Url id="taskpaneUrl"
+            DefaultValue="https://unsercrm.i1.crm-now.de/outlook-addin/diagnostic-taskpane.html"/>
+
+      </bt:Urls>
+
+      <bt:ShortStrings>
+        <bt:String id="groupLabel"
+            DefaultValue="CRM-NOW"/>
+        <bt:String id="buttonLabel"
+            DefaultValue="Öffnen"/>
+      </bt:ShortStrings>
+
+      <bt:LongStrings>
+        <bt:String id="buttonDescription"
+            DefaultValue="CRM-NOW öffnen"/>
+      </bt:LongStrings>
+
+    </Resources>
+
+  </VersionOverrides>
+
+</OfficeApp>

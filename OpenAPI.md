@@ -33,6 +33,12 @@ requests still go to `/webservice.php`. Each documented operation contains an
 `include/Webservices/OpenApiGenerator.php` builds the document on every
 request. There is no persistent cache.
 
+Only operations currently present in `vtiger_ws_operation` are emitted. An
+optional integration such as the Word or Outlook add-in therefore appears as
+soon as its installer registers the operation, and disappears again when the
+registration is absent. Handler metadata may be shipped before registration;
+metadata alone never publishes an operation.
+
 The generator combines two sources:
 
 1. The webservice registry in the database supplies the public operation
@@ -41,6 +47,17 @@ The generator combines two sources:
 2. A structured JSON block in the PHPDoc of the registered handler function
    supplies descriptions, required/optional flags, examples and response
    schemas.
+
+The repository contract can be checked without a running CRM database:
+
+```bash
+composer test-openapi
+```
+
+This command validates the default 45-operation registry, the eight optional
+Word/Outlook registrations, handler argument counts and the rule that optional
+operations remain absent until registered. It is intended to run as a required
+CI check.
 
 The relevant database columns are:
 

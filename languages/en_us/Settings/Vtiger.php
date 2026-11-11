@@ -85,6 +85,12 @@ $languageStrings = array(
 	'LBL_COMPANY_INFORMATION' => 'Company Information',
 	'LBL_COMPANY_LOGO' => 'Company Logo',
 	'LBL_CONFIG_DESCRIPTION' => 'Edit the Configuration details of the CRM',
+	'LBL_MAIL_ENVELOPE_FROM' => 'Envelope-From (bounce address)',
+	'LBL_INSTANCE_NAME' => 'CRM instance name',
+	'LBL_INSTANCE_NAME_HELP' => 'Optional: name for the $instancename$ placeholder in Envelope-From. Use letters (A–Z, a–z), digits, hyphens and underscores. Leave empty to use the database name.',
+	'LBL_INVALID_INSTANCE_NAME' => 'The instance name may only contain letters (A–Z, a–z), digits, hyphens and underscores.',
+	'LBL_MAIL_ENVELOPE_FROM_HELP' => 'Optional: bounce address, e.g. bounce+$instancename$+$uniqmailid$@kunde.de. $instancename$: configured instance name, otherwise database name. $uniqmailid$: stored email record ID. Leave empty for the existing behavior.',
+	'LBL_INVALID_MAIL_ENVELOPE_FROM' => 'Please enter a valid single Envelope-From address.',
 	'LBL_CONFIG_EDITOR' => 'Editor for system functions',
 	'LBL_CONFIG_EDITOR_DESCRIPTION' => 'Update configuration file of the application',
 	'LBL_CONFIG_FILE' => 'config.inc.php',
@@ -384,6 +390,11 @@ $languageStrings = array(
     'LBL_CONFIGTICKETMAIL_ATTACHMENT_FOLDER_EDITOR' => 'Document folder for ticket comment attachments',
 
 );
+
+$languageStrings['LBL_WORD_ADDIN'] = 'Word Add-in';
+$languageStrings['LBL_WORD_ADDIN_DESCRIPTION'] = 'Set up the Word Add-in and generate its installation manifest';
+$languageStrings['LBL_OUTLOOK_ADDIN'] = 'Outlook Add-in';
+$languageStrings['LBL_OUTLOOK_ADDIN_DESCRIPTION'] = 'Set up the Outlook Add-in and generate its manifest and server configuration';
 
 $jsLanguageStrings = array(
 	'JS_ANNOUNCEMENT_SAVED' => 'Announcement Saved',

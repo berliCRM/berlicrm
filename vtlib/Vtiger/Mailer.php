@@ -25,6 +25,7 @@ include_once('config.inc.php');
 include_once('include/database/PearDatabase.php');
 include_once('vtlib/Vtiger/Utils.php');
 include_once('vtlib/Vtiger/Event.php');
+require_once 'vtlib/Vtiger/EnvelopeFrom.php';
 
 /**
  * Provides API to work with PHPMailer & Email Templates
@@ -36,6 +37,9 @@ class Vtiger_Mailer extends PHPMailer {
 	
 	// save body that will be sent by queue here
 	var $unalteredBody = '';
+
+	/** ID of the persisted Emails record, never the recipient's CRM ID. */
+	public $emailId = null;
 
 	/**
 	 * Constructor
@@ -160,6 +164,7 @@ class Vtiger_Mailer extends PHPMailer {
 	 * @access private
 	 */
 	function reinitialize() {
+		$this->emailId = null;
 		$this->ClearAllRecipients();
 		$this->ClearReplyTos();
 		$this->msgHTML('');
@@ -222,10 +227,53 @@ class Vtiger_Mailer extends PHPMailer {
 			// $this->From = $oAuthDetails['user_name'];
 		// }
 
+		// Sender controls SMTP MAIL FROM and the -f option for mail()/sendmail.
+		// Resolve at delivery time too, including existing queue entries.
+		$envelopeFrom = (string) ($GLOBALS['mail_envelope_from'] ?? '');
+		if ($envelopeFrom !== '') {
+			if (!Vtiger_EnvelopeFrom::isValidTemplate($envelopeFrom)) {
+				$this->ErrorInfo = 'Invalid Envelope-From address';
+				return false;
+			}
+			try {
+				// Validate instance data before creating a record for an unarchived mail.
+				Vtiger_EnvelopeFrom::resolve($envelopeFrom, $this->emailId ?: 1);
+				if (strpos($envelopeFrom, '$uniqmailid$') !== false && !$this->emailId) {
+					$this->storeEmailForBounceTracking($linktoid);
+				}
+				$this->Sender = Vtiger_EnvelopeFrom::resolve($envelopeFrom, $this->emailId);
+			} catch (Exception $e) {
+				$this->ErrorInfo = $e->getMessage();
+				return false;
+			}
+		}
+
 		if($sync) return parent::Send();
 
 		$this->__AddToQueue($linktoid);
 		return true;
+	}
+
+	/** Give system mails without an existing Emails record a durable bounce target. */
+	protected function storeEmailForBounceTracking($linktoid) {
+		global $current_user;
+		$email = CRMEntity::getInstance('Emails');
+		$email->column_fields['assigned_user_id'] = !empty($current_user->id) ? $current_user->id : Users::getActiveAdminId();
+		$email->column_fields['subject'] = $this->Subject;
+		$email->column_fields['description'] = $this->Body;
+		$email->column_fields['from_email'] = $this->From;
+		$email->column_fields['saved_toid'] = implode(',', array_column($this->to, 0));
+		$email->column_fields['ccmail'] = implode(',', array_column($this->cc, 0));
+		$email->column_fields['bccmail'] = implode(',', array_column($this->bcc, 0));
+		$email->column_fields['activitytype'] = 'Emails';
+		$email->column_fields['email_flag'] = 'SENT';
+		$email->column_fields['date_start'] = date('Y-m-d');
+		$email->column_fields['time_start'] = date('H:i:s');
+		if (preg_match('/^[1-9][0-9]*$/', (string) $linktoid)) {
+			$email->column_fields['parent_id'] = $linktoid . '@-1';
+		}
+		$email->save('Emails');
+		$this->emailId = $email->id;
 	}
 
 	/**
@@ -249,11 +297,12 @@ class Vtiger_Mailer extends PHPMailer {
 			if(!Vtiger_Utils::CheckTable('vtiger_mailer_queue')) {
 				Vtiger_Utils::CreateTable('vtiger_mailer_queue',
 					'(id INT NOT NULL PRIMARY KEY,
-					fromname VARCHAR(100), fromemail VARCHAR(100),
+					fromname VARCHAR(100), fromemail VARCHAR(100), emailid INT DEFAULT NULL,
 					mailer VARCHAR(10), content_type VARCHAR(15), subject VARCHAR(999), body TEXT, relcrmid INT,
 					failed INT(1) NOT NULL DEFAULT 0, failreason VARCHAR(255))',
 					true);
 			}
+			Vtiger_Utils::AddColumn('vtiger_mailer_queue', 'emailid', 'INT DEFAULT NULL');
 			if(!Vtiger_Utils::CheckTable('vtiger_mailer_queueinfo')) {
 				Vtiger_Utils::CreateTable('vtiger_mailer_queueinfo',
 					'(id INTEGER, name VARCHAR(100), email VARCHAR(100), type VARCHAR(7))',
@@ -291,8 +340,8 @@ class Vtiger_Mailer extends PHPMailer {
 		if($this->__initializeQueue()) {
 			global $adb;
 			$uniqueid = self::__getUniqueId();
-			$adb->pquery('INSERT INTO vtiger_mailer_queue(id,fromname,fromemail,content_type,subject,body,mailer,relcrmid) VALUES(?,?,?,?,?,?,?,?)',
-				Array($uniqueid, $this->FromName, $this->From, $this->ContentType, $this->Subject, $this->unalteredBody, $this->Mailer, $linktoid));
+			$adb->pquery('INSERT INTO vtiger_mailer_queue(id,fromname,fromemail,content_type,subject,body,mailer,relcrmid,emailid) VALUES(?,?,?,?,?,?,?,?,?)',
+				Array($uniqueid, $this->FromName, $this->From, $this->ContentType, $this->Subject, $this->unalteredBody, $this->Mailer, $linktoid, $this->emailId));
 			$queueid = $uniqueid; //$adb->database->Insert_ID();
 			foreach($this->to as $toinfo) {
 				if(empty($toinfo[0])) continue;
@@ -342,6 +391,7 @@ class Vtiger_Mailer extends PHPMailer {
 		}
 
 		$mailer = new self();
+		$mailer->__initializeQueue();
 		$queue = $adb->pquery('SELECT * FROM vtiger_mailer_queue WHERE failed != ?', array(1));
 		if($adb->num_rows($queue)) {
 			$currentUserModel = Users_Record_Model::getCurrentUserModel();
@@ -352,6 +402,7 @@ class Vtiger_Mailer extends PHPMailer {
 
 				$queueid = $queue_record['id'];
 				$relcrmid= $queue_record['relcrmid'];
+				$mailer->emailId = $queue_record['emailid'] ?? null;
 
 				$mailer->From = $queue_record['fromemail'];
 				$mailer->FromName = ($queue_record['fromname']);
@@ -379,10 +430,14 @@ class Vtiger_Mailer extends PHPMailer {
 				}
 
 				try {
-					$sent = $mailer->Send(true);
+					$sent = $mailer->Send(true, $relcrmid);
 				} catch (Exception $e) {
 					$sent = false;
 					$mailer->ErrorInfo = $e->getMessage();
+				}
+				// Keep the bounce target for retries of pre-existing queue entries too.
+				if ($mailer->emailId && empty($queue_record['emailid'])) {
+					$adb->pquery('UPDATE vtiger_mailer_queue SET emailid=? WHERE id=?', array($mailer->emailId, $queueid));
 				}
 				if($sent) {
 					// Event doesn't exist for now in vtiger_eventhandlers, but an object is generated anyway so skip it for now to save time

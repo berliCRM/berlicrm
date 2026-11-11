@@ -126,6 +126,19 @@ PHP;
         $this->assertArrayNotHasKey('success', $success['example']);
     }
 
+    public function testRejectsSemanticallyInvalidMetadata(): void
+    {
+        $metadata = '/** @berli-openapi-begin {"summary":"Invalid","description":"Invalid metadata.","tags":[],"parameters":{"payload":{"required":"yes","description":"Payload.","example":"{}"}},"result":{"schema":{"type":"unknown"},"example":{}}} @berli-openapi-end */';
+        file_put_contents($this->root . '/semantic.php', "<?php $metadata function semantic_handler(\$payload) {}");
+        $rows = array($this->row(1, 'semantic', 'semantic.php', 'semantic_handler', 'POST', 0, 'payload', 'Encoded', 1));
+
+        $document = (new BerliCRM_OpenApiGenerator(new OpenApiGeneratorFakeDb($rows), $this->root))->generate();
+        $operation = $document['paths']['/webservice.php/operations/semantic']['post'];
+
+        $this->assertSame('incomplete', $operation['x-berlicrm-documentation-status']);
+        $this->assertNotEmpty($document['x-berlicrm-documentation-warnings']);
+    }
+
     private function row($id, $name, $path, $method, $type, $prelogin, $parameterName = null, $parameterType = null, $sequence = null): array
     {
         return array(

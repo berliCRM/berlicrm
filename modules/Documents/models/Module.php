@@ -83,6 +83,10 @@ class Documents_Module_Model extends Vtiger_Module_Model {
 		$record = (int) $record;
 		if($sourceModule === 'Emails' && $field === 'composeEmail') {
 			$condition = ' (( vtiger_notes.filelocationtype LIKE "%I%")) AND vtiger_notes.filename != "" AND vtiger_notes.filestatus = 1';
+		} elseif ($sourceModule === 'Pdfsettings' && $field === 'pdf_letterhead') {
+			$condition = 'vtiger_notes.filelocationtype = "I" AND vtiger_notes.filename != "" '
+				. 'AND vtiger_notes.filestatus = 1 AND (LOWER(vtiger_notes.filename) LIKE "%.pdf" '
+				. 'OR LOWER(vtiger_notes.filetype) LIKE "%pdf%")';
 		} else {
 			$condition = " vtiger_notes.notesid NOT IN (SELECT notesid FROM vtiger_senotesrel WHERE crmid = '$record') AND vtiger_notes.filestatus = 1";
 		}

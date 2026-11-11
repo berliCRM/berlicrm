@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0" xsi:type="MailApp">
+  <Id>4fbaf5e4-1f93-4c85-9cbf-128c7d8a1909</Id>
+  <Version>1.2.0.1</Version>
+  <ProviderName>berliCRM</ProviderName>
+  <DefaultLocale>de-DE</DefaultLocale>
+  <DisplayName DefaultValue="berliCRM Outlook"/>
+  <Description DefaultValue="{{OUTLOOK_ADD_IN_FOR_BERLICRM_WITH_CONTACTS_CALENDAR_AND_EMAIL_INTEGRATION}}"/>
+  <IconUrl DefaultValue="https://crm.example.org/outlook-addin/assets/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="https://crm.example.org/outlook-addin/assets/icon-80.png"/>
+  <SupportUrl DefaultValue="https://crm.example.org/"/>
+  <AppDomains>
+    <AppDomain>https://crm.example.org</AppDomain>
+  </AppDomains>
+  <Hosts>
+    <Host Name="Mailbox"/>
+  </Hosts>
+  <Requirements>
+    <Sets>
+      <Set Name="Mailbox" MinVersion="1.3"/>
+    </Sets>
+  </Requirements>
+  <FormSettings>
+    <Form xsi:type="ItemRead">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="https://crm.example.org/outlook-addin/taskpane.html"/>
+        <RequestedHeight>450</RequestedHeight>
+      </DesktopSettings>
+    </Form>
+    <Form xsi:type="ItemEdit">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="https://crm.example.org/outlook-addin/taskpane.html"/>
+      </DesktopSettings>
+    </Form>
+  </FormSettings>
+  <Permissions>ReadWriteItem</Permissions>
+  <Rule xsi:type="RuleCollection" Mode="Or">
+    <Rule xsi:type="ItemIs" ItemType="Message" FormType="Read"/>
+    <Rule xsi:type="ItemIs" ItemType="Message" FormType="Edit"/>
+    <Rule xsi:type="ItemIs" ItemType="Appointment" FormType="Read"/>
+    <Rule xsi:type="ItemIs" ItemType="Appointment" FormType="Edit"/>
+  </Rule>
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Requirements>
+      <bt:Sets DefaultMinVersion="1.3">
+        <bt:Set Name="Mailbox"/>
+      </bt:Sets>
+    </Requirements>
+    <Hosts>
+      <Host xsi:type="MailHost">
+        <DesktopFormFactor>
+          <ExtensionPoint xsi:type="MessageReadCommandSurface">
+            <OfficeTab id="TabDefault">
+              <Group id="berliCrmReadGroup">
+                <Label resid="groupLabel"/>
+                <Control xsi:type="Button" id="berliCrmReadButton">
+                  <Label resid="readPaneButtonLabel"/>
+                  <Supertip>
+                    <Title resid="readPaneButtonLabel"/>
+                    <Description resid="readPaneButtonDesc"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="icon16"/>
+                    <bt:Image size="32" resid="icon32"/>
+                    <bt:Image size="80" resid="icon80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="taskpaneUrl"/>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+          <ExtensionPoint xsi:type="MessageComposeCommandSurface">
+            <OfficeTab id="TabDefault">
+              <Group id="berliCrmComposeGroup">
+                <Label resid="groupLabel"/>
+                <Control xsi:type="Button" id="berliCrmComposeButton">
+                  <Label resid="composePaneButtonLabel"/>
+                  <Supertip>
+                    <Title resid="composePaneButtonLabel"/>
+                    <Description resid="composePaneButtonDesc"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="icon16"/>
+                    <bt:Image size="32" resid="icon32"/>
+                    <bt:Image size="80" resid="icon80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="taskpaneUrl"/>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+          <ExtensionPoint xsi:type="AppointmentOrganizerCommandSurface">
+            <OfficeTab id="TabDefault">
+              <Group id="berliCrmOrganizerGroup">
+                <Label resid="groupLabel"/>
+                <Control xsi:type="Button" id="berliCrmOrganizerButton">
+                  <Label resid="composePaneButtonLabel"/>
+                  <Supertip>
+                    <Title resid="composePaneButtonLabel"/>
+                    <Description resid="calendarPaneButtonDesc"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="icon16"/>
+                    <bt:Image size="32" resid="icon32"/>
+                    <bt:Image size="80" resid="icon80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="taskpaneUrl"/>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+          <ExtensionPoint xsi:type="AppointmentAttendeeCommandSurface">
+            <OfficeTab id="TabDefault">
+              <Group id="berliCrmAttendeeGroup">
+                <Label resid="groupLabel"/>
+                <Control xsi:type="Button" id="berliCrmAttendeeButton">
+                  <Label resid="composePaneButtonLabel"/>
+                  <Supertip>
+                    <Title resid="composePaneButtonLabel"/>
+                    <Description resid="calendarPaneButtonDesc"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="icon16"/>
+                    <bt:Image size="32" resid="icon32"/>
+                    <bt:Image size="80" resid="icon80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="taskpaneUrl"/>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+    <Resources>
+      <bt:Images>
+        <bt:Image id="icon16" DefaultValue="https://crm.example.org/outlook-addin/assets/icon-32.png"/>
+        <bt:Image id="icon32" DefaultValue="https://crm.example.org/outlook-addin/assets/icon-32.png"/>
+        <bt:Image id="icon80" DefaultValue="https://crm.example.org/outlook-addin/assets/icon-80.png"/>
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="taskpaneUrl" DefaultValue="https://crm.example.org/outlook-addin/taskpane.html"/>
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="groupLabel" DefaultValue="berliCRM"/>
+        <bt:String id="readPaneButtonLabel" DefaultValue="{{OPEN_BERLICRM}}"/>
+        <bt:String id="composePaneButtonLabel" DefaultValue="{{OPEN_BERLICRM}}"/>
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="readPaneButtonDesc" DefaultValue="{{OPEN_BERLICRM_AND_DISPLAY_RELATED_CRM_DATA}}"/>
+        <bt:String id="composePaneButtonDesc" DefaultValue="{{OPEN_BERLICRM_AND_SEND_EMAILS_LINKED_TO_CRM_RECORDS}}"/>
+        <bt:String id="calendarPaneButtonDesc" DefaultValue="{{SAVE_OR_UPDATE_THE_OUTLOOK_APPOINTMENT_IN_CRM}}"/>
+      </bt:LongStrings>
+    </Resources>
+    <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">
+      <Requirements>
+        <bt:Sets DefaultMinVersion="1.5">
+          <bt:Set Name="Mailbox"/>
+        </bt:Sets>
+      </Requirements>
+      <Hosts>
+        <Host xsi:type="MailHost">
+          <DesktopFormFactor>
+            <ExtensionPoint xsi:type="MessageReadCommandSurface">
+              <OfficeTab id="TabDefault">
+                <Group id="berliCrmReadGroup">
+                  <Label resid="groupLabel"/>
+                  <Control xsi:type="Button" id="berliCrmReadButton">
+                    <Label resid="readPaneButtonLabel"/>
+                    <Supertip>
+                      <Title resid="readPaneButtonLabel"/>
+                      <Description resid="readPaneButtonDesc"/>
+                    </Supertip>
+                    <Icon>
+                      <bt:Image size="16" resid="icon16"/>
+                      <bt:Image size="32" resid="icon32"/>
+                      <bt:Image size="80" resid="icon80"/>
+                    </Icon>
+                    <Action xsi:type="ShowTaskpane">
+                      <SourceLocation resid="taskpaneUrl"/>
+                      <SupportsPinning>true</SupportsPinning>
+                    </Action>
+                  </Control>
+                </Group>
+              </OfficeTab>
+            </ExtensionPoint>
+            <ExtensionPoint xsi:type="MessageComposeCommandSurface">
+              <OfficeTab id="TabDefault">
+                <Group id="berliCrmComposeGroup">
+                  <Label resid="groupLabel"/>
+                  <Control xsi:type="Button" id="berliCrmComposeButton">
+                    <Label resid="composePaneButtonLabel"/>
+                    <Supertip>
+                      <Title resid="composePaneButtonLabel"/>
+                      <Description resid="composePaneButtonDesc"/>
+                    </Supertip>
+                    <Icon>
+                      <bt:Image size="16" resid="icon16"/>
+                      <bt:Image size="32" resid="icon32"/>
+                      <bt:Image size="80" resid="icon80"/>
+                    </Icon>
+                    <Action xsi:type="ShowTaskpane">
+                      <SourceLocation resid="taskpaneUrl"/>
+                      <SupportsPinning>true</SupportsPinning>
+                    </Action>
+                  </Control>
+                </Group>
+              </OfficeTab>
+            </ExtensionPoint>
+            <ExtensionPoint xsi:type="AppointmentOrganizerCommandSurface">
+              <OfficeTab id="TabDefault">
+                <Group id="berliCrmOrganizerGroup">
+                  <Label resid="groupLabel"/>
+                  <Control xsi:type="Button" id="berliCrmOrganizerButton">
+                    <Label resid="composePaneButtonLabel"/>
+                    <Supertip>
+                      <Title resid="composePaneButtonLabel"/>
+                      <Description resid="calendarPaneButtonDesc"/>
+                    </Supertip>
+                    <Icon>
+                      <bt:Image size="16" resid="icon16"/>
+                      <bt:Image size="32" resid="icon32"/>
+                      <bt:Image size="80" resid="icon80"/>
+                    </Icon>
+                    <Action xsi:type="ShowTaskpane">
+                      <SourceLocation resid="taskpaneUrl"/>
+                    </Action>
+                  </Control>
+                </Group>
+              </OfficeTab>
+            </ExtensionPoint>
+            <ExtensionPoint xsi:type="AppointmentAttendeeCommandSurface">
+              <OfficeTab id="TabDefault">
+                <Group id="berliCrmAttendeeGroup">
+                  <Label resid="groupLabel"/>
+                  <Control xsi:type="Button" id="berliCrmAttendeeButton">
+                    <Label resid="composePaneButtonLabel"/>
+                    <Supertip>
+                      <Title resid="composePaneButtonLabel"/>
+                      <Description resid="calendarPaneButtonDesc"/>
+                    </Supertip>
+                    <Icon>
+                      <bt:Image size="16" resid="icon16"/>
+                      <bt:Image size="32" resid="icon32"/>
+                      <bt:Image size="80" resid="icon80"/>
+                    </Icon>
+                    <Action xsi:type="ShowTaskpane">
+                      <SourceLocation resid="taskpaneUrl"/>
+                    </Action>
+                  </Control>
+                </Group>
+              </OfficeTab>
+            </ExtensionPoint>
+          </DesktopFormFactor>
+        </Host>
+      </Hosts>
+      <Resources>
+        <bt:Images>
+          <bt:Image id="icon16" DefaultValue="https://crm.example.org/outlook-addin/assets/icon-32.png"/>
+          <bt:Image id="icon32" DefaultValue="https://crm.example.org/outlook-addin/assets/icon-32.png"/>
+          <bt:Image id="icon80" DefaultValue="https://crm.example.org/outlook-addin/assets/icon-80.png"/>
+        </bt:Images>
+        <bt:Urls>
+          <bt:Url id="taskpaneUrl" DefaultValue="https://crm.example.org/outlook-addin/taskpane.html"/>
+        </bt:Urls>
+        <bt:ShortStrings>
+          <bt:String id="groupLabel" DefaultValue="berliCRM"/>
+          <bt:String id="readPaneButtonLabel" DefaultValue="{{OPEN_BERLICRM}}"/>
+          <bt:String id="composePaneButtonLabel" DefaultValue="{{OPEN_BERLICRM}}"/>
+        </bt:ShortStrings>
+        <bt:LongStrings>
+          <bt:String id="readPaneButtonDesc" DefaultValue="{{OPEN_BERLICRM_AND_DISPLAY_RELATED_CRM_DATA}}"/>
+          <bt:String id="composePaneButtonDesc" DefaultValue="{{OPEN_BERLICRM_AND_SEND_EMAILS_LINKED_TO_CRM_RECORDS}}"/>
+          <bt:String id="calendarPaneButtonDesc" DefaultValue="{{SAVE_OR_UPDATE_THE_OUTLOOK_APPOINTMENT_IN_CRM}}"/>
+        </bt:LongStrings>
+      </Resources>
+    </VersionOverrides>
+  </VersionOverrides>
+</OfficeApp>

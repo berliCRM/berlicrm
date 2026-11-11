@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>berliCRM Outlook</title>
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <style>
+    body { display: flex; flex-direction: column; min-height: calc(100vh - 32px); font-family: Arial, sans-serif; margin: 16px; color: #323130; }
+    h1 { font-size: 1.3rem; margin-bottom: 0.25rem; }
+    .section { border: 1px solid #e1dfdd; border-radius: 10px; padding: 16px; margin-bottom: 16px; background: #fff; }
+    .section label { display: block; margin-bottom: 6px; font-weight: 600; }
+    .section input, .section textarea, .section select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #c8c6c4; margin-bottom: 12px; }
+    .button { background: #0078d4; border: none; color: white; padding: 10px 16px; border-radius: 6px; cursor: pointer; }
+    .button:disabled { opacity: .6; cursor: not-allowed; }
+    .calendar-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; }
+    .archive-contact { display: flex !important; gap: 10px; padding: 10px; margin: 8px 0 !important; border: 1px solid #edebe9; border-radius: 6px; }
+    .archive-contact input { width: auto; flex: 0 0 auto; margin: 3px 0 0; }
+    .archive-contact span { min-width: 0; overflow-wrap: anywhere; }
+    .archive-contact small { display: block; margin-top: 4px; font-weight: normal; }
+    #mailArchiveAttachmentOption { display: flex; align-items: flex-start; gap: 8px; margin: 14px 0; }
+    #mailArchiveAttachmentOption input { width: auto; margin: 3px 0 0; }
+    #mailArchiveStatus { overflow-wrap: anywhere; }
+    .notice { margin-top: 10px; color: #605e5c; }
+    .result { margin-top: 12px; padding: 12px; background: #f3f2f1; border-radius: 8px; }
+    .record { margin-bottom: 10px; padding: 10px; border: 1px solid #edebe9; border-radius: 8px; }
+    .record strong { display: block; margin-bottom: 4px; }
+    .record-header { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+    .record-header strong { flex: 1; min-width: 0; margin: 0; overflow-wrap: anywhere; }
+    .button-compact { flex-shrink: 0; padding: 4px 8px; font-size: 12px; line-height: 1.3; border-radius: 4px; }
+    .record-details { overflow-wrap: anywhere; }
+    .record-count { font-weight: normal; color: #605e5c; }
+    .addin-credit { color: #605e5c; font-size: 12px; line-height: 1.5; margin-top: auto; padding-top: 18px; text-align: right; }
+    .addin-version { display: block; margin-bottom: 2px; }
+    [hidden] { display: none !important; }
+    input, textarea { box-sizing: border-box; }
+    fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+  </style>
+  <script src="language.js?v=20261111.11"></script>
+</head>
+<body>
+
+  <div class="section">
+    <h2 id="loginHeading" data-i18n="LOGIN_HEADING"></h2>
+    <div id="loginFields">
+    <label for="username" data-i18n="USERNAME"></label>
+    <input id="username" type="text" autocomplete="username" data-i18n-placeholder="CRM_USERNAME_PLACEHOLDER" placeholder="" />
+    <label for="accessKey" data-i18n="ACCESS_KEY"></label>
+    <input id="accessKey" type="password" autocomplete="current-password" data-i18n-placeholder="ACCESS_KEY" placeholder="" />
+    <button id="loginButton" class="button" data-i18n="LOGIN_BUTTON"></button>
+    </div>
+    <div id="loginStatus" class="notice" role="status"></div>
+    <button id="loginSwitchButton" type="button" class="button button-compact" hidden data-i18n="USE_ANOTHER_ACCOUNT"></button>
+    <p class="notice" id="contactsManagerLink"><a id="contactsManagerAnchor" href="contacts.html?v=20261111.5" data-i18n="MANAGE_CRM_AND_OUTLOOK_CONTACTS"></a></p>
+  </div>
+
+  <div class="section" id="mailReadSection" hidden>
+    <h2 data-i18n="SAVE_EMAIL_TO_CRM"></h2>
+    <p id="mailArchiveSender" class="notice"></p>
+    <p id="mailArchiveMatchField" class="notice"></p>
+    <button id="mailArchiveStart" class="button" type="button" disabled data-i18n="SAVE_EMAIL_TO_CRM"></button>
+    <form id="mailArchiveForm" hidden>
+      <p data-i18n="WHICH_CONTACTS_SHOULD_THIS_EMAIL_BE_SAVED_TO_YOU_CAN_SELECT_MORE_THAN_ON"></p>
+      <div id="mailArchiveContacts"></div>
+      <label id="mailArchiveAttachmentOption" hidden>
+        <input id="mailArchiveAttachments" type="checkbox" checked />
+        <span id="mailArchiveAttachmentLabel" data-i18n="INCLUDE_ATTACHMENTS_LABEL"></span>
+      </label>
+      <div class="calendar-actions">
+        <button id="mailArchiveSave" class="button" type="submit" disabled data-i18n="SAVE_EMAIL_TO_SELECTED_CONTACTS"></button>
+      </div>
+    </form>
+    <p id="mailArchiveStatus" class="notice" role="status" aria-live="polite"></p>
+  </div>
+
+  <div class="section" id="calendarSection" hidden>
+    <h2 data-i18n="SAVE_OUTLOOK_APPOINTMENT_TO_CRM"></h2>
+    <p id="calendarTimezone" class="notice"></p>
+    <form id="calendarForm">
+      <fieldset id="calendarFields" disabled>
+        <label id="calendarSubjectLabel" for="calendarSubject" data-i18n="SUBJECT"></label>
+        <input id="calendarSubject" type="text" maxlength="255" required />
+        <label id="calendarStartLabel" for="calendarStart" data-i18n="START"></label>
+        <input id="calendarStart" type="text" required />
+        <label id="calendarEndLabel" for="calendarEnd" data-i18n="END"></label>
+        <input id="calendarEnd" type="text" required />
+        <label id="calendarLocationLabel" for="calendarLocation" data-i18n="LOCATION"></label>
+        <input id="calendarLocation" type="text" maxlength="255" />
+        <label id="calendarDescriptionLabel" for="calendarDescription" data-i18n="DESCRIPTION"></label>
+        <textarea id="calendarDescription" rows="6" maxlength="100000"></textarea>
+      </fieldset>
+      <div class="calendar-actions">
+        <button id="calendarSaveButton" class="button" type="submit" disabled data-i18n="SAVE_TO_CRM"></button>
+        <button id="calendarRefreshButton" class="button" type="button" data-i18n="RELOAD_FROM_OUTLOOK"></button>
+      </div>
+    </form>
+    <p class="notice" data-i18n="THE_OUTLOOK_APPOINTMENT_IS_SAVED_WHEN_YOU_TRANSFER_IT_CHANGES_IN_THIS_FO"></p>
+    <div id="calendarStatus" class="notice" role="status" aria-live="polite"></div>
+  </div>
+
+  <div class="section mail-section">
+    <h2 data-i18n="ADD_RECIPIENTS_IN_OUTLOOK"></h2>
+    <label for="recipientField" data-i18n="OUTLOOK_RECIPIENT_FIELD"></label>
+    <select id="recipientField">
+      <option value="to" data-i18n="TO"></option>
+      <option value="cc" data-i18n="CC"></option>
+      <option value="bcc" data-i18n="BCC"></option>
+    </select>
+    <div id="recipientStatus" class="notice" data-i18n="OPEN_AN_OUTLOOK_EMAIL_DRAFT_TO_ADD_RECIPIENTS"></div>
+  </div>
+
+  <div class="section mail-section">
+    <h2 data-i18n="SEARCH_CRM_CONTACTS"></h2>
+    <input id="searchQuery" type="text" data-i18n-placeholder="NAME_OR_EMAIL" placeholder="" />
+    <button id="searchButton" class="button" data-i18n="SEARCH"></button>
+    <div id="searchResult" class="result"></div>
+  </div>
+
+  <div class="section mail-section">
+    <h2 data-i18n="SEARCH_CRM_DISTRIBUTION_LISTS"></h2>
+    <input id="verteilerQuery" type="text" data-i18n-placeholder="DISTRIBUTION_LIST_NAME" placeholder="" />
+    <button id="searchVerteilerButton" class="button" data-i18n="SEARCH"></button>
+    <div id="verteilerResult" class="result"></div>
+  </div>
+
+  <div class="section mail-section">
+    <h2 data-i18n="RECENT_APPOINTMENTS"></h2>
+    <button id="eventsButton" class="button" data-i18n="LOAD_APPOINTMENTS"></button>
+    <div id="eventsResult" class="result"></div>
+  </div>
+
+  <footer class="addin-credit">
+    <span class="addin-version" data-i18n="ADDIN_VERSION"></span>
+    <span data-i18n="PROUDLY_MADE_IN_BERLIN_BY_CRM_NOW_GMBH"></span>
+  </footer>
+
+  <script src="mail-read.js?v=20261105.1"></script>
+  <script src="calendar.js?v=20261105.1"></script>
+  <script src="taskpane.js?v=20261111.5"></script>
+</body>
+</html>

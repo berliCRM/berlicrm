@@ -8,8 +8,19 @@
 <head><title>BerliCRM updater</title><style>body { font-family: Open sans,sans-serif;}</style>
 <?php
 
+/**
+ * Applies repeatable CRM schema, module and integration updates.
+ *
+ * The Word add-in update installs or moves its Integration menu entry and
+ * registers both authenticated mail-merge operations before advancing the CRM
+ * release tag. A separate Word CLI installation is not required after updating.
+ *
+ * @package berliCRM
+ */
+
 require_once 'includes/main/WebUI.php';
 require_once 'include/utils/utils.php';
+require_once 'include/utils/VersionUtils.php';
 include_once 'vtlib/Vtiger/Module.php';
 include_once 'include/Webservices/Utils.php';
 require_once 'vtlib/Vtiger/Package.php';
@@ -20,7 +31,11 @@ require_once('modules/Install/models/InitSchema.php');
 ini_set('display_errors','on'); error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 global $adb;
 
-// Function to start updates of all Modules.
+/**
+ * Updates installed modules from available mandatory and optional ZIP packages.
+ *
+ * @return void
+ */
 function berli_updateAllModules() {
     echo "<br>\n Updating all modules automatically... ";
     $moduleFolders = array('packages/vtiger/mandatory', 'packages/vtiger/optional');
@@ -51,7 +66,14 @@ function berli_updateAllModules() {
     }
     echo "<br>\n Finished automatic module updates. ";
 }
-// Function to update a module
+/**
+ * Updates an installed module from a package; skips modules not yet installed.
+ *
+ * @param string $moduleName Module name used in progress messages.
+ * @param string $moduleFolder Directory containing the ZIP package.
+ * @param string $file ZIP filename.
+ * @return void
+ */
 function berli_updateModuleByName($moduleName, $moduleFolder, $file) {
     $packagepath = "$moduleFolder/$file";
     $package = new Vtiger_Package();
@@ -71,7 +93,12 @@ function berli_updateModuleByName($moduleName, $moduleFolder, $file) {
 }
 
 
-// Function to add normal fields (and blocks)
+/**
+ * Adds missing module blocks and fields described by the update configuration.
+ *
+ * @param array $arrFields Module names mapped to blocks and field definitions.
+ * @return void
+ */
 function berli_addFields($arrFields) {
     global $adb;
 
@@ -203,7 +230,12 @@ function berli_addFields($arrFields) {
     }
 }
 
-// Function to see if primary key exist or not
+/**
+ * Checks for a primary key on a table in the current database.
+ *
+ * @param string $tableName Database table name.
+ * @return bool Whether a primary key is present.
+ */
 function hasPrimaryKey($tableName) {
     global $adb;
     $sql = "
@@ -217,13 +249,15 @@ function hasPrimaryKey($tableName) {
     return ((int)$adb->query_result($res, 0, 'cnt') > 0);
 }
 
-$res = $adb->query("SELECT tag_version FROM vtiger_version");
-$installedtag = $adb->query_result($res,0,'tag_version');
+$installedtag = BerliCRM_Version_Utils::getInstalledTag($adb);
 if ($installedtag == $current_release_tag) {
 	die("This installation of berliCRM is up to date.");
 }
 
-echo "<h1>Updating from $installedtag to $current_release_tag..</h1>";
+$installedVersionLabel = ($installedtag === null || $installedtag === '')
+    ? 'an unversioned installation'
+    : $installedtag;
+echo "<h1>Updating from $installedVersionLabel to $current_release_tag..</h1>";
 {
     echo "Remove special UI types of salutation and name fields in leads and contacts...";
     $query = "UPDATE vtiger_field SET uitype = '15', displaytype = 1, summaryfield = 1 WHERE columnname = 'salutation'";
@@ -929,6 +963,14 @@ echo "<br>\n 14 days payment interval done ";
 
 echo '<br>\n module Toolwidget update started ';
 
+/**
+ * Adds a missing detail-view sidebar widget link to an installed module.
+ *
+ * @param string $moduleName Target module name.
+ * @param string $label Link label.
+ * @param string $url Widget URL.
+ * @return void
+ */
 function checkAndAddLink($moduleName, $label, $url) {
     global $adb;
     
@@ -948,6 +990,13 @@ function checkAndAddLink($moduleName, $label, $url) {
     }
 }
 
+/**
+ * Removes obsolete copy-contact-detail widget links from the selected module.
+ *
+ * @param string $moduleName Target module name.
+ * @param string $correctUrlPattern SQL LIKE pattern identifying links to retain.
+ * @return void
+ */
 function deleteOldLinks($moduleName, $correctUrlPattern) {
     global $adb;
 
@@ -1129,6 +1178,12 @@ foreach ($newValues as $value) {
 }
 
 
+/**
+ * Checks whether a project directory contains Composer manifest and lock files.
+ *
+ * @param string $projectPath Project directory to inspect.
+ * @return bool Whether both Composer files exist.
+ */
 function isComposerUsed(string $projectPath = __DIR__): bool
 {
     $composerJson = $projectPath . DIRECTORY_SEPARATOR . 'composer.json';
@@ -1280,6 +1335,12 @@ echo "<br>\n Add new fields to the module: ModComments, END ... ";
 // ------------------------------------------------------------
 // Helper functions
 // ------------------------------------------------------------
+/**
+ * Checks for a database table matching the supplied SHOW TABLES pattern.
+ *
+ * @param string $tableName Table name or SQL LIKE pattern.
+ * @return bool Whether a matching table exists.
+ */
 function tableExists($tableName) {
     global $adb;
     $tableNameEsc = $adb->sql_escape_string($tableName);
@@ -1288,24 +1349,52 @@ function tableExists($tableName) {
     return ($res && $adb->num_rows($res) > 0);
 }
 
+/**
+ * Checks for a column in an updater-controlled database table.
+ *
+ * @param string $column Column name or SQL LIKE pattern.
+ * @param string $table Trusted table identifier from update code.
+ * @return bool Whether a matching column exists.
+ */
 function columnExists_db($column, $table) {
     global $adb;
     $res = $adb->pquery("SHOW COLUMNS FROM $table LIKE ? ", array($column));
     return ($res && $adb->num_rows($res) > 0);
 }
 
+/**
+ * Checks whether a parameterized lookup returns at least one row.
+ *
+ * @param string $sql Lookup query.
+ * @param array $params Positional query parameters.
+ * @return bool Whether the query succeeds and returns a row.
+ */
 function recordExists($sql, $params = []) {
     global $adb;
     $res = $adb->pquery($sql, $params);
     return ($res && $adb->num_rows($res) > 0);
 }
 
+/**
+ * Checks whether a named web-service operation is registered.
+ *
+ * @param string $name Operation name.
+ * @return bool Whether a registration exists.
+ */
 function wsOperationExists($name) {
     global $adb;
     $res = $adb->pquery("SELECT 1 FROM vtiger_ws_operation WHERE name = ? ", [$name]);
     return ($res && $adb->num_rows($res) > 0);
 }
 
+/**
+ * Checks whether a related-list handler is registered between two modules.
+ *
+ * @param int $tabid Source module tab ID.
+ * @param int $relatedTabid Related module tab ID.
+ * @param string $name Related-list handler name.
+ * @return bool Whether the matching registration exists.
+ */
 function relatedListExists($tabid, $relatedTabid, $name) {
     global $adb;
     $res = $adb->pquery(
@@ -1397,6 +1486,19 @@ if(!empty($errors)){
     echo $errors;
 }
 echo "<br>\n New tables done ";
+
+
+// Global first-page and continuation-page letterheads for inventory PDFs.
+echo "<br>\n Install global PDF letterhead configuration START ";
+$adb->pquery("CREATE TABLE IF NOT EXISTS `berli_pdfletterhead` (
+    `id` tinyint(1) NOT NULL DEFAULT '1',
+    `first_document_id` int(11) DEFAULT NULL,
+    `continuation_document_id` int(11) DEFAULT NULL,
+    `updated_by` int(11) DEFAULT NULL,
+    `updated_at` datetime DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", array());
+echo "<br>\n Install global PDF letterhead configuration END ";
 
 
 // do some table modifications
@@ -1521,10 +1623,38 @@ echo "<br>\n Install Webservices from InitSchema if not present START ";
 Install_InitSchema_Model::addNewWebservices();
 echo "<br>\n Install Webservices from InitSchema if not present END ";
 
+// Word add-in update START
+echo "<br>\n Install Word Add-in menu and webservices START ";
+require_once 'modules/Settings/WordAddin/models/Module.php';
+Settings_WordAddin_Module_Model::registerSettingsMenu();
+Settings_WordAddin_Module_Model::registerOperations();
+echo "<br>\n Install Word Add-in menu and webservices END ";
+// Word add-in update END
+
+// Outlook add-in update START
+echo "<br>\n Install Outlook Add-in menu and webservices START ";
+require_once __DIR__ . '/outlook-addin/update.php';
+berli_outlookAddinUpdate();
+echo "<br>\n Install Outlook Add-in menu and webservices END ";
+// Outlook add-in update END
+
+// remove PBXManager reference if present START
+echo "<br>\n Remove PBXManager reference if present START ";
+$path = 'packages/vtiger/mandatory/PBXManager.zip';
+if (file_exists($path)) {
+	unlink($path);
+}
+$moduleName = 'PBXManager';
+$moduleInstance = Vtiger_Module::getInstance($moduleName);
+if ($moduleInstance) {
+	$moduleInstance->delete();
+}
+echo "<br>\n Remove PBXManager reference if present END ";
+// remove PBXManager reference if present END
+
 ///////////////////////////////////////////////////////////////////////////
 // on the End, we set update of Version Nummer and updates of all Modules:
 berli_updateAllModules();
 
-$query = "UPDATE `vtiger_version` SET `tag_version` = ?";
-$adb->pquery($query, array($current_release_tag));
+BerliCRM_Version_Utils::setInstalledTag($adb, $current_release_tag, $vtiger_current_version);
 echo "<h2>Finished updating to $current_release_tag!</h2>";

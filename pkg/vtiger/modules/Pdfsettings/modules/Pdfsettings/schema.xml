@@ -104,5 +104,16 @@
   PRIMARY KEY (`fontid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
 		</table>
+		<table>
+			<name>berli_pdfletterhead</name>
+			<sql><![CDATA[CREATE TABLE `berli_pdfletterhead` (
+  `id` tinyint(1) NOT NULL DEFAULT '1',
+  `first_document_id` int(11) DEFAULT NULL,
+  `continuation_document_id` int(11) DEFAULT NULL,
+  `updated_by` int(11) DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci]]></sql>
+		</table>
 	</tables>
 </schema>

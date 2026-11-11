@@ -23,12 +23,12 @@ class Vtiger_PDF_InventoryFooterViewer extends Vtiger_PDF_FooterViewer {
 			$footerTitleHeight = 8.0;
 			
 			$termsConditionText = $this->model->get(self::$TERMSANDCONDITION_DATA_KEY);
-			$termsConditionHeight = $pdf->GetStringHeight($termsConditionText, $parent->getTotalWidth());
+			$termsConditionHeight = $pdf->getSimpleStringHeight($termsConditionText, $parent->getTotalWidth());
 
 			if($termsConditionHeight) $termsConditionHeight += $footerTitleHeight;
 
 			$descriptionText = $this->model->get(self::$DESCRIPTION_DATA_KEY);
-			$descriptionHeight = $pdf->GetStringHeight($descriptionText, $parent->getTotalWidth());
+			$descriptionHeight = $pdf->getSimpleStringHeight($descriptionText, $parent->getTotalWidth());
 
 			if($descriptionHeight) $descriptionHeight += $footerTitleHeight;
 
@@ -47,7 +47,7 @@ class Vtiger_PDF_InventoryFooterViewer extends Vtiger_PDF_FooterViewer {
 			
 			$descriptionString = $this->labelModel->get(self::$DESCRIPTION_LABEL_KEY);
 			$description = $this->model->get(self::$DESCRIPTION_DATA_KEY);
-			$descriptionHeight = $pdf->GetStringHeight($descriptionString, $footerFrame->w);
+			$descriptionHeight = $pdf->getSimpleStringHeight($descriptionString, $footerFrame->w);
 			$pdf->SetFillColor(205,201,201);
 			$pdf->MultiCell($footerFrame->w, $descriptionHeight, $descriptionString, 1, 'L', 1, 1, $footerFrame->x, $footerFrame->y);
 			$pdf->MultiCell($footerFrame->w, $targetFooterHeight - $descriptionHeight, $description, 1, 'L',
@@ -56,7 +56,7 @@ class Vtiger_PDF_InventoryFooterViewer extends Vtiger_PDF_FooterViewer {
 			$termsAndConditionLabelString = $this->labelModel->get(self::$TERMSANDCONDITION_LABEL_KEY);
 			$termsAndCondition = $this->model->get(self::$TERMSANDCONDITION_DATA_KEY);
 			$offsetY = 2.0;
-			$termsAndConditionHeight = $pdf->GetStringHeight($termsAndConditionLabelString, $footerFrame->w);
+			$termsAndConditionHeight = $pdf->getSimpleStringHeight($termsAndConditionLabelString, $footerFrame->w);
 			$pdf->SetFillColor(205,201,201);
 			$pdf->MultiCell($footerFrame->w, $termsAndConditionHeight, $termsAndConditionLabelString, 1, 'L', 1, 1,
 				$pdf->GetX(), $pdf->GetY() + $offsetY);

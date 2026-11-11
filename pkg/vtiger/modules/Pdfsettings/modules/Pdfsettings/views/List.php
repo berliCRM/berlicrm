@@ -9,6 +9,7 @@
  * All Rights Reserved.
  *************************************************************************************/
 require_once 'modules/Pdfsettings/helpers/PDFutils.php';
+require_once 'include/InventoryPdfGenerator.php';
 /**
  * Pdfsettings ListView Model Class
  */
@@ -318,6 +319,12 @@ class Pdfsettings_List_View extends Vtiger_Index_View {
 		//decide the view
 		$currentUser = Users_Record_Model::getCurrentUserModel();
 		$viewer->assign("MODULEVIEW", $currentUser->isAdminUser());
+		$letterheadIds = InventoryPdfLetterheadSettings::getDocumentIds();
+		$firstLetterhead = InventoryPdfLetterheadResolver::resolveDocument($letterheadIds['first_document_id']);
+		$continuationLetterhead = InventoryPdfLetterheadResolver::resolveDocument($letterheadIds['continuation_document_id']);
+		$viewer->assign('LETTERHEAD_IDS', $letterheadIds);
+		$viewer->assign('LETTERHEAD_FIRST_STATUS', $firstLetterhead);
+		$viewer->assign('LETTERHEAD_CONTINUATION_STATUS', $continuationLetterhead);
 		
 		$viewer = $this->getViewer($request);
 		$viewer->assign('MODULE',$module);
@@ -335,6 +342,8 @@ class Pdfsettings_List_View extends Vtiger_Index_View {
 
 		$jsFileNames = array(
 			'modules.Vtiger.resources.List',
+			'modules.Vtiger.resources.Popup',
+			'libraries.jquery.jquery_windowmsg',
 			"modules.$moduleName.resources.List",
 			'modules.CustomView.resources.CustomView',
 			"modules.$moduleName.resources.CustomView",

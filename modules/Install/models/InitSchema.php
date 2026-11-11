@@ -12,11 +12,26 @@ vimport('~~modules/Users/DefaultDataPopulator.php');
 vimport('~~include/PopulateComboValues.php');
 require_once('includes/main/WebUI.php');
 require_once('include/utils/utils.php');
+require_once('include/utils/VersionUtils.php');
 require_once('modules/com_vtiger_workflow/VTTaskManager.inc');
 require_once('modules/com_vtiger_workflow/tasks/VTEmailTask.inc');
 
 class Install_InitSchema_Model
 {
+    /**
+     * Stores the release installed by this source tree.
+     *
+     * The row is created as well as updated because older or interrupted
+     * installations can have an empty vtiger_version table.
+     */
+    private static function setCurrentVersionTag()
+    {
+        global $adb;
+
+        require 'vtigerversion.php';
+        BerliCRM_Version_Utils::setInstalledTag($adb, $current_release_tag, $vtiger_current_version);
+    }
+
     /**
      * Function starts applying schema changes
      */
@@ -43,9 +58,7 @@ class Install_InitSchema_Model
         if ($adb->database->_failedQuery) {
             return $adb->database->_failedQuery;
         } else {
-            require 'vtigerversion.php';
-            $query = "UPDATE `vtiger_version` SET `tag_version` = ?";
-            $adb->pquery($query, array($current_release_tag));
+            self::setCurrentVersionTag();
         }
 
         self::createCurrency();
@@ -747,7 +760,7 @@ class Install_InitSchema_Model
 
         //set tag
         file_put_contents($path, "[".date('Y-m-d h:i:s')."] Update version table\n", FILE_APPEND);
-        $adb->pquery("UPDATE vtiger_version SET tag_version = ? WHERE id = ?;", array($_SESSION['installer_info']['svn_tag'], 1));
+        self::setCurrentVersionTag();
 
         //crm-now: new settings menu for PDF templates
         file_put_contents($path, "[".date('Y-m-d h:i:s')."] Update vtiger_field to add PDF Templates entry\n", FILE_APPEND);
@@ -815,6 +828,15 @@ class Install_InitSchema_Model
         self::addNewConfigEditSettingTables();
         self::addEmailConfigurator();
         self::alterTables();
+
+        // Office add-ins installation START
+        // New installations need the same registrations as the CRM updater.
+        require_once 'modules/Settings/WordAddin/models/Module.php';
+        Settings_WordAddin_Module_Model::registerSettingsMenu();
+        Settings_WordAddin_Module_Model::registerOperations();
+        require_once 'outlook-addin/update.php';
+        berli_outlookAddinUpdate();
+        // Office add-ins installation END
 
         //last step, set info this system was installed
         $path = Install_Utils_Model::INSTALL_FINISHED;

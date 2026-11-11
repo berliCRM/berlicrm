@@ -450,9 +450,10 @@ jQuery.Class("Vtiger_Detail_Js", {
 		var thisInstance = this;
 		var maxLines = 5;
 		var visibleTextLines = maxLines - 1;
+		this.initializeCommentDisplayControls();
 
 		jQuery(container).filter('.commentInfoContent').add(jQuery(container).find('.commentInfoContent')).filter(function () {
-			return jQuery(this).closest('.recentComments').length > 0;
+			return jQuery(this).closest('.commentContainer').length > 0;
 		}).each(function () {
 			var commentContent = jQuery(this);
 			var singleComment = commentContent.closest('.singleComment');
@@ -479,15 +480,36 @@ jQuery.Class("Vtiger_Detail_Js", {
 				return;
 			}
 
-			commentContent
-				.addClass('summaryCommentCollapsed')
-				.css('max-height', collapsedHeight + 'px');
-
 			thisInstance.getSummaryCommentEllipsisElement().insertAfter(commentContent);
-
 			var commentActionsDiv = singleComment.find('.commentActionsDiv').first();
-			thisInstance.getSummaryCommentToggleElement(commentContent, false, collapsedHeight).prependTo(commentActionsDiv);
+			var toggle = thisInstance.getSummaryCommentToggleElement(commentContent, thisInstance.commentsExpanded, collapsedHeight);
+			toggle.prependTo(commentActionsDiv);
+			thisInstance.setCommentExpanded(toggle, thisInstance.commentsExpanded);
 		});
+	},
+
+	initializeCommentDisplayControls: function () {
+		var buttons = this.getContentHolder().find('.toggleAllComments');
+		if (typeof this.commentsExpanded === 'undefined' && buttons.length) {
+			this.commentsExpanded = buttons.first().attr('data-expanded') === '1';
+		}
+		var expanded = this.commentsExpanded;
+		buttons.each(function () {
+			var button = jQuery(this);
+			button.text(button.attr(expanded ? 'data-collapse-label' : 'data-expand-label'))
+				.attr('aria-expanded', expanded ? 'true' : 'false');
+		}).prop('disabled', !!this.commentDisplaySaving);
+	},
+
+	setCommentExpanded: function (toggleElement, expanded) {
+		var singleComment = toggleElement.closest('.singleComment');
+		var commentContent = singleComment.find('.commentInfoContent').first();
+		commentContent.toggleClass('summaryCommentExpanded', expanded)
+			.toggleClass('summaryCommentCollapsed', !expanded)
+			.css('max-height', expanded ? '' : toggleElement.data('collapsedHeight') + 'px');
+		singleComment.find('.summaryCommentEllipsis').toggle(!expanded && commentContent.is(':visible'));
+		toggleElement.text(this.getSummaryCommentToggleLabel(commentContent, expanded))
+			.attr('aria-expanded', expanded ? 'true' : 'false');
 	},
 
 	getSummaryCommentEllipsisElement: function () {
@@ -507,7 +529,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 	},
 
 	getSummaryCommentToggleLabel: function (commentContent, expanded) {
-		var recentCommentsContainer = commentContent.closest('.recentComments');
+		var recentCommentsContainer = commentContent.closest('.commentContainer');
 		var labelAttribute = expanded ? 'show-less-label' : 'show-more-label';
 		var fallbackLabel = expanded ? 'weniger anzeigen' : 'mehr anzeigen';
 		return recentCommentsContainer.attr('data-' + labelAttribute) || fallbackLabel;
@@ -1125,6 +1147,85 @@ jQuery.Class("Vtiger_Detail_Js", {
 		}
 	},
 
+	registerCommentMailRecipients: function (modal) {
+		var participants = JSON.parse(modal.find('.js-comment-mail-participants').val());
+		var ccField = modal.find('input.js-comment-mail-cc');
+		var autoCcButton = modal.find('.js-comment-mail-auto-cc');
+		var automaticallyAdded = {};
+
+		modal.find('input.js-comment-mail-recipient').each(function () {
+			var field = jQuery(this);
+			field.select2({
+				width: '100%',
+				minimumInputLength: 0,
+				closeOnSelect: false,
+				tags: participants,
+				tokenSeparators: [',', ';', ' '],
+				createSearchChoice: function (term) {
+					term = jQuery.trim(term).toLowerCase();
+					if (/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(term)) {
+						return {id: term, text: term};
+					}
+					return null;
+				}
+			});
+		});
+
+		var setAutomaticCc = function (enabled) {
+			var selected = ccField.select2('data');
+			if (enabled) {
+				var selectedEmails = {};
+				jQuery.each(selected, function (_, recipient) {
+					selectedEmails[recipient.id.toLowerCase()] = true;
+				});
+				jQuery.each(participants, function (_, recipient) {
+					if (!selectedEmails[recipient.id]) {
+						selected.push(recipient);
+						automaticallyAdded[recipient.id] = true;
+					}
+				});
+			} else {
+				selected = jQuery.grep(selected, function (recipient) {
+					return !automaticallyAdded[recipient.id];
+				});
+				automaticallyAdded = {};
+			}
+			ccField.select2('data', selected);
+			autoCcButton.toggleClass('active', enabled).attr('aria-pressed', enabled ? 'true' : 'false');
+			autoCcButton.find('i').toggleClass('icon-check', enabled).toggleClass('icon-check-empty', !enabled);
+		};
+
+		ccField.on('change', function (event) {
+			// A manually removed and re-added participant is now a manual recipient.
+			if (event.removed) {
+				delete automaticallyAdded[event.removed.id];
+			}
+		});
+		autoCcButton.on('click', function () {
+			if (autoCcButton.prop('disabled')) {
+				return;
+			}
+			var enabled = autoCcButton.attr('aria-pressed') !== 'true';
+			autoCcButton.prop('disabled', true);
+			var finish = function (saved) {
+				autoCcButton.prop('disabled', false);
+				if (saved) {
+					setAutomaticCc(enabled);
+				} else {
+					Vtiger_Helper_Js.showPnotify({text: autoCcButton.attr('data-save-error'), type: 'error'});
+				}
+			};
+			AppConnector.request({
+				module: 'Users', action: 'SaveTicketCommentMail', enabled: enabled ? '1' : '0'
+			}).then(function (data) {
+				finish(data && data.success && data.result && data.result.enabled === enabled);
+			}, function () {
+				finish(false);
+			});
+		});
+		setAutomaticCc(autoCcButton.attr('aria-pressed') === 'true');
+	},
+
 	showSendMailCommentModal: function (triggerElement, callback) {
 		var thisInstance = this;
 		var commentBlock = triggerElement.closest('.addCommentBlock');
@@ -1136,6 +1237,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 		var modalUrl = 'index.php?module=' + app.getModuleName() + '&view=SendCommentMailModal&record=' + thisInstance.getRecordId();
 		app.showModalWindow(null, modalUrl, function (modalContainer) {
 			var modal = jQuery(modalContainer);
+			thisInstance.registerCommentMailRecipients(modal);
 			var fileInput = modal.find('.js-comment-mail-files');
 			var dropzone = modal.find('.js-comment-mail-dropzone');
 			var fileList = modal.find('.js-comment-mail-file-list');
@@ -1213,8 +1315,8 @@ jQuery.Class("Vtiger_Detail_Js", {
 					event.stopPropagation();
 				}
 				triggerElement.data('mailData', {
-					carboncopy: jQuery.trim(modal.find('.js-comment-mail-cc').val()),
-					blindcarboncopy: jQuery.trim(modal.find('.js-comment-mail-bcc').val()),
+					carboncopy: jQuery.trim(modal.find('input.js-comment-mail-cc').val()),
+					blindcarboncopy: jQuery.trim(modal.find('input.js-comment-mail-bcc').val()),
 					files: selectedFiles.slice(0)
 				});
 				app.hideModalWindow();
@@ -2122,276 +2224,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 	},
 
 	registerPreviewEvent: function () {
-		const existingPreviewBox = document.getElementById('pdf-preview-box');
-		if (existingPreviewBox) {
-			existingPreviewBox.remove();
-		}
-		const previewBox = document.createElement('div');
-		previewBox.id = 'pdf-preview-box';
-		previewBox.style.position = 'absolute';
-		previewBox.style.display = 'none';
-		previewBox.style.border = '1px solid #ccc';
-		previewBox.style.background = '#fff';
-		previewBox.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
-		previewBox.style.padding = '10px';
-		previewBox.style.zIndex = '1000';
-		previewBox.style.overflow = 'auto';
-		previewBox.style.resize = 'both';
-
-		// Load saved preview size
-		const savedSize = loadPreviewSize();
-		previewBox.style.width = savedSize.width;
-		previewBox.style.height = savedSize.height;
-		document.body.appendChild(previewBox);
-
-		const closePreviewButton = document.createElement('button');
-		closePreviewButton.textContent = '×';
-		closePreviewButton.style.position = 'absolute';
-		closePreviewButton.style.top = '8px';
-		closePreviewButton.style.right = '8px';
-		closePreviewButton.style.background = 'white';
-		closePreviewButton.style.border = 'none';
-		closePreviewButton.style.fontSize = '25px';
-		closePreviewButton.style.cursor = 'pointer';
-		closePreviewButton.style.color = '#333';
-
-		function removeIframe() {
-			const existingIframe = document.querySelectorAll('#pdf-preview-box iframe');
-			existingIframe.forEach(element => {
-				element.remove();
-			});
-		}
-
-		previewBox.appendChild(closePreviewButton);
-		document.body.appendChild(previewBox);
-
-		function savePreviewSize(width, height) {
-			sessionStorage.setItem('previewBoxWidth', width);
-			sessionStorage.setItem('previewBoxHeight', height);
-		}
-
-		function loadPreviewSize() {
-			return {
-				width: sessionStorage.getItem('previewBoxWidth') || '300px',
-				height: sessionStorage.getItem('previewBoxHeight') || '400px'
-			};
-		}
-
-		function showUnsupportedFormatMessage() {
-			previewBox.innerHTML = `
-				<div style="padding: 20px; color: #a00; font-weight: bold;">
-					Keine Preview für dieses Dateiformat verfügbar.
-				</div>
-			`;
-			previewBox.appendChild(closePreviewButton);
-			previewBox.style.display = 'block';
-		}
-
-		const resizeObserver = new ResizeObserver(entries => {
-			for (let entry of entries) {
-				savePreviewSize(entry.target.style.width, entry.target.style.height);
-			}
-		});
-		resizeObserver.observe(previewBox);
-
-		closePreviewButton.addEventListener('click', function () {
-			previewBox.style.display = 'none';
-		});
-
-		// check for special field links first, otherwise fall back to .pdf-link ---
-		var linkElements = $('[id$="fieldValue_filename"]');
-		if (linkElements.length < 1) {
-			// fallback: bind to all .pdf-link elements
-			document.querySelectorAll('.pdf-link').forEach(link => {
-				link.addEventListener('mouseenter', function (e) {
-					const pdfUrl = this.dataset.pdfPreview;
-					if (!pdfUrl) {
-						previewBox.style.display = "none";
-						return;
-					}
-
-					const previewUrl = new URL(pdfUrl, window.location.href.split("index.php")[0]);
-					previewUrl.searchParams.set('mode', 'preview');
-
-					fetch(previewUrl)
-						.then(response => {
-							if (response.status === 204) {
-								showUnsupportedFormatMessage();
-							} else {
-								previewBox.style.display = "block";
-							}
-						});
-
-					const iframe = document.createElement('iframe');
-					iframe.id = "preview";
-					iframe.src = previewUrl;
-					iframe.width = "100%";
-					iframe.height = "100%";
-					iframe.frameBorder = "0";
-					iframe.style.overflow = "auto";
-					iframe.style.border = "1px solid #ccc";
-
-					iframe.onerror = function () {
-						showUnsupportedFormatMessage();
-					};
-
-					previewBox.innerHTML = '';
-					previewBox.appendChild(iframe);
-					previewBox.appendChild(closePreviewButton);
-
-					iframe.onload = function () {
-						try {
-							const imgEl = iframe.contentWindow.document.getElementsByTagName("IMG")[0];
-							if (imgEl) {
-								const testImg = new Image();
-								testImg.onload = function () {
-									const cleanImg = document.createElement("img");
-									cleanImg.src = imgEl.src;
-									previewBox.innerHTML = '';
-									previewBox.appendChild(cleanImg);
-									previewBox.appendChild(closePreviewButton);
-									previewBox.style.display = 'block';
-								};
-								testImg.onerror = function () {
-									showUnsupportedFormatMessage();
-								};
-								testImg.src = imgEl.src;
-							} else {
-								previewBox.style.display = 'block';
-							}
-						} catch (error) {
-							previewBox.style.display = 'block';
-						}
-					};
-
-					const linkRect = this.getBoundingClientRect();
-					const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-					const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-					previewBox.style.visibility = 'hidden';
-					previewBox.style.display = 'block';
-
-					const boxWidth = previewBox.offsetWidth;
-					const boxHeight = previewBox.offsetHeight;
-
-					let left = linkRect.right + 10 + scrollLeft;
-					let top = linkRect.top + scrollTop;
-
-					if (left + boxWidth > window.innerWidth + scrollLeft) {
-						left = linkRect.left - boxWidth - 10 + scrollLeft;
-					}
-
-					if (top + boxHeight > window.innerHeight + scrollTop) {
-						top = window.innerHeight + scrollTop - boxHeight - 10;
-						if (top < 0) top = 0;
-					}
-
-					previewBox.style.left = `${left}px`;
-					previewBox.style.top = `${top}px`;
-
-					previewBox.style.visibility = 'visible';
-				});
-			});
-		} else {
-			// there are special field links (Detail view); bind to their anchors
-			document.querySelectorAll('[id$="fieldValue_filename"] a').forEach(link => {
-				link.addEventListener('mouseenter', function (e) {
-					const pdfUrl = link.href;
-					if (!pdfUrl) {
-						previewBox.style.display = "none";
-						return;
-					}
-
-					const previewUrl = new URL(pdfUrl, window.location.href.split("index.php")[0]);
-					previewUrl.searchParams.set('mode', 'preview');
-
-					if (document.querySelector('#pdf-preview-box')) {
-						removeIframe();
-					}
-
-					fetch(previewUrl)
-						.then(response => {
-							if (response.status === 204) {
-								showUnsupportedFormatMessage();
-							} else {
-								previewBox.style.display = "block";
-							}
-						});
-
-					document.body.appendChild(previewBox);
-					const iframe = document.createElement('iframe');
-					iframe.id = "preview";
-					iframe.src = previewUrl;
-					iframe.width = "100%";
-					iframe.height = "100%";
-					iframe.frameBorder = "0";
-					iframe.style.overflow = "auto";
-					iframe.style.border = "1px solid #ccc";
-
-					iframe.onerror = function () {
-						showUnsupportedFormatMessage();
-					};
-
-					previewBox.innerHTML = '';
-					previewBox.appendChild(iframe);
-					previewBox.appendChild(closePreviewButton);
-
-					iframe.onload = function () {
-						try {
-							const imgEl = iframe.contentWindow.document.getElementsByTagName("IMG")[0];
-							if (imgEl) {
-								const testImg = new Image();
-								testImg.onload = function () {
-									const cleanImg = document.createElement("img");
-									cleanImg.src = imgEl.src;
-									previewBox.innerHTML = '';
-									previewBox.appendChild(cleanImg);
-									previewBox.appendChild(closePreviewButton);
-									previewBox.style.display = 'block';
-								};
-								testImg.onerror = function () {
-									showUnsupportedFormatMessage();
-								};
-								testImg.src = imgEl.src;
-							} else {
-								previewBox.style.display = 'block';
-							}
-						} catch (error) {
-							previewBox.style.display = 'block';
-						}
-					};
-
-					const linkRect = this.getBoundingClientRect();
-					const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-					const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-					previewBox.style.visibility = 'hidden';
-					previewBox.style.display = 'block';
-
-					const boxWidth = previewBox.offsetWidth;
-					const boxHeight = previewBox.offsetHeight;
-
-					let left = linkRect.right + 10 + scrollLeft;
-					let top = linkRect.top + scrollTop;
-
-					if (left + boxWidth > window.innerWidth + scrollLeft) {
-						left = linkRect.left - boxWidth - 10 + scrollLeft;
-					}
-
-					if (top + boxHeight > window.innerHeight + scrollTop) {
-						top = window.innerHeight + scrollTop - boxHeight - 10;
-						if (top < 0) top = 0;
-					}
-
-					previewBox.style.left = `${left}px`;
-					previewBox.style.top = `${top}px`;
-
-					previewBox.style.visibility = 'visible';
-				});
-			});
-		}
-
-		this.removeIframe = removeIframe;
+		app.documentPreview.register();
 	},
 
 	/**
@@ -2921,6 +2754,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 			}
 			commentInfoBlock.find('.summaryCommentToggle').show();
 			thisInstance.removeCommentBlockIfExists();
+			thisInstance.initializeSummaryCommentToggle(commentInfoBlock);
 		});
 
 		detailContentsHolder.on('click', '.replyComment', function (e) {
@@ -2968,6 +2802,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 			var ulElements = currentCommentBlock.find('ul');
 			if (ulElements.length > 0) {
 				ulElements.show();
+				thisInstance.initializeSummaryCommentToggle(ulElements);
 				commentActionsBlock.find('.hideThreadBlock').show();
 				currentTargetParent.hide();
 				return;
@@ -3147,27 +2982,37 @@ jQuery.Class("Vtiger_Detail_Js", {
 			recentCommentsTab.trigger('click');
 		});
 
+		detailContentsHolder.on('click', '.toggleAllComments', function (e) {
+			var button = jQuery(e.currentTarget);
+			if (thisInstance.commentDisplaySaving) {
+				return;
+			}
+			var expanded = !thisInstance.commentsExpanded;
+			thisInstance.commentDisplaySaving = true;
+			thisInstance.initializeCommentDisplayControls();
+			var finish = function (saved) {
+				thisInstance.commentDisplaySaving = false;
+				if (saved) {
+					thisInstance.commentsExpanded = expanded;
+					thisInstance.initializeSummaryCommentToggle(detailContentsHolder);
+				} else {
+					thisInstance.initializeCommentDisplayControls();
+					Vtiger_Helper_Js.showPnotify({text: button.attr('data-save-error'), type: 'error'});
+				}
+			};
+			AppConnector.request({
+				module: 'Users', action: 'SaveCommentDisplay', expanded: expanded ? '1' : '0'
+			}).then(function (data) {
+				finish(data && data.success && data.result && data.result.expanded === expanded);
+			}, function () {
+				finish(false);
+			});
+		});
+
 		detailContentsHolder.on('click', '.summaryCommentToggle', function (e) {
 			var toggleElement = jQuery(e.currentTarget);
-			var singleComment = toggleElement.closest('.singleComment');
-			var commentContent = singleComment.find('.commentInfoContent').first();
-			var ellipsisElement = singleComment.find('.summaryCommentEllipsis');
-			var isExpanded = commentContent.hasClass('summaryCommentExpanded');
-			if (isExpanded) {
-				commentContent
-					.removeClass('summaryCommentExpanded')
-					.addClass('summaryCommentCollapsed')
-					.css('max-height', toggleElement.data('collapsedHeight') + 'px');
-				ellipsisElement.show();
-				toggleElement.text(thisInstance.getSummaryCommentToggleLabel(commentContent, false));
-			} else {
-				commentContent
-					.removeClass('summaryCommentCollapsed')
-					.addClass('summaryCommentExpanded')
-					.css('max-height', '');
-				ellipsisElement.hide();
-				toggleElement.text(thisInstance.getSummaryCommentToggleLabel(commentContent, true));
-			}
+			var commentContent = toggleElement.closest('.singleComment').find('.commentInfoContent').first();
+			thisInstance.setCommentExpanded(toggleElement, !commentContent.hasClass('summaryCommentExpanded'));
 		});
 
 		// Pagination

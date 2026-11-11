@@ -23,6 +23,15 @@ $languageStrings = Array(
 	'LBL_PDFCONFIGURATOR_INVOICES' =>'Einstellungen Ffür Rechnungen',
 	'LBL_PDFCONFIGURATOR_SO' =>'Einstellungen für Bestellbestätigungen',
 	'LBL_PDFCONFIGURATOR_PO' =>'Einstellungen für Einkaufsbestellungen',
+	'LBL_GLOBAL_LETTERHEAD' => 'Globaler Briefbogen',
+	'LBL_FIRST_PAGE_LETTERHEAD' => 'Briefbogen für die erste Seite',
+	'LBL_CONTINUATION_PAGE_LETTERHEAD' => 'Briefbogen ab der zweiten Seite',
+	'LBL_NO_LETTERHEAD' => 'Kein Briefbogen',
+	'LBL_LETTERHEAD_HELP' => 'Es können aktive, intern gespeicherte Einseiten-PDFs aus dem Dokumenten-Modul verwendet werden. Logo und Fußzeile werden nicht automatisch deaktiviert.',
+	'LBL_LETTERHEAD_INVALID' => 'Das aktuell konfigurierte Dokument ist nicht verwendbar:',
+	'LBL_SAVE_LETTERHEAD' => 'Briefbogen speichern',
+	'LBL_SELECT_DOCUMENT' => 'Dokument auswählen',
+	'LBL_PREVIEW' => 'Vorschau',
 
 );
 $jsLanguageStrings = array(
@@ -38,6 +47,7 @@ $jsLanguageStrings = array(
 	'TAB_GROUP' => 'Gruppen Mwst.',
 	'TAB_INDIVIDUAL' => 'Individuelle Mwst.',
   	'LBL_SUCCESS' => 'Ihre PDF Einstellungen wurden gespeichert.',
+	'LBL_LETTERHEAD_SUCCESS' => 'Die globalen Briefbögen wurden gespeichert.',
   
 );
 

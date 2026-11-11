@@ -14,7 +14,9 @@ class HelpDesk_SendCommentMailModal_View extends Vtiger_IndexAjax_View
     {
         $viewer = $this->getViewer($request);
         $viewer->assign('MODULE', $request->getModule());
-        $viewer->assign('DEFAULT_CC', implode(', ', $this->getAdditionalParticipantEmails((int) $request->get('record'))));
+        $participants = $this->getAdditionalParticipants((int) $request->get('record'));
+        $viewer->assign('COMMENT_MAIL_PARTICIPANTS', $participants);
+        $viewer->assign('COMMENT_MAIL_AUTO_CC', Users_TicketCommentMail_Model::isAutomaticCcEnabled());
         $viewer->view('SendCommentMailModal.tpl', $request->getModule());
     }
 
@@ -22,7 +24,7 @@ class HelpDesk_SendCommentMailModal_View extends Vtiger_IndexAjax_View
      * Return mail converter senders involved in this ticket, except for the
      * contact/account that is already the ticket's primary recipient.
      */
-    protected function getAdditionalParticipantEmails(int $ticketId): array
+    protected function getAdditionalParticipants(int $ticketId): array
     {
         if ($ticketId <= 0 || getSalesEntityType($ticketId) !== 'HelpDesk'
             || isPermitted('HelpDesk', 'DetailView', $ticketId) !== 'yes') {
@@ -54,7 +56,7 @@ class HelpDesk_SendCommentMailModal_View extends Vtiger_IndexAjax_View
         }
 
         $participantResult = $db->pquery(
-            'SELECT comments.mailfrom, contact.contactid, contact.email, contact.secondaryemail
+            'SELECT comments.mailfrom, contact.contactid, contact.firstname, contact.lastname, contact.email, contact.secondaryemail
              FROM vtiger_modcomments comments
              INNER JOIN vtiger_crmentity entity ON entity.crmid = comments.modcommentsid AND entity.deleted = 0
              INNER JOIN vtiger_contactdetails contact ON contact.contactid = comments.customer
@@ -83,7 +85,12 @@ class HelpDesk_SendCommentMailModal_View extends Vtiger_IndexAjax_View
                 $email = $this->normalizeEmail($db->query_result($participantResult, $i, 'secondaryemail'));
             }
             if ($email !== '' && empty($excludedEmails[$email]) && empty($participantEmails[$email])) {
-                $participantEmails[$email] = $email;
+                $name = trim($db->query_result($participantResult, $i, 'firstname') . ' '
+                    . $db->query_result($participantResult, $i, 'lastname'));
+                $participantEmails[$email] = array(
+                    'id' => $email,
+                    'text' => $name !== '' ? $name . ' <' . $email . '>' : $email,
+                );
             }
         }
 

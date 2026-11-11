@@ -57,7 +57,7 @@ class Vtiger_PDF_ContentViewer extends Vtiger_PDF_Viewer {
 			$pdf->SetTextColor(240,240,240);
 
 			$contentW = $pdf->GetStringWidth($content);
-			$contentH = $pdf->GetStringHeight($content, $contentFrame->w);
+			$contentH = $pdf->getSimpleStringHeight($content, $contentFrame->w);
 			$contentLineY = $contentFrame->y + ($contentFrame->h/2.0) - ($contentH/2.0);
 			$contentLineX = $contentFrame->x + ($contentFrame->w/2.0) - ($contentW/2.0);
 
@@ -81,7 +81,7 @@ class Vtiger_PDF_ContentViewer extends Vtiger_PDF_Viewer {
 		for ($index = 0; $index < $totalModels; ++$index) {
 			$model = $models[$index];			
 			
-			$contentHeight = $pdf->GetStringHeight($model->get('content'), $contentFrame->w);			
+			$contentHeight = $pdf->getSimpleStringHeight($model->get('content'), $contentFrame->w);
 			if($contentLineY + $contentHeight > ($contentFrame->h+$contentFrame->y)) {
 				$parent->createPage();
 				

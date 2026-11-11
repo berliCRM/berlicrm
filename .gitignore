@@ -3,5 +3,33 @@
 test
 config.inc.php
 config.csfr-secret.php
+/rest/outlook.config.php
+/outlook-addin/rest/outlook.config.php
+/outlook-addin/manifest.generated.xml
 /vendor/
+/outlook-addin/node_modules/
+/wordplugin-officejs/node_modules/
+/wordplugin-officejs/build/*.zip
+/wordplugin-officejs/build/word-update-*/
+/wordplugin-officejs/build/word-rollback-*/
+# Generated Outlook update packages, extracted copies and visual previews.
+/outlook-addin/build/*.zip
+/outlook-addin/*.zip
+/outlook-addin/build/outlook-addin-*/
+/outlook-addin/build/outlook-complete-repair-*/
+/outlook-addin/build/outlook-contacts-window-*/
+/outlook-addin/build/outlook-initialization-fix-*/
+/outlook-addin/build/outlook-navigation-baseline-*/
+/outlook-addin/build/outlook-update-*/
+/outlook-addin/build/outlook-auth-fix-*/
+/outlook-addin/build/contacts-auth-error-preview*.png
+/outlook-addin/build/outlook-settings-preview*
+/outlook-addin/build/contacts-taskpane-preview*.png
+/build/outlook-*-update*.zip
+/build/outlook-*-update*/
 logs/installLog.txt
+# Local Office add-in validation scripts.
+/build/tests/office-addin-languages.php
+/build/tests/office-addin-languages.test.cjs
+/build/tests/office-addins-php.php
+/build/tests/word-addin-settings.php

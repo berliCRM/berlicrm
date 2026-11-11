@@ -16,6 +16,19 @@
 <input type="hidden" id="sourceModule" value="{$MODULE}" />
 <div class="listViewEntriesDiv">
 <div class="PdfsettingsContainer">
+{if $MODULEVIEW==1}
+<form id="pdfLetterheadSettings" class="form-horizontal" method="post" style="margin:0 1% 20px 1%;">
+	<input type="hidden" name="module" value="Pdfsettings"><input type="hidden" name="action" value="SaveLetterhead">
+	<table class="table table-bordered" style="width:100%;"><thead><tr><th colspan="3">{vtranslate('LBL_GLOBAL_LETTERHEAD', $MODULE)}</th></tr></thead><tbody>
+	<tr><td colspan="3" class="muted">{vtranslate('LBL_LETTERHEAD_HELP', $MODULE)}</td></tr>
+	<tr><td style="width:28%;">{vtranslate('LBL_FIRST_PAGE_LETTERHEAD', $MODULE)}</td><td><input type="hidden" id="first_document_id" name="first_document_id" value="{$LETTERHEAD_IDS.first_document_id}"><input type="text" id="first_document_label" class="input-xlarge" readonly value="{$LETTERHEAD_FIRST_STATUS.label|escape}" placeholder="{vtranslate('LBL_NO_LETTERHEAD', $MODULE)}"> <button type="button" class="btn selectPdfLetterhead" data-target="first_document_id" data-label-target="first_document_label" data-preview-target="first_document_preview">{vtranslate('LBL_SELECT_DOCUMENT', $MODULE)}</button></td><td><button type="button" class="btn clearPdfLetterhead" data-target="first_document_id" data-label-target="first_document_label" data-preview-target="first_document_preview">{vtranslate('LBL_REMOVE', 'Vtiger')}</button> <a id="first_document_preview" class="btn{if !$LETTERHEAD_FIRST_STATUS.valid or !$LETTERHEAD_FIRST_STATUS.id} hide{/if}" target="_blank" href="index.php?module=Documents&action=DownloadFile&mode=preview&record={$LETTERHEAD_FIRST_STATUS.id}">{vtranslate('LBL_PREVIEW', $MODULE)}</a></td></tr>
+	{if !$LETTERHEAD_FIRST_STATUS.valid}<tr class="error"><td></td><td colspan="2">{vtranslate('LBL_LETTERHEAD_INVALID', $MODULE)} {$LETTERHEAD_FIRST_STATUS.message|escape}</td></tr>{/if}
+	<tr><td>{vtranslate('LBL_CONTINUATION_PAGE_LETTERHEAD', $MODULE)}</td><td><input type="hidden" id="continuation_document_id" name="continuation_document_id" value="{$LETTERHEAD_IDS.continuation_document_id}"><input type="text" id="continuation_document_label" class="input-xlarge" readonly value="{$LETTERHEAD_CONTINUATION_STATUS.label|escape}" placeholder="{vtranslate('LBL_NO_LETTERHEAD', $MODULE)}"> <button type="button" class="btn selectPdfLetterhead" data-target="continuation_document_id" data-label-target="continuation_document_label" data-preview-target="continuation_document_preview">{vtranslate('LBL_SELECT_DOCUMENT', $MODULE)}</button></td><td><button type="button" class="btn clearPdfLetterhead" data-target="continuation_document_id" data-label-target="continuation_document_label" data-preview-target="continuation_document_preview">{vtranslate('LBL_REMOVE', 'Vtiger')}</button> <a id="continuation_document_preview" class="btn{if !$LETTERHEAD_CONTINUATION_STATUS.valid or !$LETTERHEAD_CONTINUATION_STATUS.id} hide{/if}" target="_blank" href="index.php?module=Documents&action=DownloadFile&mode=preview&record={$LETTERHEAD_CONTINUATION_STATUS.id}">{vtranslate('LBL_PREVIEW', $MODULE)}</a></td></tr>
+	{if !$LETTERHEAD_CONTINUATION_STATUS.valid}<tr class="error"><td></td><td colspan="2">{vtranslate('LBL_LETTERHEAD_INVALID', $MODULE)} {$LETTERHEAD_CONTINUATION_STATUS.message|escape}</td></tr>{/if}
+	<tr><td></td><td colspan="2"><button type="button" id="savePdfLetterhead" class="btn btn-success"><strong>{vtranslate('LBL_SAVE_LETTERHEAD', $MODULE)}</strong></button></td></tr>
+	</tbody></table>
+</form>
+{/if}
 <form enctype="multipart/form-data" action="index.php?" id="pdfsettings" name="pdfsettings" method="post" >
 	<input type="hidden" name="module" value="Pdfsettings">
 	<input type="hidden" name="parenttab" value="Tools">

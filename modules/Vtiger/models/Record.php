@@ -747,5 +747,19 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 			}
 		}
 	}
+	
+	/**
+	 * Function to get sequence number value for this record
+	 * @return <String> sequence_no
+	 */
+	public function getSequenceNumberValue() {
+		$seqNo = '';
+		$fieldModel = $this->getModule()->getSequenceNumberField();
+		if ($fieldModel) {
+			$fieldName = $fieldModel->getName();
+			$seqNo = $this->get($fieldName);
+		}
+		return $seqNo;
+	}
 
 }

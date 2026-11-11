@@ -11,7 +11,7 @@ require_once 'modules/WSAPP/SyncServer.php';
 
 /**
  * @berli-openapi-begin
- * {"summary":"Register a synchronization client","description":"Registers a WSAPP client and synchronization mode for the authenticated user.","tags":["WSAPP"],"parameters":{"type":{"required":true,"description":"Synchronization application type.","example":"Outlook"},"synctype":{"required":true,"description":"Requested synchronization mode.","example":"manual"}},"result":{"schema":{"type":"object","additionalProperties":true},"example":{"key":"client-key"}}}
+ * {"summary":"Register a synchronization client","description":"Registers a WSAPP client and synchronization mode for the authenticated user.","tags":["WSAPP"],"parameters":{"type":{"required":true,"description":"Synchronization application type, such as Outlook.","example":"Outlook"},"synctype":{"required":true,"description":"Synchronization visibility mode.","example":"user","schema":{"type":"string","enum":["user","app","userandgroup"]}}},"result":{"schema":{"type":"object","required":["key"],"properties":{"key":{"type":"string"}},"additionalProperties":false},"example":{"key":"client-key"}}}
  * @berli-openapi-end
  */
 function wsapp_register ($type,$syncType, $user) {

@@ -252,17 +252,15 @@ function berli_renderInvoiceFile($idnumber, $purpose, $path, $current_id, $forma
     //display footer page number?
     $pageradio = $pdf_config_details['pageradio'];
     // get company, tax and bank information from settings
-    $add_query = "select * from vtiger_organizationdetails";
-    $result = $adb->pquery($add_query, []);
-    $num_rows = $adb->num_rows($result);
+    $organizationDetails = InventoryPdfGenerator::organizationDetails(true);
 
     //
     // using array of pdf globals to assign company
     // values to global variables for later use
     //
     foreach ($pdfGlobals as $key => $value) {
-        if ($num_rows > 0) {
-            $GLOBALS[$key] = decode_html($adb->query_result($result, 0, $value));
+        if (array_key_exists($value, $organizationDetails)) {
+            $GLOBALS[$key] = $organizationDetails[$value];
         } else {
             // if no company information is set, set a default value
             $GLOBALS[$key] = "$value not set";
@@ -271,58 +269,20 @@ function berli_renderInvoiceFile($idnumber, $purpose, $path, $current_id, $forma
     }
 
     // get owner information
-    $recordOwnerArr = getRecordOwnerId($idnumber);
-    foreach ($recordOwnerArr as $type => $id) {
-        $ownertype = $type;
-        $ownerid = $id;
-    }
-    if ($ownertype == 'Users') {
-        // get owner information for user
-        $sql = "SELECT * FROM vtiger_users,vtiger_crmentity WHERE vtiger_users.id = vtiger_crmentity.smownerid AND vtiger_crmentity.crmid = ? ";
-        $result = $adb->pquery($sql, [$idnumber]);
-        $owner_lastname = $adb->query_result($result, 0, 'last_name');
-        $owner_firstname = $adb->query_result($result, 0, 'first_name');
-        $owner_id = $adb->query_result($result, 0, 'smownerid');
-        $owner_phone = $adb->query_result($result, 0, 'phone_work');
-        $owner_mail = $adb->query_result($result, 0, 'email1');
-        $owner_title = decode_html(trim($adb->query_result($result, 0, 'title')));
-    } else {
-        // get owner information for Groups
-        $sql = "SELECT * FROM vtiger_groups,vtiger_crmentity WHERE vtiger_groups.groupid  = vtiger_crmentity.smownerid AND vtiger_crmentity.crmid = ? ";
-        $result = $adb->pquery($sql, [$idnumber]);
-        $owner_lastname = '';
-        $owner_firstname = $adb->query_result($result, 0, 'groupname');
-        $owner_id = $adb->query_result($result, 0, 'smownerid');
-        $owner_phone = $org_phone;
-        $owner_title = '';
-    }
+    $ownerDetails = InventoryPdfGenerator::ownerDetails($idnumber, $org_phone);
+    $owner_lastname = $ownerDetails['last_name'];
+    $owner_firstname = $ownerDetails['first_name'];
+    $owner_id = $ownerDetails['id'];
+    $owner_phone = $ownerDetails['phone'];
+    $owner_mail = $ownerDetails['email'];
+    $owner_title = $ownerDetails['title'];
     //display owner?
     $owner = $pdf_config_details['owner'];
     //display owner phone#?
     $ownerphone = $pdf_config_details['ownerphone'];
     //to display at product description based on tax type
-    $gproddetailarray = [$pdf_config_details['gprodname'], $pdf_config_details['gproddes'], $pdf_config_details['gprodcom']];
-    $gproddetails = 0;
-    foreach ($gproddetailarray as $key => $value) {
-        if ($value == 'true') {
-            if ($key == 0) {
-                $gproddetails = $gproddetails + 1;
-            } else {
-                $gproddetails = $gproddetails + $key * 2;
-            }
-        }
-    }
-    $iproddetails = 0;
-    $iproddetailarray = [$pdf_config_details['iprodname'], $pdf_config_details['iproddes'], $pdf_config_details['iprodcom']];
-    foreach ($iproddetailarray as $key => $value) {
-        if ($value == 'true') {
-            if ($key == 0) {
-                $iproddetails = $iproddetails + 1;
-            } else {
-                $iproddetails = $iproddetails + $key * 2;
-            }
-        }
-    }
+    $gproddetails = InventoryPdfGenerator::productDetailMask($pdf_config_details, 'gprod');
+    $iproddetails = InventoryPdfGenerator::productDetailMask($pdf_config_details, 'iprod');
 
     // SO Requisition Nummer
     $requisition_no = $focus->column_fields['vtiger_purchaseorder'];
@@ -463,7 +423,7 @@ function berli_renderInvoiceFile($idnumber, $purpose, $path, $current_id, $forma
     }
 
     // custom demand connectware, hide discount if not used
-    $hasDiscount == false;
+    $hasDiscount = false;
 
     //Population of current date
     $addyear = strtotime("+0 year");
@@ -504,20 +464,25 @@ function berli_renderInvoiceFile($idnumber, $purpose, $path, $current_id, $forma
         }
         // set document information
         // file_put_contents('logs/ep4812.log', sprintf('%s %s %s', $invoice_no, $invoice_date, $invoice_buyer_purchaseorder_no) . PHP_EOL, FILE_APPEND);
+        $eInvoiceDocument->setDocumentInformation(
+            $invoice_no,
+            $invoiceTypeCode,
+            \DateTime::createFromFormat('d.m.Y', $invoice_date),
+            "EUR" // BT-5 invoice currency
+        );
+
+        if (trim($description) !== '') {
+            $eInvoiceDocument->addDocumentNote($description); // BT-22 invoice note
+        }
+
         $eInvoiceDocument
-            ->setDocumentInformation(
-                $invoice_no,
-                $invoiceTypeCode,
-                \DateTime::createFromFormat('d.m.Y', $invoice_date),
-                "EUR" // BT-5 invoice currency
-            )
             ->addDocumentNote($org_name . ' | ' . $org_address . ' | ' . $org_code . ' ' . $org_city . ' | ' . $org_country . ' | ' . $org_management . ' | ' . $org_taxid, null, 'REG')
             ->setDocumentSupplyChainEvent(\DateTime::createFromFormat('d.m.Y', $invoice_date))
             ->setDocumentSeller($org_name, $org_taxid)
             ->addDocumentSellerGlobalId($org_taxid, "0088") // ! should be german HRB number instead of $org_taxid
             // ->addDocumentSellerGlobalId($HRB, "9930") // ! should be german HRB number instead of $org_taxid
             ->addDocumentSellerTaxRegistration("VA", $org_vatid)
-            ->addDocumentPaymentTerm($description, \DateTime::createFromFormat('d.m.Y', $valid_till))
+            ->addDocumentPaymentTerm($conditions, \DateTime::createFromFormat('d.m.Y', $valid_till))
             ->setDocumentSellerAddress($org_address, "", "", $org_code, $org_city, $org_country_iso)
             // ->setDocumentSellerContact($owner_firstname . ' ' . $owner_lastname, "", $org_phone, $org_fax, $owner_mail) // CII-SR-236: FaxUniversalCommunication should not be present
             ->setDocumentSellerContact($owner_firstname . ' ' . $owner_lastname, "", $org_phone, '', $owner_mail)
@@ -953,35 +918,17 @@ function berli_renderInvoiceFile($idnumber, $purpose, $path, $current_id, $forma
     // create new PDF document
     //$pdf = new PDF( 'P', 'mm', 'A4' );
     $pdf = berli_invoicePdfObject($format !== null);
-    // set font
-    $pdf->SetFont($default_font, " ", $font_size_body);
-    $pdf->setPrintHeader(0); //header switched off permanently
-    // auto break on
-    //$pdf->SetAutoPageBreak(true);
-    // set footer fonts
-    //$pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
-
-    //set margins
-    $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-    $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
-    $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
     if ($purpose == 'printsn' or $purpose == 'savesn') {
         $doc_name = 'SALESNOTE';
     }
-    $pdf->SetTitle($pdf_strings[$doc_name] . ": " . $account_name);
-    $pdf->SetAuthor($owner_firstname . " " . $owner_lastname . ", " . $org_name);
-    $pdf->SetSubject($account_name);
-    $pdf->SetCreator('CRM System berliCRM: www.crm-now.de ');
-    //list product names as keywords
-    $productlisting = implode(", ", $product_name);
-    $pdf->SetKeywords($productlisting);
-
-    //Disable automatic page break
-    $pdf->SetAutoPageBreak(true, PDF_MARGIN_FOOTER);
-    //set image scale factor
-    $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
-    //set some language-dependent strings
-    $pdf->setLanguageArray($pdf_config_details['pdflang']);
+    InventoryPdfGenerator::initializeDocument($pdf, array(
+        'font' => $default_font, 'font_size' => $font_size_body,
+        'title' => $pdf_strings[$doc_name] . ': ' . $account_name,
+        'author' => $owner_firstname . ' ' . $owner_lastname . ', ' . $org_name,
+        'subject' => $account_name, 'keywords' => $product_name,
+        'language' => $pdf_config_details['pdflang'],
+        'legacy_letterhead' => $eInvoice ? $e_invoice_watermark_pdf : null,
+    ));
     //in reference to body.php -> if a new page must be added if the space available for summary is too small
     $new_page_started = false;
     $pdf->AddPage();
@@ -1079,19 +1026,6 @@ function berli_renderInvoiceFile($idnumber, $purpose, $path, $current_id, $forma
     // * do only if it is an e-invoice
     //
     if ($eInvoice) {
-        //
-        // create watermark if configured
-        //
-        if (!empty($e_invoice_watermark_pdf) && file_exists($e_invoice_watermark_pdf)) {
-            $watermarked = $eInvoiceXmlFile . '.watermark.pdf';
-            $shellResult = shell_exec('/usr/bin/pdftk ' . escapeshellarg($createdOutputPdfPath) . ' background ' . escapeshellarg($e_invoice_watermark_pdf) . ' output ' . escapeshellarg($watermarked));
-            // TODO: logging and/or validating of $shellResult ...
-            if (!is_file($watermarked) || !rename($watermarked, $createdOutputPdfPath)) {
-                throw new RuntimeException('Cannot watermark the e-invoice PDF.');
-            }
-            // $createdOutputPdfName = 'modules/Invoice/watermarked.pdf';
-        }
-
         $mergeToPdf = $eInvoiceXmlFile . '.pdf';
         if (!file_exists($eInvoiceXmlFile) || !file_exists($createdOutputPdfPath)) {
             throw new \Exception("XML and/or PDF does not exist");

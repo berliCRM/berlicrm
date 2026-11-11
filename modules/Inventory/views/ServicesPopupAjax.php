@@ -9,12 +9,10 @@
  ************************************************************************************/
 
 class Inventory_ServicesPopupAjax_View extends Inventory_ServicesPopup_View {
-	function preProcess(Vtiger_Request $request) {
-		return true;
+	function preProcess(Vtiger_Request $request, bool $display=true): void {
 	}
 
-	function postProcess(Vtiger_Request $request) {
-		return true;
+	function postProcess(Vtiger_Request $request): void {
 	}
 
 	function process (Vtiger_Request $request) {

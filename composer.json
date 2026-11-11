@@ -17,6 +17,12 @@
         "tecnickcom/tcpdf": "^6.8",
         "phpoffice/phpspreadsheet": "^5.10"
     },
+    "scripts": {
+        "test-openapi": [
+            "phpunit tests/Webservices/OpenApiGeneratorTest.php",
+            "phpunit tests/Webservices/OpenApiRepositoryContractTest.php"
+        ]
+    },
     "config": {
         "platform": {
             "php": "8.2.0"

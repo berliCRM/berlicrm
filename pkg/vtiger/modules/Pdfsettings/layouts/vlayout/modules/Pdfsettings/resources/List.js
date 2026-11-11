@@ -123,6 +123,73 @@ Vtiger_List_Js("Pdfsettings_List_Js",{
    
 },
 {
+    saveLetterhead : function() {
+        jQuery('.selectPdfLetterhead').off('click.pdfLetterhead').on('click.pdfLetterhead', function() {
+            var button = jQuery(this);
+            var targetId = button.data('target');
+            var popupInstance = Vtiger_Popup_Js.getInstance();
+            popupInstance.show({
+                view: 'Popup',
+                module: 'Documents',
+                src_module: 'Pdfsettings',
+                src_field: 'pdf_letterhead'
+            }, function(data) {
+                var records = JSON.parse(data);
+                for (var documentId in records) {
+                    if (!records.hasOwnProperty(documentId)) {
+                        continue;
+                    }
+                    var record = records[documentId];
+                    var label = record.name || (record.info && record.info.filename) || ('#' + documentId);
+                    jQuery('#' + targetId).val(documentId);
+                    jQuery('#' + button.data('label-target')).val(label);
+                    jQuery('#' + button.data('preview-target'))
+                        .attr('href', 'index.php?module=Documents&action=DownloadFile&mode=preview&record=' + encodeURIComponent(documentId))
+                        .removeClass('hide');
+                    break;
+                }
+            }, 'pdfLetterhead_' + targetId);
+        });
+        jQuery('.clearPdfLetterhead').off('click.pdfLetterhead').on('click.pdfLetterhead', function() {
+            var button = jQuery(this);
+            jQuery('#' + button.data('target')).val('');
+            jQuery('#' + button.data('label-target')).val('');
+            jQuery('#' + button.data('preview-target')).attr('href', '#').addClass('hide');
+        });
+        jQuery('#savePdfLetterhead').off('click.pdfLetterhead').on('click.pdfLetterhead', function() {
+            var form = jQuery('#pdfLetterheadSettings');
+            var data = form.serializeFormData();
+            if (typeof csrfMagicName !== 'undefined' && typeof csrfMagicToken !== 'undefined') {
+                data[csrfMagicName] = csrfMagicToken;
+            }
+            var progress = jQuery.progressIndicator({});
+            AppConnector.request({url: 'index.php', type: 'POST', data: data, dataType: 'json'}).then(
+                function(result) {
+                    progress.progressIndicator({'mode': 'hide'});
+                    if (!result || result.success !== true) {
+                        var message = result && result.error && result.error.message
+                            ? result.error.message
+                            : app.vtranslate('JS_ERROR');
+                        Vtiger_Helper_Js.showPnotify({title: message, type: 'error'});
+                        return;
+                    }
+                    Vtiger_Helper_Js.showPnotify({
+                        title: app.vtranslate('LBL_LETTERHEAD_SUCCESS'),
+                        type: 'info'
+                    });
+                    window.location.reload();
+                },
+                function(error) {
+                    progress.progressIndicator({'mode': 'hide'});
+                    Vtiger_Helper_Js.showPnotify({
+                        title: error && error.message ? error.message : app.vtranslate('JS_ERROR'),
+                        type: 'error'
+                    });
+                }
+            );
+        });
+    },
+
     savePdfsettings : function() {
 		jQuery("#saveg").unbind().click(function(event){
             Pdfsettings_List_Js.savePdfsettingsParameter();
@@ -143,6 +210,7 @@ Vtiger_List_Js("Pdfsettings_List_Js",{
     registerEvents : function(){
 		this._super();
         var container = this.getListViewContainer();
+		this.saveLetterhead();
 		this.savePdfsettings();
 	}
 });

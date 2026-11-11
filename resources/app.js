@@ -1001,6 +1001,231 @@ jQuery(document).ready(function(){
 	if(pageController) pageController.registerEvents();
 });
 
+/** Shared, non-modal document preview for list, detail and selection views. */
+app.documentPreview = (function () {
+	var box, header, title, content, closeButton, observer;
+	var controller, objectUrl, activeUrl, opener, drag;
+	var restoringFocus = false;
+	var requestId = 0;
+	var selector = '.pdf-link, [id$="fieldValue_filename"] a';
+
+	function storedSize(key, fallback) {
+		try {
+			var size = parseFloat(sessionStorage.getItem(key));
+			return isFinite(size) && size > 0 ? size : fallback;
+		} catch (error) {
+			return fallback;
+		}
+	}
+
+	function constrain() {
+		var margin = 8;
+		var width = Math.max(0, window.innerWidth - margin * 2);
+		var height = Math.max(0, window.innerHeight - margin * 2);
+		box.style.maxWidth = width + 'px';
+		box.style.maxHeight = height + 'px';
+		box.style.minWidth = Math.min(260, width) + 'px';
+		box.style.minHeight = Math.min(180, height) + 'px';
+		box.style.left = Math.max(margin, Math.min(parseFloat(box.style.left) || margin,
+			window.innerWidth - box.offsetWidth - margin)) + 'px';
+		box.style.top = Math.max(margin, Math.min(parseFloat(box.style.top) || margin,
+			window.innerHeight - box.offsetHeight - margin)) + 'px';
+	}
+
+	function clearContent() {
+		requestId++;
+		if (controller) controller.abort();
+		controller = null;
+		content.textContent = '';
+		if (objectUrl) URL.revokeObjectURL(objectUrl);
+		objectUrl = null;
+	}
+
+	function finishDrag() {
+		if (!drag) return;
+		var pointerId = drag.pointerId;
+		drag = null;
+		box.classList.remove('document-preview-dragging');
+		if (header.hasPointerCapture(pointerId)) header.releasePointerCapture(pointerId);
+	}
+
+	function close() {
+		if (!box) return;
+		finishDrag();
+		box.style.display = 'none';
+		clearContent();
+		activeUrl = null;
+		if (box.contains(document.activeElement) && opener && opener.isConnected) {
+			// Returning focus must not trigger the link's focusin preview handler.
+			restoringFocus = true;
+			try {
+				opener.focus();
+			} finally {
+				restoringFocus = false;
+			}
+		}
+	}
+
+	function message(text) {
+		content.textContent = '';
+		var element = document.createElement('div');
+		element.className = 'document-preview-message';
+		element.setAttribute('role', 'status');
+		element.textContent = text;
+		content.appendChild(element);
+	}
+
+	function create() {
+		box = document.createElement('div');
+		box.id = 'pdf-preview-box';
+		box.className = 'document-preview modelContainer';
+		box.setAttribute('role', 'dialog');
+		box.setAttribute('aria-labelledby', 'document-preview-title');
+		box.style.width = storedSize('previewBoxWidth', 300) + 'px';
+		box.style.height = storedSize('previewBoxHeight', 400) + 'px';
+		box.style.display = 'none';
+		header = document.createElement('div');
+		header.className = 'document-preview-header modal-header';
+		header.title = 'Zum Verschieben ziehen';
+		title = document.createElement('h3');
+		title.id = 'document-preview-title';
+		closeButton = document.createElement('button');
+		closeButton.type = 'button';
+		closeButton.className = 'close';
+		closeButton.textContent = '×';
+		closeButton.title = 'Schließen (Esc)';
+		closeButton.setAttribute('aria-label', 'Vorschau schließen');
+		closeButton.addEventListener('click', close);
+		header.appendChild(title);
+		header.appendChild(closeButton);
+		content = document.createElement('div');
+		content.className = 'document-preview-content';
+		box.appendChild(header);
+		box.appendChild(content);
+		document.body.appendChild(box);
+
+		header.addEventListener('pointerdown', function (event) {
+			if (event.button !== 0 || closeButton.contains(event.target)) return;
+			event.preventDefault();
+			drag = {pointerId: event.pointerId, x: event.clientX, y: event.clientY,
+				left: parseFloat(box.style.left), top: parseFloat(box.style.top)};
+			header.setPointerCapture(event.pointerId);
+			box.classList.add('document-preview-dragging');
+		});
+		header.addEventListener('pointermove', function (event) {
+			if (!drag || drag.pointerId !== event.pointerId) return;
+			box.style.left = drag.left + event.clientX - drag.x + 'px';
+			box.style.top = drag.top + event.clientY - drag.y + 'px';
+			constrain();
+		});
+		['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function (type) {
+			header.addEventListener(type, finishDrag);
+		});
+		window.addEventListener('blur', finishDrag);
+		window.addEventListener('resize', constrain);
+		document.addEventListener('keydown', function (event) {
+			if (event.key === 'Escape' && box.style.display !== 'none') {
+				event.preventDefault();
+				close();
+			}
+		});
+		if (window.ResizeObserver) {
+			observer = new ResizeObserver(function () {
+				if (box.style.display === 'none') return;
+				constrain();
+				try {
+					sessionStorage.setItem('previewBoxWidth', box.style.width);
+					sessionStorage.setItem('previewBoxHeight', box.style.height);
+				} catch (error) {
+					// Preview remains usable when browser storage is unavailable.
+				}
+			});
+			observer.observe(box);
+		}
+	}
+
+	function show(link) {
+		if (!box) create();
+		var source = link.dataset.pdfPreview || link.getAttribute('href');
+		if (!source) return;
+		var url;
+		try {
+			url = new URL(source, window.location.href);
+			if (url.origin !== window.location.origin || !/^https?:$/.test(url.protocol)) return;
+			url.searchParams.set('mode', 'preview');
+		} catch (error) {
+			return;
+		}
+		if (activeUrl === url.href && box.style.display !== 'none') return;
+		finishDrag();
+		clearContent();
+		activeUrl = url.href;
+		opener = link;
+		var filename = link.textContent.trim() || link.title;
+		title.textContent = filename || 'Dokumentenvorschau';
+		title.title = title.textContent;
+		message('Vorschau wird geladen …');
+		box.style.display = 'flex';
+		constrain();
+		var rect = link.getBoundingClientRect();
+		var left = rect.right + 10;
+		if (left + box.offsetWidth > window.innerWidth - 8) left = rect.left - box.offsetWidth - 10;
+		box.style.left = left + 'px';
+		box.style.top = rect.top + 'px';
+		constrain();
+
+		controller = new AbortController();
+		var currentRequest = requestId;
+		// Fetch once: the blob is used directly for both images and embedded documents.
+		fetch(url.href, {signal: controller.signal}).then(function (response) {
+			if (!response.ok || response.status === 204) throw new Error('No preview');
+			var type = (response.headers.get('Content-Type') || '').split(';')[0].trim().toLowerCase();
+			if (['application/pdf', 'image/jpeg', 'image/png', 'text/plain',
+				'audio/mpeg', 'audio/webm', 'audio/mp4', 'audio/ogg', 'audio/wav'].indexOf(type) === -1) {
+				throw new Error('Unsupported format');
+			}
+			return response.blob();
+		}).then(function (blob) {
+			if (currentRequest !== requestId) return;
+			objectUrl = URL.createObjectURL(blob);
+			content.textContent = '';
+			var isImage = blob.type.indexOf('image/') === 0;
+			var isAudio = blob.type.indexOf('audio/') === 0;
+			var element = document.createElement(isImage ? 'img' : (isAudio ? 'audio' : 'iframe'));
+			if (isImage) {
+				element.alt = filename || 'Dokumentenvorschau';
+			} else if (isAudio) {
+				element.controls = true;
+				element.preload = 'metadata';
+				element.title = title.textContent;
+			} else {
+				element.title = title.textContent;
+			}
+			element.onerror = function () {
+				if (currentRequest === requestId) message('Keine Vorschau für dieses Dateiformat verfügbar.');
+			};
+			element.src = objectUrl;
+			content.appendChild(element);
+		}).catch(function (error) {
+			if (currentRequest === requestId && error.name !== 'AbortError') {
+				message('Die Vorschau konnte nicht geladen werden oder das Dateiformat wird nicht unterstützt.');
+			}
+		});
+	}
+
+	return {
+		register: function () {
+			// Delegation also covers links inserted by paging or related-list refreshes.
+			jQuery(document).off('.documentPreview')
+				.on('mouseenter.documentPreview focusin.documentPreview', selector, function () {
+					if (!restoringFocus) show(this);
+				});
+			close();
+		},
+		close: close
+	};
+}());
+
 /* Global function for UI5 embed page to callback */
 function resizeUI5IframeReset() {
 	jQuery('#ui5frame').height(650);

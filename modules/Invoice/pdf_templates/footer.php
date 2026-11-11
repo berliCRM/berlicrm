@@ -7,7 +7,9 @@
  * All Rights Reserved.
  *
  ********************************************************************************/
-class MYPDF extends TCPDF
+require_once 'include/InventoryPdfGenerator.php';
+
+class MYPDF extends InventoryPdfDocument
 {
 	//modifiy tcpdf class footer
 	public function Footer()

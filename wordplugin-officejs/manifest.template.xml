@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:type="TaskPaneApp">
+  <Id>fb7ac3f9-1c9a-4999-8a7a-f5f5f69e712c</Id>
+  <Version>1.4.0.0</Version>
+  <ProviderName>berliCRM</ProviderName>
+  <DefaultLocale>de-DE</DefaultLocale>
+  <DisplayName DefaultValue="berliCRM Word Plugin"/>
+  <Description DefaultValue="{{INSERT_BERLICRM_FIELDS_AND_CREATE_WORD_DOCUMENTS_FROM_CRM_LIST_VIEWS}}"/>
+  <IconUrl DefaultValue="https://crm.example.org/wordplugin-officejs/assets/icon-32.png?v=1.2.3"/>
+  <HighResolutionIconUrl DefaultValue="https://crm.example.org/wordplugin-officejs/assets/icon-80.png?v=1.2.3"/>
+  <SupportUrl DefaultValue="https://crm.example.org/"/>
+  <AppDomains>
+    <AppDomain>https://crm.example.org</AppDomain>
+  </AppDomains>
+  <Hosts>
+    <Host Name="Document"/>
+  </Hosts>
+  <DefaultSettings>
+    <SourceLocation DefaultValue="https://crm.example.org/wordplugin-officejs/taskpane.html"/>
+  </DefaultSettings>
+  <Permissions>ReadWriteDocument</Permissions>
+</OfficeApp>

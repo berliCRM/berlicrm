@@ -27,7 +27,7 @@ class Vtiger_PDF_TCPDF extends TCPDF {
 		$this->FontFamily = $family;
 	}
 
-	function GetStringHeight($sa,$w) {
+	function getSimpleStringHeight($sa,$w) {
 		if(empty($sa)) return 0;
 		
 		$sa = str_replace("\r","",$sa);
@@ -36,7 +36,8 @@ class Vtiger_PDF_TCPDF extends TCPDF {
 		$sa = substr($sa,0,-1);
 
 		$blocks = explode("\n",$sa);
-		$wmax = $w - (2 * $this->cMargin);
+		$cellPaddings = $this->getCellPaddings();
+		$wmax = $w - $cellPaddings['L'] - $cellPaddings['R'];
 
 		$lines = 0;
 		$spacesize = $this->GetCharWidth(32);
@@ -64,20 +65,11 @@ class Vtiger_PDF_TCPDF extends TCPDF {
 		return ($lines * ($this->FontSize * $this->cell_height_ratio)) + 2;
 	}
 
-	function SetFont($family, $style='', $size='') {
+	function setFont($family, $style='', $size=null, $fontfile='', $subset='default', $out=true) {
 		if($family == '') {
 			$family = $this->FontFamily;
 		}
-		//Select a font; size given in points
-		if ($size == 0) {
-			$size = $this->FontSizePt;
-		}
-		// try to add font (if not already added)
-		$fontdata =  $this->AddFont($family, $style);
-		$this->FontFamily = $fontdata['family'];
-		$this->FontStyle = $fontdata['style'];
-		$this->CurrentFont = &$this->fonts[$fontdata['fontkey']];
-		$this->SetFontSize($size);
+		return parent::setFont($family, $style, $size, $fontfile, $subset, $out);
 	}
 }
 ?>

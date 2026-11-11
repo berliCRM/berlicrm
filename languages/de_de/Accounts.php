@@ -26,6 +26,7 @@ $languageStrings = array(
 	'LBL_COPY_SHIPPING_ADDRESS' => 'Kopiere Lieferadresse',
     'LBL_COPY_ADDRESS_TO_RELATED_CONTACTS' => 'Anschrift für bezogene Kontakte übernehmen',
 	'LBL_DUPLICATES_EXIST' => 'diesen Organisationsnamen gibt es bereits',
+	'LBL_DOWNLOAD_ACCOUNT_DATASHEET' => 'Datenblatt als PDF herunterladen',
 	'LBL_END_DATE' => 'Enddatum',
 	'LBL_RECORDS_LIST' => 'Organisationsliste',
 	'LBL_SHOW_ACCOUNT_HIERARCHY' => 'Organisationshierarchie',

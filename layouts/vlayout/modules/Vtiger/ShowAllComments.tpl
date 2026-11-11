@@ -10,7 +10,7 @@
  ********************************************************************************/
 -->*}
 
-<div class="commentContainer">
+<div class="commentContainer" data-show-more-label="{vtranslate('LBL_SHOW_MORE', 'Vtiger')}" data-show-less-label="{vtranslate('LBL_SHOW_LESS', 'Vtiger')}">
 	<div class="commentTitle row-fluid">
 		{assign var=CREATE_PERMISSION value=$COMMENTS_MODULE_MODEL->isPermitted('CreateView')}
 		{assign var=EDIT_PERMISSION value=$COMMENTS_MODULE_MODEL->isPermitted('EditView')}
@@ -34,6 +34,7 @@
 		{/if}
 	</div>
 	<br>
+	{include file='CommentDisplayControls.tpl'|@vtemplate_path}
 	<div class="commentsList commentsBody">
 		{include file='CommentsList.tpl'|@vtemplate_path COMMENT_MODULE_MODEL=$COMMENTS_MODULE_MODEL}
 	</div>

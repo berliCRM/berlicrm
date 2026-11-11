@@ -1,0 +1,53 @@
+body { display: flex; flex-direction: column; min-height: calc(100vh - 32px); font-family: Arial, sans-serif; margin: 16px; color: #323130; }
+h1 { font-size: 1.35rem; }
+h2 { font-size: 1.1rem; margin-top: 0; }
+section { border: 1px solid #e1dfdd; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+label { display: block; margin: 10px 0 6px; font-weight: 600; }
+input, select { box-sizing: border-box; width: 100%; padding: 8px; border: 1px solid #c8c6c4; border-radius: 6px; margin-bottom: 12px; }
+button { background: #0078d4; color: #fff; border: 0; border-radius: 6px; padding: 10px 14px; cursor: pointer; }
+button:disabled { opacity: .6; cursor: not-allowed; }
+.actions { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px; margin: 12px 0; }
+.record { border: 1px solid #edebe9; border-radius: 6px; padding: 10px; margin-top: 10px; overflow-wrap: anywhere; }
+.record label { display: flex; gap: 8px; align-items: flex-start; margin: 0; }
+.record input[type=checkbox] { flex: 0 0 auto; width: auto; margin: 3px 0 0; }
+.record p { margin: 6px 0 0; }
+.record-status, #contactTransferStatus, #contactMicrosoftStatus { white-space: pre-wrap; overflow-wrap: anywhere; }
+.invalid { color: #a4262c; }
+#contactAutoDetails { margin: 10px 0; color: #605e5c; font-size: .9rem; }
+#contactAutoDetails summary { cursor: pointer; }
+.session-notice { padding: 12px; border: 1px solid #d9a441; border-radius: 6px; background: #fff4ce; white-space: pre-wrap; }
+.addin-credit { color: #605e5c; font-size: 12px; line-height: 1.5; margin-top: auto; padding-top: 18px; text-align: right; }
+.addin-version { display: block; margin-bottom: 2px; }
+[hidden] { display: none !important; }
+
+/* The same page fits a narrow Outlook task pane and a full browser window. */
+body.contacts-pane { box-sizing: border-box; margin: 0; padding: 14px; min-height: 100vh; background: #f5f8fc; color: #18324b; }
+.contacts-header { display: flex; align-items: center; gap: 10px; margin-top: 16px; }
+.contacts-header h1 { margin: 0; }
+.contacts-intro { color: #50657c; line-height: 1.45; margin: 12px 0 16px; }
+.contacts-pane section { min-width: 0; background: #fff; border-color: #dce4ef; box-shadow: 0 2px 7px #18324b08; }
+.contacts-pane button { max-width: 100%; line-height: 1.35; overflow-wrap: anywhere; }
+.contacts-login:has(#contactLoginForm[hidden]) { padding: 10px 12px; }
+.contacts-login:has(#contactLoginForm[hidden]) h2 { display: none; }
+.contacts-login:has(#contactLoginForm[hidden]) p { margin: 0 0 8px; }
+.contacts-connection { padding: 12px; }
+.contacts-connection > p { margin: 0 0 12px; }
+#contactConnectionOptions > summary { cursor: pointer; font-weight: 600; }
+#contactConnectionOptions[open] > summary { margin-bottom: 12px; }
+.contacts-tabs { display: flex; gap: 8px; position: sticky; top: 0; z-index: 1; background: #f5f8fc; padding: 8px 0; margin-bottom: 8px; }
+.contacts-tabs button { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; background: #edf3f9; color: #18324b; border: 1px solid #c6d4e4; font-weight: 600; }
+.contacts-tabs button[aria-selected=true] { background: #006eb8; color: #fff; border-color: #006eb8; }
+.contacts-count { border-radius: 12px; background: #ffffff30; padding: 1px 6px; font-size: .8rem; }
+.contacts-pagination { padding: 10px 0; border-top: 1px solid #dce4ef; }
+.contacts-pagination > p { margin: 0; }
+.contacts-page-hint { font-size: .85rem; color: #50657c; line-height: 1.4; }
+.contacts-panels { display: grid; grid-template-columns: minmax(0, 1fr); }
+.contacts-pane .record { background: #fbfdff; }
+.contacts-pane .record label { min-height: 26px; }
+.contacts-pane button:focus-visible, .contacts-pane input:focus-visible, .contacts-pane select:focus-visible, .contacts-pane summary:focus-visible { outline: 3px solid #6bb5f0; outline-offset: 2px; }
+@media (min-width: 880px) {
+  .contacts-panels { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  #contactOutlookSection { grid-column: 1; grid-row: 1; }
+  #contactCrmSection { grid-column: 2; grid-row: 1; }
+  .contacts-login:has(#contactLoginForm[hidden]) p { display: inline-block; margin: 0 16px 0 0; }
+}
