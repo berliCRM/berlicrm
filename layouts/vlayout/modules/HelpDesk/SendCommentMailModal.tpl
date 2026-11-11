@@ -1,3 +1,4 @@
+
 {*<!--
 /*********************************************************************************
 ** The contents of this file are subject to the vtiger CRM Public License Version 1.0
@@ -17,16 +18,24 @@
 		</div>
 		<div class="modal-body">
 			<p class="muted">{vtranslate('LBL_HELPDESK_COMMENT_MAIL_NOTICE', $MODULE)}</p>
+			<input type="hidden" class="js-comment-mail-participants" value="{ZEND_JSON::encode($COMMENT_MAIL_PARTICIPANTS)|escape:'html'}" />
 			<div class="control-group">
-				<label class="control-label">{vtranslate('LBL_CC', $MODULE)}</label>
 				<div class="controls">
-					<input class="input-block-level js-comment-mail-cc" type="text" value="{$DEFAULT_CC|default:''|escape:'html'}" placeholder="name@example.com, other@example.com" />
+					<button type="button" class="btn{if $COMMENT_MAIL_AUTO_CC} active{/if} js-comment-mail-auto-cc" aria-pressed="{if $COMMENT_MAIL_AUTO_CC}true{else}false{/if}" data-save-error="{vtranslate('LBL_HELPDESK_AUTO_CC_SAVE_FAILED', $MODULE)|escape:'html'}" title="{vtranslate('LBL_HELPDESK_AUTO_CC_HELP', $MODULE)|escape:'html'}">
+						<i class="{if $COMMENT_MAIL_AUTO_CC}icon-check{else}icon-check-empty{/if}"></i> {vtranslate('LBL_HELPDESK_AUTO_CC', $MODULE)}
+					</button>
 				</div>
 			</div>
 			<div class="control-group">
-				<label class="control-label">{vtranslate('LBL_BCC', $MODULE)}</label>
+				<label class="control-label" for="commentMailCc">{vtranslate('LBL_CC', $MODULE)}</label>
 				<div class="controls">
-					<input class="input-block-level js-comment-mail-bcc" type="text" value="" placeholder="name@example.com, other@example.com" />
+					<input id="commentMailCc" class="input-block-level js-comment-mail-cc js-comment-mail-recipient" data-placeholder="{vtranslate('LBL_HELPDESK_RECIPIENT_PLACEHOLDER', $MODULE)|escape:'html'}" type="hidden" value="" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="commentMailBcc">{vtranslate('LBL_BCC', $MODULE)}</label>
+				<div class="controls">
+					<input id="commentMailBcc" class="input-block-level js-comment-mail-bcc js-comment-mail-recipient" data-placeholder="{vtranslate('LBL_HELPDESK_RECIPIENT_PLACEHOLDER', $MODULE)|escape:'html'}" type="hidden" value="" />
 				</div>
 			</div>
 			<div class="control-group">

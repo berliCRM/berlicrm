@@ -1147,6 +1147,85 @@ jQuery.Class("Vtiger_Detail_Js", {
 		}
 	},
 
+	registerCommentMailRecipients: function (modal) {
+		var participants = JSON.parse(modal.find('.js-comment-mail-participants').val());
+		var ccField = modal.find('input.js-comment-mail-cc');
+		var autoCcButton = modal.find('.js-comment-mail-auto-cc');
+		var automaticallyAdded = {};
+
+		modal.find('input.js-comment-mail-recipient').each(function () {
+			var field = jQuery(this);
+			field.select2({
+				width: '100%',
+				minimumInputLength: 0,
+				closeOnSelect: false,
+				tags: participants,
+				tokenSeparators: [',', ';', ' '],
+				createSearchChoice: function (term) {
+					term = jQuery.trim(term).toLowerCase();
+					if (/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(term)) {
+						return {id: term, text: term};
+					}
+					return null;
+				}
+			});
+		});
+
+		var setAutomaticCc = function (enabled) {
+			var selected = ccField.select2('data');
+			if (enabled) {
+				var selectedEmails = {};
+				jQuery.each(selected, function (_, recipient) {
+					selectedEmails[recipient.id.toLowerCase()] = true;
+				});
+				jQuery.each(participants, function (_, recipient) {
+					if (!selectedEmails[recipient.id]) {
+						selected.push(recipient);
+						automaticallyAdded[recipient.id] = true;
+					}
+				});
+			} else {
+				selected = jQuery.grep(selected, function (recipient) {
+					return !automaticallyAdded[recipient.id];
+				});
+				automaticallyAdded = {};
+			}
+			ccField.select2('data', selected);
+			autoCcButton.toggleClass('active', enabled).attr('aria-pressed', enabled ? 'true' : 'false');
+			autoCcButton.find('i').toggleClass('icon-check', enabled).toggleClass('icon-check-empty', !enabled);
+		};
+
+		ccField.on('change', function (event) {
+			// A manually removed and re-added participant is now a manual recipient.
+			if (event.removed) {
+				delete automaticallyAdded[event.removed.id];
+			}
+		});
+		autoCcButton.on('click', function () {
+			if (autoCcButton.prop('disabled')) {
+				return;
+			}
+			var enabled = autoCcButton.attr('aria-pressed') !== 'true';
+			autoCcButton.prop('disabled', true);
+			var finish = function (saved) {
+				autoCcButton.prop('disabled', false);
+				if (saved) {
+					setAutomaticCc(enabled);
+				} else {
+					Vtiger_Helper_Js.showPnotify({text: autoCcButton.attr('data-save-error'), type: 'error'});
+				}
+			};
+			AppConnector.request({
+				module: 'Users', action: 'SaveTicketCommentMail', enabled: enabled ? '1' : '0'
+			}).then(function (data) {
+				finish(data && data.success && data.result && data.result.enabled === enabled);
+			}, function () {
+				finish(false);
+			});
+		});
+		setAutomaticCc(autoCcButton.attr('aria-pressed') === 'true');
+	},
+
 	showSendMailCommentModal: function (triggerElement, callback) {
 		var thisInstance = this;
 		var commentBlock = triggerElement.closest('.addCommentBlock');
@@ -1158,6 +1237,7 @@ jQuery.Class("Vtiger_Detail_Js", {
 		var modalUrl = 'index.php?module=' + app.getModuleName() + '&view=SendCommentMailModal&record=' + thisInstance.getRecordId();
 		app.showModalWindow(null, modalUrl, function (modalContainer) {
 			var modal = jQuery(modalContainer);
+			thisInstance.registerCommentMailRecipients(modal);
 			var fileInput = modal.find('.js-comment-mail-files');
 			var dropzone = modal.find('.js-comment-mail-dropzone');
 			var fileList = modal.find('.js-comment-mail-file-list');
@@ -1235,8 +1315,8 @@ jQuery.Class("Vtiger_Detail_Js", {
 					event.stopPropagation();
 				}
 				triggerElement.data('mailData', {
-					carboncopy: jQuery.trim(modal.find('.js-comment-mail-cc').val()),
-					blindcarboncopy: jQuery.trim(modal.find('.js-comment-mail-bcc').val()),
+					carboncopy: jQuery.trim(modal.find('input.js-comment-mail-cc').val()),
+					blindcarboncopy: jQuery.trim(modal.find('input.js-comment-mail-bcc').val()),
 					files: selectedFiles.slice(0)
 				});
 				app.hideModalWindow();
