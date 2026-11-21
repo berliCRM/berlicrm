@@ -103,8 +103,8 @@ class Vtiger_ExportData_Action extends Vtiger_Mass_Action {
             }
         }
 		$queryGenerator->setFields($fields);
-		$orderBy = $request->get('orderby');
-		$sortOrder = $request->get('sortorder');
+		$orderBy = $request->getForSql('orderby');
+		$sortOrder = $request->getForSql('sortorder');
 		if(empty($orderBy) && empty($sortOrder) && $moduleName != "Users"){
 			$orderBy = 'vtiger_crmentity.modifiedtime';
 			$sortOrder = 'DESC';
