@@ -25,20 +25,28 @@
 			{/if}
 			{if is_array($PARENT_COMMENTS)}
 				{foreach key=Index item=COMMENT from=$PARENT_COMMENTS}
-					{assign var=PARENT_COMMENT_ID value=$COMMENT->getId()}
-					{if $EXPAND_COMMENT_THREADS|default:false}
-						{assign var=CHILDS_ROOT_PARENT_MODEL value=$COMMENT}
-					{/if}
-					<li class="commentDetails">
-						{include file='Comment.tpl'|@vtemplate_path COMMENT=$COMMENT COMMENT_MODULE_MODEL=$COMMENTS_MODULE_MODEL SHOW_DETAIL_VIEW_THREAD_LINK=$SHOW_DETAIL_VIEW_THREAD_LINK|default:false}
-						{if $CHILDS_ROOT_PARENT_MODEL}
-							{if $CHILDS_ROOT_PARENT_MODEL->getId() eq $PARENT_COMMENT_ID}
-								{assign var=CHILD_COMMENTS_MODEL value=$CHILDS_ROOT_PARENT_MODEL->getChildComments()}
-								{include file='CommentsListIteration.tpl'|@vtemplate_path CHILD_COMMENTS_MODEL=$CHILD_COMMENTS_MODEL SHOW_DETAIL_VIEW_THREAD_LINK=$SHOW_DETAIL_VIEW_THREAD_LINK|default:false}
-							{/if}
-						{/if}
-					</li>
-				{/foreach}
+                    {assign var=PARENT_COMMENT_ID value=$COMMENT->getId()}
+                    <li class="commentDetails"  >
+                        {include file='Comment.tpl'|@vtemplate_path COMMENT=$COMMENT COMMENT_MODULE_MODEL=$COMMENTS_MODULE_MODEL}
+
+                        {if $CURRENT_COMMENT}
+                            {* bisherige Logik für EINEN Thread (showChildComments) *}
+                            {if $CHILDS_ROOT_PARENT_MODEL}
+                                {if $CHILDS_ROOT_PARENT_MODEL->getId() eq $PARENT_COMMENT_ID}
+                                    {assign var=CHILD_COMMENTS_MODEL value=$CHILDS_ROOT_PARENT_MODEL->getChildComments()}
+                                    {include file='CommentsListIteration.tpl'|@vtemplate_path CHILD_COMMENTS_MODEL=$CHILD_COMMENTS_MODEL}
+                                {/if}
+                            {/if}
+                        {else}
+                            {* NEU: wenn kein CURRENT_COMMENT -> alle Child-Kommentare anzeigen *}
+                            {assign var=CHILD_COMMENTS_MODEL value=$COMMENT->getChildComments()}
+                            {if !empty($CHILD_COMMENTS_MODEL)}
+                                {include file='CommentsListIteration.tpl'|@vtemplate_path CHILD_COMMENTS_MODEL=$CHILD_COMMENTS_MODEL}
+                            {/if}
+                        {/if}
+                    </li>
+                    <br>
+                {/foreach}
 			{else}
 				{include file='Comment.tpl'|@vtemplate_path COMMENT=$PARENT_COMMENTS}
 			{/if}
