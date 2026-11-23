@@ -87,14 +87,13 @@
 					</div>
 				{/if}
 				{assign var=COMMENT_ID value=$COMMENT->getId()}
-				{if $MODULE_NAME == 'HelpDesk' && isset($COMMENT_NUMBERS[$COMMENT_ID])}
-					<div class="row-fluid">
-					<span class="pull-left helpDeskCommentNumber">
-						<small class="muted">#{$COMMENT_NUMBERS[$COMMENT_ID]}</small>
-					</span>
-					</div>
-				{/if}
 				<div class="row-fluid commentActionsDiv">
+					<span class="commentRecordInfo muted">
+						{if $MODULE_NAME == 'HelpDesk' && isset($COMMENT_NUMBERS[$COMMENT_ID])}
+							<small class="helpDeskCommentNumber">#{$COMMENT_NUMBERS[$COMMENT_ID]}</small>&nbsp;
+						{/if}
+						<small class="commentRecordId">ID: {$COMMENT_ID}</small>
+					</span>
 					<div class="pull-right commentActions">
 						{if $CHILDS_ROOT_PARENT_MODEL}
 							{assign var=CHILDS_ROOT_PARENT_ID value=$CHILDS_ROOT_PARENT_MODEL->getId()}
