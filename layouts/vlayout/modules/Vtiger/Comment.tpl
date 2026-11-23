@@ -113,8 +113,9 @@
 						</span>
 						{assign var=CHILD_COMMENTS_COUNT value=$COMMENT->getChildCommentsCount()}
 						{if $CHILD_COMMENTS_MODEL neq null and ($CHILDS_ROOT_PARENT_ID neq $PARENT_COMMENT_ID)}
-							{if $EDIT_PERMISSION}&nbsp;<span style="color:black">|</span>&nbsp;{/if}
-							<span class="viewThreadBlock" data-child-comments-count="{$CHILD_COMMENTS_COUNT}">
+							{if $EDIT_PERMISSION}&nbsp;<span style="color:black">|</span>&nbsp;
+                            {/if}
+                            <span class="hide viewThreadBlock" data-child-comments-count="{$CHILD_COMMENTS_COUNT}">
 								<a class="cursorPointer viewThread">
 									{if $CHILD_COMMENTS_COUNT eq 1}
 										{vtranslate('LBL_SHOW_REPLY','ModComments')}
@@ -124,7 +125,7 @@
 									&nbsp;<img class="alignMiddle" src="{vimage_path('rightArrowSmall.png')}" />
 								</a>
 							</span>
-							<span class="hide hideThreadBlock" data-child-comments-count="{$CHILD_COMMENTS_COUNT}">
+							<span class="hideThreadBlock" data-child-comments-count="{$CHILD_COMMENTS_COUNT}">
 								<a class="cursorPointer hideThread">
 									{if $CHILD_COMMENTS_COUNT eq 1}
 										{vtranslate('LBL_HIDE_REPLY','ModComments')}
